@@ -232,11 +232,20 @@ class Index:
         plt.draw()
 
     def _onButtonPress(self, event):
-        if event.button != 1:
+        if event.button != 1 or event.inaxes != plot_axis:
             return
         # Store the axis.
         if event.name == "button_press_event":
-            self.rect = WindowSelectionRectangle(event, plot_axis)
+            self.rect = WindowSelectionRectangle(event, plot_axis,
+                self._onWindowSelected)
+
+    def _onWindowSelected(self, window_start, window_width):
+        """
+        Function called upon window selection.
+        """
+        window_end = window_start + window_width
+        print window_start, window_end
+
 
 callback = Index()
 axnext = plt.axes([0.81, 0.05, 0.1, 0.075])

@@ -11,7 +11,7 @@ from matplotlib.patches import Rectangle
 
 
 class WindowSelectionRectangle(object):
-    def __init__(self, event, axis):
+    def __init__(self, event, axis, on_window_selection_callback):
         if event.inaxes != axis:
             return
         # Store the axes it has been initialized in.
@@ -30,7 +30,8 @@ class WindowSelectionRectangle(object):
         self.background = self.canvas.copy_from_bbox(self.rect.axes.bbox)
 
         self._connect()
-        #self.canvas.draw()
+
+        self.on_window_selection_callback = on_window_selection_callback
 
     def __del__(self):
         """
@@ -64,6 +65,9 @@ class WindowSelectionRectangle(object):
 
         self.intial_selection_active = False
         self.canvas.draw()
+
+        self.on_window_selection_callback(self.rect.get_x(),
+            self.rect.get_width())
 
     def on_mouse_motion(self, event):
         if event.button != 1 or \
