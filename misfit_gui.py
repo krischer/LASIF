@@ -11,8 +11,9 @@ from obspy.imaging.beachball import Beach
 import os
 import sys
 
-from matplotlib_selection_rectangle import WindowSelectionRectangle
 from event_list_reader import read_event_list
+from matplotlib_selection_rectangle import WindowSelectionRectangle
+from misfits import l2NormMisfit
 import rotations
 from ses3d_file_reader import readSES3DFile
 
@@ -108,7 +109,7 @@ def seismogram_generator(event):
 # Plot setup.
 plot_axis = plt.subplot2grid((4, 4), (0, 0), colspan=4)
 misfit_axis = plt.subplot2grid((4, 4), (1, 2), colspan=2, rowspan=1)
-adjoin_source_axis = plt.subplot2grid((4, 4), (2, 2), colspan=2, rowspan=1)
+adjoint_source_axis = plt.subplot2grid((4, 4), (2, 2), colspan=2, rowspan=1)
 map_axis = plt.subplot2grid((4, 4), (1, 0), colspan=2, rowspan=2)
 
 
@@ -131,7 +132,7 @@ class Index:
         print ""
         self._setupMap()
 
-        self.windows = []
+        self.current_data = {}
 
     def _setupMap(self):
         r_lngs = []
@@ -208,11 +209,18 @@ class Index:
         self.plot(self.index, swap_polarization=True)
 
     def plot(self, index, swap_polarization=False):
-        current_data = self.data[index]
-        real_trace = current_data["data_trace"]
-        synth_trace = current_data["synth_trace"]
-        channel_name = current_data["channel_name"]
-        scaling_factor = current_data["scaling_factor"]
+        adjoint_source_axis.cla()
+        misfit_axis.cla()
+        try:
+            del self.rect
+        except:
+            pass
+        self.rect = None
+        self.current_data = self.data[index]
+        real_trace = self.current_data["data_trace"]
+        synth_trace = self.current_data["synth_trace"]
+        channel_name = self.current_data["channel_name"]
+        scaling_factor = self.current_data["scaling_factor"]
 
         plot_axis.cla()
 
@@ -254,7 +262,44 @@ class Index:
         Function called upon window selection.
         """
         window_end = window_start + window_width
-        print window_start, window_end
+        self.current_data.setdefault("windows", [])
+        self.current_data["windows"].append({
+            "window_start": window_start,
+            "window_end": window_end})
+        real_trace = self.current_data["data_trace"]
+        synth_trace = self.current_data["synth_trace"]
+
+        real_tr = real_trace.copy()
+        synth_tr = synth_trace.copy()
+
+        start = real_tr.stats.starttime + window_start
+        end = real_tr.stats.starttime + window_end
+        real_tr.trim(start, end)
+        synth_tr.trim(start, end)
+        real_tr.taper("cosine")
+        synth_tr.taper("cosine")
+
+        start = real_trace.stats.starttime
+        end = real_trace.stats.endtime
+        real_tr.trim(start, end, pad=True, fill_value=0.0)
+        synth_tr.trim(start, end, pad=True, fill_value=0.0)
+        misfit, adjoint_source = l2NormMisfit(real_tr.data, synth_tr.data,
+            synth_tr.stats.channel, axis=misfit_axis)
+
+        if synth_tr.stats.channel == "N":
+            adjoint_source = adjoint_source[0]
+        elif synth_tr.stats.channel == "E":
+            adjoint_source = adjoint_source[1]
+        elif synth_tr.stats.channel == "Z":
+            adjoint_source = adjoint_source[2]
+        else:
+            raise NotImplementedError
+
+        adjoint_source_axis.cla()
+        adjoint_source_axis.set_title("Adjoint Source")
+        adjoint_source_axis.plot(adjoint_source, color="black")
+        adjoint_source_axis.set_xlim(0, len(adjoint_source))
+        plt.draw()
 
 
 callback = Index()

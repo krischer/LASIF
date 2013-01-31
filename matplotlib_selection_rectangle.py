@@ -12,7 +12,8 @@ from matplotlib.patches import Rectangle
 
 class WindowSelectionRectangle(object):
     def __init__(self, event, axis, on_window_selection_callback):
-        if event.inaxes != axis:
+        self.axis = axis
+        if event.inaxes != self.axis:
             return
         # Store the axes it has been initialized in.
         self.axes = event.inaxes
@@ -57,6 +58,9 @@ class WindowSelectionRectangle(object):
         pass
 
     def on_button_release(self, event):
+        if event.inaxes != self.axis:
+            return
+
         if event.button != 1:
             return
         # turn off the rect animation property and reset the background
