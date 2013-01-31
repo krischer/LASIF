@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 from mpl_toolkits.basemap import Basemap
 from obspy import read, Stream, UTCDateTime
+from obspy.imaging.beachball import Beach
 import os
 import sys
 
@@ -115,8 +116,8 @@ class Index:
         for i, stuff in enumerate(files):
             sys.stdout.write(".")
             sys.stdout.flush()
-            if i > 10:
-                break
+            #if i > 10:
+                #break
             self.data.append(stuff)
         print ""
         self._setupMap()
@@ -168,6 +169,18 @@ class Index:
         self.map_obj.scatter(r_lngs, r_lats, color="red", zorder=10000,
             marker="^", s=40)
 
+        # Add beachball plot.
+        x, y = self.map_obj(s_lngs[0], s_lats[0])
+        focmec = [self.event["Mrr"], self.event["Mtt"], self.event["Mpp"],
+                self.event["Mrt"], self.event["Mrp"], self.event["Mtp"]]
+        # Attempt to calculate the best beachball size.
+        width = max((self.map_obj.xmax - self.map_obj.xmin,
+            self.map_obj.ymax - self.map_obj.ymin)) * 0.075
+        b = Beach(focmec, xy=(x, y), width=width, linewidth=1)
+        b.set_zorder(200000000)
+        map_axis.add_collection(b)
+
+
     def next(self, event):
         self.index += 1
         if self.index >= len(self.data):
@@ -210,7 +223,7 @@ class Index:
             self.greatcircle[0].remove()
             self.greatcircle = None
         self.greatcircle = self.map_obj.drawgreatcircle(r_lon, r_lat, s_lon,
-            s_lat, linewidth=2, color='b', ax=map_axis)
+            s_lat, linewidth=2, color='green', ax=map_axis)
         plt.draw()
 
 
