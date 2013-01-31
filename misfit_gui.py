@@ -5,34 +5,20 @@ from matplotlib.widgets import Button
 from mpl_toolkits.basemap import Basemap
 from obspy import read, Stream, UTCDateTime
 import os
+import sys
 
+from event_list_reader import read_event_list
 import rotations
 from ses3d_file_reader import readSES3DFile
 
 # Give the directories here.
-REAL_DATA = "./DATA/2001.17s/"
-SYNTHETIC_DATA = "./SYNTH/2001.17s/"
+REAL_DATA = "../DATA/2001.17s/"
+SYNTHETIC_DATA = "../SYNTH/2001.17s/"
+EVENT_LIST_FILE = "../event_list"
+EVENT_INDEX = 2001
 
 ROTATION_AXIS = [0.0, 1.0, 0.0]
 ROTATION_ANGLE = -57.5
-
-EVENT_STARTTIME = UTCDateTime(2007, 2, 12, 10, 35, 22, 750000)
-
-
-# Setup the map view.
-# longitude of lower left hand corner of the desired map domain (degrees).
-llcrnrlon = -15.0
-# latitude of lower left hand corner of the desired map domain (degrees).
-llcrnrlat = 30.0
-# longitude of upper right hand corner of the desired map domain (degrees).
-urcrnrlon = 10.0
-# latitude of upper right hand corner of the desired map domain (degrees).
-urcrnrlat = 45.0
-# center of desired map domain (in degrees).
-lon_0 = urcrnrlon + ((urcrnrlon - llcrnrlon) / 2.0)
-# center of desired map domain (in degrees).
-lat_0 = urcrnrlat + ((urcrnrlat - urcrnrlon) / 2.0)
-
 
 
 stations = []
@@ -50,7 +36,7 @@ for station in stations:
         "station_name": station})
 
 
-def seismogram_generator():
+def seismogram_generator(event):
     for station in station_files:
         # Sort so they will be in x, y, z order
         synthetic_files = sorted(station["synthetic_files"])
@@ -90,15 +76,14 @@ def seismogram_generator():
             if not data_file:
                 continue
             data_tr = read(data_file[0])[0]
-            data_tr.trim(starttime=EVENT_STARTTIME,
-                endtime=EVENT_STARTTIME +
+            data_tr.trim(starttime=event["time"],
+                endtime=event["time"] +
                     (synth_tr.stats.endtime - synth_tr.stats.starttime),
                 pad=True, fill_value=0.0)
 
-            scaling_factor = data_tr.data.ptp() / synth_tr.data.ptp()
+            scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
 
-            #synth_tr.data /= synth_tr.data.ptp()
-            synth_tr.data *= scaling_factor
+            data_tr.data *= scaling_factor
 
             data_tr.data = np.require(data_tr.data, dtype="float32")
             synth_tr.data = np.require(synth_tr.data, dtype="float32")
@@ -116,25 +101,72 @@ def seismogram_generator():
 plot_axis = plt.subplot2grid((3, 3), (0, 0), colspan=3)
 map_axis = plt.subplot2grid((3, 3), (1, 0), colspan=2, rowspan=2)
 
-#map_obj = Basemap(projection="ortho", lat_0=35.0, lon_0=20, ax=map_axis, width=5000, height=5000)
-map_obj = Basemap(projection="merc", llcrnrlon=llcrnrlon, llcrnrlat=llcrnrlat,
-        urcrnrlon=urcrnrlon, urcrnrlat=urcrnrlat, lat_0=lat_0, lon_0=lon_0)
-
-map_obj.drawcoastlines()
-map_obj.fillcontinents()
 
 class Index:
     def __init__(self):
         self.greatcircle = None
         self.index = -1
 
-        files = seismogram_generator()
+        events = read_event_list(EVENT_LIST_FILE)
+        self.event = events[2001]
+
+        files = seismogram_generator(self.event)
         self.data = []
         for i, stuff in enumerate(files):
-            print i
+            sys.stdout.write(".")
+            sys.stdout.flush()
             if i > 10:
                 break
             self.data.append(stuff)
+        print ""
+        self._setupMap()
+
+    def _setupMap(self):
+        r_lngs = []
+        r_lats = []
+        s_lngs = []
+        s_lats = []
+        # Get the extension of all data.
+        for _, synth_trace, _, _ in self.data:
+            r_lngs.append(synth_trace.stats.ses3d.receiver_longitude)
+            r_lats.append(synth_trace.stats.ses3d.receiver_latitude)
+
+            s_lngs.append(synth_trace.stats.ses3d.source_longitude)
+            s_lats.append(synth_trace.stats.ses3d.source_latitude)
+
+        lngs = r_lngs + s_lngs
+        lats = r_lats + s_lats
+        lng_range = max(lngs) - min(lngs)
+        lat_range = max(lats) - min(lats)
+        buffer = 0.2
+        # Setup the map view.
+        # longitude of lower left hand corner of the desired map domain
+        # (degrees).
+        llcrnrlon = min(lngs) - buffer * lng_range
+        # longitude of upper right hand corner of the desired map domain
+        # (degrees).
+        urcrnrlon = max(lngs) + buffer * lng_range
+        # latitude of lower left hand corner of the desired map domain
+        # (degrees).
+        llcrnrlat = min(lats) - buffer * lat_range
+        # latitude of upper right hand corner of the desired map domain
+        # (degrees).
+        urcrnrlat = max(lats) + buffer * lat_range
+        # center of desired map domain (in degrees).
+        lon_0 = urcrnrlon + ((urcrnrlon - llcrnrlon) / 2.0)
+        # center of desired map domain (in degrees).
+        lat_0 = urcrnrlat + ((urcrnrlat - urcrnrlon) / 2.0)
+
+        self.map_obj = Basemap(projection="merc", llcrnrlon=llcrnrlon,
+            llcrnrlat=llcrnrlat, urcrnrlon=urcrnrlon, urcrnrlat=urcrnrlat,
+            lat_0=lat_0, lon_0=lon_0, resolution="l")
+
+        self.map_obj.drawcoastlines()
+        self.map_obj.fillcontinents()
+
+        r_lngs, r_lats = self.map_obj(r_lngs, r_lats)
+        self.map_obj.scatter(r_lngs, r_lats, color="red", zorder=10000,
+            marker="^", s=40)
 
     def next(self, event):
         self.index += 1
@@ -167,6 +199,8 @@ class Index:
         plot_axis.set_xlim(0, 500)
         plot_axis.set_title(channel_name + " -- scaling factor: " +
                 str(scaling_factor))
+        plot_axis.set_xlabel("Seconds since Event")
+        plot_axis.set_ylabel("m/s")
 
         r_lon = synth_trace.stats.ses3d.receiver_longitude
         r_lat = synth_trace.stats.ses3d.receiver_latitude
@@ -175,8 +209,8 @@ class Index:
         if self.greatcircle:
             self.greatcircle[0].remove()
             self.greatcircle = None
-        self.greatcircle = map_obj.drawgreatcircle(r_lon, r_lat, s_lon, s_lat,
-            linewidth=2, color='b', ax=map_axis)
+        self.greatcircle = self.map_obj.drawgreatcircle(r_lon, r_lat, s_lon,
+            s_lat, linewidth=2, color='b', ax=map_axis)
         plt.draw()
 
 
