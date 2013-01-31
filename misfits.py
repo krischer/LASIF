@@ -24,7 +24,8 @@ def l2NormMisfit(data, synthetic, component, axis=None):
         msg = "Both arrays need to have equal length"
         raise ValueError(msg)
     diff = synthetic - data
-    l2norm = np.sum(diff ** 2)
+    squared_diff = diff ** 2
+    l2norm = np.sum(squared_diff)
 
     # Only the component of the data has non-zeros values for the adjoint
     # source.
@@ -44,8 +45,24 @@ def l2NormMisfit(data, synthetic, component, axis=None):
 
     if axis:
         axis.cla()
-        axis.plot(diff ** 2, color="black")
-        axis.set_title("L2-Norm difference")
-        axis.set_xlim(0, len(diff))
+        axis.plot(squared_diff, color="black")
+        axis.set_title("L2-Norm difference - Misfit: %e" % l2norm)
+        axis.set_xlim(0, len(data))
+        s_max = squared_diff.max()
+        axis.set_ylim(-0.1 * s_max, 2.1 * s_max)
+        axis.set_xticks([])
+        #axis.set_yticks([])
+        if not hasattr(axis, "twin_axis"):
+            axis.twin_axis = axis.twinx()
+        ax2 = axis.twin_axis
+        ax2.plot(data, color="black", alpha=0.4)
+        ax2.plot(synthetic, color="red", alpha=0.4)
+        ax2.set_xlim(0, len(data))
+        min_value = min(data.min(), synthetic.min())
+        max_value = max(data.max(), synthetic.max())
+        diff = max_value - min_value
+        ax2.set_ylim(min_value - 1.1 * diff,  max_value + 0.1 * diff)
+        ax2.set_xticks([])
+        ax2.set_yticks([])
 
     return (l2norm, source)

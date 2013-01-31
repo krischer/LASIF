@@ -23,6 +23,10 @@ SYNTHETIC_DATA = "../SYNTH/2001.17s/"
 EVENT_LIST_FILE = "../event_list"
 EVENT_INDEX = 2001
 
+WINDOW_STORAGE_DIRECTORY = "../OUPUT/WINDOWS/"
+MISFIT_STORAGE_DIRECTORY = "../OUTPUT/MISFITS/"
+ADJOINT_SOURCE_STORAGE_DIRECTORY =  "../OUTPUT/ADJOINT_SOURCES/"
+
 ROTATION_AXIS = [0.0, 1.0, 0.0]
 ROTATION_ANGLE = -57.5
 
@@ -197,20 +201,35 @@ class Index:
         self.index += 1
         if self.index >= len(self.data):
             self.index = len(self.data) - 1
+            return
         self.plot(self.index)
 
     def prev(self, event):
         self.index -= 1
         if self.index < 0:
             self.index = 0
+            return
         self.plot(self.index)
 
     def swap_polarization(self, event):
         self.plot(self.index, swap_polarization=True)
 
+    def reset(self, event):
+        self.plot(self.index)
+
     def plot(self, index, swap_polarization=False):
         adjoint_source_axis.cla()
+        adjoint_source_axis.set_xticks([])
+        adjoint_source_axis.set_yticks([])
         misfit_axis.cla()
+        misfit_axis.set_xticks([])
+        misfit_axis.set_yticks([])
+        try:
+            misfit_axis.twin_axis.cla()
+            misfit_axis.twin_axis.set_xticks([])
+            misfit_axis.twin_axis.set_yticks([])
+        except:
+            pass
         try:
             del self.rect
         except:
@@ -262,6 +281,10 @@ class Index:
         Function called upon window selection.
         """
         window_end = window_start + window_width
+        if window_start > window_end:
+            window_start, window_end = window_end, window_start
+        if window_start == window_end:
+            return
         self.current_data.setdefault("windows", [])
         self.current_data["windows"].append({
             "window_start": window_start,
@@ -306,12 +329,15 @@ callback = Index()
 axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
 axprev = plt.axes([0.7, 0.05, 0.1, 0.075])
 axswap = plt.axes([0.7, 0.15, 0.1, 0.075])
+axreset = plt.axes([0.81, 0.15, 0.1, 0.075])
 bnext = Button(axnext, 'Next')
 bnext.on_clicked(callback.next)
 bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
 bswap = Button(axswap, 'Swap Pol')
 bswap.on_clicked(callback.swap_polarization)
+breset = Button(axreset, 'Reset')
+breset.on_clicked(callback.reset)
 
 
 plot_axis.figure.canvas.mpl_connect('button_press_event',
