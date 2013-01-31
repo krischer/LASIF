@@ -1,13 +1,17 @@
+import matplotlib
+matplotlib.use('TkAgg')
+
 from glob import iglob, glob
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 from mpl_toolkits.basemap import Basemap
-from obspy import read, Stream, UTCDateTime
+from obspy import read, Stream
 from obspy.imaging.beachball import Beach
 import os
 import sys
 
+from matplotlib_selection_rectangle import WindowSelectionRectangle
 from event_list_reader import read_event_list
 import rotations
 from ses3d_file_reader import readSES3DFile
@@ -116,11 +120,13 @@ class Index:
         for i, stuff in enumerate(files):
             sys.stdout.write(".")
             sys.stdout.flush()
-            #if i > 10:
-                #break
+            if i > 10:
+                break
             self.data.append(stuff)
         print ""
         self._setupMap()
+
+        self.windows = []
 
     def _setupMap(self):
         r_lngs = []
@@ -180,7 +186,6 @@ class Index:
         b.set_zorder(200000000)
         map_axis.add_collection(b)
 
-
     def next(self, event):
         self.index += 1
         if self.index >= len(self.data):
@@ -226,6 +231,12 @@ class Index:
             s_lat, linewidth=2, color='green', ax=map_axis)
         plt.draw()
 
+    def _onButtonPress(self, event):
+        if event.button != 1:
+            return
+        # Store the axis.
+        if event.name == "button_press_event":
+            self.rect = WindowSelectionRectangle(event, plot_axis)
 
 callback = Index()
 axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
@@ -237,5 +248,10 @@ bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
 bswap = Button(axswap, 'Swap Pol')
 bswap.on_clicked(callback.swap_polarization)
+
+
+plot_axis.figure.canvas.mpl_connect('button_press_event',
+        callback._onButtonPress)
+
 
 plt.show()
