@@ -97,14 +97,19 @@ def seismogram_generator(event):
             data_tr.trim(endtime=synth_tr.stats.endtime, pad=True,
                 fill_value=0.0)
 
-            yield (data_tr, synth_tr,
-                station["station_name"] + "." + synth_tr.stats.channel,
-                scaling_factor)
+            yield {
+                "data_trace": data_tr,
+                "synth_trace": synth_tr,
+                "channel_name": station["station_name"] + "." +
+                    synth_tr.stats.channel,
+                "scaling_factor": scaling_factor}
 
 
 # Plot setup.
-plot_axis = plt.subplot2grid((3, 3), (0, 0), colspan=3)
-map_axis = plt.subplot2grid((3, 3), (1, 0), colspan=2, rowspan=2)
+plot_axis = plt.subplot2grid((4, 4), (0, 0), colspan=4)
+misfit_axis = plt.subplot2grid((4, 4), (1, 2), colspan=2, rowspan=1)
+adjoin_source_axis = plt.subplot2grid((4, 4), (2, 2), colspan=2, rowspan=1)
+map_axis = plt.subplot2grid((4, 4), (1, 0), colspan=2, rowspan=2)
 
 
 class Index:
@@ -134,7 +139,8 @@ class Index:
         s_lngs = []
         s_lats = []
         # Get the extension of all data.
-        for _, synth_trace, _, _ in self.data:
+        for data in self.data:
+            synth_trace = data["synth_trace"]
             r_lngs.append(synth_trace.stats.ses3d.receiver_longitude)
             r_lats.append(synth_trace.stats.ses3d.receiver_latitude)
 
@@ -202,8 +208,12 @@ class Index:
         self.plot(self.index, swap_polarization=True)
 
     def plot(self, index, swap_polarization=False):
-        real_trace, synth_trace, channel_name, scaling_factor = \
-            self.data[index]
+        current_data = self.data[index]
+        real_trace = current_data["data_trace"]
+        synth_trace = current_data["synth_trace"]
+        channel_name = current_data["channel_name"]
+        scaling_factor = current_data["scaling_factor"]
+
         plot_axis.cla()
 
         time_axis = np.linspace(0, synth_trace.stats.npts *
@@ -261,6 +271,8 @@ bswap.on_clicked(callback.swap_polarization)
 
 plot_axis.figure.canvas.mpl_connect('button_press_event',
         callback._onButtonPress)
+
+plt.tight_layout()
 
 
 plt.show()
