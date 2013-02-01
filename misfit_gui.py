@@ -1,7 +1,9 @@
+# The OSX backend has a problem with blitting.
 import matplotlib
 matplotlib.use('TkAgg')
 
 from glob import iglob, glob
+from itertools import izip
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
@@ -16,6 +18,7 @@ from matplotlib_selection_rectangle import WindowSelectionRectangle
 from misfits import l2NormMisfit
 import rotations
 from ses3d_file_reader import readSES3DFile
+from window import Window
 
 # Give the directories here.
 REAL_DATA = "../DATA/2001.17s/"
@@ -23,9 +26,10 @@ SYNTHETIC_DATA = "../SYNTH/2001.17s/"
 EVENT_LIST_FILE = "../event_list"
 EVENT_INDEX = 2001
 
-WINDOW_STORAGE_DIRECTORY = "../OUPUT/WINDOWS/"
-MISFIT_STORAGE_DIRECTORY = "../OUTPUT/MISFITS/"
-ADJOINT_SOURCE_STORAGE_DIRECTORY =  "../OUTPUT/ADJOINT_SOURCES/"
+ITERATION = 52
+
+MISFIT_WINDOW_STORAGE_DIRECTORY = "../OUTPUT/MISFIT_WINDOWS/"
+ADJOINT_SOURCE_STORAGE_DIRECTORY = "../OUTPUT/ADJOINT_SOURCES/"
 
 ROTATION_AXIS = [0.0, 1.0, 0.0]
 ROTATION_ANGLE = -57.5
@@ -78,37 +82,51 @@ def seismogram_generator(event):
             tr.stats.ses3d.receiver_latitude = r_lat
             tr.stats.ses3d.source_longitude = s_lon
             tr.stats.ses3d.source_latitude = s_lat
+            # Set the correct starttime for the trace.
+            tr.stats.starttime = event["time"]
 
         # Now attempt to find the corresponding data stream
         for synth_tr in synth_st:
+            # XXX: Try to find something more robust.
             data_file = glob(os.path.join(REAL_DATA, station["station_name"] +
                 ".??" + synth_tr.stats.channel + ".SAC"))
             if not data_file:
                 continue
+
             data_tr = read(data_file[0])[0]
-            data_tr.trim(starttime=event["time"],
-                endtime=event["time"] +
-                    (synth_tr.stats.endtime - synth_tr.stats.starttime),
-                pad=True, fill_value=0.0)
+            # Attempt to cut it as close to the synthetic trace as possible.
+            data_tr.trim(starttime=event["time"], endtime=event["time"] +
+                (synth_tr.stats.endtime - synth_tr.stats.starttime), pad=True,
+                fill_value=0.0)
 
+            # Scale the data so it matches the synthetics.
             scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
-
             data_tr.data *= scaling_factor
 
+            # Convert both to the same dtype.
             data_tr.data = np.require(data_tr.data, dtype="float32")
             synth_tr.data = np.require(synth_tr.data, dtype="float32")
+
+            # Resample the data trace to the exact sampling rate of the
+            # synthetics.
             data_tr.resample(synth_tr.stats.sampling_rate)
+
+            # Slightly convoluted way to make sure both have the exact same
+            # starttime, endtime, and number of samples.
+            # XXX: Possibly replace with true synchronization function.
+            data_tr.trim(synth_tr.stats.starttime, synth_tr.stats.endtime,
+                pad=True, fill_value=0.0)
             data_tr.stats.starttime = synth_tr.stats.starttime
-            data_tr.trim(endtime=synth_tr.stats.endtime, pad=True,
-                fill_value=0.0)
+            data_tr.trim(synth_tr.stats.starttime, synth_tr.stats.endtime,
+                pad=True, fill_value=0.0)
+
+            data_tr.stats.channel = data_tr.stats.channel[-1]
 
             yield {
                 "data_trace": data_tr,
                 "synth_trace": synth_tr,
-                "channel_name": station["station_name"] + "." +
-                    synth_tr.stats.channel,
+                "channel_id": data_tr.id,
                 "scaling_factor": scaling_factor}
-
 
 # Plot setup.
 plot_axis = plt.subplot2grid((4, 4), (0, 0), colspan=4)
@@ -123,7 +141,8 @@ class Index:
         self.index = -1
 
         events = read_event_list(EVENT_LIST_FILE)
-        self.event = events[2001]
+        self.event = events[EVENT_INDEX]
+        self.event["event_index"] = EVENT_INDEX
 
         files = seismogram_generator(self.event)
         self.data = []
@@ -238,7 +257,7 @@ class Index:
         self.current_data = self.data[index]
         real_trace = self.current_data["data_trace"]
         synth_trace = self.current_data["synth_trace"]
-        channel_name = self.current_data["channel_name"]
+        channel_id = self.current_data["channel_id"]
         scaling_factor = self.current_data["scaling_factor"]
 
         plot_axis.cla()
@@ -252,7 +271,7 @@ class Index:
         plot_axis.plot(time_axis, synth_trace.data, color="red")
 
         plot_axis.set_xlim(0, 500)
-        plot_axis.set_title(channel_name + " -- scaling factor: " +
+        plot_axis.set_title(channel_id + " -- scaling factor: " +
                 str(scaling_factor))
         plot_axis.set_xlabel("Seconds since Event")
         plot_axis.set_ylabel("m/s")
@@ -280,43 +299,50 @@ class Index:
         """
         Function called upon window selection.
         """
-        window_end = window_start + window_width
-        if window_start > window_end:
-            window_start, window_end = window_end, window_start
-        if window_start == window_end:
+        if window_width <= 0:
             return
-        self.current_data.setdefault("windows", [])
-        self.current_data["windows"].append({
-            "window_start": window_start,
-            "window_end": window_end})
         real_trace = self.current_data["data_trace"]
         synth_trace = self.current_data["synth_trace"]
 
+        path = SYNTHETIC_DATA
+        if path.endswith("/"):
+            path = path[:-1]
+        extra_id = os.path.basename(path).split(".")[-1]
+        additional_identifier = "iteration_%i.%s" % (ITERATION, extra_id)
+
+        win = Window(self.event["event_index"], additional_identifier,
+            self.event["time"], window_start, window_width, "cosine",
+            window_options={"percentage": 0.1}, channel_id=real_trace.id)
         real_tr = real_trace.copy()
         synth_tr = synth_trace.copy()
+        win.apply(real_tr)
+        win.apply(synth_tr)
 
-        start = real_tr.stats.starttime + window_start
-        end = real_tr.stats.starttime + window_end
-        real_tr.trim(start, end)
-        synth_tr.trim(start, end)
-        real_tr.taper("cosine")
-        synth_tr.taper("cosine")
-
-        start = real_trace.stats.starttime
-        end = real_trace.stats.endtime
-        real_tr.trim(start, end, pad=True, fill_value=0.0)
-        synth_tr.trim(start, end, pad=True, fill_value=0.0)
-        misfit, adjoint_source = l2NormMisfit(real_tr.data, synth_tr.data,
+        misfit, adjoint_src = l2NormMisfit(real_tr.data, synth_tr.data,
             synth_tr.stats.channel, axis=misfit_axis)
+        win.set_misfit("L2NormMisfit", misfit)
+        win.write(MISFIT_WINDOW_STORAGE_DIRECTORY)
 
         if synth_tr.stats.channel == "N":
-            adjoint_source = adjoint_source[0]
+            adjoint_source = adjoint_src[0]
         elif synth_tr.stats.channel == "E":
-            adjoint_source = adjoint_source[1]
+            adjoint_source = adjoint_src[1]
         elif synth_tr.stats.channel == "Z":
-            adjoint_source = adjoint_source[2]
+            adjoint_source = adjoint_src[2]
         else:
             raise NotImplementedError
+
+        # Assemble the adjoint source path.
+        window_path = win.output_filename
+        filename = os.path.basename(window_path)
+        filename = os.path.splitext(filename)[0] + os.path.extsep + "adj_src"
+        subfolder = os.path.basename(os.path.split(window_path)[0])
+        # Make sure the folder exists.
+        adjoint_src_folder = os.path.join(ADJOINT_SOURCE_STORAGE_DIRECTORY,
+            subfolder)
+        if not os.path.exists(adjoint_src_folder):
+            os.makedirs(adjoint_src_folder)
+        adjoint_src_filename = os.path.join(adjoint_src_folder, filename)
 
         adjoint_source_axis.cla()
         adjoint_source_axis.set_title("Adjoint Source")
@@ -324,6 +350,24 @@ class Index:
         adjoint_source_axis.set_xlim(0, len(adjoint_source))
         plt.draw()
 
+        # Do some calculations.
+        rec_lat = synth_tr.stats.ses3d.receiver_latitude
+        rec_lng = synth_tr.stats.ses3d.receiver_longitude
+        rec_depth = synth_tr.stats.ses3d.receiver_depth_in_m
+        # Rotate back to rotated system.
+        rec_lat, rec_lng = rotations.rotate_lat_lon(rec_lat, rec_lng,
+            ROTATION_AXIS, -ROTATION_ANGLE)
+        rec_colat = rotations.lat2colat(rec_lat)
+
+        # Actually write the adjoint source file in SES3D specific format.
+        with open(adjoint_src_filename, "wt") as open_file:
+            open_file.write("-- adjoint source ------------------\n")
+            open_file.write("-- source coordinates (colat,lon,depth)\n")
+            open_file.write("%f %f %f\n" % (rec_lng, rec_colat, rec_depth))
+            open_file.write("-- source time function (x, y, z) --\n")
+            for x, y, z in izip(adjoint_src[1], -1.0 * adjoint_src[0],
+                adjoint_src[2]):
+                open_file.write("%e %e %e\n" % (x, y, z))
 
 callback = Index()
 axnext = plt.axes([0.81, 0.05, 0.1, 0.075])

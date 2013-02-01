@@ -73,7 +73,7 @@ class Window(object):
 
     def serialize(self):
         doc = (
-            E.window(
+            E.misfit_window(
                 E.event_identifier(str(self.event_identifier)),
                 E.additional_identifier(str(self.additional_identifier)),
                 E.event_time(str(self.event_time)),
@@ -81,19 +81,33 @@ class Window(object):
                 E.window_length(str(self.window_length)),
                 E.window_type(str(self.window_type)),
                 E.window_parameters(*self.serialize_options()),
-                E.channel_id(self.channel_id)))
+                E.channel_id(str(self.channel_id)),
+                E.misfit(
+                    E.misfit_type(str(self.misfit_type)),
+                    E.value(str(self.misfit_value))
+                )
+            )
+        )
         return etree.tostring(doc, pretty_print=True, xml_declaration=True,
             encoding="utf-8")
 
     def _filename_generator(self):
         _i = 0
         while True:
-            basename = "window_event_%s_%s" % (str(self.event_identifier),
-                str(self.additional_identifier))
+            basename = "misift_window_event_%s_%s_%s" % (
+                str(self.event_identifier), str(self.additional_identifier),
+                str(self.channel_id))
             if _i:
                 basename += "_%i" % _i
             _i += 1
             yield basename + ".xml"
+
+    def set_misfit(self, misfit_type, value):
+        """
+        Set the misfit type and value.
+        """
+        self.misfit_type = misfit_type
+        self.misfit_value = value
 
     def write(self, folder):
         """
@@ -102,18 +116,6 @@ class Window(object):
         care of the filename yourself, use the serialize() function to get a
         string representation.
         """
-
-        ################
-        # DEBUGGING START
-        import sys
-        __o_std__ = sys.stdout
-        sys.stdout = sys.__stdout__
-        from IPython.core.debugger import Tracer
-        Tracer(colors="Linux")()
-        sys.stdout = __o_std__
-        # DEBUGGING END
-        ################
-
         if not os.path.exists(folder):
             os.makedirs(folder)
         if not os.path.isdir(folder):
@@ -121,13 +123,14 @@ class Window(object):
             raise ValueError(msg)
         # Otherwise check if the filename exists.
         for filename in self._filename_generator():
-            subfolder = self.event_identifier + "." + \
+            subfolder = str(self.event_identifier) + "." + \
                 self.additional_identifier
             filename = os.path.join(folder, subfolder, filename)
             if not os.path.exists(filename):
                 break
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
+        self.output_filename = filename
         with open(filename, "w") as open_file:
             open_file.write(self.serialize())
 

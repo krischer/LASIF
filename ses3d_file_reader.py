@@ -1,5 +1,9 @@
+# The OSX backend has a problem with blitting.
+import matplotlib
+matplotlib.use('TkAgg')
+
 import numpy as np
-from obspy.core import AttribDict, Trace, Stream, UTCDateTime
+from obspy.core import AttribDict, Trace, Stream
 import warnings
 
 
@@ -19,6 +23,7 @@ def isSES3DFile(filename):
     if first_line in POSSIBLE_FIRST_LINES:
         return True
     return False
+
 
 def readSES3DFile(filename, *args, **kwargs):
     with open(filename, "r") as open_file:
@@ -45,7 +50,7 @@ def readSES3DFile(filename, *args, **kwargs):
         "phi": "E",
         "r": "Z"}[component]
     tr.stats.ses3d = AttribDict()
-    tr.stats.ses3d.receiver_latitude = -(rec_x - 90.0)
+    tr.stats.ses3d.receiver_latitude = - (rec_x - 90.0)
     tr.stats.ses3d.receiver_longitude = rec_y
     tr.stats.ses3d.receiver_depth_in_m = rec_z
     tr.stats.ses3d.source_latitude = - (src_x - 90.0)

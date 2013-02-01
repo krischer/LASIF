@@ -24,6 +24,7 @@ def l2NormMisfit(data, synthetic, component, axis=None):
         msg = "Both arrays need to have equal length"
         raise ValueError(msg)
     diff = synthetic - data
+    diff = np.require(diff, dtype="float64")
     squared_diff = diff ** 2
     l2norm = np.sum(squared_diff)
 

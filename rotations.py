@@ -1,31 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Functions to rotate vectors, seismograms and moment tensors on a spherical
-body, e.g. the Earth.
+A collection of functions to rotate vectors, seismograms and moment tensors on
+a spherical body, e.g. the Earth.
 
-.. note::
-    **Notes on the used coordinate system:**
+.. note:: **On the used coordinate system**
 
-    Latitude/Longitude are the usual ones used on Earth.
+    Latitude and longitude are natural geographical coordinates used on Earth.
 
-    It is a right handed coordinate system with the origin at the center of the
-    earth. The z-axis points directly at the North Pole and the x-axis points
-    at Latitude 0.0/Longitude 0.0, e.g. the Greenwich meridian at the equator.
-    The y-axis therefore points at (0.0/90.0).
+    The coordinate system is right handed with the origin at the center of the
+    Earth. The z-axis points directly at the North Pole and the x-axis points
+    at (latitude 0.0/longitude 0.0), e.g. the Greenwich meridian at the
+    equator. The y-axis therefore points at (latitude 0.0/longitue 90.0), e.g.
+    somewhere close to Sumatra.
 
-    Theta is the colatitude, e.g. 90.0 - latitude and is the angle from the
-    z-axis.  Phi is the longitude and the angle from the x-axis towards the
-    y-axis, a.k.a the azimuth angle. These are also the generally used
-    spherical coordinates.
+    𝜃 (theta) is the colatitude, e.g. 90.0 - latitude and is the angle from
+    the z-axis.  𝜑 (phi) is the longitude and the angle from the x-axis
+    towards the y-axis, a.k.a the azimuth angle. These are also the generally
+    used spherical coordinates.
 
     All rotation axes have to be given as [x, y, z] in the just described
     coordinate system and all rotation angles have to given as degree. A
     positive rotation will rotate clockwise when looking in the direction of
     the rotation axis.
 
+    For convenience reasons, most function in this module work with coordinates
+    given in latitude and longitude.
+
 :copyright:
-Lion Krischer (krischer@geophysik.uni-muenchen.de), 2012
+Lion Krischer (krischer@geophysik.uni-muenchen.de), 2012-2013
+
 :license:
 GNU Lesser General Public License, Version 3
 (http://www.gnu.org/copyleft/lesser.html)
@@ -175,7 +179,7 @@ def rotate_lat_lon(lat, lon, rotation_axis, angle):
     Takes a point specified by latitude and longitude and return a new pair of
     latitude longitude assuming the earth has been rotated around rotation_axis
     by angle.
-    
+
     :param lat: Latitude of original point
     :param lon: Longitude of original point
     :rotation_axis: Rotation axis specified as [x, y, z].
