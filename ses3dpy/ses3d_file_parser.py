@@ -56,6 +56,28 @@ def is_SES3D(filename_or_file_object):
 def read_SES3D(file_or_file_object, *args, **kwargs):
     """
     Turns a SES3D file into a obspy.core.Stream object.
+
+    SES3D files do not contain a starttime and thus the first first sample will
+    always begin at 1970-01-01T00:00:00.
+
+    The data will be a floating point array of the ground velocity in meters
+    per second.
+
+    Furthermore every trace will have a trace.stats.ses3d dictionary which
+    contains the following six keys:
+        * receiver_latitude
+        * receiver_longitde
+        * receiver_depth_in_m
+        * source_latitude
+        * source_longitude
+        * source_depth_in_m
+
+    The network, station, and location attributes of the trace will be empty,
+    and the channel will be set to either 'N' (north component), 'E' (east
+    component), or 'Z' (vertical component). The data will naturally be the one
+    for the given component. SES3D outputs data with one component being the
+    south direction. The north component contains the **already inverted**
+    south component data.
     """
     # Make sure that it is a file like object.
     if not hasattr(file_or_file_object, "read"):
