@@ -1,4 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Simple functions to read a list of events in a certain format.
+
+Probably not generally useful.
+
+:copyright:
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+
+:license:
+    GNU Lesser General Public License, Version 3
+    (http://www.gnu.org/copyleft/lesser.html)
+"""
 from obspy import UTCDateTime
+from obpsy.core.event import *
 import os
 
 
@@ -50,3 +65,19 @@ def read_event_list(filename):
                 "Mtp": Mtp * 10 ** exp}
             events[index] = event
     return events
+
+
+def event_list_to_quakeml(filename):
+    """
+    Helper function to convert all events in an event file to QuakeML.
+    """
+    # Create all objects.
+    cat = Catalog()
+    ev = Event()
+    org = Origin()
+    mag = Magnitude()
+    fm = FocalMechanism()
+    mt = MomentTensor()
+    t = Tensor()
+    # Link them together.
+

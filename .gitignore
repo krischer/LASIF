@@ -1,1 +1,2 @@
-./doc/_build/*
+doc/_build/*
+ses3dpy.egg-info/*

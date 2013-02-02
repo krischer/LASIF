@@ -1,31 +1,58 @@
-# The OSX backend has a problem with blitting.
-import matplotlib
-matplotlib.use('TkAgg')
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+A function reading SES3D output files an converting them to ObsPy Stream
+objects.
 
+Can be tied directly into ObsPy's plugin system by setting the correct entry
+points in the setup.py.
+
+:copyright:
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2012-2013
+:license:
+    GNU General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
+"""
 import numpy as np
 from obspy.core import AttribDict, Trace, Stream
 import warnings
 
+import rotations
 
+
+# The three different possibilities for the first line of a SES3D file. Used
+# for identification purposes.
 POSSIBLE_FIRST_LINES = [ \
     "theta component seismograms",
     "phi component seismograms",
     "r component seismograms"]
 
 
-def isSES3DFile(filename):
-    with open(filename, "r") as open_file:
-        try:
-            first_line = open_file.readline()
-        except:
-            return
+def is_SES3D(filename_or_file_object):
+    """
+    Returns True if the file is a SES3D file, False otherwise.
+
+    Works with filenames and file-like objects (open files, StringIO, ...).
+    """
+    opened_file = False
+    if not hasattr(filename_or_file_object, "read"):
+        filename_or_file_object = open(filename_or_file_object, "r")
+        opened_file = True
+    try:
+        first_line = filename_or_file_object.readline()
+    except:
+        if opened_file:
+            filename_or_file_object.close()
+        return False
+    if opened_file:
+        filename_or_file_object.close()
     first_line = first_line.strip()
     if first_line in POSSIBLE_FIRST_LINES:
         return True
     return False
 
 
-def readSES3DFile(filename, *args, **kwargs):
+def read_SES3D(filename, *args, **kwargs):
     with open(filename, "r") as open_file:
         component = open_file.readline().split()[0].lower()
         npts = int(open_file.readline().split()[-1])
@@ -62,11 +89,3 @@ def readSES3DFile(filename, *args, **kwargs):
             "the actual data count."
         warnings.warn(msg)
     return Stream(traces=[tr])
-
-
-if __name__ == "__main__":
-    filename = "/nfs/stig/fichtner/SES3D_2.JP/DATA/OUTPUT/1/NMRO_x"
-    st = readSES3DFile(filename)
-    print st
-    print st[0].stats
-    st.plot()
