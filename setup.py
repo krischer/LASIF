@@ -25,12 +25,16 @@ setup_config = dict(
     license="GNU General Public License, version 3 (GPLv3)",
     platforms="OS Independent",
     install_requires=["obspy >= 0.8.0"],
-    # Register the SES3D reading function with ObsPy.
     entry_points={
+        # Register the console scripts.
+        "console_scripts": [
+            "ses3dpy = ses3dpy.scripts.ses3dpy:main"
+        ],
+        # Register the SES3D reading function with ObsPy.
         "obspy.plugin.waveform": "SES3D = ses3dpy.ses3d_file_parser",
         "obspy.plugin.waveform.SES3D": [
             "isFormat = ses3dpy.ses3d_file_parser:is_SES3D",
-            "readFormat = ses3dpy.ses3d_file_parser:read_SES3D",
+            "readFormat = ses3dpy.ses3d_file_parser:read_SES3D"
         ]
     }
 )
