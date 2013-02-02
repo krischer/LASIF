@@ -32,7 +32,7 @@ class SES3DFileParserTestCase(unittest.TestCase):
         """
         Tests the isSES3D File function.
         """
-        ses3d_files = ["PABO_x", "PABO_y", "PABO_z"]
+        ses3d_files = ["File_theta", "File_phi", "File_r"]
         ses3d_files = [os.path.join(self.data_dir, _i) for _i in ses3d_files]
         for waveform_file in ses3d_files:
             self.assertTrue(is_SES3D(waveform_file))
@@ -48,7 +48,7 @@ class SES3DFileParserTestCase(unittest.TestCase):
         """
         Same as test_isSES3DFile() but testing from StringIO's
         """
-        ses3d_files = ["PABO_x", "PABO_y", "PABO_z"]
+        ses3d_files = ["File_theta", "File_phi", "File_r"]
         ses3d_files = [os.path.join(self.data_dir, _i) for _i in ses3d_files]
         for waveform_file in ses3d_files:
             with open(waveform_file, "r") as open_file:
@@ -70,7 +70,7 @@ class SES3DFileParserTestCase(unittest.TestCase):
         """
         Tests the actual reading of a SES3D file.
         """
-        filename = os.path.join(self.data_dir, "PABO_y")
+        filename = os.path.join(self.data_dir, "File_phi")
         st = read_SES3D(filename)
         self.assertEqual(len(st), 1)
         tr = st[0]
@@ -98,7 +98,7 @@ class SES3DFileParserTestCase(unittest.TestCase):
         """
         Same as test_readingSES3DFile() but with the data given as a StringIO.
         """
-        filename = os.path.join(self.data_dir, "PABO_y")
+        filename = os.path.join(self.data_dir, "File_phi")
         with open(filename, "rb") as open_file:
             file_object = StringIO(open_file.read())
         st = read_SES3D(file_object)
@@ -125,7 +125,42 @@ class SES3DFileParserTestCase(unittest.TestCase):
             2.95646032E-07, 2.49543859E-07, 2.03108399E-07, 1.56527761E-07,
             1.09975687E-07, 6.36098676E-08, 1.75719919E-08, -2.80116144E-08]))
 
+    def test_ComponentMapping(self):
+        """
+        Tests that the components are correctly mapped.
+        """
+        filename_theta = os.path.join(self.data_dir, "File_theta")
+        filename_phi = os.path.join(self.data_dir, "File_phi")
+        filename_r = os.path.join(self.data_dir, "File_r")
 
+        # The x-component points east.
+        tr_theta = read_SES3D(filename_theta)[0]
+        self.assertEqual(tr_theta.stats.channel, "N")
+
+        # The x-component points south, but is inverted, thus north.
+        tr_phi = read_SES3D(filename_phi)[0]
+        self.assertEqual(tr_phi.stats.channel, "E")
+
+        # The z-component points up.
+        tr_r = read_SES3D(filename_r)[0]
+        self.assertEqual(tr_r.stats.channel, "Z")
+
+    def test_NorthComponentIsInvertedSouthComponent(self):
+        """
+        SES3D return south oriented data. The reader inverts it to return north
+        oriented data.
+        """
+        filename = os.path.join(self.data_dir, "File_theta")
+        tr = read_SES3D(filename)[0]
+        self.assertEqual(tr.stats.channel, "N")
+        # The data actually in the file. This points south.
+        data = np.array([4.23160685E-07, 3.80973177E-07, 3.39335969E-07,
+            2.98305707E-07, 2.57921158E-07, 2.18206054E-07, 1.79171423E-07,
+            1.40820376E-07, 1.03153077E-07, 6.61708626E-08])
+        # Invert the data.
+        data *= -1.0
+        # Check.
+        np.testing.assert_almost_equal(tr.data[-10:], data)
 
 
 def suite():
