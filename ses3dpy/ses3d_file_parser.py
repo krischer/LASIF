@@ -15,9 +15,10 @@ points in the setup.py.
 """
 import numpy as np
 from obspy.core import AttribDict, Trace, Stream
+from StringIO import StringIO
 import warnings
 
-import rotations
+from ses3dpy import rotations
 
 
 # The three different possibilities for the first line of a SES3D file. Used
@@ -52,21 +53,33 @@ def is_SES3D(filename_or_file_object):
     return False
 
 
-def read_SES3D(filename, *args, **kwargs):
-    with open(filename, "r") as open_file:
-        component = open_file.readline().split()[0].lower()
-        npts = int(open_file.readline().split()[-1])
-        delta = float(open_file.readline().split()[-1])
-        # Skip receiver location line.
-        open_file.readline()
-        rec_loc = open_file.readline().split()
-        rec_x, rec_y, rec_z = map(float, [rec_loc[1], rec_loc[3], rec_loc[5]])
-        # Skip the source location line.
-        open_file.readline()
-        src_loc = open_file.readline().split()
-        src_x, src_y, src_z = map(float, [src_loc[1], src_loc[3], src_loc[5]])
-        # The rest is data.
-        data = np.array(map(float, open_file.readlines()), dtype="float32")
+def read_SES3D(file_or_file_object, *args, **kwargs):
+    """
+    Turns a SES3D file into a obspy.core.Stream object.
+    """
+    # Make sure that it is a file like object.
+    if not hasattr(file_or_file_object, "read"):
+        with open(file_or_file_object, "rb") as open_file:
+            file_or_file_object = StringIO(open_file.read())
+
+    # Read the header.
+    component = file_or_file_object.readline().split()[0].lower()
+    npts = int(file_or_file_object.readline().split()[-1])
+    delta = float(file_or_file_object.readline().split()[-1])
+    # Skip receiver location line.
+    file_or_file_object.readline()
+    rec_loc = file_or_file_object.readline().split()
+    rec_x, rec_y, rec_z = map(float, [rec_loc[1], rec_loc[3], rec_loc[5]])
+    # Skip the source location line.
+    file_or_file_object.readline()
+    src_loc = file_or_file_object.readline().split()
+    src_x, src_y, src_z = map(float, [src_loc[1], src_loc[3], src_loc[5]])
+
+    # Read the data.
+    data = np.array(map(float, file_or_file_object.readlines()),
+        dtype="float32")
+
+    # Setup Obspy Stream/Trace structure.
     tr = Trace(data=data)
     tr.stats.delta = delta
     # Invert theta components to let them point north.
@@ -77,10 +90,10 @@ def read_SES3D(filename, *args, **kwargs):
         "phi": "E",
         "r": "Z"}[component]
     tr.stats.ses3d = AttribDict()
-    tr.stats.ses3d.receiver_latitude = - (rec_x - 90.0)
+    tr.stats.ses3d.receiver_latitude = rotations.colat2lat(rec_x)
     tr.stats.ses3d.receiver_longitude = rec_y
     tr.stats.ses3d.receiver_depth_in_m = rec_z
-    tr.stats.ses3d.source_latitude = - (src_x - 90.0)
+    tr.stats.ses3d.source_latitude = rotations.colat2lat(src_x)
     tr.stats.ses3d.source_longitude = src_y
     tr.stats.ses3d.source_depth_in_m = src_z
     # Small check.
