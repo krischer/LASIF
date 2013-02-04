@@ -15,9 +15,36 @@ import colorama
 import os
 import sys
 
+from ses3dpy.project import Project
+
 
 class SES3DCommandLineException(Exception):
     pass
+
+
+def _find_project_root(folder):
+    """
+    Will search upwards from the given folder until a folder containing a
+    SES3DPy root structure is found. The absolute path to the root is returned.
+    """
+    max_folder_depth = 10
+    folder = folder
+    for _ in xrange(max_folder_depth):
+        if os.path.exists(os.path.join(folder, "simulation_domain.xml")):
+            return os.path.abspath(folder)
+        folder = os.path.join(folder, os.path.pardir)
+    msg = "Not inside a SES3D project."
+    raise SES3DCommandLineException(msg)
+
+
+def ses3d_info(args):
+    """
+    Usage ses3dpy info
+
+    Print information about the current project.
+    """
+    root = _find_project_root(".")
+    proj = Project(root)
 
 
 def ses3d_init_project(args):

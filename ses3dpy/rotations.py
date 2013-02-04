@@ -350,6 +350,73 @@ def rotate_data(north_data, east_data, vertical_data, lat, lon, rotation_axis,
     return north_data, east_data, vertical_data
 
 
+def get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
+    number_of_points_per_side=25, rotation_axis=[0, 0, 1],
+    rotation_angle_in_degree=0):
+    """
+    Helper function taking a spherical section defined by latitudinal and
+    longitudal extension, rotate it around the given axis and rotation angle
+    and return a list of points outlining the region. Useful for plotting.
+    """
+    north_border = np.empty((number_of_points_per_side, 2))
+    south_border = np.empty((number_of_points_per_side, 2))
+    east_border = np.empty((number_of_points_per_side, 2))
+    west_border = np.empty((number_of_points_per_side, 2))
+
+    north_border[:, 0] = min_lat
+    north_border[:, 1] = np.linspace(min_lng, max_lng,
+        number_of_points_per_side)
+
+    south_border[:, 0] = max_lat
+    south_border[:, 1] = np.linspace(max_lng, min_lng,
+        number_of_points_per_side)
+
+    east_border[:, 0] = np.linspace(min_lat, max_lat,
+        number_of_points_per_side)
+    east_border[:, 1] = max_lng
+
+    west_border[:, 0] = np.linspace(max_lat, min_lat,
+        number_of_points_per_side)
+    west_border[:, 1] = min_lng
+
+    # Rotate everything.
+    for border in [north_border, south_border, east_border, west_border]:
+        for _i in xrange(number_of_points_per_side):
+            border[_i, 0], border[_i, 1] = rotate_lat_lon(border[_i, 0],
+                border[_i, 1], rotation_axis, rotation_angle_in_degree)
+
+    # Take care to only use every corner once.
+    borders = np.concatenate([north_border, east_border[1:], south_border[1:],
+        west_border[1:]])
+    borders = list(borders)
+    borders = [list(_i) for _i in borders]
+    return borders
+
+
+def get_max_extention_of_domain(min_lat, max_lat, min_lng, max_lng,
+    number_of_points_per_side=25, rotation_axis=[0, 0, 1],
+    rotation_angle_in_degree=0):
+    """
+    Helper function getting the maximum extends of a rotated domain.
+
+    Returns a dictionary with the following keys:
+        * minimum_latitude
+        * maximum_latitude
+        * minimum_longitude
+        * maximum_longitude
+    """
+    border = get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
+        number_of_points_per_side=25, rotation_axis=[0, 0, 1],
+        rotation_angle_in_degree=0)
+    border = np.array(border)
+    lats = border[:, 0]
+    lngs = border[:, 1]
+    return {
+        "minimum_latitude": lats.min(),
+        "maximum_latitude": lats.max(),
+        "minimum_longitude": lngs.min(),
+        "maximum_longitude": lngs.max()}
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
