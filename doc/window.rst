@@ -2,5 +2,5 @@
 ses3dpy.window
 =================
 
-.. automodule:: window
+.. automodule:: ses3dpy.window
     :members:

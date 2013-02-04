@@ -45,7 +45,35 @@ def ses3d_init_project(args):
     os.mkdir(os.path.join(folder_path, "DATA"))
     os.mkdir(os.path.join(folder_path, "SYNTHETICS"))
     os.mkdir(os.path.join(folder_path, "MODELS"))
+
+    xml_file = (
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+        "<domain>\n"
+        "  <name>{project_name}</name>\n"
+        "  <description></description>\n"
+        "  <domain_bounds>\n"
+        "    <minimum_longitude>-10.0</minimum_longitude>\n"
+        "    <maximum_longitude>10.0</maximum_longitude>\n"
+        "    <minimum_latitude>-10.0</minimum_latitude>\n"
+        "    <maximum_latitude>10.0</maximum_latitude>\n"
+        "    <minimum_depth_in_km>0.0</minimum_depth_in_km>\n"
+        "    <maximum_depth_in_km>200.0</maximum_depth_in_km>\n"
+        "  </domain_bounds>\n"
+        "  <domain_rotation>\n"
+        "    <rotation_axis_x>0.0</rotation_axis_x>\n"
+        "    <rotation_axis_y>1.0</rotation_axis_y>\n"
+        "    <rotation_axis_z>0.0</rotation_axis_z>\n"
+        "    <rotation_angle_in_degree>-25.0</rotation_angle_in_degree>\n"
+        "  </domain_rotation>\n"
+        "</domain>\n")
+
+    with open(os.path.join(folder_path, "simulation_domain.xml"), "wt") as \
+        open_file:
+        open_file.write(xml_file.format(project_name=os.path.basename(
+            folder_path)))
+
     print("Initialized project in: \n\t%s" % folder_path)
+
 
 def main():
     """

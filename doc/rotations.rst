@@ -2,5 +2,5 @@
 ses3dpy.rotations
 =================
 
-.. automodule:: rotations
+.. automodule:: ses3dpy.rotations
     :members:

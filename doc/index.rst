@@ -14,6 +14,10 @@ Contents:
     rotations
     windows
 
+All parts of SES3DPy can work completely on their own. See the class and
+function documentation at the end of this document. Furthermore SES3DPy offers
+a project based inversion workflow management system.
+
 Tutorial
 ========
 SES3DPy works with the notion of inversion projects. A project is defined as a
@@ -26,9 +30,57 @@ all necessary information is already stored in an easily indexable data format.
 Creating a new Project
 ----------------------
 The necessary first step, whether for starting a new inversion or migrating an
-already existing inversion to SES3DPy, is to create a new project.
+already existing inversion to SES3DPy, is to create a new project. In the
+following the project will be called **MyProject**.
 
-ses3dpy init_project MyInversion
+.. code-block:: bash
+
+    $ ses3dpy init_project MyInversion
+
+This will create the following directory structure::
+
+    MyInversion
+    |-- DATA
+    |-- EVENTS
+    |-- MODELS
+    |-- SYNTHETICS
+    |-- simulation_domain.xml
+
+The domain each project works in, is defined in the **simulation_domain.xml**
+file. It is a simple, self-explanatory XML format. The nature of SES3D's
+coordinate system has the effect that simulation is most efficient in
+equatorial regions. Thus it is oftentimes advantageous to rotate the frame of
+reference so that the simulation happens close to the equator. SES3DPy first
+defines the simulation domain; the actual simulation happens here. Optional
+rotation parameters define the physical location of the domain. The coordinate
+system for the rotation parameters is described in :py:mod:`ses3dpy.rotations`.
+You will have to edit the file to adjust it to your region of interest. It will
+look something like the following.
+
+.. code-block:: xml
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <domain>
+      <name>MyInversion</name>
+      <description></description>
+      <domain_bounds>
+        <minimum_longitude>-10.0</minimum_longitude>
+        <maximum_longitude>10.0</maximum_longitude>
+        <minimum_latitude>-10.0</minimum_latitude>
+        <maximum_latitude>10.0</maximum_latitude>
+        <minimum_depth_in_km>0.0</minimum_depth_in_km>
+        <maximum_depth_in_km>200.0</maximum_depth_in_km>
+      </domain_bounds>
+      <domain_rotation>
+        <rotation_axis_x>0.0</rotation_axis_x>
+        <rotation_axis_y>1.0</rotation_axis_y>
+        <rotation_axis_z>0.0</rotation_axis_z>
+        <rotation_angle_in_degree>-25.0</rotation_angle_in_degree>
+      </domain_rotation>
+    </domain>
+
+At any
+
 
 
 Indices and tables
