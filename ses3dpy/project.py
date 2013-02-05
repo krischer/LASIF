@@ -12,8 +12,10 @@ Project management class.
 """
 import os
 from lxml import etree
+import numpy as np
 
 import rotations
+import visualization
 
 
 class Project(object):
@@ -57,32 +59,13 @@ class Project(object):
         self.domain["rotation_angle"] = \
             float(rotation.find("rotation_angle_in_degree").text)
 
-        self._get_domain_extensions()
-
-    def _get_domain_extensions(self):
-        """
-        Calculated the maximum extension of the domain in latitude and
-        longitude coordinates.
-        """
+    def plot_domain(self, resolution="c"):
         bounds = self.domain["bounds"]
-        bounds = rotations.get_max_extention_of_domain(
-            bounds["minimum_latitude"],
-            bounds["maximum_latitude"],
-            bounds["minimum_longitude"],
+        visualization.plot_domain(bounds["minimum_latitude"],
+            bounds["maximum_latitude"], bounds["minimum_longitude"],
             bounds["maximum_longitude"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"])
-        extends = {}
-        self.domain["calculated_extension"] = extends
-        extends["minimum_latitude"] = bounds["minimum_latitude"]
-        extends["maximum_latitude"] = bounds["maximum_latitude"]
-        extends["minimum_longitude"] = bounds["minimum_longitude"]
-        extends["maximum_longitude"] = bounds["maximum_longitude"]
-        extends["center_latitude"] = bounds["minimum_latitude"] + \
-                (bounds["maximum_latitude"] - bounds["minimum_latitude"]) / 2.0
-        extends["center_longitude"] = bounds["minimum_longitude"] + \
-                (bounds["maximum_longitude"] - bounds["minimum_longitude"]) \
-                / 2.0
 
     def _setup_paths(self, root_path):
         """

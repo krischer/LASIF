@@ -37,6 +37,17 @@ def _find_project_root(folder):
     raise SES3DCommandLineException(msg)
 
 
+def ses3d_show_domain(args):
+    """
+    Usage ses3dpy show_domain
+
+    Plots the project's domain on a map.
+    """
+    root = _find_project_root(".")
+    proj = Project(root)
+    proj.plot_domain()
+
+
 def ses3d_info(args):
     """
     Usage ses3dpy info

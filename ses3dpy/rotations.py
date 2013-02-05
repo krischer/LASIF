@@ -406,8 +406,8 @@ def get_max_extention_of_domain(min_lat, max_lat, min_lng, max_lng,
         * maximum_longitude
     """
     border = get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
-        number_of_points_per_side=25, rotation_axis=[0, 0, 1],
-        rotation_angle_in_degree=0)
+        number_of_points_per_side=25, rotation_axis=rotation_axis,
+        rotation_angle_in_degree=rotation_angle_in_degree)
     border = np.array(border)
     lats = border[:, 0]
     lngs = border[:, 1]

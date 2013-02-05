@@ -11,12 +11,13 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-    rotations
-    windows
+    /rotations
+    /windows
 
 All parts of SES3DPy can work completely on their own. See the class and
 function documentation at the end of this document. Furthermore SES3DPy offers
-a project based inversion workflow management system.
+a project based inversion workflow management system which is introduced in the
+following tutorial.
 
 Tutorial
 ========
@@ -72,16 +73,31 @@ look something like the following.
         <maximum_depth_in_km>200.0</maximum_depth_in_km>
       </domain_bounds>
       <domain_rotation>
-        <rotation_axis_x>0.0</rotation_axis_x>
+        <rotation_axis_x>1.0</rotation_axis_x>
         <rotation_axis_y>1.0</rotation_axis_y>
-        <rotation_axis_z>0.0</rotation_axis_z>
-        <rotation_angle_in_degree>-25.0</rotation_angle_in_degree>
+        <rotation_axis_z>1.0</rotation_axis_z>
+        <rotation_angle_in_degree>33.0</rotation_angle_in_degree>
       </domain_rotation>
     </domain>
 
-At any
+.. note::
+    All **ses3dpy** commands work and use the correct project as long as they
+    are executed somewhere inside a projects folder structure.
 
+At any point you can have a look at the defined domain with
 
+.. code-block:: bash
+
+    $ ses3dpy show_domain
+
+This will open a window showing the location of the physical domain and the
+simulation domain.
+
+.. plot::
+
+    import ses3dpy.visualization
+    ses3dpy.visualization.plot_domain(-10, +10, -10, +10, rotation_axis=[1.0,
+        1.0, 1.0], rotation_angle_in_degree=33.0)
 
 Indices and tables
 ==================
