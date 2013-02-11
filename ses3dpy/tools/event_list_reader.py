@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Simple functions to read a list of events in a certain format.
+Some tools to help transitioning from the event list format previously in use
+for running SES3D inversions to QuakeML files.
 
 Probably not generally useful.
 
@@ -9,11 +10,12 @@ Probably not generally useful.
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 
 :license:
-    GNU Lesser General Public License, Version 3
-    (http://www.gnu.org/copyleft/lesser.html)
+    GNU General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
 """
 from obspy import UTCDateTime
-from obpsy.core.event import *
+from obspy.core.event import Catalog, Event, Origin, Magnitude, \
+    FocalMechanism, MomentTensor, Tensor
 import os
 
 
@@ -56,6 +58,7 @@ def read_event_list(filename):
                 "latitude": -1.0 * (colat - 90.0),
                 "depth_in_km": depth,
                 "time": event_time,
+                "identifier": index,
                 "Mw": Mw,
                 "Mrr": Mrr * 10 ** exp,
                 "Mtt": Mtt * 10 ** exp,
@@ -67,9 +70,21 @@ def read_event_list(filename):
     return events
 
 
-def event_list_to_quakeml(filename):
+def event_list_to_quakeml(filename, folder):
     """
     Helper function to convert all events in an event file to QuakeML.
+    """
+    events = read_event_list(filename)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    for key, value in events.iteritems():
+        filename = os.path.join(folder, "%s%sxml" % (key, os.path.extsep))
+        event_to_quakeml(value, filename)
+
+
+def event_to_quakeml(event, filename):
+    """
+    Write one of those events to QuakeML.
     """
     # Create all objects.
     cat = Catalog()
@@ -80,4 +95,28 @@ def event_list_to_quakeml(filename):
     mt = MomentTensor()
     t = Tensor()
     # Link them together.
+    cat.append(ev)
+    ev.origins.append(org)
+    ev.magnitudes.append(mag)
+    ev.focal_mechanisms.append(fm)
+    fm.moment_tensor = mt
+    mt.tensor = t
 
+    # Fill values
+    ev.resource_id = "smi:inversion/%s" % str(event["identifier"])
+    org.time = event["time"]
+    org.longitude = event["longitude"]
+    org.latitude = event["latitude"]
+    org.depth = event["depth_in_km"] * 1000
+
+    mag.mag = event["Mw"]
+    mag.magnitude_type = "Mw"
+
+    t.m_rr = event["Mrr"]
+    t.m_tt = event["Mpp"]
+    t.m_pp = event["Mtt"]
+    t.m_rt = event["Mrt"]
+    t.m_rp = event["Mrp"]
+    t.m_tp = event["Mtp"]
+
+    cat.write(filename, format="quakeml")

@@ -65,10 +65,10 @@ look something like the following.
       <name>MyInversion</name>
       <description></description>
       <domain_bounds>
-        <minimum_longitude>-10.0</minimum_longitude>
-        <maximum_longitude>10.0</maximum_longitude>
-        <minimum_latitude>-10.0</minimum_latitude>
-        <maximum_latitude>10.0</maximum_latitude>
+        <minimum_longitude>-15.0</minimum_longitude>
+        <maximum_longitude>15.0</maximum_longitude>
+        <minimum_latitude>-15.0</minimum_latitude>
+        <maximum_latitude>15.0</maximum_latitude>
         <minimum_depth_in_km>0.0</minimum_depth_in_km>
         <maximum_depth_in_km>200.0</maximum_depth_in_km>
       </domain_bounds>
@@ -76,11 +76,12 @@ look something like the following.
         <rotation_axis_x>1.0</rotation_axis_x>
         <rotation_axis_y>1.0</rotation_axis_y>
         <rotation_axis_z>1.0</rotation_axis_z>
-        <rotation_angle_in_degree>33.0</rotation_angle_in_degree>
+        <rotation_angle_in_degree>35.0</rotation_angle_in_degree>
       </domain_rotation>
     </domain>
 
 .. note::
+
     All **ses3dpy** commands work and use the correct project as long as they
     are executed somewhere inside a projects folder structure.
 
@@ -88,7 +89,8 @@ At any point you can have a look at the defined domain with
 
 .. code-block:: bash
 
-    $ ses3dpy show_domain
+    $ cd MyInversion
+    $ ses3dpy plot_domain
 
 This will open a window showing the location of the physical domain and the
 simulation domain.
@@ -96,8 +98,59 @@ simulation domain.
 .. plot::
 
     import ses3dpy.visualization
-    ses3dpy.visualization.plot_domain(-10, +10, -10, +10, rotation_axis=[1.0,
-        1.0, 1.0], rotation_angle_in_degree=33.0)
+    ses3dpy.visualization.plot_domain(-15, +15, -15, +15, rotation_axis=[1.0,
+        1.0, 1.0], rotation_angle_in_degree=35.0, plot_simulation_domain=True)
+
+Adding events
+-------------
+All events have to be stored in the *EVENTS* subfolder of the project. They
+have to valid QuakeML files with full moment tensor information. SES3DPy
+provides some convenience methods for this purpose. One can leverage the IRIS
+SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT events.
+Simply search for an event and copy the url. The **iris2quakeml** script will
+then grab the QuakeML from the url and store an XML file in the current folder.
+
+.. code-block:: bash
+
+    $ cd EVENTS
+    $ iris2quakeml http://www.iris.edu/spud/momenttensor/878180
+
+All events can be viewed with
+
+.. code-block:: bash
+
+    $ ses3dpy plot_events
+
+
+.. plot::
+
+    import ses3dpy.visualization
+    map = ses3dpy.visualization.plot_domain(-15, +15, -15, +15,
+        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=35.0,
+        show_plot=False)
+    # Create event.
+    from obspy.core.event import *
+    ev = Event()
+    cat = Catalog(events=[ev])
+    org = Origin()
+    fm = FocalMechanism()
+    mt = MomentTensor()
+    t = Tensor()
+    ev.origins.append(org)
+    ev.focal_mechanisms.append(fm)
+    fm.moment_tensor = mt
+    mt.tensor = t
+    org.latitude = -5.91
+    org.longitude = 26.42
+    t.m_rr = -2.456e+18
+    t.m_tt = 1.035e+18
+    t.m_pp = 1.421e+18
+    t.m_rt = -1.774e+18
+    t.m_rp = -4.48e+17
+    t.m_tp = 2.448e+18
+    ses3dpy.visualization.plot_events(cat, map)
+
+
 
 Indices and tables
 ==================

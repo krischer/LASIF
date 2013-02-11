@@ -10,11 +10,11 @@ Project management class.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from obspy import readEvents
 import os
 from lxml import etree
-import numpy as np
+import matplotlib.pyplot as plt
 
-import rotations
 import visualization
 
 
@@ -59,13 +59,34 @@ class Project(object):
         self.domain["rotation_angle"] = \
             float(rotation.find("rotation_angle_in_degree").text)
 
-    def plot_domain(self, resolution="c"):
+    def plot_domain(self):
         bounds = self.domain["bounds"]
         visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
             bounds["maximum_longitude"],
             rotation_axis=self.domain["rotation_axis"],
-            rotation_angle_in_degree=self.domain["rotation_angle"])
+            rotation_angle_in_degree=self.domain["rotation_angle"],
+            plot_simulation_domain=True, show_plot=True)
+
+    def read_events(self):
+        """
+        Parses all events.
+        """
+        self.events = readEvents(os.path.join(self.paths["events"], "*%sxml" %
+            os.path.extsep))
+
+    def plot_events(self, resolution="c"):
+        bounds = self.domain["bounds"]
+        map = visualization.plot_domain(bounds["minimum_latitude"],
+            bounds["maximum_latitude"], bounds["minimum_longitude"],
+            bounds["maximum_longitude"],
+            rotation_axis=self.domain["rotation_axis"],
+            rotation_angle_in_degree=self.domain["rotation_angle"],
+            plot_simulation_domain=False, show_plot=False)
+        if not hasattr(self, "events") or not self.events:
+            self.read_events()
+        visualization.plot_events(self.events, map_object=map)
+        plt.show()
 
     def _setup_paths(self, root_path):
         """
@@ -75,3 +96,4 @@ class Project(object):
         self.paths["root"] = root_path
         self.paths["domain_definition"] = os.path.join(root_path,
             "simulation_domain.xml")
+        self.paths["events"] = os.path.join(root_path, "EVENTS")

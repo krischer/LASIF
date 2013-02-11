@@ -28,7 +28,8 @@ setup_config = dict(
     entry_points={
         # Register the console scripts.
         "console_scripts": [
-            "ses3dpy = ses3dpy.scripts.ses3dpy_cli:main"
+            "ses3dpy = ses3dpy.scripts.ses3dpy_cli:main",
+            "iris2quakeml = ses3dpy.scripts.iris2quakeml:main"
         ],
         # Register the SES3D reading function with ObsPy.
         "obspy.plugin.waveform": "SES3D = ses3dpy.ses3d_file_parser",

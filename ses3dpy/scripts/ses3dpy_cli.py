@@ -31,21 +31,30 @@ def _find_project_root(folder):
     folder = folder
     for _ in xrange(max_folder_depth):
         if os.path.exists(os.path.join(folder, "simulation_domain.xml")):
-            return os.path.abspath(folder)
+            return Project(os.path.abspath(folder))
         folder = os.path.join(folder, os.path.pardir)
     msg = "Not inside a SES3D project."
     raise SES3DCommandLineException(msg)
 
 
-def ses3d_show_domain(args):
+def ses3d_plot_domain(args):
     """
-    Usage ses3dpy show_domain
+    Usage ses3dpy plot_domain
 
     Plots the project's domain on a map.
     """
-    root = _find_project_root(".")
-    proj = Project(root)
+    proj = _find_project_root(".")
     proj.plot_domain()
+
+
+def ses3d_plot_events(args):
+    """
+    Usage ses3dpy plot_events
+
+    Plots all events.
+    """
+    proj = _find_project_root(".")
+    proj.plot_events()
 
 
 def ses3d_info(args):
@@ -54,8 +63,8 @@ def ses3d_info(args):
 
     Print information about the current project.
     """
-    root = _find_project_root(".")
-    proj = Project(root)
+    proj = _find_project_root(".")
+    print(proj)
 
 
 def ses3d_init_project(args):
@@ -90,18 +99,18 @@ def ses3d_init_project(args):
         "  <name>{project_name}</name>\n"
         "  <description></description>\n"
         "  <domain_bounds>\n"
-        "    <minimum_longitude>-10.0</minimum_longitude>\n"
-        "    <maximum_longitude>10.0</maximum_longitude>\n"
-        "    <minimum_latitude>-10.0</minimum_latitude>\n"
-        "    <maximum_latitude>10.0</maximum_latitude>\n"
+        "    <minimum_longitude>-15.0</minimum_longitude>\n"
+        "    <maximum_longitude>15.0</maximum_longitude>\n"
+        "    <minimum_latitude>-15.0</minimum_latitude>\n"
+        "    <maximum_latitude>15.0</maximum_latitude>\n"
         "    <minimum_depth_in_km>0.0</minimum_depth_in_km>\n"
         "    <maximum_depth_in_km>200.0</maximum_depth_in_km>\n"
         "  </domain_bounds>\n"
         "  <domain_rotation>\n"
-        "    <rotation_axis_x>0.0</rotation_axis_x>\n"
+        "    <rotation_axis_x>1.0</rotation_axis_x>\n"
         "    <rotation_axis_y>1.0</rotation_axis_y>\n"
-        "    <rotation_axis_z>0.0</rotation_axis_z>\n"
-        "    <rotation_angle_in_degree>-25.0</rotation_angle_in_degree>\n"
+        "    <rotation_axis_z>1.0</rotation_axis_z>\n"
+        "    <rotation_angle_in_degree>35.0</rotation_angle_in_degree>\n"
         "  </domain_rotation>\n"
         "</domain>\n")
 
