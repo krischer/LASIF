@@ -120,7 +120,10 @@ def iris2quakeml(url):
     mag.origin_id = ev.origins[0].resource_id
     # This is the formula given on the GCMT homepage.
     mag.mag = (2.0 / 3.0) * (math.log10(seismic_moment_in_dyn_cm) - 16.1)
+    mag.resource_id = ev.origins[0].resource_id.resource_id.replace("Origin",
+        "Magnitude")
     ev.magnitudes = [mag]
+    ev.preferred_magnitude_id = mag.resource_id
 
     # Ugly asserts -- this is just a simple script.
     assert(len(ev.magnitudes) == 1)
@@ -139,7 +142,7 @@ def iris2quakeml(url):
         mt.scalar_moment_errors.uncertainty /= 1E7
     p_axes = ev.focal_mechanisms[0].principal_axes
     for ax in [p_axes.t_axis, p_axes.p_axis, p_axes.n_axis]:
-        if ax is None or ax.length:
+        if ax is None or not ax.length:
             continue
         ax.length /= 1E7
 
@@ -152,7 +155,10 @@ def iris2quakeml(url):
         (region_name, ev.magnitudes[0].mag, ev.origins[0].time.year,
         ev.origins[0].time.month, ev.origins[0].time.day,
         ev.origins[0].time.hour, ev.origins[0].time.minute)
+
     cat = Catalog()
+    cat.resource_id = ev.origins[0].resource_id.resource_id.replace("Origin",
+        "EventParameters")
     cat.append(ev)
     cat.write(event_name, format="quakeml")
     print "Written file", event_name
