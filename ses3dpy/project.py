@@ -97,3 +97,5 @@ class Project(object):
         self.paths["domain_definition"] = os.path.join(root_path,
             "simulation_domain.xml")
         self.paths["events"] = os.path.join(root_path, "EVENTS")
+        self.paths["data"] = os.path.join(root_path, "DATA")
+        self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")

@@ -12,6 +12,7 @@ The main SES3DPy console script.
 FCT_PREFIX = "ses3d_"
 
 import colorama
+import glob
 import os
 import sys
 
@@ -67,6 +68,40 @@ def ses3d_info(args):
     print(proj)
 
 
+def init_folder_structure(root_folder):
+    """
+    Updates or initializes a projects folder structure.
+    """
+    for folder in ["EVENTS", "DATA", "SYNTHETICS", "MODELS"]:
+        full_path = os.path.join(root_folder, folder)
+        if os.path.exists(full_path):
+            continue
+        os.makedirs(full_path)
+
+
+def ses3d_update_structure(args):
+    """
+    Usage: ses3dpy update_structure
+
+    Updates the folder structure of a project. Will create data and synthetics
+    subfolders for every event.
+    """
+    proj = _find_project_root(".")
+    init_folder_structure(proj.paths["root"])
+
+    event_folder = proj.paths["events"]
+    data_folder = proj.paths["data"]
+    synth_folder = proj.paths["synthetics"]
+    for event in glob.iglob(os.path.join(event_folder, "*.xml")):
+        name = os.path.splitext(os.path.basename(event))[0]
+        data_subfolder = os.path.join(data_folder, name)
+        synth_subfolder = os.path.join(synth_folder, name)
+        for f in [data_subfolder, synth_subfolder]:
+            if os.path.exists(f):
+                continue
+            os.makedirs(f)
+
+
 def ses3d_init_project(args):
     """
     Usage: ses3dpy init_project FOLDER_PATH
@@ -88,10 +123,7 @@ def ses3d_init_project(args):
         msg = "Failed creating directory %s. Permissions?" % folder_path
         raise SES3DCommandLineException(msg)
     # Now create all the subfolders.
-    os.mkdir(os.path.join(folder_path, "EVENTS"))
-    os.mkdir(os.path.join(folder_path, "DATA"))
-    os.mkdir(os.path.join(folder_path, "SYNTHETICS"))
-    os.mkdir(os.path.join(folder_path, "MODELS"))
+    init_folder_structure(folder_path)
 
     xml_file = (
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
