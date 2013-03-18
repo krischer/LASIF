@@ -2,29 +2,31 @@
 # -*- coding: utf-8 -*-
 """
 Download and fix the QuakeML files provided by the IRIS SPUD momenttensor
-service
+service:
 
 http://www.iris.edu/spud/momenttensor
 
 Downloads the files and saves them as a QuakeML file. You can either
 refer to the site displaying the event or the quakeml url.
 
-=============================================
-=============================================
-Usage:
+**Usage:**
 
-python iris2quakeml.py http://www.iris.edu/spud/momenttensor/1055532
+Use the SPUD webinterface to search for an event and copy the URL for one
+event. Now execute the **iris2quakeml** command with that URL. The file will be
+downloaded and stored as a QuakeML 1.2 file in the current folder.
 
-or
+.. code-block:: bash
 
-python iris2quakeml.py \
-    http://www.iris.edu/spudservice/momenttensor/1055532/quakeml
-=============================================
-=============================================
+    $ iris2quakeml http://www.iris.edu/spud/momenttensor/1055532
+    Downloading http://www.iris.edu/spudservice/momenttensor/1055532/quakeml...
+    Written file GCMT_event_NEAR_EAST_COAST_OF_HONSHU,_JAPAN_Mag_5.5_2013-1-8\
+-7-51.xml
+
+
 
 Requirements:
-    * ObsPy >= 0.8.3
-    * Requests
+    * `ObsPy <http://obspy.org>`_ >= 0.8.3
+    * `Requests <http://python-requests.org>`_
 
 
 Before a file is written, several things are done:
