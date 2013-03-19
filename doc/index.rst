@@ -3,21 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SES3DPy's documentation!
+Welcome to SES3DPy's Documentation!
 ===================================
 
-Contents:
-
-.. toctree::
-   :maxdepth: 2
-
-    /rotations
-    /windows
+SES3DPy is a **data-driven workflow tool** to perform full waveform inversions.
+It is opinionated and strict meaning that it forces a certain data and
+directory structure. The upside is that it only requires a very minimal amount
+of configuration and maintenance. It attempts to gather all necessary
+information from the data itself so there is no need to keep index or content
+files.
 
 All parts of SES3DPy can work completely on their own. See the class and
 function documentation at the end of this document. Furthermore SES3DPy offers
 a project based inversion workflow management system which is introduced in the
 following tutorial.
+
 
 Tutorial
 ========
@@ -29,7 +29,7 @@ also serves as a preparatory steps towards a fully database driven full
 waveform inversion as all necessary information is already stored in an easily
 indexable data format.
 
-Creating a new Project
+Creating a New Project
 ----------------------
 The necessary first step, whether for starting a new inversion or migrating an
 already existing inversion to SES3DPy, is to create a new project. In the
@@ -42,11 +42,16 @@ following the project will be called **MyInversion**.
 This will create the following directory structure::
 
     MyInversion
-    |-- DATA
-    |-- EVENTS
-    |-- MODELS
-    |-- SYNTHETICS
-    |-- simulation_domain.xml
+    ├── DATA
+    ├── EVENTS
+    ├── MODELS
+    ├── STATIONS
+    │   ├── RESP
+    │   ├── SEED
+    │   └── StationXML
+    ├── SYNTHETICS
+    └── simulation_domain.xml
+
 
 The domain each project works in, is defined in the **simulation_domain.xml**
 file. It is a simple, self-explanatory XML format. The nature of SES3D's
@@ -102,14 +107,16 @@ simulation domain.
     ses3dpy.visualization.plot_domain(-20, +20, -20, +20, rotation_axis=[1.0,
         1.0, 1.0], rotation_angle_in_degree=35.0, plot_simulation_domain=True)
 
-Adding events
--------------
+Adding Seismic Events
+---------------------
 All events have to be stored in the *EVENTS* subfolder of the project. They
 have to be valid QuakeML files with full moment tensor information. SES3DPy
 provides some convenience methods for this purpose. One can leverage the IRIS
 SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT events.
 Simply search for an event and copy the url. The **iris2quakeml** script will
 then grab the QuakeML from the url and store an XML file in the current folder.
+
+See :doc:`iris2quakeml` for more information.
 
 .. code-block:: bash
 
@@ -171,6 +178,81 @@ All events can be viewed with
     ses3dpy.visualization.plot_events(cat, map)
 
 
+Waveform Data
+-------------
+Every inversion needs real data to be able to quantify misfits. The waveform
+data for all events are stored in the *DATA* subfolder. The data for each
+single event will be stored in a subfolder of the *DATA* folder with the
+**same name as the QuakeML file minus the .xml**.
+
+To automatically create the necessary folder for each event run
+
+.. code-block:: bash
+
+    $ ses3dpy update_structure
+
+This will result in a directory structure in the fashion of::
+
+    MyInversion
+    ├── DATA
+    │   ├── GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57
+    │   └── GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8
+    ├── EVENTS
+    │   ├── GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57.xml
+    │   └── GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8.xml
+    ├── MODELS
+    ├── STATIONS
+    │   ├── RESP
+    │   ├── SEED
+    │   └── StationXML
+    ├── SYNTHETICS
+    │   ├── GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57
+    │   └── GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8
+    └── simulation_domain.xml
+
+
+All data in the *DATA* subfolder has to be real data. The data is further
+structured by assigning a tag to every data set. A tag is assigned by simply
+placing a folder in *ROOT/DATA/EVENT_NAME* and putting all data in there. The
+special tag *raw* is reserved for the raw waveforms straight from the
+datacenters or some other source. Other tags should describe the filtering and
+processing applied to the data. The same is true for synthetic waveform data,
+except that in that case, the data resides in the *SYNTHETICS* folder and the
+tags should describe the simulation ran to obtain the waveforms.
+
+After a while, the structure might look like this::
+
+    MyInversion
+    ├── DATA
+        └── GCMT_event_CENTRAL_ITALY_Mag_5.9_2009-4-6-1-32
+            ├── raw
+                ...
+            ├── 100s_to_10s_bandpass
+                ...
+            └── 200s_to_20s_bandpass
+                ...
+    ├── SYNTHETICS
+        └── GCMT_event_CENTRAL_ITALY_Mag_5.9_2009-4-6-1-32
+            ├── inversion_1_100s
+                ...
+            ├── inversion_2_100s
+                ...
+            └── inversion_2_50s
+                ...
+    └── ...
+
+**The user is responsible** for adhering to that structure. Otherwise other
+parts of SES3DPy cannot operate properly.
+
+Station Data
+------------
+SES3DPy needs to know the coordinates and instrument response of each channel.
+One way to achieve this to use SAC files, which contain coordinates, and RESP
+files containing the response information for each channel. Another possibility
+is to use MiniSEED waveform data and the corresponding dataless SEED or
+StationXML files.
+
+
 
 Indices and tables
 ==================
@@ -178,4 +260,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

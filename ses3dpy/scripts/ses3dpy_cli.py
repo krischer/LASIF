@@ -72,11 +72,19 @@ def init_folder_structure(root_folder):
     """
     Updates or initializes a projects folder structure.
     """
-    for folder in ["EVENTS", "DATA", "SYNTHETICS", "MODELS"]:
+    for folder in ["EVENTS", "DATA", "SYNTHETICS", "MODELS", "STATIONS"]:
         full_path = os.path.join(root_folder, folder)
         if os.path.exists(full_path):
             continue
         os.makedirs(full_path)
+
+    station_folder = os.path.join(root_folder, "STATIONS")
+    subfolders = ["SEED", "StationXML", "RESP"]
+    for f in subfolders:
+        folder = os.path.join(station_folder, f)
+        if os.path.exists(folder):
+            continue
+        os.makedirs(folder)
 
 
 def ses3d_update_structure(args):

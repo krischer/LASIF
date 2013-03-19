@@ -99,3 +99,4 @@ class Project(object):
         self.paths["events"] = os.path.join(root_path, "EVENTS")
         self.paths["data"] = os.path.join(root_path, "DATA")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
+        self.paths["stations"] = os.path.join(root_path, "STATIONS")
