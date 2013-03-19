@@ -73,6 +73,7 @@ look something like the following.
         <name>MyInversion</name>
         <description></description>
         <download_settings>
+            <arclink_username></arclink_username>
             <seconds_before_event>300</seconds_before_event>
             <seconds_after_event>3600</seconds_after_event>
         </download_settings>
@@ -96,10 +97,15 @@ look something like the following.
     </fwiw_project>
 
 
-It should be fairly self-explanatory. The *boundary_width_in_degree* tag is
-just used for the download helpers. No data will be downloaded within
-*boundary_width_in_degree* distance to the domain border. This is useful for
-e.g. absorbing boundary conditions.
+It should be fairly self-explanatory.
+
+* The *boundary_width_in_degree* tag is just used for the download helpers. No
+  data will be downloaded within *boundary_width_in_degree* distance to the
+  domain border. This is useful for e.g. absorbing boundary conditions.
+* The *arclink_username* tag should be your email. It will be send with all
+  requests to the ArcLink network. They ask for it in case they have to contact
+  you for whatever reason. Please provide a real email address. Must not be
+  empty.
 
 
 .. note::

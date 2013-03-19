@@ -139,6 +139,7 @@ def fwiw_init_project(args):
         "    <name>{project_name}</name>\n"
         "    <description></description>\n"
         "    <download_settings>\n"
+        "        <arclink_username></arclink_username>\n"
         "        <seconds_before_event>300</seconds_before_event>\n"
         "        <seconds_after_event>3600</seconds_after_event>\n"
         "    </download_settings>\n"
