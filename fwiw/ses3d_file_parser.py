@@ -18,7 +18,7 @@ from obspy.core import AttribDict, Trace, Stream
 from StringIO import StringIO
 import warnings
 
-from ses3dpy import rotations
+from fwiw import rotations
 
 
 # The three different possibilities for the first line of a SES3D file. Used

@@ -16,7 +16,7 @@ import os
 from StringIO import StringIO
 import unittest
 
-from ses3dpy.ses3d_file_parser import is_SES3D, read_SES3D
+from fwiw.ses3d_file_parser import is_SES3D, read_SES3D
 
 
 class SES3DFileParserTestCase(unittest.TestCase):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-The main SES3DPy console script.
+The main FWIW console script.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
@@ -9,24 +9,24 @@ The main SES3DPy console script.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-FCT_PREFIX = "ses3d_"
+FCT_PREFIX = "fwiw_"
 
 import colorama
 import glob
 import os
 import sys
 
-from ses3dpy.project import Project
+from fwiw.project import Project
 
 
-class SES3DCommandLineException(Exception):
+class FWIWCommandLineException(Exception):
     pass
 
 
 def _find_project_root(folder):
     """
     Will search upwards from the given folder until a folder containing a
-    SES3DPy root structure is found. The absolute path to the root is returned.
+    FWIW root structure is found. The absolute path to the root is returned.
     """
     max_folder_depth = 10
     folder = folder
@@ -34,13 +34,13 @@ def _find_project_root(folder):
         if os.path.exists(os.path.join(folder, "simulation_domain.xml")):
             return Project(os.path.abspath(folder))
         folder = os.path.join(folder, os.path.pardir)
-    msg = "Not inside a SES3D project."
-    raise SES3DCommandLineException(msg)
+    msg = "Not inside a FWIW project."
+    raise FWIWCommandLineException(msg)
 
 
-def ses3d_plot_domain(args):
+def fwiw_plot_domain(args):
     """
-    Usage ses3dpy plot_domain
+    Usage fwiw plot_domain
 
     Plots the project's domain on a map.
     """
@@ -48,9 +48,9 @@ def ses3d_plot_domain(args):
     proj.plot_domain()
 
 
-def ses3d_plot_events(args):
+def fwiw_plot_events(args):
     """
-    Usage ses3dpy plot_events
+    Usage fwiw plot_events
 
     Plots all events.
     """
@@ -58,9 +58,9 @@ def ses3d_plot_events(args):
     proj.plot_events()
 
 
-def ses3d_info(args):
+def fwiw_info(args):
     """
-    Usage ses3dpy info
+    Usage fwiw info
 
     Print information about the current project.
     """
@@ -87,9 +87,9 @@ def init_folder_structure(root_folder):
         os.makedirs(folder)
 
 
-def ses3d_update_structure(args):
+def fwiw_update_structure(args):
     """
-    Usage: ses3dpy update_structure
+    Usage: fwiw update_structure
 
     Updates the folder structure of a project. Will create data and synthetics
     subfolders for every event.
@@ -110,26 +110,26 @@ def ses3d_update_structure(args):
             os.makedirs(f)
 
 
-def ses3d_init_project(args):
+def fwiw_init_project(args):
     """
-    Usage: ses3dpy init_project FOLDER_PATH
+    Usage: fwiw init_project FOLDER_PATH
 
-    Creates a new SES3DPy project at FOLDER_PATH. FOLDER_PATH must not exist
+    Creates a new FWIW project at FOLDER_PATH. FOLDER_PATH must not exist
     yet and will be created.
     """
     if len(args) != 1:
         msg = "FOLDER_PATH must be given. No other arguments allowed."
-        raise SES3DCommandLineException(msg)
+        raise FWIWCommandLineException(msg)
     folder_path = args[0]
     if os.path.exists(folder_path):
         msg = "The given FOLDER_PATH already exists. It must not exist yet."
-        raise SES3DCommandLineException(msg)
+        raise FWIWCommandLineException(msg)
     folder_path = os.path.abspath(folder_path)
     try:
         os.makedirs(folder_path)
     except:
         msg = "Failed creating directory %s. Permissions?" % folder_path
-        raise SES3DCommandLineException(msg)
+        raise FWIWCommandLineException(msg)
     # Now create all the subfolders.
     init_folder_structure(folder_path)
 
@@ -156,7 +156,7 @@ def ses3d_init_project(args):
         "</domain>\n")
 
     with open(os.path.join(folder_path, "simulation_domain.xml"), "wt") as \
-        open_file:
+            open_file:
         open_file.write(xml_file.format(project_name=os.path.basename(
             folder_path)))
 
@@ -171,7 +171,7 @@ def main():
     functions. Also provides some convenience functionality like error catching
     and printing the help.
     """
-    # Get all functions in this script starting with "ses3d_".
+    # Get all functions in this script starting with "fwiw_".
     fcts = {fct_name[len(FCT_PREFIX):]: fct for (fct_name, fct) in
             globals().iteritems()
             if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")}
@@ -192,7 +192,7 @@ def main():
         sys.exit(0)
     try:
         fcts[fct_name](further_args)
-    except SES3DCommandLineException as e:
+    except FWIWCommandLineException as e:
         print(colorama.Fore.RED + ("Error: %s\n" % e.message) +
             colorama.Style.RESET_ALL)
         print_fct_help(fct_name)
@@ -203,12 +203,12 @@ def _print_generic_help(fcts):
     """
     Small helper function printing a generic help message.
     """
-    print("Usage: ses3dpy FUNCTION PARAMETERS\n")
+    print("Usage: fwiw FUNCTION PARAMETERS\n")
     print("Available functions:")
     for name in fcts.iterkeys():
         print("\t%s" % name)
     print("\nTo get help for a specific function type")
-    print("\tses3dpy FUNCTION help")
+    print("\tfwiw FUNCTION help")
 
 
 def print_fct_help(fct_name):

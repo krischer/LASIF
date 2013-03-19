@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
+FWIW (Full Waveform Inversion Workflow | For What It's Worth)
+
 A collection of scripts that are useful for running a full waveform inversion
-workflow with SES3D.
+workflow with SES3D 4.0.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de) and
@@ -14,28 +16,28 @@ workflow with SES3D.
 from setuptools import setup
 
 setup_config = dict(
-    name="ses3dpy",
+    name="fwiw",
     version="0.0.1a",
     description="",
     author="Lion Krischer and Andreas Fichtner",
     author_email="krischer@geophysik.uni-muenchen.de",
     url="",
-    packages=["ses3dpy"],
-    package_dir={"ses3dpy":  "ses3dpy"},
+    packages=["fwiw"],
+    package_dir={"fwiw": "fwiw"},
     license="GNU General Public License, version 3 (GPLv3)",
     platforms="OS Independent",
-    install_requires=["obspy >= 0.8.0"],
+    install_requires=["obspy >= 0.8.3"],
     entry_points={
         # Register the console scripts.
         "console_scripts": [
-            "ses3dpy = ses3dpy.scripts.ses3dpy_cli:main",
-            "iris2quakeml = ses3dpy.scripts.iris2quakeml:main"
+            "fwiw = fwiw.scripts.fwiw_cli:main",
+            "iris2quakeml = fwiw.scripts.iris2quakeml:main"
         ],
         # Register the SES3D reading function with ObsPy.
-        "obspy.plugin.waveform": "SES3D = ses3dpy.ses3d_file_parser",
+        "obspy.plugin.waveform": "SES3D = fwiw.ses3d_file_parser",
         "obspy.plugin.waveform.SES3D": [
-            "isFormat = ses3dpy.ses3d_file_parser:is_SES3D",
-            "readFormat = ses3dpy.ses3d_file_parser:read_SES3D"
+            "isFormat = fwiw.ses3d_file_parser:is_SES3D",
+            "readFormat = fwiw.ses3d_file_parser:read_SES3D"
         ]
     }
 )

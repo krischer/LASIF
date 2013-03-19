@@ -12,7 +12,7 @@ Test suite for the rotations.
 import numpy as np
 import unittest
 
-from ses3dpy import rotations
+from fwiw import rotations
 
 
 class RotationsTestCase(unittest.TestCase):
