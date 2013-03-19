@@ -145,6 +145,7 @@ def ses3d_init_project(args):
         "    <maximum_latitude>20.0</maximum_latitude>\n"
         "    <minimum_depth_in_km>0.0</minimum_depth_in_km>\n"
         "    <maximum_depth_in_km>200.0</maximum_depth_in_km>\n"
+        "    <boundary_width_in_degree>3.0</boundary_width_in_degree>\n"
         "  </domain_bounds>\n"
         "  <domain_rotation>\n"
         "    <rotation_axis_x>1.0</rotation_axis_x>\n"

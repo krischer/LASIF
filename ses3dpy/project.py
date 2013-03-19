@@ -50,6 +50,8 @@ class Project(object):
             float(bounds.find("minimum_depth_in_km").text)
         self.domain["bounds"]["maximum_depth_in_km"] = \
             float(bounds.find("maximum_depth_in_km").text)
+        self.domain["bounds"]["boundary_width_in_degree"] = \
+            float(bounds.find("boundary_width_in_degree").text)
 
         rotation = domain.find("domain_rotation")
         self.domain["rotation_axis"] = [

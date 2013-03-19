@@ -25,8 +25,8 @@ SES3DPy works with the notion of so called inversion projects. A project is
 defined as a series of iterations working on the same physical domain. Where
 possible and useful, SES3DPy will use XML files to store information. The
 reasoning behind this is twofold. It is easily machine and human readable. It
-also serves as a preparatory steps towards a fully database driven full
-waveform inversion as all necessary information is already stored in an easily
+also serves as a preparatory step towards a fully database driven full waveform
+inversion workflow as all necessary information is already stored in an easily
 indexable data format.
 
 Creating a New Project
@@ -77,6 +77,7 @@ look something like the following.
         <maximum_latitude>20.0</maximum_latitude>
         <minimum_depth_in_km>0.0</minimum_depth_in_km>
         <maximum_depth_in_km>200.0</maximum_depth_in_km>
+        <boundary_width_in_degree>3.0</boundary_width_in_degree>
       </domain_bounds>
       <domain_rotation>
         <rotation_axis_x>1.0</rotation_axis_x>
@@ -85,6 +86,13 @@ look something like the following.
         <rotation_angle_in_degree>35.0</rotation_angle_in_degree>
       </domain_rotation>
     </domain>
+
+
+It should be fairly self-explanatory. The *boundary_width_in_degree* tag is
+just used for the download helpers. No data will be downloaded within
+*boundary_width_in_degree* distance to the domain border. This is useful for
+e.g. absorbing boundary conditions.
+
 
 .. note::
 
@@ -99,13 +107,15 @@ At any point you can have a look at the defined domain with
     $ ses3dpy plot_domain
 
 This will open a window showing the location of the physical domain and the
-simulation domain.
+simulation domain. The inner contours show the domain minus the previously
+defined boundary width.
 
 .. plot::
 
     import ses3dpy.visualization
-    ses3dpy.visualization.plot_domain(-20, +20, -20, +20, rotation_axis=[1.0,
-        1.0, 1.0], rotation_angle_in_degree=35.0, plot_simulation_domain=True)
+    ses3dpy.visualization.plot_domain(-20, +20, -20, +20, 3.0,
+        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=35.0,
+        plot_simulation_domain=True)
 
 Adding Seismic Events
 ---------------------
@@ -134,7 +144,7 @@ All events can be viewed with
 .. plot::
 
     import ses3dpy.visualization
-    map = ses3dpy.visualization.plot_domain(-20, +20, -20, +20,
+    map = ses3dpy.visualization.plot_domain(-20, +20, -20, +20, 3.0,
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=35.0,
         show_plot=False)
     # Create event.
@@ -250,7 +260,56 @@ SES3DPy needs to know the coordinates and instrument response of each channel.
 One way to achieve this to use SAC files, which contain coordinates, and RESP
 files containing the response information for each channel. Another possibility
 is to use MiniSEED waveform data and the corresponding dataless SEED or
-StationXML files.
+StationXML files. Please keep in mind that SES3DPy currently expects to only
+have channels of one station in each dataless SEED and StationXML file.
+
+Naming scheme
+^^^^^^^^^^^^^
+
+**dataless SEED**
+
+All dataless SEED files are expected to be in the *STATIONS/SEED* directory and
+be named after the following scheme::
+
+    dataless.NETWORK_STATION[.X]
+
+*NETWORK*, and *STATION* should be replaced with the corresponding network and
+stations codes. It is possible that multiple files are needed for each station
+(e.g. different files for different time intervals/channels) and thus *.1*,
+*.2*, ... can be appended to the filename. SES3DPy will automatically choose
+the correct file in case they need to be accessed.
+
+**StationXML**
+
+All StationXML files are expected to be placed in the *STATIONS/StationXML*
+folder and following the scheme::
+
+    station.NETWORK_STATION[.X].xml
+
+The logic for for the different parts is the same as for the dataless SEED
+files described in the previous paragraph.
+
+**RESP Files**
+
+All RESP files are to be put in the *STATIONS/RESP* folder with the following
+name::
+
+    RESP.NETWORK.STATION.LOCATION.CHANNEL[.X]
+
+In contrast to the two other station information formats the RESP filename also
+has to include the location and channel identifiers.
+
+
+Download Helpers
+----------------
+
+SES3DPy comes with a collection of scripts that help downloading waveform and
+station data from the IRIS and ArcLink services. Waveform data will always be
+downloaded as MiniSEED. Station data will, due to the different products of the
+dataservices, either be downloaded as StationXML (IRIS) or dataless SEED.
+Furthermore, as many tools so far are not able to deal with StationXML data,
+the RESP files for each channel will also be downloaded. This is redundant
+information but enables the use of many tools otherwise not possible.
 
 
 
