@@ -18,25 +18,52 @@ import matplotlib.pyplot as plt
 import visualization
 
 
+class FWIWException(Exception):
+    pass
+
+
 class Project(object):
     def __init__(self, project_root_path):
         """
+        Upon intialization, set the paths and read the config file.
         """
         self._setup_paths(project_root_path)
-        self._read_domain()
+        self._read_config_file()
 
-    def _read_domain(self):
+    def __str__(self):
         """
-        Parse the domain definition file.
+        """
+        ret_str = "FWIW project \"%s\"\n" % self.config["name"]
+        ret_str += "\tDescription: %s\n" % self.config["description"]
+        ret_str += "\tProject root: %s\n" % self.paths["root"]
+        return ret_str
+
+    def _read_config_file(self):
+        """
+        Parse the config file.
         """
         root = etree.parse(self.paths["config_file"]).getroot()
+
+        self.config = {}
+        self.config["name"] = root.find("name").text
+        self.config["description"] = root.find("description").text
+        # The description field is the only field allowed to be empty.
+        if self.config["description"] is None:
+            self.config["description"] = ""
+
+        self.config["download_settings"] = {}
+        dl_settings = root.find("download_settings")
+        self.config["download_settings"]["arclink_username"] = \
+            dl_settings.find("arclink_username").text
+        self.config["download_settings"]["seconds_before_event"] = \
+            float(dl_settings.find("seconds_before_event").text)
+        self.config["download_settings"]["seconds_after_event"] = \
+            float(dl_settings.find("seconds_after_event").text)
+
+        # Read the domain.
         domain = root.find("domain")
         self.domain = {}
         self.domain["bounds"] = {}
-        #self.domain["name"] = domain.find("name").text
-        #self.domain["description"] = domain.find("description").text
-        #if self.domain["description"] is None:
-            #self.domain["description"] = ""
 
         bounds = domain.find("domain_bounds")
         self.domain["bounds"]["minimum_latitude"] = \
