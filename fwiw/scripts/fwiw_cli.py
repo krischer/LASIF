@@ -31,7 +31,7 @@ def _find_project_root(folder):
     max_folder_depth = 10
     folder = folder
     for _ in xrange(max_folder_depth):
-        if os.path.exists(os.path.join(folder, "simulation_domain.xml")):
+        if os.path.exists(os.path.join(folder, "config.xml")):
             return Project(os.path.abspath(folder))
         folder = os.path.join(folder, os.path.pardir)
     msg = "Not inside a FWIW project."
@@ -135,27 +135,33 @@ def fwiw_init_project(args):
 
     xml_file = (
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-        "<domain>\n"
-        "  <name>{project_name}</name>\n"
-        "  <description></description>\n"
-        "  <domain_bounds>\n"
-        "    <minimum_longitude>-20.0</minimum_longitude>\n"
-        "    <maximum_longitude>20.0</maximum_longitude>\n"
-        "    <minimum_latitude>-20.0</minimum_latitude>\n"
-        "    <maximum_latitude>20.0</maximum_latitude>\n"
-        "    <minimum_depth_in_km>0.0</minimum_depth_in_km>\n"
-        "    <maximum_depth_in_km>200.0</maximum_depth_in_km>\n"
-        "    <boundary_width_in_degree>3.0</boundary_width_in_degree>\n"
-        "  </domain_bounds>\n"
-        "  <domain_rotation>\n"
-        "    <rotation_axis_x>1.0</rotation_axis_x>\n"
-        "    <rotation_axis_y>1.0</rotation_axis_y>\n"
-        "    <rotation_axis_z>1.0</rotation_axis_z>\n"
-        "    <rotation_angle_in_degree>35.0</rotation_angle_in_degree>\n"
-        "  </domain_rotation>\n"
-        "</domain>\n")
+        "<fwiw_project>\n"
+        "    <name>{project_name}</name>\n"
+        "    <description></description>\n"
+        "    <download_settings>\n"
+        "        <seconds_before_event>300</seconds_before_event>\n"
+        "        <seconds_after_event>3600</seconds_after_event>\n"
+        "    </download_settings>\n"
+        "    <domain>\n"
+        "      <domain_bounds>\n"
+        "        <minimum_longitude>-20.0</minimum_longitude>\n"
+        "        <maximum_longitude>20.0</maximum_longitude>\n"
+        "        <minimum_latitude>-20.0</minimum_latitude>\n"
+        "        <maximum_latitude>20.0</maximum_latitude>\n"
+        "        <minimum_depth_in_km>0.0</minimum_depth_in_km>\n"
+        "        <maximum_depth_in_km>200.0</maximum_depth_in_km>\n"
+        "        <boundary_width_in_degree>3.0</boundary_width_in_degree>\n"
+        "      </domain_bounds>\n"
+        "      <domain_rotation>\n"
+        "        <rotation_axis_x>1.0</rotation_axis_x>\n"
+        "        <rotation_axis_y>1.0</rotation_axis_y>\n"
+        "        <rotation_axis_z>1.0</rotation_axis_z>\n"
+        "        <rotation_angle_in_degree>35.0</rotation_angle_in_degree>\n"
+        "      </domain_rotation>\n"
+        "    </domain>\n"
+        "</fwiw_project>")
 
-    with open(os.path.join(folder_path, "simulation_domain.xml"), "wt") as \
+    with open(os.path.join(folder_path, "config.xml"), "wt") as \
             open_file:
         open_file.write(xml_file.format(project_name=os.path.basename(
             folder_path)))

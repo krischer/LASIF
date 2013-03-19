@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# SES3DPy documentation build configuration file, created by
+# FWIW documentation build configuration file, created by
 # sphinx-quickstart on Fri Feb  1 15:47:43 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -43,7 +43,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'SES3DPy'
+project = u'FWIW'
 copyright = u'2013, Lion Krischer & Andreas Fichtner'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -167,17 +167,17 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'SES3DPydoc'
+htmlhelp_basename = 'FWIWdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_elements = {
 # The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+'papersize': 'a4paper',
 
 # The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+'pointsize': '10pt',
 
 # Additional stuff for the LaTeX preamble.
 #'preamble': '',
@@ -186,7 +186,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'SES3DPy.tex', u'SES3DPy Documentation',
+  ('index', 'FWIW.tex', u'FWIW Documentation',
    u'Lion Krischer \\& Andreas Fichtner', 'manual'),
 ]
 
@@ -216,7 +216,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'ses3dpy', u'SES3DPy Documentation',
+    ('index', 'fwiw', u'FWIW Documentation',
      [u'Lion Krischer & Andreas Fichtner'], 1)
 ]
 
@@ -230,8 +230,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'SES3DPy', u'SES3DPy Documentation',
-   u'Lion Krischer & Andreas Fichtner', 'SES3DPy', 'One line description of project.',
+  ('index', 'FWIW', u'FWIW Documentation',
+   u'Lion Krischer & Andreas Fichtner', 'FWIW', 'One line description of project.',
    'Miscellaneous'),
 ]
 

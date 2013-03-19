@@ -1,6 +1,6 @@
 =================
-ses3dpy.rotations
+fwiw.rotations
 =================
 
-.. automodule:: ses3dpy.rotations
+.. automodule:: fwiw.rotations
     :members:

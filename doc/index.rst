@@ -1,29 +1,31 @@
-.. SES3DPy documentation master file, created by
+.. FWIW documentation master file, created by
    sphinx-quickstart on Fri Feb  1 15:47:43 2013.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SES3DPy's Documentation!
+Welcome to FWIW's Documentation!
 ===================================
 
-SES3DPy is a **data-driven workflow tool** to perform full waveform inversions.
+FWIW (**F**\ ull **W**\ aveform **I**\ nversion **W**\ orkflow or **F**\ or
+**W**\ hat **I**\ 'ts **W**\ orth) is a **data-driven workflow tool** to
+perform full waveform inversions.
 It is opinionated and strict meaning that it forces a certain data and
 directory structure. The upside is that it only requires a very minimal amount
 of configuration and maintenance. It attempts to gather all necessary
 information from the data itself so there is no need to keep index or content
 files.
 
-All parts of SES3DPy can work completely on their own. See the class and
-function documentation at the end of this document. Furthermore SES3DPy offers
+All parts of FWIW can work completely on their own. See the class and
+function documentation at the end of this document. Furthermore FWIW offers
 a project based inversion workflow management system which is introduced in the
 following tutorial.
 
 
 Tutorial
 ========
-SES3DPy works with the notion of so called inversion projects. A project is
+FWIW works with the notion of so called inversion projects. A project is
 defined as a series of iterations working on the same physical domain. Where
-possible and useful, SES3DPy will use XML files to store information. The
+possible and useful, FWIW will use XML files to store information. The
 reasoning behind this is twofold. It is easily machine and human readable. It
 also serves as a preparatory step towards a fully database driven full waveform
 inversion workflow as all necessary information is already stored in an easily
@@ -32,60 +34,66 @@ indexable data format.
 Creating a New Project
 ----------------------
 The necessary first step, whether for starting a new inversion or migrating an
-already existing inversion to SES3DPy, is to create a new project. In the
+already existing inversion to FWIW, is to create a new project. In the
 following the project will be called **MyInversion**.
 
 .. code-block:: bash
 
-    $ ses3dpy init_project MyInversion
+    $ fwiw init_project MyInversion
 
 This will create the following directory structure::
 
     MyInversion
-    ├── DATA
-    ├── EVENTS
-    ├── MODELS
-    ├── STATIONS
-    │   ├── RESP
-    │   ├── SEED
-    │   └── StationXML
-    ├── SYNTHETICS
-    └── simulation_domain.xml
+    |-- config.xml
+    |-- DATA
+    |-- EVENTS
+    |-- MODELS
+    |-- STATIONS
+    |   |-- RESP
+    |   |-- SEED
+    |   |-- StationXML
+    |-- SYNTHETICS
 
 
-The domain each project works in, is defined in the **simulation_domain.xml**
+The configuration for each project works , is defined in the **config.xml**
 file. It is a simple, self-explanatory XML format. The nature of SES3D's
 coordinate system has the effect that simulation is most efficient in
 equatorial regions. Thus it is oftentimes advantageous to rotate the frame of
-reference so that the simulation happens close to the equator. SES3DPy first
+reference so that the simulation happens close to the equator. FWIW first
 defines the simulation domain; the actual simulation happens here. Optional
 rotation parameters define the physical location of the domain. The coordinate
-system for the rotation parameters is described in :py:mod:`ses3dpy.rotations`.
+system for the rotation parameters is described in :py:mod:`fwiw.rotations`.
 You will have to edit the file to adjust it to your region of interest. It will
 look something like the following.
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="utf-8"?>
-    <domain>
-      <name>MyInversion</name>
-      <description></description>
-      <domain_bounds>
-        <minimum_longitude>-20.0</minimum_longitude>
-        <maximum_longitude>20.0</maximum_longitude>
-        <minimum_latitude>-20.0</minimum_latitude>
-        <maximum_latitude>20.0</maximum_latitude>
-        <minimum_depth_in_km>0.0</minimum_depth_in_km>
-        <maximum_depth_in_km>200.0</maximum_depth_in_km>
-        <boundary_width_in_degree>3.0</boundary_width_in_degree>
-      </domain_bounds>
-      <domain_rotation>
-        <rotation_axis_x>1.0</rotation_axis_x>
-        <rotation_axis_y>1.0</rotation_axis_y>
-        <rotation_axis_z>1.0</rotation_axis_z>
-        <rotation_angle_in_degree>35.0</rotation_angle_in_degree>
-      </domain_rotation>
-    </domain>
+    <fwiw_project>
+        <name>MyInversion</name>
+        <description></description>
+        <download_settings>
+            <seconds_before_event>300</seconds_before_event>
+            <seconds_after_event>3600</seconds_after_event>
+        </download_settings>
+        <domain>
+          <domain_bounds>
+            <minimum_longitude>-20.0</minimum_longitude>
+            <maximum_longitude>20.0</maximum_longitude>
+            <minimum_latitude>-20.0</minimum_latitude>
+            <maximum_latitude>20.0</maximum_latitude>
+            <minimum_depth_in_km>0.0</minimum_depth_in_km>
+            <maximum_depth_in_km>200.0</maximum_depth_in_km>
+            <boundary_width_in_degree>3.0</boundary_width_in_degree>
+          </domain_bounds>
+          <domain_rotation>
+            <rotation_axis_x>1.0</rotation_axis_x>
+            <rotation_axis_y>1.0</rotation_axis_y>
+            <rotation_axis_z>1.0</rotation_axis_z>
+            <rotation_angle_in_degree>35.0</rotation_angle_in_degree>
+          </domain_rotation>
+        </domain>
+    </fwiw_project>
 
 
 It should be fairly self-explanatory. The *boundary_width_in_degree* tag is
@@ -96,7 +104,7 @@ e.g. absorbing boundary conditions.
 
 .. note::
 
-    All **ses3dpy** commands work and use the correct project as long as they
+    All **fwiw** commands work and use the correct project as long as they
     are executed somewhere inside a projects folder structure.
 
 At any point you can have a look at the defined domain with
@@ -104,7 +112,7 @@ At any point you can have a look at the defined domain with
 .. code-block:: bash
 
     $ cd MyInversion
-    $ ses3dpy plot_domain
+    $ fwiw plot_domain
 
 This will open a window showing the location of the physical domain and the
 simulation domain. The inner contours show the domain minus the previously
@@ -112,15 +120,15 @@ defined boundary width.
 
 .. plot::
 
-    import ses3dpy.visualization
-    ses3dpy.visualization.plot_domain(-20, +20, -20, +20, 3.0,
+    import fwiw.visualization
+    fwiw.visualization.plot_domain(-20, +20, -20, +20, 3.0,
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=35.0,
         plot_simulation_domain=True)
 
 Adding Seismic Events
 ---------------------
 All events have to be stored in the *EVENTS* subfolder of the project. They
-have to be valid QuakeML files with full moment tensor information. SES3DPy
+have to be valid QuakeML files with full moment tensor information. FWIW
 provides some convenience methods for this purpose. One can leverage the IRIS
 SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT events.
 Simply search for an event and copy the url. The **iris2quakeml** script will
@@ -138,13 +146,13 @@ All events can be viewed with
 
 .. code-block:: bash
 
-    $ ses3dpy plot_events
+    $ fwiw plot_events
 
 
 .. plot::
 
-    import ses3dpy.visualization
-    map = ses3dpy.visualization.plot_domain(-20, +20, -20, +20, 3.0,
+    import fwiw.visualization
+    map = fwiw.visualization.plot_domain(-20, +20, -20, +20, 3.0,
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=35.0,
         show_plot=False)
     # Create event.
@@ -185,7 +193,7 @@ All events can be viewed with
     t.m_rt = -7e+15
     t.m_rp = 3.66e+15
     t.m_tp = -8.16e+15
-    ses3dpy.visualization.plot_events(cat, map)
+    fwiw.visualization.plot_events(cat, map)
 
 
 Waveform Data
@@ -199,26 +207,26 @@ To automatically create the necessary folder for each event run
 
 .. code-block:: bash
 
-    $ ses3dpy update_structure
+    $ fwiw update_structure
 
 This will result in a directory structure in the fashion of::
 
     MyInversion
-    ├── DATA
-    │   ├── GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57
-    │   └── GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8
-    ├── EVENTS
-    │   ├── GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57.xml
-    │   └── GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8.xml
-    ├── MODELS
-    ├── STATIONS
-    │   ├── RESP
-    │   ├── SEED
-    │   └── StationXML
-    ├── SYNTHETICS
-    │   ├── GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57
-    │   └── GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8
-    └── simulation_domain.xml
+    |-- DATA
+    |   |-- GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57
+    |   |-- GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8
+    |-- EVENTS
+    |   |-- GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57.xml
+    |   |-- GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8.xml
+    |-- MODELS
+    |-- STATIONS
+    |   |-- RESP
+    |   |-- SEED
+    |   |-- StationXML
+    |-- SYNTHETICS
+    |   |-- GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57
+    |   |-- GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8
+    |-- simulation_domain.xml
 
 
 All data in the *DATA* subfolder has to be real data. The data is further
@@ -233,34 +241,34 @@ tags should describe the simulation ran to obtain the waveforms.
 After a while, the structure might look like this::
 
     MyInversion
-    ├── DATA
-        └── GCMT_event_CENTRAL_ITALY_Mag_5.9_2009-4-6-1-32
-            ├── raw
+    |-- DATA
+        |-- GCMT_event_CENTRAL_ITALY_Mag_5.9_2009-4-6-1-32
+            |-- raw
                 ...
-            ├── 100s_to_10s_bandpass
+            |-- 100s_to_10s_bandpass
                 ...
-            └── 200s_to_20s_bandpass
+            |-- 200s_to_20s_bandpass
                 ...
-    ├── SYNTHETICS
-        └── GCMT_event_CENTRAL_ITALY_Mag_5.9_2009-4-6-1-32
-            ├── inversion_1_100s
+    |-- SYNTHETICS
+        |-- GCMT_event_CENTRAL_ITALY_Mag_5.9_2009-4-6-1-32
+            |-- inversion_1_100s
                 ...
-            ├── inversion_2_100s
+            |-- inversion_2_100s
                 ...
-            └── inversion_2_50s
+            |-- inversion_2_50s
                 ...
-    └── ...
+    |-- ...
 
 **The user is responsible** for adhering to that structure. Otherwise other
-parts of SES3DPy cannot operate properly.
+parts of FWIW cannot operate properly.
 
 Station Data
 ------------
-SES3DPy needs to know the coordinates and instrument response of each channel.
+FWIW needs to know the coordinates and instrument response of each channel.
 One way to achieve this to use SAC files, which contain coordinates, and RESP
 files containing the response information for each channel. Another possibility
 is to use MiniSEED waveform data and the corresponding dataless SEED or
-StationXML files. Please keep in mind that SES3DPy currently expects to only
+StationXML files. Please keep in mind that FWIW currently expects to only
 have channels of one station in each dataless SEED and StationXML file.
 
 Naming scheme
@@ -276,7 +284,7 @@ be named after the following scheme::
 *NETWORK*, and *STATION* should be replaced with the corresponding network and
 stations codes. It is possible that multiple files are needed for each station
 (e.g. different files for different time intervals/channels) and thus *.1*,
-*.2*, ... can be appended to the filename. SES3DPy will automatically choose
+*.2*, ... can be appended to the filename. FWIW will automatically choose
 the correct file in case they need to be accessed.
 
 **StationXML**
@@ -303,7 +311,7 @@ has to include the location and channel identifiers.
 Download Helpers
 ----------------
 
-SES3DPy comes with a collection of scripts that help downloading waveform and
+FWIW comes with a collection of scripts that help downloading waveform and
 station data from the IRIS and ArcLink services. Waveform data will always be
 downloaded as MiniSEED. Station data will, due to the different products of the
 dataservices, either be downloaded as StationXML (IRIS) or dataless SEED.

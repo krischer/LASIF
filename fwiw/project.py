@@ -29,13 +29,14 @@ class Project(object):
         """
         Parse the domain definition file.
         """
-        domain = etree.parse(self.paths["domain_definition"]).getroot()
+        root = etree.parse(self.paths["config_file"]).getroot()
+        domain = root.find("domain")
         self.domain = {}
         self.domain["bounds"] = {}
-        self.domain["name"] = domain.find("name").text
-        self.domain["description"] = domain.find("description").text
-        if self.domain["description"] is None:
-            self.domain["description"] = ""
+        #self.domain["name"] = domain.find("name").text
+        #self.domain["description"] = domain.find("description").text
+        #if self.domain["description"] is None:
+            #self.domain["description"] = ""
 
         bounds = domain.find("domain_bounds")
         self.domain["bounds"]["minimum_latitude"] = \
@@ -65,7 +66,7 @@ class Project(object):
         bounds = self.domain["bounds"]
         visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
-            bounds["maximum_longitude"],
+            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=True, show_plot=True)
@@ -81,7 +82,7 @@ class Project(object):
         bounds = self.domain["bounds"]
         map = visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
-            bounds["maximum_longitude"],
+            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=False, show_plot=False)
@@ -96,8 +97,8 @@ class Project(object):
         """
         self.paths = {}
         self.paths["root"] = root_path
-        self.paths["domain_definition"] = os.path.join(root_path,
-            "simulation_domain.xml")
+        self.paths["config_file"] = os.path.join(root_path,
+            "config.xml")
         self.paths["events"] = os.path.join(root_path, "EVENTS")
         self.paths["data"] = os.path.join(root_path, "DATA")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
