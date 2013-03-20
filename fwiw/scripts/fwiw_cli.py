@@ -158,7 +158,7 @@ def fwiw_download_waveforms(args):
 
     logfile = os.path.join(proj.paths["logs"], "waveform_download_log.txt")
 
-    downloader.download(min_lat, max_lat, min_lng, max_lng,
+    downloader.download_waveforms(min_lat, max_lat, min_lng, max_lng,
         domain["rotation_axis"], domain["rotation_angle"], starttime, endtime,
         proj.config["download_settings"]["arclink_username"],
         channel_priority_list=channel_priority_list, logfile=logfile,

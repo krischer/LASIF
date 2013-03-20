@@ -352,7 +352,26 @@ To download the waveform data for one event, choose one and run
 
 This, dependent on the domain size, event location, and origin time can take a
 while. Executing the same command again will only attempt to download data not
-already present.
+already present. All data will be placed in `DATA/EVENT_NAME/raw`.
+
+
+Downloading Station Data
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+FWIW also includes some functionality to download station metadata. It will,
+download StationXML and RESP files from IRIS and dataless SEED and RESP files
+from ArcLink. It works the same as it does for the waveforms. To download all
+stations for one event simply execute
+
+.. code-block:: bash
+
+    $ fwiw download_stations GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+
+.. note::
+
+    The `fwiw download_stations` command will, for the specified event, figure
+    what waveform data is present in the `DATA/EVENT_NAME/raw` folder and
+    download all missing station metadata information for these files.
 
 
 Indices and tables

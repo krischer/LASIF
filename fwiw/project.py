@@ -12,6 +12,7 @@ Project management class.
 """
 import glob
 from obspy import readEvents
+from obspy.xseed import Parser
 import os
 from lxml import etree
 import matplotlib.pyplot as plt
@@ -145,3 +146,52 @@ class Project(object):
         self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
         self.paths["stations"] = os.path.join(root_path, "STATIONS")
+        # Station subfolders
+        self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
+            "SEED")
+        self.paths["station_xml"] = os.path.join(self.paths["stations"],
+            "StationXML")
+        self.paths["resp_file"] = os.path.join(self.paths["stations"],
+            "RESP")
+
+    def has_station_file(waveform_filename):
+        """
+        Simple function to determine whether or not the station file for a
+        given waveform file exist. Will return either the filename or False.
+
+        Naming scheme of the files:
+            dataless SEED:
+                dataless.NETWORK_STATION[.X]
+            StationXML:
+                station.NETWORK_STATION[.X].xml
+            RESP Files:
+                RESP.NETWORK.STATION.LOCATION.CHANNEL[.X]
+
+        The [.X] are where a potential number would be appended in the case of
+        more then one necessary file.
+        """
+        # Check for dataless SEED first. Two step globbing because of limited
+        # capabilities and possibility of false positives otherwise.
+        dataless_seed = glob.glob(os.path.join(self.paths["dataless_seed"],
+            "dataless.{network}_{station}".format(network=network,
+            station=station)))
+        dataless_seed.extend(glob.glob(os.path.join(
+            self.paths["dataless_seed"],
+            "dataless.{network}_{station}.*".format(network=network,
+            station=station))))
+
+        for filename in dataless_seed:
+            p = Parser(filename)
+            channels = p.getInventory()["channels"]
+            for channel in channels:
+                chan_id = "%s.%s.%s.%s" % (network, station, location, channel)
+                if channel["channel_id"] != chan_id:
+                    continue
+                if starttime <= channel["start_date"]:
+                    continue
+                if channel["end_date"] and \
+                        (endtime >= channel["end_date"]):
+                    continue
+                return filename
+        # XXX: Deal with StationXML and RESP files as well!
+        return False

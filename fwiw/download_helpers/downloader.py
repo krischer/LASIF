@@ -1,26 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Command line interface to obspyDMT.
+Some convenience function to download waveform and station data.
 
 :copyright:
-    Kasra Hosseini (hosseini@geophysik.uni-muenchen.de),
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2011-2013
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 
 :license:
     GNU General Public License, Version 3
-    (http://www.gnu.org/licenses/gpl-3.0-standalone.html)
+    (http://www.gnu.org/licenses/gpl.html)
 """
 import colorama
 from datetime import datetime
 import logging
 import numpy as np
+import obspy
 import os
 import sys
 
 from fwiw import rotations
 from fwiw.download_helpers.availability import get_availability
-from fwiw.download_helpers.waveforms import download_waveforms
+import fwiw.download_helpers.waveforms
 
 
 class Logger(object):
@@ -31,7 +31,7 @@ class Logger(object):
         FORMAT = "[%(asctime)-15s] %(levelname)s: %(message)s"
         logging.basicConfig(filename=log_filename, level=logging.DEBUG,
             format=FORMAT)
-        self.logger = logging.getLogger("obspyDMT")
+        self.logger = logging.getLogger("FWIW")
         self.set_debug(debug)
 
     def set_debug(self, value):
@@ -123,10 +123,14 @@ def _get_maximum_bounds(min_lat, max_lat, min_lng, max_lng, rotation_axis,
     return min_lat, max_lat, min_lng, max_lng
 
 
-def download(min_latitude, max_latitude, min_longitude, max_longitude,
-        rotation_axis, rotation_angle_in_degree, starttime, endtime,
-        arclink_user, channel_priority_list, logfile, download_folder,
+def download_waveforms(min_latitude, max_latitude, min_longitude,
+        max_longitude, rotation_axis, rotation_angle_in_degree, starttime,
+        endtime, arclink_user, channel_priority_list, logfile, download_folder,
         waveform_format="mseed"):
+    """
+    Convenience function downloading all waveform files in the specified
+    spherical section domain.
+    """
     # Init logger.
     logger = Logger(log_filename=logfile, debug=False)
 
@@ -202,8 +206,69 @@ def download(min_latitude, max_latitude, min_longitude, max_longitude,
     successful_downloads = 0
     for chunk in (channels_to_download[_i: _i + CHUNK_SIZE] for _i in xrange(0,
             len(channels_to_download), CHUNK_SIZE)):
-        successful_downloads+= download_waveforms(chunk, starttime, endtime, 0.95,
-                save_trace_fct=save_channel, arclink_user=arclink_user,
-                logger=logger)
+        successful_downloads += \
+            fwiw.download_helpers.waveforms.download_waveforms(
+                chunk, starttime, endtime, 0.95, save_trace_fct=save_channel,
+                arclink_user=arclink_user, logger=logger)
+
     print "Done. Successfully downloaded %i waveform channels." % \
+        successful_downloads
+
+
+def download_stations(channels, resp_file_folder, station_xml_folder,
+        dataless_seed_folder, logfile, project, arclink_user):
+    """
+    Convenience function downloading station information for all channels in
+    the channels filename list. It will only download what does not exist yet.
+
+    It will first attempt to download datalessSEED and RESP files from ArcLink
+    and then, do the same for all missing data from IRIS, except it will
+    attempt to download StationXML and RESP files.
+
+    :param channels: A list of filenames pointing to all channels.
+    :param resp_file_folder: The folder where the RESP file are stored.
+    :param station_XML: The folder where the StationXML files are stored.
+    :param dataless_seed_folder: The folder where the dataless SEED files are
+        stored.
+    """
+    # Init logger.
+    logger = Logger(log_filename=logfile, debug=False)
+
+    # Log some basic information
+    logger.info(70 * "=")
+    logger.info(70 * "=")
+    logger.info("Starting station downloads...")
+
+    missing_files = []
+
+    # First figure out what data is still needed.
+    for filename in channels:
+        if project.has_station_file(filename) is False:
+            continue
+        tr = obspy.read(filename)[0]
+        missing_files.append({"network": tr.stats.network,
+            "station": tr.stats.station,
+            "location": tr.stats.location,
+            "channel": tr.stats.channel,
+            "starttime": tr.stats.starttime,
+            "endtime": tr.stats.endtime})
+
+    def save_station_file(memfile, network, station, location, channel,
+            format):
+        """
+        Callback function saving a single file given as a StringIO instance.
+        """
+        filename = project.get_station_filename(network, station, location,
+            channel, format)
+        memfile.seek(0, 0)
+        with open(filename, "wb") as open_file:
+            open_file.write(memfile.read())
+
+    # Now download all the missing stations files.
+    successful_downloads = \
+        fwiw.download_helpers.stations.download_station_files(missing_files,
+            save_station_fct=save_station_file, arclink_user=arclink_user,
+            logger=logger)
+
+    print "Done. Successfully downloaded %i station files." % \
         successful_downloads
