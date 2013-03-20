@@ -91,7 +91,7 @@ look something like the following.
             <rotation_axis_x>1.0</rotation_axis_x>
             <rotation_axis_y>1.0</rotation_axis_y>
             <rotation_axis_z>1.0</rotation_axis_z>
-            <rotation_angle_in_degree>35.0</rotation_angle_in_degree>
+            <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>
           </domain_rotation>
         </domain>
     </fwiw_project>
@@ -128,7 +128,7 @@ defined boundary width.
 
     import fwiw.visualization
     fwiw.visualization.plot_domain(-20, +20, -20, +20, 3.0,
-        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=35.0,
+        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
         plot_simulation_domain=True)
 
 Adding Seismic Events
@@ -145,8 +145,8 @@ See :doc:`iris2quakeml` for more information.
 .. code-block:: bash
 
     $ cd EVENTS
-    $ iris2quakeml http://www.iris.edu/spud/momenttensor/878180
-    $ iris2quakeml http://www.iris.edu/spud/momenttensor/871125
+    $ iris2quakeml http://www.iris.edu/spud/momenttensor/959525
+    $ iris2quakeml http://www.iris.edu/spud/momenttensor/995655
 
 All events can be viewed with
 
@@ -159,7 +159,7 @@ All events can be viewed with
 
     import fwiw.visualization
     map = fwiw.visualization.plot_domain(-20, +20, -20, +20, 3.0,
-        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=35.0,
+        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
         show_plot=False)
     # Create event.
     from obspy.core.event import *
@@ -173,14 +173,14 @@ All events can be viewed with
     ev.focal_mechanisms.append(fm)
     fm.moment_tensor = mt
     mt.tensor = t
-    org.latitude = -5.91
-    org.longitude = 26.42
-    t.m_rr = -2.456e+18
-    t.m_tt = 1.035e+18
-    t.m_pp = 1.421e+18
-    t.m_rt = -1.774e+18
-    t.m_rp = -4.48e+17
-    t.m_tp = 2.448e+18
+    org.latitude = 37.4
+    org.longitude = -24.38
+    t.m_rr = -1.69e+18
+    t.m_tt = 9.12e+17
+    t.m_pp = 7.77e+17
+    t.m_rt = 8.4e+16
+    t.m_rp = 2.4e+16
+    t.m_tp = -4.73e+17
     ev2 = Event()
     cat.append(ev2)
     org = Origin()
@@ -191,14 +191,14 @@ All events can be viewed with
     ev2.focal_mechanisms.append(fm)
     fm.moment_tensor = mt
     mt.tensor = t
-    org.latitude = -27.92
-    org.longitude = 26.88
-    t.m_rr = -2.798e+16
-    t.m_tt = -1.152e+16
-    t.m_pp = 3.949e+16
-    t.m_rt = -7e+15
-    t.m_rp = 3.66e+15
-    t.m_tp = -8.16e+15
+    org.latitude = 35.9
+    org.longitude = -10.37
+    t.m_rr = 6.29e+17
+    t.m_tt = -1.12e+18
+    t.m_pp = 4.88e+17
+    t.m_rt = -2.8e+17
+    t.m_rp = -5.22e+17
+    t.m_tp = 3.4e+16
     fwiw.visualization.plot_events(cat, map)
 
 
