@@ -47,6 +47,7 @@ This will create the following directory structure::
     |-- config.xml
     |-- DATA
     |-- EVENTS
+    |-- LOGS
     |-- MODELS
     |-- STATIONS
     |   |-- RESP
@@ -219,20 +220,21 @@ This will result in a directory structure in the fashion of::
 
     MyInversion
     |-- DATA
-    |   |-- GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57
-    |   |-- GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8
+    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
     |-- EVENTS
-    |   |-- GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57.xml
-    |   |-- GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8.xml
+    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35.xml
+    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9.xml
+    |-- LOGS
     |-- MODELS
     |-- STATIONS
     |   |-- RESP
     |   |-- SEED
     |   |-- StationXML
     |-- SYNTHETICS
-    |   |-- GCMT_event_DEMOCRATIC_REPUBLIC_OF_CONGO_Mag_6.3_1992-9-11-3-57
-    |   |-- GCMT_event_SOUTH_AFRICA_Mag_5.0_1990-9-26-23-8
-    |-- simulation_domain.xml
+    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    |-- config.xml
 
 
 All data in the *DATA* subfolder has to be real data. The data is further
@@ -248,7 +250,7 @@ After a while, the structure might look like this::
 
     MyInversion
     |-- DATA
-        |-- GCMT_event_CENTRAL_ITALY_Mag_5.9_2009-4-6-1-32
+        |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
             |-- raw
                 ...
             |-- 100s_to_10s_bandpass
@@ -256,7 +258,7 @@ After a while, the structure might look like this::
             |-- 200s_to_20s_bandpass
                 ...
     |-- SYNTHETICS
-        |-- GCMT_event_CENTRAL_ITALY_Mag_5.9_2009-4-6-1-32
+        |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
             |-- inversion_1_100s
                 ...
             |-- inversion_2_100s
