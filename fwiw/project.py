@@ -10,6 +10,7 @@ Project management class.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import glob
 from obspy import readEvents
 import os
 from lxml import etree
@@ -89,6 +90,19 @@ class Project(object):
         self.domain["rotation_angle"] = \
             float(rotation.find("rotation_angle_in_degree").text)
 
+    def get_event_dict(self):
+        """
+        Returns a dictonary with all events in the project, the keys are the
+        event names and the values the full paths to each event.
+        """
+        events = {}
+        for event in glob.iglob(os.path.join(self.paths["events"],
+                "*%sxml" % os.extsep)):
+            event = os.path.abspath(event)
+            event_name = os.path.splitext(os.path.basename(event))[0]
+            events[event_name] = event
+        return events
+
     def plot_domain(self):
         bounds = self.domain["bounds"]
         visualization.plot_domain(bounds["minimum_latitude"],
@@ -100,7 +114,7 @@ class Project(object):
 
     def read_events(self):
         """
-        Parses all events.
+        Parses all events to a catalog object and stores it in self.events.
         """
         self.events = readEvents(os.path.join(self.paths["events"], "*%sxml" %
             os.path.extsep))
@@ -128,5 +142,6 @@ class Project(object):
             "config.xml")
         self.paths["events"] = os.path.join(root_path, "EVENTS")
         self.paths["data"] = os.path.join(root_path, "DATA")
+        self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
         self.paths["stations"] = os.path.join(root_path, "STATIONS")

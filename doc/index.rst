@@ -327,6 +327,32 @@ Furthermore, as many tools so far are not able to deal with StationXML data,
 the RESP files for each channel will also be downloaded. This is redundant
 information but enables the use of many tools otherwise not possible.
 
+Downloading Waveforms
+^^^^^^^^^^^^^^^^^^^^^
+
+Waveforms are downloaded on a per event basis. The **config.xml** file contains
+some specification to detail the download. Each event is referred to by its
+name which is simply the filename minus the extension. To get a list of all
+events in the current project just execute
+
+.. code-block:: bash
+
+    $ fwiw list_events
+    2 events in project:
+        GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+        GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+
+
+To download the waveform data for one event, choose one and run
+
+.. code-block:: bash
+
+    $ fwiw download_waveforms GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+
+
+This, dependent on the domain size, event location, and origin time can take a
+while. Executing the same command again will only attempt to download data not
+already present.
 
 
 Indices and tables

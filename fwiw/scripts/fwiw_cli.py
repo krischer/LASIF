@@ -13,10 +13,12 @@ FCT_PREFIX = "fwiw_"
 
 import colorama
 import glob
+import obspy
 import os
 import sys
 
 from fwiw.project import Project
+from fwiw.download_helpers import downloader
 
 
 class FWIWCommandLineException(Exception):
@@ -72,7 +74,8 @@ def init_folder_structure(root_folder):
     """
     Updates or initializes a projects folder structure.
     """
-    for folder in ["EVENTS", "DATA", "SYNTHETICS", "MODELS", "STATIONS"]:
+    for folder in ["EVENTS", "DATA", "SYNTHETICS", "MODELS", "STATIONS",
+            "LOGS"]:
         full_path = os.path.join(root_folder, folder)
         if os.path.exists(full_path):
             continue
@@ -108,6 +111,72 @@ def fwiw_update_structure(args):
             if os.path.exists(f):
                 continue
             os.makedirs(f)
+
+
+def fwiw_download_waveforms(args):
+    """
+    Usage: fwiw download_waveforms EVENT_NAME
+
+    Attempts to download all missing waveform files for a given event. The list
+    of possible events can be obtained with "fwiw list_events". The files will
+    be saved in the DATA/EVENT_NAME/raw directory.
+    """
+    proj = _find_project_root(".")
+    events = proj.get_event_dict()
+    if len(args) != 1:
+        msg = "EVENT_NAME must be given. No other arguments allowed."
+        raise FWIWCommandLineException(msg)
+    event_name = args[0]
+    if event_name not in events:
+        msg = "Event '%s' not found." % event_name
+        raise FWIWCommandLineException(msg)
+
+    event = obspy.readEvents(events[event_name])[0]
+    origin = event.preferred_origin() or event.origins[0]
+    time = origin.time
+    starttime = time - proj.config["download_settings"]["seconds_before_event"]
+    endtime = time + proj.config["download_settings"]["seconds_after_event"]
+
+    domain = proj.domain
+    min_lat, max_lat, min_lng, max_lng, buffer = (
+        domain["bounds"]["minimum_latitude"],
+        domain["bounds"]["maximum_latitude"],
+        domain["bounds"]["minimum_longitude"],
+        domain["bounds"]["maximum_longitude"],
+        domain["bounds"]["boundary_width_in_degree"])
+    min_lat += buffer
+    max_lat -= buffer
+    min_lng += buffer
+    max_lng -= buffer
+
+    download_folder = os.path.join(proj.paths["data"], event_name, "raw")
+    if not os.path.exists(download_folder):
+        os.makedirs(download_folder)
+
+    channel_priority_list = ["HH[Z,N,E]", "BH[Z,N,E]", "MH[Z,N,E]",
+        "EH[Z,N,E]", "LH[Z,N,E]"]
+
+    logfile = os.path.join(proj.paths["logs"], "waveform_download_log.txt")
+
+    downloader.download(min_lat, max_lat, min_lng, max_lng,
+        domain["rotation_axis"], domain["rotation_angle"], starttime, endtime,
+        proj.config["download_settings"]["arclink_username"],
+        channel_priority_list=channel_priority_list, logfile=logfile,
+        download_folder=download_folder, waveform_format="mseed")
+
+
+def fwiw_list_events(args):
+    """
+    Usage: fwiw list_events
+
+    Returns a list of all events in the project.
+    """
+    proj = _find_project_root(".")
+    events = proj.get_event_dict()
+    print("%i event%s in project:" % (len(events), "s" if len(events) > 1
+        else ""))
+    for event in events.iterkeys():
+        print ("\t%s" % event)
 
 
 def fwiw_init_project(args):
@@ -157,7 +226,7 @@ def fwiw_init_project(args):
         "        <rotation_axis_x>1.0</rotation_axis_x>\n"
         "        <rotation_axis_y>1.0</rotation_axis_y>\n"
         "        <rotation_axis_z>1.0</rotation_axis_z>\n"
-        "        <rotation_angle_in_degree>35.0</rotation_angle_in_degree>\n"
+        "        <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>\n"
         "      </domain_rotation>\n"
         "    </domain>\n"
         "</fwiw_project>")
