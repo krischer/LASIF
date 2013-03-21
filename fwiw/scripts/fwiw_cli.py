@@ -199,42 +199,9 @@ def fwiw_init_project(args):
     except:
         msg = "Failed creating directory %s. Permissions?" % folder_path
         raise FWIWCommandLineException(msg)
-    # Now create all the subfolders.
-    init_folder_structure(folder_path)
 
-    xml_file = (
-        "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-        "<fwiw_project>\n"
-        "    <name>{project_name}</name>\n"
-        "    <description></description>\n"
-        "    <download_settings>\n"
-        "        <arclink_username></arclink_username>\n"
-        "        <seconds_before_event>300</seconds_before_event>\n"
-        "        <seconds_after_event>3600</seconds_after_event>\n"
-        "    </download_settings>\n"
-        "    <domain>\n"
-        "      <domain_bounds>\n"
-        "        <minimum_longitude>-20.0</minimum_longitude>\n"
-        "        <maximum_longitude>20.0</maximum_longitude>\n"
-        "        <minimum_latitude>-20.0</minimum_latitude>\n"
-        "        <maximum_latitude>20.0</maximum_latitude>\n"
-        "        <minimum_depth_in_km>0.0</minimum_depth_in_km>\n"
-        "        <maximum_depth_in_km>200.0</maximum_depth_in_km>\n"
-        "        <boundary_width_in_degree>3.0</boundary_width_in_degree>\n"
-        "      </domain_bounds>\n"
-        "      <domain_rotation>\n"
-        "        <rotation_axis_x>1.0</rotation_axis_x>\n"
-        "        <rotation_axis_y>1.0</rotation_axis_y>\n"
-        "        <rotation_axis_z>1.0</rotation_axis_z>\n"
-        "        <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>\n"
-        "      </domain_rotation>\n"
-        "    </domain>\n"
-        "</fwiw_project>")
-
-    with open(os.path.join(folder_path, "config.xml"), "wt") as \
-            open_file:
-        open_file.write(xml_file.format(project_name=os.path.basename(
-            folder_path)))
+    Project(project_root_path=folder_path,
+        init_project=os.path.basename(folder_path))
 
     print("Initialized project in: \n\t%s" % folder_path)
 

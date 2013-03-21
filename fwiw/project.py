@@ -11,13 +11,13 @@ Project management class.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import glob
-from obspy import readEvents
+import obspy
 from obspy.xseed import Parser
 import os
 from lxml import etree
 import matplotlib.pyplot as plt
 
-import visualization
+from fwiw import visualization
 
 
 class FWIWException(Exception):
@@ -25,12 +25,102 @@ class FWIWException(Exception):
 
 
 class Project(object):
-    def __init__(self, project_root_path):
+    """
+    A class representing and managing a single FWIW project.
+    """
+    def __init__(self, project_root_path, init_project=False):
         """
         Upon intialization, set the paths and read the config file.
+
+        :type project_root_path: String
+        :param project_root_path: The root path of the project.
+        :type init_project: False or String
+        :param init_project: Determines whether or not to initialize a new
+            project, e.g. create the necessary folder structure. If a string is
+            passed, the project will be given this name. Otherwise a default
+            name will be chosen.
         """
         self._setup_paths(project_root_path)
+        if init_project:
+            self._init_new_project(init_project)
+        if not os.path.exists(self.paths["config_file"]):
+            msg = ("Could not find the project's config file. Wrong project "
+                "path or uninitialized project?")
+            raise FWIWException(msg)
         self._read_config_file()
+        self.update_folder_structure()
+
+    def _setup_paths(self, root_path):
+        """
+        Central place to define all paths.
+        """
+        # Every key containing the string "file" denotes a file, all others
+        # should denote directories.
+        self.paths = {}
+        self.paths["root"] = root_path
+        self.paths["config_file"] = os.path.join(root_path,
+            "config.xml")
+        self.paths["events"] = os.path.join(root_path, "EVENTS")
+        self.paths["data"] = os.path.join(root_path, "DATA")
+        self.paths["logs"] = os.path.join(root_path, "LOGS")
+        self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
+        self.paths["stations"] = os.path.join(root_path, "STATIONS")
+        # Station subfolders
+        self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
+            "SEED")
+        self.paths["station_xml"] = os.path.join(self.paths["stations"],
+            "StationXML")
+        self.paths["resp_file"] = os.path.join(self.paths["stations"],
+            "RESP")
+
+    def update_folder_structure(self):
+        """
+        Updates the folder structure of the project.
+        """
+        for name, path in self.paths.iteritems():
+            if "file" in name or os.path.exists(path):
+                continue
+            os.makedirs(path)
+
+    def _init_new_project(self, project_name):
+        """
+        Initializes a new project. This currently just means that it creates a
+        default config file. The folder structure is checked and rebuilt every
+        time the project is initialized anyways.
+        """
+        if not project_name:
+            project_name = "FWIWProject"
+        xml_file = (
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            "<fwiw_project>\n"
+            "  <name>{project_name}</name>\n"
+            "  <description></description>\n"
+            "  <download_settings>\n"
+            "    <arclink_username></arclink_username>\n"
+            "    <seconds_before_event>300</seconds_before_event>\n"
+            "    <seconds_after_event>3600</seconds_after_event>\n"
+            "  </download_settings>\n"
+            "  <domain>\n"
+            "    <domain_bounds>\n"
+            "      <minimum_longitude>-20.0</minimum_longitude>\n"
+            "      <maximum_longitude>20.0</maximum_longitude>\n"
+            "      <minimum_latitude>-20.0</minimum_latitude>\n"
+            "      <maximum_latitude>20.0</maximum_latitude>\n"
+            "      <minimum_depth_in_km>0.0</minimum_depth_in_km>\n"
+            "      <maximum_depth_in_km>200.0</maximum_depth_in_km>\n"
+            "      <boundary_width_in_degree>3.0</boundary_width_in_degree>\n"
+            "    </domain_bounds>\n"
+            "    <domain_rotation>\n"
+            "      <rotation_axis_x>1.0</rotation_axis_x>\n"
+            "      <rotation_axis_y>1.0</rotation_axis_y>\n"
+            "      <rotation_axis_z>1.0</rotation_axis_z>\n"
+            "      <rotation_angle_in_degree>-45.0"
+            "</rotation_angle_in_degree>\n"
+            "    </domain_rotation>\n"
+            "  </domain>\n"
+            "</fwiw_project>").format(project_name=project_name)
+        with open(self.paths["config_file"], "wt") as open_file:
+            open_file.write(xml_file)
 
     def __str__(self):
         """
@@ -117,8 +207,8 @@ class Project(object):
         """
         Parses all events to a catalog object and stores it in self.events.
         """
-        self.events = readEvents(os.path.join(self.paths["events"], "*%sxml" %
-            os.path.extsep))
+        self.events = obspy.readEvents(os.path.join(self.paths["events"],
+            "*%sxml" % os.path.extsep))
 
     def plot_events(self, resolution="c"):
         bounds = self.domain["bounds"]
@@ -133,28 +223,7 @@ class Project(object):
         visualization.plot_events(self.events, map_object=map)
         plt.show()
 
-    def _setup_paths(self, root_path):
-        """
-        Central place to define all paths
-        """
-        self.paths = {}
-        self.paths["root"] = root_path
-        self.paths["config_file"] = os.path.join(root_path,
-            "config.xml")
-        self.paths["events"] = os.path.join(root_path, "EVENTS")
-        self.paths["data"] = os.path.join(root_path, "DATA")
-        self.paths["logs"] = os.path.join(root_path, "LOGS")
-        self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
-        self.paths["stations"] = os.path.join(root_path, "STATIONS")
-        # Station subfolders
-        self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
-            "SEED")
-        self.paths["station_xml"] = os.path.join(self.paths["stations"],
-            "StationXML")
-        self.paths["resp_file"] = os.path.join(self.paths["stations"],
-            "RESP")
-
-    def has_station_file(waveform_filename):
+    def has_station_file(self, waveform_filename):
         """
         Simple function to determine whether or not the station file for a
         given waveform file exist. Will return either the filename or False.
@@ -170,8 +239,16 @@ class Project(object):
         The [.X] are where a potential number would be appended in the case of
         more then one necessary file.
         """
+        tr = obspy.read(waveform_filename)[0]
+        network = tr.stats.network
+        station = tr.stats.station
+        location = tr.stats.location
+        channel = tr.stats.channel
+        starttime = tr.stats.starttime
+        endtime = tr.stats.endtime
+
         # Check for dataless SEED first. Two step globbing because of limited
-        # capabilities and possibility of false positives otherwise.
+        # wildcard capabilities and possibility of false positives otherwise.
         dataless_seed = glob.glob(os.path.join(self.paths["dataless_seed"],
             "dataless.{network}_{station}".format(network=network,
             station=station)))
