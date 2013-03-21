@@ -11,10 +11,11 @@ Project management class.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import glob
+from lxml import etree
+from lxml.builder import E
 import obspy
 from obspy.xseed import Parser
 import os
-from lxml import etree
 import matplotlib.pyplot as plt
 
 from fwiw import visualization
@@ -90,37 +91,34 @@ class Project(object):
         """
         if not project_name:
             project_name = "FWIWProject"
-        xml_file = (
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-            "<fwiw_project>\n"
-            "  <name>{project_name}</name>\n"
-            "  <description></description>\n"
-            "  <download_settings>\n"
-            "    <arclink_username></arclink_username>\n"
-            "    <seconds_before_event>300</seconds_before_event>\n"
-            "    <seconds_after_event>3600</seconds_after_event>\n"
-            "  </download_settings>\n"
-            "  <domain>\n"
-            "    <domain_bounds>\n"
-            "      <minimum_longitude>-20.0</minimum_longitude>\n"
-            "      <maximum_longitude>20.0</maximum_longitude>\n"
-            "      <minimum_latitude>-20.0</minimum_latitude>\n"
-            "      <maximum_latitude>20.0</maximum_latitude>\n"
-            "      <minimum_depth_in_km>0.0</minimum_depth_in_km>\n"
-            "      <maximum_depth_in_km>200.0</maximum_depth_in_km>\n"
-            "      <boundary_width_in_degree>3.0</boundary_width_in_degree>\n"
-            "    </domain_bounds>\n"
-            "    <domain_rotation>\n"
-            "      <rotation_axis_x>1.0</rotation_axis_x>\n"
-            "      <rotation_axis_y>1.0</rotation_axis_y>\n"
-            "      <rotation_axis_z>1.0</rotation_axis_z>\n"
-            "      <rotation_angle_in_degree>-45.0"
-            "</rotation_angle_in_degree>\n"
-            "    </domain_rotation>\n"
-            "  </domain>\n"
-            "</fwiw_project>").format(project_name=project_name)
+
+        doc = E.fwiw_project(
+            E.name(project_name),
+            E.description(""),
+            E.download_settings(
+                E.arclink_username(""),
+                E.seconds_before_event(str(300)),
+                E.seconds_after_event(str(300))),
+            E.domain(
+                E.domain_bounds(
+                    E.minimum_longitude(str(-20)),
+                    E.maximum_longitude(str(20)),
+                    E.minimum_latitude(str(-20)),
+                    E.maximum_latitude(str(-20)),
+                    E.minimum_depth_in_km(str(0.0)),
+                    E.maximum_depth_in_km(str(200.0)),
+                    E.boundary_width_in_degree(str(3.0))),
+                E.domain_rotation(
+                    E.rotation_axis_x(str(1.0)),
+                    E.rotation_axis_y(str(1.0)),
+                    E.rotation_axis_z(str(1.0)),
+                    E.rotation_angle_in_degree(str(-45.0)))))
+
+        string_doc = etree.tostring(doc, pretty_print=True,
+            xml_declaration=True, encoding="UTF-8")
+
         with open(self.paths["config_file"], "wt") as open_file:
-            open_file.write(xml_file)
+            open_file.write(string_doc)
 
     def __str__(self):
         """
