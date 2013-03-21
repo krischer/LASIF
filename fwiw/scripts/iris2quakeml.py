@@ -53,11 +53,12 @@ import math
 from obspy import readEvents
 from obspy.core.event import Catalog, Magnitude
 from obspy.core.util.geodetics import FlinnEngdahl
+import os
 import requests
 from StringIO import StringIO
 
 
-def iris2quakeml(url):
+def iris2quakeml(url, output_folder=None):
     if not "/spudservice/" in url:
         url = url.replace("/spud/", "/spudservice/")
         if url.endswith("/"):
@@ -162,6 +163,8 @@ def iris2quakeml(url):
     cat.resource_id = ev.origins[0].resource_id.resource_id.replace("Origin",
         "EventParameters")
     cat.append(ev)
+    if output_folder:
+        event_name = os.path.join(output_folder, event_name)
     cat.write(event_name, format="quakeml")
     print "Written file", event_name
 

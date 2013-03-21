@@ -18,6 +18,7 @@ import sys
 
 from fwiw.project import Project
 from fwiw.download_helpers import downloader
+from fwiw.scripts.iris2quakeml import iris2quakeml
 
 
 class FWIWCommandLineException(Exception):
@@ -41,7 +42,7 @@ def _find_project_root(folder):
 
 def fwiw_plot_domain(args):
     """
-    Usage fwiw plot_domain
+    Usage: fwiw plot_domain
 
     Plots the project's domain on a map.
     """
@@ -51,7 +52,7 @@ def fwiw_plot_domain(args):
 
 def fwiw_plot_events(args):
     """
-    Usage fwiw plot_events
+    Usage: fwiw plot_events
 
     Plots all events.
     """
@@ -59,9 +60,24 @@ def fwiw_plot_events(args):
     proj.plot_events()
 
 
+def fwiw_add_spud_event(args):
+    """
+    Usage: fwiw add_spud_event URL
+
+    Adds an event from the IRIS SPUD GCMT webservice to the project. URL is any
+    SPUD momenttensor URL.
+    """
+    proj = _find_project_root(".")
+    if len(args) != 1:
+        msg = "URL must be given. No other arguments allowed."
+        raise FWIWCommandLineException(msg)
+    url = args[0]
+    iris2quakeml(url, proj.paths["events"])
+
+
 def fwiw_info(args):
     """
-    Usage fwiw info
+    Usage: fwiw info
 
     Print information about the current project.
     """

@@ -141,13 +141,15 @@ SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT events.
 Simply search for an event and copy the url. The **iris2quakeml** script will
 then grab the QuakeML from the url and store an XML file in the current folder.
 
-See :doc:`iris2quakeml` for more information.
+See :doc:`iris2quakeml` for more information. The FWIW command lines tools
+contain a convenience wrapper around it that also makes sure that the event
+ends up in the correct folder.
+
 
 .. code-block:: bash
 
-    $ cd EVENTS
-    $ iris2quakeml http://www.iris.edu/spud/momenttensor/959525
-    $ iris2quakeml http://www.iris.edu/spud/momenttensor/995655
+    $ fwiw add_spud_event http://www.iris.edu/spud/momenttensor/959525
+    $ fwiw add_spud_event http://www.iris.edu/spud/momenttensor/995655
 
 All events can be viewed with
 
