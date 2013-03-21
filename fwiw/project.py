@@ -82,6 +82,14 @@ class Project(object):
             if "file" in name or os.path.exists(path):
                 continue
             os.makedirs(path)
+        events = self.get_event_dict().keys()
+        folders = [self.paths["data"], self.paths["synthetics"]]
+        for folder in folders:
+            for event in events:
+                event_folder = os.path.join(folder, event)
+                if os.path.exists(event_folder):
+                    continue
+                os.makedirs(event_folder)
 
     def _init_new_project(self, project_name):
         """
@@ -104,7 +112,7 @@ class Project(object):
                     E.minimum_longitude(str(-20)),
                     E.maximum_longitude(str(20)),
                     E.minimum_latitude(str(-20)),
-                    E.maximum_latitude(str(-20)),
+                    E.maximum_latitude(str(20)),
                     E.minimum_depth_in_km(str(0.0)),
                     E.maximum_depth_in_km(str(200.0)),
                     E.boundary_width_in_degree(str(3.0))),
@@ -122,6 +130,7 @@ class Project(object):
 
     def __str__(self):
         """
+        Pretty string representation. Currently very basic.
         """
         ret_str = "FWIW project \"%s\"\n" % self.config["name"]
         ret_str += "\tDescription: %s\n" % self.config["description"]
@@ -193,6 +202,11 @@ class Project(object):
         return events
 
     def plot_domain(self):
+        """
+        Plots the simulation domain and the actual physical domain.
+
+        Wrapper around one of the visualization routines.
+        """
         bounds = self.domain["bounds"]
         visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],

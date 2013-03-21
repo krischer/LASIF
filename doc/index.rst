@@ -210,11 +210,12 @@ data for all events are stored in the *DATA* subfolder. The data for each
 single event will be stored in a subfolder of the *DATA* folder with the
 **same name as the QuakeML file minus the .xml**.
 
-To automatically create the necessary folder for each event run
+These folder are automatically created and updated each time a fwiw command is
+executed. The simplest command is
 
 .. code-block:: bash
 
-    $ fwiw update_structure
+    $ fwiw info
 
 This will result in a directory structure in the fashion of::
 

@@ -12,7 +12,6 @@ The main FWIW console script.
 FCT_PREFIX = "fwiw_"
 
 import colorama
-import glob
 import obspy
 import os
 import sys
@@ -68,49 +67,6 @@ def fwiw_info(args):
     """
     proj = _find_project_root(".")
     print(proj)
-
-
-def init_folder_structure(root_folder):
-    """
-    Updates or initializes a projects folder structure.
-    """
-    for folder in ["EVENTS", "DATA", "SYNTHETICS", "MODELS", "STATIONS",
-            "LOGS"]:
-        full_path = os.path.join(root_folder, folder)
-        if os.path.exists(full_path):
-            continue
-        os.makedirs(full_path)
-
-    station_folder = os.path.join(root_folder, "STATIONS")
-    subfolders = ["SEED", "StationXML", "RESP"]
-    for f in subfolders:
-        folder = os.path.join(station_folder, f)
-        if os.path.exists(folder):
-            continue
-        os.makedirs(folder)
-
-
-def fwiw_update_structure(args):
-    """
-    Usage: fwiw update_structure
-
-    Updates the folder structure of a project. Will create data and synthetics
-    subfolders for every event.
-    """
-    proj = _find_project_root(".")
-    init_folder_structure(proj.paths["root"])
-
-    event_folder = proj.paths["events"]
-    data_folder = proj.paths["data"]
-    synth_folder = proj.paths["synthetics"]
-    for event in glob.iglob(os.path.join(event_folder, "*.xml")):
-        name = os.path.splitext(os.path.basename(event))[0]
-        data_subfolder = os.path.join(data_folder, name)
-        synth_subfolder = os.path.join(synth_folder, name)
-        for f in [data_subfolder, synth_subfolder]:
-            if os.path.exists(f):
-                continue
-            os.makedirs(f)
 
 
 def fwiw_download_waveforms(args):
@@ -171,8 +127,7 @@ def fwiw_list_events(args):
 
     Returns a list of all events in the project.
     """
-    proj = _find_project_root(".")
-    events = proj.get_event_dict()
+    events = _find_project_root(".").get_event_dict()
     print("%i event%s in project:" % (len(events), "s" if len(events) > 1
         else ""))
     for event in events.iterkeys():
