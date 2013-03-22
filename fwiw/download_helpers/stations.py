@@ -13,6 +13,7 @@ Queries ArcLink and the IRIS webservices.
 """
 import obspy.arclink
 import obspy.iris
+from obspy.xseed import Parser
 import Queue
 import StringIO
 import threading
@@ -33,24 +34,29 @@ def download_station_files(channels, save_station_fct, arclink_user,
             channel, format)
         Format will be either "datalessSEED", "StationXML", or "RESP"
     """
-    successful_downloads = 0
-
     class ArcLinkDownloadThread(threading.Thread):
         def __init__(self, queue):
             self.queue = queue
             super(ArcLinkDownloadThread, self).__init__()
 
         def run(self):
-            global successful_downloads
             while True:
                 try:
                     channel = self.queue.get(False)
                 except Queue.Empty:
                     break
+                network = channel["network"]
+                station = channel["station"]
+                location = channel["location"]
+                channel = channel["channel"]
+                starttime = channel["starttime"]
+                endtime = channel["endtime"]
+                channel_id = "%s.%s.%s.%s" % (network, station, location,
+                    channel)
                 time.sleep(0.5)
                 if logger:
                     logger.debug("Starting ArcLink download for %s..." %
-                        channel)
+                        channel_id)
                 arc_client = obspy.arclink.Client(user=arclink_user,
                     timeout=60)
                 try:
@@ -58,22 +64,30 @@ def download_station_files(channels, save_station_fct, arclink_user,
                     arc_client.saveResponse(memfile, channel["network"],
                         channel["station"], channel["location"],
                         channel["channel"], starttime=channel["starttime"],
-                        endtime=channel["endtime"], format="mseed")
+                        endtime=channel["endtime"], format="SEED")
                 except Exception as e:
-                    memfile.close()
                     logger.error(str(e))
                     continue
-                # XXX: Include sanity check.
+                memfile.seek(0, 0)
+                # Read the file again and perform a sanity check.
+                try:
+                    parser = Parser(memfile)
+                except:
+                    msg = ("Arclink did not return a valid dataless SEED file "
+                        "for channel %s [%s-%s]") % (channel_id, starttime,
+                        endtime)
+                    logger.error(msg)
+                    continue
+                channels = parser.getInventory()["channels"]
                 memfile.seek(0, 0)
                 save_station_fct(memfile, channel["network"],
                     channel["station"], channel["location"],
                     channel["channel"], format="datalessSEED")
                 if logger:
                     logger.info("Successfully downloaded dataless SEED for "
-                        "channel %s.%s.%s.%s from ArcLink.") % (
+                        "channel %s.%s.%s.%s from ArcLink." % (
                             channel["network"], channel["station"],
-                            channel["location"], channel["channel"])
-                successful_downloads += 1
+                            channel["location"], channel["channel"]))
 
     # Create one large queue containing everything.
     queue = Queue.Queue()
@@ -82,7 +96,7 @@ def download_station_files(channels, save_station_fct, arclink_user,
     my_threads = []
     # Launch 20 threads at max. Might seem a large number but timeout is set to
     # 60 seconds and they start with 1 second between each other.
-    thread_count = min(20, len(channels))
+    thread_count = min(1, len(channels))
     for _i in xrange(thread_count):
         thread = ArcLinkDownloadThread(queue=queue)
         my_threads.append(thread)
@@ -92,4 +106,4 @@ def download_station_files(channels, save_station_fct, arclink_user,
     for thread in my_threads:
         thread.join()
 
-    return successful_downloads
+    return 20

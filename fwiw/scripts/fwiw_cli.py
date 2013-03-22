@@ -12,6 +12,7 @@ The main FWIW console script.
 FCT_PREFIX = "fwiw_"
 
 import colorama
+import glob
 import obspy
 import os
 import sys
@@ -135,6 +136,42 @@ def fwiw_download_waveforms(args):
         proj.config["download_settings"]["arclink_username"],
         channel_priority_list=channel_priority_list, logfile=logfile,
         download_folder=download_folder, waveform_format="mseed")
+
+
+def fwiw_download_stations(args):
+    """
+    Usage: fwiw download_stations EVENT_NAME
+
+    Attempts to download all missing station data files for a given event. The
+    list of possible events can be obtained with "fwiw list_events". The files
+    will be saved in the STATION/*.
+    """
+    proj = _find_project_root(".")
+    events = proj.get_event_dict()
+    if len(args) != 1:
+        msg = "EVENT_NAME must be given. No other arguments allowed."
+        raise FWIWCommandLineException(msg)
+    event_name = args[0]
+    if event_name not in events:
+        msg = "Event '%s' not found." % event_name
+        raise FWIWCommandLineException(msg)
+
+    channel_path = os.path.join(proj.paths["data"], event_name, "raw")
+    if not os.path.exists(channel_path):
+        msg = "The path '%s' does not exists." % channel_path
+        raise FWIWCommandLineException(msg)
+
+    channels = glob.glob(os.path.join(channel_path, "*"))
+    if not channels:
+        msg = "No data in folder '%s'" % channel_path
+        raise FWIWCommandLineException(msg)
+
+    downloader.download_stations(channels, proj.paths["resp"],
+        proj.paths["station_xml"], proj.paths["dataless_seed"],
+        logfile=os.path.join(proj.paths["logs"], "station_download_log.txt"),
+        arclink_user=proj.config["download_settings"]["arclink_username"],
+        has_station_file_fct=proj.has_station_file,
+        get_station_filename_fct=proj.get_station_filename)
 
 
 def fwiw_list_events(args):

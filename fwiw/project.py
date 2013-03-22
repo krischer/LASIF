@@ -71,7 +71,7 @@ class Project(object):
             "SEED")
         self.paths["station_xml"] = os.path.join(self.paths["stations"],
             "StationXML")
-        self.paths["resp_file"] = os.path.join(self.paths["stations"],
+        self.paths["resp"] = os.path.join(self.paths["stations"],
             "RESP")
 
     def update_folder_structure(self):
@@ -136,6 +136,36 @@ class Project(object):
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         return ret_str
+
+    def get_station_filename(self, network, station, location, channel,
+            format):
+        """
+        Function returning the filename a station file of a certain format
+        should be written to. Only useful as a callback function.
+
+        :type format: String
+        :param format: 'datalessSEED', 'StationXML', or 'RESP'
+        """
+        if format not in ["datalessSEED", "StationXML", "RESP"]:
+            msg = "Unknown format '%s'" % format
+            raise ValueError(msg)
+        if format == "datalessSEED":
+            def seed_filename_generator():
+                i = 0
+                while True:
+                    filename = os.path.join(self.paths["dataless_seed"],
+                        "dataless.{network}_{station}".format(network=network,
+                        station=station))
+                    if i:
+                        filename += ".%i" % i
+                    i += 1
+                    yield filename
+            for filename in seed_filename_generator():
+                if not os.path.exists(filename):
+                    break
+            return filename
+        else:
+            raise NotImplementedError
 
     def _read_config_file(self):
         """
@@ -271,16 +301,19 @@ class Project(object):
 
         for filename in dataless_seed:
             p = Parser(filename)
+            import pprint
+            pprint.pprint(p.getInventory())
             channels = p.getInventory()["channels"]
-            for channel in channels:
+            for chan in channels:
                 chan_id = "%s.%s.%s.%s" % (network, station, location, channel)
-                if channel["channel_id"] != chan_id:
+                if chan["channel_id"] != chan_id:
                     continue
-                if starttime <= channel["start_date"]:
+                if starttime <= chan["start_date"]:
                     continue
-                if channel["end_date"] and \
-                        (endtime >= channel["end_date"]):
+                if chan["end_date"] and \
+                        (endtime >= chan["end_date"]):
                     continue
                 return filename
+
         # XXX: Deal with StationXML and RESP files as well!
         return False

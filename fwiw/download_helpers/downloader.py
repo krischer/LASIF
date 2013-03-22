@@ -21,6 +21,7 @@ import sys
 from fwiw import rotations
 from fwiw.download_helpers.availability import get_availability
 import fwiw.download_helpers.waveforms
+import fwiw.download_helpers.stations
 
 
 class Logger(object):
@@ -132,7 +133,7 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
     spherical section domain.
     """
     # Init logger.
-    logger = Logger(log_filename=logfile, debug=False)
+    logger = Logger(log_filename=logfile, debug=True)
 
     # Log some basic information
     logger.info(70 * "=")
@@ -216,7 +217,8 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
 
 
 def download_stations(channels, resp_file_folder, station_xml_folder,
-        dataless_seed_folder, logfile, project, arclink_user):
+        dataless_seed_folder, logfile, arclink_user, has_station_file_fct,
+        get_station_filename_fct):
     """
     Convenience function downloading station information for all channels in
     the channels filename list. It will only download what does not exist yet.
@@ -230,6 +232,13 @@ def download_stations(channels, resp_file_folder, station_xml_folder,
     :param station_XML: The folder where the StationXML files are stored.
     :param dataless_seed_folder: The folder where the dataless SEED files are
         stored.
+
+    :param has_station_file_fct: Function has_station_file_fct(filename)
+        returning True or False if the station file for a given waveform file
+        path already exists.
+    :param get_station_filename_fct: Function get_station_filename_fct(network,
+        station, location, channel, format) the simply returns the path where
+        the given file should be written to.
     """
     # Init logger.
     logger = Logger(log_filename=logfile, debug=False)
@@ -237,13 +246,13 @@ def download_stations(channels, resp_file_folder, station_xml_folder,
     # Log some basic information
     logger.info(70 * "=")
     logger.info(70 * "=")
-    logger.info("Starting station downloads...")
+    logger.info("Starting to download %i station files..." % len(channels))
 
     missing_files = []
 
     # First figure out what data is still needed.
     for filename in channels:
-        if project.has_station_file(filename) is False:
+        if has_station_file_fct(filename):
             continue
         tr = obspy.read(filename)[0]
         missing_files.append({"network": tr.stats.network,
@@ -253,12 +262,18 @@ def download_stations(channels, resp_file_folder, station_xml_folder,
             "starttime": tr.stats.starttime,
             "endtime": tr.stats.endtime})
 
+    existing_files = len(channels) - len(missing_files)
+    logger.info("%i files already existing. They will skipped." %
+        existing_files)
+    logger.info("Starting download of %i missing files..." %
+        len(missing_files))
+
     def save_station_file(memfile, network, station, location, channel,
             format):
         """
         Callback function saving a single file given as a StringIO instance.
         """
-        filename = project.get_station_filename(network, station, location,
+        filename = get_station_filename_fct(network, station, location,
             channel, format)
         memfile.seek(0, 0)
         with open(filename, "wb") as open_file:
