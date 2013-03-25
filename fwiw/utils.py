@@ -31,3 +31,18 @@ def channel_in_parser(parser_object, channel_id, starttime, endtime):
             continue
         return True
     return False
+
+
+def table_printer(header, data):
+    """
+    Pretty table printer.
+
+    :type header: A list of strings
+    :param data: A list of lists containing data items.
+    """
+    row_format = "{:>15}" * (len(header))
+    print row_format.format(*(["=" * 15] * len(header)))
+    print row_format.format(*header)
+    print row_format.format(*(["=" * 15] * len(header)))
+    for row in data:
+        print row_format.format(*row)

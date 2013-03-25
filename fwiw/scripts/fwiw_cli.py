@@ -20,6 +20,7 @@ import sys
 from fwiw.project import Project
 from fwiw.download_helpers import downloader
 from fwiw.scripts.iris2quakeml import iris2quakeml
+from fwiw.utils import table_printer
 
 
 class FWIWCommandLineException(Exception):
@@ -185,6 +186,37 @@ def fwiw_list_events(args):
         else ""))
     for event in events.iterkeys():
         print ("\t%s" % event)
+
+
+def fwiw_event_info(args):
+    """
+    Usage: fwiw init_project EVENT_NAME
+
+    Prints information about the given event.
+    """
+    if len(args) != 1:
+        msg = "EVENT_NAME must be given. No other arguments allowed."
+        raise FWIWCommandLineException(msg)
+    event_name = args[0]
+
+    proj = _find_project_root(".")
+    try:
+        print proj.get_event_info(event_name)
+    except Exception as e:
+        raise FWIWCommandLineException(str(e))
+
+    try:
+        stations = proj.get_stations_for_event(event_name)
+    except Exception as e:
+        raise FWIWCommandLineException(str(e))
+    print "Station and waveform information available at %i stations:\n" \
+        % len(stations)
+    header = ["id", "latitude", "longitude", "elevation", "depth"]
+    keys = sorted(stations.keys())
+    data = [[key, stations[key]["latitude"], stations[key]["longitude"],
+        stations[key]["elevation"], stations[key]["local_depth"]]
+        for key in keys]
+    table_printer(header, data)
 
 
 def fwiw_init_project(args):

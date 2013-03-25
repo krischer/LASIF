@@ -14,6 +14,7 @@ import glob
 from lxml import etree
 from lxml.builder import E
 import obspy
+from obspy.core.util import FlinnEngdahl
 from obspy.xseed import Parser
 import os
 import matplotlib.pyplot as plt
@@ -265,7 +266,69 @@ class Project(object):
         visualization.plot_events(self.events, map_object=map)
         plt.show()
 
-    def has_station_file(self, waveform_filename):
+    def get_event_info(self, event_name):
+        """
+        Returns a dictionary with information about one, specific event.
+        """
+        all_events = self.get_event_dict()
+        if event_name not in all_events:
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+        event = obspy.readEvents(all_events[event_name])[0]
+        mag = event.preferred_magnitude()
+        org = event.preferred_origin()
+        info = {
+            "latitude": org.latitude,
+            "longitude": org.longitude,
+            "origin_time": org.time,
+            "depth_in_km": org.depth / 1000.0,
+            "magnitude": mag.mag,
+            "region": FlinnEngdahl().get_region(org.longitude, org.latitude),
+            "type": mag.magnitude_type}
+        return info
+
+    def get_stations_for_event(self, event_name):
+        """
+        Returns a dictionary containing a little bit of information about all
+        stations available for a given event.
+
+        An available station is defined as a station with an existing station
+        file and an existing waveform file.
+
+        Will return an empty dictionary if nothing is found.
+        """
+        all_events = self.get_event_dict()
+        if event_name not in all_events:
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+
+        data_path = os.path.join(self.paths["data"], event_name, "raw")
+        if not os.path.exists(data_path):
+            return {}
+
+        station_info = {}
+
+        for waveform_file in glob.iglob(os.path.join(data_path, "*")):
+            try:
+                tr = obspy.read(waveform_file)[0]
+            except:
+                continue
+
+            station_id = "%s.%s" % (tr.stats.network, tr.stats.station)
+            if station_id in station_info:
+                continue
+
+            station_file = self.has_station_file(tr)
+            if not station_file:
+                continue
+
+            p = Parser(station_file)
+            coordinates = p.getCoordinates(tr.id, tr.stats.starttime)
+            station_info[station_id] = coordinates
+
+        return station_info
+
+    def has_station_file(self, waveform_filename_or_trace):
         """
         Simple function to determine whether or not the station file for a
         given waveform file exist. Will return either the filename or False.
@@ -281,7 +344,10 @@ class Project(object):
         The [.X] are where a potential number would be appended in the case of
         more then one necessary file.
         """
-        tr = obspy.read(waveform_filename)[0]
+        if isinstance(waveform_filename_or_trace, basestring):
+            tr = obspy.read(waveform_filename_or_trace)[0]
+        else:
+            tr = waveform_filename_or_trace
         network = tr.stats.network
         station = tr.stats.station
         starttime = tr.stats.starttime

@@ -128,6 +128,12 @@ def iris2quakeml(url, output_folder=None):
     ev.magnitudes = [mag]
     ev.preferred_magnitude_id = mag.resource_id
 
+    # Convert the depth to meters.
+    org = ev.origins[0]
+    org.depth *= 1000.0
+    if org.depth_errors.uncertainty:
+        org.depth_errors.uncertainty *= 1000.0
+
     # Ugly asserts -- this is just a simple script.
     assert(len(ev.magnitudes) == 1)
     assert(len(ev.origins) == 1)
