@@ -10,6 +10,7 @@ Visualization scripts.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from itertools import izip
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import numpy as np
@@ -107,3 +108,24 @@ def plot_events(events, map_object):
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
+
+
+def plot_stations_for_event(map_object, station_dict, event_longitude,
+        event_latitude):
+    """
+    Plots all stations for one event.
+
+    :param station_dict: A dictionary whose values at least contain latitude
+        and longitude keys.
+    """
+    # Plot the stations with scatter.
+    lngs = [_i["longitude"] for _i in station_dict.itervalues()]
+    lats = [_i["latitude"] for _i in station_dict.itervalues()]
+    x, y = map_object(lngs, lats)
+    map_object.scatter(x, y, color="green", s=35, marker="v", zorder=100,
+        edgecolor="black")
+
+    # Plot the ray paths.
+    for sta_lng, sta_lat in izip(lngs, lats):
+        map_object.drawgreatcircle(event_longitude, event_latitude, sta_lng,
+            sta_lat, lw=2, alpha=0.3)

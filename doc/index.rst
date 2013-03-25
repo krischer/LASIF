@@ -368,13 +368,97 @@ stations for one event simply execute
 
 .. code-block:: bash
 
-    $ fwiw download_stations GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+    $ fwiw download_stations GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
 
 .. note::
 
     The `fwiw download_stations` command will, for the specified event, figure
     what waveform data is present in the `DATA/EVENT_NAME/raw` folder and
     download all missing station metadata information for these files.
+
+At this point, FWIW is able to match available station and waveform
+information. To get an overview, of what data is actually stored for the given event, just execute:
+
+.. code-block:: bash
+
+    $ fwiw event_info GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+
+.. code-block:: bash
+
+    Earthquake with 6.1 Mw at AZORES ISLANDS REGION
+            Latitude: 37.400, Longitude: -24.380, Depth: 12.0 km
+            2007-04-07T07:09:29.500000Z UTC
+
+    Station and waveform information available at 8 stations:
+
+    ===========================================================================
+                 id       latitude      longitude      elevation    local depth
+    ===========================================================================
+            GE.CART        37.5868        -1.0012           65.0            5.0
+             GE.MTE        40.3997        -7.5442          815.0            3.0
+             GE.SFS        36.4656        -6.2055           21.0            5.0
+             IU.PAB        39.5446      -4.349899          950.0            0.0
+             PM.MTE        40.3997        -7.5442          815.0            3.0
+           PM.PESTR        38.8672        -7.5902          410.0            0.0
+            PM.PVAQ        37.4037        -7.7173          200.0            0.0
+            WM.CART        37.5868        -1.0012           65.0            5.0
+
+
+It is furthermore possible to plot the availability information for one event including ray coverage with:
+
+.. code-block:: bash
+
+    $ fwiw plot_event GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+
+
+.. plot::
+
+    import fwiw.visualization
+    map = fwiw.visualization.plot_domain(-20, +20, -20, +20, 3.0,
+        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
+        show_plot=False)
+    # Create event.
+    from obspy.core.event import *
+    ev = Event()
+    cat = Catalog(events=[ev])
+    org = Origin()
+    fm = FocalMechanism()
+    mt = MomentTensor()
+    t = Tensor()
+    ev.origins.append(org)
+    ev.focal_mechanisms.append(fm)
+    fm.moment_tensor = mt
+    mt.tensor = t
+    org.latitude = 37.4
+    org.longitude = -24.38
+    t.m_rr = -1.69e+18
+    t.m_tt = 9.12e+17
+    t.m_pp = 7.77e+17
+    t.m_rt = 8.4e+16
+    t.m_rp = 2.4e+16
+    t.m_tp = -4.73e+17
+    fwiw.visualization.plot_events(cat, map)
+    ev_lng = -24.38
+    ev_lat = 37.4
+    stations = {'GE.SFS': {'latitude': 36.4656, 'local_depth': 5.0,
+        'elevation': 21.0, 'longitude': -6.2055}, 'PM.MTE': {'latitude':
+        40.3997, 'local_depth': 3.0, 'elevation': 815.0, 'longitude': -7.5442},
+        'PM.PVAQ': {'latitude': 37.4037, 'local_depth': 0.0, 'elevation':
+        200.0, 'longitude': -7.7173}, 'WM.CART': {'latitude': 37.5868,
+        'local_depth': 5.0, 'elevation': 65.0, 'longitude': -1.0012}, 'GE.MTE':
+        {'latitude': 40.3997, 'local_depth': 3.0, 'elevation': 815.0,
+        'longitude': -7.5442}, 'PM.PESTR': {'latitude': 38.8672, 'local_depth':
+        0.0, 'elevation': 410.0, 'longitude': -7.5902}, 'GE.CART': {'latitude':
+        37.5868, 'local_depth': 5.0, 'elevation': 65.0, 'longitude': -1.0012},
+        'IU.PAB': {'latitude': 39.5446, 'local_depth': 0.0, 'elevation': 950.0,
+        'longitude': -4.349899}}
+    fwiw.visualization.plot_stations_for_event(map_object=map,
+        station_dict=stations, event_longitude=ev_lng,
+        event_latitude=ev_lat)
+    # Plot the beachball for one event.
+    fwiw.visualization.plot_events(cat, map_object=map)
+
+
 
 
 Indices and tables

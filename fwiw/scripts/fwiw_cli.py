@@ -52,6 +52,22 @@ def fwiw_plot_domain(args):
     proj.plot_domain()
 
 
+def fwiw_plot_event(args):
+    """
+    Usage: fwiw plot_event EVENT_NAME
+
+    Plots one event and raypaths on a map.
+    """
+    proj = _find_project_root(".")
+
+    if len(args) != 1:
+        msg = "EVENT_NAME must be given. No other arguments allowed."
+        raise FWIWCommandLineException(msg)
+    event_name = args[0]
+
+    proj.plot_event(event_name)
+
+
 def fwiw_plot_events(args):
     """
     Usage: fwiw plot_events
@@ -201,17 +217,24 @@ def fwiw_event_info(args):
 
     proj = _find_project_root(".")
     try:
-        print proj.get_event_info(event_name)
+        event_dict = proj.get_event_info(event_name)
     except Exception as e:
         raise FWIWCommandLineException(str(e))
+
+    print "Earthquake with %.1f %s at %s" % (event_dict["magnitude"],
+        event_dict["magnitude_type"], event_dict["region"])
+    print "\tLatitude: %.3f, Longitude: %.3f, Depth: %.1f km" % (
+        event_dict["latitude"], event_dict["longitude"],
+        event_dict["depth_in_km"])
+    print "\t%s UTC" % str(event_dict["origin_time"])
 
     try:
         stations = proj.get_stations_for_event(event_name)
     except Exception as e:
         raise FWIWCommandLineException(str(e))
-    print "Station and waveform information available at %i stations:\n" \
+    print "\nStation and waveform information available at %i stations:\n" \
         % len(stations)
-    header = ["id", "latitude", "longitude", "elevation", "depth"]
+    header = ["id", "latitude", "longitude", "elevation", "local depth"]
     keys = sorted(stations.keys())
     data = [[key, stations[key]["latitude"], stations[key]["longitude"],
         stations[key]["elevation"], stations[key]["local_depth"]]

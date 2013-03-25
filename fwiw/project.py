@@ -253,7 +253,42 @@ class Project(object):
         self.events = obspy.readEvents(os.path.join(self.paths["events"],
             "*%sxml" % os.path.extsep))
 
+    def plot_event(self, event_name, resolution="c"):
+        """
+        Plots information about one event on the map.
+        """
+        # Plot the domain.
+        bounds = self.domain["bounds"]
+        map = visualization.plot_domain(bounds["minimum_latitude"],
+            bounds["maximum_latitude"], bounds["minimum_longitude"],
+            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
+            rotation_axis=self.domain["rotation_axis"],
+            rotation_angle_in_degree=self.domain["rotation_angle"],
+            plot_simulation_domain=False, show_plot=False)
+
+        all_events = self.get_event_dict()
+        if event_name not in all_events:
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+        event = obspy.readEvents(all_events[event_name])
+
+        stations = self.get_stations_for_event(event_name)
+        ev_lng = event[0].preferred_origin().longitude
+        ev_lat = event[0].preferred_origin().latitude
+        print ev_lng, ev_lat
+        print stations
+        visualization.plot_stations_for_event(map_object=map,
+            station_dict=stations, event_longitude=ev_lng,
+            event_latitude=ev_lat)
+        # Plot the beachball for one event.
+        visualization.plot_events(event, map_object=map)
+
+        plt.show()
+
     def plot_events(self, resolution="c"):
+        """
+        Plots the domain and beachballs for all events on the map.
+        """
         bounds = self.domain["bounds"]
         map = visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
@@ -284,7 +319,7 @@ class Project(object):
             "depth_in_km": org.depth / 1000.0,
             "magnitude": mag.mag,
             "region": FlinnEngdahl().get_region(org.longitude, org.latitude),
-            "type": mag.magnitude_type}
+            "magnitude_type": mag.magnitude_type}
         return info
 
     def get_stations_for_event(self, event_name):
