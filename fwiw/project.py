@@ -18,7 +18,7 @@ from obspy.xseed import Parser
 import os
 import matplotlib.pyplot as plt
 
-from fwiw import visualization
+from fwiw import utils, visualization
 
 
 class FWIWException(Exception):
@@ -284,8 +284,6 @@ class Project(object):
         tr = obspy.read(waveform_filename)[0]
         network = tr.stats.network
         station = tr.stats.station
-        location = tr.stats.location
-        channel = tr.stats.channel
         starttime = tr.stats.starttime
         endtime = tr.stats.endtime
 
@@ -301,18 +299,8 @@ class Project(object):
 
         for filename in dataless_seed:
             p = Parser(filename)
-            import pprint
-            pprint.pprint(p.getInventory())
-            channels = p.getInventory()["channels"]
-            for chan in channels:
-                chan_id = "%s.%s.%s.%s" % (network, station, location, channel)
-                if chan["channel_id"] != chan_id:
-                    continue
-                if starttime <= chan["start_date"]:
-                    continue
-                if chan["end_date"] and \
-                        (endtime >= chan["end_date"]):
-                    continue
+            if utils.channel_in_parser(p, tr.id, starttime, endtime) \
+                    is True:
                 return filename
 
         # XXX: Deal with StationXML and RESP files as well!
