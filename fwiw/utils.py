@@ -24,10 +24,10 @@ def channel_in_parser(parser_object, channel_id, starttime, endtime):
     for chan in channels:
         if chan["channel_id"] != channel_id:
             continue
-        if starttime <= chan["start_date"]:
+        if starttime < chan["start_date"]:
             continue
         if chan["end_date"] and \
-                (endtime >= chan["end_date"]):
+                (endtime > chan["end_date"]):
             continue
         return True
     return False
