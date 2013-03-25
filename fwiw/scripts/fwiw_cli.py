@@ -20,7 +20,7 @@ import sys
 from fwiw.project import Project
 from fwiw.download_helpers import downloader
 from fwiw.scripts.iris2quakeml import iris2quakeml
-from fwiw.utils import table_printer, generate_ses3d_template
+from fwiw.utils import table_printer, generate_ses3d_4_0_template
 
 
 class FWIWCommandLineException(Exception):
@@ -242,21 +242,52 @@ def fwiw_event_info(args):
     table_printer(header, data)
 
 
+def fwiw_list_input_file_templates(args):
+    """
+    Usage: fwiw list_input_file_templates
+
+    Returns a list of names with all input file templates.
+    """
+    proj = _find_project_root(".")
+    files = glob.glob(os.path.join(proj.paths["templates"], "*.xml"))
+    print "Project has %i input file template%s:" % (len(files), "s"
+        if len(files) > 1 else "")
+    for filename in files:
+        print "\t%s" % os.path.splitext(os.path.basename(filename))[0]
+
+
 def fwiw_generate_input_files(args):
     """
-    Usage: fwiw generate_input_files EVENT_NAME
+    Usage: fwiw generate_input_files EVENT INPUT_FILE_TEMPLATE TYPE
+
+    TYPE denotes the type of simulation to run. Available types are
+        * "forward_simulation"
+        * "adjoint_forward"
+        * "adjoint_reverse"
 
     Generates the input files for one event.
     """
     proj = _find_project_root(".")
 
-    if len(args) != 1:
-        msg = "EVENT_NAME must be given. No other arguments allowed."
+    if len(args) != 3:
+        msg = ("EVENT, INPUT_FILE_TEMPLATE, and TYPE must be given. No other "
+            "arguments allowed.")
         raise FWIWCommandLineException(msg)
     event_name = args[0]
+    input_file_template = args[1]
+
+    # Assert a correct simulation type.
+    simulation_type = args[2].lower()
+    simulation_types = ("forward_simulation", "adjoint_forward",
+            "adjoint_reverse")
+    if simulation_type not in simulation_types:
+        msg = "Invalid simulation type '%s'. Available types: %s" % \
+            (simulation_type, ", ".join(simulation_types))
+        raise FWIWCommandLineException(msg)
 
     try:
-        proj.generate_input_files(event_name)
+        proj.generate_input_files(event_name, input_file_template,
+            simulation_type)
     except Exception as e:
         raise FWIWCommandLineException(str(e))
 
@@ -294,7 +325,7 @@ def fwiw_generate_input_file_template(args):
 
     if solver == "ses3d_4_0":
         filename = xml_filename_generator(proj.paths["templates"], solver)
-        generate_ses3d_template(filename)
+        generate_ses3d_4_0_template(filename)
         print "Created template at '%s'. Please edit it." % filename
 
 

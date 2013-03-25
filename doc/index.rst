@@ -49,6 +49,7 @@ This will create the following directory structure::
     |-- EVENTS
     |-- LOGS
     |-- MODELS
+    |-- OUTPUT
     |-- STATIONS
     |   |-- RESP
     |   |-- SEED
@@ -231,6 +232,7 @@ This will result in a directory structure in the fashion of::
     |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9.xml
     |-- LOGS
     |-- MODELS
+    |-- OUTPUT
     |-- STATIONS
     |   |-- RESP
     |   |-- SEED
@@ -343,6 +345,7 @@ events in the current project just execute
 .. code-block:: bash
 
     $ fwiw list_events
+
     2 events in project:
         GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
         GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
@@ -384,8 +387,6 @@ information. To get an overview, of what data is actually stored for the given e
 .. code-block:: bash
 
     $ fwiw event_info GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-
-.. code-block:: bash
 
     Earthquake with 6.1 Mw at AZORES ISLANDS REGION
             Latitude: 37.400, Longitude: -24.380, Depth: 12.0 km
@@ -486,8 +487,9 @@ This will create a (hopefully self-explaining) XML input file template, that **M
     <?xml version='1.0' encoding='UTF-8'?>
     <ses3d_4_0_input_file_template>
       <simulation_parameters>
-        <number_of_timesteps>4000</number_of_timesteps>
+        <number_of_time_steps>4000</number_of_time_steps>
         <time_increment>0.13</time_increment>
+        <is_dissipative>false</is_dissipative>
       </simulation_parameters>
       <output_directory>../DATA/OUTPUT/CHANGE_ME/</output_directory>
       <adjoint_output_parameters>
@@ -500,12 +502,26 @@ This will create a (hopefully self-explaining) XML input file template, that **M
         <nz_global>28</nz_global>
         <lagrange_polynomial_degree>4</lagrange_polynomial_degree>
         <px_processors_in_theta_direction>3</px_processors_in_theta_direction>
-        <py_processors_in_theta_direction>4</py_processors_in_theta_direction>
-        <pz_processors_in_theta_direction>4</pz_processors_in_theta_direction>
+        <py_processors_in_phi_direction>4</py_processors_in_phi_direction>
+        <pz_processors_in_r_direction>4</pz_processors_in_r_direction>
       </computational_setup>
     </ses3d_4_0_input_file_template>
 
 In case something is not fully clear, please refer to the SES3D 4.0 manual or contact the author. It is important to understand that each template file will be used as basis for all generated input files.
+
+Input file templates are again refered to by their filename minus the XML
+extension. To get a list of all available templates use:
+
+.. code-block:: bash
+
+    $ fwiw list_input_file_templates
+
+    Project has 1 input file template:
+            ses3d_4_0_template
+
+
+You can (and maybe should) rename the actual template files to make it more
+descriptive.
 
 
 .. code-block:: bash

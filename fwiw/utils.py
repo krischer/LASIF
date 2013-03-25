@@ -50,7 +50,7 @@ def table_printer(header, data):
         print row_format.format(*row)
 
 
-def generate_ses3d_template(filename):
+def generate_ses3d_4_0_template(filename):
     """
     Generates a template for SES3D input files.
 
@@ -58,8 +58,9 @@ def generate_ses3d_template(filename):
     """
     doc = E.ses3d_4_0_input_file_template(
         E.simulation_parameters(
-            E.number_of_timesteps("4000"),
-            E.time_increment("0.13")),
+            E.number_of_time_steps("4000"),
+            E.time_increment("0.13"),
+            E.is_dissipative("false")),
         E.output_directory("../DATA/OUTPUT/CHANGE_ME/"),
         E.adjoint_output_parameters(
             E.sampling_rate_of_forward_field("15"),
@@ -70,10 +71,44 @@ def generate_ses3d_template(filename):
             E.nz_global("28"),
             E.lagrange_polynomial_degree("4"),
             E.px_processors_in_theta_direction("3"),
-            E.py_processors_in_theta_direction("4"),
-            E.pz_processors_in_theta_direction("4")))
+            E.py_processors_in_phi_direction("4"),
+            E.pz_processors_in_r_direction("4")))
     string_doc = etree.tostring(doc, pretty_print=True,
         xml_declaration=True, encoding="UTF-8")
 
     with open(filename, "wb") as open_file:
         open_file.write(string_doc)
+
+
+def read_ses3d_4_0_template(filename):
+    """
+    Reads a SES3D template file to a dictionary.
+    """
+    # Convert it to a recursive dictionary.
+    root = etree.parse(filename).getroot()
+    input_file = recursive_dict(root)
+    # Small sanity check.
+    # XXX: Replace with xsd.
+    if input_file[0] != "ses3d_4_0_input_file_template":
+        msg = "Not a SES3D 4.0 compatible templates."
+        raise ValueError(msg)
+    input_file = input_file[1]
+
+    # Convert some types.
+    dis = input_file["simulation_parameters"]["is_dissipative"]
+    if dis.lower() == "true":
+       dis = True
+    else:
+        dis = False
+    input_file["simulation_parameters"]["is_dissipative"]  = dis
+    return input_file
+
+
+def recursive_dict(element):
+    """
+    Maps an XML tree into a dict of dict.
+
+    From the lxml documentation.
+    """
+    return element.tag, \
+        dict(map(recursive_dict, element)) or element.text

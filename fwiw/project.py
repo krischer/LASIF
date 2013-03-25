@@ -10,6 +10,7 @@ Project management class.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from datetime import datetime
 import glob
 from lxml import etree
 from lxml.builder import E
@@ -76,6 +77,7 @@ class Project(object):
             "StationXML")
         self.paths["resp"] = os.path.join(self.paths["stations"],
             "RESP")
+        self.paths["output"] = os.path.join(root_path, "OUTPUT")
 
     def update_folder_structure(self):
         """
@@ -277,8 +279,6 @@ class Project(object):
         stations = self.get_stations_for_event(event_name)
         ev_lng = event[0].preferred_origin().longitude
         ev_lat = event[0].preferred_origin().latitude
-        print ev_lng, ev_lat
-        print stations
         visualization.plot_stations_for_event(map_object=map,
             station_dict=stations, event_longitude=ev_lng,
             event_latitude=ev_lat)
@@ -324,15 +324,28 @@ class Project(object):
             "magnitude_type": mag.magnitude_type}
         return info
 
-    def generate_input_files(self, event_name):
+
+    def generate_input_files(self, event_name, template_name, simulation_type):
         """
         Generate the input files for one event.
         """
+        # Get the events
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
         event = obspy.readEvents(all_events[event_name])[0]
+
+        # Get the input file templates.
+        template_filename = os.path.join(self.paths["templates"],
+            template_name + ".xml")
+        if not os.path.exists(template_filename):
+            msg = "Template '%s' does not exists." % template_name
+            raise ValueError(msg)
+        input_file = utils.read_ses3d_4_0_template(template_filename)
+
+        # Get all stations and create a dictionary for the input file
+        # generator.
         stations = self.get_stations_for_event(event_name)
         stations = [{"id": key, "latitude": value["latitude"],
             "longitude": value["longitude"],
@@ -340,20 +353,63 @@ class Project(object):
             "local_depth_in_m": value["local_depth"]} for key, value in
             stations.iteritems()]
 
+        # Add the event and the stations to the input file generator.
         gen = InputFileGenerator()
         gen.add_events(event)
         gen.add_stations(stations)
 
-        ################
-        # DEBUGGING START
-        import sys
-        __o_std__ = sys.stdout
-        sys.stdout = sys.__stdout__
-        from IPython.core.debugger import Tracer
-        Tracer(colors="Linux")()
-        sys.stdout = __o_std__
-        # DEBUGGING END
-        ################
+        # Time configuration.
+        gen.config.time_config.time_steps = \
+            input_file["simulation_parameters"]["number_of_time_steps"]
+        gen.config.time_config.time_delta = \
+            input_file["simulation_parameters"]["time_increment"]
+
+        # SES3D specific configuration
+        gen.config.output_directory = input_file["output_directory"]
+        gen.config.forward_wavefield_output_folder = \
+            input_file["adjoint_output_parameters"]\
+                ["forward_field_output_directory"]
+        gen.config.is_dissipative = \
+            input_file["simulation_parameters"]["is_dissipative"]
+
+        # Discretization
+        disc = input_file["computational_setup"]
+        gen.config.nx_global = disc["nx_global"]
+        gen.config.ny_global = disc["ny_global"]
+        gen.config.nz_global = disc["nz_global"]
+        gen.config.px = disc["px_processors_in_theta_direction"]
+        gen.config.py = disc["py_processors_in_phi_direction"]
+        gen.config.pz = disc["pz_processors_in_r_direction"]
+        gen.config.lagrange_polynomial_degree = \
+            disc["lagrange_polynomial_degree"]
+
+        # Configure the mesh.
+        gen.config.mesh.min_latitude = \
+            self.domain["bounds"]["minimum_latitude"]
+        gen.config.mesh.max_latitude = \
+            self.domain["bounds"]["maximum_latitude"]
+        gen.config.mesh.min_longitude = \
+            self.domain["bounds"]["minimum_longitude"]
+        gen.config.mesh.max_longitude = \
+            self.domain["bounds"]["maximum_longitude"]
+        gen.config.mesh.min_depth = \
+            self.domain["bounds"]["minimum_depth_in_km"]
+        gen.config.mesh.max_depth = \
+            self.domain["bounds"]["maximum_depth_in_km"]
+
+        gen.config.mesh.rotation_angle = self.domain["rotation_angle"]
+        gen.config.mesh.rotation_axis = self.domain["rotation_axis"]
+
+        # Get the output directory.
+        output_dir = "input_files___%s___%s" % (template_name,
+            str(datetime.now()).replace(" ", "T"))
+
+        output_dir = os.path.join(self.paths["output"], output_dir)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        gen.write(format="ses3d_4_0", output_dir=output_dir)
+
 
     def get_stations_for_event(self, event_name):
         """
