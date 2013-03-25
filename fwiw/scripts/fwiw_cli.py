@@ -20,7 +20,7 @@ import sys
 from fwiw.project import Project
 from fwiw.download_helpers import downloader
 from fwiw.scripts.iris2quakeml import iris2quakeml
-from fwiw.utils import table_printer
+from fwiw.utils import table_printer, generate_ses3d_template
 
 
 class FWIWCommandLineException(Exception):
@@ -240,6 +240,62 @@ def fwiw_event_info(args):
         stations[key]["elevation"], stations[key]["local_depth"]]
         for key in keys]
     table_printer(header, data)
+
+
+def fwiw_generate_input_files(args):
+    """
+    Usage: fwiw generate_input_files EVENT_NAME
+
+    Generates the input files for one event.
+    """
+    proj = _find_project_root(".")
+
+    if len(args) != 1:
+        msg = "EVENT_NAME must be given. No other arguments allowed."
+        raise FWIWCommandLineException(msg)
+    event_name = args[0]
+
+    try:
+        proj.generate_input_files(event_name)
+    except Exception as e:
+        raise FWIWCommandLineException(str(e))
+
+
+def fwiw_generate_input_file_template(args):
+    """
+    Usage: fwiw generate_input_file_template SOLVER
+
+    Generates a new input file template for the specified solver. Currently
+    supported solvers: ses3d_4_0
+    """
+    if len(args) != 1:
+        msg = "SOLVER must be given. No other arguments allowed."
+        raise FWIWCommandLineException(msg)
+    solver = args[0]
+
+    SOLVERS = ["ses3d_4_0"]
+    if solver not in SOLVERS:
+        msg = "'%s' is not a valid solver. Valid solvers: %s" % (solver,
+            ", ".join(SOLVERS))
+        raise FWIWCommandLineException(msg)
+
+    proj = _find_project_root(".")
+
+    def xml_filename_generator(folder, name):
+        for _i in xrange(100000):
+            filename = "%s_template" % name
+            if _i:
+                filename += "_%i" % _i
+            filename += "%sxml" % os.path.extsep
+            filename = os.path.join(folder, filename)
+            if os.path.exists(filename):
+                continue
+            return filename
+
+    if solver == "ses3d_4_0":
+        filename = xml_filename_generator(proj.paths["templates"], solver)
+        generate_ses3d_template(filename)
+        print "Created template at '%s'. Please edit it." % filename
 
 
 def fwiw_init_project(args):

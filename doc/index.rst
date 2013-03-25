@@ -54,6 +54,7 @@ This will create the following directory structure::
     |   |-- SEED
     |   |-- StationXML
     |-- SYNTHETICS
+    |-- TEMPLATES
 
 
 The configuration for each project works , is defined in the **config.xml**
@@ -237,6 +238,7 @@ This will result in a directory structure in the fashion of::
     |-- SYNTHETICS
     |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
     |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    |-- TEMPLATES
     |-- config.xml
 
 
@@ -457,6 +459,58 @@ It is furthermore possible to plot the availability information for one event in
         event_latitude=ev_lat)
     # Plot the beachball for one event.
     fwiw.visualization.plot_events(cat, map_object=map)
+
+
+Generating SES3D Input Files
+----------------------------
+
+FWIW is currently capable of producing input files for SES3D 4.0. It is very
+straightforward and knows what data is available for every event and thus can
+generate these files fully automatically.
+
+At least almost fully automatically. It is necessary to create a template with
+the non-derivable configuration values first. This template will then be used
+as a basis for all generated input files. It is possible (and encouraged) to
+created multiple templates to cover various situations.
+
+To create a basic template (in this case for SES3D 4.0) run:
+
+.. code-block:: bash
+
+    $ fwiw generate_input_file_template ses3d_4_0
+
+This will create a (hopefully self-explaining) XML input file template, that **MUST BE EDITED**.
+
+.. code-block:: xml
+
+    <?xml version='1.0' encoding='UTF-8'?>
+    <ses3d_4_0_input_file_template>
+      <simulation_parameters>
+        <number_of_timesteps>4000</number_of_timesteps>
+        <time_increment>0.13</time_increment>
+      </simulation_parameters>
+      <output_directory>../DATA/OUTPUT/CHANGE_ME/</output_directory>
+      <adjoint_output_parameters>
+        <sampling_rate_of_forward_field>15</sampling_rate_of_forward_field>
+        <forward_field_output_directory>../DATA/OUTPUT/CHANGE_ME/</forward_field_output_directory>
+      </adjoint_output_parameters>
+      <computational_setup>
+        <nx_global>66</nx_global>
+        <ny_global>108</ny_global>
+        <nz_global>28</nz_global>
+        <lagrange_polynomial_degree>4</lagrange_polynomial_degree>
+        <px_processors_in_theta_direction>3</px_processors_in_theta_direction>
+        <py_processors_in_theta_direction>4</py_processors_in_theta_direction>
+        <pz_processors_in_theta_direction>4</pz_processors_in_theta_direction>
+      </computational_setup>
+    </ses3d_4_0_input_file_template>
+
+In case something is not fully clear, please refer to the SES3D 4.0 manual or contact the author. It is important to understand that each template file will be used as basis for all generated input files.
+
+
+.. code-block:: bash
+
+    $ fwiw generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 ~/Desktop/
 
 
 

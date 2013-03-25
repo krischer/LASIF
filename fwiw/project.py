@@ -18,6 +18,7 @@ from obspy.core.util import FlinnEngdahl
 from obspy.xseed import Parser
 import os
 import matplotlib.pyplot as plt
+from wfs_input_generator import InputFileGenerator
 
 from fwiw import utils, visualization
 
@@ -66,6 +67,7 @@ class Project(object):
         self.paths["data"] = os.path.join(root_path, "DATA")
         self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
+        self.paths["templates"] = os.path.join(root_path, "TEMPLATES")
         self.paths["stations"] = os.path.join(root_path, "STATIONS")
         # Station subfolders
         self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
@@ -321,6 +323,37 @@ class Project(object):
             "region": FlinnEngdahl().get_region(org.longitude, org.latitude),
             "magnitude_type": mag.magnitude_type}
         return info
+
+    def generate_input_files(self, event_name):
+        """
+        Generate the input files for one event.
+        """
+        all_events = self.get_event_dict()
+        if event_name not in all_events:
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+        event = obspy.readEvents(all_events[event_name])[0]
+        stations = self.get_stations_for_event(event_name)
+        stations = [{"id": key, "latitude": value["latitude"],
+            "longitude": value["longitude"],
+            "elevation_in_m": value["elevation"],
+            "local_depth_in_m": value["local_depth"]} for key, value in
+            stations.iteritems()]
+
+        gen = InputFileGenerator()
+        gen.add_events(event)
+        gen.add_stations(stations)
+
+        ################
+        # DEBUGGING START
+        import sys
+        __o_std__ = sys.stdout
+        sys.stdout = sys.__stdout__
+        from IPython.core.debugger import Tracer
+        Tracer(colors="Linux")()
+        sys.stdout = __o_std__
+        # DEBUGGING END
+        ################
 
     def get_stations_for_event(self, event_name):
         """
