@@ -50,6 +50,8 @@ This will create the following directory structure::
     |-- LOGS
     |-- MODELS
     |-- OUTPUT
+    |-- SOURCE_TIME_FUNCTIONS
+    |   |-- heaviside_8s_100s.py
     |-- STATIONS
     |   |-- RESP
     |   |-- SEED
@@ -233,6 +235,7 @@ This will result in a directory structure in the fashion of::
     |-- LOGS
     |-- MODELS
     |-- OUTPUT
+    |-- SOURCE_TIME_FUNCTIONS
     |-- STATIONS
     |   |-- RESP
     |   |-- SEED
@@ -469,6 +472,17 @@ FWIW is currently capable of producing input files for SES3D 4.0. It is very
 straightforward and knows what data is available for every event and thus can
 generate these files fully automatically.
 
+
+Preparatory Steps
+^^^^^^^^^^^^^^^^^
+
+Before the first input file can be generated some preparatory steps need to be
+performed. This is only necessary once at the start or when you make
+significant changes to how the simulations are performed.
+
+Input File Templates
+********************
+
 At least almost fully automatically. It is necessary to create a template with
 the non-derivable configuration values first. This template will then be used
 as a basis for all generated input files. It is possible (and encouraged) to
@@ -523,6 +537,31 @@ extension. To get a list of all available templates use:
 You can (and maybe should) rename the actual template files to make it more
 descriptive.
 
+Source Time Functions
+*********************
+
+The source time function will be dynamically generated for each run. An example
+source time function has been generated upon project initialization and is
+located in the *SOURCE_TIME_FUNCTIONS* subdirectory.
+
+To create your own source time functions simply copy the already existing one
+and modify it. Each source time function has to live in it's own Python file
+and a function **source_time_function(npts, delta)** has to be defined in it.
+It should return either a list of floats or a numpy array with npts items.
+
+As always, they are referred to via their file name. To get a list of all
+available source time functions type:
+
+.. code-block:: bash
+
+    $ fwiw list_stf
+
+    Project has 1 defined source time function
+            heaviside_8s_100s
+
+
+Input File Generation
+^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 

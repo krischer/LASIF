@@ -10,6 +10,7 @@ Project management class.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import copy
 from datetime import datetime
 import glob
 from lxml import etree
@@ -19,8 +20,8 @@ from obspy.core.util import FlinnEngdahl
 from obspy.xseed import Parser
 import os
 import matplotlib.pyplot as plt
+import sys
 from wfs_input_generator import InputFileGenerator
-
 from fwiw import utils, visualization
 
 
@@ -69,6 +70,8 @@ class Project(object):
         self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
         self.paths["templates"] = os.path.join(root_path, "TEMPLATES")
+        self.paths["source_time_functions"] = os.path.join(root_path,
+            "SOURCE_TIME_FUNCTIONS")
         self.paths["stations"] = os.path.join(root_path, "STATIONS")
         # Station subfolders
         self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
@@ -132,6 +135,63 @@ class Project(object):
 
         with open(self.paths["config_file"], "wt") as open_file:
             open_file.write(string_doc)
+
+        # Also create one source time function example file.
+        stf = (
+            "import obspy\n"
+            "import numpy as np\n"
+            "\n"
+            "\n"
+            "def filtered_heaviside(npts, delta, freqmin, freqmax):\n"
+            "    trace = obspy.Trace(data=np.ones(npts))\n"
+            "    trace.stats.delta = delta\n"
+            "    trace.filter(\"lowpass\", freq=freqmax, corners=5)\n"
+            "    trace.filter(\"highpass\", freq=freqmin, corners=2)\n"
+            "\n"
+            "    return trace.data\n"
+            "\n"
+            "\n"
+            "def source_time_function(npts, delta):\n"
+            "    return filtered_heaviside(npts, delta, 1. / 100., 1. / 8.)")
+        # The source time functions path needs to exist.
+        if not os.path.exists(self.paths["source_time_functions"]):
+            os.makedirs(self.paths["source_time_functions"])
+        with open(os.path.join(self.paths["source_time_functions"],
+                "heaviside_8s_100s.py"), "wt") as open_file:
+            open_file.write(stf)
+
+    def _get_source_time_function(self, function_name):
+        """
+        Attempts to get the source time function with the corresponding name.
+
+        Will raise if something does not work.
+        """
+        filename = os.path.join(self.paths["source_time_functions"], "%s.py"
+            % function_name)
+        if not os.path.exists(filename):
+            msg = "Could not find source time function '%s'" % function_name
+            raise ValueError(msg)
+
+        # Attempt to import the file if found.
+        old_path = copy.copy(sys.path)
+        sys.path.insert(1, os.path.dirname(filename))
+        try:
+            sft = __import__(os.path.splitext(os.path.basename(filename))[0],
+                globals(), locals())
+        except Exception as e:
+            msg = "Could not import '%s'\n" % filename
+            msg += "\t%s" % str(e)
+            raise Exception(msg)
+        finally:
+            sys.path = old_path
+
+        if not hasattr(sft, "source_time_function") or \
+                not hasattr(sft.source_time_function, "__call__"):
+            msg = ("File '%s' does not contain a function "
+                "'source_time_function'.") % filename
+            raise Exception(msg)
+        return sft.source_time_function
+
 
     def __str__(self):
         """
@@ -324,16 +384,27 @@ class Project(object):
             "magnitude_type": mag.magnitude_type}
         return info
 
-
-    def generate_input_files(self, event_name, template_name, simulation_type):
+    def generate_input_files(self, event_name, template_name, simulation_type,
+            source_time_function):
         """
         Generate the input files for one event.
+
+        :param event_name: The name of the event for which to generate the
+            input files.
+        :param template_name: The name of the input file template
+        :param simulation_type: The type of simulation to perform. Possible
+            values are: 'normal simulation', 'adjoint forward', 'adjoint
+            reverse'
+        :param source_time_function: A function source_time_function(npts,
+            delta), taking the requested number of samples and the time spacing
+            and returning an appropriate source time function as numpy array.
         """
         # Get the events
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
+
         event = obspy.readEvents(all_events[event_name])[0]
 
         # Get the input file templates.
@@ -358,17 +429,22 @@ class Project(object):
         gen.add_events(event)
         gen.add_stations(stations)
 
+        npts = input_file["simulation_parameters"]["number_of_time_steps"]
+        delta = input_file["simulation_parameters"]["time_increment"]
         # Time configuration.
-        gen.config.time_config.time_steps = \
-            input_file["simulation_parameters"]["number_of_time_steps"]
-        gen.config.time_config.time_delta = \
-            input_file["simulation_parameters"]["time_increment"]
+        gen.config.number_of_time_steps = npts
+        gen.config.time_increment_in_s = delta
 
         # SES3D specific configuration
-        gen.config.output_directory = input_file["output_directory"]
-        gen.config.forward_wavefield_output_folder = \
-            input_file["adjoint_output_parameters"]\
-                ["forward_field_output_directory"]
+        gen.config.output_folder = input_file["output_directory"]
+        gen.config.simulation_type = simulation_type
+
+        gen.config.adjoint_forward_wavefield_output_folder = \
+            input_file["adjoint_output_parameters"][
+                "forward_field_output_directory"]
+        gen.config.adjoint_forward_sampling_rate = \
+            input_file["adjoint_output_parameters"][
+                "sampling_rate_of_forward_field"]
         gen.config.is_dissipative = \
             input_file["simulation_parameters"]["is_dissipative"]
 
@@ -384,23 +460,26 @@ class Project(object):
             disc["lagrange_polynomial_degree"]
 
         # Configure the mesh.
-        gen.config.mesh.min_latitude = \
+        gen.config.mesh_min_latitude = \
             self.domain["bounds"]["minimum_latitude"]
-        gen.config.mesh.max_latitude = \
+        gen.config.mesh_max_latitude = \
             self.domain["bounds"]["maximum_latitude"]
-        gen.config.mesh.min_longitude = \
+        gen.config.mesh_min_longitude = \
             self.domain["bounds"]["minimum_longitude"]
-        gen.config.mesh.max_longitude = \
+        gen.config.mesh_max_longitude = \
             self.domain["bounds"]["maximum_longitude"]
-        gen.config.mesh.min_depth = \
+        gen.config.mesh_min_depth_in_km = \
             self.domain["bounds"]["minimum_depth_in_km"]
-        gen.config.mesh.max_depth = \
+        gen.config.mesh_max_depth_in_km = \
             self.domain["bounds"]["maximum_depth_in_km"]
 
-        gen.config.mesh.rotation_angle = self.domain["rotation_angle"]
-        gen.config.mesh.rotation_axis = self.domain["rotation_axis"]
+        gen.config.rotation_angle_in_degree = self.domain["rotation_angle"]
+        gen.config.rotation_axis = self.domain["rotation_axis"]
 
-        # Get the output directory.
+        gen.config.source_time_function = source_time_function(int(npts),
+            float(delta))
+
+        # Generate the output directory.
         output_dir = "input_files___%s___%s" % (template_name,
             str(datetime.now()).replace(" ", "T"))
 
@@ -409,7 +488,7 @@ class Project(object):
             os.makedirs(output_dir)
 
         gen.write(format="ses3d_4_0", output_dir=output_dir)
-
+        print "Written files to '%s'." % output_dir
 
     def get_stations_for_event(self, event_name):
         """

@@ -256,41 +256,67 @@ def fwiw_list_input_file_templates(args):
         print "\t%s" % os.path.splitext(os.path.basename(filename))[0]
 
 
+def fwiw_list_stf(args):
+    """
+    Usage: fwiw list_stf
+
+    Returns a list of names with all source time functions known to the
+    project.
+    """
+    proj = _find_project_root(".")
+    files = glob.glob(os.path.join(proj.paths["source_time_functions"],
+        "*.py"))
+    print "Project has %i defined source time function%s:" % (len(files), "s"
+        if len(files) > 1 else "")
+    for filename in files:
+        print "\t%s" % os.path.splitext(os.path.basename(filename))[0]
+
+
 def fwiw_generate_input_files(args):
     """
-    Usage: fwiw generate_input_files EVENT INPUT_FILE_TEMPLATE TYPE
+    Usage: fwiw generate_input_files EVENT INPUT_FILE_TEMPLATE TYPE SFT
 
     TYPE denotes the type of simulation to run. Available types are
-        * "forward_simulation"
+        * "normal_simulation"
         * "adjoint_forward"
         * "adjoint_reverse"
+
+    SFT is the name of the source time function to be used
 
     Generates the input files for one event.
     """
     proj = _find_project_root(".")
 
-    if len(args) != 3:
-        msg = ("EVENT, INPUT_FILE_TEMPLATE, and TYPE must be given. No other "
-            "arguments allowed.")
+    if len(args) != 4:
+        msg = ("EVENT, INPUT_FILE_TEMPLATE, TYPE, and SFT must be given. "
+            "No other arguments allowed.")
         raise FWIWCommandLineException(msg)
     event_name = args[0]
     input_file_template = args[1]
+    simulation_type = args[2].lower()
+    source_time_function = args[3]
 
     # Assert a correct simulation type.
-    simulation_type = args[2].lower()
-    simulation_types = ("forward_simulation", "adjoint_forward",
+    simulation_types = ("normal_simulation", "adjoint_forward",
             "adjoint_reverse")
     if simulation_type not in simulation_types:
         msg = "Invalid simulation type '%s'. Available types: %s" % \
             (simulation_type, ", ".join(simulation_types))
         raise FWIWCommandLineException(msg)
 
+    simulation_type = simulation_type.replace("_", " ")
+
     try:
-        proj.generate_input_files(event_name, input_file_template,
-            simulation_type)
+        source_time_function = \
+            proj._get_source_time_function(source_time_function)
     except Exception as e:
         raise FWIWCommandLineException(str(e))
 
+    try:
+        proj.generate_input_files(event_name, input_file_template,
+            simulation_type, source_time_function)
+    except Exception as e:
+        raise FWIWCommandLineException(str(e))
 
 def fwiw_generate_input_file_template(args):
     """
