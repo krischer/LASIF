@@ -560,13 +560,93 @@ available source time functions type:
             heaviside_8s_100s
 
 
-Input File Generation
-^^^^^^^^^^^^^^^^^^^^^
+It is furthermore possible to get a nice plot for every source time function.
+This is useful for visually judging the frequency content that goes into your
+simulation. This is done with:
 
 .. code-block:: bash
 
-    $ fwiw generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 ~/Desktop/
+    $ fwiw plot_stf SOURCE_TIME_FUNCTION NPTS DELTA
 
+The number of samples and the sample spacing of any simulation should be known.
+SOURCE_TIME_FUNCTION again is the name of the source time function.
+
+.. code-block:: bash
+
+    $ fwiw plot_stf heaviside_8s_100s 4000 0.13
+
+
+.. plot::
+
+    import fwiw.visualization
+    import obspy
+    import numpy as np
+    def filtered_heaviside(npts, delta, freqmin, freqmax):
+        trace = obspy.Trace(data=np.ones(npts))
+        trace.stats.delta = delta
+        trace.filter("lowpass", freq=freqmax, corners=5)
+        trace.filter("highpass", freq=freqmin, corners=2)
+        return trace.data
+    data = filtered_heaviside(4000, 0.13, 1.0 / 100.0, 1.0 / 8.0)
+    fwiw.visualization.plot_tf(data, 0.13)
+
+
+Input File Generation
+^^^^^^^^^^^^^^^^^^^^^
+
+Now that all requirements are fulfilled we can finally generate the input
+files. Input files are generated  with the command
+
+
+.. code-block:: bash
+
+    $ fwiw generate_input_files EVENT_NAME TEMPLATE_NAME TYPE SOURCE_TIME_FCT
+
+**TYPE** has to be one of
+
+    * *normal_simulation*
+    * *adjoint_forward*
+    * *adjoint_reverse*
+
+The other parameters have to correspond to files in the project folder. Please
+remember that you can different commands to figure out what files are part of
+the project.
+
+
+.. code-block:: bash
+
+    $ fwiw list_events
+    2 events in project:
+            GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+                    GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+
+    $ fwiw list_input_file_templates
+    Project has 1 input file template:
+            ses3d_4_0_template
+
+    $ fwiw list_stf
+    Project has 1 defined source time function:
+            heaviside_8s_100s
+
+
+Once everything is figured out, actual input files can be generated with:
+
+.. code-block:: bash
+
+    $ fwiw generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 \
+        ses3d_4_0_template normal_simulation heaviside_8s_100s
+
+    Written files to '.../OUTPUT/input_files___ses3d_4_0_template___2013-03-26T20:04:24.005713'.
+
+
+If you are working in a rotated domain, all station coordinates and moment
+tensors will automatically been rotated accordingly so that the actual
+simulation can take place in an unrotated frame of reference.
+
+
+Together with some models, these file can directly be used to run SES3D. For
+the first couple of runs it is likely a good idea to check these file by hand
+to verify your setup and potentially also the correctness of this tool suite.
 
 
 

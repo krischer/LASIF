@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import numpy as np
 from obspy.imaging.beachball import Beach
+from obspy.signal.tf_misfit import plotTfr
 
 import rotations
 
@@ -129,3 +130,13 @@ def plot_stations_for_event(map_object, station_dict, event_longitude,
     for sta_lng, sta_lat in izip(lngs, lats):
         map_object.drawgreatcircle(event_longitude, event_latitude, sta_lng,
             sta_lat, lw=2, alpha=0.3)
+
+
+def plot_tf(data, delta):
+    """
+    Plots a time frequency representation of any time series.
+    """
+    npts = len(data)
+
+    plotTfr(data, dt=delta, fmin=1.0 / (npts * delta),
+        fmax=1.0 / (2.0 * delta))

@@ -21,6 +21,7 @@ from fwiw.project import Project
 from fwiw.download_helpers import downloader
 from fwiw.scripts.iris2quakeml import iris2quakeml
 from fwiw.utils import table_printer, generate_ses3d_4_0_template
+import fwiw.visualization
 
 
 class FWIWCommandLineException(Exception):
@@ -271,6 +272,29 @@ def fwiw_list_stf(args):
     for filename in files:
         print "\t%s" % os.path.splitext(os.path.basename(filename))[0]
 
+
+def fwiw_plot_stf(args):
+    """
+    Usage: fwiw plot_stf SOURCE_TIME_FCT NPTS DELTA
+
+    Convenience function to have a look at how a source time function will
+    look.
+
+    NPTS is the number of samples, and DELTA the sample interval.
+    """
+    proj = _find_project_root(".")
+
+    if len(args) != 3:
+        msg = ("SOURCE_TIME_FCT, NPTS, and DELTA must be given. "
+            "No other arguments allowed.")
+        raise FWIWCommandLineException(msg)
+    stf = args[0]
+    npts = int(args[1])
+    delta = float(args[2])
+
+    source_time_function = proj._get_source_time_function(stf)
+    data = source_time_function(npts, delta)
+    fwiw.visualization.plot_tf(data, delta)
 
 def fwiw_generate_input_files(args):
     """
