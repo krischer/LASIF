@@ -152,12 +152,12 @@ class Project(object):
             "\n"
             "\n"
             "def source_time_function(npts, delta):\n"
-            "    return filtered_heaviside(npts, delta, 1. / 100., 1. / 8.)")
+            "    return filtered_heaviside(npts, delta, 1. / 500., 1. / 60.)")
         # The source time functions path needs to exist.
         if not os.path.exists(self.paths["source_time_functions"]):
             os.makedirs(self.paths["source_time_functions"])
         with open(os.path.join(self.paths["source_time_functions"],
-                "heaviside_8s_100s.py"), "wt") as open_file:
+                "heaviside_60s_500s.py"), "wt") as open_file:
             open_file.write(stf)
 
     def _get_source_time_function(self, function_name):

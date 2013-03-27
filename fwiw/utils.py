@@ -58,21 +58,21 @@ def generate_ses3d_4_0_template(filename):
     """
     doc = E.ses3d_4_0_input_file_template(
         E.simulation_parameters(
-            E.number_of_time_steps("4000"),
-            E.time_increment("0.13"),
+            E.number_of_time_steps("500"),
+            E.time_increment("0.75"),
             E.is_dissipative("false")),
-        E.output_directory("../DATA/OUTPUT/CHANGE_ME/"),
+        E.output_directory("../OUTPUT/CHANGE_ME/"),
         E.adjoint_output_parameters(
-            E.sampling_rate_of_forward_field("15"),
-            E.forward_field_output_directory("../DATA/OUTPUT/CHANGE_ME/")),
+            E.sampling_rate_of_forward_field("10"),
+            E.forward_field_output_directory("../OUTPUT/CHANGE_ME/ADJOINT/")),
         E.computational_setup(
-            E.nx_global("66"),
-            E.ny_global("108"),
-            E.nz_global("28"),
+            E.nx_global("15"),
+            E.ny_global("15"),
+            E.nz_global("10"),
             E.lagrange_polynomial_degree("4"),
-            E.px_processors_in_theta_direction("3"),
-            E.py_processors_in_phi_direction("4"),
-            E.pz_processors_in_r_direction("4")))
+            E.px_processors_in_theta_direction("1"),
+            E.py_processors_in_phi_direction("1"),
+            E.pz_processors_in_r_direction("1")))
     string_doc = etree.tostring(doc, pretty_print=True,
         xml_declaration=True, encoding="UTF-8")
 

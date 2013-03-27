@@ -51,7 +51,7 @@ This will create the following directory structure::
     |-- MODELS
     |-- OUTPUT
     |-- SOURCE_TIME_FUNCTIONS
-    |   |-- heaviside_8s_100s.py
+    |   |-- heaviside_60s_500s.py
     |-- STATIONS
     |   |-- RESP
     |   |-- SEED
@@ -501,23 +501,23 @@ This will create a (hopefully self-explaining) XML input file template, that **M
     <?xml version='1.0' encoding='UTF-8'?>
     <ses3d_4_0_input_file_template>
       <simulation_parameters>
-        <number_of_time_steps>4000</number_of_time_steps>
-        <time_increment>0.13</time_increment>
+        <number_of_time_steps>500</number_of_time_steps>
+        <time_increment>0.75</time_increment>
         <is_dissipative>false</is_dissipative>
       </simulation_parameters>
-      <output_directory>../DATA/OUTPUT/CHANGE_ME/</output_directory>
+      <output_directory>../OUTPUT/CHANGE_ME/</output_directory>
       <adjoint_output_parameters>
-        <sampling_rate_of_forward_field>15</sampling_rate_of_forward_field>
-        <forward_field_output_directory>../DATA/OUTPUT/CHANGE_ME/</forward_field_output_directory>
+        <sampling_rate_of_forward_field>10</sampling_rate_of_forward_field>
+        <forward_field_output_directory>../OUTPUT/CHANGE_ME/ADJOINT</forward_field_output_directory>
       </adjoint_output_parameters>
       <computational_setup>
-        <nx_global>66</nx_global>
-        <ny_global>108</ny_global>
-        <nz_global>28</nz_global>
+        <nx_global>15</nx_global>
+        <ny_global>15</ny_global>
+        <nz_global>10</nz_global>
         <lagrange_polynomial_degree>4</lagrange_polynomial_degree>
-        <px_processors_in_theta_direction>3</px_processors_in_theta_direction>
-        <py_processors_in_phi_direction>4</py_processors_in_phi_direction>
-        <pz_processors_in_r_direction>4</pz_processors_in_r_direction>
+        <px_processors_in_theta_direction>1</px_processors_in_theta_direction>
+        <py_processors_in_phi_direction>1</py_processors_in_phi_direction>
+        <pz_processors_in_r_direction>1</pz_processors_in_r_direction>
       </computational_setup>
     </ses3d_4_0_input_file_template>
 
@@ -557,7 +557,7 @@ available source time functions type:
     $ fwiw list_stf
 
     Project has 1 defined source time function
-            heaviside_8s_100s
+            heaviside_60s_500s
 
 
 It is furthermore possible to get a nice plot for every source time function.
@@ -573,7 +573,7 @@ SOURCE_TIME_FUNCTION again is the name of the source time function.
 
 .. code-block:: bash
 
-    $ fwiw plot_stf heaviside_8s_100s 4000 0.13
+    $ fwiw plot_stf heaviside_60s_500s 1500 0.75
 
 
 .. plot::
@@ -587,8 +587,8 @@ SOURCE_TIME_FUNCTION again is the name of the source time function.
         trace.filter("lowpass", freq=freqmax, corners=5)
         trace.filter("highpass", freq=freqmin, corners=2)
         return trace.data
-    data = filtered_heaviside(4000, 0.13, 1.0 / 100.0, 1.0 / 8.0)
-    fwiw.visualization.plot_tf(data, 0.13)
+    data = filtered_heaviside(1500, 0.75, 1.0 / 500.0, 1.0 / 60.0)
+    fwiw.visualization.plot_tf(data, 0.75)
 
 
 Input File Generation
@@ -626,7 +626,7 @@ the project.
 
     $ fwiw list_stf
     Project has 1 defined source time function:
-            heaviside_8s_100s
+            heaviside_60s_500s
 
 
 Once everything is figured out, actual input files can be generated with:
@@ -634,7 +634,7 @@ Once everything is figured out, actual input files can be generated with:
 .. code-block:: bash
 
     $ fwiw generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 \
-        ses3d_4_0_template normal_simulation heaviside_8s_100s
+        ses3d_4_0_template normal_simulation heaviside_60s_500s
 
     Written files to '.../OUTPUT/input_files___ses3d_4_0_template___2013-03-26T20:04:24.005713'.
 
