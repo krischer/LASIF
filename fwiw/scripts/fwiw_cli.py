@@ -17,6 +17,7 @@ import obspy
 import os
 import sys
 
+from fwiw import ses3d_models
 from fwiw.project import Project
 from fwiw.download_helpers import downloader
 from fwiw.scripts.iris2quakeml import iris2quakeml
@@ -216,6 +217,41 @@ def fwiw_list_models(args):
         else ""))
     for model in models.iterkeys():
         print ("\t%s" % model)
+
+
+def fwiw_plot_model(args):
+    """
+    Usage fwiw plot_model MODEL_NAME
+    """
+    if len(args) != 1:
+        msg = "MODEL_NAME must be given. No other arguments allowed."
+        raise FWIWCommandLineException(msg)
+    model_name = args[0]
+
+    proj = _find_project_root(".")
+
+    model_dir = proj.get_model_dict()[model_name]
+    handler = ses3d_models.RawSES3DModelHandler(model_dir)
+    handler.rotation_axis = proj.domain["rotation_axis"]
+    handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
+
+    print handler
+    print ""
+
+    while True:
+        inp = raw_input("Enter the 'COMPONENT, DEPTH' ('quit' to exit): ")
+        if inp.lower() == "quit":
+            break
+        try:
+            component, depth = inp.split()
+        except:
+            continue
+
+        try:
+            handler.parse_component(component)
+        except:
+            continue
+        handler.plot_depth_slice(component, int(depth))
 
 
 def fwiw_event_info(args):
