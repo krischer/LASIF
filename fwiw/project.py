@@ -283,6 +283,17 @@ class Project(object):
         self.domain["rotation_angle"] = \
             float(rotation.find("rotation_angle_in_degree").text)
 
+    def get_model_dict(self):
+        """
+        Returns a dictonary with all models in the project, the keys are the
+        model names and the values the full paths to each model.
+        """
+        contents = [os.path.join(self.paths["models"], _i)
+            for _i in os.listdir(self.paths["models"])]
+        models = [os.path.abspath(_i) for _i in contents if os.path.isdir(_i)]
+        models = {os.path.basename(_i): _i for _i in models}
+        return models
+
     def get_event_dict(self):
         """
         Returns a dictonary with all events in the project, the keys are the

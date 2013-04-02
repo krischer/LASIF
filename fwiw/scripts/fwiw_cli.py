@@ -205,6 +205,19 @@ def fwiw_list_events(args):
         print ("\t%s" % event)
 
 
+def fwiw_list_models(args):
+    """
+    Usage: fwiw list_models
+
+    Returns a list of all models in the project.
+    """
+    models = _find_project_root(".").get_model_dict()
+    print("%i model%s in project:" % (len(models), "s" if len(models) > 1
+        else ""))
+    for model in models.iterkeys():
+        print ("\t%s" % model)
+
+
 def fwiw_event_info(args):
     """
     Usage: fwiw init_project EVENT_NAME
@@ -296,6 +309,7 @@ def fwiw_plot_stf(args):
     data = source_time_function(npts, delta)
     fwiw.visualization.plot_tf(data, delta)
 
+
 def fwiw_generate_input_files(args):
     """
     Usage: fwiw generate_input_files EVENT INPUT_FILE_TEMPLATE TYPE SFT
@@ -341,6 +355,7 @@ def fwiw_generate_input_files(args):
             simulation_type, source_time_function)
     except Exception as e:
         raise FWIWCommandLineException(str(e))
+
 
 def fwiw_generate_input_file_template(args):
     """
