@@ -291,6 +291,8 @@ class RawSES3DModelHandler(object):
         lon_0 = lon.min() + lon.ptp() / 2.0
         lat_0 = lat.min() + lat.ptp() / 2.0
 
+        plt.figure(0)
+
         # Setup the map.
         m = Basemap(projection='ortho', lon_0=lon_0, lat_0=lat_0,
             resolution="c")
@@ -303,6 +305,40 @@ class RawSES3DModelHandler(object):
         im = m.pcolor(x, y, data[::-1, :, depth_index])
         m.colorbar(im, "right", size="3%", pad='2%')
         plt.title("Depth slice of %s at %i km" % (component, int(depth_in_km)))
+
+        def _on_button_press(event):
+            if event.button != 1 or not event.inaxes:
+                return
+            lon, lat = m(event.xdata, event.ydata, inverse=True)
+            # Convert to colat to ease indexing.
+            colat = rotations.lat2colat(lat)
+
+            x_range = (self.setup["physical_boundaries_x"][1] -
+                self.setup["physical_boundaries_x"][0])
+            x_frac = (colat - self.setup["physical_boundaries_x"][0]) / x_range
+            x_index = int(((self.setup["boundaries_x"][1] -
+                self.setup["boundaries_x"][0]) * x_frac) +
+                self.setup["boundaries_x"][0])
+            y_range = (self.setup["physical_boundaries_y"][1] -
+                self.setup["physical_boundaries_y"][0])
+            y_frac = (lon - self.setup["physical_boundaries_y"][0]) / y_range
+            y_index = int(((self.setup["boundaries_y"][1] -
+                self.setup["boundaries_y"][0]) * y_frac) +
+                self.setup["boundaries_y"][0])
+
+            plt.figure(1, figsize=(3, 8))
+            depths = available_depths
+            values = data[x_index, y_index, :]
+            plt.plot(values, depths)
+            plt.gca().invert_yaxis()
+            plt.grid()
+            plt.ylim(depths[0], depths[-1])
+            plt.show()
+            plt.close()
+            plt.figure(0)
+
+        plt.gcf().canvas.mpl_connect('button_press_event', _on_button_press)
+
         plt.show()
 
     def __str__(self):
@@ -445,29 +481,6 @@ def get_lpd_sampling_points(lpd):
             0.8717401485096066, 1.0])
     return knots
 
-if __name__ == "__main__":
-    directory = "/Users/lion/temp/ses3d_40/US_COMPLETE/SES3D_4.US/MODELS/MODELS/"
-    xx = RawSES3DModelHandler(directory)
-    xx.rotation_axis = [0.77, 0.64, 0.0]
-    xx.rotation_angle_in_degree = -30.0
-
-    xx.parse_component("rho")
-    xx.parse_component("vp")
-    xx.parse_component("vsv")
-    xx.parse_component("vsh")
-
-    data = xx.parsed_components["vp"]
-
-    print "vp:", xx.parsed_components["vp"].min(), xx.parsed_components["vp"].max()
-    print "vsv:", xx.parsed_components["vsv"].min(), xx.parsed_components["vsv"].max()
-    print "vsh:", xx.parsed_components["vsh"].min(), xx.parsed_components["vsh"].max()
-    print "rho:", xx.parsed_components["rho"].min(), xx.parsed_components["rho"].max()
-
-    xx.plot_depth_slice("vp", 0)
-    xx.plot_depth_slice("vp", 1000)
-
-    #print xx
-    #xx.plot_depth_slice("rho", 10)
 
 def _read_blockfile(path):
     """

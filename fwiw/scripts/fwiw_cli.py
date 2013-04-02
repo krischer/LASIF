@@ -235,11 +235,11 @@ def fwiw_plot_model(args):
     handler.rotation_axis = proj.domain["rotation_axis"]
     handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
 
-    print handler
-    print ""
-
     while True:
-        inp = raw_input("Enter the 'COMPONENT, DEPTH' ('quit' to exit): ")
+        print handler
+        print ""
+
+        inp = raw_input("Enter 'COMPONENT DEPTH' ('quit' to exit): ")
         if inp.lower() == "quit":
             break
         try:
