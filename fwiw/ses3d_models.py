@@ -12,7 +12,6 @@ A set of classes dealing with SES3D 4.0 Models
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import glob
-from itertools import izip
 import os
 import math
 import numpy as np
@@ -260,32 +259,18 @@ class RawSES3DModelHandler(object):
         available_depths = np.linspace(*depth_bounds, num=data.shape[2])[::-1]
         depth_index = np.argmin(np.abs(available_depths - depth_in_km))
 
-        # Rotate grid. Limited caching implemented.
-        if hasattr(self, "_latlng_grid") and self._latlng_grid:
-            lon, lat = self._latlng_grid
-        else:
-            lon, lat = np.meshgrid(
-                np.linspace(*lng_bounds, num=data.shape[1]),
-                np.linspace(*lat_bounds, num=data.shape[0]))
-
-            # XXX: This is much too slow...Make it faster.
-            if self.rotation_axis and self.rotation_angle_in_degree:
-                new_lngs = []
-                new_lats = []
-                for la, lo in izip(lat, lon):
-                    new_la = []
-                    new_lo = []
-                    for l1, l2 in izip(la, lo):
-                        new_l1, new_l2 = rotations.rotate_lat_lon(l1, l2,
-                            self.rotation_axis, self.rotation_angle_in_degree)
-                        new_la.append(new_l1)
-                        new_lo.append(new_l2)
-                    new_lngs.append(new_lo)
-                    new_lats.append(new_la)
-
-                lat = np.array(new_lats)
-                lon = np.array(new_lngs)
-            self._latlng_grid = (lon, lat)
+        lon, lat = np.meshgrid(
+            np.linspace(*lng_bounds, num=data.shape[1]),
+            np.linspace(*lat_bounds, num=data.shape[0]))
+        if self.rotation_axis and self.rotation_angle_in_degree:
+            lon_shape = lon.shape
+            lat_shape = lat.shape
+            lon.shape = lon.size
+            lat.shape = lat.size
+            lat, lon = rotations.rotate_lat_lon(lat, lon, self.rotation_axis,
+                self.rotation_angle_in_degree)
+            lon.shape = lon_shape
+            lat.shape = lat_shape
 
         # Get the center of the map.
         lon_0 = lon.min() + lon.ptp() / 2.0
@@ -302,7 +287,7 @@ class RawSES3DModelHandler(object):
         m.drawmapboundary(fill_color="white")
 
         x, y = m(lon, lat)
-        im = m.pcolor(x, y, data[::-1, :, depth_index])
+        im = m.pcolormesh(x, y, data[::-1, :, depth_index])
         m.colorbar(im, "right", size="3%", pad='2%')
         plt.title("Depth slice of %s at %i km" % (component, int(depth_in_km)))
 
@@ -329,8 +314,8 @@ class RawSES3DModelHandler(object):
             plt.figure(1, figsize=(3, 8))
             depths = available_depths
             values = data[x_index, y_index, :]
-            plt.plot(values, depths)
             plt.gca().invert_yaxis()
+            plt.plot(values, depths)
             plt.grid()
             plt.ylim(depths[0], depths[-1])
             plt.show()
@@ -461,7 +446,6 @@ def get_lpd_sampling_points(lpd):
     lpd : int
         Lagrange polynomial degree (between 2 to 7)
     """
-
     if lpd == 2:
         knots = np.array([-1.0, 0.0, 1.0])
     elif lpd == 3:
