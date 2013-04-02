@@ -463,7 +463,7 @@ def _print_generic_help(fcts):
     """
     print("Usage: fwiw FUNCTION PARAMETERS\n")
     print("Available functions:")
-    for name in fcts.iterkeys():
+    for name in sorted(fcts.keys()):
         print("\t%s" % name)
     print("\nTo get help for a specific function type")
     print("\tfwiw FUNCTION help")
