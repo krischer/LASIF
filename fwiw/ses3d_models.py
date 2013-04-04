@@ -314,10 +314,9 @@ class RawSES3DModelHandler(object):
             plt.figure(1, figsize=(3, 8))
             depths = available_depths
             values = data[x_index, y_index, :]
-            plt.gca().invert_yaxis()
             plt.plot(values, depths)
             plt.grid()
-            plt.ylim(depths[0], depths[-1])
+            plt.ylim(depths[-1], depths[0])
             plt.show()
             plt.close()
             plt.figure(0)
