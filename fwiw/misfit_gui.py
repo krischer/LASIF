@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Simple matplotlib based utility function to help in picking windows and
+calculating misfits.
+
+:copyright:
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+:license:
+    GNU Lesser General Public License, Version 3
+    (http://www.gnu.org/copyleft/lesser.html)
+"""
 # The OSX backend has a problem with blitting.
 import matplotlib
 matplotlib.use('TkAgg')
@@ -366,7 +378,7 @@ class Index:
             open_file.write("%f %f %f\n" % (rec_lng, rec_colat, rec_depth))
             open_file.write("-- source time function (x, y, z) --\n")
             for x, y, z in izip(adjoint_src[1], -1.0 * adjoint_src[0],
-                adjoint_src[2]):
+                    adjoint_src[2]):
                 open_file.write("%e %e %e\n" % (x, y, z))
 
 callback = Index()
