@@ -104,6 +104,8 @@ def _get_iris_availability(min_lat, max_lat, min_lng, max_lng, starttime,
     if not availability:
         return {}
 
+    average_requested_time = starttime + 0.5 * (endtime - starttime)
+
     # Read the StationXML like format.
     root = etree.fromstring(availability)
     # Get all stations.
@@ -125,10 +127,13 @@ def _get_iris_availability(min_lat, max_lat, min_lng, max_lng, starttime,
                 for extent in time_span.findall("Extent"):
                     channel_starttime = UTCDateTime(extent.get("start"))
                     channel_endtime = UTCDateTime(extent.get("end"))
-                    if (channel_starttime <= starttime <= channel_endtime) \
-                            and (channel_starttime <= endtime <=
-                            channel_endtime):
-                        # Replace component with wildcard.
+                    # The webservice basically returns the start-and endtime of
+                    # the request. To be on the save side and avoid any
+                    # rounding errors and what not, just assure that the
+                    # average requested time is within the time span of the
+                    # request.
+                    if channel_starttime <= average_requested_time <= \
+                            channel_endtime:
                         available_channels["%s.%s.%s.%s" % (network_code,
                             station_code, location_code, channel_code)] = \
                             {"latitude": latitude, "longitude": longitude}
@@ -157,7 +162,7 @@ def filter_channel_priority(channels, priorities=["HH[Z,N,E]", "BH[Z,N,E]",
     :returns: A new dictionary containing only the filtered items.
     """
     filtered_channels = {}
-    all_locations = list(set([".".join(_i.split(".")[:3]) for _i in
+    all_locations = list(set([".".join(_i.split(".")[:3]) + "." for _i in
         channels.keys()]))
     # Loop over all locations.
     for location in all_locations:
@@ -171,7 +176,7 @@ def filter_channel_priority(channels, priorities=["HH[Z,N,E]", "BH[Z,N,E]",
             if current_channels:
                 break
         for chan in current_channels:
-            key = "%s.%s" % (location, chan)
+            key = "%s%s" % (location, chan)
             filtered_channels[key] = channels[key]
     return filtered_channels
 

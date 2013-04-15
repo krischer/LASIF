@@ -204,9 +204,15 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
     # Download in chunks of 100 channels.
     channels_to_download.sort()
     CHUNK_SIZE = 100
+    current_position = 1
     successful_downloads = 0
     for chunk in (channels_to_download[_i: _i + CHUNK_SIZE] for _i in xrange(0,
             len(channels_to_download), CHUNK_SIZE)):
+        logger.info(70 * "=")
+        logger.info("Starting downloads %i to %i..." % (current_position,
+            current_position + CHUNK_SIZE))
+        logger.info(70 * "=")
+        current_position += CHUNK_SIZE
         successful_downloads += \
             fwiw.download_helpers.waveforms.download_waveforms(
                 chunk, starttime, endtime, 0.95, save_trace_fct=save_channel,

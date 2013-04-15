@@ -115,7 +115,7 @@ class Project(object):
             E.download_settings(
                 E.arclink_username(""),
                 E.seconds_before_event(str(300)),
-                E.seconds_after_event(str(300))),
+                E.seconds_after_event(str(3600))),
             E.domain(
                 E.domain_bounds(
                     E.minimum_longitude(str(-20)),

@@ -131,7 +131,7 @@ def download_waveforms(channels, starttime, endtime, minimumlength,
                                "seconds required)") % (channel,
                                st[0].stats.endtime - st[0].stats.starttime,
                                minimum_duration)
-                            logger.debug(msg)
+                            logger.warning(msg)
                     continue
                 save_trace_fct(st[0])
                 failed_downloads.remove(channel)
