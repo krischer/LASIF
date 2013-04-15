@@ -48,7 +48,10 @@ def download_waveforms(channels, starttime, endtime, minimumlength,
             yield "%s %s %s %s %s %s" % (net, sta, loc, chan, st, et)
 
     bk = "\n".join(to_bulkdatarequest(channels))
-    iris_client = obspy.iris.Client(timeout=60)
+    # Give a very high timeout to IRIS. It is usually pretty fast and here just
+    # used for the bulkdataselect which very rarely might take a while for
+    # obscure data sets.
+    iris_client = obspy.iris.Client(timeout=180)
     if logger:
         logger.debug("Starting IRIS bulkdataselect download...")
     try:
