@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!kusr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Simple functions to get the available stations in a certain time and spatial
@@ -161,13 +161,24 @@ def filter_channel_priority(channels, priorities=["HH[Z,N,E]", "BH[Z,N,E]",
         compononents.
     :returns: A new dictionary containing only the filtered items.
     """
+    # Split the channels keys in network.station.location and channel
+    split_channels = [_i.split() for _i in channels.iterkeys()]
+    split_channels = [(".".join(_i[:3]) + ".", _i[-1])
+        for _i in split_channels]
+    # Sort by location
+    location_dict = {}
+    for channel in channels.iterkeys():
+        # Faster then .split(".").
+        index = channel.rfind(".") + 1
+        location = channel[:index]
+        channel = channel[index:]
+
+        location_dict.setdefault(location, [])
+        location_dict[location].append(channel)
+
     filtered_channels = {}
-    all_locations = list(set([".".join(_i.split(".")[:3]) + "." for _i in
-        channels.keys()]))
     # Loop over all locations.
-    for location in all_locations:
-        chans = [_i.split(".")[-1] for _i in channels.keys() if
-            _i.startswith(location)]
+    for location, chans in location_dict.iteritems():
         current_channels = []
         for pattern in priorities:
             for chan in chans:
@@ -178,6 +189,7 @@ def filter_channel_priority(channels, priorities=["HH[Z,N,E]", "BH[Z,N,E]",
         for chan in current_channels:
             key = "%s%s" % (location, chan)
             filtered_channels[key] = channels[key]
+
     return filtered_channels
 
 
@@ -275,9 +287,9 @@ def get_availability(min_lat, max_lat, min_lng, max_lng, starttime, endtime,
     # Apply the station pattern.
     availability = {key: value for (key, value) in availability.iteritems() if
         fnmatch.fnmatch(key, station_pattern)}
-    # Some stations have latitude and longitude set to 0. This is clearly
-    # wrong. Those stations will be removed. Appears to be a problem with the
-    # datacenters.
+    # Some stations have latitude and longitude set to 0. This is clearly wrong
+    # as there is only ocean. Those stations will be removed. Appears to be a
+    # problem with the datacenters.
     availability = {key: value for (key, value) in availability.iteritems() if
         value["latitude"] and value["longitude"]}
     # Apply the channel priority list.

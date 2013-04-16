@@ -197,7 +197,12 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
         filename = get_channel_filename(trace.id)
         if not os.path.exists(os.path.dirname(filename)):
             os.makedirs(os.path.dirname(filename))
-        trace.write(filename, format=waveform_format)
+        try:
+            trace.write(filename, format=waveform_format)
+        except Exception as e:
+            msg = "Error writing Trace. This is likely due to corrupted data."
+            msg += "Error message: %s" % e.message
+            logger.error(msg)
 
     logger.info("Attempting to download %i (missing) waveform channels..." %
         len(channels_to_download))
@@ -209,8 +214,8 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
     for chunk in (channels_to_download[_i: _i + CHUNK_SIZE] for _i in xrange(0,
             len(channels_to_download), CHUNK_SIZE)):
         logger.info(70 * "=")
-        logger.info("Starting downloads %i to %i..." % (current_position,
-            current_position + CHUNK_SIZE))
+        logger.info("Starting download for channels %i to %i..." %
+            (current_position, current_position + CHUNK_SIZE))
         logger.info(70 * "=")
         current_position += CHUNK_SIZE
         successful_downloads += \
