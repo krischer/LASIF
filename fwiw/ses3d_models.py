@@ -287,7 +287,8 @@ class RawSES3DModelHandler(object):
         m.drawmapboundary(fill_color="white")
 
         x, y = m(lon, lat)
-        im = m.pcolormesh(x, y, data[::-1, :, depth_index])
+        im = m.pcolormesh(x, y, data[::-1, :, depth_index],
+            cmap=plt.cm.seismic_r)
         m.colorbar(im, "right", size="3%", pad='2%')
         plt.title("Depth slice of %s at %i km" % (component, int(depth_in_km)))
 
