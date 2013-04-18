@@ -21,7 +21,7 @@ from obspy.xseed import Parser
 import os
 import matplotlib.pyplot as plt
 import sys
-from wfs_input_generator import InputFileGenerator
+#from wfs_input_generator import InputFileGenerator
 from fwiw import utils, visualization
 
 
