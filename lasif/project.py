@@ -21,7 +21,9 @@ from obspy.xseed import Parser
 import os
 import matplotlib.pyplot as plt
 import sys
+import warnings
 from wfs_input_generator import InputFileGenerator
+
 from lasif import utils, visualization
 
 
@@ -383,8 +385,18 @@ class Project(object):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
         event = obspy.readEvents(all_events[event_name])[0]
-        mag = event.preferred_magnitude()
-        org = event.preferred_origin()
+        mag = event.preferred_magnitude() or event.magnitudes[0]
+        org = event.preferred_origin() or event.origins[0]
+
+        if org.depth is None:
+            warnings.warn("Origin contains no depth. Will be assumed to be 0")
+            org.depth = 0.0
+
+        if mag.magnitude_type is None:
+            warnings.warn("Magnitude has no specified type. Will be assumed "
+                "to be Mw")
+            mag.magnitude_type = "Mw"
+
         info = {
             "latitude": org.latitude,
             "longitude": org.longitude,
