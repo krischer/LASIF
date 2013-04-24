@@ -105,7 +105,7 @@ def plot_events(events, map_object):
         focmec = [mt.m_rr, mt.m_tt, mt.m_pp, mt.m_rt, mt.m_rp, mt.m_tp]
         # Attempt to calculate the best beachball size.
         width = max((map_object.xmax - map_object.xmin,
-            map_object.ymax - map_object.ymin)) * 0.040
+            map_object.ymax - map_object.ymin)) * 0.020
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
