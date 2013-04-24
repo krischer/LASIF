@@ -19,7 +19,7 @@ import StringIO
 import threading
 import time
 
-from fwiw import utils
+from lasif import utils
 
 
 def download_station_files(channels, save_station_fct, arclink_user,

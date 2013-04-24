@@ -21,7 +21,7 @@ from mpl_toolkits.basemap import Basemap
 #import colormaps as cm
 import warnings
 
-from fwiw import rotations
+from lasif import rotations
 
 
 class RawSES3DModelHandler(object):

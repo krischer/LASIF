@@ -1,6 +1,6 @@
 ============================
-fwiw.scripts.iris2quakeml
+lasif.scripts.iris2quakeml
 ============================
 
-.. automodule:: fwiw.scripts.iris2quakeml
+.. automodule:: lasif.scripts.iris2quakeml
     :members:

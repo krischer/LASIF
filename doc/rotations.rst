@@ -1,6 +1,6 @@
 =================
-fwiw.rotations
+lasif.rotations
 =================
 
-.. automodule:: fwiw.rotations
+.. automodule:: lasif.rotations
     :members:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-The main FWIW console script.
+The main LASIF console script.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
@@ -9,7 +9,7 @@ The main FWIW console script.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-FCT_PREFIX = "fwiw_"
+FCT_PREFIX = "lasif_"
 
 import colorama
 import glob
@@ -17,22 +17,22 @@ import obspy
 import os
 import sys
 
-from fwiw import ses3d_models
-from fwiw.project import Project
-from fwiw.download_helpers import downloader
-from fwiw.scripts.iris2quakeml import iris2quakeml
-from fwiw.utils import table_printer, generate_ses3d_4_0_template
-import fwiw.visualization
+from lasif import ses3d_models
+from lasif.project import Project
+from lasif.download_helpers import downloader
+from lasif.scripts.iris2quakeml import iris2quakeml
+from lasif.utils import table_printer, generate_ses3d_4_0_template
+import lasif.visualization
 
 
-class FWIWCommandLineException(Exception):
+class LASIFCommandLineException(Exception):
     pass
 
 
 def _find_project_root(folder):
     """
     Will search upwards from the given folder until a folder containing a
-    FWIW root structure is found. The absolute path to the root is returned.
+    LASIF root structure is found. The absolute path to the root is returned.
     """
     max_folder_depth = 10
     folder = folder
@@ -40,13 +40,13 @@ def _find_project_root(folder):
         if os.path.exists(os.path.join(folder, "config.xml")):
             return Project(os.path.abspath(folder))
         folder = os.path.join(folder, os.path.pardir)
-    msg = "Not inside a FWIW project."
-    raise FWIWCommandLineException(msg)
+    msg = "Not inside a LASIF project."
+    raise LASIFCommandLineException(msg)
 
 
-def fwiw_plot_domain(args):
+def lasif_plot_domain(args):
     """
-    Usage: fwiw plot_domain
+    Usage: lasif plot_domain
 
     Plots the project's domain on a map.
     """
@@ -54,9 +54,9 @@ def fwiw_plot_domain(args):
     proj.plot_domain()
 
 
-def fwiw_plot_event(args):
+def lasif_plot_event(args):
     """
-    Usage: fwiw plot_event EVENT_NAME
+    Usage: lasif plot_event EVENT_NAME
 
     Plots one event and raypaths on a map.
     """
@@ -64,15 +64,15 @@ def fwiw_plot_event(args):
 
     if len(args) != 1:
         msg = "EVENT_NAME must be given. No other arguments allowed."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     event_name = args[0]
 
     proj.plot_event(event_name)
 
 
-def fwiw_plot_events(args):
+def lasif_plot_events(args):
     """
-    Usage: fwiw plot_events
+    Usage: lasif plot_events
 
     Plots all events.
     """
@@ -80,9 +80,9 @@ def fwiw_plot_events(args):
     proj.plot_events()
 
 
-def fwiw_add_spud_event(args):
+def lasif_add_spud_event(args):
     """
-    Usage: fwiw add_spud_event URL
+    Usage: lasif add_spud_event URL
 
     Adds an event from the IRIS SPUD GCMT webservice to the project. URL is any
     SPUD momenttensor URL.
@@ -90,14 +90,14 @@ def fwiw_add_spud_event(args):
     proj = _find_project_root(".")
     if len(args) != 1:
         msg = "URL must be given. No other arguments allowed."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     url = args[0]
     iris2quakeml(url, proj.paths["events"])
 
 
-def fwiw_info(args):
+def lasif_info(args):
     """
-    Usage: fwiw info
+    Usage: lasif info
 
     Print information about the current project.
     """
@@ -105,23 +105,23 @@ def fwiw_info(args):
     print(proj)
 
 
-def fwiw_download_waveforms(args):
+def lasif_download_waveforms(args):
     """
-    Usage: fwiw download_waveforms EVENT_NAME
+    Usage: lasif download_waveforms EVENT_NAME
 
     Attempts to download all missing waveform files for a given event. The list
-    of possible events can be obtained with "fwiw list_events". The files will
+    of possible events can be obtained with "lasif list_events". The files will
     be saved in the DATA/EVENT_NAME/raw directory.
     """
     proj = _find_project_root(".")
     events = proj.get_event_dict()
     if len(args) != 1:
         msg = "EVENT_NAME must be given. No other arguments allowed."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     event_name = args[0]
     if event_name not in events:
         msg = "Event '%s' not found." % event_name
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
 
     event = obspy.readEvents(events[event_name])[0]
     origin = event.preferred_origin() or event.origins[0]
@@ -157,33 +157,33 @@ def fwiw_download_waveforms(args):
         download_folder=download_folder, waveform_format="mseed")
 
 
-def fwiw_download_stations(args):
+def lasif_download_stations(args):
     """
-    Usage: fwiw download_stations EVENT_NAME
+    Usage: lasif download_stations EVENT_NAME
 
     Attempts to download all missing station data files for a given event. The
-    list of possible events can be obtained with "fwiw list_events". The files
+    list of possible events can be obtained with "lasif list_events". The files
     will be saved in the STATION/*.
     """
     proj = _find_project_root(".")
     events = proj.get_event_dict()
     if len(args) != 1:
         msg = "EVENT_NAME must be given. No other arguments allowed."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     event_name = args[0]
     if event_name not in events:
         msg = "Event '%s' not found." % event_name
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
 
     channel_path = os.path.join(proj.paths["data"], event_name, "raw")
     if not os.path.exists(channel_path):
         msg = "The path '%s' does not exists." % channel_path
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
 
     channels = glob.glob(os.path.join(channel_path, "*"))
     if not channels:
         msg = "No data in folder '%s'" % channel_path
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
 
     downloader.download_stations(channels, proj.paths["resp"],
         proj.paths["station_xml"], proj.paths["dataless_seed"],
@@ -193,9 +193,9 @@ def fwiw_download_stations(args):
         get_station_filename_fct=proj.get_station_filename)
 
 
-def fwiw_list_events(args):
+def lasif_list_events(args):
     """
-    Usage: fwiw list_events
+    Usage: lasif list_events
 
     Returns a list of all events in the project.
     """
@@ -206,9 +206,9 @@ def fwiw_list_events(args):
         print ("\t%s" % event)
 
 
-def fwiw_list_models(args):
+def lasif_list_models(args):
     """
-    Usage: fwiw list_models
+    Usage: lasif list_models
 
     Returns a list of all models in the project.
     """
@@ -219,13 +219,13 @@ def fwiw_list_models(args):
         print ("\t%s" % model)
 
 
-def fwiw_plot_model(args):
+def lasif_plot_model(args):
     """
-    Usage fwiw plot_model MODEL_NAME
+    Usage lasif plot_model MODEL_NAME
     """
     if len(args) != 1:
         msg = "MODEL_NAME must be given. No other arguments allowed."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     model_name = args[0]
 
     proj = _find_project_root(".")
@@ -254,22 +254,22 @@ def fwiw_plot_model(args):
         handler.plot_depth_slice(component, int(depth))
 
 
-def fwiw_event_info(args):
+def lasif_event_info(args):
     """
-    Usage: fwiw init_project EVENT_NAME
+    Usage: lasif init_project EVENT_NAME
 
     Prints information about the given event.
     """
     if len(args) != 1:
         msg = "EVENT_NAME must be given. No other arguments allowed."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     event_name = args[0]
 
     proj = _find_project_root(".")
     try:
         event_dict = proj.get_event_info(event_name)
     except Exception as e:
-        raise FWIWCommandLineException(str(e))
+        raise LASIFCommandLineException(str(e))
 
     print "Earthquake with %.1f %s at %s" % (event_dict["magnitude"],
         event_dict["magnitude_type"], event_dict["region"])
@@ -281,7 +281,7 @@ def fwiw_event_info(args):
     try:
         stations = proj.get_stations_for_event(event_name)
     except Exception as e:
-        raise FWIWCommandLineException(str(e))
+        raise LASIFCommandLineException(str(e))
     print "\nStation and waveform information available at %i stations:\n" \
         % len(stations)
     header = ["id", "latitude", "longitude", "elevation", "local depth"]
@@ -292,9 +292,9 @@ def fwiw_event_info(args):
     table_printer(header, data)
 
 
-def fwiw_list_input_file_templates(args):
+def lasif_list_input_file_templates(args):
     """
-    Usage: fwiw list_input_file_templates
+    Usage: lasif list_input_file_templates
 
     Returns a list of names with all input file templates.
     """
@@ -306,9 +306,9 @@ def fwiw_list_input_file_templates(args):
         print "\t%s" % os.path.splitext(os.path.basename(filename))[0]
 
 
-def fwiw_list_stf(args):
+def lasif_list_stf(args):
     """
-    Usage: fwiw list_stf
+    Usage: lasif list_stf
 
     Returns a list of names with all source time functions known to the
     project.
@@ -322,9 +322,9 @@ def fwiw_list_stf(args):
         print "\t%s" % os.path.splitext(os.path.basename(filename))[0]
 
 
-def fwiw_plot_stf(args):
+def lasif_plot_stf(args):
     """
-    Usage: fwiw plot_stf SOURCE_TIME_FCT NPTS DELTA
+    Usage: lasif plot_stf SOURCE_TIME_FCT NPTS DELTA
 
     Convenience function to have a look at how a source time function will
     look.
@@ -336,19 +336,19 @@ def fwiw_plot_stf(args):
     if len(args) != 3:
         msg = ("SOURCE_TIME_FCT, NPTS, and DELTA must be given. "
             "No other arguments allowed.")
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     stf = args[0]
     npts = int(args[1])
     delta = float(args[2])
 
     source_time_function = proj._get_source_time_function(stf)
     data = source_time_function(npts, delta)
-    fwiw.visualization.plot_tf(data, delta)
+    lasif.visualization.plot_tf(data, delta)
 
 
-def fwiw_generate_input_files(args):
+def lasif_generate_input_files(args):
     """
-    Usage: fwiw generate_input_files EVENT INPUT_FILE_TEMPLATE TYPE SFT
+    Usage: lasif generate_input_files EVENT INPUT_FILE_TEMPLATE TYPE SFT
 
     TYPE denotes the type of simulation to run. Available types are
         * "normal_simulation"
@@ -364,7 +364,7 @@ def fwiw_generate_input_files(args):
     if len(args) != 4:
         msg = ("EVENT, INPUT_FILE_TEMPLATE, TYPE, and SFT must be given. "
             "No other arguments allowed.")
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     event_name = args[0]
     input_file_template = args[1]
     simulation_type = args[2].lower()
@@ -376,7 +376,7 @@ def fwiw_generate_input_files(args):
     if simulation_type not in simulation_types:
         msg = "Invalid simulation type '%s'. Available types: %s" % \
             (simulation_type, ", ".join(simulation_types))
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
 
     simulation_type = simulation_type.replace("_", " ")
 
@@ -384,32 +384,32 @@ def fwiw_generate_input_files(args):
         source_time_function = \
             proj._get_source_time_function(source_time_function)
     except Exception as e:
-        raise FWIWCommandLineException(str(e))
+        raise LASIFCommandLineException(str(e))
 
     try:
         proj.generate_input_files(event_name, input_file_template,
             simulation_type, source_time_function)
     except Exception as e:
-        raise FWIWCommandLineException(str(e))
+        raise LASIFCommandLineException(str(e))
 
 
-def fwiw_generate_input_file_template(args):
+def lasif_generate_input_file_template(args):
     """
-    Usage: fwiw generate_input_file_template SOLVER
+    Usage: lasif generate_input_file_template SOLVER
 
     Generates a new input file template for the specified solver. Currently
     supported solvers: ses3d_4_0
     """
     if len(args) != 1:
         msg = "SOLVER must be given. No other arguments allowed."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     solver = args[0]
 
     SOLVERS = ["ses3d_4_0"]
     if solver not in SOLVERS:
         msg = "'%s' is not a valid solver. Valid solvers: %s" % (solver,
             ", ".join(SOLVERS))
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
 
     proj = _find_project_root(".")
 
@@ -430,26 +430,26 @@ def fwiw_generate_input_file_template(args):
         print "Created template at '%s'. Please edit it." % filename
 
 
-def fwiw_init_project(args):
+def lasif_init_project(args):
     """
-    Usage: fwiw init_project FOLDER_PATH
+    Usage: lasif init_project FOLDER_PATH
 
-    Creates a new FWIW project at FOLDER_PATH. FOLDER_PATH must not exist
+    Creates a new LASIF project at FOLDER_PATH. FOLDER_PATH must not exist
     yet and will be created.
     """
     if len(args) != 1:
         msg = "FOLDER_PATH must be given. No other arguments allowed."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     folder_path = args[0]
     if os.path.exists(folder_path):
         msg = "The given FOLDER_PATH already exists. It must not exist yet."
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
     folder_path = os.path.abspath(folder_path)
     try:
         os.makedirs(folder_path)
     except:
         msg = "Failed creating directory %s. Permissions?" % folder_path
-        raise FWIWCommandLineException(msg)
+        raise LASIFCommandLineException(msg)
 
     Project(project_root_path=folder_path,
         init_project=os.path.basename(folder_path))
@@ -465,7 +465,7 @@ def main():
     functions. Also provides some convenience functionality like error catching
     and printing the help.
     """
-    # Get all functions in this script starting with "fwiw_".
+    # Get all functions in this script starting with "lasif_".
     fcts = {fct_name[len(FCT_PREFIX):]: fct for (fct_name, fct) in
             globals().iteritems()
             if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")}
@@ -486,7 +486,7 @@ def main():
         sys.exit(0)
     try:
         fcts[fct_name](further_args)
-    except FWIWCommandLineException as e:
+    except LASIFCommandLineException as e:
         print(colorama.Fore.RED + ("Error: %s\n" % e.message) +
             colorama.Style.RESET_ALL)
         print_fct_help(fct_name)
@@ -497,12 +497,12 @@ def _print_generic_help(fcts):
     """
     Small helper function printing a generic help message.
     """
-    print("Usage: fwiw FUNCTION PARAMETERS\n")
+    print("Usage: lasif FUNCTION PARAMETERS\n")
     print("Available functions:")
     for name in sorted(fcts.keys()):
         print("\t%s" % name)
     print("\nTo get help for a specific function type")
-    print("\tfwiw FUNCTION help")
+    print("\tlasif FUNCTION help")
 
 
 def print_fct_help(fct_name):

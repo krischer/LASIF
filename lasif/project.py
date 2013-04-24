@@ -21,17 +21,17 @@ from obspy.xseed import Parser
 import os
 import matplotlib.pyplot as plt
 import sys
-#from wfs_input_generator import InputFileGenerator
-from fwiw import utils, visualization
+from wfs_input_generator import InputFileGenerator
+from lasif import utils, visualization
 
 
-class FWIWException(Exception):
+class LASIFException(Exception):
     pass
 
 
 class Project(object):
     """
-    A class representing and managing a single FWIW project.
+    A class representing and managing a single LASIF project.
     """
     def __init__(self, project_root_path, init_project=False):
         """
@@ -51,7 +51,7 @@ class Project(object):
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
                 "path or uninitialized project?")
-            raise FWIWException(msg)
+            raise LASIFException(msg)
         self._read_config_file()
         self.update_folder_structure()
 
@@ -107,9 +107,9 @@ class Project(object):
         time the project is initialized anyways.
         """
         if not project_name:
-            project_name = "FWIWProject"
+            project_name = "LASIFProject"
 
-        doc = E.fwiw_project(
+        doc = E.lasif_project(
             E.name(project_name),
             E.description(""),
             E.download_settings(
@@ -197,7 +197,7 @@ class Project(object):
         """
         Pretty string representation. Currently very basic.
         """
-        ret_str = "FWIW project \"%s\"\n" % self.config["name"]
+        ret_str = "LASIF project \"%s\"\n" % self.config["name"]
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         return ret_str

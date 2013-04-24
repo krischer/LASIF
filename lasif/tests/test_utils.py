@@ -15,7 +15,7 @@ from obspy.xseed import Parser
 import os
 import unittest
 
-from fwiw import utils
+from lasif import utils
 
 
 class UtilTestCase(unittest.TestCase):

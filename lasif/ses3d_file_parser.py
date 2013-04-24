@@ -18,12 +18,12 @@ from obspy.core import AttribDict, Trace, Stream
 from StringIO import StringIO
 import warnings
 
-from fwiw import rotations
+from lasif import rotations
 
 
 # The three different possibilities for the first line of a SES3D file. Used
 # for identification purposes.
-POSSIBLE_FIRST_LINES = [ \
+POSSIBLE_FIRST_LINES = [
     "theta component seismograms",
     "phi component seismograms",
     "r component seismograms"]

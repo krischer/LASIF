@@ -12,7 +12,7 @@ Test suite for the rotations.
 import numpy as np
 import unittest
 
-from fwiw import rotations
+from lasif import rotations
 
 
 class RotationsTestCase(unittest.TestCase):

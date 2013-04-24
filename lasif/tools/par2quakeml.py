@@ -19,7 +19,7 @@ from obspy.core import UTCDateTime
 from obspy.core.event import Catalog, Magnitude, Event, Origin, \
     FocalMechanism, Tensor, MomentTensor, NodalPlanes
 
-import fwiw.rotations as rot
+import lasif.rotations as rot
 
 
 def par2quakeml(par_filename, output_filename, rotation_axis=[0.0, 1.0, 0.0],

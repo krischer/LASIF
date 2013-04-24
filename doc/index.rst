@@ -1,31 +1,30 @@
-.. FWIW documentation master file, created by
+.. LASIF documentation master file, created by
    sphinx-quickstart on Fri Feb  1 15:47:43 2013.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to FWIW's Documentation!
+Welcome to LASIF's Documentation!
 ===================================
 
-FWIW (**F**\ ull **W**\ aveform **I**\ nversion **W**\ orkflow or **F**\ or
-**W**\ hat **I**\ 'ts **W**\ orth) is a **data-driven workflow tool** to
-perform full waveform inversions.
+LASIF (**LA**\ arg-scale **S**\ seismic **I**\ nversion **F**\ ramework) is a
+**data-driven workflow tool** to perform full waveform inversions.
 It is opinionated and strict meaning that it forces a certain data and
 directory structure. The upside is that it only requires a very minimal amount
 of configuration and maintenance. It attempts to gather all necessary
 information from the data itself so there is no need to keep index or content
 files.
 
-All parts of FWIW can work completely on their own. See the class and
-function documentation at the end of this document. Furthermore FWIW offers
+All parts of LASIF can work completely on their own. See the class and
+function documentation at the end of this document. Furthermore LASIF offers
 a project based inversion workflow management system which is introduced in the
 following tutorial.
 
 
 Tutorial
 ========
-FWIW works with the notion of so called inversion projects. A project is
+LASIF works with the notion of so called inversion projects. A project is
 defined as a series of iterations working on the same physical domain. Where
-possible and useful, FWIW will use XML files to store information. The
+possible and useful, LASIF will use XML files to store information. The
 reasoning behind this is twofold. It is easily machine and human readable. It
 also serves as a preparatory step towards a fully database driven full waveform
 inversion workflow as all necessary information is already stored in an easily
@@ -34,12 +33,12 @@ indexable data format.
 Creating a New Project
 ----------------------
 The necessary first step, whether for starting a new inversion or migrating an
-already existing inversion to FWIW, is to create a new project. In the
+already existing inversion to LASIF, is to create a new project. In the
 following the project will be called **MyInversion**.
 
 .. code-block:: bash
 
-    $ fwiw init_project MyInversion
+    $ lasif init_project MyInversion
 
 This will create the following directory structure::
 
@@ -64,17 +63,17 @@ The configuration for each project works , is defined in the **config.xml**
 file. It is a simple, self-explanatory XML format. The nature of SES3D's
 coordinate system has the effect that simulation is most efficient in
 equatorial regions. Thus it is oftentimes advantageous to rotate the frame of
-reference so that the simulation happens close to the equator. FWIW first
+reference so that the simulation happens close to the equator. LASIF first
 defines the simulation domain; the actual simulation happens here. Optional
 rotation parameters define the physical location of the domain. The coordinate
-system for the rotation parameters is described in :py:mod:`fwiw.rotations`.
+system for the rotation parameters is described in :py:mod:`lasif.rotations`.
 You will have to edit the file to adjust it to your region of interest. It will
 look something like the following.
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="utf-8"?>
-    <fwiw_project>
+    <lasif_project>
         <name>MyInversion</name>
         <description></description>
         <download_settings>
@@ -99,7 +98,7 @@ look something like the following.
             <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>
           </domain_rotation>
         </domain>
-    </fwiw_project>
+    </lasif_project>
 
 
 It should be fairly self-explanatory.
@@ -115,7 +114,7 @@ It should be fairly self-explanatory.
 
 .. note::
 
-    All **fwiw** commands work and use the correct project as long as they
+    All **lasif** commands work and use the correct project as long as they
     are executed somewhere inside a projects folder structure.
 
 At any point you can have a look at the defined domain with
@@ -123,7 +122,7 @@ At any point you can have a look at the defined domain with
 .. code-block:: bash
 
     $ cd MyInversion
-    $ fwiw plot_domain
+    $ lasif plot_domain
 
 This will open a window showing the location of the physical domain and the
 simulation domain. The inner contours show the domain minus the previously
@@ -131,41 +130,41 @@ defined boundary width.
 
 .. plot::
 
-    import fwiw.visualization
-    fwiw.visualization.plot_domain(-20, +20, -20, +20, 3.0,
+    import lasif.visualization
+    lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
         plot_simulation_domain=True)
 
 Adding Seismic Events
 ---------------------
 All events have to be stored in the *EVENTS* subfolder of the project. They
-have to be valid QuakeML files with full moment tensor information. FWIW
+have to be valid QuakeML files with full moment tensor information. LASIF
 provides some convenience methods for this purpose. One can leverage the IRIS
 SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT events.
 Simply search for an event and copy the url. The **iris2quakeml** script will
 then grab the QuakeML from the url and store an XML file in the current folder.
 
-See :doc:`iris2quakeml` for more information. The FWIW command lines tools
+See :doc:`iris2quakeml` for more information. The LASIF command lines tools
 contain a convenience wrapper around it that also makes sure that the event
 ends up in the correct folder.
 
 
 .. code-block:: bash
 
-    $ fwiw add_spud_event http://www.iris.edu/spud/momenttensor/959525
-    $ fwiw add_spud_event http://www.iris.edu/spud/momenttensor/995655
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/959525
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/995655
 
 All events can be viewed with
 
 .. code-block:: bash
 
-    $ fwiw plot_events
+    $ lasif plot_events
 
 
 .. plot::
 
-    import fwiw.visualization
-    map = fwiw.visualization.plot_domain(-20, +20, -20, +20, 3.0,
+    import lasif.visualization
+    map = lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
         show_plot=False)
     # Create event.
@@ -206,7 +205,7 @@ All events can be viewed with
     t.m_rt = -2.8e+17
     t.m_rp = -5.22e+17
     t.m_tp = 3.4e+16
-    fwiw.visualization.plot_events(cat, map)
+    lasif.visualization.plot_events(cat, map)
 
 
 Waveform Data
@@ -216,12 +215,12 @@ data for all events are stored in the *DATA* subfolder. The data for each
 single event will be stored in a subfolder of the *DATA* folder with the
 **same name as the QuakeML file minus the .xml**.
 
-These folder are automatically created and updated each time a fwiw command is
+These folder are automatically created and updated each time a lasif command is
 executed. The simplest command is
 
 .. code-block:: bash
 
-    $ fwiw info
+    $ lasif info
 
 This will result in a directory structure in the fashion of::
 
@@ -278,15 +277,15 @@ After a while, the structure might look like this::
     |-- ...
 
 **The user is responsible** for adhering to that structure. Otherwise other
-parts of FWIW cannot operate properly.
+parts of LASIF cannot operate properly.
 
 Station Data
 ------------
-FWIW needs to know the coordinates and instrument response of each channel.
+LASIF needs to know the coordinates and instrument response of each channel.
 One way to achieve this to use SAC files, which contain coordinates, and RESP
 files containing the response information for each channel. Another possibility
 is to use MiniSEED waveform data and the corresponding dataless SEED or
-StationXML files. Please keep in mind that FWIW currently expects to only
+StationXML files. Please keep in mind that LASIF currently expects to only
 have channels of one station in each dataless SEED and StationXML file.
 
 Naming scheme
@@ -302,7 +301,7 @@ be named after the following scheme::
 *NETWORK*, and *STATION* should be replaced with the corresponding network and
 stations codes. It is possible that multiple files are needed for each station
 (e.g. different files for different time intervals/channels) and thus *.1*,
-*.2*, ... can be appended to the filename. FWIW will automatically choose
+*.2*, ... can be appended to the filename. LASIF will automatically choose
 the correct file in case they need to be accessed.
 
 **StationXML**
@@ -329,7 +328,7 @@ has to include the location and channel identifiers.
 Download Helpers
 ----------------
 
-FWIW comes with a collection of scripts that help downloading waveform and
+LASIF comes with a collection of scripts that help downloading waveform and
 station data from the IRIS and ArcLink services. Waveform data will always be
 downloaded as MiniSEED. Station data will, due to the different products of the
 dataservices, either be downloaded as StationXML (IRIS) or dataless SEED.
@@ -347,7 +346,7 @@ events in the current project just execute
 
 .. code-block:: bash
 
-    $ fwiw list_events
+    $ lasif list_events
 
     2 events in project:
         GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
@@ -358,7 +357,7 @@ To download the waveform data for one event, choose one and run
 
 .. code-block:: bash
 
-    $ fwiw download_waveforms GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+    $ lasif download_waveforms GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
 
 
 This, dependent on the domain size, event location, and origin time can take a
@@ -369,27 +368,27 @@ already present. All data will be placed in `DATA/EVENT_NAME/raw`.
 Downloading Station Data
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-FWIW also includes some functionality to download station metadata. It will,
+LASIF also includes some functionality to download station metadata. It will,
 download StationXML and RESP files from IRIS and dataless SEED and RESP files
 from ArcLink. It works the same as it does for the waveforms. To download all
 stations for one event simply execute
 
 .. code-block:: bash
 
-    $ fwiw download_stations GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    $ lasif download_stations GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
 
 .. note::
 
-    The `fwiw download_stations` command will, for the specified event, figure
+    The `lasif download_stations` command will, for the specified event, figure
     what waveform data is present in the `DATA/EVENT_NAME/raw` folder and
     download all missing station metadata information for these files.
 
-At this point, FWIW is able to match available station and waveform
+At this point, LASIF is able to match available station and waveform
 information. To get an overview, of what data is actually stored for the given event, just execute:
 
 .. code-block:: bash
 
-    $ fwiw event_info GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    $ lasif event_info GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
 
     Earthquake with 6.1 Mw at AZORES ISLANDS REGION
             Latitude: 37.400, Longitude: -24.380, Depth: 12.0 km
@@ -414,13 +413,13 @@ It is furthermore possible to plot the availability information for one event in
 
 .. code-block:: bash
 
-    $ fwiw plot_event GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    $ lasif plot_event GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
 
 
 .. plot::
 
-    import fwiw.visualization
-    map = fwiw.visualization.plot_domain(-20, +20, -20, +20, 3.0,
+    import lasif.visualization
+    map = lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
         show_plot=False)
     # Create event.
@@ -443,7 +442,7 @@ It is furthermore possible to plot the availability information for one event in
     t.m_rt = 8.4e+16
     t.m_rp = 2.4e+16
     t.m_tp = -4.73e+17
-    fwiw.visualization.plot_events(cat, map)
+    lasif.visualization.plot_events(cat, map)
     ev_lng = -24.38
     ev_lat = 37.4
     stations = {'GE.SFS': {'latitude': 36.4656, 'local_depth': 5.0,
@@ -458,17 +457,17 @@ It is furthermore possible to plot the availability information for one event in
         37.5868, 'local_depth': 5.0, 'elevation': 65.0, 'longitude': -1.0012},
         'IU.PAB': {'latitude': 39.5446, 'local_depth': 0.0, 'elevation': 950.0,
         'longitude': -4.349899}}
-    fwiw.visualization.plot_stations_for_event(map_object=map,
+    lasif.visualization.plot_stations_for_event(map_object=map,
         station_dict=stations, event_longitude=ev_lng,
         event_latitude=ev_lat)
     # Plot the beachball for one event.
-    fwiw.visualization.plot_events(cat, map_object=map)
+    lasif.visualization.plot_events(cat, map_object=map)
 
 
 Generating SES3D Input Files
 ----------------------------
 
-FWIW is currently capable of producing input files for SES3D 4.0. It is very
+LASIF is currently capable of producing input files for SES3D 4.0. It is very
 straightforward and knows what data is available for every event and thus can
 generate these files fully automatically.
 
@@ -492,7 +491,7 @@ To create a basic template (in this case for SES3D 4.0) run:
 
 .. code-block:: bash
 
-    $ fwiw generate_input_file_template ses3d_4_0
+    $ lasif generate_input_file_template ses3d_4_0
 
 This will create a (hopefully self-explaining) XML input file template, that **MUST BE EDITED**.
 
@@ -528,7 +527,7 @@ extension. To get a list of all available templates use:
 
 .. code-block:: bash
 
-    $ fwiw list_input_file_templates
+    $ lasif list_input_file_templates
 
     Project has 1 input file template:
             ses3d_4_0_template
@@ -554,7 +553,7 @@ available source time functions type:
 
 .. code-block:: bash
 
-    $ fwiw list_stf
+    $ lasif list_stf
 
     Project has 1 defined source time function
             heaviside_60s_500s
@@ -566,19 +565,19 @@ simulation. This is done with:
 
 .. code-block:: bash
 
-    $ fwiw plot_stf SOURCE_TIME_FUNCTION NPTS DELTA
+    $ lasif plot_stf SOURCE_TIME_FUNCTION NPTS DELTA
 
 The number of samples and the sample spacing of any simulation should be known.
 SOURCE_TIME_FUNCTION again is the name of the source time function.
 
 .. code-block:: bash
 
-    $ fwiw plot_stf heaviside_60s_500s 1500 0.75
+    $ lasif plot_stf heaviside_60s_500s 1500 0.75
 
 
 .. plot::
 
-    import fwiw.visualization
+    import lasif.visualization
     import obspy
     import numpy as np
     def filtered_heaviside(npts, delta, freqmin, freqmax):
@@ -588,7 +587,7 @@ SOURCE_TIME_FUNCTION again is the name of the source time function.
         trace.filter("highpass", freq=freqmin, corners=2)
         return trace.data
     data = filtered_heaviside(1500, 0.75, 1.0 / 500.0, 1.0 / 60.0)
-    fwiw.visualization.plot_tf(data, 0.75)
+    lasif.visualization.plot_tf(data, 0.75)
 
 
 Input File Generation
@@ -600,7 +599,7 @@ files. Input files are generated  with the command
 
 .. code-block:: bash
 
-    $ fwiw generate_input_files EVENT_NAME TEMPLATE_NAME TYPE SOURCE_TIME_FCT
+    $ lasif generate_input_files EVENT_NAME TEMPLATE_NAME TYPE SOURCE_TIME_FCT
 
 **TYPE** has to be one of
 
@@ -615,16 +614,16 @@ the project.
 
 .. code-block:: bash
 
-    $ fwiw list_events
+    $ lasif list_events
     2 events in project:
             GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
                     GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
 
-    $ fwiw list_input_file_templates
+    $ lasif list_input_file_templates
     Project has 1 input file template:
             ses3d_4_0_template
 
-    $ fwiw list_stf
+    $ lasif list_stf
     Project has 1 defined source time function:
             heaviside_60s_500s
 
@@ -633,7 +632,7 @@ Once everything is figured out, actual input files can be generated with:
 
 .. code-block:: bash
 
-    $ fwiw generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 \
+    $ lasif generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 \
         ses3d_4_0_template normal_simulation heaviside_60s_500s
 
     Written files to '.../OUTPUT/input_files___ses3d_4_0_template___2013-03-26T20:04:24.005713'.

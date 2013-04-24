@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# FWIW documentation build configuration file, created by
+# LASIF documentation build configuration file, created by
 # sphinx-quickstart on Fri Feb  1 15:47:43 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -43,7 +43,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'FWIW'
+project = u'LASIF'
 copyright = u'2013, Lion Krischer & Andreas Fichtner'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -167,7 +167,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'FWIWdoc'
+htmlhelp_basename = 'LASIFdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -186,7 +186,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'FWIW.tex', u'FWIW Documentation',
+  ('index', 'LASIF.tex', u'LASIF Documentation',
    u'Lion Krischer \\& Andreas Fichtner', 'manual'),
 ]
 
@@ -216,7 +216,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'fwiw', u'FWIW Documentation',
+    ('index', 'LASIF', u'LASIF Documentation',
      [u'Lion Krischer & Andreas Fichtner'], 1)
 ]
 
@@ -230,8 +230,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'FWIW', u'FWIW Documentation',
-   u'Lion Krischer & Andreas Fichtner', 'FWIW', 'One line description of project.',
+  ('index', 'LASIF', u'LASIF Documentation',
+   u'Lion Krischer & Andreas Fichtner', 'LASIF', 'One line description of project.',
    'Miscellaneous'),
 ]
 

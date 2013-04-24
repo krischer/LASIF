@@ -18,10 +18,10 @@ import obspy
 import os
 import sys
 
-from fwiw import rotations
-from fwiw.download_helpers.availability import get_availability
-import fwiw.download_helpers.waveforms
-import fwiw.download_helpers.stations
+from lasif import rotations
+from lasif.download_helpers.availability import get_availability
+import lasif.download_helpers.waveforms
+import lasif.download_helpers.stations
 
 
 class Logger(object):
@@ -32,7 +32,7 @@ class Logger(object):
         FORMAT = "[%(asctime)-15s] %(levelname)s: %(message)s"
         logging.basicConfig(filename=log_filename, level=logging.DEBUG,
             format=FORMAT)
-        self.logger = logging.getLogger("FWIW")
+        self.logger = logging.getLogger("LASIF")
         self.set_debug(debug)
 
     def set_debug(self, value):
@@ -219,7 +219,7 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
         logger.info(70 * "=")
         current_position += CHUNK_SIZE
         successful_downloads += \
-            fwiw.download_helpers.waveforms.download_waveforms(
+            lasif.download_helpers.waveforms.download_waveforms(
                 chunk, starttime, endtime, 0.95, save_trace_fct=save_channel,
                 arclink_user=arclink_user, logger=logger)
 
@@ -292,7 +292,7 @@ def download_stations(channels, resp_file_folder, station_xml_folder,
 
     # Now download all the missing stations files.
     successful_downloads = \
-        fwiw.download_helpers.stations.download_station_files(missing_files,
+        lasif.download_helpers.stations.download_station_files(missing_files,
             save_station_fct=save_station_file, arclink_user=arclink_user,
             logger=logger)
 
