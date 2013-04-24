@@ -1,0 +1,516 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lasif.rotations &mdash; LASIF 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">LASIF 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lasif.rotations</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A collection of functions to rotate vectors, seismograms and moment tensors on</span>
+<span class="sd">a spherical body, e.g. the Earth.</span>
+
+<span class="sd">.. note:: **On the used coordinate system**</span>
+
+<span class="sd">    Latitude and longitude are natural geographical coordinates used on Earth.</span>
+
+<span class="sd">    The coordinate system is right handed with the origin at the center of the</span>
+<span class="sd">    Earth. The z-axis points directly at the North Pole and the x-axis points</span>
+<span class="sd">    at (latitude 0.0/longitude 0.0), e.g. the Greenwich meridian at the</span>
+<span class="sd">    equator. The y-axis therefore points at (latitude 0.0/longitue 90.0), e.g.</span>
+<span class="sd">    somewhere close to Sumatra.</span>
+
+<span class="sd">    𝜃 (theta) is the colatitude, e.g. 90.0 - latitude and is the angle from</span>
+<span class="sd">    the z-axis.  𝜑 (phi) is the longitude and the angle from the x-axis</span>
+<span class="sd">    towards the y-axis, a.k.a the azimuth angle. These are also the generally</span>
+<span class="sd">    used spherical coordinates.</span>
+
+<span class="sd">    All rotation axes have to be given as [x, y, z] in the just described</span>
+<span class="sd">    coordinate system and all rotation angles have to given as degree. A</span>
+<span class="sd">    positive rotation will rotate clockwise when looking in the direction of</span>
+<span class="sd">    the rotation axis.</span>
+
+<span class="sd">    For convenience reasons, most function in this module work with coordinates</span>
+<span class="sd">    given in latitude and longitude.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">Lion Krischer (krischer@geophysik.uni-muenchen.de), 2012-2013</span>
+
+<span class="sd">:license:</span>
+<span class="sd">GNU General Public License, Version 3</span>
+<span class="sd">(http://www.gnu.org/copyleft/gpl.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+
+<span class="k">def</span> <span class="nf">_get_vector</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to make sure vectors always have the same format and dtype.</span>
+
+<span class="sd">    Creates a three component column vector from either a list or three single</span>
+<span class="sd">    numbers. If it already is a correct vector, do nothing.</span>
+
+<span class="sd">    &gt;&gt;&gt; vec = _get_vector(1, 2, 3)</span>
+<span class="sd">    &gt;&gt;&gt; vec</span>
+<span class="sd">    array([ 1.,  2.,  3.])</span>
+<span class="sd">    &gt;&gt;&gt; print vec.dtype</span>
+<span class="sd">    float64</span>
+
+<span class="sd">    &gt;&gt;&gt; vec = _get_vector([1, 2, 3])</span>
+<span class="sd">    &gt;&gt;&gt; vec</span>
+<span class="sd">    array([ 1.,  2.,  3.])</span>
+<span class="sd">    &gt;&gt;&gt; print vec.dtype</span>
+<span class="sd">    float64</span>
+
+<span class="sd">    &gt;&gt;&gt; vec = _get_vector(np.array([1, 2, 3], dtype=&quot;int32&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; vec</span>
+<span class="sd">    array([ 1.,  2.,  3.])</span>
+<span class="sd">    &gt;&gt;&gt; print vec.dtype</span>
+<span class="sd">    float64</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float64&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float64&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float64&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
+<div class="viewcode-block" id="lat2colat"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.lat2colat">[docs]</a><span class="k">def</span> <span class="nf">lat2colat</span><span class="p">(</span><span class="n">lat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to convert latitude to colatitude. This, surprisingly, is</span>
+<span class="sd">    quite an error source.</span>
+
+<span class="sd">    &gt;&gt;&gt; lat2colat(-90)</span>
+<span class="sd">    180.0</span>
+<span class="sd">    &gt;&gt;&gt; lat2colat(-45)</span>
+<span class="sd">    135.0</span>
+<span class="sd">    &gt;&gt;&gt; lat2colat(0)</span>
+<span class="sd">    90.0</span>
+<span class="sd">    &gt;&gt;&gt; lat2colat(45)</span>
+<span class="sd">    45.0</span>
+<span class="sd">    &gt;&gt;&gt; lat2colat(90)</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat</span>
+
+</div>
+<div class="viewcode-block" id="colat2lat"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.colat2lat">[docs]</a><span class="k">def</span> <span class="nf">colat2lat</span><span class="p">(</span><span class="n">colat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to convert colatitude to latitude. This, surprisingly, is</span>
+<span class="sd">    quite an error source.</span>
+
+<span class="sd">    &gt;&gt;&gt; colat2lat(180)</span>
+<span class="sd">    -90.0</span>
+<span class="sd">    &gt;&gt;&gt; colat2lat(135)</span>
+<span class="sd">    -45.0</span>
+<span class="sd">    &gt;&gt;&gt; abs(colat2lat(90))</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; colat2lat(45)</span>
+<span class="sd">    45.0</span>
+<span class="sd">    &gt;&gt;&gt; colat2lat(0.0)</span>
+<span class="sd">    90.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">colat</span> <span class="o">-</span> <span class="mf">90.0</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="rotate_vector"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.rotate_vector">[docs]</a><span class="k">def</span> <span class="nf">rotate_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes a vector and rotates it around a rotation axis with a given angle.</span>
+
+<span class="sd">    :param vector: The vector to be rotated given as [x, y, z].</span>
+<span class="sd">    :param rotation_axis: The axis to be rotating around given as [x, y, z].</span>
+<span class="sd">    :angle: The rotation angle in degree.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Convert angle to radian.</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+    <span class="c"># Normalize the rotation_axis</span>
+    <span class="n">rotation_axis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">)</span>
+    <span class="n">rotation_axis</span> <span class="o">=</span> <span class="n">rotation_axis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">)</span>
+
+    <span class="c"># Use c1, c2, and c3 as shortcuts for the rotation axis.</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">rotation_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">c2</span> <span class="o">=</span> <span class="n">rotation_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">c3</span> <span class="o">=</span> <span class="n">rotation_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c"># Build a column vector.</span>
+    <span class="n">vector</span> <span class="o">=</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+
+    <span class="c"># Build the rotation matrix.</span>
+    <span class="n">rotation_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> \
+        <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)))</span> <span class="o">+</span> \
+        <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="n">c1</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">c3</span><span class="p">),</span>
+                                         <span class="p">(</span><span class="n">c2</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">c3</span><span class="p">),</span>
+                                         <span class="p">(</span><span class="n">c3</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c3</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span> <span class="o">*</span> <span class="n">c3</span><span class="p">)))</span> <span class="o">+</span> \
+        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c3</span><span class="p">,</span> <span class="n">c2</span><span class="p">),</span> <span class="p">(</span><span class="n">c3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">c2</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+
+    <span class="c"># Rotate the vector.</span>
+    <span class="n">rotated_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span>
+
+    <span class="c"># Make sure is also works for arrays of vectors.</span>
+    <span class="k">if</span> <span class="n">rotated_vector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rotated_vector</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rotated_vector</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="get_spherical_unit_vectors"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_spherical_unit_vectors">[docs]</a><span class="k">def</span> <span class="nf">get_spherical_unit_vectors</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the spherical unit vectors e_theta, e_phi and e_r for a point on</span>
+<span class="sd">    the sphere determined by latitude and longitude which are defined as they</span>
+<span class="sd">    are for earth.</span>
+
+<span class="sd">    :param lat: Latitude in degree</span>
+<span class="sd">    :param lon: Longitude in degree</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">colat</span> <span class="o">=</span> <span class="n">lat2colat</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+    <span class="c"># Convert to radian.</span>
+    <span class="n">colat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">,</span> <span class="p">[</span><span class="n">colat</span><span class="p">,</span> <span class="n">lon</span><span class="p">])</span>
+
+    <span class="n">e_theta</span> <span class="o">=</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">colat</span><span class="p">),</span>
+                         <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">colat</span><span class="p">),</span>
+                         <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">colat</span><span class="p">))</span>
+    <span class="n">e_phi</span> <span class="o">=</span> <span class="n">_get_vector</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">e_r</span> <span class="o">=</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">colat</span><span class="p">),</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">colat</span><span class="p">),</span>
+                     <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">colat</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">e_theta</span><span class="p">,</span> <span class="n">e_phi</span><span class="p">,</span> <span class="n">e_r</span>
+
+</div>
+<div class="viewcode-block" id="rotate_lat_lon"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.rotate_lat_lon">[docs]</a><span class="k">def</span> <span class="nf">rotate_lat_lon</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Takes a point specified by latitude and longitude and return a new pair of</span>
+<span class="sd">    latitude longitude assuming the earth has been rotated around rotation_axis</span>
+<span class="sd">    by angle.</span>
+
+<span class="sd">    :param lat: Latitude of original point</span>
+<span class="sd">    :param lon: Longitude of original point</span>
+<span class="sd">    :rotation_axis: Rotation axis specified as [x, y, z].</span>
+<span class="sd">    :angle: Rotation angle in degree.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Convert to xyz. Do the calculation on the unit sphere as the radius does</span>
+    <span class="c"># not matter.</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">lat_lon_radius_to_xyz</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="c"># Rotate xyz.</span>
+    <span class="n">new_xyz</span> <span class="o">=</span> <span class="n">rotate_vector</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+    <span class="n">new_lat</span><span class="p">,</span> <span class="n">new_lon</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="n">new_xyz</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_lat</span><span class="p">,</span> <span class="n">new_lon</span>
+
+</div>
+<div class="viewcode-block" id="xyz_to_lat_lon_radius"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.xyz_to_lat_lon_radius">[docs]</a><span class="k">def</span> <span class="nf">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts x, y, and z to latitude, longitude and radius.</span>
+
+<span class="sd">    &gt;&gt;&gt; xyz_to_lat_lon_radius(1.0, 0.0, 0.0)</span>
+<span class="sd">    (-0, 0.0, 1.0)</span>
+
+<span class="sd">    &gt;&gt;&gt; xyz_to_lat_lon_radius([1.0, 0.0, 0.0])</span>
+<span class="sd">    (-0, 0.0, 1.0)</span>
+
+<span class="sd">    &gt;&gt;&gt; xyz_to_lat_lon_radius(0.0, 0.0, -2.0)</span>
+<span class="sd">    (-90.0, 0.0, 2.0)</span>
+
+<span class="sd">    &gt;&gt;&gt; xyz_to_lat_lon_radius(0.0, 0.0, 2.0)</span>
+<span class="sd">    (90.0, 0.0, 2.0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">xyz</span> <span class="o">=</span> <span class="n">_get_vector</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">colat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">xyz</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span><span class="p">)</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">xyz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">xyz</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="c"># Convert to degree.</span>
+    <span class="n">colat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">,</span> <span class="p">[</span><span class="n">colat</span><span class="p">,</span> <span class="n">lon</span><span class="p">]))</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">colat2lat</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">r</span>
+
+</div>
+<div class="viewcode-block" id="lat_lon_radius_to_xyz"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.lat_lon_radius_to_xyz">[docs]</a><span class="k">def</span> <span class="nf">lat_lon_radius_to_xyz</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts latitude, longitude and radius to x, y, and z.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">colat</span> <span class="o">=</span> <span class="n">lat2colat</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+    <span class="c"># To radian</span>
+    <span class="n">colat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">,</span> <span class="p">[</span><span class="n">colat</span><span class="p">,</span> <span class="n">lon</span><span class="p">])</span>
+    <span class="c"># Do the transformation</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">r</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">colat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_get_rotation_and_base_transfer_matrix</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a matrix that rotates a vector/tensor located at lat/lon and</span>
+<span class="sd">    given in spherical coordinates for &#39;angle&#39; degrees around &#39;rotation_axis&#39;.</span>
+<span class="sd">    Furthermore it performs a base change from the spherical unit vectors at</span>
+<span class="sd">    lat/lon to the spherical unit vectors at the rotated lat/lon.</span>
+
+<span class="sd">    This should never change the radial component.</span>
+
+<span class="sd">    :param lat: Latitude of the recording point.</span>
+<span class="sd">    :param lon: Longitude of the recording point.</span>
+<span class="sd">    :param rotation_axis: Rotation axis given as [x, y, z].</span>
+<span class="sd">    :param angle: Rotation angle in degree.</span>
+
+<span class="sd">    &gt;&gt;&gt; mat = _get_rotation_and_base_transfer_matrix(12, 34, [-45, 34, 45], \</span>
+<span class="sd">        -66)</span>
+<span class="sd">    &gt;&gt;&gt; mat[2, 2] - 1.0 &lt;= 1E-7</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; mat[2, 0] &lt;= 1E-7</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; mat[2, 1] &lt;= 1E-7</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; mat[0, 2] &lt;= 1E-7</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; mat[1, 2] &lt;= 1E-7</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Rotate latitude and longitude to obtain the new coordinates after the</span>
+    <span class="c"># rotation.</span>
+    <span class="n">lat_new</span><span class="p">,</span> <span class="n">lon_new</span> <span class="o">=</span> <span class="n">rotate_lat_lon</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+
+    <span class="c"># Get the orthonormal basis vectors at both points. This can be interpreted</span>
+    <span class="c"># as having two sets of basis vectors in the original xyz coordinate</span>
+    <span class="c"># system.</span>
+    <span class="n">e_theta</span><span class="p">,</span> <span class="n">e_phi</span><span class="p">,</span> <span class="n">e_r</span> <span class="o">=</span> <span class="n">get_spherical_unit_vectors</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+    <span class="n">e_theta_new</span><span class="p">,</span> <span class="n">e_phi_new</span><span class="p">,</span> <span class="n">e_r_new</span> <span class="o">=</span> <span class="n">get_spherical_unit_vectors</span><span class="p">(</span><span class="n">lat_new</span><span class="p">,</span>
+        <span class="n">lon_new</span><span class="p">)</span>
+
+    <span class="c"># Rotate the new unit vectors in the opposite direction to simulate a</span>
+    <span class="c"># rotation in the wanted direction.</span>
+    <span class="n">e_theta_new</span> <span class="o">=</span> <span class="n">rotate_vector</span><span class="p">(</span><span class="n">e_theta_new</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="o">-</span><span class="n">angle</span><span class="p">)</span>
+    <span class="n">e_phi_new</span> <span class="o">=</span> <span class="n">rotate_vector</span><span class="p">(</span><span class="n">e_phi_new</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="o">-</span><span class="n">angle</span><span class="p">)</span>
+    <span class="n">e_r_new</span> <span class="o">=</span> <span class="n">rotate_vector</span><span class="p">(</span><span class="n">e_r_new</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="o">-</span><span class="n">angle</span><span class="p">)</span>
+
+    <span class="c"># Calculate the transfer matrix. This works because both sets of basis</span>
+    <span class="c"># vectors are orthonormal.</span>
+    <span class="n">transfer_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">((</span> \
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_theta_new</span><span class="p">,</span> <span class="n">e_theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_theta_new</span><span class="p">,</span> <span class="n">e_phi</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_theta_new</span><span class="p">,</span> <span class="n">e_r</span><span class="p">)],</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_phi_new</span><span class="p">,</span> <span class="n">e_theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_phi_new</span><span class="p">,</span> <span class="n">e_phi</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_phi_new</span><span class="p">,</span> <span class="n">e_r</span><span class="p">)],</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_r_new</span><span class="p">,</span> <span class="n">e_theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_r_new</span><span class="p">,</span> <span class="n">e_phi</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_r_new</span><span class="p">,</span>
+            <span class="n">e_r</span><span class="p">)]))</span>
+    <span class="k">return</span> <span class="n">transfer_matrix</span>
+
+
+<div class="viewcode-block" id="rotate_moment_tensor"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.rotate_moment_tensor">[docs]</a><span class="k">def</span> <span class="nf">rotate_moment_tensor</span><span class="p">(</span><span class="n">Mrr</span><span class="p">,</span> <span class="n">Mtt</span><span class="p">,</span> <span class="n">Mpp</span><span class="p">,</span> <span class="n">Mrt</span><span class="p">,</span> <span class="n">Mrp</span><span class="p">,</span> <span class="n">Mtp</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span>
+        <span class="n">angle</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotates a moment tensor, given in spherical coordinates, located at lat/lon</span>
+<span class="sd">    around the rotation axis and simultaneously performs a base change from the</span>
+<span class="sd">    spherical unit vectors at lat/lon to the unit vectors at the new</span>
+<span class="sd">    coordinates.</span>
+
+<span class="sd">    :param Mrr, Mtt, Mpp, Mrt, Mrp, Mtp: The six independent components of a</span>
+<span class="sd">        moment tensor.</span>
+<span class="sd">    :param lat: Latitude of the recording point.</span>
+<span class="sd">    :param lon: Longitude of the recording point.</span>
+<span class="sd">    :param rotation_axis: Rotation axis given as [x, y, z].</span>
+<span class="sd">    :param angle: Rotation angle in degree.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transfer_matrix</span> <span class="o">=</span> <span class="n">_get_rotation_and_base_transfer_matrix</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span>
+        <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+    <span class="c"># Assemble the second order tensor.</span>
+    <span class="n">mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(([</span><span class="n">Mtt</span><span class="p">,</span> <span class="n">Mtp</span><span class="p">,</span> <span class="n">Mrt</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">Mtp</span><span class="p">,</span> <span class="n">Mpp</span><span class="p">,</span> <span class="n">Mrp</span><span class="p">],</span>
+                    <span class="p">[</span><span class="n">Mtp</span><span class="p">,</span> <span class="n">Mrp</span><span class="p">,</span> <span class="n">Mrr</span><span class="p">]))</span>
+    <span class="c"># Rotate it</span>
+    <span class="n">rotated_mt</span> <span class="o">=</span> <span class="n">transfer_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">mt</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">transfer_matrix</span><span class="o">.</span><span class="n">transpose</span><span class="p">()))</span>
+    <span class="c"># Return the six independent components in the same order as they were</span>
+    <span class="c"># given.</span>
+    <span class="k">return</span> <span class="n">rotated_mt</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">rotated_mt</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">rotated_mt</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> \
+        <span class="n">rotated_mt</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">rotated_mt</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">rotated_mt</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+</div>
+<div class="viewcode-block" id="rotate_data"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.rotate_data">[docs]</a><span class="k">def</span> <span class="nf">rotate_data</span><span class="p">(</span><span class="n">north_data</span><span class="p">,</span> <span class="n">east_data</span><span class="p">,</span> <span class="n">vertical_data</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span>
+    <span class="n">angle</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotates three component data recorded at lat/lon a certain amount of</span>
+<span class="sd">    degrees around a given rotation axis.</span>
+
+<span class="sd">    :param north_data: The north component of the data.</span>
+<span class="sd">    :param east_data: The east component of the data.</span>
+<span class="sd">    :param vertical_data: The vertical component of the data. Vertical is</span>
+<span class="sd">        defined to be up, e.g. radially outwards.</span>
+<span class="sd">    :param lat: Latitude of the recording point.</span>
+<span class="sd">    :param lon: Longitude of the recording point.</span>
+<span class="sd">    :param rotation_axis: Rotation axis given as [x, y, z].</span>
+<span class="sd">    :param angle: Rotation angle in degree.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transfer_matrix</span> <span class="o">=</span> <span class="n">_get_rotation_and_base_transfer_matrix</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span>
+        <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+
+    <span class="c"># Apply the transfer matrix. Invert north data because they have</span>
+    <span class="c"># to point in the other direction to be consistent with the spherical</span>
+    <span class="c"># coordinates.</span>
+    <span class="n">new_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">transfer_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">([</span><span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">north_data</span><span class="p">,</span>
+        <span class="n">east_data</span><span class="p">,</span> <span class="n">vertical_data</span><span class="p">]))</span>
+
+    <span class="c"># Return the transferred data arrays. Again negate north data.</span>
+    <span class="n">north_data</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">new_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">east_data</span> <span class="o">=</span> <span class="n">new_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">vertical_data</span> <span class="o">=</span> <span class="n">new_data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">north_data</span><span class="p">,</span> <span class="n">east_data</span><span class="p">,</span> <span class="n">vertical_data</span>
+
+</div>
+<div class="viewcode-block" id="get_border_latlng_list"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_border_latlng_list">[docs]</a><span class="k">def</span> <span class="nf">get_border_latlng_list</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lng</span><span class="p">,</span> <span class="n">max_lng</span><span class="p">,</span>
+    <span class="n">number_of_points_per_side</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="n">rotation_angle_in_degree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function taking a spherical section defined by latitudinal and</span>
+<span class="sd">    longitudal extension, rotate it around the given axis and rotation angle</span>
+<span class="sd">    and return a list of points outlining the region. Useful for plotting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">north_border</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">number_of_points_per_side</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">south_border</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">number_of_points_per_side</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">east_border</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">number_of_points_per_side</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">west_border</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">number_of_points_per_side</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="n">north_border</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_lat</span>
+    <span class="n">north_border</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_lng</span><span class="p">,</span> <span class="n">max_lng</span><span class="p">,</span>
+        <span class="n">number_of_points_per_side</span><span class="p">)</span>
+
+    <span class="n">south_border</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_lat</span>
+    <span class="n">south_border</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">max_lng</span><span class="p">,</span> <span class="n">min_lng</span><span class="p">,</span>
+        <span class="n">number_of_points_per_side</span><span class="p">)</span>
+
+    <span class="n">east_border</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">,</span>
+        <span class="n">number_of_points_per_side</span><span class="p">)</span>
+    <span class="n">east_border</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_lng</span>
+
+    <span class="n">west_border</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span>
+        <span class="n">number_of_points_per_side</span><span class="p">)</span>
+    <span class="n">west_border</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_lng</span>
+
+    <span class="c"># Rotate everything.</span>
+    <span class="k">for</span> <span class="n">border</span> <span class="ow">in</span> <span class="p">[</span><span class="n">north_border</span><span class="p">,</span> <span class="n">south_border</span><span class="p">,</span> <span class="n">east_border</span><span class="p">,</span> <span class="n">west_border</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">number_of_points_per_side</span><span class="p">):</span>
+            <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_lat_lon</span><span class="p">(</span><span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">rotation_angle_in_degree</span><span class="p">)</span>
+
+    <span class="c"># Take care to only use every corner once.</span>
+    <span class="n">borders</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">north_border</span><span class="p">,</span> <span class="n">east_border</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">south_border</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+        <span class="n">west_border</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+    <span class="n">borders</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">borders</span><span class="p">)</span>
+    <span class="n">borders</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">borders</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">borders</span>
+
+</div>
+<div class="viewcode-block" id="get_max_extention_of_domain"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_max_extention_of_domain">[docs]</a><span class="k">def</span> <span class="nf">get_max_extention_of_domain</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lng</span><span class="p">,</span> <span class="n">max_lng</span><span class="p">,</span>
+    <span class="n">number_of_points_per_side</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="n">rotation_angle_in_degree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function getting the maximum extends of a rotated domain.</span>
+
+<span class="sd">    Returns a dictionary with the following keys:</span>
+<span class="sd">        * minimum_latitude</span>
+<span class="sd">        * maximum_latitude</span>
+<span class="sd">        * minimum_longitude</span>
+<span class="sd">        * maximum_longitude</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">border</span> <span class="o">=</span> <span class="n">get_border_latlng_list</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lng</span><span class="p">,</span> <span class="n">max_lng</span><span class="p">,</span>
+        <span class="n">number_of_points_per_side</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="n">rotation_axis</span><span class="p">,</span>
+        <span class="n">rotation_angle_in_degree</span><span class="o">=</span><span class="n">rotation_angle_in_degree</span><span class="p">)</span>
+    <span class="n">border</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">border</span><span class="p">)</span>
+    <span class="n">lats</span> <span class="o">=</span> <span class="n">border</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">lngs</span> <span class="o">=</span> <span class="n">border</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s">&quot;minimum_latitude&quot;</span><span class="p">:</span> <span class="n">lats</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+        <span class="s">&quot;maximum_latitude&quot;</span><span class="p">:</span> <span class="n">lats</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+        <span class="s">&quot;minimum_longitude&quot;</span><span class="p">:</span> <span class="n">lngs</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+        <span class="s">&quot;maximum_longitude&quot;</span><span class="p">:</span> <span class="n">lngs</span><span class="o">.</span><span class="n">max</span><span class="p">()}</span>
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">LASIF 0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Lion Krischer &amp; Andreas Fichtner.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
