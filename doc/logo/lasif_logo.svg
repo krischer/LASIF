@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="685.75568"
+   height="199.27763"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="lasif_logo.svg">
+  <defs
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="324.32938"
+     inkscape:cy="169.25358"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1030"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-38.571999,-159.54009)">
+    <rect
+       style="fill:#000000;stroke:none"
+       id="rect2895"
+       width="155.18115"
+       height="44.34164"
+       x="375.61533"
+       y="312.5278"
+       rx="2.8192601" />
+    <text
+       xml:space="preserve"
+       style="font-size:139.94827271px;font-style:normal;font-weight:normal;line-height:69.99999881%;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       x="39.057503"
+       y="270.18942"
+       id="text2816"
+       transform="scale(0.90270444,1.1077823)"
+       sodipodi:linespacing="69.999999%"><tspan
+         sodipodi:role="line"
+         id="tspan2818"
+         x="39.057503"
+         y="270.18942"
+         style="font-size:170px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:69.99999881%;writing-mode:lr-tb;text-anchor:start;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans Bold">LASIF</tspan><tspan
+         sodipodi:role="line"
+         x="39.057503"
+         y="316.62607"
+         id="tspan2822"
+         style="font-size:35px;font-family:Bitstream Vera Sans;-inkscape-font-specification:Bitstream Vera Sans"><tspan
+   style="font-size:40px;font-weight:bold;-inkscape-font-specification:Bitstream Vera Sans Bold"
+   id="tspan2854">LA</tspan>rge-scale <tspan
+   style="font-size:40px;font-weight:bold;-inkscape-font-specification:Bitstream Vera Sans Bold"
+   id="tspan2856">S</tspan>eismic <tspan
+   style="font-size:40px;font-weight:bold;fill:#ffffff;-inkscape-font-specification:Bitstream Vera Sans Bold"
+   id="tspan2858">I</tspan><tspan
+   style="fill:#ffffff"
+   id="tspan2897">nversion</tspan><tspan
+   style="font-size:40px;font-weight:bold;-inkscape-font-specification:Bitstream Vera Sans Bold"
+   id="tspan2860"> F</tspan>ramework</tspan></text>
+  </g>
+</svg>
