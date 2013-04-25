@@ -350,8 +350,9 @@ class Project(object):
         event = obspy.readEvents(all_events[event_name])
 
         stations = self.get_stations_for_event(event_name)
-        ev_lng = event[0].preferred_origin().longitude
-        ev_lat = event[0].preferred_origin().latitude
+        org = event[0].preferred_origin() or event[0].origins[0]
+        ev_lng = org.longitude
+        ev_lat = org.latitude
         visualization.plot_stations_for_event(map_object=map,
             station_dict=stations, event_longitude=ev_lng,
             event_latitude=ev_lat)
