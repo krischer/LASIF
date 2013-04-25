@@ -544,6 +544,24 @@ class Project(object):
             if station_id in station_info:
                 continue
 
+            if "sac" in tr.stats:
+                s_stats = tr.stats.sac
+                coordinates = {
+                    "latitude":
+                    s_stats.stla if s_stats.stla != -12345.0 else 0.0,
+                    "longitude":
+                    s_stats.stlo if s_stats.stlo != -12345.0 else 0.0,
+                    "elevation":
+                    s_stats.stel if s_stats.stel != -12345.0 else 0.0,
+                    "local_depth":
+                    s_stats.stdp if s_stats.stdp != -12345.0 else 0.0}
+                # Skip if both coordinates are not set.
+                if coordinates["latitude"] == 0.0 and \
+                        coordinates["longitude"] == 0.0:
+                    continue
+                station_info[station_id] = coordinates
+                continue
+
             station_file = self.has_station_file(tr)
             if not station_file:
                 continue
