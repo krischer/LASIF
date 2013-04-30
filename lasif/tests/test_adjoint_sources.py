@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-DESCRIPTION
+Test cases for everything related to the adjoint source calculations.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
