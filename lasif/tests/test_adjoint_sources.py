@@ -57,6 +57,24 @@ class AdjointSourceUtilsTestCase(unittest.TestCase):
         np.testing.assert_allclose(u0, u0_matlab)
         np.testing.assert_allclose(t0, np.arange(901))
 
+    def test_cross_correlation(self):
+        """
+        Tests the cross correlation function and compares it to a reference
+        solution calculated in Matlab.
+        """
+        # Load the matlab file.
+        matlab_file = os.path.join(self.data_dir,
+            "matlab_cross_correlation_reference_solution.mat")
+        cc_matlab = loadmat(matlab_file)["cc"][0]
+
+        # Calculate two test signals.
+        _, u = utils.get_dispersed_wavetrain()
+        _, u0 = utils.get_dispersed_wavetrain(a=3.91, b=0.87, c=0.8,
+            body_wave_factor=0.015, body_wave_freq_scale=1.0 / 2.2)
+
+        cc = utils.cross_correlation(u, u0)
+        np.testing.assert_allclose(cc, cc_matlab)
+
 
 def suite():
     suite = unittest.TestSuite()

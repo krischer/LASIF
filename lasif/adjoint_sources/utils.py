@@ -74,3 +74,18 @@ def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
         np.exp(-(t - 250) ** 2 / 500.0)
 
     return t, u
+
+
+def cross_correlation(f, g):
+    """
+    Computes a cross correlation similar to numpy's "full" correlation, except
+    shifted indices.
+    """
+    cc = np.correlate(f, g, mode="full")
+    N = len(cc)
+    cc_new = np.zeros(N)
+
+    cc_new[0: (N + 1) / 2] = cc[(N + 1) / 2 - 1: N]
+    cc_new[(N + 1) / 2: N] = cc[0: (N + 1) / 2 - 1]
+
+    return cc_new
