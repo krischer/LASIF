@@ -135,7 +135,10 @@ class AdjointSourceTestCases(unittest.TestCase):
         _, u0 = utils.get_dispersed_wavetrain(a=3.91, b=0.87, c=0.8,
             body_wave_factor=0.015, body_wave_freq_scale=1.0 / 2.2)
 
-        ad_src = ad_src_tf_phase_misfit.adsrc_tf(t, u, u0, u0, 2, 10, 0.0)
+        adjoint_src = ad_src_tf_phase_misfit.adsrc_tf(t, u, u0, u0, 2, 10, 0.0)
+        ad_src = adjoint_src["adjoint_source"]
+        # Assert the misfit.
+        self.assertAlmostEqual(adjoint_src["misfit"], 0.271417, 5)
 
         # Some testing tolerance is needed mainly due to the phase being hard
         # to define for small amplitudes.
