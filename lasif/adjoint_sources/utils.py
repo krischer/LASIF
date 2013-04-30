@@ -24,3 +24,53 @@ def matlab_range(start, stop, step):
     if (abs(stop - start) / step) % 1 < 1E-7:
         return np.arange(start, stop + step / 2.0, step)
     return np.arange(start, stop, step)
+
+
+def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
+        b=1, c=1, body_wave_factor=0.01, body_wave_freq_scale=0.5):
+    """
+    :type dw: float, optional
+    :param dw: Angular frequency spacing. Defaults to 1E-3.
+    :type distance: float, optional
+    :param distance: The event-receiver distance in kilometer. Defaults to
+        1500.
+    :type t_min: float, optional
+    :param t_min: The start time of the returned trace relative to the event
+        origin in seconds. Defaults to 0.
+    :type t_max: float, optional
+    :param t_max: The end time of the returned trace relative to the event
+        origin in seconds. Defaults to 900.
+    :type a: float, optional
+    :param a: Offset of dispersion curve. Defaults to 4.
+    :type b: float, optional
+    :param b: Linear factor of the dispersion curve. Defaults to 1.
+    :type c: float, optional
+    :param c: Quadratic factor of the dispersion curve. Defaults to 1.
+    :type body_wave_factor: float, optional
+    :param body_wave_factor: The factor of the body waves. Defaults to 0.01.
+    :type body_wave_freq_scale: float, optional
+    :param body_wave_freq_scale:  Determines the frequency of the body waves.
+        Defaults to 0.5
+    :returns: The time array t and the displacement array u.
+    :rtype: Tuple of two numpy arrays
+    """
+    # Time and frequency axes
+    w_min = 2.0 * np.pi / 50.0
+    w_max = 2.0 * np.pi / 10.0
+    w = matlab_range(w_min, w_max, dw)
+    t = matlab_range(t_min, t_max, 1)
+
+    # Define the dispersion curves.
+    c = a - b * w - c * w ** 2
+
+    # Time integration
+    u = np.zeros(len(t))
+
+    for _i in xrange(len(t)):
+        u[_i] = np.sum(w * np.cos(w * t[_i] - w * distance / c) * dw)
+
+    # Add body waves
+    u += body_wave_factor * np.sin(body_wave_freq_scale * t) * \
+        np.exp(-(t - 250) ** 2 / 500.0)
+
+    return t, u
