@@ -111,7 +111,7 @@ class TimeFrequencyTestCase(unittest.TestCase):
         np.testing.assert_allclose(np.angle(tfs), np.angle(tfs_matlab))
 
 
-class AdjointSourceTestCases(unittest.TestCase):
+class AdjointSourceTestCase(unittest.TestCase):
     """
     Tests the actual adjoint source calculations.
     """
@@ -135,7 +135,7 @@ class AdjointSourceTestCases(unittest.TestCase):
         _, u0 = utils.get_dispersed_wavetrain(a=3.91, b=0.87, c=0.8,
             body_wave_factor=0.015, body_wave_freq_scale=1.0 / 2.2)
 
-        adjoint_src = ad_src_tf_phase_misfit.adsrc_tf(t, u, u0, u0, 2, 10, 0.0)
+        adjoint_src = ad_src_tf_phase_misfit.adsrc_tf(t, u, u0, 2, 10, 0.0)
         ad_src = adjoint_src["adjoint_source"]
         # Assert the misfit.
         self.assertAlmostEqual(adjoint_src["misfit"], 0.271417, 5)
@@ -150,7 +150,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(AdjointSourceUtilsTestCase, "test"))
     suite.addTest(unittest.makeSuite(TimeFrequencyTestCase, "test"))
-    suite.addTest(unittest.makeSuite(AdjointSourceTestCases, "test"))
+    suite.addTest(unittest.makeSuite(AdjointSourceTestCase, "test"))
     return suite
 
 

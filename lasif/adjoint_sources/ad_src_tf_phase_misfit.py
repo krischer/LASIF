@@ -20,22 +20,16 @@ from lasif.adjoint_sources import time_frequency
 eps = np.spacing(1)
 
 
-def adsrc_tf(t, tapered_data, tapered_synthetic,
-        tapered_and_weighted_synthetic, dt_new, width, threshold):
+def adsrc_tf(t, data, synthetic, dt_new, width, threshold):
     """
     """
     messages = []
-
     # Compute time-frequency representation via cross-correlation
     tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(
-        t, tapered_data, tapered_and_weighted_synthetic, dt_new, width,
-        threshold)
-
-    # Compute the time-frequency representation of two synthetic traces??
-    tau, nu, tf_synth_weighted = time_frequency.time_frequency_transform(t,
-        tapered_and_weighted_synthetic, dt_new, width, threshold)
+        t, data, synthetic, dt_new, width, threshold)
+    # Compute the time-frequency representation of the synthetic
     tau, nu, tf_synth = time_frequency.time_frequency_transform(t,
-        tapered_synthetic, dt_new, width, threshold)
+        synthetic, dt_new, width, threshold)
 
     # 2D interpolation. Use a two step interpolation for the real and the
     # imaginary parts.
@@ -49,30 +43,27 @@ def adsrc_tf(t, tapered_data, tapered_synthetic,
     # Make window functionality
     # noise taper
     m = np.abs(tf_cc).max() / 10.0
-    W = 1.0 - np.exp(-(np.abs(tf_cc) ** 2) / (m ** 2))
-
-    # high-pass filter
-    W *= (1.0 - np.exp((-nu.transpose() ** 2) / (0.002 ** 2)))
-
+    weight = 1.0 - np.exp(-(np.abs(tf_cc) ** 2) / (m ** 2))
     nu_t = nu.transpose()
+    # high-pass filter
+    weight *= (1.0 - np.exp((-nu_t ** 2) / (0.002 ** 2)))
     nu_t_large = np.zeros(nu_t.shape)
     nu_t_small = np.zeros(nu_t.shape)
     thres = (nu_t <= 0.005)
     nu_t_large[np.invert(thres)] = 1.0
     nu_t_small[thres] = 1.0
-
     # low-pass filter
-    W *= (np.exp(-(nu_t - 0.005) ** 4 / 0.005 ** 4) * nu_t_large + nu_t_small)
-
+    weight *= (np.exp(-(nu_t - 0.005) ** 4 / 0.005 ** 4) *
+        nu_t_large + nu_t_small)
     # normalisation
-    W /= W.max()
+    weight /= weight.max()
 
     # Compute the phase difference.
     DP = np.imag(np.log(eps + tf_cc / (eps + np.abs(tf_cc))))
 
-    # Attempt to detect phase jump by taking the derivatives in time and
-    # frequency direction.
-    test_field = W * DP / np.abs(W * DP).max()
+    # Attempt to detect phase jumps by taking the derivatives in time and
+    # frequency direction. 0.7 is an emperical value.
+    test_field = weight * DP / np.abs(weight * DP).max()
     criterion_1 = np.abs(np.diff(test_field, axis=0)).max()
     criterion_2 = np.abs(np.diff(test_field, axis=1)).max()
     criterion = max(criterion_1, criterion_2)
@@ -83,7 +74,7 @@ def adsrc_tf(t, tapered_data, tapered_synthetic,
 
     # Compute the phase misfit
     dnu = nu[1, 0] - nu[0, 0]
-    phase_misfit = np.sqrt(np.sum(W ** 2 * DP ** 2) * dt_new * dnu)
+    phase_misfit = np.sqrt(np.sum(weight ** 2 * DP ** 2) * dt_new * dnu)
 
     # Sanity check. Should not occur.
     if np.isnan(phase_misfit):
@@ -91,7 +82,7 @@ def adsrc_tf(t, tapered_data, tapered_synthetic,
         raise Exception(msg)
 
     # Make kernel for the inverse tf transform
-    idp = W * W * DP * tf_synth_weighted / (eps + np.abs(tf_synth) *
+    idp = weight * weight * DP * tf_synth / (eps + np.abs(tf_synth) *
         np.abs(tf_synth))
 
     # Invert tf transform and make adjoint source
