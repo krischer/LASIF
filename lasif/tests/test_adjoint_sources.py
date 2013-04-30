@@ -15,7 +15,7 @@ import os
 from scipy.io import loadmat
 import unittest
 
-from lasif.adjoint_sources import utils, time_frequency
+from lasif.adjoint_sources import utils, time_frequency, ad_src_tf_phase_misfit
 
 
 class AdjointSourceUtilsTestCase(unittest.TestCase):
@@ -111,10 +111,43 @@ class TimeFrequencyTestCase(unittest.TestCase):
         np.testing.assert_allclose(np.angle(tfs), np.angle(tfs_matlab))
 
 
+class AdjointSourceTestCases(unittest.TestCase):
+    """
+    Tests the actual adjoint source calculations.
+    """
+    def setUp(self):
+        # Most generic way to get the actual data directory.
+        self.data_dir = os.path.join(os.path.dirname(os.path.abspath(
+            inspect.getfile(inspect.currentframe()))), "data")
+
+    def test_adjoint_time_frequency_phase_misfit_source(self):
+        """
+        Tests the adjoint source calculation for the time frequency phase
+        misfit after Fichtner et. al. (2008).
+        """
+        # Load the matlab output.
+        ad_src_matlab = os.path.join(self.data_dir,
+            "matlab_tf_phase_misfit_adjoint_source_reference_solution.mat")
+        ad_src_matlab = loadmat(ad_src_matlab)["ad_src"].transpose()[0]
+
+        # Generate some data.
+        t, u = utils.get_dispersed_wavetrain()
+        _, u0 = utils.get_dispersed_wavetrain(a=3.91, b=0.87, c=0.8,
+            body_wave_factor=0.015, body_wave_freq_scale=1.0 / 2.2)
+
+        ad_src = ad_src_tf_phase_misfit.adsrc_tf(t, u, u0, u0, 2, 10, 0.0)
+
+        # Some testing tolerance is needed mainly due to the phase being hard
+        # to define for small amplitudes.
+        tolerance = np.abs(ad_src).max() * 1.2E-3
+        np.testing.assert_allclose(ad_src, ad_src_matlab, 1E-7, tolerance)
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(AdjointSourceUtilsTestCase, "test"))
     suite.addTest(unittest.makeSuite(TimeFrequencyTestCase, "test"))
+    suite.addTest(unittest.makeSuite(AdjointSourceTestCases, "test"))
     return suite
 
 

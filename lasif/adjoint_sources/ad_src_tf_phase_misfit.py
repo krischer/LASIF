@@ -26,14 +26,15 @@ def adsrc_tf(t, tapered_data, tapered_synthetic,
         tapered_and_weighted_synthetic, dt_new, width, threshold):
 
     # Compute time-frequency representation via cross-correlation
-    tau_cc, nu_cc, tf_cc = time_frequency.tfa_cc(t, tapered_data,
-        tapered_and_weighted_synthetic, dt_new, width, threshold)
+    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(
+        t, tapered_data, tapered_and_weighted_synthetic, dt_new, width,
+        threshold)
 
     # Compute the time-frequency representation of two synthetic traces??
-    tau, nu, tf_synth_weighted = time_frequency.tfa(t,
+    tau, nu, tf_synth_weighted = time_frequency.time_frequency_transform(t,
         tapered_and_weighted_synthetic, dt_new, width, threshold)
-    tau, nu, tf_synth = time_frequency.tfa(t, tapered_synthetic, dt_new, width,
-        threshold)
+    tau, nu, tf_synth = time_frequency.time_frequency_transform(t,
+        tapered_synthetic, dt_new, width, threshold)
 
     # 2D interpolation. Use a two step interpolation for the real and the
     # imaginary parts.

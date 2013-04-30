@@ -89,7 +89,7 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width, threshold):
     N = len(t_cc)
     dnu = 1.0 / (N * dt_new)
 
-    nu = utils.smatlab_range(0, float(N - 1) / (N * dt_new), dnu)
+    nu = utils.matlab_range(0, float(N - 1) / (N * dt_new), dnu)
     tau = t_cc
     TAU, NU = np.meshgrid(tau, nu)
 
