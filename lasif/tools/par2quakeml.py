@@ -5,7 +5,8 @@ Convert old SES3D Par files to QuakeML
 
 **Usage:**
 
-Input filenames of Par file and the desired filename of the output QuakeML file, including the full path.
+Input filenames of Par file and the desired filename of the output QuakeML
+file, including the full path.
 
 
 :copyright:
@@ -65,4 +66,4 @@ def par2quakeml(par_filename, output_filename, rotation_axis=[0.0, 1.0, 0.0],
 
     # write QuakeML file
     cat = Catalog(events=[ev])
-    cat.write(output_filename, format="quakeml")
+    cat.write(output_filename, format="quakeml", validate=True)
