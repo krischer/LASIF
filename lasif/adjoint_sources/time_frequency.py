@@ -109,3 +109,56 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width, threshold):
         else:
             tfs[k, :] = 0.0
     return TAU, NU, tfs
+
+
+def itfa(TAU, NU, tfs, width, threshold):
+
+    #%========================================================================
+    #% initialisation
+    #%========================================================================
+
+    tau = TAU[0, :]
+    nu = NU[:, 0]
+
+    N = len(tau)
+    dt = tau[1] - tau[0]
+
+    #%========================================================================
+    #% modification of the signal
+    #%========================================================================
+
+    #% Zeitachse: tfs(k,:)
+    #% Frequenzachse: tfs(:,1)
+
+    t_min = tau[0]
+
+    for k in xrange(len(tau)):
+        tfs[k, :] = tfs[k, :] * np.exp(2.0 * np.pi * 1j * nu.transpose() *
+                t_min)
+
+    #%========================================================================
+    #% inverse fft
+    #%========================================================================
+    I = np.zeros((N, N), dtype="complex128")
+
+    max_tfs = np.abs(tfs).max()
+
+    for k in xrange(N):
+        if np.abs(tfs[k, :]).max() > threshold * max_tfs:
+            I[k, :] = 2.0 * np.pi * np.fft.ifft(tfs[k, :]) / dt
+        else:
+            I[k, :] = 0.0
+
+    #%========================================================================
+    #% time integration
+    #%========================================================================
+
+    s = np.zeros(N, dtype="complex128")
+
+    for k in xrange(N):
+        f = utils.gaussian_window(tau[k] - tau, width) * I[:, k].transpose()
+        s[k] = np.sum(f) * dt
+
+    s /= np.sqrt(2.0 * np.pi)
+
+    return s, tau, I
