@@ -54,6 +54,7 @@ from obspy import readEvents
 from obspy.core.event import Catalog, Magnitude
 from obspy.core.util.geodetics import FlinnEngdahl
 import os
+import re
 import requests
 from StringIO import StringIO
 
@@ -83,6 +84,10 @@ def iris2quakeml(url, output_folder=None):
 
     data = data.replace("<html><body><pre>", "")
     data = data.replace("</pre></body></html>", "")
+
+    # Change the resource identifiers. Colons are not allowed in QuakeML.
+    pattern = r"(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{6})"
+    data = re.sub(pattern, r"\1-\2-\3T\4-\5-\6.\7", data)
 
     data = StringIO(data)
 
