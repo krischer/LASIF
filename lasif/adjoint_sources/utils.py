@@ -80,6 +80,11 @@ def cross_correlation(f, g):
     """
     Computes a cross correlation similar to numpy's "full" correlation, except
     shifted indices.
+
+    :type f: numpy array
+    :param f: function 1
+    :type g: numpy array
+    :param g: function 1
     """
     cc = np.correlate(f, g, mode="full")
     N = len(cc)
@@ -87,5 +92,17 @@ def cross_correlation(f, g):
 
     cc_new[0: (N + 1) / 2] = cc[(N + 1) / 2 - 1: N]
     cc_new[(N + 1) / 2: N] = cc[0: (N + 1) / 2 - 1]
-
     return cc_new
+
+
+def gaussian_window(y, width):
+    """
+    Returns a simple gaussian window along a given axis.
+
+    :type y: numpy array
+    :param y: The values at which to compute the window.
+    :param width: float
+    :param width: variance = (width ^ 2) / 2
+    """
+    return 1.0 / (np.pi * width ** 2) ** (0.25) * \
+        np.exp(-0.5 * y ** 2 / width ** 2)

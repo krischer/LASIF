@@ -15,7 +15,7 @@ import os
 from scipy.io import loadmat
 import unittest
 
-from lasif.adjoint_sources import utils
+from lasif.adjoint_sources import utils, time_frequency
 
 
 class AdjointSourceUtilsTestCase(unittest.TestCase):
@@ -76,9 +76,45 @@ class AdjointSourceUtilsTestCase(unittest.TestCase):
         np.testing.assert_allclose(cc, cc_matlab)
 
 
+class TimeFrequencyTestCase(unittest.TestCase):
+    """
+    Test case for functionality related to time frequency representations.
+    """
+    def setUp(self):
+        # Most generic way to get the actual data directory.
+        self.data_dir = os.path.join(os.path.dirname(os.path.abspath(
+            inspect.getfile(inspect.currentframe()))), "data")
+
+    def test_time_frequency_transform(self):
+        """
+        Tests the basic time frequency transformation.
+        """
+        t, u = utils.get_dispersed_wavetrain()
+        tau, nu, tfs = \
+            time_frequency.time_frequency_transform(t, u, 2, 10, 0.0)
+
+        # Load the matlab output.
+        matlab = os.path.join(self.data_dir,
+            "matlab_tfa_output_reference_solution.mat")
+        matlab = loadmat(matlab)
+        #tau_matlab = matlab["TAU"]
+        #nu_matlab = matlab["NU"]
+        tfs_matlab = matlab["tfs"]
+
+        # Some tolerance is needed to due numeric differences.
+        tolerance = 1E-5
+        min_value = np.abs(tfs).max() * tolerance
+        tfs[np.abs(tfs) < min_value] = 0 + 0j
+        tfs_matlab[np.abs(tfs_matlab) < min_value] = 0 + 0j
+
+        np.testing.assert_allclose(np.abs(tfs), np.abs(tfs_matlab))
+        np.testing.assert_allclose(np.angle(tfs), np.angle(tfs_matlab))
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(AdjointSourceUtilsTestCase, "test"))
+    suite.addTest(unittest.makeSuite(TimeFrequencyTestCase, "test"))
     return suite
 
 
