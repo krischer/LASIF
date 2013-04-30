@@ -171,7 +171,7 @@ def iris2quakeml(url, output_folder=None):
     cat.append(ev)
     if output_folder:
         event_name = os.path.join(output_folder, event_name)
-    cat.write(event_name, format="quakeml")
+    cat.write(event_name, format="quakeml", validate=True)
     print "Written file", event_name
 
 
