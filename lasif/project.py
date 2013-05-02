@@ -73,6 +73,8 @@ class Project(object):
         self.paths["models"] = os.path.join(root_path, "MODELS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
         self.paths["templates"] = os.path.join(root_path, "TEMPLATES")
+        self.paths["processing_functions"] = os.path.join(root_path,
+            "PROCESSING_FUNCTIONS")
         self.paths["source_time_functions"] = os.path.join(root_path,
             "SOURCE_TIME_FUNCTIONS")
         self.paths["stations"] = os.path.join(root_path, "STATIONS")
