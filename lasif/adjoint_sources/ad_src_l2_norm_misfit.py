@@ -12,7 +12,7 @@ Simple L2-norm misfit.
 import numpy as np
 
 
-def l2NormMisfit(data, synthetic, component, axis=None):
+def adsrc_l2_norm_misfit(data, synthetic, axis=None):
     """
     Calculates the L2-norm misfit and adjoint source.
 
@@ -20,16 +20,15 @@ def l2NormMisfit(data, synthetic, component, axis=None):
     :param data: The measured data array
     :type synthetic: np.ndarray
     :param synthetic: The calculated data array
-    :type component: str
-    :param component: The orientation of both the data and the synthetic trace.
-        Has to be one of 'N', 'E', 'Z'.
     :param axis: matplotlib.axis
     :type axis: If given, a plot of the misfit will be drawn in axis. In this
         case this is just the squared difference between both traces.
-    :rtype: (float, list of nd.arrays)
-    :returns: Returns a tuple, with the first entry being the calculated
-        misfit. The second entry is a list with 3 np.ndarrays containing the
-        adjoint source for the (in this order) 'N', 'E', and 'Z' components.
+    :rtype: dictionary
+    :returns: Return a dictionary with three keys:
+        * adjoint_source: The calculated adjoint source as a numpy array
+        * misfit: The misfit value
+        * messages: A list of strings giving additional hints to what happened
+            in the calculation.
     """
     if len(synthetic) != len(data):
         msg = "Both arrays need to have equal length"
@@ -39,21 +38,7 @@ def l2NormMisfit(data, synthetic, component, axis=None):
     squared_diff = diff ** 2
     l2norm = np.sum(squared_diff)
 
-    # Only the component of the data has non-zeros values for the adjoint
-    # source.
     adjoint_source = (-1.0 * diff)[::-1]
-    data_1 = np.zeros(len(adjoint_source), dtype=adjoint_source.dtype)
-    data_2 = np.zeros(len(adjoint_source), dtype=adjoint_source.dtype)
-
-    source = [data_1, data_2]
-    if component == "N":
-        source.insert(0, adjoint_source)
-    elif component == "E":
-        source.insert(1, adjoint_source)
-    elif component == "Z":
-        source.insert(2, adjoint_source)
-    else:
-        raise NotImplementedError
 
     if axis:
         axis.cla()
@@ -73,8 +58,12 @@ def l2NormMisfit(data, synthetic, component, axis=None):
         min_value = min(data.min(), synthetic.min())
         max_value = max(data.max(), synthetic.max())
         diff = max_value - min_value
-        ax2.set_ylim(min_value - 1.1 * diff,  max_value + 0.1 * diff)
+        ax2.set_ylim(min_value - 1.1 * diff, max_value + 0.1 * diff)
         ax2.set_xticks([])
         ax2.set_yticks([])
 
-    return (l2norm, source)
+    ret_dict = {
+        "adjoint_source": adjoint_source,
+        "misfit": l2norm,
+        "messages": []}
+    return ret_dict

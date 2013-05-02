@@ -20,8 +20,14 @@ from lasif.adjoint_sources import time_frequency
 eps = np.spacing(1)
 
 
-def adsrc_tf(t, data, synthetic, dt_new, width, threshold):
+def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold):
     """
+    :rtype: dictionary
+    :returns: Return a dictionary with three keys:
+        * adjoint_source: The calculated adjoint source as a numpy array
+        * misfit: The misfit value
+        * messages: A list of strings giving additional hints to what happened
+            in the calculation.
     """
     messages = []
     # Compute time-frequency representation via cross-correlation
