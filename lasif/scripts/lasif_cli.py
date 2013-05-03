@@ -15,9 +15,10 @@ import colorama
 import glob
 import obspy
 import os
+import random
 import sys
 
-from lasif import ses3d_models
+from lasif import rotations, ses3d_models
 from lasif.project import Project
 from lasif.download_helpers import downloader
 from lasif.scripts.iris2quakeml import iris2quakeml
@@ -455,6 +456,72 @@ def lasif_init_project(args):
         init_project=os.path.basename(folder_path))
 
     print("Initialized project in: \n\t%s" % folder_path)
+
+
+def lasif_generate_dummy_data(args):
+    """
+    Usage: lasif generate_dummy_data
+
+    Generates some random example event and waveforms. Useful for debugging,
+    testing, and following the tutorial.
+    """
+    if len(args):
+        msg = "No arguments allowed."
+        raise LASIFCommandLineException(msg)
+
+    proj = _find_project_root(".")
+
+    # Use a seed to make it somewhat predictable.
+    random.seed(34235234)
+    # Create 5 events.
+    d = proj.domain["bounds"]
+    b = d["boundary_width_in_degree"] * 1.5
+    event_count = 8
+    for _i in xrange(8):
+        lat = random.uniform(d["minimum_latitude"] + b,
+            d["maximum_latitude"] - b)
+        lon = random.uniform(d["minimum_longitude"] + b,
+            d["maximum_longitude"] - b)
+        depth_in_m = random.uniform(d["minimum_depth_in_km"],
+            d["maximum_depth_in_km"]) * 1000.0
+        # Rotate the coordinates.
+        lat, lon = rotations.rotate_lat_lon(lat, lon,
+            proj.domain["rotation_axis"], proj.domain["rotation_angle"])
+        time = obspy.UTCDateTime(random.uniform(
+            obspy.UTCDateTime(2008, 1, 1).timestamp,
+            obspy.UTCDateTime(2013, 1, 1).timestamp))
+
+        # The moment tensor. XXX: Make sensible values!
+        values = [-3.3e+18, 1.43e+18, 1.87e+18, -1.43e+18, -2.69e+17,
+            -1.77e+18]
+        random.shuffle(values)
+
+        mrr = values[0]
+        mtt = values[1]
+        mpp = values[2]
+        mrt = values[3]
+        mrp = values[4]
+        mtp = values[5]
+        mag = random.uniform(5, 7)
+        scalar_moment = 3.661e+25
+
+        event_name = os.path.join(proj.paths["events"],
+            "dummy_event_%i.xml" % (_i + 1))
+
+        cat = obspy.core.event.Catalog(events=[
+            obspy.core.event.Event(
+                event_type="earthquake",
+                origins=[obspy.core.event.Origin(
+                    latitude=lat, longitude=lon, depth=depth_in_m, time=time)],
+                magnitudes=[obspy.core.event.Magnitude(
+                    mag=mag, magnitude_type="Mw")],
+                focal_mechanisms=[obspy.core.event.FocalMechanism(
+                    moment_tensor=obspy.core.event.MomentTensor(
+                        scalar_moment=scalar_moment,
+                        tensor=obspy.core.event.Tensor(m_rr=mrr, m_tt=mtt,
+                            m_pp=mpp, m_rt=mrt, m_rp=mrp, m_tp=mtp)))])])
+        cat.write(event_name, format="quakeml", validate=False)
+    print "Generated %i random events." % event_count
 
 
 def main():
