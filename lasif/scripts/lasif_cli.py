@@ -13,6 +13,7 @@ FCT_PREFIX = "lasif_"
 
 import colorama
 import glob
+import numpy as np
 import obspy
 import os
 import random
@@ -522,6 +523,80 @@ def lasif_generate_dummy_data(args):
                             m_pp=mpp, m_rt=mrt, m_rp=mrp, m_tp=mtp)))])])
         cat.write(event_name, format="quakeml", validate=False)
     print "Generated %i random events." % event_count
+
+    # Update the folder structure.
+    proj.update_folder_structure()
+
+    names_taken = []
+
+    def _get_random_name(length):
+        while True:
+            ret = ""
+            for i in xrange(length):
+                ret += chr(int(random.uniform(ord("A"), ord("Z"))))
+            if ret in names_taken:
+                continue
+            names_taken.append(ret)
+            break
+        return ret
+
+    # Now generate 30 station coordinates. Use a land-sea mask included in
+    # basemap and loop until thirty stations on land are found.
+    from mpl_toolkits.basemap import _readlsmask
+    from obspy.core.util.geodetics import gps2DistAzimuth
+    ls_lon, ls_lat, ls_mask = _readlsmask()
+    stations = []
+    # Do not use an infinite loop. One could choose a region with no land.
+    for i in xrange(10000):
+        if len(stations) >= 30:
+            break
+        lat = random.uniform(d["minimum_latitude"] + b,
+            d["maximum_latitude"] - b)
+        lon = random.uniform(d["minimum_longitude"] + b,
+            d["maximum_longitude"] - b)
+        # Rotate the coordinates.
+        lat, lon = rotations.rotate_lat_lon(lat, lon,
+            proj.domain["rotation_axis"], proj.domain["rotation_angle"])
+        if not ls_mask[np.abs(ls_lat - lat).argmin()][
+                np.abs(ls_lon - lon).argmin()]:
+            continue
+        stations.append({"latitude": lat, "longitude": lon,
+            "network": _get_random_name(2), "station": _get_random_name(3)})
+
+    if not len(stations):
+        msg = "Could not create stations. Pure ocean region?"
+        raise ValueError(msg)
+
+    def _empty_sac_trace():
+        from obspy.sac.sacio import SAC_EXTRA
+        sac = {_i: -12345.0 for _i in SAC_EXTRA}
+        tr = obspy.Trace()
+        tr.stats.sac = obspy.core.AttribDict(sac)
+        return tr
+
+    # Now loop over all events and create SAC file for them.
+    proj.read_events()
+    for _i, event in enumerate(proj.events):
+        lat, lng = event.origins[0].latitude, event.origins[0].longitude
+        # Get the distance to each events.
+        for station in stations:
+            distance_in_km = gps2DistAzimuth(lat, lng, station["latitude"],
+                station["longitude"])[0] / 1000.0
+            print distance_in_km
+            for component in ["E", "N", "Z"]:
+                tr = _empty_sac_trace()
+                tr.data = np.zeros(10)
+                tr.stats.stla = station["latitude"]
+                tr.stats.stlo = station["longitude"]
+                tr.stats.stdp = 0.0
+                tr.stats.stel = 0.0
+                path = os.path.join(proj.paths["data"],
+                    "dummy_event_%i" % (_i + 1), "raw")
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                tr.write(os.path.join(path, "%s.%s..BH%s.sac" %
+                    (station["network"], station["station"], component)),
+                    format="sac")
 
 
 def main():
