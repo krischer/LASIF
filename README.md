@@ -20,7 +20,9 @@ $ make html
 
 ### Installation
 
-LASIF depends on [ObsPy](http://www.obspy.org) in a recent version.
+LASIF depends on [ObsPy](http://www.obspy.org) in a recent version and the
+matplotlib basemap toolkit.
+
 Furthermore it requires a waveform solver input file generator. This
 can be installed with
 
