@@ -256,7 +256,7 @@ def lasif_plot_model(args):
 
 def lasif_event_info(args):
     """
-    Usage: lasif init_project EVENT_NAME
+    Usage: lasif event_info EVENT_NAME
 
     Prints information about the given event.
     """
