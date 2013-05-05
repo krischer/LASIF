@@ -568,10 +568,41 @@ def lasif_generate_dummy_data(args):
         raise ValueError(msg)
 
     def _empty_sac_trace():
-        from obspy.sac.sacio import SAC_EXTRA
-        sac = {_i: -12345.0 for _i in SAC_EXTRA}
+        """
+        Helper function to create and empty SAC header.
+        """
+        sac_dict = {}
+        # floats = -12345.8
+        floats = ["a", "mag", "az", "baz", "cmpaz", "cmpinc", "b", "depmax",
+            "depmen", "depmin", "dist", "e", "evdp", "evla", "evlo", "f",
+            "gcarc", "o", "odelta", "stdp", "stel", "stla", "stlo", "t0", "t1",
+            "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9", "unused10",
+            "unused11", "unused12", "unused6", "unused7", "unused8", "unused9",
+            "user0", "user1", "user2", "user3", "user4", "user5", "user6",
+            "user7", "user8", "user9", "xmaximum", "xminimum", "ymaximum",
+            "yminimum"]
+        sac_dict.update({key: -12345.0 for key in floats})
+        # Integers: -12345
+        integers = ["idep", "ievreg", "ievtype", "iftype", "iinst", "imagsrc",
+            "imagtyp", "iqual", "istreg", "isynth", "iztype", "lcalda",
+            "lovrok", "nevid", "norid", "nwfid"]
+        sac_dict.update({key: -12345 for key in integers})
+        # Strings: "-12345  "
+        strings = ["ka", "kdatrd", "kevnm", "kf", "kinst", "ko", "kt0", "kt1",
+            "kt2", "kt3", "kt4", "kt5", "kt6", "kt7", "kt8", "kt9",
+            "kuser0", "kuser1", "kuser2"]
+
+        sac_dict.update({key: "-12345  " for key in strings})
+
+        # Header version
+        sac_dict["nvhdr"] = 6
+        # Data is evenly spaced
+        sac_dict["leven"] = 1
+        # And a positive polarity.
+        sac_dict["lpspol"] = 1
+
         tr = obspy.Trace()
-        tr.stats.sac = obspy.core.AttribDict(sac)
+        tr.stats.sac = obspy.core.AttribDict(sac_dict)
         return tr
 
     # Now loop over all events and create SAC file for them.
@@ -582,14 +613,17 @@ def lasif_generate_dummy_data(args):
         for station in stations:
             distance_in_km = gps2DistAzimuth(lat, lng, station["latitude"],
                 station["longitude"])[0] / 1000.0
-            print distance_in_km
             for component in ["E", "N", "Z"]:
                 tr = _empty_sac_trace()
                 tr.data = np.zeros(10)
-                tr.stats.stla = station["latitude"]
-                tr.stats.stlo = station["longitude"]
-                tr.stats.stdp = 0.0
-                tr.stats.stel = 0.0
+                tr.stats.network = station["network"]
+                tr.stats.station = station["station"]
+                tr.stats.location = ""
+                tr.stats.channel = "BH%s" % component
+                tr.stats.sac.stla = station["latitude"]
+                tr.stats.sac.stlo = station["longitude"]
+                tr.stats.sac.stdp = 0.0
+                tr.stats.sac.stel = 0.0
                 path = os.path.join(proj.paths["data"],
                     "dummy_event_%i" % (_i + 1), "raw")
                 if not os.path.exists(path):
@@ -597,6 +631,7 @@ def lasif_generate_dummy_data(args):
                 tr.write(os.path.join(path, "%s.%s..BH%s.sac" %
                     (station["network"], station["station"], component)),
                     format="sac")
+    print "Generated %i waveform files." % (30 * 3 * len(proj.events))
 
 
 def main():
