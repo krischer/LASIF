@@ -12,7 +12,7 @@ Some basic utility to parse RESP files.
 from obspy import UTCDateTime
 
 
-def get_inventory(resp_file):
+def get_inventory(resp_file, remove_duplicates=False):
     """
     Simple function reading a RESP file and returning a list of dictionaries.
     Each dictionary contains the following keys for each channel found in the
@@ -24,8 +24,11 @@ def get_inventory(resp_file):
         * channel
         * start_date
         * end_date
+        * channel_id
 
     :param resp_file: Resp file to open.
+    :param remove_duplicates: Some RESP files contain the same values twice.
+        This option the duplicates. Defaults to False.
     """
     channels = []
     with open(resp_file, "rt") as open_file:
@@ -70,6 +73,14 @@ def get_inventory(resp_file):
     for channel in channels:
         channel["channel_id"] = "{network}.{station}.{location}.{channel}"\
             .format(**channel)
+    # Make unique list if requested.
+    if remove_duplicates is True:
+        unique_list = []
+        for channel in channels:
+            if channel in unique_list:
+                continue
+            unique_list.append(channel)
+        channels = unique_list
     return channels
 
 

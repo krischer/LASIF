@@ -72,6 +72,24 @@ class RESPFileParserTestCase(unittest.TestCase):
         self.assertEqual(channel["end_date"], None)
         self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
 
+    def test_removing_duplicates(self):
+        """
+        Tests the removal of duplicates.
+        """
+        filename = os.path.join(self.data_dir, "RESP.AF.DODT..BHE")
+        channels = simple_resp_parser.get_inventory(filename,
+            remove_duplicates=True)
+        self.assertEqual(len(channels), 1)
+        channel = channels[0]
+        self.assertEqual(channel["network"], "AF")
+        self.assertEqual(channel["station"], "DODT")
+        self.assertEqual(channel["location"], "")
+        self.assertEqual(channel["channel"], "BHE")
+        self.assertEqual(channel["start_date"],
+            obspy.UTCDateTime(2009, 8, 9, 0))
+        self.assertEqual(channel["end_date"], None)
+        self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
+
 
 def suite():
     return unittest.makeSuite(RESPFileParserTestCase, "test")
