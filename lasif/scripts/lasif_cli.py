@@ -13,6 +13,7 @@ FCT_PREFIX = "lasif_"
 
 import colorama
 import glob
+import inspect
 import numpy as np
 import obspy
 import os
@@ -566,6 +567,24 @@ def lasif_generate_dummy_data(args):
     if not len(stations):
         msg = "Could not create stations. Pure ocean region?"
         raise ValueError(msg)
+
+    # Create a RESP file for every channel.
+    resp_file_temp = os.path.join(os.path.dirname(os.path.abspath(
+        inspect.getfile(inspect.currentframe()))), os.path.pardir, "tools",
+        "RESP.template_file")
+    with open(resp_file_temp, "rt") as open_file:
+        resp_file_template = open_file.read()
+
+    for station in stations:
+        for component in ["E", "N", "Z"]:
+            filename = os.path.join(proj.paths["resp"], "RESP.%s.%s.%s.BE%s" %
+                (station["network"], station["station"], "", component))
+            with open(filename, "wt") as open_file:
+                open_file.write(resp_file_template.format(
+                    station=station["station"], network=station["network"],
+                    channel="BH%s" % component))
+
+    print "Generated %i RESP files." % (30 * 3)
 
     def _empty_sac_trace():
         """
