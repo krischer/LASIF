@@ -80,9 +80,11 @@ class StationCache(object):
         # Get all dataless SEED files.
         for filename in glob.iglob(os.path.join(
                 self.seed_folder, "dataless.*")):
+            filename = os.path.abspath(filename)
             self.files["SEED"][filename] = os.path.getmtime(filename)
         # Get all RESP files
         for filename in glob.iglob(os.path.join(self.resp_folder, "RESP.*")):
+            filename = os.path.abspath(filename)
             self.files["RESP"][filename] = os.path.getmtime(filename)
         # XXX: Include StationXML as soon as its ready.
 
