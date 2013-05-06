@@ -25,6 +25,7 @@ from lasif.project import Project
 from lasif.download_helpers import downloader
 from lasif.scripts.iris2quakeml import iris2quakeml
 from lasif.utils import table_printer, generate_ses3d_4_0_template
+from lasif.adjoint_sources.utils import get_dispersed_wavetrain
 import lasif.visualization
 
 
@@ -630,11 +631,23 @@ def lasif_generate_dummy_data(args):
         lat, lng = event.origins[0].latitude, event.origins[0].longitude
         # Get the distance to each events.
         for station in stations:
+            # Add some perturbations.
             distance_in_km = gps2DistAzimuth(lat, lng, station["latitude"],
                 station["longitude"])[0] / 1000.0
+            a = random.uniform(3.9, 4.1)
+            b = random.uniform(0.9, 1.1)
+            c = random.uniform(0.9, 1.1)
+            body_wave_factor = random.uniform(0.095, 0.015)
+            body_wave_freq_scale = random.uniform(0.45, 0.55)
+            distance_in_km = random.uniform(0.99 * distance_in_km, 1.01 *
+                distance_in_km)
+            _, u = get_dispersed_wavetrain(dw=0.001,
+                distance=distance_in_km, t_min=0, t_max=900, a=a, b=b, c=c,
+                body_wave_factor=body_wave_factor,
+                body_wave_freq_scale=body_wave_freq_scale)
             for component in ["E", "N", "Z"]:
                 tr = _empty_sac_trace()
-                tr.data = np.zeros(10)
+                tr.data = u
                 tr.stats.network = station["network"]
                 tr.stats.station = station["station"]
                 tr.stats.location = ""
