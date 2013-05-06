@@ -41,6 +41,7 @@ class RESPFileParserTestCase(unittest.TestCase):
         self.assertEqual(channel["start_date"],
             obspy.UTCDateTime(2006, 11, 22, 13))
         self.assertEqual(channel["end_date"], None)
+        self.assertEqual(channel["channel_id"], "G.FDF.00.BHE")
 
     def test_reading_more_complex_resp_file(self):
         """
@@ -59,6 +60,7 @@ class RESPFileParserTestCase(unittest.TestCase):
         self.assertEqual(channel["start_date"],
             obspy.UTCDateTime(2009, 8, 9, 0))
         self.assertEqual(channel["end_date"], None)
+        self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
         # The two have the same information for some reason...
         channel = channels[1]
         self.assertEqual(channel["network"], "AF")
@@ -68,6 +70,7 @@ class RESPFileParserTestCase(unittest.TestCase):
         self.assertEqual(channel["start_date"],
             obspy.UTCDateTime(2009, 8, 9, 0))
         self.assertEqual(channel["end_date"], None)
+        self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
 
 
 def suite():

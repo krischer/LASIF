@@ -67,6 +67,9 @@ def get_inventory(resp_file):
                 if _is_channel_complete(current_channel):
                     channels.append(current_channel)
                     current_channel = {}
+    for channel in channels:
+        channel["channel_id"] = "{network}.{station}.{location}.{channel}"\
+            .format(**channel)
     return channels
 
 
