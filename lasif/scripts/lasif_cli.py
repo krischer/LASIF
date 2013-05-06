@@ -561,7 +561,7 @@ def lasif_generate_dummy_data(args):
                 np.abs(ls_lon - lon).argmin()]:
             continue
         stations.append({"latitude": lat, "longitude": lon,
-            "network": _get_random_name(2), "station": _get_random_name(3)})
+            "network": "XX", "station": _get_random_name(3)})
 
     if not len(stations):
         msg = "Could not create stations. Pure ocean region?"
