@@ -69,6 +69,7 @@ class Project(object):
             "config.xml")
         self.paths["events"] = os.path.join(root_path, "EVENTS")
         self.paths["data"] = os.path.join(root_path, "DATA")
+        self.paths["cache"] = os.path.join(root_path, "CACHE")
         self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["models"] = os.path.join(root_path, "MODELS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")

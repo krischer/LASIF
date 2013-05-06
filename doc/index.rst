@@ -44,6 +44,7 @@ This will create the following directory structure::
 
     MyInversion
     |-- config.xml
+    |-- CACHE
     |-- DATA
     |-- EVENTS
     |-- LOGS
@@ -225,6 +226,7 @@ executed. The simplest command is
 This will result in a directory structure in the fashion of::
 
     MyInversion
+    |-- CACHE
     |-- DATA
     |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
     |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
