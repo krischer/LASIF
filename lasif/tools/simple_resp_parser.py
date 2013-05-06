@@ -43,7 +43,10 @@ def get_inventory(resp_file):
                     channels.append(current_channel)
                     current_channel = {}
             elif line.startswith("B052F03"):
-                current_channel["location"] = line.split()[-1]
+                location = line.split()[-1]
+                if location == "??":
+                    location = ""
+                current_channel["location"] = location
                 if _is_channel_complete(current_channel):
                     channels.append(current_channel)
                     current_channel = {}
@@ -64,6 +67,7 @@ def get_inventory(resp_file):
                 if _is_channel_complete(current_channel):
                     channels.append(current_channel)
                     current_channel = {}
+    return channels
 
 
 def _is_channel_complete(channel_dict):
@@ -74,7 +78,7 @@ def _is_channel_complete(channel_dict):
     return False
 
 
-def _parse_resp_datetime_string(self, datetime_string):
+def _parse_resp_datetime_string(datetime_string):
     """
     Helper method to parse the different datetime strings.
     """
