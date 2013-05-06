@@ -15,6 +15,8 @@ from obspy.xseed import Parser
 import os
 import sqlite3
 
+from lasif.tools import simple_resp_parser
+
 SQL_CREATE_FILES_TABLE = """
     CREATE TABLE IF NOT EXISTS files (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -164,6 +166,17 @@ class StationCache(object):
             else:
                 self._update_seed_file(seed_file)
 
+        # Now also update the RESP files.
+        for RESP_file, last_modified in self.files["RESP"].iteritems():
+            if RESP_file in db_files:
+                this_file = db_files[RESP_file]
+                del db_files[RESP_file]
+                if last_modified <= this_file[1]:
+                    continue
+                self._update_RESP_file(RESP_file, this_file[0])
+            else:
+                self._update_RESP_file(RESP_file)
+
         # Remove all files no longer part of the cache DB.
         for filename in db_files.iterkeys():
             self.db_cursor.execute("DELETE FROM files WHERE filename='%s';" %
@@ -208,6 +221,48 @@ class StationCache(object):
             int(_i["end_date"].timestamp) if _i["end_date"] else None,
             _i["latitude"], _i["longitude"], _i["elevation_in_m"],
             _i["local_depth_in_m"], filepath_id) for _i in channels]
+        self.db_conn.executemany("INSERT INTO stations(channel_id, start_date,"
+           " end_date, latitude, longitude, elevation_in_m, local_depth_in_m, "
+           "filepath_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", channels)
+        self.db_conn.commit()
+
+    def _update_RESP_file(self, filename, filepath_id=None):
+        """
+        Updates or creates a new entry for the given file. If id is given, it
+        will be interpreted as an update, otherwise as a fresh record.
+        """
+        if filepath_id is not None:
+            self.db_cursor.execute("DELETE FROM stations WHERE "
+                "filepath_id = %i" % filepath_id)
+            self.db_conn.commit()
+        try:
+            channels = simple_resp_parser.get_inventory(filename,
+                remove_duplicates=False)
+        except:
+            try:
+                self.db_conn.close()
+            except:
+                pass
+            msg = "Could not read RESP file '%s'." % filename
+            raise ValueError(msg)
+        # Update or insert the new file.
+        with open(filename, "rb") as open_file:
+            filehash = crc32(open_file.read())
+        if filepath_id is not None:
+            self.db_cursor.execute("UPDATE files SET last_modified=%f, "
+                "crc32_hash=%i WHERE id=%i;" % (os.path.getmtime(filename),
+                filehash, filepath_id))
+            self.db_conn.commit()
+        else:
+            self.db_cursor.execute("INSERT into files(filename, last_modified,"
+                " crc32_hash) VALUES('%s', %f, %i);" % (
+                filename, os.path.getmtime(filename), filehash))
+            self.db_conn.commit()
+            filepath_id = self.db_cursor.lastrowid
+        # Enter all the channels.
+        channels = [(_i["channel_id"], int(_i["start_date"].timestamp),
+            int(_i["end_date"].timestamp) if _i["end_date"] else None,
+            None, None, None, None, filepath_id) for _i in channels]
         self.db_conn.executemany("INSERT INTO stations(channel_id, start_date,"
            " end_date, latitude, longitude, elevation_in_m, local_depth_in_m, "
            "filepath_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", channels)

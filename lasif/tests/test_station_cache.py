@@ -113,6 +113,53 @@ class StationCacheTest(unittest.TestCase):
         self.assertEqual(len(channels), 1)
         self.assertEqual(len(channels["IU.PAB.00.BHE"]), 1)
 
+        del station_cache
+
+        # Now copy some RESP files.
+        resp_file = os.path.join(self.resp_directory, "RESP.G.FDF.00.BHE")
+        shutil.copyfile(os.path.join(self.data_dir,
+            os.path.basename(resp_file)), resp_file)
+        # Init the station cache once more.
+        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+            self.resp_directory)
+        # Get the list of available channels.
+        channels = station_cache.get_channels()
+        # Check that the correct station is in there.
+        self.assertEqual(len(channels), 2)
+        self.assertTrue("IU.PAB.00.BHE" in channels)
+        self.assertTrue("G.FDF.00.BHE" in channels)
+        # Also get the stations once again.
+        stations = station_cache.get_stations()
+        self.assertEqual(len(stations), 2)
+
+        del station_cache
+
+        # Add some more RESP files.
+        shutil.copyfile(
+            os.path.join(self.data_dir, "RESP.AF.DODT..BHE"),
+            os.path.join(self.resp_directory, "RESP.AF.DODT..BHE"))
+        shutil.copyfile(
+            os.path.join(self.data_dir, "RESP.G.FDF.00.BHN"),
+            os.path.join(self.resp_directory, "RESP.G.FDF.00.BHN"))
+        shutil.copyfile(
+            os.path.join(self.data_dir, "RESP.G.FDF.00.BHZ"),
+            os.path.join(self.resp_directory, "RESP.G.FDF.00.BHZ"))
+        # Init the station cache once more.
+        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+            self.resp_directory)
+        # Get the list of available channels.
+        channels = station_cache.get_channels()
+        # Check that the correct station is in there.
+        self.assertEqual(len(channels), 5)
+        self.assertTrue("IU.PAB.00.BHE" in channels)
+        self.assertTrue("G.FDF.00.BHE" in channels)
+        self.assertTrue("G.FDF.00.BHN" in channels)
+        self.assertTrue("G.FDF.00.BHZ" in channels)
+        self.assertTrue("AF.DODT..BHE" in channels)
+        # Also get the stations once again.
+        stations = station_cache.get_stations()
+        self.assertEqual(len(stations), 3)
+
     @classmethod
     def tearDownClass(cls):
         """
