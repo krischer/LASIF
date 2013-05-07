@@ -17,7 +17,6 @@ from lxml import etree
 from lxml.builder import E
 import obspy
 from obspy.core.util import FlinnEngdahl
-from obspy.xseed import Parser
 import os
 import matplotlib.pyplot as plt
 import sys
@@ -555,91 +554,41 @@ class Project(object):
         if not os.path.exists(data_path):
             return {}
 
-        station_info = {}
-        channels = self.station_cache.get_channels()
-
+        # Init the waveform cache.
         waveform_db_file = os.path.join(self.paths["data"], event_name,
             "raw_cache.sqlite")
         waveforms = WaveformCache(waveform_db_file, data_path)
 
-        for waveform_file in glob.iglob(os.path.join(data_path, "*")):
-            try:
-                tr = obspy.read(waveform_file)[0]
-            except:
+        # Query the station cache for a list of all channels.
+        available_channels = self.station_cache.get_channels()
+        stations = {}
+        for waveform in waveforms.get_values():
+            station = "%s.%s" % (waveform["network"], waveform["station"])
+            # Do not add if already exists.
+            if station in stations:
                 continue
-
-            station_id = "%s.%s" % (tr.stats.network, tr.stats.station)
-            if station_id in station_info:
+            # Check if a corresponding station file exists, otherwise skip.
+            chan_id = waveform["channel_id"]
+            if chan_id not in available_channels:
                 continue
+            waveform_channel = available_channels[chan_id]
+            # Now check if the waveform has coordinates (in the case of SAC
+            # files).
+            if waveform["latitude"]:
+                stations[station] = {
+                    "latitude": waveform["latitude"],
+                    "longitude": waveform["longitude"],
+                    "elevation": waveform["elevation_in_m"],
+                    "local_depth": waveform["local_depth_in_m"]}
+            elif waveform_channel["latitude"]:
+                stations[station] = {
+                    "latitude": waveform_channel["latitude"],
+                    "longitude": waveform_channel["longitude"],
+                    "elevation": waveform_channel["elevation_in_m"],
+                    "local_depth": waveform_channel["local_depth_in_m"]}
+            else:
+                msg = "No coordinates available for waveform file '%s'" % \
+                    waveform["filename"]
+                warnings.warn(msg)
 
-            if "sac" in tr.stats:
-                s_stats = tr.stats.sac
-                coordinates = {
-                    "latitude":
-                    s_stats.stla if s_stats.stla != -12345.0 else 0.0,
-                    "longitude":
-                    s_stats.stlo if s_stats.stlo != -12345.0 else 0.0,
-                    "elevation":
-                    s_stats.stel if s_stats.stel != -12345.0 else 0.0,
-                    "local_depth":
-                    s_stats.stdp if s_stats.stdp != -12345.0 else 0.0}
-                # Skip if both coordinates are not set.
-                if coordinates["latitude"] == 0.0 and \
-                        coordinates["longitude"] == 0.0:
-                    continue
-                station_info[station_id] = coordinates
-                continue
-
-            station_file = self.has_station_file(tr)
-            if not station_file:
-                continue
-
-            p = Parser(station_file)
-            coordinates = p.getCoordinates(tr.id, tr.stats.starttime)
-            station_info[station_id] = coordinates
-
-        return station_info
-
-    def has_station_file(self, waveform_filename_or_trace):
-        """
-        Simple function to determine whether or not the station file for a
-        given waveform file exist. Will return either the filename or False.
-
-        Naming scheme of the files:
-            dataless SEED:
-                dataless.NETWORK_STATION[.X]
-            StationXML:
-                station.NETWORK_STATION[.X].xml
-            RESP Files:
-                RESP.NETWORK.STATION.LOCATION.CHANNEL[.X]
-
-        The [.X] are where a potential number would be appended in the case of
-        more then one necessary file.
-        """
-        if isinstance(waveform_filename_or_trace, basestring):
-            tr = obspy.read(waveform_filename_or_trace)[0]
-        else:
-            tr = waveform_filename_or_trace
-        network = tr.stats.network
-        station = tr.stats.station
-        starttime = tr.stats.starttime
-        endtime = tr.stats.endtime
-
-        # Check for dataless SEED first. Two step globbing because of limited
-        # wildcard capabilities and possibility of false positives otherwise.
-        dataless_seed = glob.glob(os.path.join(self.paths["dataless_seed"],
-            "dataless.{network}_{station}".format(network=network,
-            station=station)))
-        dataless_seed.extend(glob.glob(os.path.join(
-            self.paths["dataless_seed"],
-            "dataless.{network}_{station}.*".format(network=network,
-            station=station))))
-
-        for filename in dataless_seed:
-            p = Parser(filename)
-            if utils.channel_in_parser(p, tr.id, starttime, endtime) \
-                    is True:
-                return filename
-
-        # XXX: Deal with StationXML and RESP files as well!
-        return False
+        return stations
