@@ -521,7 +521,7 @@ class Project(object):
     @property
     def station_cache(self):
         """
-        Kind of like an object wide StationCache singleton.
+        Kind of like an instance wide StationCache singleton.
         """
         if hasattr(self, "_station_cache"):
             return self._station_cache
