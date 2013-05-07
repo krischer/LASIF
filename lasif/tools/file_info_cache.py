@@ -1,7 +1,66 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Station Cache class.
+A file info cache class. Must be subclassed.
+
+The cache is able to monitor a bunch of (arbitrary) files and store some
+indexes information about each file. This is useful for keeping track of a
+large number of files and what is in them.
+
+To subclass it you need to provide the values you want to index, the types of
+files you want to index and functions to extract the indices and find the
+files. Upon each call to the constructor it will check the existing database,
+automatically remove any deleted files, reindex modified ones and add new ones.
+
+This is much faster then reading the files every time but still provides a lot
+of flexibility as the data can be managed by some other means.
+
+
+Example implementation:
+
+class ImageCache(object):
+    def __init__(self, image_folder, cache_db_file):
+        # The index values is a list of tuple. The first denoting the name of
+        # the index and the second the type of the index. The types have to
+        # correspond to SQLite types.
+        self.index_values = [
+            ("width", "INTEGER"),
+            ("height", "INTEGER"),
+            ("type", "TEXT")]
+        # The types of files to index.
+        self.filetypes = ["png", "jpeg"]
+
+        # Subclass specific values
+        self.image_folder = image_folder
+
+        # Don't forget to inherit!
+        super(ImageCache, self).__init__(cache_db_file=cache_db_file)
+
+    # Now you need to define one 'find files' and one 'index file' methods for
+    # each filetype. The 'find files' method needs to be named
+    # '_find_files_FILETYPE' and takes no arguments. The 'index file' method
+    # has to be named '_extract_index_values_FILETYPE' and takes one argument:
+    # the path to file. It needs to return a list of lists. Each inner list
+    # contains the indexed values in the same order as specified in
+    # self.index_values. It can return multiple sets of indices per file.
+    # Useful for lots of filetypes, not necessarily images as in the example
+    # here.
+
+    def _find_files_png(self):
+        return glob.glob(os.path.join("*.png"))
+
+    def _find_files_jpeg(self):
+        return glob.glob(os.path.join("*.png"))
+
+    def _extract_index_values_png(self, filename):
+        # Do somethings to get the values.
+        return [[400, 300, "png"]]
+
+    def _extract_index_values_jpeg(self, filename):
+        # Do somethings to get the values.
+        return [[400, 300, "jpeg"]]
+
+
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013

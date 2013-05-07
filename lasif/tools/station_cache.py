@@ -33,10 +33,7 @@ class StationCache(FileInfoCache):
             ("elevation_in_m", "REAL"),
             ("local_depth_in_m", "REAL")]
 
-        self.filetypes = {
-            "seed": [],
-            "resp": []
-        }
+        self.filetypes = ["seed", "resp"]
 
         self.seed_folder = seed_folder
         self.resp_folder = resp_folder
