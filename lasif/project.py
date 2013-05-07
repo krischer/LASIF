@@ -25,6 +25,7 @@ import warnings
 from wfs_input_generator import InputFileGenerator
 
 from lasif import utils, visualization
+from lasif.tools.station_cache import StationCache
 
 
 class LASIFException(Exception):
@@ -517,6 +518,23 @@ class Project(object):
         gen.write(format="ses3d_4_0", output_dir=output_dir)
         print "Written files to '%s'." % output_dir
 
+    @property
+    def station_cache(self):
+        """
+        Kind of like an object wide StationCache singleton.
+        """
+        if hasattr(self, "_station_cache"):
+            return self._station_cache
+        self._station_cache = StationCache(os.path.join(self.paths["cache"],
+            "station_cache.sqlite"), self.paths["dataless_seed"],
+            self.paths["station_xml"], self.paths["resp"])
+        return self._station_cache
+
+    @station_cache.setter
+    def station_cache(self, value):
+        msg = "Not allowed. Please update the StationCache instance instead."
+        raise Exception(msg)
+
     def get_stations_for_event(self, event_name):
         """
         Returns a dictionary containing a little bit of information about all
@@ -537,6 +555,7 @@ class Project(object):
             return {}
 
         station_info = {}
+        channels = self.station_cache.get_channels()
 
         for waveform_file in glob.iglob(os.path.join(data_path, "*")):
             try:

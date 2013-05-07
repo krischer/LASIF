@@ -42,7 +42,7 @@ class StationCacheTest(unittest.TestCase):
         os.makedirs(cls.resp_directory)
 
         # Copy the SEED file.
-        shutil.copyfile(os.path.join(cls.data_dir, "dataless.IU_PAB"),
+        shutil.copy2(os.path.join(cls.data_dir, "dataless.IU_PAB"),
             os.path.join(cls.seed_directory, "dataless.IU_PAB"))
 
     def test_station_cache(self):
@@ -50,7 +50,7 @@ class StationCacheTest(unittest.TestCase):
         Single test case checking the basic workflow.
         """
         # Init the station cache.
-        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+        station_cache = StationCache(self.cache_file, self.seed_directory,
             self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
@@ -62,10 +62,10 @@ class StationCacheTest(unittest.TestCase):
 
         seed_file = os.path.join(self.seed_directory, "dataless.BW_FURT")
         # Copy one more SEED file and check if the changes are reflected.
-        shutil.copyfile(os.path.join(self.data_dir, "dataless.BW_FURT"),
+        shutil.copy2(os.path.join(self.data_dir, "dataless.BW_FURT"),
             seed_file)
         # Init the station cache once more.
-        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+        station_cache = StationCache(self.cache_file, self.seed_directory,
             self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
@@ -79,7 +79,7 @@ class StationCacheTest(unittest.TestCase):
 
         # Delete the file, and check if everything else is removed as well.
         os.remove(seed_file)
-        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+        station_cache = StationCache(self.cache_file, self.seed_directory,
             self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
@@ -89,23 +89,18 @@ class StationCacheTest(unittest.TestCase):
 
         # Add the file once again...
         del station_cache
-        shutil.copyfile(os.path.join(self.data_dir, "dataless.BW_FURT"),
+        shutil.copy2(os.path.join(self.data_dir, "dataless.BW_FURT"),
             seed_file)
-        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+        station_cache = StationCache(self.cache_file, self.seed_directory,
             self.resp_directory)
         del station_cache
 
         # Now replace the file with an empty SEED file and assure that all
         # associated channels have been removed.
-        shutil.copyfile(os.path.join(self.data_dir,
+        shutil.copy2(os.path.join(self.data_dir,
             "channelless_datalessSEED"), seed_file)
-        # Set the last modified time of the file.
-        with open(seed_file, "rb") as open_file:
-            temp_buffer = open_file.read()
-        with open(seed_file, "wb") as open_file:
-            open_file.write(temp_buffer)
         # Init the station cache once more.
-        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+        station_cache = StationCache(self.cache_file, self.seed_directory,
             self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
@@ -117,10 +112,10 @@ class StationCacheTest(unittest.TestCase):
 
         # Now copy some RESP files.
         resp_file = os.path.join(self.resp_directory, "RESP.G.FDF.00.BHE")
-        shutil.copyfile(os.path.join(self.data_dir,
+        shutil.copy2(os.path.join(self.data_dir,
             os.path.basename(resp_file)), resp_file)
         # Init the station cache once more.
-        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+        station_cache = StationCache(self.cache_file, self.seed_directory,
             self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
@@ -135,17 +130,17 @@ class StationCacheTest(unittest.TestCase):
         del station_cache
 
         # Add some more RESP files.
-        shutil.copyfile(
+        shutil.copy2(
             os.path.join(self.data_dir, "RESP.AF.DODT..BHE"),
             os.path.join(self.resp_directory, "RESP.AF.DODT..BHE"))
-        shutil.copyfile(
+        shutil.copy2(
             os.path.join(self.data_dir, "RESP.G.FDF.00.BHN"),
             os.path.join(self.resp_directory, "RESP.G.FDF.00.BHN"))
-        shutil.copyfile(
+        shutil.copy2(
             os.path.join(self.data_dir, "RESP.G.FDF.00.BHZ"),
             os.path.join(self.resp_directory, "RESP.G.FDF.00.BHZ"))
         # Init the station cache once more.
-        station_cache = StationCache(self.cache_file, self.seed_directory, "",
+        station_cache = StationCache(self.cache_file, self.seed_directory,
             self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
