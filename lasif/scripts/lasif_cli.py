@@ -694,7 +694,7 @@ def main():
     try:
         fcts[fct_name](further_args)
     except LASIFCommandLineException as e:
-        print(colorama.Fore.ORANGE + ("Error: %s\n" % e.message) +
+        print(colorama.Fore.YELLOW + ("Error: %s\n" % e.message) +
             colorama.Style.RESET_ALL)
         print_fct_help(fct_name)
         sys.exit(1)
