@@ -19,6 +19,7 @@ import obspy
 import os
 import random
 import sys
+import traceback
 
 from lasif import rotations, ses3d_models
 from lasif.project import Project
@@ -282,10 +283,7 @@ def lasif_event_info(args):
         event_dict["depth_in_km"])
     print "\t%s UTC" % str(event_dict["origin_time"])
 
-    try:
-        stations = proj.get_stations_for_event(event_name)
-    except Exception as e:
-        raise LASIFCommandLineException(str(e))
+    stations = proj.get_stations_for_event(event_name)
     print "\nStation and waveform information available at %i stations:\n" \
         % len(stations)
     header = ["id", "latitude", "longitude", "elevation", "local depth"]
@@ -696,10 +694,14 @@ def main():
     try:
         fcts[fct_name](further_args)
     except LASIFCommandLineException as e:
-        print(colorama.Fore.RED + ("Error: %s\n" % e.message) +
+        print(colorama.Fore.ORANGE + ("Error: %s\n" % e.message) +
             colorama.Style.RESET_ALL)
         print_fct_help(fct_name)
         sys.exit(1)
+    except Exception as e:
+        print(colorama.Fore.RED)
+        traceback.print_exc()
+        print(colorama.Style.RESET_ALL)
 
 
 def _print_generic_help(fcts):

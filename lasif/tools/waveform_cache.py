@@ -51,7 +51,7 @@ class WaveformCache(FileInfoCache):
         Extract all the information from the file.
         """
         try:
-            st = obspy.read()
+            st = obspy.read(filename)
         except:
             warnings.warn("Could not read waveform file '%s'." % filename)
             return None
@@ -69,14 +69,15 @@ class WaveformCache(FileInfoCache):
                 # All or nothing.
                 if -12345.0 not in [s_stats.stla, s_stats.stlo, s_stats.stel,
                         s_stats.stdp]:
-                    latitude = s_stats.stla
-                    longitude = s_stats.stlo
-                    elevation_in_m = s_stats.stel
-                    local_depth_in_m = s_stats.stdp
+                    latitude = float(s_stats.stla)
+                    longitude = float(s_stats.stlo)
+                    elevation_in_m = float(s_stats.stel)
+                    local_depth_in_m = float(s_stats.stdp)
 
             s = tr.stats
             waveforms.append([
                 s.network, s.station, s.location, s.channel, tr.id,
                 s.starttime.timestamp, s.endtime.timestamp, latitude,
                 longitude, elevation_in_m, local_depth_in_m])
+
         return waveforms
