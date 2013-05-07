@@ -76,7 +76,7 @@ class StationCache(FileInfoCache):
     def _extract_index_values_resp(self, filename):
         try:
             channels = simple_resp_parser.get_inventory(filename,
-                remove_duplicates=False)
+                remove_duplicates=True)
         except:
             msg = "Could not read RESP file '%s'." % filename
             raise ValueError(msg)

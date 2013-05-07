@@ -69,6 +69,7 @@ class ImageCache(object):
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from binascii import crc32
+from itertools import izip
 import os
 import sqlite3
 
@@ -181,6 +182,29 @@ class FileInfoCache(object):
             self.db_cursor.execute("DELETE FROM files WHERE filename='%s';" %
                 filename)
         self.db_conn.commit()
+
+    def get_values(self):
+        """
+        Returns a list of dictionaries containing all indexed values for every
+        file together with the filename.
+        """
+        # Assemble the query. Use a simple join statement.
+        sql_query = """
+        SELECT %s, files.filename
+        FROM indices
+        INNER JOIN files
+        ON indices.filepath_id=files.id
+        """ % ", ".join(["indices.%s" % _i[0] for _i in self.index_values])
+
+        all_values = []
+        indices = [_i[0] for _i in self.index_values]
+
+        for _i in self.db_cursor.execute(sql_query):
+            values = {key: value for (key, value) in izip(indices, _i)}
+            values["filename"] = _i[-1]
+            all_values.append(values)
+
+        return all_values
 
     def _update_file(self, filename, filetype, filepath_id=None):
         """

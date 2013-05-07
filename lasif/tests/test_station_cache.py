@@ -151,9 +151,15 @@ class StationCacheTest(unittest.TestCase):
         self.assertTrue("G.FDF.00.BHN" in channels)
         self.assertTrue("G.FDF.00.BHZ" in channels)
         self.assertTrue("AF.DODT..BHE" in channels)
+        # The duplicates in the one RESP files should not show up.
+        self.assertEqual(len(channels["AF.DODT..BHE"]), 1)
         # Also get the stations once again.
         stations = station_cache.get_stations()
         self.assertEqual(len(stations), 3)
+
+        # Check the get_values() method.
+        all_values = station_cache.get_values()
+        self.assertEqual(len(all_values), 5)
 
     @classmethod
     def tearDownClass(cls):
