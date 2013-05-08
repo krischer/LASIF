@@ -161,6 +161,10 @@ class StationCacheTest(unittest.TestCase):
         all_values = station_cache.get_values()
         self.assertEqual(len(all_values), 5)
 
+        # Test the retrieval of only a single record by its filename.
+        single_value = station_cache.get_details(all_values[0]["filename"])[0]
+        self.assertEqual(single_value, all_values[0])
+
     @classmethod
     def tearDownClass(cls):
         """

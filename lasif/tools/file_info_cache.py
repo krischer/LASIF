@@ -206,6 +206,32 @@ class FileInfoCache(object):
 
         return all_values
 
+    def get_details(self, filename):
+        """
+        Get the indexed information about one file.
+        """
+        filename = os.path.abspath(filename)
+
+        # Assemble the query. Use a simple join statement.
+        sql_query = """
+        SELECT %s, files.filename
+        FROM indices
+        INNER JOIN files
+        ON indices.filepath_id=files.id
+        WHERE files.filename='%s'
+        """ % (", ".join(["indices.%s" % _i[0] for _i in self.index_values]),
+            filename)
+
+        all_values = []
+        indices = [_i[0] for _i in self.index_values]
+
+        for _i in self.db_cursor.execute(sql_query):
+            values = {key: value for (key, value) in izip(indices, _i)}
+            values["filename"] = _i[-1]
+            all_values.append(values)
+
+        return all_values
+
     def _update_file(self, filename, filetype, filepath_id=None):
         """
         Updates or creates a new entry for the given file. If id is given, it
