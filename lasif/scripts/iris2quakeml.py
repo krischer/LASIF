@@ -160,6 +160,20 @@ def iris2quakeml(url, output_folder=None):
             continue
         ax.length /= 1E7
 
+    # Check if it has a source time function
+    stf = mt.source_time_function
+    if stf:
+        if stf.type != "triangle":
+            msg = ("Source time function type '%s' not yet mapped. Please "
+                "contact the developers.") % stf.type
+            raise NotImplementedError(msg)
+        if not stf.duration:
+            if not stf.decay_time:
+                msg = "Not known how to derive duration without decay time."
+                raise NotImplementedError(msg)
+            # Approximate the duraction for triangular STF.
+            stf.duration = 2 * stf.decay_time
+
     # Get the flinn_engdahl region for a nice name.
     fe = FlinnEngdahl()
     region_name = fe.get_region(ev.origins[0].longitude,
