@@ -278,9 +278,24 @@ class RawSES3DModelHandler(object):
 
         plt.figure(0)
 
-        # Setup the map.
-        m = Basemap(projection='ortho', lon_0=lon_0, lat_0=lat_0,
-            resolution="c")
+        # Attempt to zoom into the region of interest.
+        max_extend = max(lon.ptp(), lat.ptp())
+        extend_used = max_extend / 180.0
+        if extend_used < 0.5:
+            x_buffer = 0.2 * lon.ptp()
+            y_buffer = 0.2 * lat.ptp()
+
+            m = Basemap(projection='merc', resolution="l",
+                #lat_0=lat_0, lon_0=lon_0,
+                llcrnrlon=lon.min() - x_buffer,
+                urcrnrlon=lon.max() + x_buffer,
+                llcrnrlat=lat.min() - y_buffer,
+                urcrnrlat=lat.max() + y_buffer)
+        else:
+            m = Basemap(projection='ortho', lon_0=lon_0, lat_0=lat_0,
+                resolution="c")
+
+
         m.drawparallels(np.arange(-80.0, 80.0, 10.0))
         m.drawmeridians(np.arange(-170.0, 170.0, 10.0))
         m.drawcoastlines()
