@@ -184,9 +184,22 @@ def iris2quakeml(url, output_folder=None):
         ev.origins[0].time.month, ev.origins[0].time.day,
         ev.origins[0].time.hour, ev.origins[0].time.minute)
 
+    # Check if the ids of the magnitude and origin contain the corresponding
+    # tag. Otherwise replace tme.
+    ev.origins[0].resource_id = ev.origins[0].resource_id.resource_id.replace(
+        "quakeml/gcmtid", "quakeml/origin/gcmtid")
+    ev.magnitudes[0].resource_id = \
+        ev.magnitudes[0].resource_id.resource_id.replace(
+            "quakeml/gcmtid", "quakeml/magnitude/gcmtid")
+
+    # Fix up the moment tensor resource_ids.
+    mt.derived_origin_id = ev.origins[0].resource_id
+    mt.resource_id = mt.resource_id.resource_id.replace("focalmechanism",
+        "momenttensor")
+
     cat = Catalog()
-    cat.resource_id = ev.origins[0].resource_id.resource_id.replace("Origin",
-        "EventParameters")
+    cat.resource_id = ev.origins[0].resource_id.resource_id.replace("origin",
+        "event_parameters")
     cat.append(ev)
     if output_folder:
         event_name = os.path.join(output_folder, event_name)
