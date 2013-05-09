@@ -65,7 +65,7 @@ def download_station_files(channels, save_station_fct, arclink_user,
                 for _i in xrange(10):
                     try:
                         arc_client = obspy.arclink.Client(user=arclink_user,
-                            timeout=60)
+                            timeout=30)
                         success = True
                         break
                     except:
@@ -117,9 +117,24 @@ def download_station_files(channels, save_station_fct, arclink_user,
                             channel["network"], channel["station"],
                             channel["location"], channel["channel"]))
 
+    # Attempt to group the ArcLink station downloads because it is nicer to
+    # have one SEED file per station instead of per channel.
+    a_channels = [{
+        "network": _i["network"],
+        "station": _i["station"],
+        "location": _i["location"],
+        "channel": _i["channel"][:2] + "*",
+        "starttime": _i["starttime"],
+        "endtime": _i["endtime"]} for _i in channels]
+    arclink_channels = []
+    for channel in a_channels:
+        if channel in arclink_channels:
+            continue
+        arclink_channels.append(channel)
+
     # Create one large queue containing everything.
     queue = Queue.Queue()
-    for channel in channels:
+    for channel in arclink_channels:
         queue.put(channel)
     # Also use a queue for the counter. Slightly awkward but apparently it is
     # savest to use a Queue or dequeue in multi threaded parts.

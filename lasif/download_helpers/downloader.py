@@ -228,7 +228,7 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
 
 
 def download_stations(channels, resp_file_folder, station_xml_folder,
-        dataless_seed_folder, logfile, arclink_user, has_station_file_fct,
+        dataless_seed_folder, logfile, arclink_user,
         get_station_filename_fct):
     """
     Convenience function downloading station information for all channels in
@@ -244,40 +244,18 @@ def download_stations(channels, resp_file_folder, station_xml_folder,
     :param dataless_seed_folder: The folder where the dataless SEED files are
         stored.
 
-    :param has_station_file_fct: Function has_station_file_fct(filename)
-        returning True or False if the station file for a given waveform file
-        path already exists.
     :param get_station_filename_fct: Function get_station_filename_fct(network,
         station, location, channel, format) the simply returns the path where
         the given file should be written to.
     """
     # Init logger.
-    logger = Logger(log_filename=logfile, debug=False)
+    logger = Logger(log_filename=logfile, debug=True)
 
     # Log some basic information
     logger.info(70 * "=")
     logger.info(70 * "=")
-    logger.info("Starting to download %i station files..." % len(channels))
-
-    missing_files = []
-
-    # First figure out what data is still needed.
-    for filename in channels:
-        if has_station_file_fct(filename):
-            continue
-        tr = obspy.read(filename)[0]
-        missing_files.append({"network": tr.stats.network,
-            "station": tr.stats.station,
-            "location": tr.stats.location,
-            "channel": tr.stats.channel,
-            "starttime": tr.stats.starttime,
-            "endtime": tr.stats.endtime})
-
-    existing_files = len(channels) - len(missing_files)
-    logger.info("%i files already existing. They will skipped." %
-        existing_files)
-    logger.info("Starting download of %i missing files..." %
-        len(missing_files))
+    logger.info("Starting to download station files for %i missing "
+        "channels..." % len(channels))
 
     def save_station_file(memfile, network, station, location, channel,
             format):
@@ -292,7 +270,7 @@ def download_stations(channels, resp_file_folder, station_xml_folder,
 
     # Now download all the missing stations files.
     successful_downloads = \
-        lasif.download_helpers.stations.download_station_files(missing_files,
+        lasif.download_helpers.stations.download_station_files(channels,
             save_station_fct=save_station_file, arclink_user=arclink_user,
             logger=logger)
 

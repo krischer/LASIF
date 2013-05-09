@@ -122,3 +122,19 @@ class StationCache(FileInfoCache):
                 "longitude": channel[5],
             }
         return stations
+
+    def station_info_available(self, channel_id, time):
+        """
+        Checks if information for the requested channel_id and time is
+        available.
+        """
+        time = int(time.timestamp)
+        sql_query = """
+        SELECT id FROM indices
+        WHERE (channel_id = '%s') AND (start_date < %i) AND
+            ((end_date IS NULL) OR (end_date > %i))
+        LIMIT 1;
+        """ % (channel_id, time, time)
+        if self.db_cursor.execute(sql_query).fetchone():
+            return True
+        return False

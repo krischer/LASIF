@@ -180,21 +180,32 @@ def lasif_download_stations(args):
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
 
-    channel_path = os.path.join(proj.paths["data"], event_name, "raw")
-    if not os.path.exists(channel_path):
-        msg = "The path '%s' does not exists." % channel_path
-        raise LASIFCommandLineException(msg)
+    # Fix the start- and endtime to ease download file grouping
+    event_info = proj.get_event_info(event_name)
+    starttime = event_info["origin_time"] - \
+        proj.config["download_settings"]["seconds_before_event"]
+    endtime = event_info["origin_time"] + \
+        proj.config["download_settings"]["seconds_after_event"]
+    time = starttime + (endtime - starttime) * 0.5
 
-    channels = glob.glob(os.path.join(channel_path, "*"))
-    if not channels:
-        msg = "No data in folder '%s'" % channel_path
-        raise LASIFCommandLineException(msg)
+    # Get all channels.
+    channels = proj._get_waveform_cache_file(event_name, "raw").get_values()
+    channels = [{"channel_id": _i["channel_id"], "network": _i["network"],
+        "station": _i["station"], "location": _i["location"],
+        "channel": _i["channel"], "starttime": starttime, "endtime": endtime}
+        for _i in channels]
+    channels_to_download = []
 
-    downloader.download_stations(channels, proj.paths["resp"],
+    # Filter for channel not actually available
+    for channel in channels:
+        if proj.has_station_file(channel["channel_id"], time):
+            continue
+        channels_to_download.append(channel)
+
+    downloader.download_stations(channels_to_download, proj.paths["resp"],
         proj.paths["station_xml"], proj.paths["dataless_seed"],
         logfile=os.path.join(proj.paths["logs"], "station_download_log.txt"),
         arclink_user=proj.config["download_settings"]["arclink_username"],
-        has_station_file_fct=proj.has_station_file,
         get_station_filename_fct=proj.get_station_filename)
 
 

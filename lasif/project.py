@@ -535,6 +535,18 @@ class Project(object):
         msg = "Not allowed. Please update the StationCache instance instead."
         raise Exception(msg)
 
+    def _get_waveform_cache_file(self, event_name, tag):
+        """
+        Helper function returning the waveform cache file for the data from a
+        specific event and a certain tag.
+        Example to return the cache for the original data for 'event_1':
+        _get_waveform_cache_file("event_1", "raw")
+        """
+        waveform_db_file = os.path.join(self.paths["data"], event_name,
+            "%s_cache.sqlite" % tag)
+        data_path = os.path.join(self.paths["data"], event_name, tag)
+        return WaveformCache(waveform_db_file, data_path)
+
     def get_stations_for_event(self, event_name):
         """
         Returns a dictionary containing a little bit of information about all
@@ -554,10 +566,7 @@ class Project(object):
         if not os.path.exists(data_path):
             return {}
 
-        # Init the waveform cache.
-        waveform_db_file = os.path.join(self.paths["data"], event_name,
-            "raw_cache.sqlite")
-        waveforms = WaveformCache(waveform_db_file, data_path)
+        waveforms = self._get_waveform_cache_file(event_name, "raw")
 
         # Query the station cache for a list of all channels.
         available_channels = self.station_cache.get_channels()
@@ -571,7 +580,7 @@ class Project(object):
             chan_id = waveform["channel_id"]
             if chan_id not in available_channels:
                 continue
-            waveform_channel = available_channels[chan_id]
+            waveform_channel = available_channels[chan_id][0]
             # Now check if the waveform has coordinates (in the case of SAC
             # files).
             if waveform["latitude"]:
@@ -592,3 +601,10 @@ class Project(object):
                 warnings.warn(msg)
 
         return stations
+
+    def has_station_file(self, channel_id, time):
+        """
+        Simple function returning True or False, if the channel specified with
+        it's filename actually has a corresponding station file.
+        """
+        return self.station_cache.station_info_available(channel_id, time)

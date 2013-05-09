@@ -9,6 +9,7 @@ Some utility functionality.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from fnmatch import fnmatch
 from lxml import etree
 from lxml.builder import E
 
@@ -24,7 +25,7 @@ def channel_in_parser(parser_object, channel_id, starttime, endtime):
     """
     channels = parser_object.getInventory()["channels"]
     for chan in channels:
-        if chan["channel_id"] != channel_id:
+        if not fnmatch(chan["channel_id"], channel_id):
             continue
         if starttime < chan["start_date"]:
             continue
