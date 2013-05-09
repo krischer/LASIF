@@ -11,6 +11,7 @@ Queries ArcLink and the IRIS webservices.
     GNU General Public License, Version 3
     (http://www.gnu.org/licenses/gpl.html)
 """
+from copy import deepcopy
 import obspy.arclink
 import obspy.iris
 from obspy.xseed import Parser
@@ -37,9 +38,10 @@ def download_station_files(channels, save_station_fct, arclink_user,
         Format will be either "datalessSEED", "StationXML", or "RESP"
     """
     class ArcLinkDownloadThread(threading.Thread):
-        def __init__(self, queue, counter):
+        def __init__(self, queue, successful_downloads, failed_downloads):
             self.queue = queue
-            self.counter = counter
+            self.successful_downloads = successful_downloads
+            self.failed_downloads = failed_downloads
             super(ArcLinkDownloadThread, self).__init__()
 
         def run(self):
@@ -62,7 +64,7 @@ def download_station_files(channels, save_station_fct, arclink_user,
                         channel_id)
                 # Telnet sometimes has issues...
                 success = False
-                for _i in xrange(10):
+                for _i in xrange(3):
                     try:
                         arc_client = obspy.arclink.Client(user=arclink_user,
                             timeout=30)
@@ -74,6 +76,7 @@ def download_station_files(channels, save_station_fct, arclink_user,
                     msg = (" A problem occured initializing ArcLink. Try "
                         "again later")
                     logger.error(msg)
+                    failed_downloads.put(channel)
                     continue
                 try:
                     memfile = StringIO.StringIO()
@@ -86,6 +89,7 @@ def download_station_files(channels, save_station_fct, arclink_user,
                         channel_id, channel["starttime"], channel["endtime"],
                         str(e))
                     logger.error(msg)
+                    failed_downloads.put(channel)
                     continue
                 memfile.seek(0, 0)
                 # Read the file again and perform a sanity check.
@@ -96,6 +100,7 @@ def download_station_files(channels, save_station_fct, arclink_user,
                         "for channel %s [%s-%s]") % (channel_id, starttime,
                         endtime)
                     logger.error(msg)
+                    failed_downloads.put(channel)
                     continue
                 if not utils.channel_in_parser(parser, channel_id, starttime,
                         endtime):
@@ -105,15 +110,71 @@ def download_station_files(channels, save_station_fct, arclink_user,
                         "frame.") % \
                         (channel_id, starttime, endtime)
                     logger.error(msg)
+                    failed_downloads.put(channel)
                     continue
                 memfile.seek(0, 0)
                 save_station_fct(memfile, channel["network"],
                     channel["station"], channel["location"],
                     channel["channel"], format="datalessSEED")
-                counter.put(True)
+                successful_downloads.put(channel)
                 if logger:
                     logger.info("Successfully downloaded dataless SEED for "
                         "channel %s.%s.%s.%s from ArcLink." % (
+                            channel["network"], channel["station"],
+                            channel["location"], channel["channel"]))
+
+    class IRISDownloadThread(threading.Thread):
+        def __init__(self, queue, successful_downloads):
+            self.queue = queue
+            self.successful_downloads = successful_downloads
+            super(IRISDownloadThread, self).__init__()
+
+        def run(self):
+            while True:
+                try:
+                    channel = self.queue.get(False)
+                except Queue.Empty:
+                    break
+                network = channel["network"]
+                station = channel["station"]
+                location = channel["location"]
+                chan = channel["channel"]
+                channel_id = "%s.%s.%s.%s" % (network, station, location,
+                    chan)
+                time.sleep(0.5)
+                if logger:
+                    logger.debug("Starting IRIS download for %s..." %
+                        channel_id)
+                client = obspy.iris.Client()
+                try:
+                    resp_data = client.resp(channel["network"],
+                        channel["station"], channel["location"],
+                        channel["channel"], starttime=channel["starttime"],
+                        endtime=channel["endtime"])
+                except Exception as e:
+                    msg = "While downloading %s from IRIS [%s to %s]: %s" % (
+                        channel_id, channel["starttime"], channel["endtime"],
+                        str(e))
+                    logger.error(msg)
+                    continue
+
+                if not resp_data:
+                    msg = ("While downloading %s from IRIS [%s to %s]: "
+                        "No data returned") % (channel_id,
+                        channel["starttime"], channel["endtime"])
+                    logger.error(msg)
+                    continue
+
+                memfile = StringIO.StringIO(resp_data)
+                memfile.seek(0, 0)
+
+                save_station_fct(memfile, channel["network"],
+                    channel["station"], channel["location"],
+                    channel["channel"], format="RESP")
+                successful_downloads.put(channel)
+                if logger:
+                    logger.info("Successfully downloaded RESP file for "
+                        "channel %s.%s.%s.%s from IRIS." % (
                             channel["network"], channel["station"],
                             channel["location"], channel["channel"]))
 
@@ -136,21 +197,56 @@ def download_station_files(channels, save_station_fct, arclink_user,
     queue = Queue.Queue()
     for channel in arclink_channels:
         queue.put(channel)
-    # Also use a queue for the counter. Slightly awkward but apparently it is
-    # savest to use a Queue or dequeue in multi threaded parts.
-    counter = Queue.Queue()
+    # Use another queue for the successful downloads.
+    successful_downloads = Queue.Queue()
+    failed_downloads = Queue.Queue()
     my_threads = []
     # Launch 20 threads at max. Might seem a large number but timeout is set to
     # 60 seconds and they start with 1 second between each other.
-    thread_count = min(20, len(channels))
+    thread_count = min(20, len(arclink_channels))
     for _i in xrange(thread_count):
-        thread = ArcLinkDownloadThread(queue=queue, counter=counter)
+        thread = ArcLinkDownloadThread(queue=queue,
+            successful_downloads=successful_downloads,
+            failed_downloads=failed_downloads)
         my_threads.append(thread)
         thread.start()
-        time.sleep(1.0)
+        time.sleep(0.5)
+
+    for thread in my_threads:
+        thread.join()
+
+    # Convert to list
+    temp = []
+    while failed_downloads.qsize():
+        temp.append(failed_downloads.get())
+    failed_downloads = temp
+    # Now reassemble the original traces from the failed ArcLink downloads.
+    # These will be downloaded as RESP files from IRIS>
+    iris_channels = []
+    for channel in channels:
+        this_channel = deepcopy(channel)
+        this_channel["channel"] = this_channel["channel"][:2] + "*"
+        del this_channel["channel_id"]
+        if this_channel in failed_downloads:
+            iris_channels.append(this_channel)
+
+    queue = Queue.Queue()
+    for channel in iris_channels:
+        queue.put(channel)
+
+    # Now download the iris channels.
+    # Launch 20 threads at max. Might seem a large number but timeout is set to
+    # 60 seconds and they start with 1 second between each other.
+    thread_count = min(20, len(iris_channels))
+    for _i in xrange(thread_count):
+        thread = IRISDownloadThread(queue=queue,
+            successful_downloads=successful_downloads)
+        my_threads.append(thread)
+        thread.start()
+        time.sleep(0.5)
 
     for thread in my_threads:
         thread.join()
 
     # Return the number of successfully downloaded files.
-    return counter.qsize()
+    return successful_downloads.qsize()

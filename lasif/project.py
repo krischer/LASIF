@@ -235,6 +235,22 @@ class Project(object):
                 if not os.path.exists(filename):
                     break
             return filename
+        if format == "RESP":
+            def resp_filename_generator():
+                i = 0
+                while True:
+                    filename = os.path.join(self.paths["resp"],
+                        "RESP.{network}.{station}.{location}.{channel}"
+                        .format(network=network, station=station,
+                            location=location, channel=channel))
+                    if i:
+                        filename += ".%i" % i
+                    i += 1
+                    yield filename
+            for filename in resp_filename_generator():
+                if not os.path.exists(filename):
+                    break
+            return filename
         else:
             raise NotImplementedError
 
