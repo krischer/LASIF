@@ -16,12 +16,54 @@ import os
 import math
 import numpy as np
 import re
+from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pylab as plt
 from mpl_toolkits.basemap import Basemap
-#import colormaps as cm
 import warnings
 
 from lasif import rotations
+
+
+# Pretty units for some components.
+UNIT_DICT = {
+    "vp": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
+    "vsv": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
+    "vsh": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
+    "rho": r"$\frac{\mathrm{kg}^3}{\mathrm{m}^3}$",
+    "rhoinv": r"$\frac{\mathrm{m}^3}{\mathrm{kg}^3}$",
+}
+
+
+def _get_colormap(colors, colormap_name):
+    """
+    A simple helper function facilitating linear colormap creation.
+    """
+    # Sort and normalize from 0 to 1.
+    indices = np.array(sorted(colors.iterkeys()))
+    normalized_indices = (indices - indices.min()) / indices.ptp()
+
+    # Create the colormap dictionary and return the colormap.
+    cmap_dict = {"red": [], "green": [], "blue": []}
+    for _i, index in enumerate(indices):
+        color = colors[index]
+        cmap_dict["red"].append((normalized_indices[_i], color[0], color[0]))
+        cmap_dict["green"].append((normalized_indices[_i], color[1], color[1]))
+        cmap_dict["blue"].append((normalized_indices[_i], color[2], color[2]))
+    return LinearSegmentedColormap(colormap_name, cmap_dict)
+
+
+# A pretty colormap for use in tomography.
+tomo_colormap = _get_colormap({
+    0.0: [0.1, 0.0, 0.0],  # Reddish black
+    0.2: [0.8, 0.0, 0.0],
+    0.3: [1.0, 0.7, 0.0],
+    0.48: [0.92, 0.92, 0.92],
+    0.5: [0.92, 0.92, 0.92],  # Light gray
+    0.52: [0.92, 0.92, 0.92],
+    0.7: [0.0, 0.6, 0.7],
+    0.8: [0.0, 0.0, 0.8],
+    1.0: [0.0, 0.0, 0.1]},
+    "seismic_tomography")  # Blueish black
 
 
 class RawSES3DModelHandler(object):
@@ -296,16 +338,24 @@ class RawSES3DModelHandler(object):
                 resolution="c")
 
 
-        m.drawparallels(np.arange(-80.0, 80.0, 10.0))
-        m.drawmeridians(np.arange(-170.0, 170.0, 10.0))
         m.drawcoastlines()
+        m.fillcontinents("0.9", zorder=0)
         m.drawmapboundary(fill_color="white")
+        m.drawparallels(np.arange(-80.0, 80.0, 10.0), labels=[1, 0, 0, 0])
+        m.drawmeridians(np.arange(-170.0, 170.0, 10.0), labels=[0, 0, 0, 1])
+        m.drawcountries()
 
         x, y = m(lon, lat)
         im = m.pcolormesh(x, y, data[::-1, :, depth_index],
-            cmap=plt.cm.seismic_r)
-        m.colorbar(im, "right", size="3%", pad='2%')
-        plt.title("Depth slice of %s at %i km" % (component, int(depth_in_km)))
+            cmap=tomo_colormap)
+
+        # Add colorbar and potentially unit.
+        cm = m.colorbar(im, "right", size="3%", pad='2%')
+        if component in UNIT_DICT:
+            cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
+
+        plt.suptitle("Depth slice of %s at %i km" % (component,
+            int(depth_in_km)), size="large")
 
         def _on_button_press(event):
             if event.button != 1 or not event.inaxes:
