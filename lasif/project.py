@@ -24,6 +24,7 @@ import warnings
 from wfs_input_generator import InputFileGenerator
 
 from lasif import utils, visualization
+from lasif.tools.inventory_db import get_station_coordinates
 from lasif.tools.station_cache import StationCache
 from lasif.tools.waveform_cache import WaveformCache
 
@@ -71,6 +72,8 @@ class Project(object):
         self.paths["events"] = os.path.join(root_path, "EVENTS")
         self.paths["data"] = os.path.join(root_path, "DATA")
         self.paths["cache"] = os.path.join(root_path, "CACHE")
+        self.paths["inv_db_file"] = os.path.join(self.paths["cache"],
+            "inventory_db.sqlite")
         self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["models"] = os.path.join(root_path, "MODELS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
@@ -612,9 +615,21 @@ class Project(object):
                     "elevation": waveform_channel["elevation_in_m"],
                     "local_depth": waveform_channel["local_depth_in_m"]}
             else:
-                msg = "No coordinates available for waveform file '%s'" % \
-                    waveform["filename"]
-                warnings.warn(msg)
+                # Now check if the station_coordinates are available in the
+                # inventory DB and use those.
+                coords = get_station_coordinates(self.paths["inv_db_file"],
+                    station)
+
+                if coords:
+                    stations[station] = {
+                        "latitude": coords["latitude"],
+                        "longitude": coords["longitude"],
+                        "elevation": coords["elevation_in_m"],
+                        "local_depth": coords["local_depth_in_m"]}
+                else:
+                    msg = "No coordinates available for waveform file '%s'" % \
+                        waveform["filename"]
+                    warnings.warn(msg)
 
         return stations
 
