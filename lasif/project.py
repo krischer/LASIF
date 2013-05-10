@@ -3,6 +3,10 @@
 """
 Project management class.
 
+It is important to import necessary things at the method level to make
+importing this file as fast as possible. Otherwise using the command line
+interface feels sluggish and slow.
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 
@@ -10,23 +14,12 @@ Project management class.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-import copy
+import cPickle
 from datetime import datetime
 import glob
-from lxml import etree
-from lxml.builder import E
-import obspy
-from obspy.core.util import FlinnEngdahl
 import os
-import matplotlib.pyplot as plt
 import sys
 import warnings
-from wfs_input_generator import InputFileGenerator
-
-from lasif import utils, visualization
-from lasif.tools.inventory_db import get_station_coordinates
-from lasif.tools.station_cache import StationCache
-from lasif.tools.waveform_cache import WaveformCache
 
 
 class LASIFException(Exception):
@@ -72,6 +65,8 @@ class Project(object):
         self.paths["events"] = os.path.join(root_path, "EVENTS")
         self.paths["data"] = os.path.join(root_path, "DATA")
         self.paths["cache"] = os.path.join(root_path, "CACHE")
+        self.paths["config_file_cache"] = os.path.join(self.paths["cache"],
+            "config.xml_cache.pickle")
         self.paths["inv_db_file"] = os.path.join(self.paths["cache"],
             "inventory_db.sqlite")
         self.paths["logs"] = os.path.join(root_path, "LOGS")
@@ -115,6 +110,9 @@ class Project(object):
         default config file. The folder structure is checked and rebuilt every
         time the project is initialized anyways.
         """
+        from lxml import etree
+        from lxml.builder import E
+
         if not project_name:
             project_name = "LASIFProject"
 
@@ -176,6 +174,7 @@ class Project(object):
 
         Will raise if something does not work.
         """
+        import copy
         filename = os.path.join(self.paths["source_time_functions"], "%s.py"
             % function_name)
         if not os.path.exists(filename):
@@ -261,6 +260,20 @@ class Project(object):
         """
         Parse the config file.
         """
+        # Attempt to read the cached config file. This might seem excessive but
+        # since this file is read every single time a LASIF command is used it
+        # makes difference at least in the perceived speed of LASIF.
+        cfile = self.paths["config_file_cache"]
+        if os.path.exists(cfile):
+            with open(cfile, "rb") as fh:
+                cf_cache = cPickle.load(fh)
+            last_m_time = int(os.path.getmtime(self.paths["config_file"]))
+            if last_m_time == cf_cache["last_m_time"]:
+                self.config = cf_cache["config"]
+                self.domain = cf_cache["domain"]
+                return
+
+        from lxml import etree
         root = etree.parse(self.paths["config_file"]).getroot()
 
         self.config = {}
@@ -308,6 +321,15 @@ class Project(object):
         self.domain["rotation_angle"] = \
             float(rotation.find("rotation_angle_in_degree").text)
 
+        # Write cache file.
+        cf_cache = {}
+        cf_cache["config"] = self.config
+        cf_cache["domain"] = self.domain
+        cf_cache["last_m_time"] = \
+            int(os.path.getmtime(self.paths["config_file"]))
+        with open(cfile, "wb") as fh:
+            cPickle.dump(cf_cache, fh, protocol=2)
+
     def get_model_dict(self):
         """
         Returns a dictonary with all models in the project, the keys are the
@@ -338,6 +360,8 @@ class Project(object):
 
         Wrapper around one of the visualization routines.
         """
+        from lasif import visualization
+
         bounds = self.domain["bounds"]
         visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
@@ -350,13 +374,19 @@ class Project(object):
         """
         Parses all events to a catalog object and stores it in self.events.
         """
-        self.events = obspy.readEvents(os.path.join(self.paths["events"],
+        from obspy import readEvents
+
+        self.events = readEvents(os.path.join(self.paths["events"],
             "*%sxml" % os.path.extsep))
 
     def plot_event(self, event_name):
         """
         Plots information about one event on the map.
         """
+        from lasif import visualization
+        import matplotlib.pyplot as plt
+        from obspy import readEvents
+
         # Plot the domain.
         bounds = self.domain["bounds"]
         map = visualization.plot_domain(bounds["minimum_latitude"],
@@ -371,7 +401,7 @@ class Project(object):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
-        event = obspy.readEvents(all_events[event_name])
+        event = readEvents(all_events[event_name])
         event_info = self.get_event_info(event_name)
 
         stations = self.get_stations_for_event(event_name)
@@ -386,6 +416,9 @@ class Project(object):
         """
         Plots the domain and beachballs for all events on the map.
         """
+        from lasif import visualization
+        import matplotlib.pyplot as plt
+
         bounds = self.domain["bounds"]
         map = visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
@@ -402,11 +435,14 @@ class Project(object):
         """
         Returns a dictionary with information about one, specific event.
         """
+        from obspy import readEvents
+        from obspy.core.util import FlinnEngdahl
+
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
-        event = obspy.readEvents(all_events[event_name])[0]
+        event = readEvents(all_events[event_name])[0]
         mag = event.preferred_magnitude() or event.magnitudes[0]
         org = event.preferred_origin() or event.origins[0]
 
@@ -444,13 +480,17 @@ class Project(object):
             delta), taking the requested number of samples and the time spacing
             and returning an appropriate source time function as numpy array.
         """
+        from lasif import utils
+        from obspy import readEvents
+        from wfs_input_generator import InputFileGenerator
+
         # Get the events
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
-        event = obspy.readEvents(all_events[event_name])[0]
+        event = readEvents(all_events[event_name])[0]
 
         # Get the input file templates.
         template_filename = os.path.join(self.paths["templates"],
@@ -540,6 +580,7 @@ class Project(object):
         """
         Kind of like an instance wide StationCache singleton.
         """
+        from lasif.tools.station_cache import StationCache
         if hasattr(self, "_station_cache"):
             return self._station_cache
         self._station_cache = StationCache(os.path.join(self.paths["cache"],
@@ -559,6 +600,8 @@ class Project(object):
         Example to return the cache for the original data for 'event_1':
         _get_waveform_cache_file("event_1", "raw")
         """
+        from lasif.tools.waveform_cache import WaveformCache
+
         waveform_db_file = os.path.join(self.paths["data"], event_name,
             "%s_cache.sqlite" % tag)
         data_path = os.path.join(self.paths["data"], event_name, tag)
@@ -574,6 +617,8 @@ class Project(object):
 
         Will return an empty dictionary if nothing is found.
         """
+        from lasif.tools.inventory_db import get_station_coordinates
+
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name

@@ -3,6 +3,10 @@
 """
 The main LASIF console script.
 
+It is important to import necessary things at the method level to make
+importing this file as fast as possible. Otherwise using the command line
+interface feels sluggish and slow.
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
@@ -13,21 +17,12 @@ FCT_PREFIX = "lasif_"
 
 import colorama
 import glob
-import inspect
-import numpy as np
-import obspy
 import os
 import random
 import sys
 import traceback
 
-from lasif import rotations, ses3d_models
 from lasif.project import Project
-from lasif.download_helpers import downloader
-from lasif.scripts.iris2quakeml import iris2quakeml
-from lasif.utils import table_printer, generate_ses3d_4_0_template
-from lasif.adjoint_sources.utils import get_dispersed_wavetrain
-import lasif.visualization
 
 
 class LASIFCommandLineException(Exception):
@@ -92,6 +87,8 @@ def lasif_add_spud_event(args):
     Adds an event from the IRIS SPUD GCMT webservice to the project. URL is any
     SPUD momenttensor URL.
     """
+    from lasif.scripts.iris2quakeml import iris2quakeml
+
     proj = _find_project_root(".")
     if len(args) != 1:
         msg = "URL must be given. No other arguments allowed."
@@ -118,6 +115,9 @@ def lasif_download_waveforms(args):
     of possible events can be obtained with "lasif list_events". The files will
     be saved in the DATA/EVENT_NAME/raw directory.
     """
+    from lasif.download_helpers import downloader
+    import obspy
+
     proj = _find_project_root(".")
     events = proj.get_event_dict()
     if len(args) != 1:
@@ -170,6 +170,7 @@ def lasif_download_stations(args):
     list of possible events can be obtained with "lasif list_events". The files
     will be saved in the STATION/*.
     """
+    from lasif.download_helpers import downloader
     proj = _find_project_root(".")
     events = proj.get_event_dict()
     if len(args) != 1:
@@ -239,6 +240,8 @@ def lasif_plot_model(args):
     """
     Usage lasif plot_model MODEL_NAME
     """
+    from lasif import ses3d_models
+
     if len(args) != 1:
         msg = "MODEL_NAME must be given. No other arguments allowed."
         raise LASIFCommandLineException(msg)
@@ -276,6 +279,7 @@ def lasif_event_info(args):
 
     Prints information about the given event.
     """
+    from lasif.utils import table_printer
     if len(args) != 1:
         msg = "EVENT_NAME must be given. No other arguments allowed."
         raise LASIFCommandLineException(msg)
@@ -344,6 +348,7 @@ def lasif_plot_stf(args):
 
     NPTS is the number of samples, and DELTA the sample interval.
     """
+    import lasif.visualization
     proj = _find_project_root(".")
 
     if len(args) != 3:
@@ -438,6 +443,7 @@ def lasif_generate_input_file_template(args):
             return filename
 
     if solver == "ses3d_4_0":
+        from lasif.utils import generate_ses3d_4_0_template
         filename = xml_filename_generator(proj.paths["templates"], solver)
         generate_ses3d_4_0_template(filename)
         print "Created template at '%s'. Please edit it." % filename
@@ -477,6 +483,12 @@ def lasif_generate_dummy_data(args):
     Generates some random example event and waveforms. Useful for debugging,
     testing, and following the tutorial.
     """
+    import inspect
+    from lasif import rotations
+    from lasif.adjoint_sources.utils import get_dispersed_wavetrain
+    import numpy as np
+    import obspy
+
     if len(args):
         msg = "No arguments allowed."
         raise LASIFCommandLineException(msg)
