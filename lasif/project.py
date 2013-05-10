@@ -353,7 +353,7 @@ class Project(object):
         self.events = obspy.readEvents(os.path.join(self.paths["events"],
             "*%sxml" % os.path.extsep))
 
-    def plot_event(self, event_name, resolution="c"):
+    def plot_event(self, event_name):
         """
         Plots information about one event on the map.
         """
@@ -364,7 +364,7 @@ class Project(object):
             bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=False, show_plot=False)
+            plot_simulation_domain=False, show_plot=False, zoom=True)
 
         all_events = self.get_event_dict()
         if event_name not in all_events:
@@ -382,7 +382,7 @@ class Project(object):
 
         plt.show()
 
-    def plot_events(self, resolution="c"):
+    def plot_events(self):
         """
         Plots the domain and beachballs for all events on the map.
         """
@@ -392,7 +392,7 @@ class Project(object):
             bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=False, show_plot=False)
+            plot_simulation_domain=False, show_plot=False, zoom=True)
         if not hasattr(self, "events") or not self.events:
             self.read_events()
         visualization.plot_events(self.events, map_object=map)

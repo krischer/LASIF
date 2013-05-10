@@ -22,8 +22,8 @@ import rotations
 
 def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         boundary_buffer_in_degree=0.0, rotation_axis=[0.0, 0.0, 1.0],
-        rotation_angle_in_degree=0.0, resolution="c", show_plot=True,
-        plot_simulation_domain=False):
+        rotation_angle_in_degree=0.0, show_plot=True,
+        plot_simulation_domain=False, zoom=False):
     """
     """
     bounds = rotations.get_max_extention_of_domain(min_latitude,
@@ -35,8 +35,22 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
     center_lng = bounds["minimum_longitude"] + (bounds["maximum_longitude"] -
         bounds["minimum_longitude"]) / 2.0
 
-    m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
-        resolution=resolution)
+    extend_x = bounds["maximum_longitude"] - bounds["minimum_longitude"]
+    extend_y = bounds["maximum_latitude"] - bounds["minimum_latitude"]
+    max_extend = max(extend_x, extend_y)
+
+    # Arbitrary threshold
+    if zoom is False or max_extend > 70:
+        m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
+            resolution="c")
+    else:
+        buffer = max_extend * 0.1
+        m = Basemap(projection='merc', resolution="l",
+            llcrnrlat=bounds["minimum_latitude"] - buffer,
+            urcrnrlat=bounds["maximum_latitude"] + buffer,
+            llcrnrlon=bounds["minimum_longitude"] - buffer,
+            urcrnrlon=bounds["maximum_longitude"] + buffer)
+
     m.drawmapboundary(fill_color='#cccccc')
     m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
 
