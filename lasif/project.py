@@ -370,15 +370,13 @@ class Project(object):
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
+
         event = obspy.readEvents(all_events[event_name])
+        event_info = self.get_event_info(event_name)
 
         stations = self.get_stations_for_event(event_name)
-        org = event[0].preferred_origin() or event[0].origins[0]
-        ev_lng = org.longitude
-        ev_lat = org.latitude
         visualization.plot_stations_for_event(map_object=map,
-            station_dict=stations, event_longitude=ev_lng,
-            event_latitude=ev_lat)
+            station_dict=stations, event_info=event_info)
         # Plot the beachball for one event.
         visualization.plot_events(event, map_object=map)
 
