@@ -20,11 +20,25 @@ $ make html
 
 ### Installation
 
-LASIF depends on [ObsPy](http://www.obspy.org) in a recent version and the
-matplotlib basemap toolkit.
+Dependencies:
 
-Furthermore it requires a waveform solver input file generator. This
-can be installed with
+* [ObsPy](http://www.obspy.org) (in a very recent repository version - will be fixed once the next ObsPy version is released)
+* The [matplotlib basemap toolkit](http://matplotlib.org/basemap/)
+* [wfs_input_generator](http://github.com/krischer/wfs_input_generator)
+* requests
+* progressbar
+
+The later two can simply be installed via pip:
+
+```bash
+$ pip install requests
+$ pip install progressbar
+```
+
+ObsPy and basemap are slightly more complicated to install. Please refer to the
+projects websites for more detailed instructions.
+
+The wfs_input_generator can be installed with the following commands
 
 ```bash
 $ git clone https://github.com/krischer/wfs_input_generator.git
