@@ -71,6 +71,7 @@ class ImageCache(object):
 from binascii import crc32
 from itertools import izip
 import os
+import progressbar
 import sqlite3
 
 
@@ -156,9 +157,27 @@ class FileInfoCache(object):
         db_files = self.db_cursor.execute("SELECT * FROM files").fetchall()
         db_files = {_i[1]: (_i[0], _i[2], _i[3]) for _i in db_files}
 
+        # Count all files
+        filecount = 0
+        for filetype in self.filetypes:
+            filecount += len(self.files[filetype])
+
+        # Use a progressbar if the filecount is large so something appears on
+        # screen.
+        pbar = None
+        if filecount > 100:
+            widgets = ["Updating cache: ", progressbar.Percentage(),
+                progressbar.Bar(), "", progressbar.ETA()]
+            pbar = progressbar.ProgressBar(widgets=widgets,
+                maxval=filecount).start()
+
+        current_file_count = 0
         # Now update all filetypes separately.
         for filetype in self.filetypes:
             for filename in self.files[filetype]:
+                current_file_count += 1
+                if pbar:
+                    pbar.update(current_file_count)
                 if filename in db_files:
                     # Delete the file from the list of files to keep track of
                     # files no longer available.
@@ -176,6 +195,8 @@ class FileInfoCache(object):
                     self._update_file(filename, filetype, this_file[0])
                 else:
                     self._update_file(filename, filetype)
+        if pbar:
+            pbar.finish()
 
         # Remove all files no longer part of the cache DB.
         for filename in db_files:
