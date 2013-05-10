@@ -8,6 +8,8 @@
 ---
 ---
 
+### Documentation
+
 [Preliminary Documentation](http://krischer.github.io/LASIF)
 
 To locally build the most recent version:
