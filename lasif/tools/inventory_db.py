@@ -12,6 +12,7 @@ Simple query functions for the inventory database.
 import re
 import requests
 import sqlite3
+import time
 
 
 CREATE_DB_SQL = """
@@ -44,10 +45,10 @@ class InventoryDB(object):
     def put_station_coordinates(self, station_id, latitude, longitude,
             elevation_in_m, depth_in_m):
         latitude = str(latitude) if latitude is not None else "NULL"
-        longitude = str(latitude) if longitude is not None else "NULL"
-        elevation_in_m = str(latitude) \
+        longitude = str(longitude) if longitude is not None else "NULL"
+        elevation_in_m = str(elevation_in_m) \
             if elevation_in_m is not None else "NULL"
-        depth_in_m = str(latitude) if depth_in_m is not None else "NULL"
+        depth_in_m = str(depth_in_m) if depth_in_m is not None else "NULL"
 
         SQL = """
         REPLACE INTO stations
@@ -86,7 +87,12 @@ def get_station_coordinates(db_file, station_id):
     print msg,
     # Otherwise try to download the necessary information.
     network, station = station_id.split(".")
-    req = requests.get(URL.format(network=network, station=station))
+    for _i in xrange(10):
+        try:
+            req = requests.get(URL.format(network=network, station=station))
+            break
+        except:
+            time.sleep(0.1)
     if str(req.status_code)[0] != "2":
         print "Failure."
         inv_db.put_station_coordinates(station_id, None, None, None, None)
