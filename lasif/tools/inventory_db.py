@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS stations(
 
 
 URL = ("http://service.iris.edu/fdsnws/station/1/query?"
-    "network={network}&sta={station}&level=station")
+    "network={network}&sta={station}&level=station&nodata=404")
 
 
 class InventoryDB(object):
