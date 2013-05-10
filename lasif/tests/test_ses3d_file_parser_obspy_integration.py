@@ -6,7 +6,7 @@ Test suite for the integration of the file parser into ObsPy.
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
-    GNU General Public License, Version 3
+    GXU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import inspect
@@ -40,15 +40,15 @@ class SES3DFileParserObsPyIntegrationTestCase(unittest.TestCase):
         filename_r = os.path.join(self.data_dir, "File_r")
 
         tr_theta = obspy.read(filename_theta)[0]
-        self.assertEqual(tr_theta.stats.channel, "N")
+        self.assertEqual(tr_theta.stats.channel, "X")
         self.assertTrue(hasattr(tr_theta.stats, "ses3d"))
-        theta_data = -1.0 * np.array([4.23160685E-07, 3.80973177E-07,
+        theta_data = np.array([4.23160685E-07, 3.80973177E-07,
             3.39335969E-07, 2.98305707E-07, 2.57921158E-07, 2.18206054E-07,
             1.79171423E-07, 1.40820376E-07, 1.03153077E-07, 6.61708626E-08])
         np.testing.assert_almost_equal(tr_theta.data[-10:], theta_data)
 
         tr_phi = obspy.read(filename_phi)[0]
-        self.assertEqual(tr_phi.stats.channel, "E")
+        self.assertEqual(tr_phi.stats.channel, "Y")
         self.assertTrue(hasattr(tr_theta.stats, "ses3d"))
         phi_data = np.array([4.23160685E-07, 3.80973177E-07, 3.39335969E-07,
             2.98305707E-07, 2.57921158E-07, 2.18206054E-07, 1.79171423E-07,

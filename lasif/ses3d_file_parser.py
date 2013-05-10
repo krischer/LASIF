@@ -73,11 +73,8 @@ def read_SES3D(file_or_file_object, *args, **kwargs):
         * source_depth_in_m
 
     The network, station, and location attributes of the trace will be empty,
-    and the channel will be set to either 'N' (north component), 'E' (east
-    component), or 'Z' (vertical component). The data will naturally be the one
-    for the given component. SES3D outputs data with one component being the
-    south direction. The north component contains the **already inverted**
-    south component data.
+    and the channel will be set to either 'X' (south component), 'Y' (east
+    component), or 'Z' (vertical component).
     """
     # Make sure that it is a file like object.
     if not hasattr(file_or_file_object, "read"):
@@ -104,12 +101,9 @@ def read_SES3D(file_or_file_object, *args, **kwargs):
     # Setup Obspy Stream/Trace structure.
     tr = Trace(data=data)
     tr.stats.delta = delta
-    # Invert theta components to let them point north.
-    if component == "theta":
-        tr.data *= -1.0
     # Map the channel attributes.
-    tr.stats.channel = {"theta": "N",
-        "phi": "E",
+    tr.stats.channel = {"theta": "X",
+        "phi": "Y",
         "r": "Z"}[component]
     tr.stats.ses3d = AttribDict()
     tr.stats.ses3d.receiver_latitude = rotations.colat2lat(rec_x)

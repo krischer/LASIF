@@ -133,33 +133,29 @@ class SES3DFileParserTestCase(unittest.TestCase):
         filename_phi = os.path.join(self.data_dir, "File_phi")
         filename_r = os.path.join(self.data_dir, "File_r")
 
-        # The theta component goes from north to south but is inverted thus
-        # points north.
+        # The theta component is named X.
         tr_theta = read_SES3D(filename_theta)[0]
-        self.assertEqual(tr_theta.stats.channel, "N")
+        self.assertEqual(tr_theta.stats.channel, "X")
 
         # The phi component goes from west to east.
         tr_phi = read_SES3D(filename_phi)[0]
-        self.assertEqual(tr_phi.stats.channel, "E")
+        self.assertEqual(tr_phi.stats.channel, "Y")
 
         # The r-component points up.
         tr_r = read_SES3D(filename_r)[0]
         self.assertEqual(tr_r.stats.channel, "Z")
 
-    def test_NorthComponentIsInvertedSouthComponent(self):
+    def test_SouthComponent(self):
         """
-        SES3D return south oriented data. The reader inverts it to return north
-        oriented data.
+        Test the X component.
         """
         filename = os.path.join(self.data_dir, "File_theta")
         tr = read_SES3D(filename)[0]
-        self.assertEqual(tr.stats.channel, "N")
+        self.assertEqual(tr.stats.channel, "X")
         # The data actually in the file. This points south.
         data = np.array([4.23160685E-07, 3.80973177E-07, 3.39335969E-07,
             2.98305707E-07, 2.57921158E-07, 2.18206054E-07, 1.79171423E-07,
             1.40820376E-07, 1.03153077E-07, 6.61708626E-08])
-        # Invert the data.
-        data *= -1.0
         # Check.
         np.testing.assert_almost_equal(tr.data[-10:], data)
 
@@ -171,7 +167,7 @@ class SES3DFileParserTestCase(unittest.TestCase):
         filename_r = os.path.join(self.data_dir, "File_r")
 
         tr_phi = read_SES3D(filename_phi)[0]
-        self.assertEqual(tr_phi.stats.channel, "E")
+        self.assertEqual(tr_phi.stats.channel, "Y")
         phi_data = np.array([4.23160685E-07, 3.80973177E-07, 3.39335969E-07,
             2.98305707E-07, 2.57921158E-07, 2.18206054E-07, 1.79171423E-07,
             1.40820376E-07, 1.03153077E-07, 6.61708626E-08])
