@@ -123,6 +123,21 @@ class StationCache(FileInfoCache):
             }
         return stations
 
+    def get_station_filename(self, channel_id, time):
+        """
+        Returns the filename for the requested channel and time.
+        """
+        time = int(time.timestamp)
+        sql_query = """
+        SELECT files.filename FROM indices
+        INNER JOIN files
+        ON indices.filepath_id=files.id
+        WHERE (indices.channel_id = '%s') AND (indices.start_date < %i) AND
+            ((indices.end_date IS NULL) OR (indices.end_date > %i))
+        LIMIT 1;
+        """ % (channel_id, time, time)
+        return self.db_cursor.execute(sql_query).fetchone()[0]
+
     def station_info_available(self, channel_id, time):
         """
         Checks if information for the requested channel_id and time is

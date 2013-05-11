@@ -676,6 +676,107 @@ class Project(object):
 
         return stations
 
+    def data_synthetic_iterator(self, event_name, data_tag, synthetic_tag,
+            highpass, lowpass):
+        import numpy as np
+        from obspy import read, Stream, UTCDateTime
+        from obspy.xseed import Parser
+        from scipy.interpolate import interp1d
+
+        event_info = self.get_event_info(event_name)
+
+        stations = self.get_stations_for_event(event_name)
+        waveforms = \
+            self._get_waveform_cache_file(event_name, data_tag).get_values()
+
+        synthetics_path = os.path.join(self.paths["synthetics"], event_name,
+            synthetic_tag)
+        synthetic_files = {os.path.basename(_i).replace("_", ""): _i for _i in
+            glob.iglob(os.path.join(synthetics_path, "*"))}
+
+        SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
+        for station_id, coordinates in stations.iteritems():
+            data = Stream()
+            # Now get the actual waveform files. Also find the corresponding
+            # station file and check the coordinates.
+            this_waveforms = {_i["channel_id"]: _i for _i in waveforms
+                if _i["channel_id"].startswith(station_id + ".")}
+            for value in this_waveforms.itervalues():
+                value["trace"] = read(value["filename"])[0]
+                data += value["trace"]
+                value["station_file"] = \
+                    self.station_cache.get_station_filename(
+                        value["channel_id"],
+                        UTCDateTime(value["starttime_timestamp"]))
+                data[-1].stats.station_file = value["station_file"]
+            if not this_waveforms:
+                msg = "Could not retrieve data for station '%s'." % station_id
+                warnings.warn(msg)
+                continue
+            # Now attempt to get the synthetics.
+            synthetics_filenames = []
+            for name, path in synthetic_files.iteritems():
+                if (station_id + ".") in name:
+                    synthetics_filenames.append(path)
+
+            if len(synthetics_filenames) != 3:
+                msg = "Found %i not 3 synthetics for station '%s'." % (
+                    len(synthetics_filenames), station_id)
+                warnings.warn(msg)
+                continue
+
+            synthetics = Stream()
+            # Read all synthetics.
+            for filename in synthetics_filenames:
+                synthetics += read(filename)
+            for synth in synthetics:
+                if synth.stats.channel in ["X", "Z"]:
+                    synth.data *= -1.0
+                synth.stats.channel = SYNTH_MAPPING[synth.stats.channel]
+                synth.stats.starttime = event_info["origin_time"]
+
+            # Process the data.
+            len_synth = synthetics[0].stats.endtime - \
+                synthetics[0].stats.starttime
+            data.trim(synthetics[0].stats.starttime - len_synth * 0.05,
+                synthetics[0].stats.endtime + len_synth * 0.05)
+            data.detrend("linear")
+            data.taper()
+
+            new_time_array = np.linspace(
+                synthetics[0].stats.starttime.timestamp,
+                synthetics[0].stats.endtime.timestamp,
+                synthetics[0].stats.npts)
+
+            # Simulate the traces.
+            for trace in data:
+                station_file = trace.stats.station_file
+                if "/SEED/" in station_file:
+                    paz = Parser(station_file).getPAZ(trace.id,
+                        trace.stats.starttime)
+                    trace.simulate(paz_remove=paz)
+                elif "/RESP/" in station_file:
+                    trace.simulate(seedresp={"filename": station_file,
+                        "units": "VEL", "date": trace.stats.starttime})
+                else:
+                    raise NotImplementedError
+                old_time_array = np.linspace(
+                    trace.stats.starttime.timestamp,
+                    trace.stats.endtime.timestamp,
+                    trace.stats.npts)
+
+                # Interpolation.
+                trace.data = interp1d(old_time_array, trace.data,
+                    kind=1)(new_time_array)
+                trace.stats.starttime = synthetics[0].stats.starttime
+                trace.stats.sampling_rate = synthetics[0].stats.sampling_rate
+
+            data.filter("bandpass", freqmin=lowpass, freqmax=highpass)
+            synthetics.filter("bandpass", freqmin=lowpass, freqmax=highpass)
+
+            yield {"data": data, "synthetics": synthetics,
+                "coordinates": coordinates}
+
     def has_station_file(self, channel_id, time):
         """
         Simple function returning True or False, if the channel specified with

@@ -476,6 +476,37 @@ def lasif_init_project(args):
     print("Initialized project in: \n\t%s" % folder_path)
 
 
+def lasif_launch_misfit_gui(args):
+    """
+    Usage: lasif launch_misfit_gui EVENT_NAME DATA_TAG SYNTHETIC_TAG HP LP
+    """
+    if len(args) != 5:
+        msg = "EVENT_NAME, DATA_TAG and SYNTHETIC_TAG must be given."
+        raise LASIFCommandLineException(msg)
+
+    proj = _find_project_root(".")
+
+    event_name = args[0]
+    events = proj.get_event_dict()
+    if event_name not in events:
+        msg = "Event '%s' not found." % event_name
+        raise LASIFCommandLineException(msg)
+
+    from obspy import readEvents
+    event = readEvents(events[event_name])[0]
+
+    data_tag = args[1]
+    synthetic_tag = args[2]
+    highpass = 1.0 / float(args[3])
+    lowpass = 1.0 / float(args[4])
+
+    from lasif.misfit_gui import MisfitGUI
+    iterator = proj.data_synthetic_iterator(event_name, data_tag,
+        synthetic_tag, highpass, lowpass)
+    MisfitGUI(event, iterator, proj)
+
+
+
 def lasif_generate_dummy_data(args):
     """
     Usage: lasif generate_dummy_data
