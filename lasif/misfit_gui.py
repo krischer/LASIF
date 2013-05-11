@@ -13,6 +13,7 @@ calculating misfits.
 # The OSX backend has a problem with blitting.
 import matplotlib
 matplotlib.use('TkAgg')
+matplotlib.rcParams['toolbar'] = 'None'
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,6 +23,7 @@ from matplotlib.widgets import Button
 from matplotlib_selection_rectangle import WindowSelectionRectangle
 
 from lasif import visualization
+from lasif.adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 
 
 class MisfitGUI:
@@ -70,7 +72,7 @@ class MisfitGUI:
         self.axreset = plt.axes([0.26, 0.02, 0.1, 0.03])
         self.bnext = Button(self.axnext, 'Next')
         self.bprev = Button(self.axprev, 'Prev')
-        self.breset = Button(self.axreset, 'Reset')
+        self.breset = Button(self.axreset, 'Reset Station')
 
     def __connect_signals(self):
         self.bnext.on_clicked(self.next)
@@ -139,9 +141,11 @@ class MisfitGUI:
         axis.add_patch(rect)
 
     def reset(self, event):
+        for trace in self.data["data"]:
+            self.window_manager.delete_windows(trace.id)
         self.update()
 
-    def plot(self, swap_polarization=False):
+    def plot(self):
         self.adjoint_source_axis.cla()
         self.adjoint_source_axis.set_xticks([])
         self.adjoint_source_axis.set_yticks([])
@@ -252,18 +256,21 @@ class MisfitGUI:
             return
 
         if axis is self.plot_axis_z:
-            data = self.data["data"].select(component="Z")
+            data = self.data["data"].select(component="Z")[0]
+            synth = self.data["synthetics"].select(component="Z")[0]
         elif axis is self.plot_axis_n:
-            data = self.data["data"].select(component="N")
+            data = self.data["data"].select(component="N")[0]
+            synth = self.data["synthetics"].select(component="N")[0]
         elif axis is self.plot_axis_e:
-            data = self.data["data"].select(component="E")
+            data = self.data["data"].select(component="E")[0]
+            synth = self.data["synthetics"].select(component="E")[0]
         else:
             return
 
         if not data:
             return
-        trace = data[0]
 
+        trace = data
         time_range = trace.stats.endtime - trace.stats.starttime
         plot_range = axis.get_xlim()[1] - axis.get_xlim()[0]
         starttime = trace.stats.starttime + (window_start / plot_range) * \
@@ -273,7 +280,33 @@ class MisfitGUI:
         self.window_manager.write_window(trace.id, starttime, endtime, 1.0,
             "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
 
-        return
+        # Window the data.
+        data_trimmed = data.copy()
+        data_trimmed.trim(starttime, endtime)
+        data_trimmed.taper()
+        #data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True,
+            #fill_value=0.0)
+        synth_trimmed = data.copy()
+        synth_trimmed.trim(starttime, endtime)
+        synth_trimmed.taper()
+        #synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime,
+            #pad=True, fill_value=0.0)
+
+        t = np.linspace(0, synth.stats.npts * synth.stats.delta,
+            synth.stats.npts)
+
+        data_d = np.require(data_trimmed.data, dtype="float64",
+            requirements="C")
+        synth_d = np.require(synth_trimmed.data, dtype="float64",
+            requirements="C")
+
+        #ret_val = adsrc_tf_phase_misfit(np.linspace(0, synth_trimmed.stats.npts *
+            #synth.stats.delta, synth_trimmed.stats.npts), data_d,
+            #synth_d, synth.stats.delta, 100, 0.0)
+        #print ret_val.keys()
+        #print ret_val["misfit"]
+        #print ret_val["messages"]
+
 
     def _write_adj_src(self):
         pass
