@@ -73,12 +73,15 @@ class MisfitGUI:
 
         # All kinds of buttons [left, bottom, width, height]
         self.axnext = plt.axes([0.02, 0.02, 0.1, 0.03])
-        self.axreset = plt.axes([0.14, 0.02, 0.1, 0.03])
+        self.axprev = plt.axes([0.14, 0.02, 0.1, 0.03])
+        self.axreset = plt.axes([0.26, 0.02, 0.1, 0.03])
         self.bnext = Button(self.axnext, 'Next')
+        self.bprev = Button(self.axprev, 'Prev')
         self.breset = Button(self.axreset, 'Reset')
 
     def __connect_signals(self):
         self.bnext.on_clicked(self.next)
+        self.bprev.on_clicked(self.prev)
         self.breset.on_clicked(self.reset)
 
         self.plot_axis_z.figure.canvas.mpl_connect('button_press_event',
@@ -95,7 +98,17 @@ class MisfitGUI:
         plt.tight_layout()
 
     def next(self, *args):
-        self.data = self.seismogram_generator.next()
+        data = self.seismogram_generator.next()
+        if not data:
+            return
+        self.data = data
+        self.plot()
+
+    def prev(self, *args):
+        data = self.seismogram_generator.prev()
+        if not data:
+            return
+        self.data = data
         self.plot()
 
     def reset(self, event):
