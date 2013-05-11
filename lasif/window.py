@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Window handling.
+
+:copyright:
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+:license:
+    GNU General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
+"""
 from obspy import UTCDateTime
 from lxml import etree
 from lxml.builder import E
@@ -21,6 +32,16 @@ WINDOWS = {
         }
     }
 }
+
+
+class WindowManager(object):
+    def __init__(self, directory):
+        self.directory = directory
+
+    def get_windows(self, channel_id):
+        for windowfile in glob.iglob(os.path.join(self.directory,
+                "window_%s.*.xml" % channel_id)):
+            print windowfile
 
 
 class Window(object):

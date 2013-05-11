@@ -14,33 +14,26 @@ calculating misfits.
 import matplotlib
 matplotlib.use('TkAgg')
 
-from itertools import izip
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 from matplotlib.widgets import Button
-import os
 
 from matplotlib_selection_rectangle import WindowSelectionRectangle
-#from misfits import l2NormMisfit
-from window import Window
-
 
 from lasif import visualization
 
-MISFIT_WINDOW_STORAGE_DIRECTORY = ("/Users/lion/Dropbox/LASIF/TurkeyExample/"
-    "ADJOINT_SOURCES_AND_WINDOWS/WINDOWS")
-ADJOINT_SOURCE_STORAGE_DIRECTORY = ("/Users/lion/Dropbox/LASIF/TurkeyExample/"
-    "ADJOINT_SOURCES_AND_WINDOWS/ADJOINT_SOURCES")
-
 
 class MisfitGUI:
-    def __init__(self, event, seismogram_generator, project):
+    def __init__(self, event, seismogram_generator, project, window_manager):
         self.event = event
         self.event_latitude = event.origins[0].latitude
         self.event_longitude = event.origins[0].longitude
         self.project = project
 
         self.seismogram_generator = seismogram_generator
+
+        self.window_manager = window_manager
 
         self.__setup_plots()
         self.__connect_signals()
@@ -102,17 +95,51 @@ class MisfitGUI:
         if not data:
             return
         self.data = data
-        self.plot()
+        self.update()
 
     def prev(self, *args):
         data = self.seismogram_generator.prev()
         if not data:
             return
         self.data = data
+        self.update()
+
+    def update(self):
+        self.selected_windows = {
+            "Z": [],
+            "N": [],
+            "E": []}
         self.plot()
+        for trace in self.data["data"]:
+            windows = self.window_manager.get_windows(trace.id)
+            if not windows or "windows" not in windows or \
+                    not windows["windows"]:
+                continue
+            for window in windows["windows"]:
+                self.plot_window(component=windows["channel_id"][-1],
+                    starttime=window["starttime"], endtime=window["endtime"])
+        plt.draw()
+
+    def plot_window(self, component, starttime, endtime):
+        if component == "Z":
+            axis = self.plot_axis_z
+        elif component == "N":
+            axis = self.plot_axis_n
+        elif component == "E":
+            axis = self.plot_axis_e
+        else:
+            raise NotImplementedError
+
+        trace = self.data["synthetics"][0]
+
+        ymin, ymax = axis.get_ylim()
+        rect = Rectangle((starttime - trace.stats.starttime, ymin),
+            endtime - starttime, ymax - ymin, color="0.6",
+            alpha=0.5, edgecolor="0.5")
+        axis.add_patch(rect)
 
     def reset(self, event):
-        self.plot()
+        self.update()
 
     def plot(self, swap_polarization=False):
         self.adjoint_source_axis.cla()
@@ -175,95 +202,108 @@ class MisfitGUI:
             self.greatcircle = None
         except:
             pass
+        try:
+            self.station_icon.remove()
+            self.station_icon = None
+        except:
+            pass
         self.greatcircle = self.map_obj.drawgreatcircle(
             self.data["coordinates"]["longitude"],
             self.data["coordinates"]["latitude"],
             self.event_longitude, self.event_latitude, linewidth=2,
             color='green', ax=self.map_axis)
+
+        lng, lats = self.map_obj([self.data["coordinates"]["longitude"]],
+            [self.data["coordinates"]["latitude"]])
+        self.station_icon = self.map_axis.scatter(lng, lats, color="blue",
+            edgecolor="black", zorder=10000, marker="^", s=40)
+
         plt.draw()
 
     def _onButtonPress(self, event):
-        if event.button != 1 or event.inaxes != self.plot_axis_z:
+        if event.button != 1:  # or event.inaxes != self.plot_axis_z:
             return
         # Store the axis.
         if event.name == "button_press_event":
-            self.rect = WindowSelectionRectangle(event, self.plot_axis_z,
-                self._onWindowSelected)
+            if event.inaxes == self.plot_axis_z:
+                data = self.data["data"].select(component="Z")
+                if not data:
+                    return
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_z,
+                    self._onWindowSelected)
+            if event.inaxes == self.plot_axis_n:
+                data = self.data["data"].select(component="N")
+                if not data:
+                    return
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_n,
+                    self._onWindowSelected)
+            if event.inaxes == self.plot_axis_e:
+                data = self.data["data"].select(component="E")
+                if not data:
+                    return
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_e,
+                    self._onWindowSelected)
 
-    def _onWindowSelected(self, window_start, window_width):
+    def _onWindowSelected(self, window_start, window_width, axis):
         """
         Function called upon window selection.
         """
-        return
         if window_width <= 0:
             return
-        real_trace = self.current_data["data_trace"]
-        synth_trace = self.current_data["synth_trace"]
 
-        path = SYNTHETIC_DATA
-        if path.endswith("/"):
-            path = path[:-1]
-        extra_id = os.path.basename(path).split(".")[-1]
-        additional_identifier = "iteration_%i.%s" % (ITERATION, extra_id)
-
-        win = Window(self.event["event_index"], additional_identifier,
-            self.event["time"], window_start, window_width, "cosine",
-            window_options={"percentage": 0.1}, channel_id=real_trace.id)
-        real_tr = real_trace.copy()
-        synth_tr = synth_trace.copy()
-        win.apply(real_tr)
-        win.apply(synth_tr)
-
-        misfit, adjoint_src = l2NormMisfit(real_tr.data, synth_tr.data,
-            synth_tr.stats.channel, axis=misfit_axis)
-        win.set_misfit("L2NormMisfit", misfit)
-        win.write(MISFIT_WINDOW_STORAGE_DIRECTORY)
-
-        if synth_tr.stats.channel == "N":
-            adjoint_source = adjoint_src[0]
-        elif synth_tr.stats.channel == "E":
-            adjoint_source = adjoint_src[1]
-        elif synth_tr.stats.channel == "Z":
-            adjoint_source = adjoint_src[2]
+        if axis is self.plot_axis_z:
+            data = self.data["data"].select(component="Z")
+        elif axis is self.plot_axis_n:
+            data = self.data["data"].select(component="N")
+        elif axis is self.plot_axis_e:
+            data = self.data["data"].select(component="E")
         else:
-            raise NotImplementedError
+            return
 
-        # Assemble the adjoint source path.
-        window_path = win.output_filename
-        filename = os.path.basename(window_path)
-        filename = os.path.splitext(filename)[0] + os.path.extsep + "adj_src"
-        subfolder = os.path.basename(os.path.split(window_path)[0])
-        # Make sure the folder exists.
-        adjoint_src_folder = os.path.join(ADJOINT_SOURCE_STORAGE_DIRECTORY,
-            subfolder)
-        if not os.path.exists(adjoint_src_folder):
-            os.makedirs(adjoint_src_folder)
-        adjoint_src_filename = os.path.join(adjoint_src_folder, filename)
+        if not data:
+            return
+        trace = data[0]
 
-        adjoint_source_axis.cla()
-        adjoint_source_axis.set_title("Adjoint Source")
-        adjoint_source_axis.plot(adjoint_source, color="black")
-        adjoint_source_axis.set_xlim(0, len(adjoint_source))
-        plt.draw()
+        time_range = trace.stats.endtime - trace.stats.starttime
+        plot_range = axis.get_xlim()[1] - axis.get_xlim()[0]
+        starttime = trace.stats.starttime + (window_start / plot_range) * \
+            time_range
+        endtime = starttime + window_width / plot_range * time_range
+
+        self.window_manager.write_window(trace.id, starttime, endtime, 1.0,
+            "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
+
+        return
+
+    def _write_adj_src(self):
+        pass
+        #adjoint_src_filename = os.path.join(self.adjoint_src_folder,
+            #self.filename)
+
+        #self.adjoint_source_axis.cla()
+        #self.adjoint_source_axis.set_title("Adjoint Source")
+        #self.adjoint_source_axis.plot(self.adjoint_source, color="black")
+        #self.adjoint_source_axis.set_xlim(0, len(self.adjoint_source))
+        #plt.draw()
 
         # Do some calculations.
-        rec_lat = synth_tr.stats.ses3d.receiver_latitude
-        rec_lng = synth_tr.stats.ses3d.receiver_longitude
-        rec_depth = synth_tr.stats.ses3d.receiver_depth_in_m
-        # Rotate back to rotated system.
-        rec_lat, rec_lng = rotations.rotate_lat_lon(rec_lat, rec_lng,
-            ROTATION_AXIS, -ROTATION_ANGLE)
-        rec_colat = rotations.lat2colat(rec_lat)
+        #rec_lat = self.synth_tr.stats.ses3d.receiver_latitude
+        #rec_lng = self.synth_tr.stats.ses3d.receiver_longitude
+        #rec_depth = self.synth_tr.stats.ses3d.receiver_depth_in_m
+        ## Rotate back to rotated system.
+        #rec_lat, rec_lng = rotations.rotate_lat_lon(rec_lat, rec_lng,
+            #ROTATION_AXIS, -ROTATION_ANGLE)
+        #rec_colat = rotations.lat2colat(rec_lat)
 
-        # Actually write the adjoint source file in SES3D specific format.
-        with open(adjoint_src_filename, "wt") as open_file:
-            open_file.write("-- adjoint source ------------------\n")
-            open_file.write("-- source coordinates (colat,lon,depth)\n")
-            open_file.write("%f %f %f\n" % (rec_lng, rec_colat, rec_depth))
-            open_file.write("-- source time function (x, y, z) --\n")
-            for x, y, z in izip(adjoint_src[1], -1.0 * adjoint_src[0],
-                    adjoint_src[2]):
-                open_file.write("%e %e %e\n" % (x, y, z))
+        ## Actually write the adjoint source file in SES3D specific format.
+        #with open(adjoint_src_filename, "wt") as open_file:
+            #open_file.write("-- adjoint source ------------------\n")
+            #open_file.write("-- source coordinates (colat,lon,depth)\n")
+            #open_file.write("%f %f %f\n" % (rec_lng, rec_colat, rec_depth))
+            #open_file.write("-- source time function (x, y, z) --\n")
+            #for x, y, z in izip(adjoint_src[1], -1.0 * adjoint_src[0],
+                    #adjoint_src[2]):
+                #open_file.write("%e %e %e\n" % (x, y, z))
 
 
 def launch(event, seismogram_generator, project):

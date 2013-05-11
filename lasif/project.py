@@ -86,6 +86,10 @@ class Project(object):
         self.paths["resp"] = os.path.join(self.paths["stations"],
             "RESP")
         self.paths["output"] = os.path.join(root_path, "OUTPUT")
+        self.paths["windows"] = os.path.join(root_path,
+            "ADJOINT_SOURCES_AND_WINDOWS", "WINDOWS")
+        self.paths["adjoint_sources"] = os.path.join(root_path,
+            "ADJOINT_SOURCES_AND_WINDOWS", "ADJOINT_SOURCES")
 
     def update_folder_structure(self):
         """

@@ -479,6 +479,10 @@ def lasif_init_project(args):
 def lasif_launch_misfit_gui(args):
     """
     Usage: lasif launch_misfit_gui EVENT_NAME DATA_TAG SYNTHETIC_TAG HP LP
+
+    Launches the Misfit GUI. HP and LP are the high- and lowpass filter values
+    in seconds. These should correspond to the source time function. Will be
+    made more convenient in the near future..
     """
     if len(args) != 5:
         msg = "EVENT_NAME, DATA_TAG and SYNTHETIC_TAG must be given."
@@ -501,10 +505,17 @@ def lasif_launch_misfit_gui(args):
     lowpass = 1.0 / float(args[4])
 
     from lasif.misfit_gui import MisfitGUI
+    from lasif.window_manager import MisfitWindowManager
+
     iterator = proj.data_synthetic_iterator(event_name, data_tag,
         synthetic_tag, highpass, lowpass)
-    MisfitGUI(event, iterator, proj)
 
+    window_directory = os.path.join(proj.paths["windows"], event_name,
+        synthetic_tag)
+    window_manager = MisfitWindowManager(window_directory, synthetic_tag,
+        event_name)
+
+    MisfitGUI(event, iterator, proj, window_manager)
 
 
 def lasif_generate_dummy_data(args):

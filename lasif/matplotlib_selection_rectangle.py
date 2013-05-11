@@ -38,7 +38,6 @@ class WindowSelectionRectangle(object):
         """
         Disconnect the events upon deallocating.
         """
-        print "Disconnecting..."
         self.canvas.mpl_disconnect(self.conn_button_press)
         self.canvas.mpl_disconnect(self.conn_button_release)
         self.canvas.mpl_disconnect(self.conn_mouse_motion)
@@ -71,7 +70,7 @@ class WindowSelectionRectangle(object):
         self.canvas.draw()
 
         self.on_window_selection_callback(self.rect.get_x(),
-            self.rect.get_width())
+            self.rect.get_width(), self.axis)
 
     def on_mouse_motion(self, event):
         if event.button != 1 or \
