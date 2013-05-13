@@ -165,18 +165,19 @@ class FileInfoCache(object):
         # Use a progressbar if the filecount is large so something appears on
         # screen.
         pbar = None
-        if filecount > 100:
+        if filecount > 110:
             widgets = ["Updating cache: ", progressbar.Percentage(),
                 progressbar.Bar(), "", progressbar.ETA()]
             pbar = progressbar.ProgressBar(widgets=widgets,
                 maxval=filecount).start()
+            update_interval = int(filecount / 100)
 
         current_file_count = 0
         # Now update all filetypes separately.
         for filetype in self.filetypes:
             for filename in self.files[filetype]:
                 current_file_count += 1
-                if pbar:
+                if pbar and not current_file_count % update_interval:
                     pbar.update(current_file_count)
                 if filename in db_files:
                     # Delete the file from the list of files to keep track of
