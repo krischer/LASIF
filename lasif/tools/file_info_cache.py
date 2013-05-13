@@ -185,7 +185,7 @@ class FileInfoCache(object):
                     del db_files[filename]
                     last_modified = os.path.getmtime(filename)
                     # If the last modified time is identical, nothing to do.
-                    if last_modified == this_file[1]:
+                    if int(round(last_modified)) == int(round(this_file[1])):
                         continue
                     # Otherwise check the hash.
                     with open(filename, "rb") as open_file:
