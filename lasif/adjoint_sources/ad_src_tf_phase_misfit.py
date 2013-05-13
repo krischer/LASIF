@@ -20,7 +20,8 @@ from lasif.adjoint_sources import time_frequency
 eps = np.spacing(1)
 
 
-def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold):
+def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
+        axis=None):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -95,7 +96,11 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold):
     ad_src, it, I = time_frequency.itfa(tau, nu, idp, width, threshold)
 
     # Interpolate to original time axis
-    ad_src = interp1d(tau[0, :], np.imag(ad_src), kind=2)(t)
+    current_time = tau[0, :]
+    new_time = t[t <= current_time.max()]
+    ad_src = interp1d(current_time, np.imag(ad_src), kind=2)(new_time)
+    if len(t) > len(new_time):
+        ad_src = np.concatenate([ad_src, np.zeros(len(t) - len(new_time))])
 
     # Divide by the misfit.
     ad_src /= (phase_misfit + eps)
@@ -106,9 +111,38 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold):
     ad_src = ad_src[::-1]
     ad_src = np.concatenate([[0.0], ad_src])
 
+    # Plot if required.
+    if axis:
+        import matplotlib.cm as cm
+        import matplotlib.pyplot as plt
+        weighted_phase_difference = DP * weight
+        max_val = np.abs(weighted_phase_difference).max()
+        mappable = axis.pcolormesh(tau, nu,
+            weighted_phase_difference.transpose(), vmin=-max_val, vmax=max_val,
+            cmap=cm.RdBu_r)
+        axis.set_xlabel("Seconds since event")
+        axis.set_ylabel("TF Phase Misfit: Frequency [Hz]")
+        axis.set_ylim(0, 0.04)
+        cm = plt.gcf().colorbar(mappable, ax=axis)
+        cm.set_label("Phase difference in radian")
+        plt.title("Weighted phase difference")
+
+        ax2 = axis.twinx()
+        ax2.plot(t, data, color="black", alpha=1.0)
+        ax2.plot(t, synthetic, color="red", alpha=1.0)
+        min_value = min(data.min(), synthetic.min())
+        max_value = max(data.max(), synthetic.max())
+        value_range = max_value - min_value
+        ax2.set_ylim(min_value - value_range, max_value + 0.05 * value_range)
+        ax2.set_ylabel("Waveforms: Amplitude [m/s]")
+
     ret_dict = {
         "adjoint_source": ad_src,
         "misfit": phase_misfit,
-        "messages": messages}
+        "messages": messages,
+        "weight": weight,
+        "DP": DP,
+        "test_field": test_field,
+        "tf_cc": tf_cc}
 
     return ret_dict
