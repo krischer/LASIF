@@ -117,6 +117,9 @@ def _parse_resp_datetime_string(datetime_string):
             hour, minute = map(int, time_split)
             return UTCDateTime(year=year, julday=julday, hour=int(hour),
                     minute=int(minute))
+        elif len(time_split) == 1:
+            hour = int(time_split[0])
+            return UTCDateTime(year=year, julday=julday, hour=hour)
         else:
             msg = "Unknown datetime representation %s" % datetime_string
             raise NotImplementedError(msg)
