@@ -116,7 +116,6 @@ def lasif_download_waveforms(args):
     be saved in the DATA/EVENT_NAME/raw directory.
     """
     from lasif.download_helpers import downloader
-    import obspy
 
     proj = _find_project_root(".")
     events = proj.get_event_dict()
@@ -128,7 +127,7 @@ def lasif_download_waveforms(args):
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
 
-    event = obspy.readEvents(events[event_name])[0]
+    event = proj.get_event(event_name)
     origin = event.preferred_origin() or event.origins[0]
     time = origin.time
     starttime = time - proj.config["download_settings"]["seconds_before_event"]
@@ -496,8 +495,7 @@ def lasif_launch_misfit_gui(args):
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
 
-    from obspy import readEvents
-    event = readEvents(events[event_name])[0]
+    event = proj.get_event(event_name)
 
     data_tag = args[1]
     synthetic_tag = args[2]
@@ -688,9 +686,9 @@ def lasif_generate_dummy_data(args):
         tr.stats.sac = obspy.core.AttribDict(sac_dict)
         return tr
 
+    events = proj.get_all_events()
     # Now loop over all events and create SAC file for them.
-    proj.read_events()
-    for _i, event in enumerate(proj.events):
+    for _i, event in enumerate(events):
         lat, lng = event.origins[0].latitude, event.origins[0].longitude
         # Get the distance to each events.
         for station in stations:
@@ -726,7 +724,7 @@ def lasif_generate_dummy_data(args):
                 tr.write(os.path.join(path, "%s.%s..BH%s.sac" %
                     (station["network"], station["station"], component)),
                     format="sac")
-    print "Generated %i waveform files." % (30 * 3 * len(proj.events))
+    print "Generated %i waveform files." % (30 * 3 * len(events))
 
 
 def main():

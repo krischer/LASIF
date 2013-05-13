@@ -374,14 +374,31 @@ class Project(object):
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=True, show_plot=True)
 
-    def read_events(self):
+    def get_event(self, event_name):
         """
-        Parses all events to a catalog object and stores it in self.events.
+        Helper function to avoid reading one event twice.
         """
         from obspy import readEvents
 
-        self.events = readEvents(os.path.join(self.paths["events"],
-            "*%sxml" % os.path.extsep))
+        if not hasattr(self, "_seismic_events"):
+            self._seismic_events = {}
+        # Read the file if it does not exist.
+        if event_name not in self._seismic_events:
+            filename = os.path.join(self.paths["events"], "%s%sxml" %
+                (event_name, os.path.extsep))
+            if not os.path.exists(filename):
+                return None
+            self._seismic_events[event_name] = readEvents(filename)[0]
+        return self._seismic_events[event_name]
+
+    def get_all_events(self):
+        """
+        Parses all events and returns a list of Event objects.
+        """
+        events = self.get_event_dict()
+        for event in events.keys():
+            self.get_event(event)
+        return self._seismic_events.values()
 
     def plot_event(self, event_name):
         """
@@ -389,7 +406,6 @@ class Project(object):
         """
         from lasif import visualization
         import matplotlib.pyplot as plt
-        from obspy import readEvents
 
         # Plot the domain.
         bounds = self.domain["bounds"]
@@ -405,14 +421,14 @@ class Project(object):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
-        event = readEvents(all_events[event_name])
+        event = self.get_event(event_name)
         event_info = self.get_event_info(event_name)
 
         stations = self.get_stations_for_event(event_name)
         visualization.plot_stations_for_event(map_object=map,
             station_dict=stations, event_info=event_info)
         # Plot the beachball for one event.
-        visualization.plot_events(event, map_object=map)
+        visualization.plot_events([event], map_object=map)
 
         plt.show()
 
@@ -430,23 +446,21 @@ class Project(object):
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=False, show_plot=False, zoom=True)
-        if not hasattr(self, "events") or not self.events:
-            self.read_events()
-        visualization.plot_events(self.events, map_object=map)
+        events = self.get_all_events()
+        visualization.plot_events(events, map_object=map)
         plt.show()
 
     def get_event_info(self, event_name):
         """
         Returns a dictionary with information about one, specific event.
         """
-        from obspy import readEvents
         from obspy.core.util import FlinnEngdahl
 
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
-        event = readEvents(all_events[event_name])[0]
+        event = self.get_event(event_name)
         mag = event.preferred_magnitude() or event.magnitudes[0]
         org = event.preferred_origin() or event.origins[0]
 
@@ -485,7 +499,6 @@ class Project(object):
             and returning an appropriate source time function as numpy array.
         """
         from lasif import utils
-        from obspy import readEvents
         from wfs_input_generator import InputFileGenerator
 
         # Get the events
@@ -494,7 +507,7 @@ class Project(object):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
-        event = readEvents(all_events[event_name])[0]
+        event = self.get_event(event_name)
 
         # Get the input file templates.
         template_filename = os.path.join(self.paths["templates"],
