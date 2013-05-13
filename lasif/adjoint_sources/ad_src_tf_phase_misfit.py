@@ -115,14 +115,22 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
     if axis:
         import matplotlib.cm as cm
         import matplotlib.pyplot as plt
-        weighted_phase_difference = DP * weight
-        max_val = np.abs(weighted_phase_difference).max()
+        weighted_phase_difference = (DP * weight).transpose()
+        abs_diff = np.abs(weighted_phase_difference)
+        max_val = abs_diff.max()
         mappable = axis.pcolormesh(tau, nu,
-            weighted_phase_difference.transpose(), vmin=-max_val, vmax=max_val,
+            weighted_phase_difference, vmin=-max_val, vmax=max_val,
             cmap=cm.RdBu_r)
         axis.set_xlabel("Seconds since event")
         axis.set_ylabel("TF Phase Misfit: Frequency [Hz]")
-        axis.set_ylim(0, 0.04)
+
+        # Smart scaling for the frequency axis.
+        temp = abs_diff.max(axis=1) * (nu[1] - nu[0])
+        ymax = len(temp[temp > temp.max() / 1000.0])
+        ymax *= nu[1, 0] - nu[0, 0]
+        ymax *= 2
+        axis.set_ylim(0, ymax)
+
         cm = plt.gcf().colorbar(mappable, ax=axis)
         cm.set_label("Phase difference in radian")
         plt.title("Weighted phase difference")
@@ -139,10 +147,6 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
     ret_dict = {
         "adjoint_source": ad_src,
         "misfit": phase_misfit,
-        "messages": messages,
-        "weight": weight,
-        "DP": DP,
-        "test_field": test_field,
-        "tf_cc": tf_cc}
+        "messages": messages}
 
     return ret_dict
