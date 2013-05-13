@@ -21,7 +21,7 @@ eps = np.spacing(1)
 
 
 def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
-        axis=None):
+        axis=None, colorbar_axis=None):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -131,9 +131,12 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
         ymax *= 2
         axis.set_ylim(0, ymax)
 
-        cm = plt.gcf().colorbar(mappable, ax=axis)
+        if colorbar_axis:
+            cm = plt.gcf().colorbar(mappable, cax=colorbar_axis)
+        else:
+            cm = plt.gcf().colorbar(mappable, ax=axis)
         cm.set_label("Phase difference in radian")
-        plt.title("Weighted phase difference")
+        axis.set_title("Weighted phase difference")
 
         ax2 = axis.twinx()
         ax2.plot(t, data, color="black", alpha=1.0)
@@ -141,8 +144,11 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
         min_value = min(data.min(), synthetic.min())
         max_value = max(data.max(), synthetic.max())
         value_range = max_value - min_value
+        axis.twin_axis = ax2
         ax2.set_ylim(min_value - value_range, max_value + 0.05 * value_range)
         ax2.set_ylabel("Waveforms: Amplitude [m/s]")
+        axis.set_xlim(0, tau[:, -1][-1])
+        ax2.set_xlim(0, tau[:, -1][-1])
 
     ret_dict = {
         "adjoint_source": ad_src,

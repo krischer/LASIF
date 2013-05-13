@@ -46,15 +46,17 @@ class MisfitGUI:
 
     def __setup_plots(self):
         # Some actual plots.
-        self.plot_axis_z = plt.subplot2grid((6, 8), (0, 0), colspan=7)
-        self.plot_axis_n = plt.subplot2grid((6, 8), (1, 0), colspan=7)
-        self.plot_axis_e = plt.subplot2grid((6, 8), (2, 0), colspan=7)
+        self.plot_axis_z = plt.subplot2grid((6, 20), (0, 0), colspan=18)
+        self.plot_axis_n = plt.subplot2grid((6, 20), (1, 0), colspan=18)
+        self.plot_axis_e = plt.subplot2grid((6, 20), (2, 0), colspan=18)
 
-        self.misfit_axis = plt.subplot2grid((6, 8), (3, 0), colspan=4,
-            rowspan=1)
-        self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0), colspan=4,
-            rowspan=1)
-        self.map_axis = plt.subplot2grid((6, 8), (3, 4), colspan=4, rowspan=3)
+        self.misfit_axis = plt.subplot2grid((6, 20), (3, 0), colspan=11,
+            rowspan=3)
+        self.colorbar_axis = plt.subplot2grid((6, 20), (3, 12), colspan=1,
+            rowspan=3)
+        #self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0), colspan=4,
+            #rowspan=1)
+        self.map_axis = plt.subplot2grid((6, 20), (3, 13), colspan=8, rowspan=3)
 
         # Plot the map and the beachball.
         bounds = self.project.domain["bounds"]
@@ -67,9 +69,9 @@ class MisfitGUI:
         visualization.plot_events([self.event], map_object=self.map_obj)
 
         # All kinds of buttons [left, bottom, width, height]
-        self.axnext = plt.axes([0.02, 0.02, 0.1, 0.03])
-        self.axprev = plt.axes([0.14, 0.02, 0.1, 0.03])
-        self.axreset = plt.axes([0.26, 0.02, 0.1, 0.03])
+        self.axnext = plt.axes([0.90, 0.95, 0.08, 0.03])
+        self.axprev = plt.axes([0.90, 0.90, 0.08, 0.03])
+        self.axreset = plt.axes([0.90, 0.85, 0.08, 0.03])
         self.bnext = Button(self.axnext, 'Next')
         self.bprev = Button(self.axprev, 'Prev')
         self.breset = Button(self.axreset, 'Reset Station')
@@ -146,16 +148,17 @@ class MisfitGUI:
         self.update()
 
     def plot(self):
-        self.adjoint_source_axis.cla()
-        self.adjoint_source_axis.set_xticks([])
-        self.adjoint_source_axis.set_yticks([])
         self.misfit_axis.cla()
         self.misfit_axis.set_xticks([])
         self.misfit_axis.set_yticks([])
+        self.colorbar_axis.cla()
+        self.colorbar_axis.set_xticks([])
+        self.colorbar_axis.set_yticks([])
         try:
             self.misfit_axis.twin_axis.cla()
             self.misfit_axis.twin_axis.set_xticks([])
             self.misfit_axis.twin_axis.set_yticks([])
+            del self.misfit_axis.twin_axis
         except:
             pass
         try:
@@ -284,13 +287,13 @@ class MisfitGUI:
         data_trimmed = data.copy()
         data_trimmed.trim(starttime, endtime)
         data_trimmed.taper()
-        #data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True,
-            #fill_value=0.0)
-        synth_trimmed = data.copy()
+        data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True,
+            fill_value=0.0)
+        synth_trimmed = synth.copy()
         synth_trimmed.trim(starttime, endtime)
         synth_trimmed.taper()
-        #synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime,
-            #pad=True, fill_value=0.0)
+        synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime,
+            pad=True, fill_value=0.0)
 
         t = np.linspace(0, synth.stats.npts * synth.stats.delta,
             synth.stats.npts)
@@ -300,12 +303,23 @@ class MisfitGUI:
         synth_d = np.require(synth_trimmed.data, dtype="float64",
             requirements="C")
 
-        #ret_val = adsrc_tf_phase_misfit(np.linspace(0, synth_trimmed.stats.npts *
-            #synth.stats.delta, synth_trimmed.stats.npts), data_d,
-            #synth_d, synth.stats.delta, 100, 0.0)
-        #print ret_val.keys()
-        #print ret_val["misfit"]
-        #print ret_val["messages"]
+        self.misfit_axis.cla()
+        self.colorbar_axis.cla()
+        try:
+            self.misfit_axis.twin_axis.cla()
+            self.misfit_axis.twin_axis.set_xticks([])
+            self.misfit_axis.twin_axis.set_yticks([])
+        except:
+            pass
+
+        ret_val = adsrc_tf_phase_misfit(t, data_d, synth_d, 5.0, 50.0,
+            0.00000001, axis=self.misfit_axis,
+            colorbar_axis=self.colorbar_axis)
+        plt.tight_layout()
+        plt.draw()
+        print ret_val.keys()
+        print ret_val["misfit"]
+        print ret_val["messages"]
 
 
     def _write_adj_src(self):
