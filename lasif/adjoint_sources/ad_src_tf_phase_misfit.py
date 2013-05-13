@@ -150,6 +150,12 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
         axis.set_xlim(0, tau[:, -1][-1])
         ax2.set_xlim(0, tau[:, -1][-1])
 
+        text = "Misfit: %.4f" % phase_misfit
+        axis.text(x=0.99, y=0.02, s=text, transform=axis.transAxes,
+            bbox=dict(facecolor='orange', alpha=0.8),
+            verticalalignment="bottom",
+            horizontalalignment="right")
+
     ret_dict = {
         "adjoint_source": ad_src,
         "misfit": phase_misfit,
