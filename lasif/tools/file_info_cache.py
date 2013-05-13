@@ -97,10 +97,25 @@ class FileInfoCache(object):
         Inits the database connects, turns on foreign key support and creates
         the tables if they do not already exist.
         """
-        # Init database and enable foreign key support.
-        self.db_conn = sqlite3.connect(self.cache_db_file)
+        # Check if the file exists. If it exists, try to use it, otherwise
+        # delete and create a new one. This should take care that a new
+        # database is created in the case of DB corruption due to a power
+        # failure.
+        if os.path.exists(self.cache_db_file):
+            try:
+                self.db_conn = sqlite3.connect(self.cache_db_file)
+            except:
+                os.remove(self.cache_db_file)
+                self.db_conn = sqlite3.connect(self.cache_db_file)
+        else:
+            self.db_conn = sqlite3.connect(self.cache_db_file)
         self.db_cursor = self.db_conn.cursor()
+        # Enable foreign key support.
         self.db_cursor.execute("PRAGMA foreign_keys = ON;")
+        # Turn of sychronous writing. Much much faster inserts at the price of
+        # risking corruption at power failure. Worth the risk as the databases
+        # are just created from the data and can be recreated at any time.
+        self.db_cursor.execute("PRAGMA synchronous = OFF;")
         self.db_conn.commit()
         # Make sure that foreign key support has been turned on.
         if self.db_cursor.execute("PRAGMA foreign_keys;").fetchone()[0] != 1:
