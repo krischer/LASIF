@@ -69,12 +69,18 @@ class WindowSelectionRectangle(object):
         self.intial_selection_active = False
         self.canvas.draw()
 
-        self.on_window_selection_callback(self.rect.get_x(),
-            self.rect.get_width(), self.axis)
+        x = self.rect.get_x()
+        width = self.rect.get_width()
+
+        if width < 0:
+            x = x + width
+            width = abs(width)
+
+        self.on_window_selection_callback(x, width, self.axis)
 
     def on_mouse_motion(self, event):
         if event.button != 1 or \
-            self.intial_selection_active is not True:
+                self.intial_selection_active is not True:
             return
         if event.xdata is not None:
             self.rect.set_width(event.xdata - self.min_x)
