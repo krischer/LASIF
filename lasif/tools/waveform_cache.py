@@ -66,13 +66,13 @@ class WaveformCache(FileInfoCache):
             # Use SAC coordinates if available.
             if "sac" in tr.stats:
                 s_stats = tr.stats.sac
-                # All or nothing.
-                if -12345.0 not in [s_stats.stla, s_stats.stlo, s_stats.stel,
-                        s_stats.stdp]:
+                # All or nothing with the exception of the depth.
+                if -12345.0 not in [s_stats.stla, s_stats.stlo, s_stats.stel]:
                     latitude = float(s_stats.stla)
                     longitude = float(s_stats.stlo)
                     elevation_in_m = float(s_stats.stel)
-                    local_depth_in_m = float(s_stats.stdp)
+                    local_depth_in_m = float(s_stats.stdp) \
+                        if s_stats.stdp != -12345.0 else 0.0
 
             s = tr.stats
             waveforms.append([
