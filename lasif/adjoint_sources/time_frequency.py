@@ -36,9 +36,8 @@ def time_frequency_transform(t, s, dt_new, width, threshold):
 
     # Initialize the meshgrid
     N = len(t)
-    dnu = 1.0 / (N * dt_new)
 
-    nu = utils.matlab_range(0, float(N - 1) / (N * dt_new), dnu)
+    nu = np.linspace(0, float(N - 1) / (N * dt_new), len(t))
     tau = t
     TAU, NU = np.meshgrid(tau, nu)
 

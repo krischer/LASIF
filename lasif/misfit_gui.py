@@ -56,7 +56,8 @@ class MisfitGUI:
             rowspan=3)
         #self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0), colspan=4,
             #rowspan=1)
-        self.map_axis = plt.subplot2grid((6, 20), (3, 13), colspan=8, rowspan=3)
+        self.map_axis = plt.subplot2grid((6, 20), (3, 13), colspan=8,
+            rowspan=3)
 
         # Plot the map and the beachball.
         bounds = self.project.domain["bounds"]
@@ -194,7 +195,7 @@ class MisfitGUI:
                     bbox=dict(facecolor='red', alpha=0.5),
                     verticalalignment="top")
 
-            axis.set_xlim(0, 500)
+            axis.set_xlim(time_axis[0], time_axis[-1])
             axis.set_ylabel("m/s")
             axis.grid()
 
@@ -298,11 +299,6 @@ class MisfitGUI:
         t = np.linspace(0, synth.stats.npts * synth.stats.delta,
             synth.stats.npts)
 
-        data_d = np.require(data_trimmed.data, dtype="float64",
-            requirements="C")
-        synth_d = np.require(synth_trimmed.data, dtype="float64",
-            requirements="C")
-
         self.misfit_axis.cla()
         self.colorbar_axis.cla()
         try:
@@ -312,6 +308,12 @@ class MisfitGUI:
         except:
             pass
 
+        t = np.require(t, dtype="float64", requirements="C")
+        data_d = np.require(data_trimmed.data, dtype="float64",
+            requirements="C")
+        synth_d = np.require(synth_trimmed.data, dtype="float64",
+            requirements="C")
+
         ret_val = adsrc_tf_phase_misfit(t, data_d, synth_d, 5.0, 50.0,
             0.00000001, axis=self.misfit_axis,
             colorbar_axis=self.colorbar_axis)
@@ -320,7 +322,6 @@ class MisfitGUI:
         print ret_val.keys()
         print ret_val["misfit"]
         print ret_val["messages"]
-
 
     def _write_adj_src(self):
         pass
