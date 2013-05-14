@@ -49,8 +49,8 @@ class Project(object):
             msg = ("Could not find the project's config file. Wrong project "
                 "path or uninitialized project?")
             raise LASIFException(msg)
-        self._read_config_file()
         self.update_folder_structure()
+        self._read_config_file()
 
     def _setup_paths(self, root_path):
         """
