@@ -11,6 +11,7 @@ Visualization scripts.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from itertools import izip
+from matplotlib import cm
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import numpy as np
@@ -123,6 +124,48 @@ def plot_events(events, map_object):
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
+
+
+def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
+        max_lng, rot_axis, rot_angle):
+    """
+    Create a ray-density plot for all events and all stations.
+    """
+    from lasif.tools.great_circle_binner import GreatCircleBinner, Point
+    import progressbar
+
+    bounds = rotations.get_max_extention_of_domain(min_lat, max_lat, min_lng,
+        max_lng, rotation_axis=rot_axis, rotation_angle_in_degree=rot_angle)
+
+    binner = GreatCircleBinner(bounds["minimum_latitude"],
+        bounds["maximum_latitude"], 3000, bounds["minimum_longitude"],
+        bounds["maximum_longitude"], 3000)
+
+    station_count = sum([len(_i[1]) for _i in station_events])
+
+    widgets = ["Calculating greatcircles: ", progressbar.Percentage(),
+        progressbar.Bar(), "", progressbar.ETA()]
+    pbar = progressbar.ProgressBar(widgets=widgets,
+        maxval=station_count).start()
+
+    _i = 0
+    for event, stations in station_events:
+        org = event.preferred_origin() or event.origins[0]
+        e_point = Point(org.latitude, org.longitude)
+        for station in stations.itervalues():
+            _i += 1
+            pbar.update(_i)
+            binner.add_greatcircle(e_point, Point(station["latitude"],
+                station["longitude"]))
+    pbar.finish()
+
+    lngs, lats = binner.coordinates
+
+    cmap = cm.get_cmap("gist_heat_r")
+    cmap._init()
+    cmap._lut[:20, -1] = np.linspace(0, 1.0, 20)
+    ln, la = map_object(lngs, lats)
+    map_object.pcolormesh(ln, la, binner.bins.transpose(), cmap=cmap)
 
 
 def plot_stations_for_event(map_object, station_dict, event_info):

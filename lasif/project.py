@@ -450,6 +450,37 @@ class Project(object):
         visualization.plot_events(events, map_object=map)
         plt.show()
 
+    def plot_raydensity(self):
+        """
+        Plots the raydensity.
+        """
+        from lasif import visualization
+        import matplotlib.pyplot as plt
+
+        bounds = self.domain["bounds"]
+        map = visualization.plot_domain(bounds["minimum_latitude"],
+            bounds["maximum_latitude"], bounds["minimum_longitude"],
+            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
+            rotation_axis=self.domain["rotation_axis"],
+            rotation_angle_in_degree=self.domain["rotation_angle"],
+            plot_simulation_domain=False, show_plot=False, zoom=True)
+
+        event_stations = []
+        for event_name in self.get_event_dict().keys():
+            event = self.get_event(event_name)
+            stations = self.get_stations_for_event(event_name)
+            event_stations.append((event, stations))
+
+        visualization.plot_raydensity(map, event_stations,
+            bounds["minimum_latitude"], bounds["maximum_latitude"],
+            bounds["minimum_longitude"], bounds["maximum_longitude"],
+            self.domain["rotation_axis"], self.domain["rotation_angle"])
+
+        events = self.get_all_events()
+        visualization.plot_events(events, map_object=map)
+
+        plt.show()
+
     def get_event_info(self, event_name):
         """
         Returns a dictionary with information about one, specific event.

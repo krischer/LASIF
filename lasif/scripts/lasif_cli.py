@@ -80,6 +80,16 @@ def lasif_plot_events(args):
     proj.plot_events()
 
 
+def lasif_plot_raydensity(args):
+    """
+    Usage: lasif plot_raydensity
+
+    Plots a binned raycoverage plot for all events.
+    """
+    proj = _find_project_root(".")
+    proj.plot_raydensity()
+
+
 def lasif_add_spud_event(args):
     """
     Usage: lasif add_spud_event URL
