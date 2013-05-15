@@ -824,6 +824,18 @@ class Project(object):
                     synthetics[0].stats.starttime
                 data.trim(synthetics[0].stats.starttime - len_synth * 0.05,
                     synthetics[0].stats.endtime + len_synth * 0.05)
+                if data:
+                    max_length = max([tr.stats.npts for tr in data])
+                else:
+                    max_length = 0
+                if max_length == 0:
+                    msg = ("Warning: After trimming the waveform data to "
+                        "the time window of the synthetics, no more data is "
+                        "left. The reference time is the one given in the "
+                        "QuakeML file. Make sure it is correct and that "
+                        "the waveform data actually contains data in that "
+                        "time span.")
+                    print(msg)
                 data.detrend("linear")
                 data.taper()
 
