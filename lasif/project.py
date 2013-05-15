@@ -15,7 +15,6 @@ interface feels sluggish and slow.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import cPickle
-from datetime import datetime
 import glob
 import os
 import sys
@@ -457,6 +456,8 @@ class Project(object):
         from lasif import visualization
         import matplotlib.pyplot as plt
 
+        plt.figure(figsize=(20, 21))
+
         bounds = self.domain["bounds"]
         map = visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
@@ -479,7 +480,12 @@ class Project(object):
         events = self.get_all_events()
         visualization.plot_events(events, map_object=map)
 
-        plt.show()
+        plt.tight_layout()
+
+        outfile = os.path.join(self.get_output_folder("raydensity_plot"),
+            "raydensity.png")
+        plt.savefig(outfile, dpi=200)
+        print "Saved picture at %s" % outfile
 
     def get_event_info(self, event_name):
         """
@@ -612,16 +618,21 @@ class Project(object):
         gen.config.source_time_function = source_time_function(int(npts),
             float(delta))
 
-        # Generate the output directory.
-        output_dir = "input_files___%s___%s" % (template_name,
-            str(datetime.now()).replace(" ", "T"))
-
-        output_dir = os.path.join(self.paths["output"], output_dir)
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        output_dir = self.get_output_folder("input_files___%s" % template_name)
 
         gen.write(format="ses3d_4_0", output_dir=output_dir)
         print "Written files to '%s'." % output_dir
+
+    def get_output_folder(self, tag):
+        """
+        Generates a output folder in a unified way.
+        """
+        from datetime import datetime
+        output_dir = ("%s___%s" % (str(datetime.now()), tag)).replace(" ", "T")
+        output_dir = os.path.join(self.paths["output"], output_dir)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        return output_dir
 
     @property
     def station_cache(self):

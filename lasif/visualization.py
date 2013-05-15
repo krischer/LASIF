@@ -130,42 +130,129 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
         max_lng, rot_axis, rot_angle):
     """
     Create a ray-density plot for all events and all stations.
+
+    This function is potentially expensive and will use all CPUs available.
+    Does require geographiclib to be installed.
     """
+    import ctypes as C
     from lasif.tools.great_circle_binner import GreatCircleBinner, Point
+    import multiprocessing
     import progressbar
+    from scipy.stats import scoreatpercentile
+
+    # The granularity of the latitude/longitude discretization for the
+    # raypaths.
+    lat_count = 3000
+    lng_count = 3000
 
     bounds = rotations.get_max_extention_of_domain(min_lat, max_lat, min_lng,
         max_lng, rotation_axis=rot_axis, rotation_angle_in_degree=rot_angle)
 
-    binner = GreatCircleBinner(bounds["minimum_latitude"],
-        bounds["maximum_latitude"], 3000, bounds["minimum_longitude"],
-        bounds["maximum_longitude"], 3000)
-
-    station_count = sum([len(_i[1]) for _i in station_events])
-
-    widgets = ["Calculating greatcircles: ", progressbar.Percentage(),
-        progressbar.Bar(), "", progressbar.ETA()]
-    pbar = progressbar.ProgressBar(widgets=widgets,
-        maxval=station_count).start()
-
-    _i = 0
+    # Merge everything so that a list with coordinate pairs is created. This
+    # list is then distributed among all processors.
+    station_event_list = []
     for event, stations in station_events:
         org = event.preferred_origin() or event.origins[0]
         e_point = Point(org.latitude, org.longitude)
         for station in stations.itervalues():
-            _i += 1
-            pbar.update(_i)
-            binner.add_greatcircle(e_point, Point(station["latitude"],
-                station["longitude"]))
+            station_event_list.append((e_point, Point(station["latitude"],
+                station["longitude"])))
+
+    station_count = len(station_event_list)
+    cpu_count = multiprocessing.cpu_count()
+
+    def to_numpy(raw_array, dtype, shape):
+        data = np.frombuffer(raw_array.get_obj())
+        data.dtype = dtype
+        return data.reshape(shape)
+
+    print "\nLaunching %i greatcircle calculations on %i CPUs..." % \
+        (station_count, cpu_count)
+
+    widgets = ["Progress: ", progressbar.Percentage(),
+        progressbar.Bar(), "", progressbar.ETA()]
+    pbar = progressbar.ProgressBar(widgets=widgets,
+        maxval=station_count).start()
+
+    def great_circle_binning(sta_evs, bin_data_buffer, bin_data_shape,
+            lock, counter):
+        new_bins = GreatCircleBinner(bounds["minimum_latitude"],
+            bounds["maximum_latitude"], lat_count, bounds["minimum_longitude"],
+            bounds["maximum_longitude"], lng_count)
+        for event, station in sta_evs:
+            with lock:
+                counter.value += 1
+            if not counter.value % 25:
+                pbar.update(counter.value)
+            new_bins.add_greatcircle(event, station)
+
+        bin_data = to_numpy(bin_data_buffer, np.uint32, bin_data_shape)
+        with bin_data_buffer.get_lock():
+            bin_data += new_bins.bins
+
+    # Split the data in cpu_count parts.
+    def chunk(seq, num):
+        avg = len(seq) / float(num)
+        out = []
+        last = 0.0
+        while last < len(seq):
+            out.append(seq[int(last):int(last + avg)])
+            last += avg
+        return out
+    chunks = chunk(station_event_list, cpu_count)
+
+    # One instance that collects everything.
+    collected_bins = GreatCircleBinner(bounds["minimum_latitude"],
+        bounds["maximum_latitude"], lat_count, bounds["minimum_longitude"],
+        bounds["maximum_longitude"], lng_count)
+
+    # Use a multiprocessing shared memory array and map it to a numpy view.
+    collected_bins_data = multiprocessing.Array(C.c_uint32,
+        collected_bins.bins.size)
+    collected_bins.bins = to_numpy(collected_bins_data, np.uint32,
+        collected_bins.bins.shape)
+
+    # Create, launch and join one process per CPU. Use a shared value as a
+    # counter and a lock to avoid race conditions.
+    processes = []
+    lock = multiprocessing.Lock()
+    counter = multiprocessing.Value("i", 0)
+    for _i in xrange(cpu_count):
+        processes.append(multiprocessing.Process(target=great_circle_binning,
+            args=(chunks[_i], collected_bins_data, collected_bins.bins.shape,
+                lock, counter)))
+    for process in processes:
+        process.start()
+    for process in processes:
+        process.join()
+
     pbar.finish()
 
-    lngs, lats = binner.coordinates
+    title = "%i Events with %i recorded 3 component waveforms" % (
+        len(station_events), station_count)
+    #plt.gca().set_title(title, size="large")
+    plt.title(title, size="xx-large")
 
-    cmap = cm.get_cmap("gist_heat_r")
+    data = collected_bins.bins.transpose()
+    data = np.log10(data)
+    data += 0.1
+    data[np.isinf(data)] = 0.0
+    max_val = scoreatpercentile(data.ravel(), 99)
+
+    cmap = cm.get_cmap("gist_heat")
     cmap._init()
-    cmap._lut[:20, -1] = np.linspace(0, 1.0, 20)
+    cmap._lut[:120, -1] = np.linspace(0, 1.0, 120) ** 2
+
+    # Slightly change the appearance of the map so it suits the rays.
+    map_object.drawmapboundary(fill_color='#bbbbbb')
+    map_object.fillcontinents(color='#dddddd', lake_color='#dddddd', zorder=0)
+
+    lngs, lats = collected_bins.coordinates
     ln, la = map_object(lngs, lats)
-    map_object.pcolormesh(ln, la, binner.bins.transpose(), cmap=cmap)
+    map_object.pcolormesh(ln, la, data, cmap=cmap, vmin=0, vmax=max_val)
+    # Draw the coastlines so they appear over the rays. Otherwise things are
+    # sometimes hard to see.
+    map_object.drawcoastlines()
 
 
 def plot_stations_for_event(map_object, station_dict, event_info):
