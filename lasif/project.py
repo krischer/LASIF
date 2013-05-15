@@ -787,14 +787,25 @@ class Project(object):
                 # corresponding station file and check the coordinates.
                 this_waveforms = {_i["channel_id"]: _i for _i in waveforms
                     if _i["channel_id"].startswith(station_id + ".")}
-                for value in this_waveforms.itervalues():
+                marked_for_deletion = []
+                for key, value in this_waveforms.iteritems():
                     value["trace"] = read(value["filename"])[0]
                     data += value["trace"]
                     value["station_file"] = \
                         station_cache.get_station_filename(
                             value["channel_id"],
                             UTCDateTime(value["starttime_timestamp"]))
+                    if value["station_file"] is None:
+                        marked_for_deletion.append(key)
+                        msg = ("Warning: Data and station information for '%s'"
+                               " is available, but the station information "
+                               "only for the wrong timestamp. You should try "
+                               "and retrieve the correct station file.")
+                        warnings.warn(msg % value["channel_id"])
+                        continue
                     data[-1].stats.station_file = value["station_file"]
+                for key in marked_for_deletion:
+                    del this_waveforms[key]
                 if not this_waveforms:
                     msg = "Could not retrieve data for station '%s'." % \
                         station_id
@@ -838,7 +849,7 @@ class Project(object):
                         "QuakeML file. Make sure it is correct and that "
                         "the waveform data actually contains data in that "
                         "time span.")
-                    print(msg)
+                    warnings.warn(msg)
                 data.detrend("linear")
                 data.taper()
 

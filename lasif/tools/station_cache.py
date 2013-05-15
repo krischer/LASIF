@@ -136,7 +136,10 @@ class StationCache(FileInfoCache):
             ((indices.end_date IS NULL) OR (indices.end_date > %i))
         LIMIT 1;
         """ % (channel_id, time, time)
-        return self.db_cursor.execute(sql_query).fetchone()[0]
+        try:
+            return self.db_cursor.execute(sql_query).fetchone()[0]
+        except:
+            return None
 
     def station_info_available(self, channel_id, time):
         """
