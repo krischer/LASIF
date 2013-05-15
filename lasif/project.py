@@ -766,14 +766,14 @@ class Project(object):
                 self.current_index += 1
                 if self.current_index > (len(self.items) - 1):
                     self.current_index = len(self.items) - 1
-                    return None
+                    raise StopIteration
                 return self.get_value()
 
             def prev(self):
                 self.current_index -= 1
                 if self.current_index < 0:
                     self.current_index = 0
-                    return None
+                    raise StopIteration
                 return self.get_value()
 
             def get_value(self):
@@ -846,6 +846,16 @@ class Project(object):
 
                 # Simulate the traces.
                 for trace in data:
+                    # Decimate in case there is a large difference between
+                    # synthetic sampling rate and sampling_rate of the data.
+                    # XXX: Ugly filter, change!
+                    if trace.stats.sampling_rate > (6 *
+                            synth.stats.sampling_rate):
+                        new_nyquist = trace.stats.sampling_rate / 2.0 / 5.0
+                        trace.filter("lowpass", freq=new_nyquist, corners=4,
+                            zerophase=True)
+                        trace.decimate(factor=5, no_filter=None)
+
                     station_file = trace.stats.station_file
                     if "/SEED/" in station_file:
                         paz = Parser(station_file).getPAZ(trace.id,
@@ -856,6 +866,18 @@ class Project(object):
                             "units": "VEL", "date": trace.stats.starttime})
                     else:
                         raise NotImplementedError
+
+                    # Make sure that the data array is at least as long as the
+                    # synthetics array. Also add some buffer sample for the
+                    # spline interpolation to work in any case.
+                    buf = synth.stats.delta * 5
+                    if synth.stats.starttime < (trace.stats.starttime + buf):
+                        trace.trim(starttime=synth.stats.starttime - buf,
+                            pad=True, fill_value=0.0)
+                    if synth.stats.endtime > (trace.stats.endtime - buf):
+                        trace.trim(endtime=synth.stats.endtime + buf, pad=True,
+                            fill_value=0.0)
+
                     old_time_array = np.linspace(
                         trace.stats.starttime.timestamp,
                         trace.stats.endtime.timestamp,

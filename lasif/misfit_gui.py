@@ -96,16 +96,26 @@ class MisfitGUI:
         plt.tight_layout()
 
     def next(self, *args):
-        data = self.seismogram_generator.next()
-        if not data:
-            return
+        while True:
+            try:
+                data = self.seismogram_generator.next()
+            except StopIteration:
+                return
+            if not data:
+                continue
+            break
         self.data = data
         self.update()
 
     def prev(self, *args):
-        data = self.seismogram_generator.prev()
-        if not data:
-            return
+        while True:
+            try:
+                data = self.seismogram_generator.prev()
+            except StopIteration:
+                return
+            if not data:
+                continue
+            break
         self.data = data
         self.update()
 
