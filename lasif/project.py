@@ -737,6 +737,7 @@ class Project(object):
 
     def data_synthetic_iterator(self, event_name, data_tag, synthetic_tag,
             highpass, lowpass):
+        from lasif import rotations
         import numpy as np
         from obspy import read, Stream, UTCDateTime
         from obspy.xseed import Parser
@@ -758,9 +759,11 @@ class Project(object):
         station_cache = self.station_cache
 
         class TwoWayIter(object):
-            def __init__(self):
+            def __init__(self, rot_angle=0.0, rot_axis=[0.0, 0.0, 1.0]):
                 self.items = stations.items()
                 self.current_index = -1
+                self.rot_angle = rot_angle
+                self.rot_axis = rot_axis
 
             def next(self):
                 self.current_index += 1
@@ -894,10 +897,28 @@ class Project(object):
                 synthetics.filter("bandpass", freqmin=lowpass,
                     freqmax=highpass)
 
+                # Rotate the synthetics if nessesary.
+                if self.rot_angle:
+                    # First rotate the station back to see, where it was
+                    # recorded.
+                    lat, lng = rotations.rotate_lat_lon(
+                        coordinates["latitude"], coordinates["longitude"],
+                        self.rot_axis, -self.rot_angle)
+                    # Rotate the data.
+                    n_trace = synthetics.select(component="N")[0]
+                    e_trace = synthetics.select(component="E")[0]
+                    z_trace = synthetics.select(component="Z")[0]
+                    n, e, z = rotations.rotate_data(n_trace.data, e_trace.data,
+                        z_trace.data, lat, lng, self.rot_axis, self.rot_angle)
+                    n_trace.data = n
+                    e_trace.data = e
+                    z_trace.data = z
+
                 return {"data": data, "synthetics": synthetics,
                     "coordinates": coordinates}
 
-        return TwoWayIter()
+        return TwoWayIter(self.domain["rotation_angle"],
+            self.domain["rotation_axis"])
 
     def has_station_file(self, channel_id, time):
         """
