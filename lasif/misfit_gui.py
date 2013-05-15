@@ -324,14 +324,11 @@ class MisfitGUI:
         synth_d = np.require(synth_trimmed.data, dtype="float64",
             requirements="C")
 
-        ret_val = adsrc_tf_phase_misfit(t, data_d, synth_d, 5.0, 50.0,
+        adsrc_tf_phase_misfit(t, data_d, synth_d, 5.0, 50.0,
             0.00000001, axis=self.misfit_axis,
             colorbar_axis=self.colorbar_axis)
         plt.tight_layout()
         plt.draw()
-        print ret_val.keys()
-        print ret_val["misfit"]
-        print ret_val["messages"]
 
     def _write_adj_src(self):
         pass

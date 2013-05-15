@@ -156,6 +156,13 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
             verticalalignment="bottom",
             horizontalalignment="right")
 
+        if messages:
+            message = "\n".join(messages)
+            axis.text(x=0.99, y=0.98, s=message, transform=axis.transAxes,
+                bbox=dict(facecolor='red', alpha=0.8),
+                verticalalignment="top",
+                horizontalalignment="right")
+
     ret_dict = {
         "adjoint_source": ad_src,
         "misfit": phase_misfit,
