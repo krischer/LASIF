@@ -140,11 +140,6 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     import progressbar
     from scipy.stats import scoreatpercentile
 
-    # The granularity of the latitude/longitude discretization for the
-    # raypaths.
-    lat_count = 3000
-    lng_count = 3000
-
     bounds = rotations.get_max_extention_of_domain(min_lat, max_lat, min_lng,
         max_lng, rotation_axis=rot_axis, rotation_angle_in_degree=rot_angle)
 
@@ -158,7 +153,18 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
             station_event_list.append((e_point, Point(station["latitude"],
                 station["longitude"])))
 
-    station_count = len(station_event_list)
+    circle_count = len(station_event_list)
+
+    # The granularity of the latitude/longitude discretization for the
+    # raypaths. Attempt to get a somewhat meaningful result in any case.
+    lat_lng_count = 1000
+    if circle_count < 1000:
+        lat_lng_count = 1000
+    if circle_count < 10000:
+        lat_lng_count = 2000
+    else:
+        lat_lng_count = 3000
+
     cpu_count = multiprocessing.cpu_count()
 
     def to_numpy(raw_array, dtype, shape):
@@ -167,18 +173,19 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
         return data.reshape(shape)
 
     print "\nLaunching %i greatcircle calculations on %i CPUs..." % \
-        (station_count, cpu_count)
+        (circle_count, cpu_count)
 
     widgets = ["Progress: ", progressbar.Percentage(),
         progressbar.Bar(), "", progressbar.ETA()]
     pbar = progressbar.ProgressBar(widgets=widgets,
-        maxval=station_count).start()
+        maxval=circle_count).start()
 
     def great_circle_binning(sta_evs, bin_data_buffer, bin_data_shape,
             lock, counter):
         new_bins = GreatCircleBinner(bounds["minimum_latitude"],
-            bounds["maximum_latitude"], lat_count, bounds["minimum_longitude"],
-            bounds["maximum_longitude"], lng_count)
+            bounds["maximum_latitude"], lat_lng_count,
+            bounds["minimum_longitude"], bounds["maximum_longitude"],
+            lat_lng_count)
         for event, station in sta_evs:
             with lock:
                 counter.value += 1
@@ -203,8 +210,8 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
 
     # One instance that collects everything.
     collected_bins = GreatCircleBinner(bounds["minimum_latitude"],
-        bounds["maximum_latitude"], lat_count, bounds["minimum_longitude"],
-        bounds["maximum_longitude"], lng_count)
+        bounds["maximum_latitude"], lat_lng_count, bounds["minimum_longitude"],
+        bounds["maximum_longitude"], lat_lng_count)
 
     # Use a multiprocessing shared memory array and map it to a numpy view.
     collected_bins_data = multiprocessing.Array(C.c_uint32,
@@ -229,15 +236,19 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     pbar.finish()
 
     title = "%i Events with %i recorded 3 component waveforms" % (
-        len(station_events), station_count)
+        len(station_events), circle_count)
     #plt.gca().set_title(title, size="large")
     plt.title(title, size="xx-large")
 
     data = collected_bins.bins.transpose()
-    data = np.log10(data)
-    data += 0.1
-    data[np.isinf(data)] = 0.0
-    max_val = scoreatpercentile(data.ravel(), 99)
+
+    if data.max() >= 10:
+        data = np.log10(data)
+        data += 0.1
+        data[np.isinf(data)] = 0.0
+        max_val = scoreatpercentile(data.ravel(), 99)
+    else:
+        max_val = data.max()
 
     cmap = cm.get_cmap("gist_heat")
     cmap._init()
