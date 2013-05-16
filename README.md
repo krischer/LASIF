@@ -29,12 +29,14 @@ Dependencies:
 * [wfs_input_generator](http://github.com/krischer/wfs_input_generator)
 * requests
 * progressbar
+* geographiclib
 
-The later two can simply be installed via pip:
+The later three can simply be installed via pip:
 
 ```bash
 $ pip install requests
 $ pip install progressbar
+$ pip install geographiclib
 ```
 
 ObsPy and basemap are slightly more complicated to install. Please refer to the
