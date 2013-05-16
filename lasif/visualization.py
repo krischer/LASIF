@@ -268,6 +268,9 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     # Draw the coastlines so they appear over the rays. Otherwise things are
     # sometimes hard to see.
     map_object.drawcoastlines()
+    map_object.drawcountries(linewidth=0.2)
+    map_object.drawmeridians(np.arange(0, 360, 30))
+    map_object.drawparallels(np.arange(-90, 90, 30))
 
 
 def plot_stations_for_event(map_object, station_dict, event_info):

@@ -479,7 +479,7 @@ class Project(object):
             self.domain["rotation_axis"], self.domain["rotation_angle"])
 
         events = self.get_all_events()
-        visualization.plot_events(events, map_object=map)
+        visualization.plot_events   events, map_object=map)
 
         plt.tight_layout()
 
