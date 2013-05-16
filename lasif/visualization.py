@@ -24,7 +24,7 @@ import rotations
 def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         boundary_buffer_in_degree=0.0, rotation_axis=[0.0, 0.0, 1.0],
         rotation_angle_in_degree=0.0, show_plot=True,
-        plot_simulation_domain=False, zoom=False):
+        plot_simulation_domain=False, zoom=False, resolution=None):
     """
     """
     bounds = rotations.get_max_extention_of_domain(min_latitude,
@@ -42,11 +42,15 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
 
     # Arbitrary threshold
     if zoom is False or max_extend > 70:
+        if resolution is None:
+            resolution = "c"
         m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
-            resolution="c")
+            resolution=resolution)
     else:
+        if resolution is None:
+            resolution = "l"
         buffer = max_extend * 0.1
-        m = Basemap(projection='merc', resolution="l",
+        m = Basemap(projection='merc', resolution=resolution,
             llcrnrlat=bounds["minimum_latitude"] - buffer,
             urcrnrlat=bounds["maximum_latitude"] + buffer,
             llcrnrlon=bounds["minimum_longitude"] - buffer,

@@ -27,11 +27,13 @@ from lasif.adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 
 
 class MisfitGUI:
-    def __init__(self, event, seismogram_generator, project, window_manager):
+    def __init__(self, event, seismogram_generator, project, window_manager,
+            adjoint_source_directory):
         self.event = event
         self.event_latitude = event.origins[0].latitude
         self.event_longitude = event.origins[0].longitude
         self.project = project
+        self.adjoint_source_dir = adjoint_source_directory
 
         self.seismogram_generator = seismogram_generator
 
@@ -324,14 +326,21 @@ class MisfitGUI:
         synth_d = np.require(synth_trimmed.data, dtype="float64",
             requirements="C")
 
-        adsrc_tf_phase_misfit(t, data_d, synth_d, 5.0, 50.0,
+        adsrc = adsrc_tf_phase_misfit(t, data_d, synth_d, 5.0, 50.0,
             0.00000001, axis=self.misfit_axis,
             colorbar_axis=self.colorbar_axis)
         plt.tight_layout()
         plt.draw()
 
-    def _write_adj_src(self):
-        pass
+        # Also save the adjoint source function.
+        self.write_adj_src(adsrc["adjoint_source"], synth.id, starttime,
+            endtime)
+
+    def _write_adj_src(self, adj_src, channel_id, starttime, endtime):
+        filename = "adjoint_source_%s_%s_%s.npy" % (channel_id, str(starttime),
+            str(endtime))
+        filename = os.path.join(self.adjoint_source_dir, filename)
+
         #adjoint_src_filename = os.path.join(self.adjoint_src_folder,
             #self.filename)
 

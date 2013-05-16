@@ -464,7 +464,8 @@ class Project(object):
             bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=False, show_plot=False, zoom=True)
+            plot_simulation_domain=False, show_plot=False, zoom=True,
+            resolution="l")
 
         event_stations = []
         for event_name in self.get_event_dict().keys():
