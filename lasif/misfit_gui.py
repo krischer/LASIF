@@ -28,7 +28,7 @@ from lasif.adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 
 class MisfitGUI:
     def __init__(self, event, seismogram_generator, project, window_manager,
-            adjoint_source_directory):
+            adjoint_source_directory=None):
         self.event = event
         self.event_latitude = event.origins[0].latitude
         self.event_longitude = event.origins[0].longitude
@@ -333,8 +333,8 @@ class MisfitGUI:
         plt.draw()
 
         # Also save the adjoint source function.
-        self.write_adj_src(adsrc["adjoint_source"], synth.id, starttime,
-            endtime)
+        #self.write_adj_src(adsrc["adjoint_source"], synth.id, starttime,
+            #endtime)
 
     def _write_adj_src(self, adj_src, channel_id, starttime, endtime):
         filename = "adjoint_source_%s_%s_%s.npy" % (channel_id, str(starttime),

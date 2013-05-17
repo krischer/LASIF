@@ -413,11 +413,8 @@ def lasif_generate_input_files(args):
     except Exception as e:
         raise LASIFCommandLineException(str(e))
 
-    try:
-        proj.generate_input_files(event_name, input_file_template,
-            simulation_type, source_time_function)
-    except Exception as e:
-        raise LASIFCommandLineException(str(e))
+    proj.generate_input_files(event_name, input_file_template,
+        simulation_type, source_time_function)
 
 
 def lasif_generate_input_file_template(args):
