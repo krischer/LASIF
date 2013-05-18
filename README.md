@@ -12,6 +12,8 @@
 
 [Preliminary Documentation](http://krischer.github.io/LASIF)
 
+This is not up-to-date and will be replaced with a new version soon. Hang tight!
+
 To locally build the most recent version:
 
 ```bash
