@@ -15,7 +15,7 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import numpy as np
-from obspy.imaging.beachball import Beach
+from obspy.imaging.mopad_wrapper import Beach
 from obspy.signal.tf_misfit import plotTfr
 
 import rotations
