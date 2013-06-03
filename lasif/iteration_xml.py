@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-DESCRIPTION
+Functionality to deal with Iteration XML files.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
-    GNU Lesser General Public License, Version 3
-    (http://www.gnu.org/copyleft/lesser.html)
+    GNU General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
 """
 from lxml import etree
 from lxml.builder import E
