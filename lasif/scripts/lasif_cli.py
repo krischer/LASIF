@@ -221,9 +221,9 @@ def lasif_download_stations(args):
 
 def lasif_list_events(args):
     """
-    Usage: lasif list_events
+    usage: lasif list_events
 
-    Returns a list of all events in the project.
+    returns a list of all events in the project.
     """
     events = _find_project_root(".").get_event_dict()
     print("%i event%s in project:" % (len(events), "s" if len(events) > 1
@@ -316,22 +316,6 @@ def lasif_event_info(args):
         stations[key]["elevation"], stations[key]["local_depth"]]
         for key in keys]
     table_printer(header, data)
-
-
-def lasif_list_stf(args):
-    """
-    Usage: lasif list_stf
-
-    Returns a list of names with all source time functions known to the
-    project.
-    """
-    proj = _find_project_root(".")
-    files = glob.glob(os.path.join(proj.paths["source_time_functions"],
-        "*.py"))
-    print "Project has %i defined source time function%s:" % (len(files), "s"
-        if len(files) > 1 else "")
-    for filename in files:
-        print "\t%s" % os.path.splitext(os.path.basename(filename))[0]
 
 
 def lasif_plot_stf(args):
@@ -492,6 +476,19 @@ def lasif_create_new_iteration(args):
     proj = _find_project_root(".")
 
     proj.create_new_iteration(iteration_name, solver_name)
+
+
+def lasif_list_iterations(args):
+    """
+    Usage: lasif list_iterations
+
+    Returns a list of all iterations for this project.
+    """
+    iterations = _find_project_root(".").get_iteration_dict().keys()
+    print("%i Iterations%s in project:" % (len(iterations),
+        "s" if len(iterations) > 1 else ""))
+    for iteration in sorted(iterations):
+        print ("\t%s" % iteration)
 
 
 def lasif_generate_dummy_data(args):

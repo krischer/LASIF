@@ -393,6 +393,19 @@ class Project(object):
 
         print "Created iteration %s" % iteration_name
 
+    def get_iteration_dict(self):
+        """
+        Returns a dictonary with all iterations in the project, the keys are
+        the iteration names and the values the full paths to each iteration.
+        """
+        iterations = {}
+        for iteration in glob.iglob(os.path.join(self.paths["iterations"],
+                "*%sxml" % os.extsep)):
+            iteration = os.path.abspath(iteration)
+            iteration_name = os.path.splitext(os.path.basename(iteration))[0]
+            iterations[iteration_name] = iteration
+        return iterations
+
     def get_all_events(self):
         """
         Parses all events and returns a list of Event objects.
