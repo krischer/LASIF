@@ -37,6 +37,7 @@ class Iteration(object):
         self.description = self._get_if_available(root,
             "iteration_description")
         self.comments = [_i.text for _i in root.findall("comment") if _i.text]
+        self.source_time_function = self._get(root, "source_time_function")
 
         self.data_preprocessing = {}
         prep = root.find("data_preprocessing")
@@ -45,14 +46,79 @@ class Iteration(object):
         self.data_preprocessing["lowpass_frequency"] = \
             float(self._get(prep, "lowpass_frequency"))
 
+        self.solver_settings = self._recursive_dict(root.find(
+            "solver_parameters"))[1]
+
+        self.events = {}
+        for event in root.findall("event"):
+            event_name = self._get(event, "event_name")
+            self.events[event_name] = {
+                "event_weight": float(self._get(event, "event_weight")),
+                "time_correction_in_s": float(self._get(event,
+                    "time_correction_in_s")),
+                "stations": {}}
+            for station in event.findall("station"):
+                station_id = self._get(station, "station_id")
+                comments = [_i.text
+                    for _i in station.findall("comment") if _i.text]
+                self.events[event_name]["stations"][station_id] = {
+                    "station_weight": float(self._get(station,
+                        "station_weight")),
+                    "time_correction_in_s": float(self._get(station,
+                        "time_correction_in_s")),
+                    "comments": comments}
+
     def _get(self, element, node_name):
         return element.find(node_name).text
 
     def _get_if_available(self, element, node_name):
         item = element.find(node_name)
-        if item:
+        if item is not None:
             return item.text
         return None
+
+    def _recursive_dict(self, element):
+        return element.tag, \
+            dict(map(self._recursive_dict, element)) or element.text
+
+    def __str__(self):
+        """
+        Pretty printing.
+        """
+        ret_str = (
+            "LASIF Iteration\n"
+            "\tName: {self.iteration_name}\n"
+            "\tDescription: {self.description}\n"
+            "{comments}"
+            "\tSource Time Function: {self.source_time_function}\n"
+            "\tPreprocessing Settings:\n"
+            "\t\tHighpass Frequency: {hp:.3f} Hz\n"
+            "\t\tLowpass Frequency: {lp:.3f} Hz\n"
+            "\tSolver: {solver} | {timesteps} timesteps (dt: {dt}s)\n"
+            "\t{event_count} events recorded at {station_count} "
+            "unique stations\n"
+            "\t{pair_count} event-station pairs (\"rays\")")
+
+        comments = "\n".join("\tComment: %s" % comment
+            for comment in self.comments)
+        if comments:
+            comments += "\n"
+
+        all_stations = []
+        for ev in self.events.itervalues():
+            all_stations.extend(ev["stations"].iterkeys())
+
+        return ret_str.format(self=self, comments=comments,
+            hp=self.data_preprocessing["highpass_frequency"],
+            lp=self.data_preprocessing["lowpass_frequency"],
+            solver=self.solver_settings["solver"],
+            timesteps=self.solver_settings["solver_settings"][
+                "simulation_parameters"]["number_of_time_steps"],
+            dt=self.solver_settings["solver_settings"][
+                "simulation_parameters"]["time_increment"],
+            event_count=len(self.events),
+            pair_count=len(all_stations),
+            station_count=len(set(all_stations)))
 
 
 def create_iteration_xml_string(iteration_name, solver_name, events):
@@ -97,8 +163,7 @@ def create_iteration_xml_string(iteration_name, solver_name, events):
             E.minimum_trace_length_in_s("500.0"),
             E.signal_to_noise(
                 E.test_interval_from_origin_in_s("100.0"),
-                E.max_amplitude_ratio("100.0"))
-            ),
+                E.max_amplitude_ratio("100.0"))),
         E.source_time_function("Filtered Heaviside"),
         E.solver_parameters(
             E.solver(solver_name),

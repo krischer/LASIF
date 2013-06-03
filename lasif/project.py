@@ -403,6 +403,8 @@ class Project(object):
                 "*%sxml" % os.extsep)):
             iteration = os.path.abspath(iteration)
             iteration_name = os.path.splitext(os.path.basename(iteration))[0]
+            if iteration_name.startswith("ITERATION_"):
+                iteration_name = iteration_name[10:]
             iterations[iteration_name] = iteration
         return iterations
 

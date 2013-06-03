@@ -485,7 +485,7 @@ def lasif_list_iterations(args):
     Returns a list of all iterations for this project.
     """
     iterations = _find_project_root(".").get_iteration_dict().keys()
-    print("%i Iterations%s in project:" % (len(iterations),
+    print("%i Iteration%s in project:" % (len(iterations),
         "s" if len(iterations) > 1 else ""))
     for iteration in sorted(iterations):
         print ("\t%s" % iteration)
@@ -512,6 +512,7 @@ def lasif_iteration_info(args):
         raise LASIFCommandLineException(msg)
 
     iteration = Iteration(iterations[iteration_name])
+    print iteration
 
 
 def lasif_generate_dummy_data(args):
