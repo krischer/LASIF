@@ -93,7 +93,12 @@ def create_iteration_xml_string(iteration_name, solver_name, events):
         E.data_preprocessing(
             E.highpass_frequency("0.01"),
             E.lowpass_frequency("0.5")),
-        E.rejection_criteria(""),
+        E.rejection_criteria(
+            E.minimum_trace_length_in_s("500.0"),
+            E.signal_to_noise(
+                E.test_interval_from_origin_in_s("100.0"),
+                E.max_amplitude_ratio("100.0"))
+            ),
         E.source_time_function("Filtered Heaviside"),
         E.solver_parameters(
             E.solver(solver_name),
