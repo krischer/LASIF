@@ -385,7 +385,7 @@ class Project(object):
         events_dict = {event: self.get_stations_for_event(event).keys()
             for event in self.get_event_dict().keys()}
 
-        xml_string = iteration_xml.create_new_iteration_xml_file(
+        xml_string = iteration_xml.create_iteration_xml_string(
             iteration_name, solver_name, events_dict)
 
         with open(filename, "wt") as fh:

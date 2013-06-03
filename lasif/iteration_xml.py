@@ -30,9 +30,9 @@ class Iteration(object):
         pass
 
 
-def create_new_iteration_xml_file(iteration_name, solver_name, events):
+def create_iteration_xml_string(iteration_name, solver_name, events):
     """
-    Creates a new iteration file.
+    Creates a new iteration string.
 
     Returns a string containing the XML representation.
 
