@@ -491,6 +491,29 @@ def lasif_list_iterations(args):
         print ("\t%s" % iteration)
 
 
+def lasif_iteration_info(args):
+    """
+    Usage: lasif iteration_info ITERATION_NAME
+
+    Prints information about the given event.
+    """
+    from lasif.iteration_xml import Iteration
+
+    if len(args) != 1:
+        msg = "ITERATION_NAME must be given. No other arguments allowed."
+        raise LASIFCommandLineException(msg)
+    iteration_name = args[0]
+
+    proj = _find_project_root(".")
+    iterations = proj.get_iteration_dict()
+    if iteration_name not in iterations:
+        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
+            "a list of all available iterations.") % iteration_name
+        raise LASIFCommandLineException(msg)
+
+    iteration = Iteration(iterations[iteration_name])
+
+
 def lasif_generate_dummy_data(args):
     """
     Usage: lasif generate_dummy_data

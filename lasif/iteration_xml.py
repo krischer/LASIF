@@ -27,7 +27,32 @@ class Iteration(object):
         self._parse_iteration_xml(iteration_xml_filename)
 
     def _parse_iteration_xml(self, iteration_xml_filename):
-        pass
+        """
+        Parses the given iteration xml file and stores the information with the
+        class instance.
+        """
+        root = etree.parse(iteration_xml_filename).getroot()
+
+        self.iteration_name = self._get(root, "iteration_name")
+        self.description = self._get_if_available(root,
+            "iteration_description")
+        self.comments = [_i.text for _i in root.findall("comment") if _i.text]
+
+        self.data_preprocessing = {}
+        prep = root.find("data_preprocessing")
+        self.data_preprocessing["highpass_frequency"] = \
+            float(self._get(prep, "highpass_frequency"))
+        self.data_preprocessing["lowpass_frequency"] = \
+            float(self._get(prep, "lowpass_frequency"))
+
+    def _get(self, element, node_name):
+        return element.find(node_name).text
+
+    def _get_if_available(self, element, node_name):
+        item = element.find(node_name)
+        if item:
+            return item.text
+        return None
 
 
 def create_iteration_xml_string(iteration_name, solver_name, events):
