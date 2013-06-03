@@ -148,30 +148,6 @@ class Project(object):
         with open(self.paths["config_file"], "wt") as open_file:
             open_file.write(string_doc)
 
-        # Also create one source time function example file.
-        stf = (
-            "import obspy\n"
-            "import numpy as np\n"
-            "\n"
-            "\n"
-            "def filtered_heaviside(npts, delta, freqmin, freqmax):\n"
-            "    trace = obspy.Trace(data=np.ones(npts))\n"
-            "    trace.stats.delta = delta\n"
-            "    trace.filter(\"lowpass\", freq=freqmax, corners=5)\n"
-            "    trace.filter(\"highpass\", freq=freqmin, corners=2)\n"
-            "\n"
-            "    return trace.data\n"
-            "\n"
-            "\n"
-            "def source_time_function(npts, delta):\n"
-            "    return filtered_heaviside(npts, delta, 1. / 500., 1. / 60.)")
-        # The source time functions path needs to exist.
-        if not os.path.exists(self.paths["source_time_functions"]):
-            os.makedirs(self.paths["source_time_functions"])
-        with open(os.path.join(self.paths["source_time_functions"],
-                "heaviside_60s_500s.py"), "wt") as open_file:
-            open_file.write(stf)
-
     def _get_source_time_function(self, function_name):
         """
         Attempts to get the source time function with the corresponding name.
