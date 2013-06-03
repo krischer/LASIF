@@ -318,20 +318,6 @@ def lasif_event_info(args):
     table_printer(header, data)
 
 
-def lasif_list_input_file_templates(args):
-    """
-    Usage: lasif list_input_file_templates
-
-    Returns a list of names with all input file templates.
-    """
-    proj = _find_project_root(".")
-    files = glob.glob(os.path.join(proj.paths["templates"], "*.xml"))
-    print "Project has %i input file template%s:" % (len(files), "s"
-        if len(files) > 1 else "")
-    for filename in files:
-        print "\t%s" % os.path.splitext(os.path.basename(filename))[0]
-
-
 def lasif_list_stf(args):
     """
     Usage: lasif list_stf
@@ -415,44 +401,6 @@ def lasif_generate_input_files(args):
 
     proj.generate_input_files(event_name, input_file_template,
         simulation_type, source_time_function)
-
-
-def lasif_generate_input_file_template(args):
-    """
-    Usage: lasif generate_input_file_template SOLVER
-
-    Generates a new input file template for the specified solver. Currently
-    supported solvers: ses3d_4_0
-    """
-    if len(args) != 1:
-        msg = "SOLVER must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    solver = args[0]
-
-    SOLVERS = ["ses3d_4_0"]
-    if solver not in SOLVERS:
-        msg = "'%s' is not a valid solver. Valid solvers: %s" % (solver,
-            ", ".join(SOLVERS))
-        raise LASIFCommandLineException(msg)
-
-    proj = _find_project_root(".")
-
-    def xml_filename_generator(folder, name):
-        for _i in xrange(100000):
-            filename = "%s_template" % name
-            if _i:
-                filename += "_%i" % _i
-            filename += "%sxml" % os.path.extsep
-            filename = os.path.join(folder, filename)
-            if os.path.exists(filename):
-                continue
-            return filename
-
-    if solver == "ses3d_4_0":
-        from lasif.utils import generate_ses3d_4_0_template
-        filename = xml_filename_generator(proj.paths["templates"], solver)
-        generate_ses3d_4_0_template(filename)
-        print "Created template at '%s'. Please edit it." % filename
 
 
 def lasif_init_project(args):
