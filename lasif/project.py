@@ -70,6 +70,7 @@ class Project(object):
             "inventory_db.sqlite")
         self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["models"] = os.path.join(root_path, "MODELS")
+        self.paths["iterations"] = os.path.join(root_path, "ITERATIONS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
         self.paths["templates"] = os.path.join(root_path, "TEMPLATES")
         self.paths["processing_functions"] = os.path.join(root_path,
@@ -389,6 +390,81 @@ class Project(object):
                 return None
             self._seismic_events[event_name] = readEvents(filename)[0]
         return self._seismic_events[event_name]
+
+    def create_new_iteration(self, iteration_name, solver_name):
+        """
+        Creates a new iteration file.
+        """
+        from lxml import etree
+        from lxml.builder import E
+
+        iteration_name = iteration_name.replace(" ", "_").upper()
+        filename = "ITERATION_%s.xml" % iteration_name
+        filename = os.path.join(self.paths["iterations"], filename)
+        if os.path.exists(filename):
+            msg = "Iteration already exists."
+            raise LASIFException(msg)
+
+        solver_doc = self._get_default_solver_settings(solver_name)
+        if solver_name.lower() == "ses3d_4_0":
+            solver_name = "SES3D 4.0"
+        else:
+            raise NotImplementedError
+
+        # Loop over all events.
+        events = self.get_event_dict().keys()
+        events_doc = [E.event(E.event_name(_i), E.event_weight("1.0"),
+            E.time_correction("0.0")) for _i in events]
+
+        stations = {}
+        events_doc = []
+        # Also over all stations.
+        for event in events:
+            stations = self.get_stations_for_event(event)
+            stations_doc = [E.station(
+                E.station_id(station),
+                E.station_weight("1.0"),
+                E.time_correction_in_s("0.0")) for station in stations]
+            events_doc.append(E.event(
+                E.event_name(event),
+                E.event_weight("1.0"),
+                E.time_correction_in_s("0.0"),
+                *stations_doc))
+
+        doc = E.iteration(
+            E.iteration_name(iteration_name),
+            E.iteration_description(""),
+            E.comment(""),
+            E.data_preprocessing(
+                E.highpass_frequency("0.01"),
+                E.lowpass_frequency("0.5")),
+            E.rejection_criteria(""),
+            E.source_time_function("Filtered Heaviside"),
+            E.solver_parameters(
+                E.solver(solver_name),
+                solver_doc),
+            *events_doc)
+
+        string_doc = etree.tostring(doc, pretty_print=True,
+            xml_declaration=True, encoding="UTF-8")
+        with open(filename, "wt") as fh:
+            fh.write(string_doc)
+
+        print "Created iteration %s" % iteration_name
+
+    def _get_default_solver_settings(self, solver):
+        """
+        Helper function returning etree representation of a solver's default
+        settings.
+        """
+        known_solvers = ["ses3d_4_0A"]
+        if solver.lower() == "ses3d_4_0":
+            from lasif.utils import generate_ses3d_4_0_template
+            return generate_ses3d_4_0_template()
+        else:
+            msg = "Solver '%s' not known. Known solvers: %s" % (solver,
+                ",".join(known_solvers))
+            raise LASIFException(msg)
 
     def get_all_events(self):
         """

@@ -523,6 +523,29 @@ def lasif_launch_misfit_gui(args):
     MisfitGUI(event, iterator, proj, window_manager)
 
 
+def lasif_create_new_iteration(args):
+    """
+    Usage: lasif create_new_iteration ITERATION_NAME SOLVER_NAME
+
+    Creates a new iteration XML file.
+
+    ITERATION_NAME determines the name of the iteration. Should always start
+    with a number, so that sorting works correctly.
+
+    SOLVER_NAME is the name of the waveform solver to use for this iteration.
+    Currently available: "SES3D_4_0"
+    """
+    if len(args) != 2:
+        msg = "ITERATION_NAME and SOLVER_NAME must be given."
+        raise LASIFCommandLineException(msg)
+    iteration_name = args[0]
+    solver_name = args[1]
+
+    proj = _find_project_root(".")
+
+    proj.create_new_iteration(iteration_name, solver_name)
+
+
 def lasif_generate_dummy_data(args):
     """
     Usage: lasif generate_dummy_data

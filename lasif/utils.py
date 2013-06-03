@@ -51,21 +51,22 @@ def table_printer(header, data):
         print row_format.format(*row)
 
 
-def generate_ses3d_4_0_template(filename):
+def generate_ses3d_4_0_template():
     """
     Generates a template for SES3D input files.
 
-    :param filename: Where to store it.
+    Returns the etree representation.
     """
-    doc = E.ses3d_4_0_input_file_template(
+    doc = E.solver_settings(
         E.simulation_parameters(
             E.number_of_time_steps("500"),
             E.time_increment("0.75"),
             E.is_dissipative("false")),
-        E.output_directory("../OUTPUT/CHANGE_ME/"),
+        E.output_directory("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
         E.adjoint_output_parameters(
             E.sampling_rate_of_forward_field("10"),
-            E.forward_field_output_directory("../OUTPUT/CHANGE_ME/ADJOINT/")),
+            E.forward_field_output_directory(
+                "../OUTPUT/CHANGE_ME/ADJOINT/{{EVENT_NAME}}")),
         E.computational_setup(
             E.nx_global("15"),
             E.ny_global("15"),
@@ -74,11 +75,7 @@ def generate_ses3d_4_0_template(filename):
             E.px_processors_in_theta_direction("1"),
             E.py_processors_in_phi_direction("1"),
             E.pz_processors_in_r_direction("1")))
-    string_doc = etree.tostring(doc, pretty_print=True,
-        xml_declaration=True, encoding="UTF-8")
-
-    with open(filename, "wb") as open_file:
-        open_file.write(string_doc)
+    return doc
 
 
 def read_ses3d_4_0_template(filename):
@@ -98,10 +95,10 @@ def read_ses3d_4_0_template(filename):
     # Convert some types.
     dis = input_file["simulation_parameters"]["is_dissipative"]
     if dis.lower() == "true":
-       dis = True
+        dis = True
     else:
         dis = False
-    input_file["simulation_parameters"]["is_dissipative"]  = dis
+    input_file["simulation_parameters"]["is_dissipative"] = dis
     return input_file
 
 
