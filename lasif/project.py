@@ -434,6 +434,7 @@ class Project(object):
         Preprocesses all data for a given iteration.
         """
         from lasif.iteration_xml import Iteration
+        import colorama
         import obspy
         from obspy.xseed import Parser
         import numpy as np
@@ -561,11 +562,21 @@ class Project(object):
             tr.filter("bandpass", freqmin=info["highpass"],
                 freqmax=info["lowpass"], zerophase=True)
 
+            # Convert to single precision.
+            tr.data = np.require(tr.data, dtype="float32", requirements="C")
+            tr.stats.mseed.encoding = "FLOAT32"
+
             tr.write(info["processed_data_path"], format=tr.stats._format)
 
+        i = -1
         for i, info in enumerate(processing_data_generator()):
-            print i
+            path = os.path.relpath(info["data_path"], self.paths["root"])
+            print colorama.Fore.YELLOW + ("Preprocessing file %i: %s ..." %
+                (i + 1, path)) + colorama.Style.RESET_ALL
             preprocess_file(info)
+
+        print colorama.Fore.GREEN + ("\nDONE - Preprocessed %i files." %
+            (i + 1)) + colorama.Style.RESET_ALL
 
     def get_all_events(self):
         """
