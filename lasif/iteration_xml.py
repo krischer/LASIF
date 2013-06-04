@@ -41,10 +41,10 @@ class Iteration(object):
 
         self.data_preprocessing = {}
         prep = root.find("data_preprocessing")
-        self.data_preprocessing["highpass_frequency"] = \
-            float(self._get(prep, "highpass_frequency"))
-        self.data_preprocessing["lowpass_frequency"] = \
-            float(self._get(prep, "lowpass_frequency"))
+        self.data_preprocessing["highpass_period"] = \
+            float(self._get(prep, "highpass_period"))
+        self.data_preprocessing["lowpass_period"] = \
+            float(self._get(prep, "lowpass_period"))
 
         self.solver_settings = self._recursive_dict(root.find(
             "solver_parameters"))[1]
@@ -92,8 +92,8 @@ class Iteration(object):
             "{comments}"
             "\tSource Time Function: {self.source_time_function}\n"
             "\tPreprocessing Settings:\n"
-            "\t\tHighpass Frequency: {hp:.3f} Hz\n"
-            "\t\tLowpass Frequency: {lp:.3f} Hz\n"
+            "\t\tHighpass Period: {hp:.3f} s\n"
+            "\t\tLowpass Period: {lp:.3f} s\n"
             "\tSolver: {solver} | {timesteps} timesteps (dt: {dt}s)\n"
             "\t{event_count} events recorded at {station_count} "
             "unique stations\n"
@@ -109,8 +109,8 @@ class Iteration(object):
             all_stations.extend(ev["stations"].iterkeys())
 
         return ret_str.format(self=self, comments=comments,
-            hp=self.data_preprocessing["highpass_frequency"],
-            lp=self.data_preprocessing["lowpass_frequency"],
+            hp=self.data_preprocessing["highpass_period"],
+            lp=self.data_preprocessing["lowpass_period"],
             solver=self.solver_settings["solver"],
             timesteps=self.solver_settings["solver_settings"][
                 "simulation_parameters"]["number_of_time_steps"],
@@ -157,8 +157,8 @@ def create_iteration_xml_string(iteration_name, solver_name, events):
         E.iteration_description(""),
         E.comment(""),
         E.data_preprocessing(
-            E.highpass_frequency("0.01"),
-            E.lowpass_frequency("0.5")),
+            E.highpass_period("100.0"),
+            E.lowpass_period("8.0")),
         E.rejection_criteria(
             E.minimum_trace_length_in_s("500.0"),
             E.signal_to_noise(

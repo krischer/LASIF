@@ -515,6 +515,27 @@ def lasif_iteration_info(args):
     print iteration
 
 
+def lasif_preprocess_data(args):
+    """
+    Usage: lasif preprocess_data ITERATION_NAME
+
+    Preprocesses all currently available data for a given iteration.
+    """
+    if len(args) != 1:
+        msg = "ITERATION_NAME must be given. No other arguments allowed."
+        raise LASIFCommandLineException(msg)
+    iteration_name = args[0]
+
+    proj = _find_project_root(".")
+    iterations = proj.get_iteration_dict()
+    if iteration_name not in iterations:
+        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
+            "a list of all available iterations.") % iteration_name
+        raise LASIFCommandLineException(msg)
+
+    proj.preprocess_data(iteration_name)
+
+
 def lasif_generate_dummy_data(args):
     """
     Usage: lasif generate_dummy_data

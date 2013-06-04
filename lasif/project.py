@@ -408,6 +408,165 @@ class Project(object):
             iterations[iteration_name] = iteration
         return iterations
 
+    def _get_iteration_process_params(self, iteration):
+        """
+        Small helper function retrieving the most important iteration
+        parameters.
+        """
+        highpass = 1.0 / iteration.data_preprocessing["highpass_period"]
+        lowpass = 1.0 / iteration.data_preprocessing["lowpass_period"]
+
+        npts = iteration.solver_settings["solver_settings"][
+            "simulation_parameters"]["number_of_time_steps"]
+        dt = iteration.solver_settings["solver_settings"][
+            "simulation_parameters"]["time_increment"]
+        stf = iteration.source_time_function
+
+        return {
+            "highpass": float(highpass),
+            "lowpass": float(lowpass),
+            "npts": int(npts),
+            "dt": float(dt),
+            "stf": stf}
+
+    def preprocess_data(self, iteration_name):
+        """
+        Preprocesses all data for a given iteration.
+        """
+        from lasif.iteration_xml import Iteration
+        import obspy
+        from obspy.xseed import Parser
+        import numpy as np
+        from scipy.interpolate import interp1d
+
+        iterations = self.get_iteration_dict()
+        iteration = Iteration(iterations[iteration_name])
+
+        process_params = self._get_iteration_process_params(iteration)
+        # Generate a preprocessing tag. This will identify the used
+        # preprocessing so that duplicates can be avoided.
+        processing_tag = ("preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_"
+            "npts_{npts}_dt_{dt:5f}").format(**process_params)
+
+        def processing_data_generator():
+            for event_name, event in iteration.events.iteritems():
+                event_info = self.get_event_info(event_name)
+                # The folder where all preprocessed data for this event will
+                # go.
+                event_data_path = os.path.join(self.paths["data"], event_name,
+                    processing_tag)
+                if not os.path.exists(event_data_path):
+                    os.makedirs(event_data_path)
+                # All stations that will be processed for this iteration and
+                # event.
+                stations = event["stations"].keys()
+                waveforms = self._get_waveform_cache_file(event_name, "raw")\
+                    .get_values()
+                for waveform in waveforms:
+                    station_id = "{network}.{station}".format(**waveform)
+                    # Only process data from stations needed for the current
+                    # iteration.
+                    if station_id not in stations:
+                        continue
+                    # Generate the new filename for the waveform. If it already
+                    # exists, continue.
+                    processed_filename = os.path.join(event_data_path,
+                        os.path.basename(waveform["filename"]))
+                    if os.path.exists(processed_filename):
+                        continue
+                    ret_dict = process_params.copy()
+                    ret_dict["data_path"] = waveform["filename"]
+                    ret_dict["processed_data_path"] = processed_filename
+                    ret_dict.update(event_info)
+                    ret_dict["station_filename"] = \
+                        self.station_cache.get_station_filename(
+                            waveform["channel_id"],
+                            obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                    yield ret_dict
+
+        def preprocess_file(info):
+            """
+            Function to perform the actual preprocessing.
+            """
+            starttime = info["origin_time"]
+            endtime = starttime + info["dt"] * (info["npts"] - 1)
+            duration = endtime - starttime
+
+            st = obspy.read(info["data_path"])
+            if len(st) != 1:
+                msg = ("Warning: File '%s' has %i traces and not 1. "
+                    "Will be skipped") % (info["data_path"], len(st))
+                warnings.warn(msg)
+            tr = st[0]
+
+            # Trim with a short buffer in an attempt to avoid boundary effects.
+            tr.trim(starttime - 0.05 * duration, endtime + 0.05 * duration)
+
+            if len(tr) == 0:
+                msg = ("Warning: After trimming the file '%s' to "
+                    "a time window around the event, no more data is "
+                    "left. The reference time is the one given in the "
+                    "QuakeML file. Make sure it is correct and that "
+                    "the waveform data actually contains data in that "
+                    "time span.") % info["data_path"]
+                warnings.warn(msg)
+            tr.detrend("linear")
+            tr.taper()
+
+            new_time_array = np.linspace(starttime.timestamp,
+                    endtime.timestamp, info["npts"])
+
+            # Instrument correction
+            # Decimate in case there is a large difference between synthetic
+            # sampling rate and sampling_rate of the data to accelerate the
+            # process..
+            # XXX: Ugly filter, change!
+            if tr.stats.sampling_rate > (6 * 1.0 / info["dt"]):
+                new_nyquist = tr.stats.sampling_rate / 2.0 / 5.0
+                tr.filter("lowpass", freq=new_nyquist, corners=4,
+                    zerophase=True)
+                tr.decimate(factor=5, no_filter=None)
+
+            station_file = info["station_filename"]
+            if "/SEED/" in station_file:
+                paz = Parser(station_file).getPAZ(tr.id,
+                    tr.stats.starttime)
+                tr.simulate(paz_remove=paz)
+            elif "/RESP/" in station_file:
+                tr.simulate(seedresp={"filename": station_file,
+                    "units": "VEL", "date": tr.stats.starttime})
+            else:
+                raise NotImplementedError
+
+            # Make sure that the data array is at least as long as the
+            # synthetics array. Also add some buffer sample for the
+            # spline interpolation to work in any case.
+            buf = info["dt"] * 5
+            if starttime < (tr.stats.starttime + buf):
+                tr.trim(starttime=starttime - buf, pad=True, fill_value=0.0)
+            if endtime > (tr.stats.endtime - buf):
+                tr.trim(endtime=endtime + buf, pad=True, fill_value=0.0)
+
+            old_time_array = np.linspace(
+                tr.stats.starttime.timestamp,
+                tr.stats.endtime.timestamp,
+                tr.stats.npts)
+
+            # Interpolation.
+            tr.data = interp1d(old_time_array, tr.data,
+                kind=1)(new_time_array)
+            tr.stats.starttime = starttime
+            tr.stats.delta = info["dt"]
+
+            tr.filter("bandpass", freqmin=info["highpass"],
+                freqmax=info["lowpass"], zerophase=True)
+
+            tr.write(info["processed_data_path"], format=tr.stats._format)
+
+        for i, info in enumerate(processing_data_generator()):
+            print i
+            preprocess_file(info)
+
     def get_all_events(self):
         """
         Parses all events and returns a list of Event objects.
