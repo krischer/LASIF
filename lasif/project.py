@@ -72,11 +72,6 @@ class Project(object):
         self.paths["models"] = os.path.join(root_path, "MODELS")
         self.paths["iterations"] = os.path.join(root_path, "ITERATIONS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
-        self.paths["templates"] = os.path.join(root_path, "TEMPLATES")
-        self.paths["processing_functions"] = os.path.join(root_path,
-            "PROCESSING_FUNCTIONS")
-        self.paths["source_time_functions"] = os.path.join(root_path,
-            "SOURCE_TIME_FUNCTIONS")
         self.paths["stations"] = os.path.join(root_path, "STATIONS")
         # Station subfolders
         self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
@@ -147,39 +142,6 @@ class Project(object):
 
         with open(self.paths["config_file"], "wt") as open_file:
             open_file.write(string_doc)
-
-    def _get_source_time_function(self, function_name):
-        """
-        Attempts to get the source time function with the corresponding name.
-
-        Will raise if something does not work.
-        """
-        import copy
-        filename = os.path.join(self.paths["source_time_functions"], "%s.py"
-            % function_name)
-        if not os.path.exists(filename):
-            msg = "Could not find source time function '%s'" % function_name
-            raise ValueError(msg)
-
-        # Attempt to import the file if found.
-        old_path = copy.copy(sys.path)
-        sys.path.insert(1, os.path.dirname(filename))
-        try:
-            sft = __import__(os.path.splitext(os.path.basename(filename))[0],
-                globals(), locals())
-        except Exception as e:
-            msg = "Could not import '%s'\n" % filename
-            msg += "\t%s" % str(e)
-            raise Exception(msg)
-        finally:
-            sys.path = old_path
-
-        if not hasattr(sft, "source_time_function") or \
-                not hasattr(sft.source_time_function, "__call__"):
-            msg = ("File '%s' does not contain a function "
-                "'source_time_function'.") % filename
-            raise Exception(msg)
-        return sft.source_time_function
 
     def __str__(self):
         """
