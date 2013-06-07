@@ -3,90 +3,133 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. image:: images/logo/lasif_logo.png
-    :width: 50%
-
-
 Welcome to LASIF's Documentation!
 ===================================
 
-LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
-**data-driven workflow tool** to perform full waveform inversions.
-It is opinionated and strict meaning that it forces a certain data and
-directory structure. The upside is that it only requires a very minimal amount
-of configuration and maintenance. It attempts to gather all necessary
-information from the data itself so there is no need to keep index or content
-files.
+.. image:: images/logo/lasif_logo.png
+    :width: 50%
 
-All parts of LASIF can work completely on their own. See the class and
-function documentation at the end of this document. Furthermore LASIF offers
-a project based inversion workflow management system which is introduced in the
+LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
+**data-driven workflow tool** to perform full waveform inversions.  It is
+opinionated and strict meaning that it forces a certain data and directory
+structure. The upside is that it only requires a very minimal amount of
+configuration and maintenance. It attempts to gather all necessary information
+from the data itself so there is no need to keep index or content files.
+
+All parts of LASIF also work completely on their own; see the class and
+function documentation at the end of this document. Furthermore LASIF offers a
+project based inversion workflow management system which is introduced in the
 following tutorial.
 
-
-Tutorial
-========
 LASIF works with the notion of so called inversion projects. A project is
 defined as a series of iterations working on the same physical domain. Where
 possible and useful, LASIF will use XML files to store information. The
 reasoning behind this is twofold. It is easily machine and human readable. It
-also serves as a preparatory step towards a fully database driven full waveform
-inversion workflow as all necessary information is already stored in an easily
-indexable data format.
+furthermore also serves as a preparatory step towards a fully database driven
+full waveform inversion workflow as all necessary information is already stored
+in an easily indexable data format.
 
+LASIF is data-driven meaning that it attempts to gather all necessary
+information from the available data. The big advantage of this approach is that
+the users can use any tool they want to access and work with the data as long
+as they adhere to the directory structure imposed by LASIF. At the start of
+every LASIF operation, the tool checks what data is available and uses it. To
+achieve reasonable performance it employs a transparent caching scheme able to
+quickly any changes the user makes to the data. Also important to keep in mind
+is that **LASIF will never delete any data**.
+
+
+Tutorial
+========
 This tutorial will teach you how to perform an iterative full waveform
-inversion with LASIF and SES3D.
+inversion with LASIF and SES3D by example.
 
 The example used throughout this tutorial is the same as given in the SES3D
 Documentation except that the used events differ. It is a good idea to also
 have the SES3D documentation at hand.
 
+
+Command Line Interface
+----------------------
+
+LASIF ships with a command line interface, consisting of a single command:
+**lasif**.
+
+Assuming the installation was successful, the following command will print a
+short overview of all commands available within LASIF:
+
+.. code-block:: bash
+
+    $ lasif help
+
+    Usage: lasif FUNCTION PARAMETERS
+
+    Available functions:
+        add_spud_event
+        create_new_iteration
+        ...
+
+To learn more about a specific command, append *help* to it:
+
+.. code-block:: bash
+
+    $ lasif init_project help
+
+    Usage: lasif init_project FOLDER_PATH
+
+        Creates a new LASIF project at FOLDER_PATH. FOLDER_PATH must not exist
+        yet and will be created.
+
+
+.. note::
+
+    All **lasif** commands work and use the correct project as long as they are
+    executed somewhere inside a project's folder structure. It will recursively
+    search the parent directories until it finds a *config.xml* file. This will
+    then be assumed to be the root folder of the project.
+
+Now that the preliminaries have been introduced, let's jump straight to the
+example.
+
 Creating a New Project
 ----------------------
 The necessary first step, whether for starting a new inversion or migrating an
 already existing inversion to LASIF, is to create a new project. In the
-following the project will be called **MyInversion**.
+following the project will be called **TutorialAnatolia**.
 
 .. code-block:: bash
 
-    $ lasif init_project MyInversion
+    $ lasif init_project TutorialAnatolia
 
-This will create the following directory structure::
+This will create the following directory structure. It will be explained in
+more detail later on::
 
-    MyInversion
-    |-- config.xml
+    TutorialAnatolia
+    |-- ADJOINT_SOURCES_AND_WINDOWS
     |-- CACHE
+    |-- config.xml
     |-- DATA
     |-- EVENTS
+    |-- ITERATIONS
     |-- LOGS
     |-- MODELS
     |-- OUTPUT
-    |-- SOURCE_TIME_FUNCTIONS
-    |   |-- heaviside_60s_500s.py
     |-- STATIONS
     |   |-- RESP
     |   |-- SEED
     |   |-- StationXML
     |-- SYNTHETICS
-    |-- TEMPLATES
 
 
-The configuration for each project works , is defined in the **config.xml**
-file. It is a simple, self-explanatory XML format. The nature of SES3D's
-coordinate system has the effect that simulation is most efficient in
-equatorial regions. Thus it is oftentimes advantageous to rotate the frame of
-reference so that the simulation happens close to the equator. LASIF first
-defines the simulation domain; the actual simulation happens here. Optional
-rotation parameters define the physical location of the domain. The coordinate
-system for the rotation parameters is described in :py:mod:`lasif.rotations`.
-You will have to edit the file to adjust it to your region of interest. It will
-look something like the following.
+The configuration for each project is defined in the **config.xml** file. It is
+a simple, self-explanatory XML format. After the project has been initialized
+it will look akin to the following:
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="utf-8"?>
     <lasif_project>
-        <name>MyInversion</name>
+        <name>TutorialAnatolia</name>
         <description></description>
         <download_settings>
             <arclink_username></arclink_username>
@@ -112,33 +155,76 @@ look something like the following.
         </domain>
     </lasif_project>
 
-
 It should be fairly self-explanatory.
 
-* The *boundary_width_in_degree* tag is just used for the download helpers. No
-  data will be downloaded within *boundary_width_in_degree* distance to the
-  domain border. This is useful for e.g. absorbing boundary conditions.
+* *name* denotes a short description of the project. Usually the same as the
+  folder name.
+* *description* can be any further useful information about the project. This
+  is not used by LASIF but potentially useful for yourself.
 * The *arclink_username* tag should be your email. It will be send with all
   requests to the ArcLink network. They ask for it in case they have to contact
   you for whatever reason. Please provide a real email address. Must not be
   empty.
+* *seconds_before_event*: Used by the waveform download scripts. It will
+  attempt to download this many seconds for every waveform before the origin of
+  the associated event.
+* *seconds_after_event*: Used by the waveform download scripts. It will attempt
+  to download this many seconds for every waveform after the origin of the
+  associated event. Adapt this to the size of your inversion domain.
+* The *domain* settings will be explained in more detail in the following
+  paragraphs.
+* The *boundary_width_in_degree* tag is use to be able to take care of the
+  boundary conditions, e.g. data will be downloaded within
+  *boundary_width_in_degree* distance to the domain border.
 
+The file, amongst other settings, defines the physical domain for the
+inversion. Please set it to the following (same as in the SES3D Tutorial):
 
-.. note::
+* Latitude: **34.1° - 42.9°**
+* Longitude: **23.1° - 42.9°**
+* Depth: **0 km - 471 km**
+* Boundary width in degree: **1.46°**
 
-    All **lasif** commands work and use the correct project as long as they
-    are executed somewhere inside a projects folder structure.
+In generally one should only work with data not affected by the boundary
+conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
+It is not advisable to use data that traverses these layers. The default
+setting of SES3D is to use two boundary layers. In this example this amounts to
+(in longitudinal direction) 1.46°. In a real world case it is best to use some
+more buffer layers to avoid boundary effects. In this small example this would
+influence the domain too much so we just set it to 1.46°.
 
 At any point you can have a look at the defined domain with
 
 .. code-block:: bash
 
-    $ cd MyInversion
     $ lasif plot_domain
 
 This will open a window showing the location of the physical domain and the
-simulation domain. The inner contours show the domain minus the previously
+simulation domain. The inner contour shows the domain minus the previously
 defined boundary width.
+
+.. plot::
+
+    import lasif.visualization
+    lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
+        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
+        plot_simulation_domain=True, zoom=True)
+
+
+The nature of SES3D's coordinate system has the effect that simulation is most
+efficient in equatorial regions. Thus it is oftentimes advantageous to rotate
+the frame of reference so that the simulation happens close to the equator.
+LASIF first defines the simulation domain; the actual simulation happens here.
+Optional rotation parameters define the physical location of the domain. The
+coordinate system for the rotation parameters is described in
+:py:mod:`lasif.rotations`.  You will have to edit the file to adjust it to your
+region of interest. The rotation functionality is not used in this Tutorial's
+example; in case it is used, simulation and physical domain would differ.
+LASIF handles all rotations necessary so the user never needs to worry about
+these. Just keep in mind to always kepp any data (real waveforms, station
+metadata and events) in coordinates that correspond to the physical domain and
+all synthetic waveforms in coordinates that correspond to the simulation
+domain.
 
 .. plot::
 
@@ -146,6 +232,12 @@ defined boundary width.
     lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
         plot_simulation_domain=True)
+
+
+
+
+
+
 
 Adding Seismic Events
 ---------------------
@@ -236,7 +328,7 @@ executed. The simplest command is
 
 This will result in a directory structure in the fashion of::
 
-    MyInversion
+    TutorialAnatolia
     |-- CACHE
     |-- DATA
     |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
@@ -270,7 +362,7 @@ tags should describe the simulation ran to obtain the waveforms.
 
 After a while, the structure might look like this::
 
-    MyInversion
+    TutorialAnatolia
     |-- DATA
         |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
             |-- raw
