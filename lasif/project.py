@@ -310,7 +310,7 @@ class Project(object):
             bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=True, show_plot=True)
+            plot_simulation_domain=True, show_plot=True, zoom=True)
 
     def get_event(self, event_name):
         """
