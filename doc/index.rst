@@ -260,33 +260,88 @@ The small size of the domain does not warrant downloading an hour worth of data
 for every event. Half an hour or event less is more then sufficient. After all
 the discussed changes the **config.xml** file should be similar to this one:
 
+.. code-block:: xml
+
+    <?xml version='1.0' encoding='UTF-8'?>
+    <lasif_project>
+      <name>TutorialAnatolia</name>
+      <description>Tutorial Inversion</description>
+      <download_settings>
+        <arclink_username>your@email.com</arclink_username>
+        <seconds_before_event>300</seconds_before_event>
+        <seconds_after_event>1800</seconds_after_event>
+      </download_settings>
+      <domain>
+        <domain_bounds>
+          <minimum_longitude>23.1</minimum_longitude>
+          <maximum_longitude>42.9</maximum_longitude>
+          <minimum_latitude>34.1</minimum_latitude>
+          <maximum_latitude>42.9</maximum_latitude>
+          <minimum_depth_in_km>0.0</minimum_depth_in_km>
+          <maximum_depth_in_km>471.0</maximum_depth_in_km>
+          <boundary_width_in_degree>1.46</boundary_width_in_degree>
+        </domain_bounds>
+        <domain_rotation>
+          <rotation_axis_x>0.0</rotation_axis_x>
+          <rotation_axis_y>0.0</rotation_axis_y>
+          <rotation_axis_z>1.0</rotation_axis_z>
+          <rotation_angle_in_degree>0.0</rotation_angle_in_degree>
+        </domain_rotation>
+      </domain>
+    </lasif_project>
+
+This concludes the intial setup part of the inversion.
 
 
 Adding Seismic Events
 ---------------------
+Once the domain has been adjusted to your needs, you need to tell LASIF which
+events you want to use for the inversion. This works by simply placing a valid
+QuakeML 1.2 file at the correct location.
+
 All events have to be stored in the *EVENTS* subfolder of the project. They
-have to be valid QuakeML files with full moment tensor information. LASIF
-provides some convenience methods for this purpose. One can leverage the IRIS
-SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT events.
-Simply search for an event and copy the url. The **iris2quakeml** script will
-then grab the QuakeML from the url and store an XML file in the current folder.
+have to be QuakeML 1.2 files with full moment tensor information.
+
+LASIF provides some convenience methods for this purpose. One can leverage the
+IRIS SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT
+events.  Simply search for an event and copy the url. The **iris2quakeml**
+script will then grab the QuakeML from the url and store an XML file in the
+correct folder.
 
 See :doc:`iris2quakeml` for more information. The LASIF command lines tools
-contain a convenience wrapper around it that also makes sure that the event
-ends up in the correct folder.
-
+contain a convenience wrapper around it that also makes sure that the events
+ends up in the correct folder and gives them a reasonable filename that should
+ease event identification.
 
 .. code-block:: bash
 
     $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/959525
     $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/995655
 
-All events can be viewed with
+These two commands should create two QuakeML files. To which events are currently defined in the project, type
+
+.. code-block:: bash
+
+    $ lasif list_events
+
+    2 events in project:
+            GCMT_event_TURKEY_Mag_6.1_2010-3-8-2-32
+            GCMT_event_DODECANESE_ISLANDS,_GREECE_Mag_6.4_2008-7-15-3-26
+
+You will notice that events are identified via their filename minus the
+extension. This is an easy and flexible solution enabling you to tag the events
+as you see fit. The slight disadvantage of this approach is that **you must not
+change the event filenames after you have worked with them** because all
+additional information for that event will be related to it via the event
+filename. So please give them a good and reasonable filename. If you really
+feel that event renaming is a necessary feature please file an issue on Github
+so that the author's can add a proper event renaming function.
+
+You can also get a map of all events currently part of the project with
 
 .. code-block:: bash
 
     $ lasif plot_events
-
 
 .. plot::
 
@@ -333,6 +388,35 @@ All events can be viewed with
     t.m_rp = -5.22e+17
     t.m_tp = 3.4e+16
     lasif.visualization.plot_events(cat, map)
+
+
+To get some more information about a specific event use
+
+.. code-block:: bash
+
+    $ lasif event_info GCMT_event_TURKEY_Mag_6.1_2010-3-8-2-32
+
+    Earthquake with 6.1 Mw at TURKEY
+        Latitude: 38.870, Longitude: 39.990, Depth: 12000.0 km
+        2010-03-08T02:32:34.700000Z UTC
+
+    Station and waveform information available at 0 stations:
+
+    ===========================================================================
+                 id       latitude      longitude      elevation    local depth
+    ===========================================================================
+
+Notice that the event currently has no data associated with it. We will fix
+this in the next section.
+
+.. note::
+
+    You do not need to add all events you plan to use in the inversion at the
+    beginning. Only add those you want to use for the very first inversion.
+    LASIF is rather flexible and enables you to use different events, data,
+    weighting schemes, ... for every iteration. It will keep track of what
+    actually happened during each iteration so the project gains
+    **reproducibility and provenance**.
 
 
 Waveform Data
