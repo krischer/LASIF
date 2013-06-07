@@ -1,4 +1,4 @@
-![Logo](/doc/logo/lasif_logo.png)
+![Logo](/doc/images/logo/lasif_logo.png)
 
 ---
 ---

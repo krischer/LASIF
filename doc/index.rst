@@ -3,10 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: images/logo/lasif_logo.png
+    :width: 50%
+
+
 Welcome to LASIF's Documentation!
 ===================================
 
-LASIF (**LA**\ arg-scale **S**\ seismic **I**\ nversion **F**\ ramework) is a
+LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
 **data-driven workflow tool** to perform full waveform inversions.
 It is opinionated and strict meaning that it forces a certain data and
 directory structure. The upside is that it only requires a very minimal amount
@@ -29,6 +33,13 @@ reasoning behind this is twofold. It is easily machine and human readable. It
 also serves as a preparatory step towards a fully database driven full waveform
 inversion workflow as all necessary information is already stored in an easily
 indexable data format.
+
+This tutorial will teach you how to perform an iterative full waveform
+inversion with LASIF and SES3D.
+
+The example used throughout this tutorial is the same as given in the SES3D
+Documentation except that the used events differ. It is a good idea to also
+have the SES3D documentation at hand.
 
 Creating a New Project
 ----------------------
