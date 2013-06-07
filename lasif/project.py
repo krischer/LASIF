@@ -434,11 +434,9 @@ class Project(object):
         Preprocesses all data for a given iteration.
         """
         from lasif.iteration_xml import Iteration
+        from lasif import preprocessing
         import colorama
         import obspy
-        from obspy.xseed import Parser
-        import numpy as np
-        from scipy.interpolate import interp1d
 
         iterations = self.get_iteration_dict()
         iteration = Iteration(iterations[iteration_name])
@@ -485,98 +483,10 @@ class Project(object):
                             obspy.UTCDateTime(waveform["starttime_timestamp"]))
                     yield ret_dict
 
-        def preprocess_file(info):
-            """
-            Function to perform the actual preprocessing.
-            """
-            starttime = info["origin_time"]
-            endtime = starttime + info["dt"] * (info["npts"] - 1)
-            duration = endtime - starttime
-
-            st = obspy.read(info["data_path"])
-            if len(st) != 1:
-                msg = ("Warning: File '%s' has %i traces and not 1. "
-                    "Will be skipped") % (info["data_path"], len(st))
-                warnings.warn(msg)
-            tr = st[0]
-
-            # Trim with a short buffer in an attempt to avoid boundary effects.
-            tr.trim(starttime - 0.05 * duration, endtime + 0.05 * duration)
-
-            if len(tr) == 0:
-                msg = ("Warning: After trimming the file '%s' to "
-                    "a time window around the event, no more data is "
-                    "left. The reference time is the one given in the "
-                    "QuakeML file. Make sure it is correct and that "
-                    "the waveform data actually contains data in that "
-                    "time span.") % info["data_path"]
-                warnings.warn(msg)
-            tr.detrend("linear")
-            tr.taper()
-
-            new_time_array = np.linspace(starttime.timestamp,
-                    endtime.timestamp, info["npts"])
-
-            # Instrument correction
-            # Decimate in case there is a large difference between synthetic
-            # sampling rate and sampling_rate of the data to accelerate the
-            # process..
-            # XXX: Ugly filter, change!
-            if tr.stats.sampling_rate > (6 * 1.0 / info["dt"]):
-                new_nyquist = tr.stats.sampling_rate / 2.0 / 5.0
-                tr.filter("lowpass", freq=new_nyquist, corners=4,
-                    zerophase=True)
-                tr.decimate(factor=5, no_filter=None)
-
-            station_file = info["station_filename"]
-            if "/SEED/" in station_file:
-                paz = Parser(station_file).getPAZ(tr.id,
-                    tr.stats.starttime)
-                tr.simulate(paz_remove=paz)
-            elif "/RESP/" in station_file:
-                tr.simulate(seedresp={"filename": station_file,
-                    "units": "VEL", "date": tr.stats.starttime})
-            else:
-                raise NotImplementedError
-
-            # Make sure that the data array is at least as long as the
-            # synthetics array. Also add some buffer sample for the
-            # spline interpolation to work in any case.
-            buf = info["dt"] * 5
-            if starttime < (tr.stats.starttime + buf):
-                tr.trim(starttime=starttime - buf, pad=True, fill_value=0.0)
-            if endtime > (tr.stats.endtime - buf):
-                tr.trim(endtime=endtime + buf, pad=True, fill_value=0.0)
-
-            old_time_array = np.linspace(
-                tr.stats.starttime.timestamp,
-                tr.stats.endtime.timestamp,
-                tr.stats.npts)
-
-            # Interpolation.
-            tr.data = interp1d(old_time_array, tr.data,
-                kind=1)(new_time_array)
-            tr.stats.starttime = starttime
-            tr.stats.delta = info["dt"]
-
-            tr.filter("bandpass", freqmin=info["highpass"],
-                freqmax=info["lowpass"], zerophase=True)
-
-            # Convert to single precision.
-            tr.data = np.require(tr.data, dtype="float32", requirements="C")
-            tr.stats.mseed.encoding = "FLOAT32"
-
-            tr.write(info["processed_data_path"], format=tr.stats._format)
-
-        i = -1
-        for i, info in enumerate(processing_data_generator()):
-            path = os.path.relpath(info["data_path"], self.paths["root"])
-            print colorama.Fore.YELLOW + ("Preprocessing file %i: %s ..." %
-                (i + 1, path)) + colorama.Style.RESET_ALL
-            preprocess_file(info)
+        count = preprocessing.launch_processing(processing_data_generator())
 
         print colorama.Fore.GREEN + ("\nDONE - Preprocessed %i files." %
-            (i + 1)) + colorama.Style.RESET_ALL
+            (count)) + colorama.Style.RESET_ALL
 
     def get_all_events(self):
         """
