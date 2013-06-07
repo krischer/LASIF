@@ -38,6 +38,23 @@ achieve reasonable performance it employs a transparent caching scheme able to
 quickly any changes the user makes to the data. Also important to keep in mind
 is that **LASIF will never delete any data**.
 
+Supported Data Formats
+======================
+
+This is a short list of supported data formats and other software.
+
+
+* **Waveform Data:** All file formats supported by ObsPy.
+* **Synthetics:** All file formats supported by ObsPy and the output files of
+  SES3D 4.0.
+* **Event Metadata:** QuakeML 1.2
+* **Station Metadata:** dataless SEED, RESP and (hopefully) soon FDSN
+  StationXML.  Once implemented, StationXML will be the recommended and most
+  future proof format.
+* **Earth Models:** Currently the raw SES3D model format is supported.
+* **Waveform Solvers:** SES3D 4.0, support for SpecFEM Cartesian and/or Globe
+  will be added soon.
+
 
 Tutorial
 ========
@@ -233,9 +250,15 @@ domain.
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
         plot_simulation_domain=True)
 
+.. note::
 
+    The map projection and zoom should automatically adjust so it is suitable
+    for the dimensions and location of the chosen domain. If that is not the
+    case please file an issue on the project's Github page.
 
-
+The small size of the domain does not warrant downloading an hour worth of data
+for every event. Half an hour or event less is more then sufficient. After all
+the discussed changes the **config.xml** file should be similar to this one:
 
 
 
