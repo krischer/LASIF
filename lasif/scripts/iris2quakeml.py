@@ -32,13 +32,13 @@ Requirements:
 Before a file is written, several things are done:
 
     * The file will be converted to QuakeML 1.2
-    * It will only contain one origin (the preferred one)
     * It will only contain one focal mechanism (the preferred one)
     * All units will be converted from dyn*cm to N*m
-    * The magnitude will be replace by the moment magnitude calculated from the
-      seismic moment specified in the file.
 
 In case anything does not work an error will be raised.
+
+
+This is rather unstable due to potential changes in the SPUD webservice.
 
 
 :copyright:
@@ -49,9 +49,7 @@ In case anything does not work an error will be raised.
 """
 import argparse
 import HTMLParser
-import math
 from obspy import readEvents
-from obspy.core.event import Catalog, Magnitude
 from obspy.core.util.geodetics import FlinnEngdahl
 import os
 import re
@@ -77,17 +75,9 @@ def iris2quakeml(url, output_folder=None):
 
     data = h.unescape(r.content)
 
-    # Replace some XML tags.
-    data = data.replace("long-period body waves", "body waves")
-    data = data.replace("intermediate-period surface waves", "surface waves")
-    data = data.replace("long-period mantle waves", "mantle waves")
-
-    data = data.replace("<html><body><pre>", "")
-    data = data.replace("</pre></body></html>", "")
-
-    # Change the resource identifiers. Colons are not allowed in QuakeML.
-    pattern = r"(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{6})"
-    data = re.sub(pattern, r"\1-\2-\3T\4-\5-\6.\7", data)
+    # Replace the duplice moment tensor publicID with a proper one.
+    data = re.sub(r"(<momentTensor\s*publicID=\".*)focalmechanism(.*\">)",
+        r"\1momenttensor\2", data)
 
     data = StringIO(data)
 
@@ -97,60 +87,34 @@ def iris2quakeml(url, output_folder=None):
         msg = "Could not read downloaded event data"
         raise ValueError(msg)
 
-    # Parse the event, and use only one origin, magnitude and focal mechanism.
-    # Only the first event is used. Should not be a problem for the chosen
-    # global cmt application.
+    cat.events = cat.events[:1]
     ev = cat[0]
 
-    if ev.preferred_origin():
-        ev.origins = [ev.preferred_origin()]
-    else:
-        ev.origins = [ev.origins[0]]
+    # Parse the event and get the preferred focal mechanism. Then get the
+    # origin and magnitude associated with that focal mechanism. All other
+    # focal mechanisms, origins and magnitudes will be removed. Just makes it
+    # simpler and less error prone.
     if ev.preferred_focal_mechanism():
         ev.focal_mechanisms = [ev.preferred_focal_mechanism()]
     else:
-        ev.focal_mechanisms = [ev.focal_mechanisms[0]]
+        ev.focal_mechanisms = [ev.focal_mechanisms[:1]]
 
-    try:
-        mt = ev.focal_mechanisms[0].moment_tensor
-    except:
-        msg = "No moment tensor found in file."
-        raise ValueError
-    seismic_moment_in_dyn_cm = mt.scalar_moment
-    if not seismic_moment_in_dyn_cm:
-        msg = "No scalar moment found in file."
-        raise ValueError(msg)
+    # Some shortcuts.
+    foc_mec = ev.focal_mechanisms[0]
+    mt = foc_mec.moment_tensor
+    tensor = mt.tensor
 
-    # Create a new magnitude object with the moment magnitude calculated from
-    # the given seismic moment.
-    mag = Magnitude()
-    mag.magnitude_type = "Mw"
-    mag.origin_id = ev.origins[0].resource_id
-    # This is the formula given on the GCMT homepage.
-    mag.mag = (2.0 / 3.0) * (math.log10(seismic_moment_in_dyn_cm) - 16.1)
-    mag.resource_id = ev.origins[0].resource_id.resource_id.replace("Origin",
-        "Magnitude")
-    ev.magnitudes = [mag]
-    ev.preferred_magnitude_id = mag.resource_id
-
-    # Convert the depth to meters.
-    org = ev.origins[0]
-    org.depth *= 1000.0
-    if org.depth_errors.uncertainty:
-        org.depth_errors.uncertainty *= 1000.0
-
-    # Ugly asserts -- this is just a simple script.
-    assert(len(ev.magnitudes) == 1)
-    assert(len(ev.origins) == 1)
-    assert(len(ev.focal_mechanisms) == 1)
+    # Set the origin and magnitudes of the event.
+    ev.magnitudes = [mt.moment_magnitude_id.getReferredObject()]
+    ev.origins = [mt.derived_origin_id.getReferredObject()]
 
     # All values given in the QuakeML file are given in dyne * cm. Convert them
     # to N * m.
-    for key, value in mt.tensor.iteritems():
+    for key, value in tensor.iteritems():
         if key.startswith("m_") and len(key) == 4:
-            mt.tensor[key] /= 1E7
+            tensor[key] /= 1E7
         if key.endswith("_errors") and hasattr(value, "uncertainty"):
-            mt.tensor[key].uncertainty /= 1E7
+            tensor[key].uncertainty /= 1E7
     mt.scalar_moment /= 1E7
     if mt.scalar_moment_errors.uncertainty:
         mt.scalar_moment_errors.uncertainty /= 1E7
@@ -184,23 +148,8 @@ def iris2quakeml(url, output_folder=None):
         ev.origins[0].time.month, ev.origins[0].time.day,
         ev.origins[0].time.hour, ev.origins[0].time.minute)
 
-    # Check if the ids of the magnitude and origin contain the corresponding
-    # tag. Otherwise replace tme.
-    ev.origins[0].resource_id = ev.origins[0].resource_id.resource_id.replace(
-        "quakeml/gcmtid", "quakeml/origin/gcmtid")
-    ev.magnitudes[0].resource_id = \
-        ev.magnitudes[0].resource_id.resource_id.replace(
-            "quakeml/gcmtid", "quakeml/magnitude/gcmtid")
-
-    # Fix up the moment tensor resource_ids.
-    mt.derived_origin_id = ev.origins[0].resource_id
-    mt.resource_id = mt.resource_id.resource_id.replace("focalmechanism",
-        "momenttensor")
-
-    cat = Catalog()
     cat.resource_id = ev.origins[0].resource_id.resource_id.replace("origin",
         "event_parameters")
-    cat.append(ev)
     if output_folder:
         event_name = os.path.join(output_folder, event_name)
     cat.write(event_name, format="quakeml", validate=True)
