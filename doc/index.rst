@@ -856,6 +856,82 @@ information relevant for a single iteration.
     stored in an organized and sane manner.
 
 
+The iteration XML files currently contains
+
+* Some metadata: the iteration name, a description and some comments.
+* A limited data preprocessing configuration. The data preprocessing is
+  currently mostly fixed and only the desired frequency content can be chosen.
+  Keep in mind that these values will also be used to filter the source time
+  function.
+* Some data rejection criterias. This will be covered in more detail later on.
+* The source time function configuration.
+* The settings for the solver used for this iteration.
+* A list of all events used for the iteration. Here it is possible to apply
+  weight the different events and also to apply a time correction. It can be
+  different per iteration.
+* Each event contains a list of stations where data is available. Furthermore
+  each station can have a different weight and time correction.
+
+This file is rather verbose but also very flexible. It is usually only
+necessary to create this file once and then make a copy and small adjustments
+for each iteration. In the future some more user-friendly ways to deal with the
+information will hopefully be incorporated into LASIF.
+
+
+Let's have a quick look at the generated file. The **create_new_iteration**
+command will create a new iteration file with all the information currently
+present in the LASIF project.
+
+.. code-block:: xml
+
+    <?xml version='1.0' encoding='UTF-8'?>
+    <iteration>
+      <iteration_name>1</iteration_name>
+      <iteration_description>The first iteration</iteration_description>
+      <comment>This is just for the dummy tutorial example</comment>
+      <comment>There can be an arbitrary number of comments</comment>
+      <data_preprocessing>
+        <highpass_period>0.01</highpass_period>
+        <lowpass_period>0.125</lowpass_period>
+      </data_preprocessing>
+      <rejection_criteria>
+        ...
+      </rejection_criteria>
+      <source_time_function>Filtered Heaviside</source_time_function>
+      <solver_parameters>
+        <solver>SES3D 4.0</solver>
+        <solver_settings>
+          <simulation_parameters>
+            <number_of_time_steps>500</number_of_time_steps>
+            <time_increment>0.75</time_increment>
+            <is_dissipative>false</is_dissipative>
+          </simulation_parameters>
+          <output_directory>../OUTPUT/CHANGE_ME/{{EVENT_NAME}}</output_directory>
+          ...
+        </solver_settings>
+      </solver_parameters>
+      <event>
+        <event_name>GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15</event_name>
+        <event_weight>1.0</event_weight>
+        <time_correction_in_s>0.0</time_correction_in_s>
+        <station>
+          <station_id>HL.ARG</station_id>
+          <station_weight>1.0</station_weight>
+          <time_correction_in_s>0.0</time_correction_in_s>
+        </station>
+        <station>
+          <station_id>IU.ANTO</station_id>
+          <station_weight>1.0</station_weight>
+          <time_correction_in_s>0.0</time_correction_in_s>
+        </station>
+        ...
+      </event>
+      <event>
+        ...
+      </event>
+      ...
+    </iteration>
+
 
 
 Generating SES3D Input Files
