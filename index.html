@@ -772,7 +772,7 @@ present in the LASIF project.</p>
 <p>It is a rather self-explaining file; some things to look out for:</p>
 <ul class="simple">
 <li>The dataprocessing frequency limits are given periods in seconds. This is
-more intuitive.</li>
+more in line what one would normally use.</li>
 <li>The source time function is just given as a string. The &#8220;Filtered Heaviside&#8221;
 is the only source time function currently supported. It will be filtered
 with the limits specified in the data preprocessing section.</li>
@@ -784,6 +784,27 @@ not have to be adjusted for every event.</li>
 example. Please do the same here. Notably you have to adjust the number of time
 steps and the time increment. Furthermore the paths have to be adjusted so that
 they for the system you plan to run the simulations on.</p>
+</div>
+<div class="section" id="source-time-functions">
+<h3>Source Time Functions<a class="headerlink" href="#source-time-functions" title="Permalink to this headline">¶</a></h3>
+<p>The source time functions will be dynamically generated from the information
+specified in the iteration XML files. Currently only one type of source time
+function, a filtered Heaviside function is supported. In the future, if
+desired, it could also be possible to use inverted source time functions.</p>
+<p>The source time function will always be defined for the number of time steps
+and time increment you specify in the solver settings. Furthermore all source
+time functions will be filtered with the same bandpass as the data.</p>
+<p>To get a quick look of the source time function for any given iteration, use
+the <strong>plot_stf</strong> command with the iteration name:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_stf 1
+</pre></div>
+</div>
+<p>This command will read the corresponding iteration file and open a plot with a
+time series and a time frequency representation of the source time function.</p>
+<p>(<a class="reference external" href=".//index-5.py">Source code</a>, <a class="reference external" href=".//index-5.png">png</a>, <a class="reference external" href=".//index-5.hires.png">hires.png</a>, <a class="reference external" href=".//index-5.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/index-5.png" src="_images/index-5.png" />
+</div>
 </div>
 </div>
 <div class="section" id="generating-ses3d-input-files">
@@ -842,39 +863,6 @@ Project has 1 input file template:
 </div>
 <p>You can (and maybe should) rename the actual template files to make it more
 descriptive.</p>
-</div>
-<div class="section" id="source-time-functions">
-<h4>Source Time Functions<a class="headerlink" href="#source-time-functions" title="Permalink to this headline">¶</a></h4>
-<p>The source time function will be dynamically generated for each run. An example
-source time function has been generated upon project initialization and is
-located in the <em>SOURCE_TIME_FUNCTIONS</em> subdirectory.</p>
-<p>To create your own source time functions simply copy the already existing one
-and modify it. Each source time function has to live in it&#8217;s own Python file
-and a function <strong>source_time_function(npts, delta)</strong> has to be defined in it.
-It should return either a list of floats or a numpy array with npts items.</p>
-<p>As always, they are referred to via their file name. To get a list of all
-available source time functions type:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_stf
-
-Project has 1 defined <span class="nb">source time </span><span class="k">function</span>
-<span class="k">        </span>heaviside_60s_500s
-</pre></div>
-</div>
-<p>It is furthermore possible to get a nice plot for every source time function.
-This is useful for visually judging the frequency content that goes into your
-simulation. This is done with:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_stf SOURCE_TIME_FUNCTION NPTS DELTA
-</pre></div>
-</div>
-<p>The number of samples and the sample spacing of any simulation should be known.
-SOURCE_TIME_FUNCTION again is the name of the source time function.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_stf heaviside_60s_500s 1500 0.75
-</pre></div>
-</div>
-<p>(<a class="reference external" href=".//index-5.py">Source code</a>, <a class="reference external" href=".//index-5.png">png</a>, <a class="reference external" href=".//index-5.hires.png">hires.png</a>, <a class="reference external" href=".//index-5.pdf">pdf</a>)</p>
-<div class="figure">
-<img alt="_images/index-5.png" src="_images/index-5.png" />
-</div>
 </div>
 </div>
 <div class="section" id="input-file-generation">
@@ -968,12 +956,12 @@ to verify your setup and potentially also the correctness of this tool suite.</p
 <li><a class="reference internal" href="#inspecting-the-data">Inspecting the Data</a></li>
 <li><a class="reference internal" href="#defining-a-new-iteration">Defining a New Iteration</a><ul>
 <li><a class="reference internal" href="#the-iteration-xml-files">The Iteration XML Files</a></li>
+<li><a class="reference internal" href="#source-time-functions">Source Time Functions</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#generating-ses3d-input-files">Generating SES3D Input Files</a><ul>
 <li><a class="reference internal" href="#preparatory-steps">Preparatory Steps</a><ul>
 <li><a class="reference internal" href="#input-file-templates">Input File Templates</a></li>
-<li><a class="reference internal" href="#source-time-functions">Source Time Functions</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#input-file-generation">Input File Generation</a></li>
