@@ -490,34 +490,31 @@ data. The data is further structured by assigning a tag to every data set. A
 tag is assigned by simply placing a folder in *ROOT/DATA/EVENT_NAME* and
 putting all data in there. The special tag *raw* is reserved for the raw
 waveforms straight from the datacenters or some other source. Other tags should
-describe the filtering and processing applied to the data. The same is true for
-synthetic waveform data, except that in that case, the data resides in the
-*SYNTHETICS* folder and the tags have to have the same of the iterations. More
-on this later on.
+describe the filtering and processing applied to the data (LASIF's built-in
+processing capabilities actually enforce certain tag names - this will be
+covered in more detail later on). The same is true for synthetic waveform data,
+except that in that case, the data resides in the *SYNTHETICS* folder and the
+tags have to coincide with the iteration names. More on this later on.
 
 After a while, the structure might look like this::
 
     TutorialAnatolia
     |-- DATA
-        |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
             |-- raw
-                ...
-            |-- 100s_to_10s_bandpass
-                ...
-            |-- 200s_to_20s_bandpass
-                ...
+            |-- preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
+        |...
     |-- SYNTHETICS
-        |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-            |-- inversion_1_100s
-                ...
-            |-- inversion_2_100s
-                ...
-            |-- inversion_2_50s
-                ...
-    |-- ...
+        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+            |-- inversion_1
+            |-- inversion_2
+            |...
+        |...
+    |...
 
 **The user is responsible** for adhering to that structure. Otherwise other
-parts of LASIF cannot operate properly.
+parts of LASIF cannot operate properly. Many commands shipping with LASIF ease
+that process.
 
 Station Data
 ------------
