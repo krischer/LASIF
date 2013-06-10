@@ -261,10 +261,11 @@ coordinate system for the rotation parameters is described in
 region of interest. The rotation functionality is not used in this Tutorial's
 example; in case it is used, simulation and physical domain would differ.
 LASIF handles all rotations necessary so the user never needs to worry about
-these. Just keep in mind to always kepp any data (real waveforms, station
+these. Just keep in mind to always keep any data (real waveforms, station
 metadata and events) in coordinates that correspond to the physical domain and
 all synthetic waveforms in coordinates that correspond to the simulation
-domain.
+domain. If the domain is rotated, the **plot_domain** command will plot both,
+the physical and the simulation domain:
 
 .. plot::
 
@@ -338,18 +339,20 @@ ease event identification.
 
 .. code-block:: bash
 
-    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/959525
-    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/995655
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/735711
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/988455
 
-These two commands should create two QuakeML files. To which events are currently defined in the project, type
+
+These two commands should create two QuakeML files. To which events are
+currently defined in the project use the **list_events** command.
 
 .. code-block:: bash
 
     $ lasif list_events
 
     2 events in project:
-            GCMT_event_TURKEY_Mag_6.1_2010-3-8-2-32
-            GCMT_event_DODECANESE_ISLANDS,_GREECE_Mag_6.4_2008-7-15-3-26
+        GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+        GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
 You will notice that events are identified via their filename minus the
 extension. This is an easy and flexible solution enabling you to tag the events
@@ -360,7 +363,8 @@ filename. So please give them a good and reasonable filename. If you really
 feel that event renaming is a necessary feature please file an issue on Github
 so that the author's can add a proper event renaming function.
 
-You can also get a map of all events currently part of the project with
+The **plot_events** command will return a map with all events currently part of
+the project.
 
 .. code-block:: bash
 
@@ -369,9 +373,9 @@ You can also get a map of all events currently part of the project with
 .. plot::
 
     import lasif.visualization
-    map = lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
-        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
-        show_plot=False)
+    map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
+        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
+        show_plot=False, zoom=True)
     # Create event.
     from obspy.core.event import *
     ev = Event()
@@ -384,14 +388,14 @@ You can also get a map of all events currently part of the project with
     ev.focal_mechanisms.append(fm)
     fm.moment_tensor = mt
     mt.tensor = t
-    org.latitude = 37.4
-    org.longitude = -24.38
-    t.m_rr = -1.69e+18
-    t.m_tt = 9.12e+17
-    t.m_pp = 7.77e+17
-    t.m_rt = 8.4e+16
-    t.m_rp = 2.4e+16
-    t.m_tp = -4.73e+17
+    org.latitude = 39.15
+    org.longitude = 29.1
+    t.m_rr = -8.07e+17
+    t.m_tt = 8.92e+17
+    t.m_pp = -8.5e+16
+    t.m_rt = 2.8e+16
+    t.m_rp = -5.3e+16
+    t.m_tp = -2.17e+17
     ev2 = Event()
     cat.append(ev2)
     org = Origin()
@@ -402,26 +406,27 @@ You can also get a map of all events currently part of the project with
     ev2.focal_mechanisms.append(fm)
     fm.moment_tensor = mt
     mt.tensor = t
-    org.latitude = 35.9
-    org.longitude = -10.37
-    t.m_rr = 6.29e+17
-    t.m_tt = -1.12e+18
-    t.m_pp = 4.88e+17
-    t.m_rt = -2.8e+17
-    t.m_rp = -5.22e+17
-    t.m_tp = 3.4e+16
+    org.latitude = 38.82
+    org.longitude = 40.14
+    t.m_rr = 5.47e+15
+    t.m_tt = -4.11e+16
+    t.m_pp = 3.56e+16
+    t.m_rt = 2.26e+16
+    t.m_rp = -2.25e+16
+    t.m_tp = 1.92e+16
     lasif.visualization.plot_events(cat, map)
 
 
-To get some more information about a specific event use
+The **event_info** command is your friend if you desire more information about
+a certain event:
 
 .. code-block:: bash
 
-    $ lasif event_info GCMT_event_TURKEY_Mag_6.1_2010-3-8-2-32
+    $ lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
-    Earthquake with 6.1 Mw at TURKEY
-        Latitude: 38.870, Longitude: 39.990, Depth: 12000.0 km
-        2010-03-08T02:32:34.700000Z UTC
+    Earthquake with 5.1 Mwc at TURKEY
+        Latitude: 38.820, Longitude: 40.140, Depth: 4.5 km
+        2010-03-24T14:11:31.000000Z UTC
 
     Station and waveform information available at 0 stations:
 
@@ -429,8 +434,10 @@ To get some more information about a specific event use
                  id       latitude      longitude      elevation    local depth
     ===========================================================================
 
-Notice that the event currently has no data associated with it. We will fix
-this in the next section.
+The information given with this command will be the one LASIF uses. This is
+useful if the event has more then one origin and you want to know which one
+LASIF actually uses. Notice that the event currently has no data associated
+with it. We will fix this in the next section.
 
 .. note::
 
@@ -450,41 +457,43 @@ single event will be stored in a subfolder of the *DATA* folder with the
 **same name as the QuakeML file minus the .xml**.
 
 These folder are automatically created and updated each time a lasif command is
-executed.
-
-This will result in a directory structure in the fashion of::
+executed. If you followed the tutorial, your directory structure should
+resemble the following::
 
     TutorialAnatolia
-    |-- CACHE
-    |-- DATA
-    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-    |-- EVENTS
-    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35.xml
-    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9.xml
-    |-- LOGS
-    |-- MODELS
-    |-- OUTPUT
-    |-- SOURCE_TIME_FUNCTIONS
-    |-- STATIONS
-    |   |-- RESP
-    |   |-- SEED
-    |   |-- StationXML
-    |-- SYNTHETICS
-    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-    |-- TEMPLATES
-    |-- config.xml
+    |── ADJOINT_SOURCES_AND_WINDOWS
+    |   |── ADJOINT_SOURCES
+    |   |── WINDOWS
+    |── CACHE
+    |── config.xml
+    |── DATA
+    |   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    |   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+    |── EVENTS
+    |   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml
+    |   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml
+    |── ITERATIONS
+    |── LOGS
+    |── MODELS
+    |── OUTPUT
+    |── STATIONS
+    |   |── RESP
+    |   |── SEED
+    |   |── StationXML
+    |── SYNTHETICS
+        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+        |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
 
 
-All data in the *DATA* subfolder has to be real data. The data is further
-structured by assigning a tag to every data set. A tag is assigned by simply
-placing a folder in *ROOT/DATA/EVENT_NAME* and putting all data in there. The
-special tag *raw* is reserved for the raw waveforms straight from the
-datacenters or some other source. Other tags should describe the filtering and
-processing applied to the data. The same is true for synthetic waveform data,
-except that in that case, the data resides in the *SYNTHETICS* folder and the
-tags should describe the simulation ran to obtain the waveforms.
+All data in the *DATA* subfolder has to be processed or unprocessed actual
+data. The data is further structured by assigning a tag to every data set. A
+tag is assigned by simply placing a folder in *ROOT/DATA/EVENT_NAME* and
+putting all data in there. The special tag *raw* is reserved for the raw
+waveforms straight from the datacenters or some other source. Other tags should
+describe the filtering and processing applied to the data. The same is true for
+synthetic waveform data, except that in that case, the data resides in the
+*SYNTHETICS* folder and the tags have to have the same of the iterations. More
+on this later on.
 
 After a while, the structure might look like this::
 
