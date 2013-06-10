@@ -1011,13 +1011,29 @@ or (in Python terms):
 .. note::
 
     You can use any processing tool you want, but you have to adhere to the
-    directory structure otherwise LASIF will not be able to work with. It is
-    furthermore important that the processed filenames are identical to the
-    unprocessed ones.
+    directory structure otherwise LASIF will not be able to work with the data.
+    It is furthermore important that the processed filenames are identical to
+    the unprocessed ones.
 
     If you feel that additional identifiers are needed to uniquely identify the
     applied processing (in the limited setting of being useful for the here
     performed full waveform inversion) please contact the LASIF developers.
+
+You can of course also simply utilize LASIF's built-in preprocessing. Using it
+is really simple, just launch the **preprocess_data** command together with the
+iteration name.
+
+.. code-block:: bash
+
+    $ lasif preprocess_data 1
+
+This will start the fully parallel preprocessing for all data required for the
+specified iteration. It will utilize all your machine's cores and might take a
+while. If you repeat the command it will only process data not already
+processed. This usually only needs to be done every couple of iterations when
+you decide to go to higher frequencies or add new data.
+
+The preprocessed data will live in a folder right next to the raw data.
 
 
 
