@@ -6,75 +6,170 @@
 Welcome to LASIF's Documentation!
 ===================================
 
-LASIF (**LA**\ arg-scale **S**\ seismic **I**\ nversion **F**\ ramework) is a
-**data-driven workflow tool** to perform full waveform inversions.
-It is opinionated and strict meaning that it forces a certain data and
-directory structure. The upside is that it only requires a very minimal amount
-of configuration and maintenance. It attempts to gather all necessary
-information from the data itself so there is no need to keep index or content
-files.
+.. image:: images/logo/lasif_logo.png
+    :width: 50%
 
-All parts of LASIF can work completely on their own. See the class and
-function documentation at the end of this document. Furthermore LASIF offers
-a project based inversion workflow management system which is introduced in the
+LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
+**data-driven workflow tool** to perform full waveform inversions.  It is
+opinionated and strict meaning that it enforces a certain data and directory
+structure. The upside is that it only requires a very minimal amount of
+configuration and maintenance. It attempts to gather all necessary information
+from the data itself so there is no need to keep index or content files.
+
+All parts of LASIF also work completely on their own; see the class and
+function documentation at the end of this document. Furthermore LASIF offers a
+project based inversion workflow management system which is introduced in the
 following tutorial.
 
-
-Tutorial
-========
 LASIF works with the notion of so called inversion projects. A project is
 defined as a series of iterations working on the same physical domain. Where
 possible and useful, LASIF will use XML files to store information. The
 reasoning behind this is twofold. It is easily machine and human readable. It
-also serves as a preparatory step towards a fully database driven full waveform
-inversion workflow as all necessary information is already stored in an easily
-indexable data format.
+furthermore also serves as a preparatory step towards a fully database driven
+full waveform inversion workflow as all necessary information is already stored
+in an easily indexable data format.
+
+LASIF is data-driven meaning that it attempts to gather all necessary
+information from the available data. The big advantage of this approach is that
+the users can use any tool they want to access and work with the data as long
+as they adhere to the directory structure imposed by LASIF. At the start of
+every LASIF operation, the tool checks what data is available and uses it. To
+achieve reasonable performance it employs a transparent caching scheme able to
+quickly any changes the user makes to the data. Also important to keep in mind
+is that **LASIF will never delete any data**.
+
+Supported Data Formats
+======================
+
+This is a short list of supported data formats and other software.
+
+
+* **Waveform Data:** All file formats supported by ObsPy.
+* **Synthetics:** All file formats supported by ObsPy and the output files of
+  SES3D 4.0.
+* **Event Metadata:** QuakeML 1.2
+* **Station Metadata:** dataless SEED, RESP and (hopefully) soon FDSN
+  StationXML.  Once implemented, StationXML will be the recommended and most
+  future proof format.
+* **Earth Models:** Currently the raw SES3D model format is supported.
+* **Waveform Solvers:** SES3D 4.0, support for SpecFEM Cartesian and/or Globe
+  will be added soon.
+
+
+Further Notes
+-------------
+
+QuakeML files
+^^^^^^^^^^^^^
+LASIF is designed to work with valid QuakeML 1.2 event files. Please assure
+that the files you use actually are just that. If possible try to only use
+QuakeML files with one origin and one focal mechanism, otherwise LASIF will
+choose the preferred origin and/or focal mechanism (or the first of each, if no
+preferred one is specified). **The origin time specified in the QuakeML file
+will be the reference time for each event!** Times specified in SAC files will
+be ignored.
+
+This also means that the raw data files have to have the correct time
+information.
+
+Synthetic Data Files
+^^^^^^^^^^^^^^^^^^^^
+The very first sample of each synthetic waveform will be assumed to coincide
+with the event time. If this is not a reasonable assumption, please contact the
+LASIF developers.
+
+
+Tutorial
+========
+This tutorial will teach you how to perform an iterative full waveform
+inversion with LASIF and SES3D by example.
+
+The example used throughout this tutorial is the same as given in the SES3D
+Documentation except that the used events differ. It is a good idea to also
+have the SES3D documentation at hand.
+
+
+Command Line Interface
+----------------------
+
+LASIF ships with a command line interface, consisting of a single command:
+**lasif**.
+
+Assuming the installation was successful, the following command will print a
+short overview of all commands available within LASIF:
+
+.. code-block:: bash
+
+    $ lasif help
+
+    Usage: lasif FUNCTION PARAMETERS
+
+    Available functions:
+        add_spud_event
+        create_new_iteration
+        ...
+
+To learn more about a specific command, append *help* to it:
+
+.. code-block:: bash
+
+    $ lasif init_project help
+
+    Usage: lasif init_project FOLDER_PATH
+
+        Creates a new LASIF project at FOLDER_PATH. FOLDER_PATH must not exist
+        yet and will be created.
+
+
+.. note::
+
+    All **lasif** commands work and use the correct project as long as they are
+    executed somewhere inside a project's folder structure. It will recursively
+    search the parent directories until it finds a *config.xml* file. This will
+    then be assumed to be the root folder of the project.
+
+Now that the preliminaries have been introduced, let's jump straight to the
+example.
 
 Creating a New Project
 ----------------------
 The necessary first step, whether for starting a new inversion or migrating an
 already existing inversion to LASIF, is to create a new project. In the
-following the project will be called **MyInversion**.
+following the project will be called **TutorialAnatolia**.
 
 .. code-block:: bash
 
-    $ lasif init_project MyInversion
+    $ lasif init_project TutorialAnatolia
 
-This will create the following directory structure::
+This will create the following directory structure. It will be explained in
+more detail later on::
 
-    MyInversion
+    TutorialAnatolia
+    |-- ADJOINT_SOURCES_AND_WINDOWS
+    |-- CACHE
     |-- config.xml
     |-- DATA
     |-- EVENTS
+    |-- ITERATIONS
     |-- LOGS
     |-- MODELS
     |-- OUTPUT
-    |-- SOURCE_TIME_FUNCTIONS
-    |   |-- heaviside_60s_500s.py
     |-- STATIONS
     |   |-- RESP
     |   |-- SEED
     |   |-- StationXML
     |-- SYNTHETICS
-    |-- TEMPLATES
 
 
-The configuration for each project works , is defined in the **config.xml**
-file. It is a simple, self-explanatory XML format. The nature of SES3D's
-coordinate system has the effect that simulation is most efficient in
-equatorial regions. Thus it is oftentimes advantageous to rotate the frame of
-reference so that the simulation happens close to the equator. LASIF first
-defines the simulation domain; the actual simulation happens here. Optional
-rotation parameters define the physical location of the domain. The coordinate
-system for the rotation parameters is described in :py:mod:`lasif.rotations`.
-You will have to edit the file to adjust it to your region of interest. It will
-look something like the following.
+The configuration for each project is defined in the **config.xml** file. It is
+a simple, self-explanatory XML format. After the project has been initialized
+it will look akin to the following:
 
 .. code-block:: xml
 
     <?xml version="1.0" encoding="utf-8"?>
     <lasif_project>
-        <name>MyInversion</name>
+        <name>TutorialAnatolia</name>
         <description></description>
         <download_settings>
             <arclink_username></arclink_username>
@@ -100,33 +195,77 @@ look something like the following.
         </domain>
     </lasif_project>
 
-
 It should be fairly self-explanatory.
 
-* The *boundary_width_in_degree* tag is just used for the download helpers. No
-  data will be downloaded within *boundary_width_in_degree* distance to the
-  domain border. This is useful for e.g. absorbing boundary conditions.
+* *name* denotes a short description of the project. Usually the same as the
+  folder name.
+* *description* can be any further useful information about the project. This
+  is not used by LASIF but potentially useful for yourself.
 * The *arclink_username* tag should be your email. It will be send with all
   requests to the ArcLink network. They ask for it in case they have to contact
   you for whatever reason. Please provide a real email address. Must not be
   empty.
+* *seconds_before_event*: Used by the waveform download scripts. It will
+  attempt to download this many seconds for every waveform before the origin of
+  the associated event.
+* *seconds_after_event*: Used by the waveform download scripts. It will attempt
+  to download this many seconds for every waveform after the origin of the
+  associated event. Adapt this to the size of your inversion domain.
+* The *domain* settings will be explained in more detail in the following
+  paragraphs.
+* The *boundary_width_in_degree* tag is use to be able to take care of the
+  boundary conditions, e.g. data will be downloaded within
+  *boundary_width_in_degree* distance to the domain border.
 
+The file, amongst other settings, defines the physical domain for the
+inversion. Please set it to the following (same as in the SES3D Tutorial):
 
-.. note::
+* Latitude: **34.1° - 42.9°**
+* Longitude: **23.1° - 42.9°**
+* Depth: **0 km - 471 km**
+* Boundary width in degree: **1.46°**
 
-    All **lasif** commands work and use the correct project as long as they
-    are executed somewhere inside a projects folder structure.
+In generally one should only work with data not affected by the boundary
+conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
+It is not advisable to use data that traverses these layers. The default
+setting of SES3D is to use two boundary layers. In this example this amounts to
+(in longitudinal direction) 1.46°. In a real world case it is best to use some
+more buffer layers to avoid boundary effects. In this small example this would
+influence the domain too much so we just set it to 1.46°.
 
 At any point you can have a look at the defined domain with
 
 .. code-block:: bash
 
-    $ cd MyInversion
     $ lasif plot_domain
 
 This will open a window showing the location of the physical domain and the
-simulation domain. The inner contours show the domain minus the previously
+simulation domain. The inner contour shows the domain minus the previously
 defined boundary width.
+
+.. plot::
+
+    import lasif.visualization
+    lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
+        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
+        plot_simulation_domain=True, zoom=True)
+
+
+The nature of SES3D's coordinate system has the effect that simulation is most
+efficient in equatorial regions. Thus it is oftentimes advantageous to rotate
+the frame of reference so that the simulation happens close to the equator.
+LASIF first defines the simulation domain; the actual simulation happens here.
+Optional rotation parameters define the physical location of the domain. The
+coordinate system for the rotation parameters is described in
+:py:mod:`lasif.rotations`.  You will have to edit the file to adjust it to your
+region of interest. The rotation functionality is not used in this Tutorial's
+example; in case it is used, simulation and physical domain would differ.
+LASIF handles all rotations necessary so the user never needs to worry about
+these. Just keep in mind to always keep any data (real waveforms, station
+metadata and events) in coordinates that correspond to the physical domain and
+all synthetic waveforms in coordinates that correspond to the simulation
+domain. If the domain is rotated, the **plot_domain** command will plot both,
+the physical and the simulation domain:
 
 .. plot::
 
@@ -135,38 +274,108 @@ defined boundary width.
         rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
         plot_simulation_domain=True)
 
+.. note::
+
+    The map projection and zoom should automatically adjust so it is suitable
+    for the dimensions and location of the chosen domain. If that is not the
+    case please file an issue on the project's Github page.
+
+The small size of the domain does not warrant downloading an hour worth of data
+for every event. Half an hour or event less is more then sufficient. After all
+the discussed changes the **config.xml** file should be similar to this one:
+
+.. code-block:: xml
+
+    <?xml version='1.0' encoding='UTF-8'?>
+    <lasif_project>
+      <name>TutorialAnatolia</name>
+      <description>Tutorial Inversion</description>
+      <download_settings>
+        <arclink_username>your@email.com</arclink_username>
+        <seconds_before_event>300</seconds_before_event>
+        <seconds_after_event>1800</seconds_after_event>
+      </download_settings>
+      <domain>
+        <domain_bounds>
+          <minimum_longitude>23.1</minimum_longitude>
+          <maximum_longitude>42.9</maximum_longitude>
+          <minimum_latitude>34.1</minimum_latitude>
+          <maximum_latitude>42.9</maximum_latitude>
+          <minimum_depth_in_km>0.0</minimum_depth_in_km>
+          <maximum_depth_in_km>471.0</maximum_depth_in_km>
+          <boundary_width_in_degree>1.46</boundary_width_in_degree>
+        </domain_bounds>
+        <domain_rotation>
+          <rotation_axis_x>0.0</rotation_axis_x>
+          <rotation_axis_y>0.0</rotation_axis_y>
+          <rotation_axis_z>1.0</rotation_axis_z>
+          <rotation_angle_in_degree>0.0</rotation_angle_in_degree>
+        </domain_rotation>
+      </domain>
+    </lasif_project>
+
+This concludes the intial setup part of the inversion.
+
+
 Adding Seismic Events
 ---------------------
+Once the domain has been adjusted to your needs, you need to tell LASIF which
+events you want to use for the inversion. This works by simply placing a valid
+QuakeML 1.2 file at the correct location.
+
 All events have to be stored in the *EVENTS* subfolder of the project. They
-have to be valid QuakeML files with full moment tensor information. LASIF
-provides some convenience methods for this purpose. One can leverage the IRIS
-SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT events.
-Simply search for an event and copy the url. The **iris2quakeml** script will
-then grab the QuakeML from the url and store an XML file in the current folder.
+have to be QuakeML 1.2 files with full moment tensor information.
+
+LASIF provides some convenience methods for this purpose. One can leverage the
+IRIS SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT
+events.  Simply search for an event and copy the url. The **iris2quakeml**
+script will then grab the QuakeML from the url and store an XML file in the
+correct folder.
 
 See :doc:`iris2quakeml` for more information. The LASIF command lines tools
-contain a convenience wrapper around it that also makes sure that the event
-ends up in the correct folder.
-
+contain a convenience wrapper around it that also makes sure that the events
+ends up in the correct folder and gives them a reasonable filename that should
+ease event identification.
 
 .. code-block:: bash
 
-    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/959525
-    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/995655
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/735711
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/988455
 
-All events can be viewed with
+
+These two commands should create two QuakeML files. To which events are
+currently defined in the project use the **list_events** command.
+
+.. code-block:: bash
+
+    $ lasif list_events
+
+    2 events in project:
+        GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+        GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+
+You will notice that events are identified via their filename minus the
+extension. This is an easy and flexible solution enabling you to tag the events
+as you see fit. The slight disadvantage of this approach is that **you must not
+change the event filenames after you have worked with them** because all
+additional information for that event will be related to it via the event
+filename. So please give them a good and reasonable filename. If you really
+feel that event renaming is a necessary feature please file an issue on Github
+so that the authors can add a proper event renaming function.
+
+The **plot_events** command will return a map with all events currently part of
+the project.
 
 .. code-block:: bash
 
     $ lasif plot_events
 
-
 .. plot::
 
     import lasif.visualization
-    map = lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
-        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
-        show_plot=False)
+    map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
+        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
+        show_plot=False, zoom=True)
     # Create event.
     from obspy.core.event import *
     ev = Event()
@@ -179,14 +388,14 @@ All events can be viewed with
     ev.focal_mechanisms.append(fm)
     fm.moment_tensor = mt
     mt.tensor = t
-    org.latitude = 37.4
-    org.longitude = -24.38
-    t.m_rr = -1.69e+18
-    t.m_tt = 9.12e+17
-    t.m_pp = 7.77e+17
-    t.m_rt = 8.4e+16
-    t.m_rp = 2.4e+16
-    t.m_tp = -4.73e+17
+    org.latitude = 39.15
+    org.longitude = 29.1
+    t.m_rr = -8.07e+17
+    t.m_tt = 8.92e+17
+    t.m_pp = -8.5e+16
+    t.m_rt = 2.8e+16
+    t.m_rp = -5.3e+16
+    t.m_tp = -2.17e+17
     ev2 = Event()
     cat.append(ev2)
     org = Origin()
@@ -197,87 +406,115 @@ All events can be viewed with
     ev2.focal_mechanisms.append(fm)
     fm.moment_tensor = mt
     mt.tensor = t
-    org.latitude = 35.9
-    org.longitude = -10.37
-    t.m_rr = 6.29e+17
-    t.m_tt = -1.12e+18
-    t.m_pp = 4.88e+17
-    t.m_rt = -2.8e+17
-    t.m_rp = -5.22e+17
-    t.m_tp = 3.4e+16
+    org.latitude = 38.82
+    org.longitude = 40.14
+    t.m_rr = 5.47e+15
+    t.m_tt = -4.11e+16
+    t.m_pp = 3.56e+16
+    t.m_rt = 2.26e+16
+    t.m_rp = -2.25e+16
+    t.m_tp = 1.92e+16
     lasif.visualization.plot_events(cat, map)
 
 
-Waveform Data
--------------
+The **event_info** command is your friend if you desire more information about
+a certain event:
+
+.. code-block:: bash
+
+    $ lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+
+    Earthquake with 5.1 Mwc at TURKEY
+        Latitude: 38.820, Longitude: 40.140, Depth: 4.5 km
+        2010-03-24T14:11:31.000000Z UTC
+
+    Station and waveform information available at 0 stations:
+
+    ===========================================================================
+                 id       latitude      longitude      elevation    local depth
+    ===========================================================================
+
+The information given with this command will be the one LASIF uses. This is
+useful if the event has more then one origin and you want to know which one
+LASIF actually uses. Notice that the event currently has no data associated
+with it. We will fix this in the next section.
+
+.. note::
+
+    You do not need to add all events you plan to use in the inversion at the
+    beginning. Only add those you want to use for the very first inversion.
+    LASIF is rather flexible and enables you to use different events, data,
+    weighting schemes, ... for every iteration. It will keep track of what
+    actually happened during each iteration so the project gains
+    **reproducibility and provenance**.
+
+
+Adding Waveform Data
+--------------------
 Every inversion needs real data to be able to quantify misfits. The waveform
 data for all events are stored in the *DATA* subfolder. The data for each
 single event will be stored in a subfolder of the *DATA* folder with the
 **same name as the QuakeML file minus the .xml**.
 
 These folder are automatically created and updated each time a lasif command is
-executed. The simplest command is
+executed. If you followed the tutorial, your directory structure should
+resemble the following::
 
-.. code-block:: bash
-
-    $ lasif info
-
-This will result in a directory structure in the fashion of::
-
-    MyInversion
-    |-- DATA
-    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-    |-- EVENTS
-    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35.xml
-    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9.xml
-    |-- LOGS
-    |-- MODELS
-    |-- OUTPUT
-    |-- SOURCE_TIME_FUNCTIONS
-    |-- STATIONS
-    |   |-- RESP
-    |   |-- SEED
-    |   |-- StationXML
-    |-- SYNTHETICS
-    |   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-    |   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-    |-- TEMPLATES
-    |-- config.xml
+    TutorialAnatolia
+    |── ADJOINT_SOURCES_AND_WINDOWS
+    |   |── ADJOINT_SOURCES
+    |   |── WINDOWS
+    |── CACHE
+    |── config.xml
+    |── DATA
+    |   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    |   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+    |── EVENTS
+    |   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml
+    |   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml
+    |── ITERATIONS
+    |── LOGS
+    |── MODELS
+    |── OUTPUT
+    |── STATIONS
+    |   |── RESP
+    |   |── SEED
+    |   |── StationXML
+    |── SYNTHETICS
+        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+        |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
 
 
-All data in the *DATA* subfolder has to be real data. The data is further
-structured by assigning a tag to every data set. A tag is assigned by simply
-placing a folder in *ROOT/DATA/EVENT_NAME* and putting all data in there. The
-special tag *raw* is reserved for the raw waveforms straight from the
-datacenters or some other source. Other tags should describe the filtering and
-processing applied to the data. The same is true for synthetic waveform data,
+All data in the *DATA* subfolder has to be processed or unprocessed actual
+data. The data is further structured by assigning a tag to every data set. A
+tag is assigned by simply placing a folder in *ROOT/DATA/EVENT_NAME* and
+putting all data in there. The special tag *raw* is reserved for the raw
+waveforms straight from the datacenters or some other source. Other tags should
+describe the filtering and processing applied to the data (LASIF's built-in
+processing capabilities actually enforce certain tag names - this will be
+covered in more detail later on). The same is true for synthetic waveform data,
 except that in that case, the data resides in the *SYNTHETICS* folder and the
-tags should describe the simulation ran to obtain the waveforms.
+tags have to coincide with the iteration names. More on this later on.
 
 After a while, the structure might look like this::
 
-    MyInversion
+    TutorialAnatolia
     |-- DATA
-        |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
             |-- raw
-                ...
-            |-- 100s_to_10s_bandpass
-                ...
-            |-- 200s_to_20s_bandpass
-                ...
+            |-- preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
+        |...
     |-- SYNTHETICS
-        |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-            |-- inversion_1_100s
-                ...
-            |-- inversion_2_100s
-                ...
-            |-- inversion_2_50s
-                ...
-    |-- ...
+        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+            |-- inversion_1
+            |-- inversion_2
+            |...
+        |...
+    |...
 
 **The user is responsible** for adhering to that structure. Otherwise other
-parts of LASIF cannot operate properly.
+parts of LASIF cannot operate properly. Many commands shipping with LASIF ease
+that process.
 
 Station Data
 ------------
@@ -340,92 +577,168 @@ Downloading Waveforms
 ^^^^^^^^^^^^^^^^^^^^^
 
 Waveforms are downloaded on a per event basis. The **config.xml** file contains
-some specification to detail the download. Each event is referred to by its
-name which is simply the filename minus the extension. To get a list of all
-events in the current project just execute
-
-.. code-block:: bash
-
-    $ lasif list_events
-
-    2 events in project:
-        GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-        GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-
+some specification to detail the download.
 
 To download the waveform data for one event, choose one and run
 
 .. code-block:: bash
 
-    $ lasif download_waveforms GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+    $ lasif download_waveforms GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
+
+The command essentially just tries to download everything it can. It queries
+the IRIS DMC and ArcLink for all stations available in the physical domain and
+then downloads the appropriate data. It accounts for the domain borders and
+possible domain rotations. It is influences by three parameters in the
+**config.xml** file:
+
+* The *arclink_username* tag should be your email. It will be send with all
+  requests to the ArcLink network. They ask for it in case they have to contact
+  you for whatever reason. Please provide a real email address. Must not be
+  empty.
+* *seconds_before_event*: Used by the waveform download scripts. It will
+  attempt to download this many seconds for every waveform before the origin of
+  the associated event.
+* *seconds_after_event*: Used by the waveform download scripts. It will attempt
+  to download this many seconds for every waveform after the origin of the
+  associated event. Adapt this to the size of your inversion domain.
 
 This, dependent on the domain size, event location, and origin time can take a
 while. Executing the same command again will only attempt to download data not
 already present. All data will be placed in `DATA/EVENT_NAME/raw`.
 
+.. note::
 
-Downloading Station Data
-^^^^^^^^^^^^^^^^^^^^^^^^
+    At this point it is worth mentioning that LASIF keeps logs of many actions
+    that the user performs. All logs will be saved in the *LOGS* subfolder.
+
+
+Downloading Station Metadata
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 LASIF also includes some functionality to download station metadata. It will,
-download StationXML and RESP files from IRIS and dataless SEED and RESP files
-from ArcLink. It works the same as it does for the waveforms. To download all
-stations for one event simply execute
+download RESP files from IRIS and dataless SEED files from ArcLink. It works
+the same as it does for the waveforms. To download all stations for one event
+simply execute
 
 .. code-block:: bash
 
-    $ lasif download_stations GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    $ lasif download_stations GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+
+The `lasif download_stations` command will, for the specified event, figure
+what waveform data is present in the `DATA/EVENT_NAME/raw` folder and download
+all missing station metadata information for these files.
 
 .. note::
 
-    The `lasif download_stations` command will, for the specified event, figure
-    what waveform data is present in the `DATA/EVENT_NAME/raw` folder and
-    download all missing station metadata information for these files.
+    At some point in the near future the station metadata downloading routines
+    will be changed so that they exclusively work with StationXML metadata.
+
+
+Inspecting the Data
+-------------------
+
+Once waveform and station metadata has been downloaded (either with the
+built-in helpers or manually) and placed in the correct folders, LASIF can
+start to work with it.
+
+.. note::
+
+    LASIF essentially needs three ingredients to be able to interpret waveform
+    data:
+
+    * The actual waveforms
+    * The location of the recording seismometer
+    * The instrument response for each channel at the time of data recording
+
+    Some possibilities exist to specify these:
+
+    * MiniSEED data and dataless SEED for the metadata (currently preferred)
+    * SAC data and RESP files (needed for legacy reasons)
+    * MiniSEED and RESP files (this combination does not actually contain
+      location information but LASIF launches some web requests to get just the
+      locations and stores them in a cache database)
+    * Most other combinations should also work but have not been tested.
+
+    In the future the preferred way will be miniSEED data combined with
+    StationXML metadata. This provides a clear seperation of data and metadata.
+
 
 At this point, LASIF is able to match available station and waveform
-information. To get an overview, of what data is actually stored for the given event, just execute:
+information. Only stations where the three aforementioned ingredients are
+available will be considered to be stations that are good to be worked with by
+LASIF. Others will be ignored.
+
+To get an overview, of what data is actually available for any given event,
+just execute:
 
 .. code-block:: bash
 
-    $ lasif event_info GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    $ lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
-    Earthquake with 6.1 Mw at AZORES ISLANDS REGION
-            Latitude: 37.400, Longitude: -24.380, Depth: 12.0 km
-            2007-04-07T07:09:29.500000Z UTC
+    Earthquake with 5.1 Mwc at TURKEY
+        Latitude: 38.820, Longitude: 40.140, Depth: 4.5 km
+        2010-03-24T14:11:31.000000Z UTC
 
     Station and waveform information available at 8 stations:
 
     ===========================================================================
                  id       latitude      longitude      elevation    local depth
     ===========================================================================
-            GE.CART        37.5868        -1.0012           65.0            5.0
-             GE.MTE        40.3997        -7.5442          815.0            3.0
-             GE.SFS        36.4656        -6.2055           21.0            5.0
-             IU.PAB        39.5446      -4.349899          950.0            0.0
-             PM.MTE        40.3997        -7.5442          815.0            3.0
-           PM.PESTR        38.8672        -7.5902          410.0            0.0
-            PM.PVAQ        37.4037        -7.7173          200.0            0.0
-            WM.CART        37.5868        -1.0012           65.0            5.0
+             GE.APE        37.0689        25.5306          620.0            0.0
+             GE.ISP        37.8433        30.5093         1100.0            5.0
+             HL.APE        37.0689        25.5306          620.0            0.0
+             HL.ARG         36.216         28.126          170.0            0.0
+             HL.RDO         41.146         25.538          100.0            0.0
+             HT.ALN        40.8957        26.0497          110.0            0.0
+            HT.SIGR        39.2114        25.8553           93.0            0.0
+            IU.ANTO         39.868        32.7934         1090.0           None
 
 
-It is furthermore possible to plot the availability information for one event including ray coverage with:
+.. note::
+
+    As seen here, the local depth can is allowed to not be set. In this cases
+    it will be assumed to be zero. For all practical purposes the local depth
+    does not matter for continental scale inversions.
+
+
+It is furthermore possible to plot the availability information for one event
+including a very simple ray coverage plot with:
 
 .. code-block:: bash
 
-    $ lasif plot_event GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-
+    $ lasif plot_event GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
 .. plot::
 
+    import matplotlib.pylab as plt
+    from obspy import UTCDateTime
     import lasif.visualization
-    map = lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
-        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
-        show_plot=False)
+    map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
+        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
+        show_plot=False, zoom=True)
+    event_info = {'depth_in_km': 4.5, 'region': 'TURKEY', 'longitude': 40.14,
+        'magnitude': 5.1, 'magnitude_type': 'Mwc', 'latitude': 38.82,
+        'origin_time': UTCDateTime(2010, 3, 24, 14, 11, 31)}
+    stations = {u'GE.APE': {'latitude': 37.0689, 'local_depth': 0.0,
+        'elevation': 620.0, 'longitude': 25.5306}, u'HL.ARG': {'latitude':
+        36.216, 'local_depth': 0.0, 'elevation': 170.0, 'longitude': 28.126},
+        u'IU.ANTO': {'latitude': 39.868, 'local_depth': None, 'elevation':
+        1090.0, 'longitude': 32.7934}, u'GE.ISP': {'latitude': 37.8433,
+        'local_depth': 5.0, 'elevation': 1100.0, 'longitude': 30.5093},
+        u'HL.RDO': {'latitude': 41.146, 'local_depth': 0.0, 'elevation': 100.0,
+        'longitude': 25.538}, u'HT.SIGR': {'latitude': 39.2114, 'local_depth':
+        0.0, 'elevation': 93.0, 'longitude': 25.8553}, u'HT.ALN': {'latitude':
+        40.8957, 'local_depth': 0.0, 'elevation': 110.0, 'longitude': 26.0497},
+        u'HL.APE': {'latitude': 37.0689, 'local_depth': 0.0, 'elevation':
+        620.0, 'longitude': 25.5306}}
+    lasif.visualization.plot_stations_for_event(map_object=map,
+        station_dict=stations, event_info=event_info)
     # Create event.
     from obspy.core.event import *
+    cat = Catalog(events=[])
     ev = Event()
-    cat = Catalog(events=[ev])
+    cat.append(ev)
     org = Origin()
     fm = FocalMechanism()
     mt = MomentTensor()
@@ -434,34 +747,206 @@ It is furthermore possible to plot the availability information for one event in
     ev.focal_mechanisms.append(fm)
     fm.moment_tensor = mt
     mt.tensor = t
-    org.latitude = 37.4
-    org.longitude = -24.38
-    t.m_rr = -1.69e+18
-    t.m_tt = 9.12e+17
-    t.m_pp = 7.77e+17
-    t.m_rt = 8.4e+16
-    t.m_rp = 2.4e+16
-    t.m_tp = -4.73e+17
+    org.latitude = 38.82
+    org.longitude = 40.14
+    t.m_rr = 5.47e+15
+    t.m_tt = -4.11e+16
+    t.m_pp = 3.56e+16
+    t.m_rt = 2.26e+16
+    t.m_rp = -2.25e+16
+    t.m_tp = 1.92e+16
     lasif.visualization.plot_events(cat, map)
-    ev_lng = -24.38
-    ev_lat = 37.4
-    stations = {'GE.SFS': {'latitude': 36.4656, 'local_depth': 5.0,
-        'elevation': 21.0, 'longitude': -6.2055}, 'PM.MTE': {'latitude':
-        40.3997, 'local_depth': 3.0, 'elevation': 815.0, 'longitude': -7.5442},
-        'PM.PVAQ': {'latitude': 37.4037, 'local_depth': 0.0, 'elevation':
-        200.0, 'longitude': -7.7173}, 'WM.CART': {'latitude': 37.5868,
-        'local_depth': 5.0, 'elevation': 65.0, 'longitude': -1.0012}, 'GE.MTE':
-        {'latitude': 40.3997, 'local_depth': 3.0, 'elevation': 815.0,
-        'longitude': -7.5442}, 'PM.PESTR': {'latitude': 38.8672, 'local_depth':
-        0.0, 'elevation': 410.0, 'longitude': -7.5902}, 'GE.CART': {'latitude':
-        37.5868, 'local_depth': 5.0, 'elevation': 65.0, 'longitude': -1.0012},
-        'IU.PAB': {'latitude': 39.5446, 'local_depth': 0.0, 'elevation': 950.0,
-        'longitude': -4.349899}}
-    lasif.visualization.plot_stations_for_event(map_object=map,
-        station_dict=stations, event_longitude=ev_lng,
-        event_latitude=ev_lat)
-    # Plot the beachball for one event.
-    lasif.visualization.plot_events(cat, map_object=map)
+    plt.show()
+
+
+If you are interested in getting a coverage plot of all events and data
+available for the current project, please execute the **plot_raydensity**
+command:
+
+.. code-block:: bash
+
+    $ lasif plot_raydensity
+
+Keep in mind that this only results in a reasonable plot for large amounts of
+data; for the toy example used in the tutorial it will not work. It is not a
+physically accurate plot but helps in judging data coverage and directionality
+effects. An example from a larger LASIF project illustrates this:
+
+
+.. image:: images/raydensity.jpg
+    :width: 70%
+    :align: center
+
+
+Defining a New Iteration
+------------------------
+
+LASIF organizes the actual inversion in an arbitrary number of iterations; each
+of which is described by a single XML file. Within each file, the events and
+stations for this iterations, the solver settings, and other information is
+specified. Each iteration can have an arbitrary name. It is probably a good
+idea to give simple numeric names, like 1, 2, 3, ...
+
+Let's start by creating the XML file for the very first iteration with the
+**create_new_iteration** command.
+
+.. code-block:: bash
+
+    $ lasif create_new_iteration 1 SES3D_4_0
+
+
+This command takes two arguements; the first being the iteration name. A simple
+number is sufficient in many cases. The second argument is the waveform solver
+to be used for this iteration. It currently only supports SES3D 4.0 but the
+infrastructure to add other solvers is already in place.
+
+You will see that this create a new file; *ITERATIONS/ITERATION_1.xml**. Each
+iteration will have its own file. To get a list of iterations, use
+
+.. code-block:: bash
+
+    $ lasif list_iterations
+
+    1 Iteration in project:
+        1
+
+
+To get more information about a specific iteration, use the **iteration_info** command.
+
+.. code-block:: bash
+
+    $ lasif iteration_info 1
+
+    LASIF Iteration
+        Name: 1
+        Description: None
+        Source Time Function: Filtered Heaviside
+        Preprocessing Settings:
+                Highpass Period: 100.000 s
+                Lowpass Period: 8.000 s
+        Solver: SES3D 4.0 | 500 timesteps (dt: 0.75s)
+        2 events recorded at 10 unique stations
+        16 event-station pairs ("rays")
+
+.. note::
+
+    You might have noticed the pairs of **list_x** and **x_info** commands, e.g.
+    **list_events** and **event_info** or **list_iterations** and
+    **iteration_info**. This scheme is true for most things in LASIF. The
+    **list_x** variant is always used to get a quick overview of everything
+    currently part of the LASIF project. The **x_info** counterpart returns
+    more detailed information about the resource.
+
+The Iteration XML Files
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The XML file defining each iteration attempts to be a collection of all
+information relevant for a single iteration.
+
+.. note::
+
+    The iteration XML files are the **main provenance information** (in
+    combination with the log files) within LASIF. By keeping track of what
+    happened during each iteration it is possible to reasonably judge how any
+    model came into being.
+
+    If at any point you feel the need to keep track of additional information
+    and there is no place for it within LASIF, please contact the developers.
+    LASIF aims to offer an environment where all necessary information can be
+    stored in an organized and sane manner.
+
+
+The iteration XML files currently contain:
+
+* Some metadata: the iteration name, a description and some comments.
+* A limited data preprocessing configuration. The data preprocessing is
+  currently mostly fixed and only the desired frequency content can be chosen.
+  Keep in mind that these values will also be used to filter the source time
+  function.
+* Some data rejection criterias. This will be covered in more detail later on.
+* The source time function configuration.
+* The settings for the solver used for this iteration.
+* A list of all events used for the iteration. Here it is possible to apply
+  weight the different events and also to apply a time correction. It can be
+  different per iteration.
+* Each event contains a list of stations where data is available. Furthermore
+  each station can have a different weight and time correction.
+
+This file is rather verbose but also very flexible. It is usually only
+necessary to create this file once and then make a copy and small adjustments
+for each iteration. In the future some more user-friendly ways to deal with the
+information will hopefully be incorporated into LASIF.
+
+
+Let's have a quick look at the generated file. The **create_new_iteration**
+command will create a new iteration file with all the information currently
+present in the LASIF project.
+
+.. code-block:: xml
+
+    <?xml version='1.0' encoding='UTF-8'?>
+    <iteration>
+      <iteration_name>1</iteration_name>
+      <iteration_description>The first iteration</iteration_description>
+      <comment>This is just for the dummy tutorial example</comment>
+      <comment>There can be an arbitrary number of comments</comment>
+      <data_preprocessing>
+        <highpass_period>100.0</highpass_period>
+        <lowpass_period>8.0</lowpass_period>
+      </data_preprocessing>
+      <rejection_criteria>
+        ...
+      </rejection_criteria>
+      <source_time_function>Filtered Heaviside</source_time_function>
+      <solver_parameters>
+        <solver>SES3D 4.0</solver>
+        <solver_settings>
+          <simulation_parameters>
+            <number_of_time_steps>4000</number_of_time_steps>
+            <time_increment>0.13</time_increment>
+            <is_dissipative>false</is_dissipative>
+          </simulation_parameters>
+          <output_directory>../OUTPUT/CHANGE_ME/{{EVENT_NAME}}</output_directory>
+          ...
+        </solver_settings>
+      </solver_parameters>
+      <event>
+        <event_name>GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15</event_name>
+        <event_weight>1.0</event_weight>
+        <time_correction_in_s>0.0</time_correction_in_s>
+        <station>
+          <station_id>HL.ARG</station_id>
+          <station_weight>1.0</station_weight>
+          <time_correction_in_s>0.0</time_correction_in_s>
+        </station>
+        <station>
+          <station_id>IU.ANTO</station_id>
+          <station_weight>1.0</station_weight>
+          <time_correction_in_s>0.0</time_correction_in_s>
+        </station>
+        ...
+      </event>
+      <event>
+        ...
+      </event>
+      ...
+    </iteration>
+
+It is a rather self-explaining file; some things to look out for:
+
+* The dataprocessing frequency limits are given periods in seconds. This is
+  more intuitive.
+* The source time function is just given as a string. The "Filtered Heaviside"
+  is the only source time function currently supported. It will be filtered
+  with the limits specified in the data preprocessing section.
+* The paths in the solver settings contains an **{{EVENT_NAME}}** part. This
+  part will be replaced by the actual event name. This means that the file does
+  not have to be adjusted for every event.
+
+The file shown here has already be adjusted to be consistent with the SES3D
+example. Please do the same here. Notably you have to adjust the number of time
+steps and the time increment. Furthermore the paths have to be adjusted so that
+they for the system you plan to run the simulations on.
 
 
 Generating SES3D Input Files

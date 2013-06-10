@@ -48,65 +48,144 @@
             
   <div class="section" id="welcome-to-lasif-s-documentation">
 <h1>Welcome to LASIF&#8217;s Documentation!<a class="headerlink" href="#welcome-to-lasif-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>LASIF (<strong>LA</strong>arg-scale <strong>S</strong>seismic <strong>I</strong>nversion <strong>F</strong>ramework) is a
-<strong>data-driven workflow tool</strong> to perform full waveform inversions.
-It is opinionated and strict meaning that it forces a certain data and
-directory structure. The upside is that it only requires a very minimal amount
-of configuration and maintenance. It attempts to gather all necessary
-information from the data itself so there is no need to keep index or content
-files.</p>
-<p>All parts of LASIF can work completely on their own. See the class and
-function documentation at the end of this document. Furthermore LASIF offers
-a project based inversion workflow management system which is introduced in the
+<img alt="_images/lasif_logo.png" src="_images/lasif_logo.png" style="width: 50%;" />
+<p>LASIF (<strong>L</strong>arg-scale <strong>S</strong>eismic <strong>I</strong>nversion <strong>F</strong>ramework) is a
+<strong>data-driven workflow tool</strong> to perform full waveform inversions.  It is
+opinionated and strict meaning that it enforces a certain data and directory
+structure. The upside is that it only requires a very minimal amount of
+configuration and maintenance. It attempts to gather all necessary information
+from the data itself so there is no need to keep index or content files.</p>
+<p>All parts of LASIF also work completely on their own; see the class and
+function documentation at the end of this document. Furthermore LASIF offers a
+project based inversion workflow management system which is introduced in the
 following tutorial.</p>
-</div>
-<div class="section" id="tutorial">
-<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
 <p>LASIF works with the notion of so called inversion projects. A project is
 defined as a series of iterations working on the same physical domain. Where
 possible and useful, LASIF will use XML files to store information. The
 reasoning behind this is twofold. It is easily machine and human readable. It
-also serves as a preparatory step towards a fully database driven full waveform
-inversion workflow as all necessary information is already stored in an easily
-indexable data format.</p>
+furthermore also serves as a preparatory step towards a fully database driven
+full waveform inversion workflow as all necessary information is already stored
+in an easily indexable data format.</p>
+<p>LASIF is data-driven meaning that it attempts to gather all necessary
+information from the available data. The big advantage of this approach is that
+the users can use any tool they want to access and work with the data as long
+as they adhere to the directory structure imposed by LASIF. At the start of
+every LASIF operation, the tool checks what data is available and uses it. To
+achieve reasonable performance it employs a transparent caching scheme able to
+quickly any changes the user makes to the data. Also important to keep in mind
+is that <strong>LASIF will never delete any data</strong>.</p>
+</div>
+<div class="section" id="supported-data-formats">
+<h1>Supported Data Formats<a class="headerlink" href="#supported-data-formats" title="Permalink to this headline">¶</a></h1>
+<p>This is a short list of supported data formats and other software.</p>
+<ul class="simple">
+<li><strong>Waveform Data:</strong> All file formats supported by ObsPy.</li>
+<li><strong>Synthetics:</strong> All file formats supported by ObsPy and the output files of
+SES3D 4.0.</li>
+<li><strong>Event Metadata:</strong> QuakeML 1.2</li>
+<li><strong>Station Metadata:</strong> dataless SEED, RESP and (hopefully) soon FDSN
+StationXML.  Once implemented, StationXML will be the recommended and most
+future proof format.</li>
+<li><strong>Earth Models:</strong> Currently the raw SES3D model format is supported.</li>
+<li><strong>Waveform Solvers:</strong> SES3D 4.0, support for SpecFEM Cartesian and/or Globe
+will be added soon.</li>
+</ul>
+<div class="section" id="further-notes">
+<h2>Further Notes<a class="headerlink" href="#further-notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="quakeml-files">
+<h3>QuakeML files<a class="headerlink" href="#quakeml-files" title="Permalink to this headline">¶</a></h3>
+<p>LASIF is designed to work with valid QuakeML 1.2 event files. Please assure
+that the files you use actually are just that. If possible try to only use
+QuakeML files with one origin and one focal mechanism, otherwise LASIF will
+choose the preferred origin and/or focal mechanism (or the first of each, if no
+preferred one is specified). <strong>The origin time specified in the QuakeML file
+will be the reference time for each event!</strong> Times specified in SAC files will
+be ignored.</p>
+<p>This also means that the raw data files have to have the correct time
+information.</p>
+</div>
+<div class="section" id="synthetic-data-files">
+<h3>Synthetic Data Files<a class="headerlink" href="#synthetic-data-files" title="Permalink to this headline">¶</a></h3>
+<p>The very first sample of each synthetic waveform will be assumed to coincide
+with the event time. If this is not a reasonable assumption, please contact the
+LASIF developers.</p>
+</div>
+</div>
+</div>
+<div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial will teach you how to perform an iterative full waveform
+inversion with LASIF and SES3D by example.</p>
+<p>The example used throughout this tutorial is the same as given in the SES3D
+Documentation except that the used events differ. It is a good idea to also
+have the SES3D documentation at hand.</p>
+<div class="section" id="command-line-interface">
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
+<p>LASIF ships with a command line interface, consisting of a single command:
+<strong>lasif</strong>.</p>
+<p>Assuming the installation was successful, the following command will print a
+short overview of all commands available within LASIF:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif <span class="nb">help</span>
+
+Usage: lasif FUNCTION PARAMETERS
+
+Available functions:
+    add_spud_event
+    create_new_iteration
+    ...
+</pre></div>
+</div>
+<p>To learn more about a specific command, append <em>help</em> to it:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project <span class="nb">help</span>
+
+Usage: lasif init_project FOLDER_PATH
+
+    Creates a new LASIF project at FOLDER_PATH. FOLDER_PATH must not exist
+    yet and will be created.
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All <strong>lasif</strong> commands work and use the correct project as long as they are
+executed somewhere inside a project&#8217;s folder structure. It will recursively
+search the parent directories until it finds a <em>config.xml</em> file. This will
+then be assumed to be the root folder of the project.</p>
+</div>
+<p>Now that the preliminaries have been introduced, let&#8217;s jump straight to the
+example.</p>
+</div>
 <div class="section" id="creating-a-new-project">
 <h2>Creating a New Project<a class="headerlink" href="#creating-a-new-project" title="Permalink to this headline">¶</a></h2>
 <p>The necessary first step, whether for starting a new inversion or migrating an
 already existing inversion to LASIF, is to create a new project. In the
-following the project will be called <strong>MyInversion</strong>.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project MyInversion
+following the project will be called <strong>TutorialAnatolia</strong>.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project TutorialAnatolia
 </pre></div>
 </div>
-<p>This will create the following directory structure:</p>
-<div class="highlight-python"><pre>MyInversion
+<p>This will create the following directory structure. It will be explained in
+more detail later on:</p>
+<div class="highlight-python"><pre>TutorialAnatolia
+|-- ADJOINT_SOURCES_AND_WINDOWS
+|-- CACHE
 |-- config.xml
 |-- DATA
 |-- EVENTS
+|-- ITERATIONS
 |-- LOGS
 |-- MODELS
 |-- OUTPUT
-|-- SOURCE_TIME_FUNCTIONS
-|   |-- heaviside_60s_500s.py
 |-- STATIONS
 |   |-- RESP
 |   |-- SEED
 |   |-- StationXML
-|-- SYNTHETICS
-|-- TEMPLATES</pre>
+|-- SYNTHETICS</pre>
 </div>
-<p>The configuration for each project works , is defined in the <strong>config.xml</strong>
-file. It is a simple, self-explanatory XML format. The nature of SES3D&#8217;s
-coordinate system has the effect that simulation is most efficient in
-equatorial regions. Thus it is oftentimes advantageous to rotate the frame of
-reference so that the simulation happens close to the equator. LASIF first
-defines the simulation domain; the actual simulation happens here. Optional
-rotation parameters define the physical location of the domain. The coordinate
-system for the rotation parameters is described in <a class="reference internal" href="rotations.html#module-lasif.rotations" title="lasif.rotations"><tt class="xref py py-mod docutils literal"><span class="pre">lasif.rotations</span></tt></a>.
-You will have to edit the file to adjust it to your region of interest. It will
-look something like the following.</p>
+<p>The configuration for each project is defined in the <strong>config.xml</strong> file. It is
+a simple, self-explanatory XML format. After the project has been initialized
+it will look akin to the following:</p>
 <div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
 <span class="nt">&lt;lasif_project&gt;</span>
-    <span class="nt">&lt;name&gt;</span>MyInversion<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;name&gt;</span>TutorialAnatolia<span class="nt">&lt;/name&gt;</span>
     <span class="nt">&lt;description&gt;&lt;/description&gt;</span>
     <span class="nt">&lt;download_settings&gt;</span>
         <span class="nt">&lt;arclink_username&gt;&lt;/arclink_username&gt;</span>
@@ -135,119 +214,247 @@ look something like the following.</p>
 </div>
 <p>It should be fairly self-explanatory.</p>
 <ul class="simple">
-<li>The <em>boundary_width_in_degree</em> tag is just used for the download helpers. No
-data will be downloaded within <em>boundary_width_in_degree</em> distance to the
-domain border. This is useful for e.g. absorbing boundary conditions.</li>
+<li><em>name</em> denotes a short description of the project. Usually the same as the
+folder name.</li>
+<li><em>description</em> can be any further useful information about the project. This
+is not used by LASIF but potentially useful for yourself.</li>
 <li>The <em>arclink_username</em> tag should be your email. It will be send with all
 requests to the ArcLink network. They ask for it in case they have to contact
 you for whatever reason. Please provide a real email address. Must not be
 empty.</li>
+<li><em>seconds_before_event</em>: Used by the waveform download scripts. It will
+attempt to download this many seconds for every waveform before the origin of
+the associated event.</li>
+<li><em>seconds_after_event</em>: Used by the waveform download scripts. It will attempt
+to download this many seconds for every waveform after the origin of the
+associated event. Adapt this to the size of your inversion domain.</li>
+<li>The <em>domain</em> settings will be explained in more detail in the following
+paragraphs.</li>
+<li>The <em>boundary_width_in_degree</em> tag is use to be able to take care of the
+boundary conditions, e.g. data will be downloaded within
+<em>boundary_width_in_degree</em> distance to the domain border.</li>
 </ul>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">All <strong>lasif</strong> commands work and use the correct project as long as they
-are executed somewhere inside a projects folder structure.</p>
-</div>
+<p>The file, amongst other settings, defines the physical domain for the
+inversion. Please set it to the following (same as in the SES3D Tutorial):</p>
+<ul class="simple">
+<li>Latitude: <strong>34.1° - 42.9°</strong></li>
+<li>Longitude: <strong>23.1° - 42.9°</strong></li>
+<li>Depth: <strong>0 km - 471 km</strong></li>
+<li>Boundary width in degree: <strong>1.46°</strong></li>
+</ul>
+<p>In generally one should only work with data not affected by the boundary
+conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
+It is not advisable to use data that traverses these layers. The default
+setting of SES3D is to use two boundary layers. In this example this amounts to
+(in longitudinal direction) 1.46°. In a real world case it is best to use some
+more buffer layers to avoid boundary effects. In this small example this would
+influence the domain too much so we just set it to 1.46°.</p>
 <p>At any point you can have a look at the defined domain with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>MyInversion
-<span class="nv">$ </span>lasif plot_domain
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_domain
 </pre></div>
 </div>
 <p>This will open a window showing the location of the physical domain and the
-simulation domain. The inner contours show the domain minus the previously
+simulation domain. The inner contour shows the domain minus the previously
 defined boundary width.</p>
 <p>(<a class="reference external" href=".//index-1.py">Source code</a>, <a class="reference external" href=".//index-1.png">png</a>, <a class="reference external" href=".//index-1.hires.png">hires.png</a>, <a class="reference external" href=".//index-1.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/index-1.png" src="_images/index-1.png" />
 </div>
-</div>
-<div class="section" id="adding-seismic-events">
-<h2>Adding Seismic Events<a class="headerlink" href="#adding-seismic-events" title="Permalink to this headline">¶</a></h2>
-<p>All events have to be stored in the <em>EVENTS</em> subfolder of the project. They
-have to be valid QuakeML files with full moment tensor information. LASIF
-provides some convenience methods for this purpose. One can leverage the IRIS
-SPUD service (<a class="reference external" href="http://www.iris.edu/spud/momenttensor">http://www.iris.edu/spud/momenttensor</a>) to get GlobalCMT events.
-Simply search for an event and copy the url. The <strong>iris2quakeml</strong> script will
-then grab the QuakeML from the url and store an XML file in the current folder.</p>
-<p>See <a class="reference internal" href="iris2quakeml.html"><em>lasif.scripts.iris2quakeml</em></a> for more information. The LASIF command lines tools
-contain a convenience wrapper around it that also makes sure that the event
-ends up in the correct folder.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/959525
-<span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/995655
-</pre></div>
-</div>
-<p>All events can be viewed with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_events
-</pre></div>
-</div>
+<p>The nature of SES3D&#8217;s coordinate system has the effect that simulation is most
+efficient in equatorial regions. Thus it is oftentimes advantageous to rotate
+the frame of reference so that the simulation happens close to the equator.
+LASIF first defines the simulation domain; the actual simulation happens here.
+Optional rotation parameters define the physical location of the domain. The
+coordinate system for the rotation parameters is described in
+<a class="reference internal" href="rotations.html#module-lasif.rotations" title="lasif.rotations"><tt class="xref py py-mod docutils literal"><span class="pre">lasif.rotations</span></tt></a>.  You will have to edit the file to adjust it to your
+region of interest. The rotation functionality is not used in this Tutorial&#8217;s
+example; in case it is used, simulation and physical domain would differ.
+LASIF handles all rotations necessary so the user never needs to worry about
+these. Just keep in mind to always keep any data (real waveforms, station
+metadata and events) in coordinates that correspond to the physical domain and
+all synthetic waveforms in coordinates that correspond to the simulation
+domain. If the domain is rotated, the <strong>plot_domain</strong> command will plot both,
+the physical and the simulation domain:</p>
 <p>(<a class="reference external" href=".//index-2.py">Source code</a>, <a class="reference external" href=".//index-2.png">png</a>, <a class="reference external" href=".//index-2.hires.png">hires.png</a>, <a class="reference external" href=".//index-2.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/index-2.png" src="_images/index-2.png" />
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The map projection and zoom should automatically adjust so it is suitable
+for the dimensions and location of the chosen domain. If that is not the
+case please file an issue on the project&#8217;s Github page.</p>
 </div>
-<div class="section" id="waveform-data">
-<h2>Waveform Data<a class="headerlink" href="#waveform-data" title="Permalink to this headline">¶</a></h2>
+<p>The small size of the domain does not warrant downloading an hour worth of data
+for every event. Half an hour or event less is more then sufficient. After all
+the discussed changes the <strong>config.xml</strong> file should be similar to this one:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<span class="nt">&lt;lasif_project&gt;</span>
+  <span class="nt">&lt;name&gt;</span>TutorialAnatolia<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;description&gt;</span>Tutorial Inversion<span class="nt">&lt;/description&gt;</span>
+  <span class="nt">&lt;download_settings&gt;</span>
+    <span class="nt">&lt;arclink_username&gt;</span>your@email.com<span class="nt">&lt;/arclink_username&gt;</span>
+    <span class="nt">&lt;seconds_before_event&gt;</span>300<span class="nt">&lt;/seconds_before_event&gt;</span>
+    <span class="nt">&lt;seconds_after_event&gt;</span>1800<span class="nt">&lt;/seconds_after_event&gt;</span>
+  <span class="nt">&lt;/download_settings&gt;</span>
+  <span class="nt">&lt;domain&gt;</span>
+    <span class="nt">&lt;domain_bounds&gt;</span>
+      <span class="nt">&lt;minimum_longitude&gt;</span>23.1<span class="nt">&lt;/minimum_longitude&gt;</span>
+      <span class="nt">&lt;maximum_longitude&gt;</span>42.9<span class="nt">&lt;/maximum_longitude&gt;</span>
+      <span class="nt">&lt;minimum_latitude&gt;</span>34.1<span class="nt">&lt;/minimum_latitude&gt;</span>
+      <span class="nt">&lt;maximum_latitude&gt;</span>42.9<span class="nt">&lt;/maximum_latitude&gt;</span>
+      <span class="nt">&lt;minimum_depth_in_km&gt;</span>0.0<span class="nt">&lt;/minimum_depth_in_km&gt;</span>
+      <span class="nt">&lt;maximum_depth_in_km&gt;</span>471.0<span class="nt">&lt;/maximum_depth_in_km&gt;</span>
+      <span class="nt">&lt;boundary_width_in_degree&gt;</span>1.46<span class="nt">&lt;/boundary_width_in_degree&gt;</span>
+    <span class="nt">&lt;/domain_bounds&gt;</span>
+    <span class="nt">&lt;domain_rotation&gt;</span>
+      <span class="nt">&lt;rotation_axis_x&gt;</span>0.0<span class="nt">&lt;/rotation_axis_x&gt;</span>
+      <span class="nt">&lt;rotation_axis_y&gt;</span>0.0<span class="nt">&lt;/rotation_axis_y&gt;</span>
+      <span class="nt">&lt;rotation_axis_z&gt;</span>1.0<span class="nt">&lt;/rotation_axis_z&gt;</span>
+      <span class="nt">&lt;rotation_angle_in_degree&gt;</span>0.0<span class="nt">&lt;/rotation_angle_in_degree&gt;</span>
+    <span class="nt">&lt;/domain_rotation&gt;</span>
+  <span class="nt">&lt;/domain&gt;</span>
+<span class="nt">&lt;/lasif_project&gt;</span>
+</pre></div>
+</div>
+<p>This concludes the intial setup part of the inversion.</p>
+</div>
+<div class="section" id="adding-seismic-events">
+<h2>Adding Seismic Events<a class="headerlink" href="#adding-seismic-events" title="Permalink to this headline">¶</a></h2>
+<p>Once the domain has been adjusted to your needs, you need to tell LASIF which
+events you want to use for the inversion. This works by simply placing a valid
+QuakeML 1.2 file at the correct location.</p>
+<p>All events have to be stored in the <em>EVENTS</em> subfolder of the project. They
+have to be QuakeML 1.2 files with full moment tensor information.</p>
+<p>LASIF provides some convenience methods for this purpose. One can leverage the
+IRIS SPUD service (<a class="reference external" href="http://www.iris.edu/spud/momenttensor">http://www.iris.edu/spud/momenttensor</a>) to get GlobalCMT
+events.  Simply search for an event and copy the url. The <strong>iris2quakeml</strong>
+script will then grab the QuakeML from the url and store an XML file in the
+correct folder.</p>
+<p>See <a class="reference internal" href="iris2quakeml.html"><em>lasif.scripts.iris2quakeml</em></a> for more information. The LASIF command lines tools
+contain a convenience wrapper around it that also makes sure that the events
+ends up in the correct folder and gives them a reasonable filename that should
+ease event identification.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/735711
+<span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/988455
+</pre></div>
+</div>
+<p>These two commands should create two QuakeML files. To which events are
+currently defined in the project use the <strong>list_events</strong> command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_events
+
+2 events in project:
+    GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+    GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+</pre></div>
+</div>
+<p>You will notice that events are identified via their filename minus the
+extension. This is an easy and flexible solution enabling you to tag the events
+as you see fit. The slight disadvantage of this approach is that <strong>you must not
+change the event filenames after you have worked with them</strong> because all
+additional information for that event will be related to it via the event
+filename. So please give them a good and reasonable filename. If you really
+feel that event renaming is a necessary feature please file an issue on Github
+so that the authors can add a proper event renaming function.</p>
+<p>The <strong>plot_events</strong> command will return a map with all events currently part of
+the project.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_events
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//index-3.py">Source code</a>, <a class="reference external" href=".//index-3.png">png</a>, <a class="reference external" href=".//index-3.hires.png">hires.png</a>, <a class="reference external" href=".//index-3.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/index-3.png" src="_images/index-3.png" />
+</div>
+<p>The <strong>event_info</strong> command is your friend if you desire more information about
+a certain event:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+
+Earthquake with 5.1 Mwc at TURKEY
+    Latitude: 38.820, Longitude: 40.140, Depth: 4.5 km
+    2010-03-24T14:11:31.000000Z UTC
+
+Station and waveform information available at 0 stations:
+
+<span class="o">===========================================================================</span>
+             id       latitude      longitude      elevation    <span class="nb">local </span><span class="nv">depth</span>
+<span class="o">===========================================================================</span>
+</pre></div>
+</div>
+<p>The information given with this command will be the one LASIF uses. This is
+useful if the event has more then one origin and you want to know which one
+LASIF actually uses. Notice that the event currently has no data associated
+with it. We will fix this in the next section.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You do not need to add all events you plan to use in the inversion at the
+beginning. Only add those you want to use for the very first inversion.
+LASIF is rather flexible and enables you to use different events, data,
+weighting schemes, ... for every iteration. It will keep track of what
+actually happened during each iteration so the project gains
+<strong>reproducibility and provenance</strong>.</p>
+</div>
+</div>
+<div class="section" id="adding-waveform-data">
+<h2>Adding Waveform Data<a class="headerlink" href="#adding-waveform-data" title="Permalink to this headline">¶</a></h2>
 <p>Every inversion needs real data to be able to quantify misfits. The waveform
 data for all events are stored in the <em>DATA</em> subfolder. The data for each
 single event will be stored in a subfolder of the <em>DATA</em> folder with the
 <strong>same name as the QuakeML file minus the .xml</strong>.</p>
 <p>These folder are automatically created and updated each time a lasif command is
-executed. The simplest command is</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif info
-</pre></div>
+executed. If you followed the tutorial, your directory structure should
+resemble the following:</p>
+<div class="highlight-python"><pre>TutorialAnatolia
+|── ADJOINT_SOURCES_AND_WINDOWS
+|   |── ADJOINT_SOURCES
+|   |── WINDOWS
+|── CACHE
+|── config.xml
+|── DATA
+|   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+|   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+|── EVENTS
+|   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml
+|   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml
+|── ITERATIONS
+|── LOGS
+|── MODELS
+|── OUTPUT
+|── STATIONS
+|   |── RESP
+|   |── SEED
+|   |── StationXML
+|── SYNTHETICS
+    |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15</pre>
 </div>
-<p>This will result in a directory structure in the fashion of:</p>
-<div class="highlight-python"><pre>MyInversion
-|-- DATA
-|   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-|   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-|-- EVENTS
-|   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35.xml
-|   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9.xml
-|-- LOGS
-|-- MODELS
-|-- OUTPUT
-|-- SOURCE_TIME_FUNCTIONS
-|-- STATIONS
-|   |-- RESP
-|   |-- SEED
-|   |-- StationXML
-|-- SYNTHETICS
-|   |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-|   |-- GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-|-- TEMPLATES
-|-- config.xml</pre>
-</div>
-<p>All data in the <em>DATA</em> subfolder has to be real data. The data is further
-structured by assigning a tag to every data set. A tag is assigned by simply
-placing a folder in <em>ROOT/DATA/EVENT_NAME</em> and putting all data in there. The
-special tag <em>raw</em> is reserved for the raw waveforms straight from the
-datacenters or some other source. Other tags should describe the filtering and
-processing applied to the data. The same is true for synthetic waveform data,
+<p>All data in the <em>DATA</em> subfolder has to be processed or unprocessed actual
+data. The data is further structured by assigning a tag to every data set. A
+tag is assigned by simply placing a folder in <em>ROOT/DATA/EVENT_NAME</em> and
+putting all data in there. The special tag <em>raw</em> is reserved for the raw
+waveforms straight from the datacenters or some other source. Other tags should
+describe the filtering and processing applied to the data (LASIF&#8217;s built-in
+processing capabilities actually enforce certain tag names - this will be
+covered in more detail later on). The same is true for synthetic waveform data,
 except that in that case, the data resides in the <em>SYNTHETICS</em> folder and the
-tags should describe the simulation ran to obtain the waveforms.</p>
+tags have to coincide with the iteration names. More on this later on.</p>
 <p>After a while, the structure might look like this:</p>
-<div class="highlight-python"><pre>MyInversion
+<div class="highlight-python"><pre>TutorialAnatolia
 |-- DATA
-    |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+    |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
         |-- raw
-            ...
-        |-- 100s_to_10s_bandpass
-            ...
-        |-- 200s_to_20s_bandpass
-            ...
+        |-- preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
+    |...
 |-- SYNTHETICS
-    |-- GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-        |-- inversion_1_100s
-            ...
-        |-- inversion_2_100s
-            ...
-        |-- inversion_2_50s
-            ...
-|-- ...</pre>
+    |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+        |-- inversion_1
+        |-- inversion_2
+        |...
+    |...
+|...</pre>
 </div>
 <p><strong>The user is responsible</strong> for adhering to that structure. Otherwise other
-parts of LASIF cannot operate properly.</p>
+parts of LASIF cannot operate properly. Many commands shipping with LASIF ease
+that process.</p>
 </div>
 <div class="section" id="station-data">
 <h2>Station Data<a class="headerlink" href="#station-data" title="Permalink to this headline">¶</a></h2>
@@ -297,70 +504,286 @@ information but enables the use of many tools otherwise not possible.</p>
 <div class="section" id="downloading-waveforms">
 <h3>Downloading Waveforms<a class="headerlink" href="#downloading-waveforms" title="Permalink to this headline">¶</a></h3>
 <p>Waveforms are downloaded on a per event basis. The <strong>config.xml</strong> file contains
-some specification to detail the download. Each event is referred to by its
-name which is simply the filename minus the extension. To get a list of all
-events in the current project just execute</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_events
-
-2 events in project:
-    GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-    GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-</pre></div>
-</div>
+some specification to detail the download.</p>
 <p>To download the waveform data for one event, choose one and run</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif download_waveforms GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif download_waveforms GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 </pre></div>
 </div>
+<p>The command essentially just tries to download everything it can. It queries
+the IRIS DMC and ArcLink for all stations available in the physical domain and
+then downloads the appropriate data. It accounts for the domain borders and
+possible domain rotations. It is influences by three parameters in the
+<strong>config.xml</strong> file:</p>
+<ul class="simple">
+<li>The <em>arclink_username</em> tag should be your email. It will be send with all
+requests to the ArcLink network. They ask for it in case they have to contact
+you for whatever reason. Please provide a real email address. Must not be
+empty.</li>
+<li><em>seconds_before_event</em>: Used by the waveform download scripts. It will
+attempt to download this many seconds for every waveform before the origin of
+the associated event.</li>
+<li><em>seconds_after_event</em>: Used by the waveform download scripts. It will attempt
+to download this many seconds for every waveform after the origin of the
+associated event. Adapt this to the size of your inversion domain.</li>
+</ul>
 <p>This, dependent on the domain size, event location, and origin time can take a
 while. Executing the same command again will only attempt to download data not
 already present. All data will be placed in <cite>DATA/EVENT_NAME/raw</cite>.</p>
-</div>
-<div class="section" id="downloading-station-data">
-<h3>Downloading Station Data<a class="headerlink" href="#downloading-station-data" title="Permalink to this headline">¶</a></h3>
-<p>LASIF also includes some functionality to download station metadata. It will,
-download StationXML and RESP files from IRIS and dataless SEED and RESP files
-from ArcLink. It works the same as it does for the waveforms. To download all
-stations for one event simply execute</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif download_stations GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-</pre></div>
-</div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The <cite>lasif download_stations</cite> command will, for the specified event, figure
-what waveform data is present in the <cite>DATA/EVENT_NAME/raw</cite> folder and
-download all missing station metadata information for these files.</p>
+<p class="last">At this point it is worth mentioning that LASIF keeps logs of many actions
+that the user performs. All logs will be saved in the <em>LOGS</em> subfolder.</p>
+</div>
+</div>
+<div class="section" id="downloading-station-metadata">
+<h3>Downloading Station Metadata<a class="headerlink" href="#downloading-station-metadata" title="Permalink to this headline">¶</a></h3>
+<p>LASIF also includes some functionality to download station metadata. It will,
+download RESP files from IRIS and dataless SEED files from ArcLink. It works
+the same as it does for the waveforms. To download all stations for one event
+simply execute</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif download_stations GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+</pre></div>
+</div>
+<p>The <cite>lasif download_stations</cite> command will, for the specified event, figure
+what waveform data is present in the <cite>DATA/EVENT_NAME/raw</cite> folder and download
+all missing station metadata information for these files.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">At some point in the near future the station metadata downloading routines
+will be changed so that they exclusively work with StationXML metadata.</p>
+</div>
+</div>
+</div>
+<div class="section" id="inspecting-the-data">
+<h2>Inspecting the Data<a class="headerlink" href="#inspecting-the-data" title="Permalink to this headline">¶</a></h2>
+<p>Once waveform and station metadata has been downloaded (either with the
+built-in helpers or manually) and placed in the correct folders, LASIF can
+start to work with it.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>LASIF essentially needs three ingredients to be able to interpret waveform
+data:</p>
+<ul class="simple">
+<li>The actual waveforms</li>
+<li>The location of the recording seismometer</li>
+<li>The instrument response for each channel at the time of data recording</li>
+</ul>
+<p>Some possibilities exist to specify these:</p>
+<ul class="simple">
+<li>MiniSEED data and dataless SEED for the metadata (currently preferred)</li>
+<li>SAC data and RESP files (needed for legacy reasons)</li>
+<li>MiniSEED and RESP files (this combination does not actually contain
+location information but LASIF launches some web requests to get just the
+locations and stores them in a cache database)</li>
+<li>Most other combinations should also work but have not been tested.</li>
+</ul>
+<p class="last">In the future the preferred way will be miniSEED data combined with
+StationXML metadata. This provides a clear seperation of data and metadata.</p>
 </div>
 <p>At this point, LASIF is able to match available station and waveform
-information. To get an overview, of what data is actually stored for the given event, just execute:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+information. Only stations where the three aforementioned ingredients are
+available will be considered to be stations that are good to be worked with by
+LASIF. Others will be ignored.</p>
+<p>To get an overview, of what data is actually available for any given event,
+just execute:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
-Earthquake with 6.1 Mw at AZORES ISLANDS REGION
-        Latitude: 37.400, Longitude: -24.380, Depth: 12.0 km
-        2007-04-07T07:09:29.500000Z UTC
+Earthquake with 5.1 Mwc at TURKEY
+    Latitude: 38.820, Longitude: 40.140, Depth: 4.5 km
+    2010-03-24T14:11:31.000000Z UTC
 
 Station and waveform information available at 8 stations:
 
 <span class="o">===========================================================================</span>
              id       latitude      longitude      elevation    <span class="nb">local </span><span class="nv">depth</span>
 <span class="o">===========================================================================</span>
-        GE.CART        37.5868        -1.0012           65.0            5.0
-         GE.MTE        40.3997        -7.5442          815.0            3.0
-         GE.SFS        36.4656        -6.2055           21.0            5.0
-         IU.PAB        39.5446      -4.349899          950.0            0.0
-         PM.MTE        40.3997        -7.5442          815.0            3.0
-       PM.PESTR        38.8672        -7.5902          410.0            0.0
-        PM.PVAQ        37.4037        -7.7173          200.0            0.0
-        WM.CART        37.5868        -1.0012           65.0            5.0
+         GE.APE        37.0689        25.5306          620.0            0.0
+         GE.ISP        37.8433        30.5093         1100.0            5.0
+         HL.APE        37.0689        25.5306          620.0            0.0
+         HL.ARG         36.216         28.126          170.0            0.0
+         HL.RDO         41.146         25.538          100.0            0.0
+         HT.ALN        40.8957        26.0497          110.0            0.0
+        HT.SIGR        39.2114        25.8553           93.0            0.0
+        IU.ANTO         39.868        32.7934         1090.0           None
 </pre></div>
 </div>
-<p>It is furthermore possible to plot the availability information for one event including ray coverage with:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_event GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">As seen here, the local depth can is allowed to not be set. In this cases
+it will be assumed to be zero. For all practical purposes the local depth
+does not matter for continental scale inversions.</p>
+</div>
+<p>It is furthermore possible to plot the availability information for one event
+including a very simple ray coverage plot with:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_event GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//index-3.py">Source code</a>, <a class="reference external" href=".//index-3.png">png</a>, <a class="reference external" href=".//index-3.hires.png">hires.png</a>, <a class="reference external" href=".//index-3.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//index-4.py">Source code</a>, <a class="reference external" href=".//index-4.png">png</a>, <a class="reference external" href=".//index-4.hires.png">hires.png</a>, <a class="reference external" href=".//index-4.pdf">pdf</a>)</p>
 <div class="figure">
-<img alt="_images/index-3.png" src="_images/index-3.png" />
+<img alt="_images/index-4.png" src="_images/index-4.png" />
 </div>
+<p>If you are interested in getting a coverage plot of all events and data
+available for the current project, please execute the <strong>plot_raydensity</strong>
+command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_raydensity
+</pre></div>
+</div>
+<p>Keep in mind that this only results in a reasonable plot for large amounts of
+data; for the toy example used in the tutorial it will not work. It is not a
+physically accurate plot but helps in judging data coverage and directionality
+effects. An example from a larger LASIF project illustrates this:</p>
+<img alt="_images/raydensity.jpg" class="align-center" src="_images/raydensity.jpg" style="width: 70%;" />
+</div>
+<div class="section" id="defining-a-new-iteration">
+<h2>Defining a New Iteration<a class="headerlink" href="#defining-a-new-iteration" title="Permalink to this headline">¶</a></h2>
+<p>LASIF organizes the actual inversion in an arbitrary number of iterations; each
+of which is described by a single XML file. Within each file, the events and
+stations for this iterations, the solver settings, and other information is
+specified. Each iteration can have an arbitrary name. It is probably a good
+idea to give simple numeric names, like 1, 2, 3, ...</p>
+<p>Let&#8217;s start by creating the XML file for the very first iteration with the
+<strong>create_new_iteration</strong> command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration 1 SES3D_4_0
+</pre></div>
+</div>
+<p>This command takes two arguements; the first being the iteration name. A simple
+number is sufficient in many cases. The second argument is the waveform solver
+to be used for this iteration. It currently only supports SES3D 4.0 but the
+infrastructure to add other solvers is already in place.</p>
+<p>You will see that this create a new file; <em>ITERATIONS/ITERATION_1.xml*</em>. Each
+iteration will have its own file. To get a list of iterations, use</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_iterations
+
+1 Iteration in project:
+    1
+</pre></div>
+</div>
+<p>To get more information about a specific iteration, use the <strong>iteration_info</strong> command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif iteration_info 1
+
+LASIF Iteration
+    Name: 1
+    Description: None
+    Source Time Function: Filtered Heaviside
+    Preprocessing Settings:
+            Highpass Period: 100.000 s
+            Lowpass Period: 8.000 s
+    Solver: SES3D 4.0 | 500 timesteps <span class="o">(</span>dt: 0.75s<span class="o">)</span>
+    2 events recorded at 10 unique stations
+    16 event-station pairs <span class="o">(</span><span class="s2">&quot;rays&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You might have noticed the pairs of <strong>list_x</strong> and <strong>x_info</strong> commands, e.g.
+<strong>list_events</strong> and <strong>event_info</strong> or <strong>list_iterations</strong> and
+<strong>iteration_info</strong>. This scheme is true for most things in LASIF. The
+<strong>list_x</strong> variant is always used to get a quick overview of everything
+currently part of the LASIF project. The <strong>x_info</strong> counterpart returns
+more detailed information about the resource.</p>
+</div>
+<div class="section" id="the-iteration-xml-files">
+<h3>The Iteration XML Files<a class="headerlink" href="#the-iteration-xml-files" title="Permalink to this headline">¶</a></h3>
+<p>The XML file defining each iteration attempts to be a collection of all
+information relevant for a single iteration.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The iteration XML files are the <strong>main provenance information</strong> (in
+combination with the log files) within LASIF. By keeping track of what
+happened during each iteration it is possible to reasonably judge how any
+model came into being.</p>
+<p class="last">If at any point you feel the need to keep track of additional information
+and there is no place for it within LASIF, please contact the developers.
+LASIF aims to offer an environment where all necessary information can be
+stored in an organized and sane manner.</p>
+</div>
+<p>The iteration XML files currently contain:</p>
+<ul class="simple">
+<li>Some metadata: the iteration name, a description and some comments.</li>
+<li>A limited data preprocessing configuration. The data preprocessing is
+currently mostly fixed and only the desired frequency content can be chosen.
+Keep in mind that these values will also be used to filter the source time
+function.</li>
+<li>Some data rejection criterias. This will be covered in more detail later on.</li>
+<li>The source time function configuration.</li>
+<li>The settings for the solver used for this iteration.</li>
+<li>A list of all events used for the iteration. Here it is possible to apply
+weight the different events and also to apply a time correction. It can be
+different per iteration.</li>
+<li>Each event contains a list of stations where data is available. Furthermore
+each station can have a different weight and time correction.</li>
+</ul>
+<p>This file is rather verbose but also very flexible. It is usually only
+necessary to create this file once and then make a copy and small adjustments
+for each iteration. In the future some more user-friendly ways to deal with the
+information will hopefully be incorporated into LASIF.</p>
+<p>Let&#8217;s have a quick look at the generated file. The <strong>create_new_iteration</strong>
+command will create a new iteration file with all the information currently
+present in the LASIF project.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<span class="nt">&lt;iteration&gt;</span>
+  <span class="nt">&lt;iteration_name&gt;</span>1<span class="nt">&lt;/iteration_name&gt;</span>
+  <span class="nt">&lt;iteration_description&gt;</span>The first iteration<span class="nt">&lt;/iteration_description&gt;</span>
+  <span class="nt">&lt;comment&gt;</span>This is just for the dummy tutorial example<span class="nt">&lt;/comment&gt;</span>
+  <span class="nt">&lt;comment&gt;</span>There can be an arbitrary number of comments<span class="nt">&lt;/comment&gt;</span>
+  <span class="nt">&lt;data_preprocessing&gt;</span>
+    <span class="nt">&lt;highpass_period&gt;</span>100.0<span class="nt">&lt;/highpass_period&gt;</span>
+    <span class="nt">&lt;lowpass_period&gt;</span>8.0<span class="nt">&lt;/lowpass_period&gt;</span>
+  <span class="nt">&lt;/data_preprocessing&gt;</span>
+  <span class="nt">&lt;rejection_criteria&gt;</span>
+    ...
+  <span class="nt">&lt;/rejection_criteria&gt;</span>
+  <span class="nt">&lt;source_time_function&gt;</span>Filtered Heaviside<span class="nt">&lt;/source_time_function&gt;</span>
+  <span class="nt">&lt;solver_parameters&gt;</span>
+    <span class="nt">&lt;solver&gt;</span>SES3D 4.0<span class="nt">&lt;/solver&gt;</span>
+    <span class="nt">&lt;solver_settings&gt;</span>
+      <span class="nt">&lt;simulation_parameters&gt;</span>
+        <span class="nt">&lt;number_of_time_steps&gt;</span>4000<span class="nt">&lt;/number_of_time_steps&gt;</span>
+        <span class="nt">&lt;time_increment&gt;</span>0.13<span class="nt">&lt;/time_increment&gt;</span>
+        <span class="nt">&lt;is_dissipative&gt;</span>false<span class="nt">&lt;/is_dissipative&gt;</span>
+      <span class="nt">&lt;/simulation_parameters&gt;</span>
+      <span class="nt">&lt;output_directory&gt;</span>../OUTPUT/CHANGE_ME/{{EVENT_NAME}}<span class="nt">&lt;/output_directory&gt;</span>
+      ...
+    <span class="nt">&lt;/solver_settings&gt;</span>
+  <span class="nt">&lt;/solver_parameters&gt;</span>
+  <span class="nt">&lt;event&gt;</span>
+    <span class="nt">&lt;event_name&gt;</span>GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15<span class="nt">&lt;/event_name&gt;</span>
+    <span class="nt">&lt;event_weight&gt;</span>1.0<span class="nt">&lt;/event_weight&gt;</span>
+    <span class="nt">&lt;time_correction_in_s&gt;</span>0.0<span class="nt">&lt;/time_correction_in_s&gt;</span>
+    <span class="nt">&lt;station&gt;</span>
+      <span class="nt">&lt;station_id&gt;</span>HL.ARG<span class="nt">&lt;/station_id&gt;</span>
+      <span class="nt">&lt;station_weight&gt;</span>1.0<span class="nt">&lt;/station_weight&gt;</span>
+      <span class="nt">&lt;time_correction_in_s&gt;</span>0.0<span class="nt">&lt;/time_correction_in_s&gt;</span>
+    <span class="nt">&lt;/station&gt;</span>
+    <span class="nt">&lt;station&gt;</span>
+      <span class="nt">&lt;station_id&gt;</span>IU.ANTO<span class="nt">&lt;/station_id&gt;</span>
+      <span class="nt">&lt;station_weight&gt;</span>1.0<span class="nt">&lt;/station_weight&gt;</span>
+      <span class="nt">&lt;time_correction_in_s&gt;</span>0.0<span class="nt">&lt;/time_correction_in_s&gt;</span>
+    <span class="nt">&lt;/station&gt;</span>
+    ...
+  <span class="nt">&lt;/event&gt;</span>
+  <span class="nt">&lt;event&gt;</span>
+    ...
+  <span class="nt">&lt;/event&gt;</span>
+  ...
+<span class="nt">&lt;/iteration&gt;</span>
+</pre></div>
+</div>
+<p>It is a rather self-explaining file; some things to look out for:</p>
+<ul class="simple">
+<li>The dataprocessing frequency limits are given periods in seconds. This is
+more intuitive.</li>
+<li>The source time function is just given as a string. The &#8220;Filtered Heaviside&#8221;
+is the only source time function currently supported. It will be filtered
+with the limits specified in the data preprocessing section.</li>
+<li>The paths in the solver settings contains an <strong>{{EVENT_NAME}}</strong> part. This
+part will be replaced by the actual event name. This means that the file does
+not have to be adjusted for every event.</li>
+</ul>
+<p>The file shown here has already be adjusted to be consistent with the SES3D
+example. Please do the same here. Notably you have to adjust the number of time
+steps and the time increment. Furthermore the paths have to be adjusted so that
+they for the system you plan to run the simulations on.</p>
 </div>
 </div>
 <div class="section" id="generating-ses3d-input-files">
@@ -448,9 +871,9 @@ SOURCE_TIME_FUNCTION again is the name of the source time function.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_stf heaviside_60s_500s 1500 0.75
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//index-4.py">Source code</a>, <a class="reference external" href=".//index-4.png">png</a>, <a class="reference external" href=".//index-4.hires.png">hires.png</a>, <a class="reference external" href=".//index-4.pdf">pdf</a>)</p>
+<p>(<a class="reference external" href=".//index-5.py">Source code</a>, <a class="reference external" href=".//index-5.png">png</a>, <a class="reference external" href=".//index-5.hires.png">hires.png</a>, <a class="reference external" href=".//index-5.pdf">pdf</a>)</p>
 <div class="figure">
-<img alt="_images/index-4.png" src="_images/index-4.png" />
+<img alt="_images/index-5.png" src="_images/index-5.png" />
 </div>
 </div>
 </div>
@@ -520,17 +943,31 @@ to verify your setup and potentially also the correctness of this tool suite.</p
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Welcome to LASIF&#8217;s Documentation!</a></li>
+<li><a class="reference internal" href="#supported-data-formats">Supported Data Formats</a><ul>
+<li><a class="reference internal" href="#further-notes">Further Notes</a><ul>
+<li><a class="reference internal" href="#quakeml-files">QuakeML files</a></li>
+<li><a class="reference internal" href="#synthetic-data-files">Synthetic Data Files</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#tutorial">Tutorial</a><ul>
+<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a></li>
 <li><a class="reference internal" href="#creating-a-new-project">Creating a New Project</a></li>
 <li><a class="reference internal" href="#adding-seismic-events">Adding Seismic Events</a></li>
-<li><a class="reference internal" href="#waveform-data">Waveform Data</a></li>
+<li><a class="reference internal" href="#adding-waveform-data">Adding Waveform Data</a></li>
 <li><a class="reference internal" href="#station-data">Station Data</a><ul>
 <li><a class="reference internal" href="#naming-scheme">Naming scheme</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#download-helpers">Download Helpers</a><ul>
 <li><a class="reference internal" href="#downloading-waveforms">Downloading Waveforms</a></li>
-<li><a class="reference internal" href="#downloading-station-data">Downloading Station Data</a></li>
+<li><a class="reference internal" href="#downloading-station-metadata">Downloading Station Metadata</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#inspecting-the-data">Inspecting the Data</a></li>
+<li><a class="reference internal" href="#defining-a-new-iteration">Defining a New Iteration</a><ul>
+<li><a class="reference internal" href="#the-iteration-xml-files">The Iteration XML Files</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#generating-ses3d-input-files">Generating SES3D Input Files</a><ul>
