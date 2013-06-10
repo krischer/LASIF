@@ -935,7 +935,7 @@ present in the LASIF project.
 It is a rather self-explaining file; some things to look out for:
 
 * The dataprocessing frequency limits are given periods in seconds. This is
-  more intuitive.
+  more in line what one would normally use.
 * The source time function is just given as a string. The "Filtered Heaviside"
   is the only source time function currently supported. It will be filtered
   with the limits specified in the data preprocessing section.
@@ -947,6 +947,36 @@ The file shown here has already be adjusted to be consistent with the SES3D
 example. Please do the same here. Notably you have to adjust the number of time
 steps and the time increment. Furthermore the paths have to be adjusted so that
 they for the system you plan to run the simulations on.
+
+Source Time Functions
+^^^^^^^^^^^^^^^^^^^^^
+
+The source time functions will be dynamically generated from the information
+specified in the iteration XML files. Currently only one type of source time
+function, a filtered Heaviside function is supported. In the future, if
+desired, it could also be possible to use inverted source time functions.
+
+The source time function will always be defined for the number of time steps
+and time increment you specify in the solver settings. Furthermore all source
+time functions will be filtered with the same bandpass as the data.
+
+To get a quick look of the source time function for any given iteration, use
+the **plot_stf** command with the iteration name:
+
+.. code-block:: bash
+
+    $ lasif plot_stf 1
+
+This command will read the corresponding iteration file and open a plot with a
+time series and a time frequency representation of the source time function.
+
+.. plot::
+
+    import lasif.visualization
+    from lasif.source_time_functions import filtered_heaviside
+
+    data = filtered_heaviside(4000, 0.13, 1.0 / 500.0, 1.0 / 60.0)
+    lasif.visualization.plot_tf(data, 0.13)
 
 
 Generating SES3D Input Files
@@ -1021,58 +1051,6 @@ extension. To get a list of all available templates use:
 You can (and maybe should) rename the actual template files to make it more
 descriptive.
 
-Source Time Functions
-*********************
-
-The source time function will be dynamically generated for each run. An example
-source time function has been generated upon project initialization and is
-located in the *SOURCE_TIME_FUNCTIONS* subdirectory.
-
-To create your own source time functions simply copy the already existing one
-and modify it. Each source time function has to live in it's own Python file
-and a function **source_time_function(npts, delta)** has to be defined in it.
-It should return either a list of floats or a numpy array with npts items.
-
-As always, they are referred to via their file name. To get a list of all
-available source time functions type:
-
-.. code-block:: bash
-
-    $ lasif list_stf
-
-    Project has 1 defined source time function
-            heaviside_60s_500s
-
-
-It is furthermore possible to get a nice plot for every source time function.
-This is useful for visually judging the frequency content that goes into your
-simulation. This is done with:
-
-.. code-block:: bash
-
-    $ lasif plot_stf SOURCE_TIME_FUNCTION NPTS DELTA
-
-The number of samples and the sample spacing of any simulation should be known.
-SOURCE_TIME_FUNCTION again is the name of the source time function.
-
-.. code-block:: bash
-
-    $ lasif plot_stf heaviside_60s_500s 1500 0.75
-
-
-.. plot::
-
-    import lasif.visualization
-    import obspy
-    import numpy as np
-    def filtered_heaviside(npts, delta, freqmin, freqmax):
-        trace = obspy.Trace(data=np.ones(npts))
-        trace.stats.delta = delta
-        trace.filter("lowpass", freq=freqmax, corners=5)
-        trace.filter("highpass", freq=freqmin, corners=2)
-        return trace.data
-    data = filtered_heaviside(1500, 0.75, 1.0 / 500.0, 1.0 / 60.0)
-    lasif.visualization.plot_tf(data, 0.75)
 
 
 Input File Generation
