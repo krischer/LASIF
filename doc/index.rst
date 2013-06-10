@@ -978,6 +978,52 @@ time series and a time frequency representation of the source time function.
     data = filtered_heaviside(4000, 0.13, 1.0 / 500.0, 1.0 / 60.0)
     lasif.visualization.plot_tf(data, 0.13)
 
+Data Preprocessing
+^^^^^^^^^^^^^^^^^^
+
+Data preprocessing is an essential step if one wants to compare data and
+seismograms. It serves several purposes: Restricting the frequency content of
+the data to that of the synthetics - what is not simulated can no be seen in
+synthetic seismograms. Remove the instrument response and convert to the same
+units used for the synthetics (usually m\s). Furthermore any linear trends and
+static offset are removed and the some processing has to be performed so that
+the data is available at the same points in time as the synthetics. The goal of
+the preprocessing within LASIF is to create data that is directly comparable to
+simulated data without any more processing.
+
+The applied processing is identified via the folder name::
+
+    preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
+
+or (in Python terms):
+
+.. code-block:: python
+
+    highpass = 1.0 / 100.0
+    lowpass = 1.0 / 8.0
+    npts = 4000
+    dt = 0.13
+
+    processing_tag = ("preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_"
+        "npts_{npts}_dt_{dt:5f}").format(highpass=highpass, lowpass=lowpass,
+        npts=npts, dt=dt)
+
+.. note::
+
+    You can use any processing tool you want, but you have to adhere to the
+    directory structure otherwise LASIF will not be able to work with. It is
+    furthermore important that the processed filenames are identical to the
+    unprocessed ones.
+
+    If you feel that additional identifiers are needed to uniquely identify the
+    applied processing (in the limited setting of being useful for the here
+    performed full waveform inversion) please contact the LASIF developers.
+
+
+
+
+
+
 
 Generating SES3D Input Files
 ----------------------------
