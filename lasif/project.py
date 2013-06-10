@@ -3,9 +3,10 @@
 """
 Project management class.
 
-It is important to import necessary things at the method level to make
+It is important to not import necessary things at the method level to make
 importing this file as fast as possible. Otherwise using the command line
-interface feels sluggish and slow.
+interface feels sluggish and slow. Import things only the functions they are
+needed.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
