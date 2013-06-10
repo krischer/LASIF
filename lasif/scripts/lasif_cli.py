@@ -341,27 +341,24 @@ def lasif_plot_stf(args):
 
 def lasif_generate_input_files(args):
     """
-    Usage: lasif generate_input_files EVENT INPUT_FILE_TEMPLATE TYPE SFT
+    Usage: lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
 
     TYPE denotes the type of simulation to run. Available types are
         * "normal_simulation"
         * "adjoint_forward"
         * "adjoint_reverse"
 
-    SFT is the name of the source time function to be used
-
-    Generates the input files for one event.
+    Generates the input files for one event for a specific iteration.
     """
     proj = _find_project_root(".")
 
-    if len(args) != 4:
-        msg = ("EVENT, INPUT_FILE_TEMPLATE, TYPE, and SFT must be given. "
-            "No other arguments allowed.")
+    if len(args) != 3:
+        msg = ("ITERATION_NAME, EVENT_NAME, and SIMULATION_TYPE must be given."
+            " No other arguments allowed.")
         raise LASIFCommandLineException(msg)
-    event_name = args[0]
-    input_file_template = args[1]
+    iteration_name = args[0]
+    event_name = args[1]
     simulation_type = args[2].lower()
-    source_time_function = args[3]
 
     # Assert a correct simulation type.
     simulation_types = ("normal_simulation", "adjoint_forward",
@@ -373,14 +370,7 @@ def lasif_generate_input_files(args):
 
     simulation_type = simulation_type.replace("_", " ")
 
-    try:
-        source_time_function = \
-            proj._get_source_time_function(source_time_function)
-    except Exception as e:
-        raise LASIFCommandLineException(str(e))
-
-    proj.generate_input_files(event_name, input_file_template,
-        simulation_type, source_time_function)
+    proj.generate_input_files(iteration_name, event_name, simulation_type)
 
 
 def lasif_init_project(args):
