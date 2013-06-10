@@ -412,22 +412,22 @@ def lasif_init_project(args):
 
 def lasif_launch_misfit_gui(args):
     """
-    Usage: lasif launch_misfit_gui EVENT_NAME DATA_TAG SYNTHETIC_TAG HP LP
+    Usage: lasif launch_misfit_gui ITERATION_NAME EVENT_NAME
 
-    Launches the Misfit GUI. HP and LP are the high- and lowpass filter values
-    in seconds. These should correspond to the source time function. Will be
-    made more convenient in the near future..
+    Launches the Misfit GUI for the given iteration and event.
     """
-    if len(args) != 5:
-        msg = "EVENT_NAME, DATA_TAG and SYNTHETIC_TAG must be given."
+    if len(args) != 2:
+        msg = "ITERATION_NAME and EVENT_NAME must be given."
         raise LASIFCommandLineException(msg)
 
     proj = _find_project_root(".")
 
-    event_name = args[0]
+    iteration_name = args[0]
+    event_name = args[1]
+
     events = proj.get_event_dict()
     if event_name not in events:
-        msg = "Event '%s' not found." % event_name
+        msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
 
     event = proj.get_event(event_name)

@@ -56,6 +56,29 @@ This is a short list of supported data formats and other software.
   will be added soon.
 
 
+Further Notes
+-------------
+
+QuakeML files
+^^^^^^^^^^^^^
+LASIF is designed to work with valid QuakeML 1.2 event files. Please assure
+that the files you use actually are just that. If possible try to only use
+QuakeML files with one origin and one focal mechanism, otherwise LASIF will
+choose the preferred origin and/or focal mechanism (or the first of each, if no
+preferred one is specified). **The origin time specified in the QuakeML file
+will be the reference time for each event!** Times specified in SAC files will
+be ignored.
+
+This also means that the raw data files have to have the correct time
+information.
+
+Synthetic Data Files
+^^^^^^^^^^^^^^^^^^^^
+The very first sample of each synthetic waveform will be assumed to coincide
+with the event time. If this is not a reasonable assumption, please contact the
+LASIF developers.
+
+
 Tutorial
 ========
 This tutorial will teach you how to perform an iterative full waveform
