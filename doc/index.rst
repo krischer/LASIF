@@ -1020,25 +1020,31 @@ or (in Python terms):
     performed full waveform inversion) please contact the LASIF developers.
 
 You can of course also simply utilize LASIF's built-in preprocessing. Using it
-is really simple, just launch the **preprocess_data** command together with the
+is trivial, just launch the **preprocess_data** command together with the
 iteration name.
 
 .. code-block:: bash
 
     $ lasif preprocess_data 1
 
-This will start the fully parallel preprocessing for all data required for the
-specified iteration. It will utilize all your machine's cores and might take a
-while. If you repeat the command it will only process data not already
-processed. This usually only needs to be done every couple of iterations when
-you decide to go to higher frequencies or add new data.
+This will start a fully parallelized preprocessing for all data required for
+the specified iteration. It will utilize all your machine's cores and might
+take a while. If you repeat the command it will only process data not already
+processed; an advantages is that you can cancel the processing at any time and
+then later on just execute the command again to continue where you left off.
+This usually only needs to be done every couple of iterations when you decide
+to go to higher frequencies or add new data.
 
-The preprocessed data will live in a folder right next to the raw data.
+The preprocessed data will be put in the correct folder.
+
+Data Rejection
+^^^^^^^^^^^^^^
+
+Coming soon...watch this space.
 
 
-
-
-
+This concludes the initial setup for each iteration. The next steps is to
+actually simulate anything and LASIF of course also assists in that regard.
 
 
 Generating SES3D Input Files
@@ -1046,132 +1052,88 @@ Generating SES3D Input Files
 
 LASIF is currently capable of producing input files for SES3D 4.0. It is very
 straightforward and knows what data is available for every event and thus can
-generate these files fully automatically.
+generate these files fully automatically. In the future it might be worth
+investigating automatic job submission to high performance machines as this is
+essentially just repetitive and error-prone work.
 
-
-Preparatory Steps
-^^^^^^^^^^^^^^^^^
-
-Before the first input file can be generated some preparatory steps need to be
-performed. This is only necessary once at the start or when you make
-significant changes to how the simulations are performed.
-
-Input File Templates
-********************
-
-At least almost fully automatically. It is necessary to create a template with
-the non-derivable configuration values first. This template will then be used
-as a basis for all generated input files. It is possible (and encouraged) to
-created multiple templates to cover various situations.
-
-To create a basic template (in this case for SES3D 4.0) run:
-
-.. code-block:: bash
-
-    $ lasif generate_input_file_template ses3d_4_0
-
-This will create a (hopefully self-explaining) XML input file template, that **MUST BE EDITED**.
+The iteration XML file also governs the solver used and the specific settings
+used for the given iteration, e.g. the settings for the SES3D 4.0 solver are
+shown here.
 
 .. code-block:: xml
 
-    <?xml version='1.0' encoding='UTF-8'?>
-    <ses3d_4_0_input_file_template>
+  <solver_parameters>
+    <solver>SES3D 4.0</solver>
+    <solver_settings>
       <simulation_parameters>
-        <number_of_time_steps>500</number_of_time_steps>
-        <time_increment>0.75</time_increment>
+        <number_of_time_steps>4000</number_of_time_steps>
+        <time_increment>0.13</time_increment>
         <is_dissipative>false</is_dissipative>
       </simulation_parameters>
-      <output_directory>../OUTPUT/CHANGE_ME/</output_directory>
+      <output_directory>../OUTPUT/CHANGE_ME/{{EVENT_NAME}}</output_directory>
       <adjoint_output_parameters>
         <sampling_rate_of_forward_field>10</sampling_rate_of_forward_field>
-        <forward_field_output_directory>../OUTPUT/CHANGE_ME/ADJOINT</forward_field_output_directory>
+        <forward_field_output_directory>
+            ../OUTPUT/CHANGE_ME/ADJOINT/{{EVENT_NAME}}
+        </forward_field_output_directory>
       </adjoint_output_parameters>
       <computational_setup>
-        <nx_global>15</nx_global>
-        <ny_global>15</ny_global>
-        <nz_global>10</nz_global>
+        <nx_global>66</nx_global>
+        <ny_global>108</ny_global>
+        <nz_global>28</nz_global>
         <lagrange_polynomial_degree>4</lagrange_polynomial_degree>
-        <px_processors_in_theta_direction>1</px_processors_in_theta_direction>
-        <py_processors_in_phi_direction>1</py_processors_in_phi_direction>
-        <pz_processors_in_r_direction>1</pz_processors_in_r_direction>
+        <px_processors_in_theta_direction>3</px_processors_in_theta_direction>
+        <py_processors_in_phi_direction>4</py_processors_in_phi_direction>
+        <pz_processors_in_r_direction>4</pz_processors_in_r_direction>
       </computational_setup>
-    </ses3d_4_0_input_file_template>
+    </solver_settings>
+  </solver_parameters>
 
-In case something is not fully clear, please refer to the SES3D 4.0 manual or contact the author. It is important to understand that each template file will be used as basis for all generated input files.
-
-Input file templates are again refered to by their filename minus the XML
-extension. To get a list of all available templates use:
-
-.. code-block:: bash
-
-    $ lasif list_input_file_templates
-
-    Project has 1 input file template:
-            ses3d_4_0_template
-
-
-You can (and maybe should) rename the actual template files to make it more
-descriptive.
-
+Most things should be self-explanatory.  In case something is not fully clear,
+please refer to the SES3D 4.0 manual or contact the author. As previously
+mentioned the **{{EVENT_NAME}}** placeholder will be replaced with the actual
+event. Please take care that what you put in here it correct, otherwise the
+simulations will not work. The settings shown here coincide with the settings
+used in the SES3D 4.0 tutorial so we will just use those here.
 
 
 Input File Generation
 ^^^^^^^^^^^^^^^^^^^^^
 
-Now that all requirements are fulfilled we can finally generate the input
-files. Input files are generated  with the command
+The actual input file generation is now very straightforward:
 
 
 .. code-block:: bash
 
-    $ lasif generate_input_files EVENT_NAME TEMPLATE_NAME TYPE SOURCE_TIME_FCT
+    $ lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
 
 **TYPE** has to be one of
 
-    * *normal_simulation*
-    * *adjoint_forward*
-    * *adjoint_reverse*
+    * *normal_simulation* - Use this if you want to get some waveforms.
+    * *adjoint_forward* - Use this for the forward adjoint simulation. Please
+      note that it requires a huge amount of disk space for the forward
+      wavefield.
+    * *adjoint_reverse* - Use this for the adjoint simulation. This requires
+      that the adjoint sources have already been calculated. More on that later
+      on.
 
-The other parameters have to correspond to files in the project folder. Please
-remember that you can different commands to figure out what files are part of
-the project.
+The other parameters should be clear.
 
-
-.. code-block:: bash
-
-    $ lasif list_events
-    2 events in project:
-            GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-                    GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-
-    $ lasif list_input_file_templates
-    Project has 1 input file template:
-            ses3d_4_0_template
-
-    $ lasif list_stf
-    Project has 1 defined source time function:
-            heaviside_60s_500s
-
-
-Once everything is figured out, actual input files can be generated with:
+For this tutorial you can generate input files for both events with
 
 .. code-block:: bash
 
-    $ lasif generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 \
-        ses3d_4_0_template normal_simulation heaviside_60s_500s
-
-    Written files to '.../OUTPUT/input_files___ses3d_4_0_template___2013-03-26T20:04:24.005713'.
+    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
 
 
 If you are working in a rotated domain, all station coordinates and moment
 tensors will automatically been rotated accordingly so that the actual
 simulation can take place in an unrotated frame of reference.
 
-
 Together with some models, these file can directly be used to run SES3D. For
 the first couple of runs it is likely a good idea to check these file by hand
 to verify your setup and potentially also the correctness of this tool suite.
-
 
 
 Indices and tables
