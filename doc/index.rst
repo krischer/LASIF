@@ -856,7 +856,7 @@ information relevant for a single iteration.
     stored in an organized and sane manner.
 
 
-The iteration XML files currently contains
+The iteration XML files currently contain:
 
 * Some metadata: the iteration name, a description and some comments.
 * A limited data preprocessing configuration. The data preprocessing is
@@ -891,8 +891,8 @@ present in the LASIF project.
       <comment>This is just for the dummy tutorial example</comment>
       <comment>There can be an arbitrary number of comments</comment>
       <data_preprocessing>
-        <highpass_period>0.01</highpass_period>
-        <lowpass_period>0.125</lowpass_period>
+        <highpass_period>100.0</highpass_period>
+        <lowpass_period>8.0</lowpass_period>
       </data_preprocessing>
       <rejection_criteria>
         ...
@@ -902,8 +902,8 @@ present in the LASIF project.
         <solver>SES3D 4.0</solver>
         <solver_settings>
           <simulation_parameters>
-            <number_of_time_steps>500</number_of_time_steps>
-            <time_increment>0.75</time_increment>
+            <number_of_time_steps>4000</number_of_time_steps>
+            <time_increment>0.13</time_increment>
             <is_dissipative>false</is_dissipative>
           </simulation_parameters>
           <output_directory>../OUTPUT/CHANGE_ME/{{EVENT_NAME}}</output_directory>
@@ -932,6 +932,21 @@ present in the LASIF project.
       ...
     </iteration>
 
+It is a rather self-explaining file; some things to look out for:
+
+* The dataprocessing frequency limits are given periods in seconds. This is
+  more intuitive.
+* The source time function is just given as a string. The "Filtered Heaviside"
+  is the only source time function currently supported. It will be filtered
+  with the limits specified in the data preprocessing section.
+* The paths in the solver settings contains an **{{EVENT_NAME}}** part. This
+  part will be replaced by the actual event name. This means that the file does
+  not have to be adjusted for every event.
+
+The file shown here has already be adjusted to be consistent with the SES3D
+example. Please do the same here. Notably you have to adjust the number of time
+steps and the time increment. Furthermore the paths have to be adjusted so that
+they for the system you plan to run the simulations on.
 
 
 Generating SES3D Input Files
