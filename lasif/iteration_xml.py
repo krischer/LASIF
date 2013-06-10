@@ -68,6 +68,43 @@ class Iteration(object):
                         "time_correction_in_s")),
                     "comments": comments}
 
+    def get_source_time_function(self):
+        """
+        Returns the source time function for the given iteration.
+
+        Will return a dictionary with the following keys:
+            * "delta": The time increment of the data.
+            * "data": The actual source time function as an array.
+        """
+        STFS = ["Filtered Heaviside"]
+        stfs_l = [_i.lower() for _i in STFS]
+
+        stf = self.source_time_function.lower()
+        delta = float(self.solver_settings["solver_settings"][
+            "simulation_parameters"]["time_increment"])
+        npts = int(self.solver_settings["solver_settings"][
+            "simulation_parameters"]["number_of_time_steps"])
+
+        freqmin = 1.0 / self.data_preprocessing["highpass_period"]
+        freqmax = 1.0 / self.data_preprocessing["lowpass_period"]
+
+        if stf not in stfs_l:
+            msg = "Source time function '%s' not known. Available STFs: %s" % \
+                (self.source_time_function, "\n".join(STFS))
+            raise NotImplementedError(msg)
+
+        ret_dict = {"delta": delta}
+
+        if stf == "filtered heaviside":
+            from lasif.source_time_functions import filtered_heaviside
+            ret_dict["data"] = filtered_heaviside(npts, delta, freqmin,
+                freqmax)
+        else:
+            msg = "Should not happen. Contact the developers or fix it."
+            raise Exception(msg)
+
+        return ret_dict
+
     def _get(self, element, node_name):
         return element.find(node_name).text
 

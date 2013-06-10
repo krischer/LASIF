@@ -320,27 +320,23 @@ def lasif_event_info(args):
 
 def lasif_plot_stf(args):
     """
-    Usage: lasif plot_stf SOURCE_TIME_FCT NPTS DELTA
+    Usage: lasif plot_stf ITERATION_NAME
 
     Convenience function to have a look at how a source time function will
-    look.
-
-    NPTS is the number of samples, and DELTA the sample interval.
+    look for any iteration.
     """
     import lasif.visualization
     proj = _find_project_root(".")
 
-    if len(args) != 3:
-        msg = ("SOURCE_TIME_FCT, NPTS, and DELTA must be given. "
-            "No other arguments allowed.")
+    if len(args) != 1:
+        msg = ("ITERATION_NAME must be given.")
         raise LASIFCommandLineException(msg)
-    stf = args[0]
-    npts = int(args[1])
-    delta = float(args[2])
+    iteration_name = args[0]
 
-    source_time_function = proj._get_source_time_function(stf)
-    data = source_time_function(npts, delta)
-    lasif.visualization.plot_tf(data, delta)
+    iteration = proj._get_iteration(iteration_name)
+    stf = iteration.get_source_time_function()
+
+    lasif.visualization.plot_tf(stf["data"], stf["delta"])
 
 
 def lasif_generate_input_files(args):

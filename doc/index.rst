@@ -419,19 +419,15 @@ this in the next section.
     **reproducibility and provenance**.
 
 
-Waveform Data
--------------
+Adding Waveform Data
+--------------------
 Every inversion needs real data to be able to quantify misfits. The waveform
 data for all events are stored in the *DATA* subfolder. The data for each
 single event will be stored in a subfolder of the *DATA* folder with the
 **same name as the QuakeML file minus the .xml**.
 
 These folder are automatically created and updated each time a lasif command is
-executed. The simplest command is
-
-.. code-block:: bash
-
-    $ lasif info
+executed.
 
 This will result in a directory structure in the fashion of::
 

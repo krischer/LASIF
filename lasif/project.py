@@ -17,7 +17,6 @@ interface feels sluggish and slow.
 import cPickle
 import glob
 import os
-import sys
 import warnings
 
 
@@ -391,17 +390,24 @@ class Project(object):
             "dt": float(dt),
             "stf": stf}
 
+    def _get_iteration(self, iteration_name):
+        """
+        Helper method to read a certain iteration.
+        """
+        from lasif.iteration_xml import Iteration
+
+        iterations = self.get_iteration_dict()
+        return Iteration(iterations[iteration_name])
+
     def preprocess_data(self, iteration_name):
         """
         Preprocesses all data for a given iteration.
         """
-        from lasif.iteration_xml import Iteration
         from lasif import preprocessing
         import colorama
         import obspy
 
-        iterations = self.get_iteration_dict()
-        iteration = Iteration(iterations[iteration_name])
+        iteration = self._get_iteration(iteration_name)
 
         process_params = self._get_iteration_process_params(iteration)
         # Generate a preprocessing tag. This will identify the used
