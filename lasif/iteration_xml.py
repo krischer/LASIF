@@ -194,8 +194,8 @@ def create_iteration_xml_string(iteration_name, solver_name, events):
         E.iteration_description(""),
         E.comment(""),
         E.data_preprocessing(
-            E.highpass_period("100.0"),
-            E.lowpass_period("8.0")),
+            E.highpass_period(str(1.0 / 100.0)),
+            E.lowpass_period(str(1.0 / 8.0))),
         E.rejection_criteria(
             E.minimum_trace_length_in_s("500.0"),
             E.signal_to_noise(

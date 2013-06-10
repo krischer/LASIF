@@ -778,6 +778,86 @@ effects. An example from a larger LASIF project illustrates this:
     :align: center
 
 
+Defining a New Iteration
+------------------------
+
+LASIF organizes the actual inversion in an arbitrary number of iterations; each
+of which is described by a single XML file. Within each file, the events and
+stations for this iterations, the solver settings, and other information is
+specified. Each iteration can have an arbitrary name. It is probably a good
+idea to give simple numeric names, like 1, 2, 3, ...
+
+Let's start by creating the XML file for the very first iteration with the
+**create_new_iteration** command.
+
+.. code-block:: bash
+
+    $ lasif create_new_iteration 1 SES3D_4_0
+
+
+This command takes two arguements; the first being the iteration name. A simple
+number is sufficient in many cases. The second argument is the waveform solver
+to be used for this iteration. It currently only supports SES3D 4.0 but the
+infrastructure to add other solvers is already in place.
+
+You will see that this create a new file; *ITERATIONS/ITERATION_1.xml**. Each
+iteration will have its own file. To get a list of iterations, use
+
+.. code-block:: bash
+
+    $ lasif list_iterations
+
+    1 Iteration in project:
+        1
+
+
+To get more information about a specific iteration, use the **iteration_info** command.
+
+.. code-block:: bash
+
+    $ lasif iteration_info 1
+
+    LASIF Iteration
+        Name: 1
+        Description: None
+        Source Time Function: Filtered Heaviside
+        Preprocessing Settings:
+                Highpass Period: 100.000 s
+                Lowpass Period: 8.000 s
+        Solver: SES3D 4.0 | 500 timesteps (dt: 0.75s)
+        2 events recorded at 10 unique stations
+        16 event-station pairs ("rays")
+
+.. note::
+
+    You might have noticed the pairs of **list_x** and **x_info** commands, e.g.
+    **list_events** and **event_info** or **list_iterations** and
+    **iteration_info**. This scheme is true for most things in LASIF. The
+    **list_x** variant is always used to get a quick overview of everything
+    currently part of the LASIF project. The **x_info** counterpart returns
+    more detailed information about the resource.
+
+The Iteration XML Files
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The XML file defining each iteration attempts to be a collection of all
+information relevant for a single iteration.
+
+.. note::
+
+    The iteration XML files are the **main provenance information** (in
+    combination with the log files) within LASIF. By keeping track of what
+    happened during each iteration it is possible to reasonably judge how any
+    model came into being.
+
+    If at any point you feel the need to keep track of additional information
+    and there is no place for it within LASIF, please contact the developers.
+    LASIF aims to offer an environment where all necessary information can be
+    stored in an organized and sane manner.
+
+
+
+
 Generating SES3D Input Files
 ----------------------------
 
