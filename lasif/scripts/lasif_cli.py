@@ -16,7 +16,6 @@ interface feels sluggish and slow.
 FCT_PREFIX = "lasif_"
 
 import colorama
-import glob
 import os
 import random
 import sys

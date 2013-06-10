@@ -1123,8 +1123,8 @@ For this tutorial you can generate input files for both events with
 
 .. code-block:: bash
 
-    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 adjoint_forward
+    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 adjoint_forward
 
 
 If you are working in a rotated domain, all station coordinates and moment
