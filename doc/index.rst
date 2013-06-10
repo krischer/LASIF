@@ -11,7 +11,7 @@ Welcome to LASIF's Documentation!
 
 LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
 **data-driven workflow tool** to perform full waveform inversions.  It is
-opinionated and strict meaning that it forces a certain data and directory
+opinionated and strict meaning that it enforces a certain data and directory
 structure. The upside is that it only requires a very minimal amount of
 configuration and maintenance. It attempts to gather all necessary information
 from the data itself so there is no need to keep index or content files.
@@ -361,7 +361,7 @@ change the event filenames after you have worked with them** because all
 additional information for that event will be related to it via the event
 filename. So please give them a good and reasonable filename. If you really
 feel that event renaming is a necessary feature please file an issue on Github
-so that the author's can add a proper event renaming function.
+so that the authors can add a proper event renaming function.
 
 The **plot_events** command will return a map with all events currently part of
 the project.
@@ -577,92 +577,168 @@ Downloading Waveforms
 ^^^^^^^^^^^^^^^^^^^^^
 
 Waveforms are downloaded on a per event basis. The **config.xml** file contains
-some specification to detail the download. Each event is referred to by its
-name which is simply the filename minus the extension. To get a list of all
-events in the current project just execute
-
-.. code-block:: bash
-
-    $ lasif list_events
-
-    2 events in project:
-        GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-        GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-
+some specification to detail the download.
 
 To download the waveform data for one event, choose one and run
 
 .. code-block:: bash
 
-    $ lasif download_waveforms GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
+    $ lasif download_waveforms GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
+
+The command essentially just tries to download everything it can. It queries
+the IRIS DMC and ArcLink for all stations available in the physical domain and
+then downloads the appropriate data. It accounts for the domain borders and
+possible domain rotations. It is influences by three parameters in the
+**config.xml** file:
+
+* The *arclink_username* tag should be your email. It will be send with all
+  requests to the ArcLink network. They ask for it in case they have to contact
+  you for whatever reason. Please provide a real email address. Must not be
+  empty.
+* *seconds_before_event*: Used by the waveform download scripts. It will
+  attempt to download this many seconds for every waveform before the origin of
+  the associated event.
+* *seconds_after_event*: Used by the waveform download scripts. It will attempt
+  to download this many seconds for every waveform after the origin of the
+  associated event. Adapt this to the size of your inversion domain.
 
 This, dependent on the domain size, event location, and origin time can take a
 while. Executing the same command again will only attempt to download data not
 already present. All data will be placed in `DATA/EVENT_NAME/raw`.
 
+.. note::
 
-Downloading Station Data
-^^^^^^^^^^^^^^^^^^^^^^^^
+    At this point it is worth mentioning that LASIF keeps logs of many actions
+    that the user performs. All logs will be saved in the *LOGS* subfolder.
+
+
+Downloading Station Metadata
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 LASIF also includes some functionality to download station metadata. It will,
-download StationXML and RESP files from IRIS and dataless SEED and RESP files
-from ArcLink. It works the same as it does for the waveforms. To download all
-stations for one event simply execute
+download RESP files from IRIS and dataless SEED files from ArcLink. It works
+the same as it does for the waveforms. To download all stations for one event
+simply execute
 
 .. code-block:: bash
 
-    $ lasif download_stations GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    $ lasif download_stations GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+
+The `lasif download_stations` command will, for the specified event, figure
+what waveform data is present in the `DATA/EVENT_NAME/raw` folder and download
+all missing station metadata information for these files.
 
 .. note::
 
-    The `lasif download_stations` command will, for the specified event, figure
-    what waveform data is present in the `DATA/EVENT_NAME/raw` folder and
-    download all missing station metadata information for these files.
+    At some point in the near future the station metadata downloading routines
+    will be changed so that they exclusively work with StationXML metadata.
+
+
+Inspecting the Data
+-------------------
+
+Once waveform and station metadata has been downloaded (either with the
+built-in helpers or manually) and placed in the correct folders, LASIF can
+start to work with it.
+
+.. note::
+
+    LASIF essentially needs three ingredients to be able to interpret waveform
+    data:
+
+    * The actual waveforms
+    * The location of the recording seismometer
+    * The instrument response for each channel at the time of data recording
+
+    Some possibilities exist to specify these:
+
+    * MiniSEED data and dataless SEED for the metadata (currently preferred)
+    * SAC data and RESP files (needed for legacy reasons)
+    * MiniSEED and RESP files (this combination does not actually contain
+      location information but LASIF launches some web requests to get just the
+      locations and stores them in a cache database)
+    * Most other combinations should also work but have not been tested.
+
+    In the future the preferred way will be miniSEED data combined with
+    StationXML metadata. This provides a clear seperation of data and metadata.
+
 
 At this point, LASIF is able to match available station and waveform
-information. To get an overview, of what data is actually stored for the given event, just execute:
+information. Only stations where the three aforementioned ingredients are
+available will be considered to be stations that are good to be worked with by
+LASIF. Others will be ignored.
+
+To get an overview, of what data is actually available for any given event,
+just execute:
 
 .. code-block:: bash
 
-    $ lasif event_info GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
+    $ lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
-    Earthquake with 6.1 Mw at AZORES ISLANDS REGION
-            Latitude: 37.400, Longitude: -24.380, Depth: 12.0 km
-            2007-04-07T07:09:29.500000Z UTC
+    Earthquake with 5.1 Mwc at TURKEY
+        Latitude: 38.820, Longitude: 40.140, Depth: 4.5 km
+        2010-03-24T14:11:31.000000Z UTC
 
     Station and waveform information available at 8 stations:
 
     ===========================================================================
                  id       latitude      longitude      elevation    local depth
     ===========================================================================
-            GE.CART        37.5868        -1.0012           65.0            5.0
-             GE.MTE        40.3997        -7.5442          815.0            3.0
-             GE.SFS        36.4656        -6.2055           21.0            5.0
-             IU.PAB        39.5446      -4.349899          950.0            0.0
-             PM.MTE        40.3997        -7.5442          815.0            3.0
-           PM.PESTR        38.8672        -7.5902          410.0            0.0
-            PM.PVAQ        37.4037        -7.7173          200.0            0.0
-            WM.CART        37.5868        -1.0012           65.0            5.0
+             GE.APE        37.0689        25.5306          620.0            0.0
+             GE.ISP        37.8433        30.5093         1100.0            5.0
+             HL.APE        37.0689        25.5306          620.0            0.0
+             HL.ARG         36.216         28.126          170.0            0.0
+             HL.RDO         41.146         25.538          100.0            0.0
+             HT.ALN        40.8957        26.0497          110.0            0.0
+            HT.SIGR        39.2114        25.8553           93.0            0.0
+            IU.ANTO         39.868        32.7934         1090.0           None
 
 
-It is furthermore possible to plot the availability information for one event including ray coverage with:
+.. note::
+
+    As seen here, the local depth can is allowed to not be set. In this cases
+    it will be assumed to be zero. For all practical purposes the local depth
+    does not matter for continental scale inversions.
+
+
+It is furthermore possible to plot the availability information for one event
+including a very simple ray coverage plot with:
 
 .. code-block:: bash
 
-    $ lasif plot_event GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-
+    $ lasif plot_event GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
 .. plot::
 
+    import matplotlib.pylab as plt
+    from obspy import UTCDateTime
     import lasif.visualization
-    map = lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
-        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
-        show_plot=False)
+    map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
+        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
+        show_plot=False, zoom=True)
+    event_info = {'depth_in_km': 4.5, 'region': 'TURKEY', 'longitude': 40.14,
+        'magnitude': 5.1, 'magnitude_type': 'Mwc', 'latitude': 38.82,
+        'origin_time': UTCDateTime(2010, 3, 24, 14, 11, 31)}
+    stations = {u'GE.APE': {'latitude': 37.0689, 'local_depth': 0.0,
+        'elevation': 620.0, 'longitude': 25.5306}, u'HL.ARG': {'latitude':
+        36.216, 'local_depth': 0.0, 'elevation': 170.0, 'longitude': 28.126},
+        u'IU.ANTO': {'latitude': 39.868, 'local_depth': None, 'elevation':
+        1090.0, 'longitude': 32.7934}, u'GE.ISP': {'latitude': 37.8433,
+        'local_depth': 5.0, 'elevation': 1100.0, 'longitude': 30.5093},
+        u'HL.RDO': {'latitude': 41.146, 'local_depth': 0.0, 'elevation': 100.0,
+        'longitude': 25.538}, u'HT.SIGR': {'latitude': 39.2114, 'local_depth':
+        0.0, 'elevation': 93.0, 'longitude': 25.8553}, u'HT.ALN': {'latitude':
+        40.8957, 'local_depth': 0.0, 'elevation': 110.0, 'longitude': 26.0497},
+        u'HL.APE': {'latitude': 37.0689, 'local_depth': 0.0, 'elevation':
+        620.0, 'longitude': 25.5306}}
+    lasif.visualization.plot_stations_for_event(map_object=map,
+        station_dict=stations, event_info=event_info)
     # Create event.
     from obspy.core.event import *
+    cat = Catalog(events=[])
     ev = Event()
-    cat = Catalog(events=[ev])
+    cat.append(ev)
     org = Origin()
     fm = FocalMechanism()
     mt = MomentTensor()
@@ -671,34 +747,35 @@ It is furthermore possible to plot the availability information for one event in
     ev.focal_mechanisms.append(fm)
     fm.moment_tensor = mt
     mt.tensor = t
-    org.latitude = 37.4
-    org.longitude = -24.38
-    t.m_rr = -1.69e+18
-    t.m_tt = 9.12e+17
-    t.m_pp = 7.77e+17
-    t.m_rt = 8.4e+16
-    t.m_rp = 2.4e+16
-    t.m_tp = -4.73e+17
+    org.latitude = 38.82
+    org.longitude = 40.14
+    t.m_rr = 5.47e+15
+    t.m_tt = -4.11e+16
+    t.m_pp = 3.56e+16
+    t.m_rt = 2.26e+16
+    t.m_rp = -2.25e+16
+    t.m_tp = 1.92e+16
     lasif.visualization.plot_events(cat, map)
-    ev_lng = -24.38
-    ev_lat = 37.4
-    stations = {'GE.SFS': {'latitude': 36.4656, 'local_depth': 5.0,
-        'elevation': 21.0, 'longitude': -6.2055}, 'PM.MTE': {'latitude':
-        40.3997, 'local_depth': 3.0, 'elevation': 815.0, 'longitude': -7.5442},
-        'PM.PVAQ': {'latitude': 37.4037, 'local_depth': 0.0, 'elevation':
-        200.0, 'longitude': -7.7173}, 'WM.CART': {'latitude': 37.5868,
-        'local_depth': 5.0, 'elevation': 65.0, 'longitude': -1.0012}, 'GE.MTE':
-        {'latitude': 40.3997, 'local_depth': 3.0, 'elevation': 815.0,
-        'longitude': -7.5442}, 'PM.PESTR': {'latitude': 38.8672, 'local_depth':
-        0.0, 'elevation': 410.0, 'longitude': -7.5902}, 'GE.CART': {'latitude':
-        37.5868, 'local_depth': 5.0, 'elevation': 65.0, 'longitude': -1.0012},
-        'IU.PAB': {'latitude': 39.5446, 'local_depth': 0.0, 'elevation': 950.0,
-        'longitude': -4.349899}}
-    lasif.visualization.plot_stations_for_event(map_object=map,
-        station_dict=stations, event_longitude=ev_lng,
-        event_latitude=ev_lat)
-    # Plot the beachball for one event.
-    lasif.visualization.plot_events(cat, map_object=map)
+    plt.show()
+
+
+If you are interested in getting a coverage plot of all events and data
+available for the current project, please execute the **plot_raydensity**
+command:
+
+.. code-block:: bash
+
+    $ lasif plot_raydensity
+
+Keep in mind that this only results in a reasonable plot for large amounts of
+data; for the toy example used in the tutorial it will not work. It is not a
+physically accurate plot but helps in judging data coverage and directionality
+effects. An example from a larger LASIF project illustrates this:
+
+
+.. image:: images/raydensity.jpg
+    :width: 70%
+    :align: center
 
 
 Generating SES3D Input Files
