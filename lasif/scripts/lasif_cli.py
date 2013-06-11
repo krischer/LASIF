@@ -421,20 +421,14 @@ def lasif_launch_misfit_gui(args):
 
     event = proj.get_event(event_name)
 
-    data_tag = args[1]
-    synthetic_tag = args[2]
-    highpass = 1.0 / float(args[3])
-    lowpass = 1.0 / float(args[4])
-
     from lasif.misfit_gui import MisfitGUI
     from lasif.window_manager import MisfitWindowManager
 
-    iterator = proj.data_synthetic_iterator(event_name, data_tag,
-        synthetic_tag, highpass, lowpass)
+    iterator = proj.data_synthetic_iterator(event_name, iteration_name)
 
     window_directory = os.path.join(proj.paths["windows"], event_name,
-        synthetic_tag)
-    window_manager = MisfitWindowManager(window_directory, synthetic_tag,
+        iteration_name)
+    window_manager = MisfitWindowManager(window_directory, iteration_name,
         event_name)
 
     MisfitGUI(event, iterator, proj, window_manager)
