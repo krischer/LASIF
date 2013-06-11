@@ -1169,6 +1169,59 @@ model in a format SES3D can use.
 Models in LASIF
 ^^^^^^^^^^^^^^^
 
+LASIF can directly deal with the models used in SES3D. Each model has to placed
+in a subfolder of *MODELS*. The folder name will again be used to identify the
+model. For this tutorial, place the just created files in
+*MODELS/Intial_Model*.
+
+Now you are able to use the **list_models** commands.
+
+.. code-block:: bash
+
+    lasif list_models
+
+        1 model in project:
+            Initial_Model
+
+LASIF has some functionality to view the models. To launch the model viewer use
+the **plot_model** command together with the model name.
+
+.. code-block:: bash
+
+    lasif plot_model Initial_Model
+
+    Raw SES3D Model (split in 48 parts)
+        Setup:
+                Latitude: 34.10 - 42.90
+                Longitude: 23.10 - 42.90
+                Depth in km: 0.00 - 471.00
+                Total element count: 211787
+                Total grid point count: 13753701
+        Memory requirement per component: 52.5 MB
+        Available components: A, B, C, lambda, mu, rhoinv
+        Available derived components: rho, vp, vsh, vsv
+        Parsed components:
+
+    Enter 'COMPONENT DEPTH' ('quit' to exit):
+
+
+This will print some information about the model like the available components
+and the components it can derive from these. Keep in mind that for plotting one
+of the derived components it potentially has to load two or more components so
+keep an eye on your machines memory. The tool can currently plot horizontal
+slices for arbitrary components at arbitrary depths. To do this, simply type
+the component name and the desired depth in kilometer and hit enter. This opens
+a new window, e.g. for **vsv 100**:
+
+.. image:: images/vsv_100km.jpg
+    :width: 90%
+    :align: center
+
+Clicking at any point of the model pops up a vertical profile of the chosen
+component at the clicked position. Closing the window again will enable you to
+plot a different component or different depth. To leave the model viewer simply
+type **quit**.
+
 
 Indices and tables
 ==================
