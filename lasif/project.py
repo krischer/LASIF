@@ -588,39 +588,29 @@ class Project(object):
             "magnitude_type": mag.magnitude_type}
         return info
 
-    def generate_input_files(self, event_name, template_name, simulation_type,
-            source_time_function):
+    def generate_input_files(self, iteration_name, event_name,
+            simulation_type):
         """
         Generate the input files for one event.
 
+        :param iteration_name: The name of the iteration.
         :param event_name: The name of the event for which to generate the
             input files.
-        :param template_name: The name of the input file template
         :param simulation_type: The type of simulation to perform. Possible
             values are: 'normal simulation', 'adjoint forward', 'adjoint
             reverse'
-        :param source_time_function: A function source_time_function(npts,
-            delta), taking the requested number of samples and the time spacing
-            and returning an appropriate source time function as numpy array.
         """
         from lasif import utils
         from wfs_input_generator import InputFileGenerator
 
-        # Get the events
-        all_events = self.get_event_dict()
-        if event_name not in all_events:
-            msg = "Event '%s' not found in project." % event_name
+        iteration = self._get_iteration(iteration_name)
+        # Check that the event is part of the iterations.
+        if event_name not in iteration.events:
+            msg = "Event '%s' not part of iteration '%s'." % (event_name,
+                    iteration_name)
             raise ValueError(msg)
-
         event = self.get_event(event_name)
-
-        # Get the input file templates.
-        template_filename = os.path.join(self.paths["templates"],
-            template_name + ".xml")
-        if not os.path.exists(template_filename):
-            msg = "Template '%s' does not exists." % template_name
-            raise ValueError(msg)
-        input_file = utils.read_ses3d_4_0_template(template_filename)
+        stations_for_event = iteration.events[event_name]["stations"].keys()
 
         # Get all stations and create a dictionary for the input file
         # generator.
@@ -629,34 +619,45 @@ class Project(object):
             "longitude": value["longitude"],
             "elevation_in_m": value["elevation"],
             "local_depth_in_m": value["local_depth"]} for key, value in
-            stations.iteritems()]
+            stations.iteritems() if key in stations_for_event]
+
+        solver = iteration.solver_settings
+
+        # Currently only SES3D 4.0 is supported
+        if solver["solver"].lower() != "ses3d 4.0":
+            msg = "Currently only SES3D 4.0 is supported."
+            raise ValueError(msg)
+
+        solver = solver["solver_settings"]
 
         # Add the event and the stations to the input file generator.
         gen = InputFileGenerator()
         gen.add_events(event)
         gen.add_stations(stations)
 
-        npts = input_file["simulation_parameters"]["number_of_time_steps"]
-        delta = input_file["simulation_parameters"]["time_increment"]
+        npts = solver["simulation_parameters"]["number_of_time_steps"]
+        delta = solver["simulation_parameters"]["time_increment"]
         # Time configuration.
         gen.config.number_of_time_steps = npts
         gen.config.time_increment_in_s = delta
 
         # SES3D specific configuration
-        gen.config.output_folder = input_file["output_directory"]
+        gen.config.output_folder = solver["output_directory"].replace(
+            "{{EVENT_NAME}}", event_name.replace(" ", "_"))
         gen.config.simulation_type = simulation_type
 
         gen.config.adjoint_forward_wavefield_output_folder = \
-            input_file["adjoint_output_parameters"][
-                "forward_field_output_directory"]
+            solver["adjoint_output_parameters"][
+                "forward_field_output_directory"].replace(
+                "{{EVENT_NAME}}", event_name.replace(" ", "_"))
         gen.config.adjoint_forward_sampling_rate = \
-            input_file["adjoint_output_parameters"][
+            solver["adjoint_output_parameters"][
                 "sampling_rate_of_forward_field"]
         gen.config.is_dissipative = \
-            input_file["simulation_parameters"]["is_dissipative"]
+            solver["simulation_parameters"]["is_dissipative"]
 
         # Discretization
-        disc = input_file["computational_setup"]
+        disc = solver["computational_setup"]
         gen.config.nx_global = disc["nx_global"]
         gen.config.ny_global = disc["ny_global"]
         gen.config.nz_global = disc["nz_global"]
@@ -679,14 +680,16 @@ class Project(object):
             self.domain["bounds"]["minimum_depth_in_km"]
         gen.config.mesh_max_depth_in_km = \
             self.domain["bounds"]["maximum_depth_in_km"]
-
+        # Set the rotation parameters.
         gen.config.rotation_angle_in_degree = self.domain["rotation_angle"]
         gen.config.rotation_axis = self.domain["rotation_axis"]
 
-        gen.config.source_time_function = source_time_function(int(npts),
-            float(delta))
+        gen.config.source_time_function = \
+            iteration.get_source_time_function()["data"]
 
-        output_dir = self.get_output_folder("input_files___%s" % template_name)
+        output_dir = self.get_output_folder(
+            "input_files___ITERATION_%s__EVENT_%s" % (iteration_name,
+            event_name))
 
         gen.write(format="ses3d_4_0", output_dir=output_dir)
         print "Written files to '%s'." % output_dir
