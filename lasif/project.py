@@ -576,7 +576,6 @@ class Project(object):
             values are: 'normal simulation', 'adjoint forward', 'adjoint
             reverse'
         """
-        from lasif import utils
         from wfs_input_generator import InputFileGenerator
 
         iteration = self._get_iteration(iteration_name)
@@ -625,7 +624,7 @@ class Project(object):
         gen.config.adjoint_forward_wavefield_output_folder = \
             solver["adjoint_output_parameters"][
                 "forward_field_output_directory"].replace(
-                "{{EVENT_NAME}}", event_name.replace(" ", "_"))
+                    "{{EVENT_NAME}}", event_name.replace(" ", "_"))
         gen.config.adjoint_forward_sampling_rate = \
             solver["adjoint_output_parameters"][
                 "sampling_rate_of_forward_field"]
@@ -793,10 +792,7 @@ class Project(object):
 
     def data_synthetic_iterator(self, event_name, iteration_name):
         from lasif import rotations
-        import numpy as np
-        from obspy import read, Stream, UTCDateTime
-        from obspy.xseed import Parser
-        from scipy.interpolate import interp1d
+        from obspy import read, Stream
 
         event_info = self.get_event_info(event_name)
         iteration = self._get_iteration(iteration_name)
@@ -822,8 +818,6 @@ class Project(object):
             raise ValueError(msg)
 
         SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
-
-        station_cache = self.station_cache
 
         class TwoWayIter(object):
             def __init__(self, rot_angle=0.0, rot_axis=[0.0, 0.0, 1.0]):
