@@ -118,6 +118,37 @@ class Iteration(object):
         return element.tag, \
             dict(map(self._recursive_dict, element)) or element.text
 
+    def get_process_params(self):
+        """
+        Small helper function retrieving the most important iteration
+        parameters.
+        """
+        highpass = 1.0 / self.data_preprocessing["highpass_period"]
+        lowpass = 1.0 / self.data_preprocessing["lowpass_period"]
+
+        npts = self.solver_settings["solver_settings"][
+            "simulation_parameters"]["number_of_time_steps"]
+        dt = self.solver_settings["solver_settings"][
+            "simulation_parameters"]["time_increment"]
+        stf = self.source_time_function
+
+        return {
+            "highpass": float(highpass),
+            "lowpass": float(lowpass),
+            "npts": int(npts),
+            "dt": float(dt),
+            "stf": stf}
+
+    def get_processing_tag(self):
+        """
+        Returns the processing tag for this iteration.
+        """
+        # Generate a preprocessing tag. This will identify the used
+        # preprocessing so that duplicates can be avoided.
+        processing_tag = ("preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_"
+            "npts_{npts}_dt_{dt:5f}").format(**self.get_process_params())
+        return processing_tag
+
     def __str__(self):
         """
         Pretty printing.
