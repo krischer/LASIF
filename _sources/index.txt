@@ -978,138 +978,249 @@ time series and a time frequency representation of the source time function.
     data = filtered_heaviside(4000, 0.13, 1.0 / 500.0, 1.0 / 60.0)
     lasif.visualization.plot_tf(data, 0.13)
 
+Data Preprocessing
+^^^^^^^^^^^^^^^^^^
+
+Data preprocessing is an essential step if one wants to compare data and
+seismograms. It serves several purposes: Restricting the frequency content of
+the data to that of the synthetics - what is not simulated can no be seen in
+synthetic seismograms. Remove the instrument response and convert to the same
+units used for the synthetics (usually m\s). Furthermore any linear trends and
+static offset are removed and the some processing has to be performed so that
+the data is available at the same points in time as the synthetics. The goal of
+the preprocessing within LASIF is to create data that is directly comparable to
+simulated data without any more processing.
+
+The applied processing is identified via the folder name::
+
+    preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
+
+or (in Python terms):
+
+.. code-block:: python
+
+    highpass = 1.0 / 100.0
+    lowpass = 1.0 / 8.0
+    npts = 4000
+    dt = 0.13
+
+    processing_tag = ("preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_"
+        "npts_{npts}_dt_{dt:5f}").format(highpass=highpass, lowpass=lowpass,
+        npts=npts, dt=dt)
+
+.. note::
+
+    You can use any processing tool you want, but you have to adhere to the
+    directory structure otherwise LASIF will not be able to work with the data.
+    It is furthermore important that the processed filenames are identical to
+    the unprocessed ones.
+
+    If you feel that additional identifiers are needed to uniquely identify the
+    applied processing (in the limited setting of being useful for the here
+    performed full waveform inversion) please contact the LASIF developers.
+
+You can of course also simply utilize LASIF's built-in preprocessing. Using it
+is trivial, just launch the **preprocess_data** command together with the
+iteration name.
+
+.. code-block:: bash
+
+    $ lasif preprocess_data 1
+
+This will start a fully parallelized preprocessing for all data required for
+the specified iteration. It will utilize all your machine's cores and might
+take a while. If you repeat the command it will only process data not already
+processed; an advantages is that you can cancel the processing at any time and
+then later on just execute the command again to continue where you left off.
+This usually only needs to be done every couple of iterations when you decide
+to go to higher frequencies or add new data.
+
+The preprocessed data will be put in the correct folder.
+
+Data Rejection
+^^^^^^^^^^^^^^
+
+Coming soon...watch this space.
+
+
+This concludes the initial setup for each iteration. The next steps is to
+actually simulate anything and LASIF of course also assists in that regard.
+
 
 Generating SES3D Input Files
 ----------------------------
 
 LASIF is currently capable of producing input files for SES3D 4.0. It is very
 straightforward and knows what data is available for every event and thus can
-generate these files fully automatically.
+generate these files fully automatically. In the future it might be worth
+investigating automatic job submission to high performance machines as this is
+essentially just repetitive and error-prone work.
 
-
-Preparatory Steps
-^^^^^^^^^^^^^^^^^
-
-Before the first input file can be generated some preparatory steps need to be
-performed. This is only necessary once at the start or when you make
-significant changes to how the simulations are performed.
-
-Input File Templates
-********************
-
-At least almost fully automatically. It is necessary to create a template with
-the non-derivable configuration values first. This template will then be used
-as a basis for all generated input files. It is possible (and encouraged) to
-created multiple templates to cover various situations.
-
-To create a basic template (in this case for SES3D 4.0) run:
-
-.. code-block:: bash
-
-    $ lasif generate_input_file_template ses3d_4_0
-
-This will create a (hopefully self-explaining) XML input file template, that **MUST BE EDITED**.
+The iteration XML file also governs the solver used and the specific settings
+used for the given iteration, e.g. the settings for the SES3D 4.0 solver are
+shown here.
 
 .. code-block:: xml
 
-    <?xml version='1.0' encoding='UTF-8'?>
-    <ses3d_4_0_input_file_template>
+  <solver_parameters>
+    <solver>SES3D 4.0</solver>
+    <solver_settings>
       <simulation_parameters>
-        <number_of_time_steps>500</number_of_time_steps>
-        <time_increment>0.75</time_increment>
+        <number_of_time_steps>4000</number_of_time_steps>
+        <time_increment>0.13</time_increment>
         <is_dissipative>false</is_dissipative>
       </simulation_parameters>
-      <output_directory>../OUTPUT/CHANGE_ME/</output_directory>
+      <output_directory>../OUTPUT/CHANGE_ME/{{EVENT_NAME}}</output_directory>
       <adjoint_output_parameters>
         <sampling_rate_of_forward_field>10</sampling_rate_of_forward_field>
-        <forward_field_output_directory>../OUTPUT/CHANGE_ME/ADJOINT</forward_field_output_directory>
+        <forward_field_output_directory>
+            ../OUTPUT/CHANGE_ME/ADJOINT/{{EVENT_NAME}}
+        </forward_field_output_directory>
       </adjoint_output_parameters>
       <computational_setup>
-        <nx_global>15</nx_global>
-        <ny_global>15</ny_global>
-        <nz_global>10</nz_global>
+        <nx_global>66</nx_global>
+        <ny_global>108</ny_global>
+        <nz_global>28</nz_global>
         <lagrange_polynomial_degree>4</lagrange_polynomial_degree>
-        <px_processors_in_theta_direction>1</px_processors_in_theta_direction>
-        <py_processors_in_phi_direction>1</py_processors_in_phi_direction>
-        <pz_processors_in_r_direction>1</pz_processors_in_r_direction>
+        <px_processors_in_theta_direction>3</px_processors_in_theta_direction>
+        <py_processors_in_phi_direction>4</py_processors_in_phi_direction>
+        <pz_processors_in_r_direction>4</pz_processors_in_r_direction>
       </computational_setup>
-    </ses3d_4_0_input_file_template>
+    </solver_settings>
+  </solver_parameters>
 
-In case something is not fully clear, please refer to the SES3D 4.0 manual or contact the author. It is important to understand that each template file will be used as basis for all generated input files.
-
-Input file templates are again refered to by their filename minus the XML
-extension. To get a list of all available templates use:
-
-.. code-block:: bash
-
-    $ lasif list_input_file_templates
-
-    Project has 1 input file template:
-            ses3d_4_0_template
-
-
-You can (and maybe should) rename the actual template files to make it more
-descriptive.
-
+Most things should be self-explanatory.  In case something is not fully clear,
+please refer to the SES3D 4.0 manual or contact the author. As previously
+mentioned the **{{EVENT_NAME}}** placeholder will be replaced with the actual
+event. Please take care that what you put in here it correct, otherwise the
+simulations will not work. The settings shown here coincide with the settings
+used in the SES3D 4.0 tutorial so we will just use those here.
 
 
 Input File Generation
 ^^^^^^^^^^^^^^^^^^^^^
 
-Now that all requirements are fulfilled we can finally generate the input
-files. Input files are generated  with the command
+The actual input file generation is now very straightforward:
 
 
 .. code-block:: bash
 
-    $ lasif generate_input_files EVENT_NAME TEMPLATE_NAME TYPE SOURCE_TIME_FCT
+    $ lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
 
 **TYPE** has to be one of
 
-    * *normal_simulation*
-    * *adjoint_forward*
-    * *adjoint_reverse*
+    * *normal_simulation* - Use this if you want to get some waveforms.
+    * *adjoint_forward* - Use this for the forward adjoint simulation. Please
+      note that it requires a huge amount of disk space for the forward
+      wavefield.
+    * *adjoint_reverse* - Use this for the adjoint simulation. This requires
+      that the adjoint sources have already been calculated. More on that later
+      on.
 
-The other parameters have to correspond to files in the project folder. Please
-remember that you can different commands to figure out what files are part of
-the project.
+The other parameters should be clear.
 
-
-.. code-block:: bash
-
-    $ lasif list_events
-    2 events in project:
-            GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-                    GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-
-    $ lasif list_input_file_templates
-    Project has 1 input file template:
-            ses3d_4_0_template
-
-    $ lasif list_stf
-    Project has 1 defined source time function:
-            heaviside_60s_500s
-
-
-Once everything is figured out, actual input files can be generated with:
+For this tutorial you can generate input files for both events with
 
 .. code-block:: bash
 
-    $ lasif generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 \
-        ses3d_4_0_template normal_simulation heaviside_60s_500s
+    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 adjoint_forward
+    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 adjoint_forward
 
-    Written files to '.../OUTPUT/input_files___ses3d_4_0_template___2013-03-26T20:04:24.005713'.
 
+This will place input files in the *OUTPUT* subdirectory of the project. In
+general it is advisable to never delete the input files to facilitate
+provenance and reproducibility.
 
 If you are working in a rotated domain, all station coordinates and moment
-tensors will automatically been rotated accordingly so that the actual
-simulation can take place in an unrotated frame of reference.
-
+tensors will automatically be rotated accordingly so that the actual simulation
+can take place in an unrotated frame of reference.
 
 Together with some models, these file can directly be used to run SES3D. For
 the first couple of runs it is likely a good idea to check these file by hand
 to verify your setup and potentially also the correctness of this tool suite.
 
+
+Organizing the Models
+---------------------
+
+Short Deviation: Creating an initial model with SES3D 4.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is very quick tutorial to help you get up to speed with the model
+generation for this tutorial with SES3D 4.0. You will still need to read the
+SES3D manual. This part assumes that you created the input files according to
+the previous section and that you have a copy of SES3D on the supercomputer.
+Please not that you will have to adjust settings if you did not follow along
+with the tutorial. The following has to take place on a machine with at least
+48 available CPU cores.
+
+1. Copy all generated input files to *SES3D/INPUT*.
+2. Edit *nx_max*, *ny_max*, *nz_max* in *SES3D/SOURCE/ses3d_modules.f90*
+3. Compile SES3D and model tools (execute *s_make* in *SES3D/MODELS/MODELS* and
+   *SOURCE*).
+4. Generate a homogeneous model by launching
+   *SES3D/MODELS/MAIN/generate_models.exe* with 48 cores.
+5. Now add some perturbations to get a 3D model by running
+   *SES3D/MODELS/MAIN/add_perturbation.exe* with 48 cores.
+
+You should now have lots of files in *SES3D/MODELS/MODELS*. These represent the
+model in a format SES3D can use.
+
+Models in LASIF
+^^^^^^^^^^^^^^^
+
+LASIF can directly deal with the models used in SES3D. Each model has to placed
+in a subfolder of *MODELS*. The folder name will again be used to identify the
+model. For this tutorial, place the just created files in
+*MODELS/Intial_Model*.
+
+Now you are able to use the **list_models** commands.
+
+.. code-block:: bash
+
+    lasif list_models
+
+        1 model in project:
+            Initial_Model
+
+LASIF has some functionality to view the models. To launch the model viewer use
+the **plot_model** command together with the model name.
+
+.. code-block:: bash
+
+    lasif plot_model Initial_Model
+
+    Raw SES3D Model (split in 48 parts)
+        Setup:
+                Latitude: 34.10 - 42.90
+                Longitude: 23.10 - 42.90
+                Depth in km: 0.00 - 471.00
+                Total element count: 211787
+                Total grid point count: 13753701
+        Memory requirement per component: 52.5 MB
+        Available components: A, B, C, lambda, mu, rhoinv
+        Available derived components: rho, vp, vsh, vsv
+        Parsed components:
+
+    Enter 'COMPONENT DEPTH' ('quit' to exit):
+
+
+This will print some information about the model like the available components
+and the components it can derive from these. Keep in mind that for plotting one
+of the derived components it potentially has to load two or more components so
+keep an eye on your machines memory. The tool can currently plot horizontal
+slices for arbitrary components at arbitrary depths. To do this, simply type
+the component name and the desired depth in kilometer and hit enter. This opens
+a new window, e.g. for **vsv 100**:
+
+.. image:: images/vsv_100km.jpg
+    :width: 90%
+    :align: center
+
+Clicking at any point of the model pops up a vertical profile of the chosen
+component at the clicked position. Closing the window again will enable you to
+plot a different component or different depth. To leave the model viewer simply
+type **quit**.
 
 
 Indices and tables

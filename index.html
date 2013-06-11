@@ -806,110 +806,210 @@ time series and a time frequency representation of the source time function.</p>
 <img alt="_images/index-5.png" src="_images/index-5.png" />
 </div>
 </div>
+<div class="section" id="data-preprocessing">
+<h3>Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Permalink to this headline">¶</a></h3>
+<p>Data preprocessing is an essential step if one wants to compare data and
+seismograms. It serves several purposes: Restricting the frequency content of
+the data to that of the synthetics - what is not simulated can no be seen in
+synthetic seismograms. Remove the instrument response and convert to the same
+units used for the synthetics (usually ms). Furthermore any linear trends and
+static offset are removed and the some processing has to be performed so that
+the data is available at the same points in time as the synthetics. The goal of
+the preprocessing within LASIF is to create data that is directly comparable to
+simulated data without any more processing.</p>
+<p>The applied processing is identified via the folder name:</p>
+<div class="highlight-python"><pre>preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000</pre>
+</div>
+<p>or (in Python terms):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
+<span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">8.0</span>
+<span class="n">npts</span> <span class="o">=</span> <span class="mi">4000</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.13</span>
+
+<span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
+    <span class="s">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">highpass</span><span class="o">=</span><span class="n">highpass</span><span class="p">,</span> <span class="n">lowpass</span><span class="o">=</span><span class="n">lowpass</span><span class="p">,</span>
+    <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>You can use any processing tool you want, but you have to adhere to the
+directory structure otherwise LASIF will not be able to work with the data.
+It is furthermore important that the processed filenames are identical to
+the unprocessed ones.</p>
+<p class="last">If you feel that additional identifiers are needed to uniquely identify the
+applied processing (in the limited setting of being useful for the here
+performed full waveform inversion) please contact the LASIF developers.</p>
+</div>
+<p>You can of course also simply utilize LASIF&#8217;s built-in preprocessing. Using it
+is trivial, just launch the <strong>preprocess_data</strong> command together with the
+iteration name.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif preprocess_data 1
+</pre></div>
+</div>
+<p>This will start a fully parallelized preprocessing for all data required for
+the specified iteration. It will utilize all your machine&#8217;s cores and might
+take a while. If you repeat the command it will only process data not already
+processed; an advantages is that you can cancel the processing at any time and
+then later on just execute the command again to continue where you left off.
+This usually only needs to be done every couple of iterations when you decide
+to go to higher frequencies or add new data.</p>
+<p>The preprocessed data will be put in the correct folder.</p>
+</div>
+<div class="section" id="data-rejection">
+<h3>Data Rejection<a class="headerlink" href="#data-rejection" title="Permalink to this headline">¶</a></h3>
+<p>Coming soon...watch this space.</p>
+<p>This concludes the initial setup for each iteration. The next steps is to
+actually simulate anything and LASIF of course also assists in that regard.</p>
+</div>
 </div>
 <div class="section" id="generating-ses3d-input-files">
 <h2>Generating SES3D Input Files<a class="headerlink" href="#generating-ses3d-input-files" title="Permalink to this headline">¶</a></h2>
 <p>LASIF is currently capable of producing input files for SES3D 4.0. It is very
 straightforward and knows what data is available for every event and thus can
-generate these files fully automatically.</p>
-<div class="section" id="preparatory-steps">
-<h3>Preparatory Steps<a class="headerlink" href="#preparatory-steps" title="Permalink to this headline">¶</a></h3>
-<p>Before the first input file can be generated some preparatory steps need to be
-performed. This is only necessary once at the start or when you make
-significant changes to how the simulations are performed.</p>
-<div class="section" id="input-file-templates">
-<h4>Input File Templates<a class="headerlink" href="#input-file-templates" title="Permalink to this headline">¶</a></h4>
-<p>At least almost fully automatically. It is necessary to create a template with
-the non-derivable configuration values first. This template will then be used
-as a basis for all generated input files. It is possible (and encouraged) to
-created multiple templates to cover various situations.</p>
-<p>To create a basic template (in this case for SES3D 4.0) run:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_file_template ses3d_4_0
+generate these files fully automatically. In the future it might be worth
+investigating automatic job submission to high performance machines as this is
+essentially just repetitive and error-prone work.</p>
+<p>The iteration XML file also governs the solver used and the specific settings
+used for the given iteration, e.g. the settings for the SES3D 4.0 solver are
+shown here.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;solver_parameters&gt;</span>
+  <span class="nt">&lt;solver&gt;</span>SES3D 4.0<span class="nt">&lt;/solver&gt;</span>
+  <span class="nt">&lt;solver_settings&gt;</span>
+    <span class="nt">&lt;simulation_parameters&gt;</span>
+      <span class="nt">&lt;number_of_time_steps&gt;</span>4000<span class="nt">&lt;/number_of_time_steps&gt;</span>
+      <span class="nt">&lt;time_increment&gt;</span>0.13<span class="nt">&lt;/time_increment&gt;</span>
+      <span class="nt">&lt;is_dissipative&gt;</span>false<span class="nt">&lt;/is_dissipative&gt;</span>
+    <span class="nt">&lt;/simulation_parameters&gt;</span>
+    <span class="nt">&lt;output_directory&gt;</span>../OUTPUT/CHANGE_ME/{{EVENT_NAME}}<span class="nt">&lt;/output_directory&gt;</span>
+    <span class="nt">&lt;adjoint_output_parameters&gt;</span>
+      <span class="nt">&lt;sampling_rate_of_forward_field&gt;</span>10<span class="nt">&lt;/sampling_rate_of_forward_field&gt;</span>
+      <span class="nt">&lt;forward_field_output_directory&gt;</span>
+          ../OUTPUT/CHANGE_ME/ADJOINT/{{EVENT_NAME}}
+      <span class="nt">&lt;/forward_field_output_directory&gt;</span>
+    <span class="nt">&lt;/adjoint_output_parameters&gt;</span>
+    <span class="nt">&lt;computational_setup&gt;</span>
+      <span class="nt">&lt;nx_global&gt;</span>66<span class="nt">&lt;/nx_global&gt;</span>
+      <span class="nt">&lt;ny_global&gt;</span>108<span class="nt">&lt;/ny_global&gt;</span>
+      <span class="nt">&lt;nz_global&gt;</span>28<span class="nt">&lt;/nz_global&gt;</span>
+      <span class="nt">&lt;lagrange_polynomial_degree&gt;</span>4<span class="nt">&lt;/lagrange_polynomial_degree&gt;</span>
+      <span class="nt">&lt;px_processors_in_theta_direction&gt;</span>3<span class="nt">&lt;/px_processors_in_theta_direction&gt;</span>
+      <span class="nt">&lt;py_processors_in_phi_direction&gt;</span>4<span class="nt">&lt;/py_processors_in_phi_direction&gt;</span>
+      <span class="nt">&lt;pz_processors_in_r_direction&gt;</span>4<span class="nt">&lt;/pz_processors_in_r_direction&gt;</span>
+    <span class="nt">&lt;/computational_setup&gt;</span>
+  <span class="nt">&lt;/solver_settings&gt;</span>
+<span class="nt">&lt;/solver_parameters&gt;</span>
 </pre></div>
 </div>
-<p>This will create a (hopefully self-explaining) XML input file template, that <strong>MUST BE EDITED</strong>.</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
-<span class="nt">&lt;ses3d_4_0_input_file_template&gt;</span>
-  <span class="nt">&lt;simulation_parameters&gt;</span>
-    <span class="nt">&lt;number_of_time_steps&gt;</span>500<span class="nt">&lt;/number_of_time_steps&gt;</span>
-    <span class="nt">&lt;time_increment&gt;</span>0.75<span class="nt">&lt;/time_increment&gt;</span>
-    <span class="nt">&lt;is_dissipative&gt;</span>false<span class="nt">&lt;/is_dissipative&gt;</span>
-  <span class="nt">&lt;/simulation_parameters&gt;</span>
-  <span class="nt">&lt;output_directory&gt;</span>../OUTPUT/CHANGE_ME/<span class="nt">&lt;/output_directory&gt;</span>
-  <span class="nt">&lt;adjoint_output_parameters&gt;</span>
-    <span class="nt">&lt;sampling_rate_of_forward_field&gt;</span>10<span class="nt">&lt;/sampling_rate_of_forward_field&gt;</span>
-    <span class="nt">&lt;forward_field_output_directory&gt;</span>../OUTPUT/CHANGE_ME/ADJOINT<span class="nt">&lt;/forward_field_output_directory&gt;</span>
-  <span class="nt">&lt;/adjoint_output_parameters&gt;</span>
-  <span class="nt">&lt;computational_setup&gt;</span>
-    <span class="nt">&lt;nx_global&gt;</span>15<span class="nt">&lt;/nx_global&gt;</span>
-    <span class="nt">&lt;ny_global&gt;</span>15<span class="nt">&lt;/ny_global&gt;</span>
-    <span class="nt">&lt;nz_global&gt;</span>10<span class="nt">&lt;/nz_global&gt;</span>
-    <span class="nt">&lt;lagrange_polynomial_degree&gt;</span>4<span class="nt">&lt;/lagrange_polynomial_degree&gt;</span>
-    <span class="nt">&lt;px_processors_in_theta_direction&gt;</span>1<span class="nt">&lt;/px_processors_in_theta_direction&gt;</span>
-    <span class="nt">&lt;py_processors_in_phi_direction&gt;</span>1<span class="nt">&lt;/py_processors_in_phi_direction&gt;</span>
-    <span class="nt">&lt;pz_processors_in_r_direction&gt;</span>1<span class="nt">&lt;/pz_processors_in_r_direction&gt;</span>
-  <span class="nt">&lt;/computational_setup&gt;</span>
-<span class="nt">&lt;/ses3d_4_0_input_file_template&gt;</span>
-</pre></div>
-</div>
-<p>In case something is not fully clear, please refer to the SES3D 4.0 manual or contact the author. It is important to understand that each template file will be used as basis for all generated input files.</p>
-<p>Input file templates are again refered to by their filename minus the XML
-extension. To get a list of all available templates use:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_input_file_templates
-
-Project has 1 input file template:
-        ses3d_4_0_template
-</pre></div>
-</div>
-<p>You can (and maybe should) rename the actual template files to make it more
-descriptive.</p>
-</div>
-</div>
+<p>Most things should be self-explanatory.  In case something is not fully clear,
+please refer to the SES3D 4.0 manual or contact the author. As previously
+mentioned the <strong>{{EVENT_NAME}}</strong> placeholder will be replaced with the actual
+event. Please take care that what you put in here it correct, otherwise the
+simulations will not work. The settings shown here coincide with the settings
+used in the SES3D 4.0 tutorial so we will just use those here.</p>
 <div class="section" id="input-file-generation">
 <h3>Input File Generation<a class="headerlink" href="#input-file-generation" title="Permalink to this headline">¶</a></h3>
-<p>Now that all requirements are fulfilled we can finally generate the input
-files. Input files are generated  with the command</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files EVENT_NAME TEMPLATE_NAME TYPE SOURCE_TIME_FCT
+<p>The actual input file generation is now very straightforward:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
 </pre></div>
 </div>
 <p><strong>TYPE</strong> has to be one of</p>
 <blockquote>
 <div><ul class="simple">
-<li><em>normal_simulation</em></li>
-<li><em>adjoint_forward</em></li>
-<li><em>adjoint_reverse</em></li>
+<li><em>normal_simulation</em> - Use this if you want to get some waveforms.</li>
+<li><em>adjoint_forward</em> - Use this for the forward adjoint simulation. Please
+note that it requires a huge amount of disk space for the forward
+wavefield.</li>
+<li><em>adjoint_reverse</em> - Use this for the adjoint simulation. This requires
+that the adjoint sources have already been calculated. More on that later
+on.</li>
 </ul>
 </div></blockquote>
-<p>The other parameters have to correspond to files in the project folder. Please
-remember that you can different commands to figure out what files are part of
-the project.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_events
-2 events in project:
-        GCMT_event_AZORES-CAPE_ST._VINCENT_RIDGE_Mag_6.0_2007-2-12-10-35
-                GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9
-
-<span class="nv">$ </span>lasif list_input_file_templates
-Project has 1 input file template:
-        ses3d_4_0_template
-
-<span class="nv">$ </span>lasif list_stf
-Project has 1 defined <span class="nb">source time </span><span class="k">function</span>:
-        heaviside_60s_500s
+<p>The other parameters should be clear.</p>
+<p>For this tutorial you can generate input files for both events with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 adjoint_forward
+<span class="nv">$ </span>lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 adjoint_forward
 </pre></div>
 </div>
-<p>Once everything is figured out, actual input files can be generated with:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files GCMT_event_AZORES_ISLANDS_REGION_Mag_6.1_2007-4-7-7-9 <span class="se">\</span>
-    ses3d_4_0_template normal_simulation heaviside_60s_500s
-
-Written files to <span class="s1">&#39;.../OUTPUT/input_files___ses3d_4_0_template___2013-03-26T20:04:24.005713&#39;</span>.
-</pre></div>
-</div>
+<p>This will place input files in the <em>OUTPUT</em> subdirectory of the project. In
+general it is advisable to never delete the input files to facilitate
+provenance and reproducibility.</p>
 <p>If you are working in a rotated domain, all station coordinates and moment
-tensors will automatically been rotated accordingly so that the actual
-simulation can take place in an unrotated frame of reference.</p>
+tensors will automatically be rotated accordingly so that the actual simulation
+can take place in an unrotated frame of reference.</p>
 <p>Together with some models, these file can directly be used to run SES3D. For
 the first couple of runs it is likely a good idea to check these file by hand
 to verify your setup and potentially also the correctness of this tool suite.</p>
+</div>
+</div>
+<div class="section" id="organizing-the-models">
+<h2>Organizing the Models<a class="headerlink" href="#organizing-the-models" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="short-deviation-creating-an-initial-model-with-ses3d-4-0">
+<h3>Short Deviation: Creating an initial model with SES3D 4.0<a class="headerlink" href="#short-deviation-creating-an-initial-model-with-ses3d-4-0" title="Permalink to this headline">¶</a></h3>
+<p>This is very quick tutorial to help you get up to speed with the model
+generation for this tutorial with SES3D 4.0. You will still need to read the
+SES3D manual. This part assumes that you created the input files according to
+the previous section and that you have a copy of SES3D on the supercomputer.
+Please not that you will have to adjust settings if you did not follow along
+with the tutorial. The following has to take place on a machine with at least
+48 available CPU cores.</p>
+<ol class="arabic simple">
+<li>Copy all generated input files to <em>SES3D/INPUT</em>.</li>
+<li>Edit <em>nx_max</em>, <em>ny_max</em>, <em>nz_max</em> in <em>SES3D/SOURCE/ses3d_modules.f90</em></li>
+<li>Compile SES3D and model tools (execute <em>s_make</em> in <em>SES3D/MODELS/MODELS</em> and
+<em>SOURCE</em>).</li>
+<li>Generate a homogeneous model by launching
+<em>SES3D/MODELS/MAIN/generate_models.exe</em> with 48 cores.</li>
+<li>Now add some perturbations to get a 3D model by running
+<em>SES3D/MODELS/MAIN/add_perturbation.exe</em> with 48 cores.</li>
+</ol>
+<p>You should now have lots of files in <em>SES3D/MODELS/MODELS</em>. These represent the
+model in a format SES3D can use.</p>
+</div>
+<div class="section" id="models-in-lasif">
+<h3>Models in LASIF<a class="headerlink" href="#models-in-lasif" title="Permalink to this headline">¶</a></h3>
+<p>LASIF can directly deal with the models used in SES3D. Each model has to placed
+in a subfolder of <em>MODELS</em>. The folder name will again be used to identify the
+model. For this tutorial, place the just created files in
+<em>MODELS/Intial_Model</em>.</p>
+<p>Now you are able to use the <strong>list_models</strong> commands.</p>
+<div class="highlight-bash"><div class="highlight"><pre>lasif list_models
+
+    1 model in project:
+        Initial_Model
+</pre></div>
+</div>
+<p>LASIF has some functionality to view the models. To launch the model viewer use
+the <strong>plot_model</strong> command together with the model name.</p>
+<div class="highlight-bash"><div class="highlight"><pre>lasif plot_model Initial_Model
+
+Raw SES3D Model <span class="o">(</span>split in 48 parts<span class="o">)</span>
+    Setup:
+            Latitude: 34.10 - 42.90
+            Longitude: 23.10 - 42.90
+            Depth in km: 0.00 - 471.00
+            Total element count: 211787
+            Total grid point count: 13753701
+    Memory requirement per component: 52.5 MB
+    Available components: A, B, C, lambda, mu, rhoinv
+    Available derived components: rho, vp, vsh, vsv
+    Parsed components:
+
+Enter <span class="s1">&#39;COMPONENT DEPTH&#39;</span> <span class="o">(</span><span class="s1">&#39;quit&#39;</span> to <span class="nb">exit</span><span class="o">)</span>:
+</pre></div>
+</div>
+<p>This will print some information about the model like the available components
+and the components it can derive from these. Keep in mind that for plotting one
+of the derived components it potentially has to load two or more components so
+keep an eye on your machines memory. The tool can currently plot horizontal
+slices for arbitrary components at arbitrary depths. To do this, simply type
+the component name and the desired depth in kilometer and hit enter. This opens
+a new window, e.g. for <strong>vsv 100</strong>:</p>
+<img alt="_images/vsv_100km.jpg" class="align-center" src="_images/vsv_100km.jpg" style="width: 90%;" />
+<p>Clicking at any point of the model pops up a vertical profile of the chosen
+component at the clicked position. Closing the window again will enable you to
+plot a different component or different depth. To leave the model viewer simply
+type <strong>quit</strong>.</p>
 </div>
 </div>
 </div>
@@ -957,14 +1057,17 @@ to verify your setup and potentially also the correctness of this tool suite.</p
 <li><a class="reference internal" href="#defining-a-new-iteration">Defining a New Iteration</a><ul>
 <li><a class="reference internal" href="#the-iteration-xml-files">The Iteration XML Files</a></li>
 <li><a class="reference internal" href="#source-time-functions">Source Time Functions</a></li>
+<li><a class="reference internal" href="#data-preprocessing">Data Preprocessing</a></li>
+<li><a class="reference internal" href="#data-rejection">Data Rejection</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#generating-ses3d-input-files">Generating SES3D Input Files</a><ul>
-<li><a class="reference internal" href="#preparatory-steps">Preparatory Steps</a><ul>
-<li><a class="reference internal" href="#input-file-templates">Input File Templates</a></li>
+<li><a class="reference internal" href="#input-file-generation">Input File Generation</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#input-file-generation">Input File Generation</a></li>
+<li><a class="reference internal" href="#organizing-the-models">Organizing the Models</a><ul>
+<li><a class="reference internal" href="#short-deviation-creating-an-initial-model-with-ses3d-4-0">Short Deviation: Creating an initial model with SES3D 4.0</a></li>
+<li><a class="reference internal" href="#models-in-lasif">Models in LASIF</a></li>
 </ul>
 </li>
 </ul>
