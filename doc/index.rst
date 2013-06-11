@@ -1223,6 +1223,47 @@ plot a different component or different depth. To leave the model viewer simply
 type **quit**.
 
 
+Synthetics
+----------
+
+Now that everything is set up, you have to actually perform the simulations.
+Please keep in mind that the adjoint forward simulation require a very large
+amount of disc space due to the need to store the forward wavefield. **The
+example for this tutorial requires around 450 GB.**
+
+The important output of the simulation are the waveform files. These should be
+placed in the *SYNTHETICS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}* folder.
+So for the given examples, they should be placed in the
+*SYNTHETICS/GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/ITERATION_1* and
+*SYNTHETICS/GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/ITERATION_1*. Just put
+the raw output files of the simulation in the corresponding folder; there is
+no need to process them in any way.
+
+
+Misfit and Adjoint Source Calculation
+-------------------------------------
+
+In order to simulate the adjoint wavefield one needs to calculate the adjoint
+sources. An adjoint source is usually dependent on the misfit between the
+synthetics and real data.
+
+LASIF currently supports misfits in the time-frequency domain as defined by
+Fichtner, 2008. Great care has to be taken to avoid cycle skips/phase jumps
+between synthetics and data. This is achieved by careful windowing.
+
+To this end, LASIF comes with a graphical utility dubbed the Misfit GUI, that
+helps to pick correct windows.
+
+To launch it, execute the **launch_misfit_gui** together with the iteration
+name and the event name.
+
+.. code-block:: bash
+
+    $ lasif launch_misfit_gui 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+
+
+
+
 Indices and tables
 ==================
 
