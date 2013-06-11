@@ -653,8 +653,17 @@ class Project(object):
         gen.config.adjoint_forward_sampling_rate = \
             solver["adjoint_output_parameters"][
                 "sampling_rate_of_forward_field"]
-        gen.config.is_dissipative = \
-            solver["simulation_parameters"]["is_dissipative"]
+
+        diss = solver["simulation_parameters"]["is_dissipative"]
+        if diss.lower() == "false":
+            diss = False
+        elif diss.lower() == "true":
+            diss = True
+        else:
+            msg = ("is_dissipative value of '%s' unknown. Choose "
+                "true or false.") % diss
+            raise ValueError(msg)
+        gen.config.is_dissipative = diss
 
         # Discretization
         disc = solver["computational_setup"]
