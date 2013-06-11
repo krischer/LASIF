@@ -1127,13 +1127,47 @@ For this tutorial you can generate input files for both events with
     $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 adjoint_forward
 
 
+This will place input files in the *OUTPUT* subdirectory of the project. In
+general it is advisable to never delete the input files to facilitate
+provenance and reproducibility.
+
 If you are working in a rotated domain, all station coordinates and moment
-tensors will automatically been rotated accordingly so that the actual
-simulation can take place in an unrotated frame of reference.
+tensors will automatically be rotated accordingly so that the actual simulation
+can take place in an unrotated frame of reference.
 
 Together with some models, these file can directly be used to run SES3D. For
 the first couple of runs it is likely a good idea to check these file by hand
 to verify your setup and potentially also the correctness of this tool suite.
+
+
+Organizing the Models
+---------------------
+
+Short Deviation: Creating an initial model with SES3D 4.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is very quick tutorial to help you get up to speed with the model
+generation for this tutorial with SES3D 4.0. You will still need to read the
+SES3D manual. This part assumes that you created the input files according to
+the previous section and that you have a copy of SES3D on the supercomputer.
+Please not that you will have to adjust settings if you did not follow along
+with the tutorial. The following has to take place on a machine with at least
+48 available CPU cores.
+
+1. Copy all generated input files to *SES3D/INPUT*.
+2. Edit *nx_max*, *ny_max*, *nz_max* in *SES3D/SOURCE/ses3d_modules.f90*
+3. Compile SES3D and model tools (execute *s_make* in *SES3D/MODELS/MODELS* and
+   *SOURCE*).
+4. Generate a homogeneous model by launching
+   *SES3D/MODELS/MAIN/generate_models.exe* with 48 cores.
+5. Now add some perturbations to get a 3D model by running
+   *SES3D/MODELS/MAIN/add_perturbation.exe* with 48 cores.
+
+You should now have lots of files in *SES3D/MODELS/MODELS*. These represent the
+model in a format SES3D can use.
+
+Models in LASIF
+^^^^^^^^^^^^^^^
 
 
 Indices and tables
