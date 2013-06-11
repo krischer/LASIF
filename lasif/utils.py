@@ -51,57 +51,6 @@ def table_printer(header, data):
         print row_format.format(*row)
 
 
-def generate_ses3d_4_0_template():
-    """
-    Generates a template for SES3D input files.
-
-    Returns the etree representation.
-    """
-    doc = E.solver_settings(
-        E.simulation_parameters(
-            E.number_of_time_steps("500"),
-            E.time_increment("0.75"),
-            E.is_dissipative("false")),
-        E.output_directory("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
-        E.adjoint_output_parameters(
-            E.sampling_rate_of_forward_field("10"),
-            E.forward_field_output_directory(
-                "../OUTPUT/CHANGE_ME/ADJOINT/{{EVENT_NAME}}")),
-        E.computational_setup(
-            E.nx_global("15"),
-            E.ny_global("15"),
-            E.nz_global("10"),
-            E.lagrange_polynomial_degree("4"),
-            E.px_processors_in_theta_direction("1"),
-            E.py_processors_in_phi_direction("1"),
-            E.pz_processors_in_r_direction("1")))
-    return doc
-
-
-def read_ses3d_4_0_template(filename):
-    """
-    Reads a SES3D template file to a dictionary.
-    """
-    # Convert it to a recursive dictionary.
-    root = etree.parse(filename).getroot()
-    input_file = recursive_dict(root)
-    # Small sanity check.
-    # XXX: Replace with xsd.
-    if input_file[0] != "ses3d_4_0_input_file_template":
-        msg = "Not a SES3D 4.0 compatible templates."
-        raise ValueError(msg)
-    input_file = input_file[1]
-
-    # Convert some types.
-    dis = input_file["simulation_parameters"]["is_dissipative"]
-    if dis.lower() == "true":
-        dis = True
-    else:
-        dis = False
-    input_file["simulation_parameters"]["is_dissipative"] = dis
-    return input_file
-
-
 def recursive_dict(element):
     """
     Maps an XML tree into a dict of dict.
