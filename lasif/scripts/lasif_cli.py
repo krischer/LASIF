@@ -419,18 +419,19 @@ def lasif_launch_misfit_gui(args):
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
 
-    event = proj.get_event(event_name)
-
     from lasif.misfit_gui import MisfitGUI
     from lasif.window_manager import MisfitWindowManager
 
     iterator = proj.data_synthetic_iterator(event_name, iteration_name)
 
+    long_iteration_name = "ITERATION_%s" % iteration_name
+
     window_directory = os.path.join(proj.paths["windows"], event_name,
-        iteration_name)
-    window_manager = MisfitWindowManager(window_directory, iteration_name,
+        long_iteration_name)
+    window_manager = MisfitWindowManager(window_directory, long_iteration_name,
         event_name)
 
+    event = proj.get_event(event_name)
     MisfitGUI(event, iterator, proj, window_manager)
 
 

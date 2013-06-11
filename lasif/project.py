@@ -370,27 +370,6 @@ class Project(object):
             iterations[iteration_name] = iteration
         return iterations
 
-    def _get_iteration_process_params(self, iteration):
-        """
-        Small helper function retrieving the most important iteration
-        parameters.
-        """
-        highpass = 1.0 / iteration.data_preprocessing["highpass_period"]
-        lowpass = 1.0 / iteration.data_preprocessing["lowpass_period"]
-
-        npts = iteration.solver_settings["solver_settings"][
-            "simulation_parameters"]["number_of_time_steps"]
-        dt = iteration.solver_settings["solver_settings"][
-            "simulation_parameters"]["time_increment"]
-        stf = iteration.source_time_function
-
-        return {
-            "highpass": float(highpass),
-            "lowpass": float(lowpass),
-            "npts": int(npts),
-            "dt": float(dt),
-            "stf": stf}
-
     def _get_iteration(self, iteration_name):
         """
         Helper method to read a certain iteration.
@@ -410,11 +389,8 @@ class Project(object):
 
         iteration = self._get_iteration(iteration_name)
 
-        process_params = self._get_iteration_process_params(iteration)
-        # Generate a preprocessing tag. This will identify the used
-        # preprocessing so that duplicates can be avoided.
-        processing_tag = ("preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_"
-            "npts_{npts}_dt_{dt:5f}").format(**process_params)
+        process_params = iteration.get_process_params()
+        processing_tag = iteration.get_processing_tag()
 
         def processing_data_generator():
             for event_name, event in iteration.events.iteritems():
@@ -815,8 +791,7 @@ class Project(object):
 
         return stations
 
-    def data_synthetic_iterator(self, event_name, data_tag, synthetic_tag,
-            highpass, lowpass):
+    def data_synthetic_iterator(self, event_name, iteration_name):
         from lasif import rotations
         import numpy as np
         from obspy import read, Stream, UTCDateTime
@@ -824,15 +799,27 @@ class Project(object):
         from scipy.interpolate import interp1d
 
         event_info = self.get_event_info(event_name)
+        iteration = self._get_iteration(iteration_name)
+        iteration_stations = iteration.events[event_name]["stations"].keys()
 
-        stations = self.get_stations_for_event(event_name)
+        stations = {key: value for key, value in
+            self.get_stations_for_event(event_name).iteritems() if key in
+            iteration_stations}
+
         waveforms = \
-            self._get_waveform_cache_file(event_name, data_tag).get_values()
+            self._get_waveform_cache_file(event_name,
+                iteration.get_processing_tag()).get_values()
 
+        long_iteration_name = "ITERATION_%s" % iteration_name
         synthetics_path = os.path.join(self.paths["synthetics"], event_name,
-            synthetic_tag)
+            long_iteration_name)
         synthetic_files = {os.path.basename(_i).replace("_", ""): _i for _i in
             glob.iglob(os.path.join(synthetics_path, "*"))}
+
+        if not synthetic_files:
+            msg = "Could not find any synthetic files in '%s'." % \
+                synthetics_path
+            raise ValueError(msg)
 
         SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
 
@@ -867,25 +854,9 @@ class Project(object):
                 # corresponding station file and check the coordinates.
                 this_waveforms = {_i["channel_id"]: _i for _i in waveforms
                     if _i["channel_id"].startswith(station_id + ".")}
-                marked_for_deletion = []
+
                 for key, value in this_waveforms.iteritems():
-                    value["trace"] = read(value["filename"])[0]
-                    data += value["trace"]
-                    value["station_file"] = \
-                        station_cache.get_station_filename(
-                            value["channel_id"],
-                            UTCDateTime(value["starttime_timestamp"]))
-                    if value["station_file"] is None:
-                        marked_for_deletion.append(key)
-                        msg = ("Warning: Data and station information for '%s'"
-                               " is available, but the station information "
-                               "only for the wrong timestamp. You should try "
-                               "and retrieve the correct station file.")
-                        warnings.warn(msg % value["channel_id"])
-                        continue
-                    data[-1].stats.station_file = value["station_file"]
-                for key in marked_for_deletion:
-                    del this_waveforms[key]
+                    data += read(value["filename"])[0]
                 if not this_waveforms:
                     msg = "Could not retrieve data for station '%s'." % \
                         station_id
@@ -912,81 +883,6 @@ class Project(object):
                         synth.data *= -1.0
                     synth.stats.channel = SYNTH_MAPPING[synth.stats.channel]
                     synth.stats.starttime = event_info["origin_time"]
-
-                # Process the data.
-                len_synth = synthetics[0].stats.endtime - \
-                    synthetics[0].stats.starttime
-                data.trim(synthetics[0].stats.starttime - len_synth * 0.05,
-                    synthetics[0].stats.endtime + len_synth * 0.05)
-                if data:
-                    max_length = max([tr.stats.npts for tr in data])
-                else:
-                    max_length = 0
-                if max_length == 0:
-                    msg = ("Warning: After trimming the waveform data to "
-                        "the time window of the synthetics, no more data is "
-                        "left. The reference time is the one given in the "
-                        "QuakeML file. Make sure it is correct and that "
-                        "the waveform data actually contains data in that "
-                        "time span.")
-                    warnings.warn(msg)
-                data.detrend("linear")
-                data.taper()
-
-                new_time_array = np.linspace(
-                    synthetics[0].stats.starttime.timestamp,
-                    synthetics[0].stats.endtime.timestamp,
-                    synthetics[0].stats.npts)
-
-                # Simulate the traces.
-                for trace in data:
-                    # Decimate in case there is a large difference between
-                    # synthetic sampling rate and sampling_rate of the data.
-                    # XXX: Ugly filter, change!
-                    if trace.stats.sampling_rate > (6 *
-                            synth.stats.sampling_rate):
-                        new_nyquist = trace.stats.sampling_rate / 2.0 / 5.0
-                        trace.filter("lowpass", freq=new_nyquist, corners=4,
-                            zerophase=True)
-                        trace.decimate(factor=5, no_filter=None)
-
-                    station_file = trace.stats.station_file
-                    if "/SEED/" in station_file:
-                        paz = Parser(station_file).getPAZ(trace.id,
-                            trace.stats.starttime)
-                        trace.simulate(paz_remove=paz)
-                    elif "/RESP/" in station_file:
-                        trace.simulate(seedresp={"filename": station_file,
-                            "units": "VEL", "date": trace.stats.starttime})
-                    else:
-                        raise NotImplementedError
-
-                    # Make sure that the data array is at least as long as the
-                    # synthetics array. Also add some buffer sample for the
-                    # spline interpolation to work in any case.
-                    buf = synth.stats.delta * 5
-                    if synth.stats.starttime < (trace.stats.starttime + buf):
-                        trace.trim(starttime=synth.stats.starttime - buf,
-                            pad=True, fill_value=0.0)
-                    if synth.stats.endtime > (trace.stats.endtime - buf):
-                        trace.trim(endtime=synth.stats.endtime + buf, pad=True,
-                            fill_value=0.0)
-
-                    old_time_array = np.linspace(
-                        trace.stats.starttime.timestamp,
-                        trace.stats.endtime.timestamp,
-                        trace.stats.npts)
-
-                    # Interpolation.
-                    trace.data = interp1d(old_time_array, trace.data,
-                        kind=1)(new_time_array)
-                    trace.stats.starttime = synthetics[0].stats.starttime
-                    trace.stats.sampling_rate = \
-                        synthetics[0].stats.sampling_rate
-
-                data.filter("bandpass", freqmin=lowpass, freqmax=highpass)
-                synthetics.filter("bandpass", freqmin=lowpass,
-                    freqmax=highpass)
 
                 # Rotate the synthetics if nessesary.
                 if self.rot_angle:
