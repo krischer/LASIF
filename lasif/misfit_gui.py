@@ -18,6 +18,7 @@ matplotlib.rcParams['toolbar'] = 'None'
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+from matplotlib.ticker import FormatStrFormatter
 from matplotlib.widgets import Button
 
 from matplotlib_selection_rectangle import WindowSelectionRectangle
@@ -63,7 +64,7 @@ class MisfitGUI:
             rowspan=3)
         #self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0), colspan=4,
             #rowspan=1)
-        self.map_axis = plt.subplot2grid((6, 20), (3, 13), colspan=8,
+        self.map_axis = plt.subplot2grid((6, 20), (3, 14), colspan=7,
             rowspan=3)
 
         # Plot the map and the beachball.
@@ -202,6 +203,11 @@ class MisfitGUI:
         self.plot_axis_z.cla()
         self.plot_axis_n.cla()
         self.plot_axis_e.cla()
+
+        # Set a custom tick formatter.
+        self.plot_axis_z.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
+        self.plot_axis_n.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
+        self.plot_axis_e.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
 
         s_stats = self.data["synthetics"][0].stats
         time_axis = np.linspace(0, s_stats.npts * s_stats.delta, s_stats.npts)
@@ -399,6 +405,14 @@ class MisfitGUI:
         adsrc = adsrc_tf_phase_misfit(t, data_d, synth_d, 5.0, 50.0,
             0.00000001, axis=self.misfit_axis,
             colorbar_axis=self.colorbar_axis)
+
+        # Format all the axis.
+        self.misfit_axis.yaxis.set_major_formatter(FormatStrFormatter("%.3f"))
+        self.misfit_axis.twin_axis.yaxis.set_major_formatter(
+            FormatStrFormatter("%.2g"))
+        self.colorbar_axis.yaxis.set_major_formatter(
+            FormatStrFormatter("%.1f"))
+
         plt.tight_layout()
         plt.draw()
 
