@@ -1285,8 +1285,8 @@ the following formula:
 Misfit GUI
 ^^^^^^^^^^
 
-To this end, LASIF comes with a graphical utility dubbed the Misfit GUI, that
-helps to pick correct windows.
+LASIF comes with a graphical utility dubbed the Misfit GUI, that helps to pick
+correct windows.
 
 To launch it, execute the **launch_misfit_gui** together with the iteration
 name and the event name.
@@ -1315,6 +1315,20 @@ part shows a simple map.
     point of view. Some operations might feel clunky. We might move to a proper
     GUI toolkit in the future.
 
+With the **Next** and **Prev** button you can jump from one station to the
+next. The **Reset Station** button will remove all windows for the current
+station.
+
+The weight for any window has to be chosen before the windows are picked. To
+chose the current weight, press the **w** key. At this point, the weight box
+will be red. Now simply type the desired new weight and press **Enter** to
+finish setting the new weight. All windows chosen from this point on will
+be assigned this weight.
+
+To actually choose a window simply drag in any of the waveform windows. Upon
+mouse button release the window will be saved and the adjoint source will be
+calculated. The number in the top left of each chosen window reflects the
+weight for that window.
 
 
 

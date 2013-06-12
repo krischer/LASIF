@@ -421,6 +421,7 @@ def lasif_launch_misfit_gui(args):
 
     from lasif.misfit_gui import MisfitGUI
     from lasif.window_manager import MisfitWindowManager
+    from lasif.adjoint_src_manager import AdjointSourceManager
 
     iterator = proj.data_synthetic_iterator(event_name, iteration_name)
 
@@ -428,11 +429,14 @@ def lasif_launch_misfit_gui(args):
 
     window_directory = os.path.join(proj.paths["windows"], event_name,
         long_iteration_name)
+    ad_src_directory = os.path.join(proj.paths["adjoint_sources"], event_name,
+        long_iteration_name)
     window_manager = MisfitWindowManager(window_directory, long_iteration_name,
         event_name)
+    adj_src_manager = AdjointSourceManager(ad_src_directory)
 
     event = proj.get_event(event_name)
-    MisfitGUI(event, iterator, proj, window_manager)
+    MisfitGUI(event, iterator, proj, window_manager, adj_src_manager)
 
 
 def lasif_create_new_iteration(args):
