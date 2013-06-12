@@ -31,6 +31,7 @@ from lasif.adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 class MisfitGUI:
     def __init__(self, event, seismogram_generator, project, window_manager,
             adjoint_source_directory=None):
+        plt.figure(figsize=(22, 12))
         self.event = event
         self.event_latitude = event.origins[0].latitude
         self.event_longitude = event.origins[0].longitude
@@ -165,12 +166,12 @@ class MisfitGUI:
         xmin = starttime - trace.stats.starttime
         width = endtime - starttime
         height = ymax - ymin
-        rect = Rectangle((xmin, ymin), width, height, color="0.6", alpha=0.5,
-            edgecolor="0.5")
+        rect = Rectangle((xmin, ymin), width, height, facecolor="0.6",
+            alpha=0.5, edgecolor="0.5")
         axis.add_patch(rect)
-        axis.text(x=xmin + 0.05 * width, y=ymax - 0.05 * height,
+        axis.text(x=xmin + 0.02 * width, y=ymax - 0.02 * height,
             s=str(window_weight), verticalalignment="top",
-            horizontalalignment="left", color="0.4")
+            horizontalalignment="left", color="0.4", weight=1000)
 
     def reset(self, event):
         for trace in self.data["data"]:
@@ -252,7 +253,7 @@ class MisfitGUI:
 
         lng, lats = self.map_obj([self.data["coordinates"]["longitude"]],
             [self.data["coordinates"]["latitude"]])
-        self.station_icon = self.map_axis.scatter(lng, lats, color="blue",
+        self.station_icon = self.map_axis.scatter(lng, lats, facecolor="blue",
             edgecolor="black", zorder=10000, marker="^", s=40)
 
         plt.draw()
