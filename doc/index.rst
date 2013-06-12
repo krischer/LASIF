@@ -1331,6 +1331,26 @@ calculated. The number in the top left of each chosen window reflects the
 weight for that window.
 
 
+Final Adjoint Source Calculation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+During window selection the adjoint source for each chosen window will be
+stored separately. To combine them to, apply the weighting scheme and convert
+them to a format, that SES3D can actually use, run the
+**finalize_adjoint_sources** command with the iteration name and the event
+name.
+
+.. code-block:: bash
+
+    $ lasif finalize_adjoint_sources 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+
+This will also rotate the adjoint sources to the frame of reference used in the
+simulations.
+
+If you pick any more windows or change them in any way, you need to run the
+command again.
+
+
 
 Indices and tables
 ==================
