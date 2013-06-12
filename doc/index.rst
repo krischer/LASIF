@@ -38,6 +38,19 @@ achieve reasonable performance it employs a transparent caching scheme able to
 quickly any changes the user makes to the data. Also important to keep in mind
 is that **LASIF will never delete any data**.
 
+
+TO DO: Things that are still missing
+====================================
+
+This is mainly useful for the developers.
+
+* Applying the time corrections for events and stations
+* Settings for the time frequency misfit
+* A clean way to integrate other misfits
+* Data rejection criteria implementation
+* Log more things for better provenance
+
+
 Supported Data Formats
 ======================
 
@@ -1328,7 +1341,7 @@ be assigned this weight.
 To actually choose a window simply drag in any of the waveform windows. Upon
 mouse button release the window will be saved and the adjoint source will be
 calculated. The number in the top left of each chosen window reflects the
-weight for that window.
+eight for that window.
 
 
 Final Adjoint Source Calculation
