@@ -50,9 +50,6 @@ class MisfitWindowManager(object):
             if element.tag == "Event":
                 windows["event"] = element.text
                 continue
-            elif element.tag == "StationWeight":
-                windows["station_weight"] = float(element.text)
-                continue
             elif element.tag == "ChannelId":
                 windows["channel_id"] = element.text
                 continue
@@ -80,7 +77,6 @@ class MisfitWindowManager(object):
         window = self.get_windows(channel_id)
         if not window:
             window["event"] = self.event_name
-            window["station_weight"] = 1.0
             window["channel_id"] = channel_id
             window["synthetic_tag"] = self.synthetic_tag
             window["windows"] = []
@@ -105,7 +101,6 @@ class MisfitWindowManager(object):
         doc = (
             E.MisfitWindow(
                 E.Event(window["event"]),
-                E.StationWeight(str(window["station_weight"])),
                 E.ChannelId(window["channel_id"]),
                 E.SyntheticsTag(window["synthetic_tag"]),
                 *windows))
