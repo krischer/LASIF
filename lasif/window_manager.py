@@ -50,7 +50,7 @@ class MisfitWindowManager(object):
             if element.tag == "Event":
                 windows["event"] = element.text
                 continue
-            elif element.tag == "ChannelId":
+            elif element.tag == "ChannelID":
                 windows["channel_id"] = element.text
                 continue
             elif element.tag == "SyntheticsTag":
@@ -101,7 +101,7 @@ class MisfitWindowManager(object):
         doc = (
             E.MisfitWindow(
                 E.Event(window["event"]),
-                E.ChannelId(window["channel_id"]),
+                E.ChannelID(window["channel_id"]),
                 E.SyntheticsTag(window["synthetic_tag"]),
                 *windows))
         with open(windowfile, "wb") as fh:
