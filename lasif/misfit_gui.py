@@ -363,6 +363,8 @@ class MisfitGUI:
 
         self.window_manager.write_window(trace.id, starttime, endtime,
             self.weight, "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
+        self.plot_window(component=trace.id[-1], starttime=starttime,
+            endtime=endtime, window_weight=self.weight)
 
         # Window the data.
         data_trimmed = data.copy()
