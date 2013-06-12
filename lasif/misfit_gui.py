@@ -225,6 +225,11 @@ class MisfitGUI:
                 axis.text(x=0.01, y=0.95, s=text, transform=axis.transAxes,
                     bbox=dict(facecolor='white', alpha=0.5),
                     verticalalignment="top")
+                axis.text(x=0.01, y=0.05, s="Data Scaling Factor: %.3g" %
+                    real_trace[0].stats.scaling_factor,
+                    transform=axis.transAxes, bbox=dict(facecolor='white',
+                        alpha=0.5), verticalalignment="bottom",
+                    horizontalalignment="left")
             else:
                 text = "No data, component %s" % component
                 axis.text(x=0.01, y=0.95, s=text, transform=axis.transAxes,

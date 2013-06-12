@@ -878,6 +878,23 @@ class Project(object):
                     synth.stats.channel = SYNTH_MAPPING[synth.stats.channel]
                     synth.stats.starttime = event_info["origin_time"]
 
+                # Scale the data
+                try:
+                    n_d_trace = data.select(component="N")[0]
+                except:
+                    n_d_trace = None
+                try:
+                    e_d_trace = data.select(component="E")[0]
+                except:
+                    e_d_trace = None
+                try:
+                    z_d_trace = data.select(component="Z")[0]
+                except:
+                    z_d_trace = None
+                n_s_trace = synthetics.select(component="N")[0]
+                e_s_trace = synthetics.select(component="E")[0]
+                z_s_trace = synthetics.select(component="Z")[0]
+
                 # Rotate the synthetics if nessesary.
                 if self.rot_angle:
                     # First rotate the station back to see, where it was
@@ -886,14 +903,29 @@ class Project(object):
                         coordinates["latitude"], coordinates["longitude"],
                         self.rot_axis, -self.rot_angle)
                     # Rotate the data.
-                    n_trace = synthetics.select(component="N")[0]
-                    e_trace = synthetics.select(component="E")[0]
-                    z_trace = synthetics.select(component="Z")[0]
-                    n, e, z = rotations.rotate_data(n_trace.data, e_trace.data,
-                        z_trace.data, lat, lng, self.rot_axis, self.rot_angle)
-                    n_trace.data = n
-                    e_trace.data = e
-                    z_trace.data = z
+                    n, e, z = rotations.rotate_data(n_s_trace.data,
+                        e_s_trace.data, z_s_trace.data, lat, lng,
+                        self.rot_axis, self.rot_angle)
+                    n_s_trace.data = n
+                    e_s_trace.data = e
+                    z_s_trace.data = z
+
+                # Scale the data to the synthetics.
+                if n_d_trace:
+                    scaling_factor = n_s_trace.data.ptp() / \
+                        n_d_trace.data.ptp()
+                    n_d_trace.stats.scaling_factor = scaling_factor
+                    n_d_trace.data *= scaling_factor
+                if e_d_trace:
+                    scaling_factor = e_s_trace.data.ptp() / \
+                        e_d_trace.data.ptp()
+                    e_d_trace.stats.scaling_factor = scaling_factor
+                    e_d_trace.data *= scaling_factor
+                if z_d_trace:
+                    scaling_factor = z_s_trace.data.ptp() / \
+                        z_d_trace.data.ptp()
+                    z_d_trace.stats.scaling_factor = scaling_factor
+                    z_d_trace.data *= scaling_factor
 
                 return {"data": data, "synthetics": synthetics,
                     "coordinates": coordinates}
