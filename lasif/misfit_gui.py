@@ -145,10 +145,11 @@ class MisfitGUI:
                 continue
             for window in windows["windows"]:
                 self.plot_window(component=windows["channel_id"][-1],
-                    starttime=window["starttime"], endtime=window["endtime"])
+                    starttime=window["starttime"], endtime=window["endtime"],
+                    window_weight=window["weight"])
         plt.draw()
 
-    def plot_window(self, component, starttime, endtime):
+    def plot_window(self, component, starttime, endtime, window_weight):
         if component == "Z":
             axis = self.plot_axis_z
         elif component == "N":
@@ -161,10 +162,15 @@ class MisfitGUI:
         trace = self.data["synthetics"][0]
 
         ymin, ymax = axis.get_ylim()
-        rect = Rectangle((starttime - trace.stats.starttime, ymin),
-            endtime - starttime, ymax - ymin, color="0.6",
-            alpha=0.5, edgecolor="0.5")
+        xmin = starttime - trace.stats.starttime
+        width = endtime - starttime
+        height = ymax - ymin
+        rect = Rectangle((xmin, ymin), width, height, color="0.6", alpha=0.5,
+            edgecolor="0.5")
         axis.add_patch(rect)
+        axis.text(x=xmin + 0.05 * width, y=ymax - 0.05 * height,
+            s=str(window_weight), verticalalignment="top",
+            horizontalalignment="left", color="0.4")
 
     def reset(self, event):
         for trace in self.data["data"]:
@@ -354,8 +360,8 @@ class MisfitGUI:
             time_range
         endtime = starttime + window_width / plot_range * time_range
 
-        self.window_manager.write_window(trace.id, starttime, endtime, 1.0,
-            "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
+        self.window_manager.write_window(trace.id, starttime, endtime,
+            self.weight, "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
 
         # Window the data.
         data_trimmed = data.copy()
