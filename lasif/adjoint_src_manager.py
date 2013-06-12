@@ -19,6 +19,15 @@ class AdjointSourceManager(object):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
+    def get_final_directory(self):
+        """
+        Helper method returning the directory for the final adjoint sources.
+        """
+        final_dir = os.path.join(self.directory, "final")
+        if not os.path.exists(final_dir):
+            os.makedirs(final_dir)
+        return final_dir
+
     def _get_tag(self, channel_id, starttime, endtime):
         """
         Helper method returning the filename of the adjoint source.
@@ -37,3 +46,10 @@ class AdjointSourceManager(object):
         # Save as 64bit floats just to be able to handle any solver and what
         # not.
         np.save(filename, np.require(data, "float64"))
+
+    def get_adjoint_src(self, channel_id, starttime, endtime):
+        filename = os.path.join(self.directory, self._get_tag(channel_id,
+            starttime, endtime))
+        if not os.path.exists(filename):
+            return None
+        return np.load(filename)

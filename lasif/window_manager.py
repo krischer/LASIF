@@ -15,6 +15,7 @@ A single misfit window is identified by:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from glob import iglob
 from obspy import UTCDateTime
 from lxml import etree
 from lxml.builder import E
@@ -34,6 +35,14 @@ class MisfitWindowManager(object):
         if not os.path.exists(windowfile):
             return {}
         return self._read_windowfile(windowfile)
+
+    def get_windows_for_station(self, station_id):
+        files = iglob(os.path.join(self.directory, "window_%s.*.*.xml" %
+            station_id))
+        windows = []
+        for filename in files:
+            windows.append(self._read_windowfile(filename))
+        return windows
 
     def delete_windows(self, channel_id):
         windowfile = self._get_window_filename(channel_id)

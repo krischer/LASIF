@@ -399,6 +399,24 @@ def lasif_init_project(args):
     print("Initialized project in: \n\t%s" % folder_path)
 
 
+def lasif_finalize_adjoint_sources(args):
+    """
+    Usage: lasif finalize_adjoint_sources ITERATION_NAME EVENT_NAME
+
+    Finalizes the adjoint sources for the given iteration and event.
+    """
+    if len(args) != 2:
+        msg = "ITERATION_NAME and EVENT_NAME must be given."
+        raise LASIFCommandLineException(msg)
+
+    proj = _find_project_root(".")
+
+    iteration_name = args[0]
+    event_name = args[1]
+
+    proj.finalize_adjoint_sources(iteration_name, event_name)
+
+
 def lasif_launch_misfit_gui(args):
     """
     Usage: lasif launch_misfit_gui ITERATION_NAME EVENT_NAME

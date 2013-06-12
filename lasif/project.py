@@ -790,6 +790,108 @@ class Project(object):
 
         return stations
 
+    def finalize_adjoint_sources(self, iteration_name, event_name):
+        """
+        Finalizes the adjoint sources.
+        """
+        from itertools import izip
+        import numpy as np
+
+        from lasif import rotations
+        from lasif.window_manager import MisfitWindowManager
+        from lasif.adjoint_src_manager import AdjointSourceManager
+
+        iteration = self._get_iteration(iteration_name)
+        long_iteration_name = "ITERATION_%s" % iteration_name
+
+        window_directory = os.path.join(self.paths["windows"], event_name,
+            long_iteration_name)
+        ad_src_directory = os.path.join(self.paths["adjoint_sources"],
+            event_name, long_iteration_name)
+        window_manager = MisfitWindowManager(window_directory,
+            long_iteration_name, event_name)
+        adj_src_manager = AdjointSourceManager(ad_src_directory)
+
+        this_event = iteration.events[event_name]
+
+        event_weight = this_event["event_weight"]
+        all_stations = self.get_stations_for_event(event_name)
+        for station_name, station in this_event["stations"].iteritems():
+            this_station = all_stations[station_name]
+
+            station_weight = station["station_weight"]
+            windows = window_manager.get_windows_for_station(station_name)
+            if not windows:
+                msg = "No adjoint sources for station '%s'." % station_name
+                warnings.warn(msg)
+                continue
+
+            all_channels = {}
+
+            for channel_windows in windows:
+                channel_id = channel_windows["channel_id"]
+                cumulative_weight = 0
+                all_data = []
+                for window in channel_windows["windows"]:
+                    window_weight = window["weight"]
+                    starttime = window["starttime"]
+                    endtime = window["endtime"]
+                    data = adj_src_manager.get_adjoint_src(channel_id,
+                        starttime, endtime)
+                    all_data.append(window_weight * data)
+                    cumulative_weight += window_weight
+                data = all_data.pop()
+                for d in all_data:
+                    data += d
+                data /= cumulative_weight
+                data *= station_weight * event_weight
+                all_channels[channel_id[-1]] = data
+
+            length = len(all_channels.values()[0])
+            # Use zero for empty ones.
+            for component in ["N", "E", "Z"]:
+                if component in all_channels:
+                    continue
+                all_channels[component] = np.zeros(length)
+
+            # Rotate.
+            rec_lat = this_station["latitude"]
+            rec_lng = this_station["longitude"]
+            if self.domain["rotation_angle"]:
+                # Rotate the adjoint source location.
+                r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(rec_lat,
+                    rec_lng, self.domain["rotation_axis"],
+                    -self.domain["rotation_angle"])
+                # Rotate the data.
+                all_channels["N"], all_channels["E"], all_channels["Z"] = \
+                    rotations.rotate_data(all_channels["N"], all_channels["E"],
+                        all_channels["Z"], rec_lat, rec_lng,
+                        self.domain["rotation_axis"], self.domain["angle"])
+            else:
+                r_rec_lat = rec_lat
+                r_rec_lng = rec_lng
+            r_rec_depth = 0.0
+            r_rec_colat = rotations.lat2colat(r_rec_lat)
+
+            CHANNEL_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
+
+            adjoint_src_filename = os.path.join(
+                adj_src_manager.get_final_directory(), "%s.adj_src" %
+                station_name)
+
+            # Actually write the adjoint source file in SES3D specific format.
+            with open(adjoint_src_filename, "wt") as open_file:
+                open_file.write("-- adjoint source ------------------\n")
+                open_file.write("-- source coordinates (colat,lon,depth)\n")
+                open_file.write("%f %f %f\n" % (r_rec_lng, r_rec_colat,
+                    r_rec_depth))
+                open_file.write("-- source time function (x, y, z) --\n")
+                for x, y, z in izip(
+                        -1.0 * all_channels[CHANNEL_MAPPING["X"]],
+                        all_channels[CHANNEL_MAPPING["Y"]],
+                        -1.0 * all_channels[CHANNEL_MAPPING["Z"]]):
+                    open_file.write("%e %e %e\n" % (x, y, z))
+
     def data_synthetic_iterator(self, event_name, iteration_name):
         from lasif import rotations
         from obspy import read, Stream

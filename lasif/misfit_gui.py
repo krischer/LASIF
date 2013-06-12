@@ -420,8 +420,8 @@ class MisfitGUI:
         plt.tight_layout()
         plt.draw()
 
-        self.adjoint_source_manager.write_adjoint_src(data, trace.id,
-            starttime, endtime)
+        self.adjoint_source_manager.write_adjoint_src(adsrc["adjoint_source"],
+            trace.id, starttime, endtime)
 
     def _write_adj_src(self, adj_src, channel_id, starttime, endtime):
         filename = "adjoint_source_%s_%s_%s.npy" % (channel_id, str(starttime),
