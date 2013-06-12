@@ -22,6 +22,8 @@ from matplotlib.widgets import Button
 
 from matplotlib_selection_rectangle import WindowSelectionRectangle
 
+import warnings
+
 from lasif import visualization
 from lasif.adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 
@@ -38,6 +40,8 @@ class MisfitGUI:
         self.seismogram_generator = seismogram_generator
 
         self.window_manager = window_manager
+
+        self._in_weight_selection = False
 
         self.__setup_plots()
         self.__connect_signals()
@@ -79,6 +83,10 @@ class MisfitGUI:
         self.bprev = Button(self.axprev, 'Prev')
         self.breset = Button(self.axreset, 'Reset Station')
 
+        # Axis displaying the current weight
+        self.axweight = plt.axes([0.90, 0.80, 0.08, 0.03])
+        self._update_current_weight(1.0)
+
     def __connect_signals(self):
         self.bnext.on_clicked(self.next)
         self.bprev.on_clicked(self.prev)
@@ -90,6 +98,9 @@ class MisfitGUI:
             self._onButtonPress)
         self.plot_axis_e.figure.canvas.mpl_connect('button_press_event',
             self._onButtonPress)
+
+        self.plot_axis_e.figure.canvas.mpl_connect('key_release_event',
+            self._onKeyRelease)
 
         self.plot_axis_z.figure.canvas.mpl_connect('resize_event',
             self._on_resize)
@@ -237,6 +248,56 @@ class MisfitGUI:
             [self.data["coordinates"]["latitude"]])
         self.station_icon = self.map_axis.scatter(lng, lats, color="blue",
             edgecolor="black", zorder=10000, marker="^", s=40)
+
+        plt.draw()
+
+    def _onKeyRelease(self, event):
+        start_weight_keys = "w"
+        weight_keys = "0123456789."
+
+        if self._in_weight_selection is False \
+                and event.key in start_weight_keys:
+            self._in_weight_selection = True
+            self._current_weight = ""
+            self._update_current_weight("", editing=True)
+            return
+        elif self._in_weight_selection is True \
+                and event.key in weight_keys:
+            self._current_weight += event.key
+            self._update_current_weight(self._current_weight, editing=True)
+        elif self._in_weight_selection is True:
+            self._in_weight_selection = False
+            try:
+                weight = float(self._current_weight)
+            except:
+                self._update_current_weight(self.weight)
+                return
+            self._update_current_weight(weight)
+
+    def _update_current_weight(self, weight, editing=False):
+        try:
+            self._weight_text.remove()
+        except:
+            pass
+
+        self._weight_text = self.axweight.text(x=0.5, y=0.5,
+            s="Weight: %s" % str(weight),
+            transform=self.axweight.transAxes, verticalalignment="center",
+            horizontalalignment="center")
+
+        self.axweight.set_xticks([])
+        self.axweight.set_yticks([])
+
+        if editing:
+            self.axweight.set_axis_bgcolor("red")
+        else:
+            if isinstance(weight, float):
+                self.weight = weight
+            else:
+                msg = "Weight '%s' is not a proper float." % str(weight)
+                warnings.warn(msg)
+                self._update_current_weight(self.weight)
+            self.axweight.set_axis_bgcolor("white")
 
         plt.draw()
 
