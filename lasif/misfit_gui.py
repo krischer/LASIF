@@ -19,7 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import FormatStrFormatter
-from matplotlib.widgets import Button
+from matplotlib.widgets import Button, MultiCursor
 
 from matplotlib_selection_rectangle import WindowSelectionRectangle
 
@@ -56,6 +56,9 @@ class MisfitGUI:
         self.plot_axis_z = plt.subplot2grid((6, 20), (0, 0), colspan=18)
         self.plot_axis_n = plt.subplot2grid((6, 20), (1, 0), colspan=18)
         self.plot_axis_e = plt.subplot2grid((6, 20), (2, 0), colspan=18)
+
+        self.multicursor = MultiCursor(plt.gcf().canvas, (self.plot_axis_z,
+            self.plot_axis_n, self.plot_axis_e), color="green", lw=1)
 
         self.misfit_axis = plt.subplot2grid((6, 20), (3, 0), colspan=11,
             rowspan=3)
