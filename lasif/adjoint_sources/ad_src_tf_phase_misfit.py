@@ -145,7 +145,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
         max_value = max(data.max(), synthetic.max())
         value_range = max_value - min_value
         axis.twin_axis = ax2
-        ax2.set_ylim(min_value - value_range, max_value + 0.05 * value_range)
+        ax2.set_ylim(min_value - 2.5 * value_range,
+            max_value + 0.5 * value_range)
         ax2.set_ylabel("Waveforms: Amplitude [m/s]")
         axis.set_xlim(0, tau[:, -1][-1])
         ax2.set_xlim(0, tau[:, -1][-1])
