@@ -15,6 +15,7 @@ A single misfit window is identified by:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from copy import deepcopy
 from glob import iglob
 from obspy import UTCDateTime
 from lxml import etree
@@ -23,6 +24,9 @@ import os
 
 
 class MisfitWindowManager(object):
+    """
+    A simple class reading and writing Windows.
+    """
     def __init__(self, directory, synthetic_tag, event_name):
         self.directory = directory
         if not os.path.exists(self.directory):
@@ -45,9 +49,64 @@ class MisfitWindowManager(object):
         return windows
 
     def delete_windows(self, channel_id):
+        """
+        Deletes all windows for a certain channal.
+
+        In essence it will just delete the file.
+
+        :param channel_id: The channel id for the windows to delete.
+        """
         windowfile = self._get_window_filename(channel_id)
         if os.path.exists(windowfile):
             os.remove(windowfile)
+
+    def delete_window(self, channel_id, starttime, endtime, tolerance=0.01):
+        """
+        Deletes one specific window.
+
+        If it is the only window in the file, the file will be deleted. A
+        window is specified with the channel_id, start- and endtime. A certain
+        tolerance can also be given. The tolerance is the maximum allowed error
+        if start- and endtime relative to the total time span.
+
+        :param channel_id: The channel id of the window to be deleted.
+        :param starttime: The starttime of the window to be deleted.
+        :param endtime: The endtime of the window to be deleted.
+        :param tolerance: The maximum acceptable deviation in start- and
+            endtime relative to the total timespan. Defaults to 0.01, e.g. 1%.
+        """
+        tolerance = tolerance * (endtime - starttime)
+        min_starttime = starttime - tolerance
+        max_starttime = starttime + tolerance
+        min_endtime = endtime - tolerance
+        max_endtime = endtime + tolerance
+
+        windows = self.get_windows(channel_id)
+        if not windows:
+            msg = "Window not found."
+            raise ValueError(msg)
+
+        new_windows = deepcopy(windows)
+        new_windows["windows"] = []
+        found_window = False
+
+        for window in windows["windows"]:
+            if (min_starttime <= window["starttime"] <= max_starttime) and \
+                    (min_endtime <= window["endtime"] <= max_endtime):
+                found_window = True
+                continue
+            new_windows["windows"].append(window)
+
+        if found_window is False:
+            msg = "Window not found."
+            raise ValueError(msg)
+
+        # Delete the file if no windows are left.
+        if not new_windows["windows"]:
+            self.delete_windows(channel_id)
+            return
+
+        self._write_window(channel_id, new_windows)
 
     def _get_window_filename(self, channel_id):
         return os.path.join(self.directory, "window_%s.xml" % channel_id)

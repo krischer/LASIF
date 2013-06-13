@@ -57,6 +57,12 @@ class MisfitGUI:
         self.plot_axis_n = plt.subplot2grid((6, 20), (1, 0), colspan=18)
         self.plot_axis_e = plt.subplot2grid((6, 20), (2, 0), colspan=18)
 
+        # Append another attribute to the plot axis to be able to later on
+        # identify which component they belong to.
+        self.plot_axis_z.seismic_component = "Z"
+        self.plot_axis_n.seismic_component = "N"
+        self.plot_axis_e.seismic_component = "E"
+
         self.multicursor = MultiCursor(plt.gcf().canvas, (self.plot_axis_z,
             self.plot_axis_n, self.plot_axis_e), color="green", lw=1)
 
@@ -109,6 +115,24 @@ class MisfitGUI:
         self.plot_axis_z.figure.canvas.mpl_connect('resize_event',
             self._on_resize)
 
+        # Connect the picker. Connecting once is enough. It will still fire for
+        # all axes.
+        self.plot_axis_z.figure.canvas.mpl_connect('pick_event', self._on_pick)
+
+    def _on_pick(self, event):
+        # Use the right mouse button for deleting windows.
+        if event.mouseevent.button != 3:
+            return
+        artist = event.artist
+
+        x_min = artist.get_x()
+        x_max = x_min + artist.get_width()
+
+        artist.remove()
+        self.delete_window(x_min=x_min, x_max=x_max,
+            component=artist.axes.seismic_component)
+        plt.draw()
+
     def _on_resize(self, *args):
         plt.tight_layout()
 
@@ -153,6 +177,13 @@ class MisfitGUI:
                     window_weight=window["weight"])
         plt.draw()
 
+    def delete_window(self, x_min, x_max, component):
+        trace = self.data["data"].select(component=component)[0]
+        starttime = trace.stats.starttime + x_min
+        endtime = trace.stats.starttime + x_max
+        channel_id = trace.id
+        self.window_manager.delete_window(channel_id, starttime, endtime)
+
     def plot_window(self, component, starttime, endtime, window_weight):
         if component == "Z":
             axis = self.plot_axis_z
@@ -170,11 +201,19 @@ class MisfitGUI:
         width = endtime - starttime
         height = ymax - ymin
         rect = Rectangle((xmin, ymin), width, height, facecolor="0.6",
-            alpha=0.5, edgecolor="0.5")
+            alpha=0.5, edgecolor="0.5", picker=True)
         axis.add_patch(rect)
-        axis.text(x=xmin + 0.02 * width, y=ymax - 0.02 * height,
-            s=str(window_weight), verticalalignment="top",
-            horizontalalignment="left", color="0.4", weight=1000)
+        attached_text = axis.text(x=xmin + 0.02 * width,
+            y=ymax - 0.02 * height, s=str(window_weight),
+            verticalalignment="top", horizontalalignment="left", color="0.4",
+            weight=1000)
+
+        # Monkey patch to trigger text removal as soon as the rectangle is
+        # removed.
+        def remove():
+            super(Rectangle, rect).remove()
+            attached_text.remove()
+        rect.remove = remove
 
     def reset(self, event):
         for trace in self.data["data"]:
