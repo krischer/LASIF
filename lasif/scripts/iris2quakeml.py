@@ -29,18 +29,6 @@ Requirements:
     * `Requests <http://python-requests.org>`_
 
 
-Before a file is written, several things are done:
-
-    * The file will be converted to QuakeML 1.2
-    * It will only contain one focal mechanism (the preferred one)
-    * All units will be converted from dyn*cm to N*m
-
-In case anything does not work an error will be raised.
-
-
-This is rather unstable due to potential changes in the SPUD webservice.
-
-
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
@@ -52,7 +40,6 @@ import HTMLParser
 from obspy import readEvents
 from obspy.core.util.geodetics import FlinnEngdahl
 import os
-import re
 import requests
 from StringIO import StringIO
 
@@ -75,10 +62,6 @@ def iris2quakeml(url, output_folder=None):
 
     data = h.unescape(r.content)
 
-    # Replace the duplice moment tensor publicID with a proper one.
-    data = re.sub(r"(<momentTensor\s*publicID=\".*)focalmechanism(.*\">)",
-        r"\1momenttensor\2", data)
-
     data = StringIO(data)
 
     try:
@@ -99,44 +82,10 @@ def iris2quakeml(url, output_folder=None):
     else:
         ev.focal_mechanisms = [ev.focal_mechanisms[:1]]
 
-    # Some shortcuts.
-    foc_mec = ev.focal_mechanisms[0]
-    mt = foc_mec.moment_tensor
-    tensor = mt.tensor
-
     # Set the origin and magnitudes of the event.
+    mt = ev.focal_mechanisms[0].moment_tensor
     ev.magnitudes = [mt.moment_magnitude_id.getReferredObject()]
     ev.origins = [mt.derived_origin_id.getReferredObject()]
-
-    # All values given in the QuakeML file are given in dyne * cm. Convert them
-    # to N * m.
-    for key, value in tensor.iteritems():
-        if key.startswith("m_") and len(key) == 4:
-            tensor[key] /= 1E7
-        if key.endswith("_errors") and hasattr(value, "uncertainty"):
-            tensor[key].uncertainty /= 1E7
-    mt.scalar_moment /= 1E7
-    if mt.scalar_moment_errors.uncertainty:
-        mt.scalar_moment_errors.uncertainty /= 1E7
-    p_axes = ev.focal_mechanisms[0].principal_axes
-    for ax in [p_axes.t_axis, p_axes.p_axis, p_axes.n_axis]:
-        if ax is None or not ax.length:
-            continue
-        ax.length /= 1E7
-
-    # Check if it has a source time function
-    stf = mt.source_time_function
-    if stf:
-        if stf.type != "triangle":
-            msg = ("Source time function type '%s' not yet mapped. Please "
-                "contact the developers.") % stf.type
-            raise NotImplementedError(msg)
-        if not stf.duration:
-            if not stf.decay_time:
-                msg = "Not known how to derive duration without decay time."
-                raise NotImplementedError(msg)
-            # Approximate the duraction for triangular STF.
-            stf.duration = 2 * stf.decay_time
 
     # Get the flinn_engdahl region for a nice name.
     fe = FlinnEngdahl()
@@ -148,8 +97,6 @@ def iris2quakeml(url, output_folder=None):
         ev.origins[0].time.month, ev.origins[0].time.day,
         ev.origins[0].time.hour, ev.origins[0].time.minute)
 
-    cat.resource_id = ev.origins[0].resource_id.resource_id.replace("origin",
-        "event_parameters")
     if output_folder:
         event_name = os.path.join(output_folder, event_name)
     cat.write(event_name, format="quakeml", validate=True)
@@ -158,9 +105,9 @@ def iris2quakeml(url, output_folder=None):
 
 def main():
     parser = argparse.ArgumentParser(description=(
-        "Download and fix the QuakeML files provided by the IRIS SPUD "
+        "Download the QuakeML files provided by the IRIS SPUD "
         "momenttensor service. Will be saved as a QuakeML file in the "
-        "current folder"))
+        "current folder."))
     parser.add_argument("url", metavar="U", type=str,
                        help="The URL to download.")
     args = parser.parse_args()
