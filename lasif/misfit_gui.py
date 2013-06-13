@@ -120,18 +120,21 @@ class MisfitGUI:
         self.plot_axis_z.figure.canvas.mpl_connect('pick_event', self._on_pick)
 
     def _on_pick(self, event):
-        # Use the right mouse button for deleting windows.
-        if event.mouseevent.button != 3:
-            return
         artist = event.artist
 
-        x_min = artist.get_x()
-        x_max = x_min + artist.get_width()
+        # Use the right mouse button for deleting windows.
+        if event.mouseevent.button == 3:
+            x_min = artist.get_x()
+            x_max = x_min + artist.get_width()
 
-        artist.remove()
-        self.delete_window(x_min=x_min, x_max=x_max,
-            component=artist.axes.seismic_component)
-        plt.draw()
+            artist.remove()
+            self.delete_window(x_min=x_min, x_max=x_max,
+                component=artist.axes.seismic_component)
+            plt.draw()
+
+        if event.mouseevent.button == 1:
+            self._onWindowSelected(artist.get_x(), artist.get_width(),
+                artist.axes, plot_only=True)
 
     def _on_resize(self, *args):
         plt.tight_layout()
@@ -384,24 +387,20 @@ class MisfitGUI:
                 self.rect = WindowSelectionRectangle(event, self.plot_axis_e,
                     self._onWindowSelected)
 
-    def _onWindowSelected(self, window_start, window_width, axis):
+    def _onWindowSelected(self, window_start, window_width, axis,
+            plot_only=False):
         """
         Function called upon window selection.
+
+        :param plot_only: If True, do not write anything to disk, but only
+            plot.
         """
         if window_width <= 0:
             return
 
-        if axis is self.plot_axis_z:
-            data = self.data["data"].select(component="Z")[0]
-            synth = self.data["synthetics"].select(component="Z")[0]
-        elif axis is self.plot_axis_n:
-            data = self.data["data"].select(component="N")[0]
-            synth = self.data["synthetics"].select(component="N")[0]
-        elif axis is self.plot_axis_e:
-            data = self.data["data"].select(component="E")[0]
-            synth = self.data["synthetics"].select(component="E")[0]
-        else:
-            return
+        data = self.data["data"].select(component=axis.seismic_component)[0]
+        synth = self.data["synthetics"].select(
+            component=axis.seismic_component)[0]
 
         if not data:
             return
@@ -413,10 +412,11 @@ class MisfitGUI:
             time_range
         endtime = starttime + window_width / plot_range * time_range
 
-        self.window_manager.write_window(trace.id, starttime, endtime,
-            self.weight, "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
-        self.plot_window(component=trace.id[-1], starttime=starttime,
-            endtime=endtime, window_weight=self.weight)
+        if plot_only is not True:
+            self.window_manager.write_window(trace.id, starttime, endtime,
+                self.weight, "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
+            self.plot_window(component=trace.id[-1], starttime=starttime,
+                endtime=endtime, window_weight=self.weight)
 
         # Window the data.
         data_trimmed = data.copy()
@@ -462,8 +462,9 @@ class MisfitGUI:
         plt.tight_layout()
         plt.draw()
 
-        self.adjoint_source_manager.write_adjoint_src(adsrc["adjoint_source"],
-            trace.id, starttime, endtime)
+        if plot_only is not True:
+            self.adjoint_source_manager.write_adjoint_src(
+                adsrc["adjoint_source"], trace.id, starttime, endtime)
 
 
 def launch(event, seismogram_generator, project):
