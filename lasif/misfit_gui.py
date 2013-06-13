@@ -465,39 +465,6 @@ class MisfitGUI:
         self.adjoint_source_manager.write_adjoint_src(adsrc["adjoint_source"],
             trace.id, starttime, endtime)
 
-    def _write_adj_src(self, adj_src, channel_id, starttime, endtime):
-        filename = "adjoint_source_%s_%s_%s.npy" % (channel_id, str(starttime),
-            str(endtime))
-        filename = os.path.join(self.adjoint_source_dir, filename)
-
-        #adjoint_src_filename = os.path.join(self.adjoint_src_folder,
-            #self.filename)
-
-        #self.adjoint_source_axis.cla()
-        #self.adjoint_source_axis.set_title("Adjoint Source")
-        #self.adjoint_source_axis.plot(self.adjoint_source, color="black")
-        #self.adjoint_source_axis.set_xlim(0, len(self.adjoint_source))
-        #plt.draw()
-
-        # Do some calculations.
-        #rec_lat = self.synth_tr.stats.ses3d.receiver_latitude
-        #rec_lng = self.synth_tr.stats.ses3d.receiver_longitude
-        #rec_depth = self.synth_tr.stats.ses3d.receiver_depth_in_m
-        ## Rotate back to rotated system.
-        #rec_lat, rec_lng = rotations.rotate_lat_lon(rec_lat, rec_lng,
-            #ROTATION_AXIS, -ROTATION_ANGLE)
-        #rec_colat = rotations.lat2colat(rec_lat)
-
-        ## Actually write the adjoint source file in SES3D specific format.
-        #with open(adjoint_src_filename, "wt") as open_file:
-            #open_file.write("-- adjoint source ------------------\n")
-            #open_file.write("-- source coordinates (colat,lon,depth)\n")
-            #open_file.write("%f %f %f\n" % (rec_lng, rec_colat, rec_depth))
-            #open_file.write("-- source time function (x, y, z) --\n")
-            #for x, y, z in izip(adjoint_src[1], -1.0 * adjoint_src[0],
-                    #adjoint_src[2]):
-                #open_file.write("%e %e %e\n" % (x, y, z))
-
 
 def launch(event, seismogram_generator, project):
     MisfitGUI(event, seismogram_generator, project)
