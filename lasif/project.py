@@ -816,6 +816,13 @@ class Project(object):
 
         event_weight = this_event["event_weight"]
         all_stations = self.get_stations_for_event(event_name)
+
+        all_coordinates = []
+        _i = 0
+
+        output_folder = self.get_output_folder(
+            "adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
+
         for station_name, station in this_event["stations"].iteritems():
             this_station = all_stations[station_name]
 
@@ -875,15 +882,18 @@ class Project(object):
 
             CHANNEL_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
 
-            adjoint_src_filename = os.path.join(
-                adj_src_manager.get_final_directory(), "%s.adj_src" %
-                station_name)
+            _i += 1
+
+            adjoint_src_filename = os.path.join(output_folder,
+                "ad_src_%i" % _i)
+
+            all_coordinates.append((r_rec_colat, r_rec_lng, r_rec_depth))
 
             # Actually write the adjoint source file in SES3D specific format.
             with open(adjoint_src_filename, "wt") as open_file:
                 open_file.write("-- adjoint source ------------------\n")
                 open_file.write("-- source coordinates (colat,lon,depth)\n")
-                open_file.write("%f %f %f\n" % (r_rec_lng, r_rec_colat,
+                open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng,
                     r_rec_depth))
                 open_file.write("-- source time function (x, y, z) --\n")
                 for x, y, z in izip(
@@ -891,6 +901,16 @@ class Project(object):
                         all_channels[CHANNEL_MAPPING["Y"]],
                         -1.0 * all_channels[CHANNEL_MAPPING["Z"]]):
                     open_file.write("%e %e %e\n" % (x, y, z))
+                open_file.write("\n")
+
+        # Write the final file.
+        with open(os.path.join(output_folder, "ad_srcfile"), "wt") as fh:
+            fh.write("%i\n" % _i)
+            for line in all_coordinates:
+                fh.write("%.6f %.6f %.6f\n" % (line[0], line[1], line[2]))
+            fh.write("\n")
+
+        print "Wrote %i adjoint sources to %s." % (_i, output_folder)
 
     def data_synthetic_iterator(self, event_name, iteration_name):
         from lasif import rotations

@@ -19,15 +19,6 @@ class AdjointSourceManager(object):
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
-    def get_final_directory(self):
-        """
-        Helper method returning the directory for the final adjoint sources.
-        """
-        final_dir = os.path.join(self.directory, "final")
-        if not os.path.exists(final_dir):
-            os.makedirs(final_dir)
-        return final_dir
-
     def _get_tag(self, channel_id, starttime, endtime):
         """
         Helper method returning the filename of the adjoint source.
