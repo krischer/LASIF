@@ -21,6 +21,8 @@ for key in matplotlib.rcParams.iterkeys():
         continue
     matplotlib.rcParams[key] = ''
 
+from obspy.core.util.geodetics import locations2degrees
+from obspy.taup.taup import getTravelTimes
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -69,6 +71,7 @@ class MisfitGUI:
         self.event = event
         self.event_latitude = event.origins[0].latitude
         self.event_longitude = event.origins[0].longitude
+        self.event_depth = event.origins[0].depth
         self.project = project
 
         self.adjoint_source_manager = adjoint_source_manager
@@ -88,7 +91,7 @@ class MisfitGUI:
     def _activate_multicursor(self):
         self._deactivate_multicursor
         self.multicursor = MultiCursor(plt.gcf().canvas, (self.plot_axis_z,
-            self.plot_axis_n, self.plot_axis_e), color="green", lw=1)
+            self.plot_axis_n, self.plot_axis_e), color="blue", lw=1)
 
     def _deactivate_multicursor(self):
         try:
@@ -336,6 +339,30 @@ class MisfitGUI:
 
         self.plot_axis_e.set_xlabel("Seconds since Event")
 
+        self.plot_traveltimes()
+        self.plot_raypath()
+
+        plt.draw()
+
+    def plot_traveltimes(self):
+        great_circle_distance = locations2degrees(self.event_latitude,
+            self.event_longitude, self.data["coordinates"]["latitude"],
+            self.data["coordinates"]["longitude"])
+        tts = getTravelTimes(great_circle_distance, self.event_depth / 1000.0,
+            model="ak135")
+        for component in ["z", "n", "e"]:
+            axis = getattr(self, "plot_axis_%s" % component)
+            ymin, ymax = axis.get_ylim()
+            for phase in tts:
+                if phase["phase_name"].lower().startswith("p"):
+                    color = "green"
+                else:
+                    color = "red"
+                axis.axvline(x=phase["time"], ymin=-1, ymax=+1,
+                    color=color, alpha=0.5)
+            axis.set_ylim(ymin, ymax)
+
+    def plot_raypath(self):
         try:
             self.greatcircle[0].remove()
             self.greatcircle = None
@@ -356,8 +383,6 @@ class MisfitGUI:
             [self.data["coordinates"]["latitude"]])
         self.station_icon = self.map_axis.scatter(lng, lats, facecolor="blue",
             edgecolor="black", zorder=10000, marker="^", s=40)
-
-        plt.draw()
 
     def _onKeyRelease(self, event):
         """
