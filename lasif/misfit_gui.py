@@ -47,6 +47,15 @@ Usage:
 """.strip()
 
 
+# Configuration for the key mappings.
+KEYMAP = {
+    "show help": "h",
+    "set weight": "w",
+    "next station": "n",
+    "previous station": "p",
+    "reset station": "r"}
+
+
 class MisfitGUI:
     def __init__(self, event, seismogram_generator, project, window_manager,
             adjoint_source_manager):
@@ -250,7 +259,7 @@ class MisfitGUI:
             attached_text.remove()
         rect.remove = remove
 
-    def reset(self, event):
+    def reset(self, *args):
         for trace in self.data["data"]:
             self.window_manager.delete_windows(trace.id)
         self.update()
@@ -352,10 +361,12 @@ class MisfitGUI:
         It essentially is a simple state manager with the key being routed to
         different places depending on the current application state.
         """
+        key = event.key
+
         # Default mode is no mode.
         if self._current_app_mode is None:
             # Enter help mode.
-            if event.key == "h":
+            if key == KEYMAP["show help"]:
                 self._current_app_mode = "help"
                 self._axes_to_restore = plt.gcf().axes
                 self.help_axis = plt.gcf().add_axes((0, 0, 1, 1))
@@ -366,20 +377,26 @@ class MisfitGUI:
                 self.help_axis.set_yticks([])
                 self._deactivate_multicursor()
                 plt.draw()
-                return
             # Enter weight selection mode.
-            elif event.key == "w":
+            elif key == KEYMAP["set weight"]:
                 self._current_app_mode = "weight_selection"
                 self._current_weight = ""
                 self._update_current_weight("", editing=True)
-                return
+            # Navigation
+            elif key == KEYMAP["next station"]:
+                self.next()
+            elif key == KEYMAP["previous station"]:
+                self.prev()
+            elif key == KEYMAP["reset station"]:
+                self.reset()
+            return
 
         # Weight selection mode.
         elif self._current_app_mode == "weight_selection":
             weight_keys = "0123456789."
             # Keep typing the new weight.
-            if event.key in weight_keys:
-                self._current_weight += event.key
+            if key in weight_keys:
+                self._current_weight += key
                 self._update_current_weight(self._current_weight, editing=True)
             # Set the new weight. If that fails, reset it. In any case, leave
             # the weight selection mode.
