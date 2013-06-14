@@ -395,7 +395,10 @@ class MisfitGUI:
         :param plot_only: If True, do not write anything to disk, but only
             plot.
         """
-        if window_width <= 0:
+        # Minimum window length is 50 samples.
+        delta = self.data["synthetics"][0].stats.delta
+        if window_width < 50 * delta:
+            plt.draw()
             return
 
         data = self.data["data"].select(component=axis.seismic_component)[0]
@@ -403,6 +406,7 @@ class MisfitGUI:
             component=axis.seismic_component)[0]
 
         if not data:
+            plt.draw()
             return
 
         trace = data
