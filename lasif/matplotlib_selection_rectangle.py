@@ -20,8 +20,8 @@ class WindowSelectionRectangle(object):
         ymin, ymax = self.axes.get_ylim()
         self.min_x = event.xdata
         self.intial_selection_active = True
-        self.rect = Rectangle((event.xdata, ymin), 0, ymax - ymin, color="0.3",
-            alpha=0.5, edgecolor="0.5")
+        self.rect = Rectangle((event.xdata, ymin), 0, ymax - ymin,
+            facecolor="0.3", alpha=0.5, edgecolor="0.5")
         self.axes.add_patch(self.rect)
         # Get the canvas.
         self.canvas = self.rect.figure.canvas

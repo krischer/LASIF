@@ -82,6 +82,7 @@ class MisfitGUI:
 
         self.next()
         plt.tight_layout()
+        plt.gcf().canvas.set_window_title("Misfit GUI - Press 'h' for help.")
         plt.show()
 
     def _activate_multicursor(self):
@@ -275,8 +276,6 @@ class MisfitGUI:
         self.misfit_axis.set_xticks([])
         self.misfit_axis.set_yticks([])
         self.colorbar_axis.cla()
-        self.colorbar_axis.set_xticks([])
-        self.colorbar_axis.set_yticks([])
         try:
             self.misfit_axis.twin_axis.cla()
             self.misfit_axis.twin_axis.set_xticks([])
