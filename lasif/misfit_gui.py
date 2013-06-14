@@ -43,7 +43,13 @@ Usage:
 * Click and drag with the left mouse button to select a window
 * Click on a window with the right mouse button to delete it
 * Click on a window with the left mouse button to display the misfit again
-* Press 'w', followed by a weight to set weight for all the following windows
+
+Key bindings:
+
+* 'w', followed by a weight to set weight for all the following windows
+* 'n' loads the next station
+* 'p' loads the previous station
+* 'r' deletes all windows for the current station
 """.strip()
 
 
