@@ -1341,7 +1341,15 @@ be assigned this weight.
 To actually choose a window simply drag in any of the waveform windows. Upon
 mouse button release the window will be saved and the adjoint source will be
 calculated. The number in the top left of each chosen window reflects the
-eight for that window.
+weight for that window.
+
+Right clicking on an already existing window will delete it, left clicking will
+plot the misfit once again.
+
+.. note::
+
+    At any point you can press **h** to get an up-to-date help text for the
+    GUI.
 
 
 Final Adjoint Source Calculation
