@@ -15,6 +15,12 @@ import matplotlib
 matplotlib.use('TkAgg')
 matplotlib.rcParams['toolbar'] = 'None'
 
+# Deactivate all default key shortcuts.
+for key in matplotlib.rcParams.iterkeys():
+    if not key.startswith("keymap."):
+        continue
+    matplotlib.rcParams[key] = ''
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -27,6 +33,18 @@ import warnings
 
 from lasif import visualization
 from lasif.adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
+
+
+HELP_TEXT = r"""
+LASIF Misfit GUI
+
+Usage:
+
+* Click and drag with the left mouse button to select a window
+* Click on a window with the right mouse button to delete it
+* Click on a window with the left mouse button to display the misfit again
+* Press 'w', followed by a weight to set weight for all the following windows
+""".strip()
 
 
 class MisfitGUI:
@@ -43,6 +61,7 @@ class MisfitGUI:
         self.window_manager = window_manager
 
         self._in_weight_selection = False
+        self._help_is_displayed = False
 
         self.__setup_plots()
         self.__connect_signals()
@@ -50,6 +69,21 @@ class MisfitGUI:
         self.next()
         plt.tight_layout()
         plt.show()
+
+    def _activate_multicursor(self):
+        self._deactivate_multicursor
+        self.multicursor = MultiCursor(plt.gcf().canvas, (self.plot_axis_z,
+            self.plot_axis_n, self.plot_axis_e), color="green", lw=1)
+
+    def _deactivate_multicursor(self):
+        try:
+            self.multicursor.clear()
+        except:
+            pass
+        try:
+            del self.multicursor
+        except:
+            pass
 
     def __setup_plots(self):
         # Some actual plots.
@@ -63,8 +97,7 @@ class MisfitGUI:
         self.plot_axis_n.seismic_component = "N"
         self.plot_axis_e.seismic_component = "E"
 
-        self.multicursor = MultiCursor(plt.gcf().canvas, (self.plot_axis_z,
-            self.plot_axis_n, self.plot_axis_e), color="green", lw=1)
+        self._activate_multicursor()
 
         self.misfit_axis = plt.subplot2grid((6, 20), (3, 0), colspan=11,
             rowspan=3)
@@ -317,6 +350,18 @@ class MisfitGUI:
         start_weight_keys = "w"
         weight_keys = "0123456789."
 
+        if self._help_is_displayed:
+            plt.delaxes(self.help_axis)
+            del self.help_axis
+            for ax in self._axes_to_restore:
+                plt.gcf().add_axes(ax)
+            del self._axes_to_restore
+            plt.tight_layout()
+            self._activate_multicursor()
+            plt.draw()
+            self._help_is_displayed = False
+            return
+
         if self._in_weight_selection is False \
                 and event.key in start_weight_keys:
             self._in_weight_selection = True
@@ -327,14 +372,24 @@ class MisfitGUI:
                 and event.key in weight_keys:
             self._current_weight += event.key
             self._update_current_weight(self._current_weight, editing=True)
-        elif self._in_weight_selection is True:
-            self._in_weight_selection = False
+
             try:
                 weight = float(self._current_weight)
             except:
                 self._update_current_weight(self.weight)
                 return
             self._update_current_weight(weight)
+        elif event.key == "h":
+            self._help_is_displayed = True
+            self._axes_to_restore = plt.gcf().axes
+            self.help_axis = plt.gcf().add_axes((0, 0, 1, 1))
+            self.help_axis.text(0.5, 0.8, HELP_TEXT,
+                transform=self.help_axis.transAxes, verticalalignment="center",
+                horizontalalignment="center")
+            self.help_axis.set_xticks([])
+            self.help_axis.set_yticks([])
+            self._deactivate_multicursor()
+            plt.draw()
 
     def _update_current_weight(self, weight, editing=False):
         try:
