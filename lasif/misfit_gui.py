@@ -60,8 +60,7 @@ class MisfitGUI:
         self.seismogram_generator = seismogram_generator
         self.window_manager = window_manager
 
-        self._in_weight_selection = False
-        self._help_is_displayed = False
+        self._current_app_mode = None
 
         self.__setup_plots()
         self.__connect_signals()
@@ -347,10 +346,54 @@ class MisfitGUI:
         plt.draw()
 
     def _onKeyRelease(self, event):
-        start_weight_keys = "w"
-        weight_keys = "0123456789."
+        """
+        Fired on all key releases.
 
-        if self._help_is_displayed:
+        It essentially is a simple state manager with the key being routed to
+        different places depending on the current application state.
+        """
+        # Default mode is no mode.
+        if self._current_app_mode is None:
+            # Enter help mode.
+            if event.key == "h":
+                self._current_app_mode = "help"
+                self._axes_to_restore = plt.gcf().axes
+                self.help_axis = plt.gcf().add_axes((0, 0, 1, 1))
+                self.help_axis.text(0.5, 0.8, HELP_TEXT,
+                    transform=self.help_axis.transAxes,
+                    verticalalignment="center", horizontalalignment="center")
+                self.help_axis.set_xticks([])
+                self.help_axis.set_yticks([])
+                self._deactivate_multicursor()
+                plt.draw()
+                return
+            # Enter weight selection mode.
+            elif event.key == "w":
+                self._current_app_mode = "weight_selection"
+                self._current_weight = ""
+                self._update_current_weight("", editing=True)
+                return
+
+        # Weight selection mode.
+        elif self._current_app_mode == "weight_selection":
+            weight_keys = "0123456789."
+            # Keep typing the new weight.
+            if event.key in weight_keys:
+                self._current_weight += event.key
+                self._update_current_weight(self._current_weight, editing=True)
+            # Set the new weight. If that fails, reset it. In any case, leave
+            # the weight selection mode.
+            else:
+                self._current_app_mode = None
+                try:
+                    weight = float(self._current_weight)
+                except:
+                    self._update_current_weight(self.weight)
+                    return
+                self._update_current_weight(weight)
+
+        # Help selection mode. Any keypress while in it will exit it.
+        elif self._current_app_mode == "help":
             plt.delaxes(self.help_axis)
             del self.help_axis
             for ax in self._axes_to_restore:
@@ -359,37 +402,8 @@ class MisfitGUI:
             plt.tight_layout()
             self._activate_multicursor()
             plt.draw()
-            self._help_is_displayed = False
+            self._current_app_mode = None
             return
-
-        if self._in_weight_selection is False \
-                and event.key in start_weight_keys:
-            self._in_weight_selection = True
-            self._current_weight = ""
-            self._update_current_weight("", editing=True)
-            return
-        elif self._in_weight_selection is True \
-                and event.key in weight_keys:
-            self._current_weight += event.key
-            self._update_current_weight(self._current_weight, editing=True)
-
-            try:
-                weight = float(self._current_weight)
-            except:
-                self._update_current_weight(self.weight)
-                return
-            self._update_current_weight(weight)
-        elif event.key == "h":
-            self._help_is_displayed = True
-            self._axes_to_restore = plt.gcf().axes
-            self.help_axis = plt.gcf().add_axes((0, 0, 1, 1))
-            self.help_axis.text(0.5, 0.8, HELP_TEXT,
-                transform=self.help_axis.transAxes, verticalalignment="center",
-                horizontalalignment="center")
-            self.help_axis.set_xticks([])
-            self.help_axis.set_yticks([])
-            self._deactivate_multicursor()
-            plt.draw()
 
     def _update_current_weight(self, weight, editing=False):
         try:
