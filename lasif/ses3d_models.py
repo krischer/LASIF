@@ -4,22 +4,23 @@
 A set of classes dealing with SES3D 4.0 Models
 
 :copyright:
+    Lion Krischer (krischer@geophysik.uni-muenchen.de),
     Andreas Fichtner (andreas.fichtner@erdw.ethz.ch),
-    Stefan Mauerberger (mauerberger@geophysik.uni-muenchen.de),
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2012 - 2013
+    Stefan Mauerberger (mauerberger@geophysik.uni-muenchen.de), 2012 - 2013
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import glob
-import os
 import math
-import numpy as np
+import os
 import re
+import warnings
+
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.pylab as plt
 from mpl_toolkits.basemap import Basemap
-import warnings
+import numpy as np
 
 from lasif import rotations
 
