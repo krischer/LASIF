@@ -54,7 +54,7 @@ def _get_colormap(colors, colormap_name):
 
 # A pretty colormap for use in tomography.
 tomo_colormap = _get_colormap({
-    0.0: [0.1, 0.0, 0.0],  # Reddish black
+    0.0: [0.1, 0.0, 0.0],     # Reddish black
     0.2: [0.8, 0.0, 0.0],
     0.3: [1.0, 0.7, 0.0],
     0.48: [0.92, 0.92, 0.92],
@@ -63,7 +63,7 @@ tomo_colormap = _get_colormap({
     0.7: [0.0, 0.6, 0.7],
     0.8: [0.0, 0.0, 0.8],
     1.0: [0.0, 0.0, 0.1]},
-    "seismic_tomography")  # Blueish black
+    "seismic_tomography")     # Blueish black
 
 
 class RawSES3DModelHandler(object):
@@ -80,7 +80,7 @@ class RawSES3DModelHandler(object):
         * rhoinv0 - rhoinv[XX] -> Elastic parameters (one per CPU)
         * Q0 - Q[XX]           -> Elastic parameters (one per CPU)
     """
-    def __init__(self, directory, type="earth_model"):
+    def __init__(self, directory, model_type="earth_model"):
         self.directory = directory
         self.boxfile = os.path.join(self.directory, "boxfile")
         if not os.path.exists(self.boxfile):
