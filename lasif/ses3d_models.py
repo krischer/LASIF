@@ -80,7 +80,7 @@ class RawSES3DModelHandler(object):
         * rhoinv0 - rhoinv[XX] -> Elastic parameters (one per CPU)
         * Q0 - Q[XX]           -> Elastic parameters (one per CPU)
     """
-    def __init__(self, directory):
+    def __init__(self, directory, type="earth_model"):
         self.directory = directory
         self.boxfile = os.path.join(self.directory, "boxfile")
         if not os.path.exists(self.boxfile):

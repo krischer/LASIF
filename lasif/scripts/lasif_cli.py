@@ -244,6 +244,46 @@ def lasif_list_models(args):
         print ("\t%s" % model)
 
 
+def lasif_plot_kernel(args):
+    """
+    Usage lasif plot_kernel ITERATION_NAME EVENT_NAME
+    """
+    from lasif import ses3d_models
+
+    if len(args) != 2:
+        msg = "ITERATION_NAME and EVENT_NAME must be given."
+        raise LASIFCommandLineException(msg)
+
+    iteration_name = args[0]
+    event_name = args[1]
+
+    proj = _find_project_root(".")
+
+    kernel_dir = proj.get_kernel_dir(iteration_name, event_name)
+
+    handler = ses3d_models.RawSES3DModelHandler(kernel_dir, type="kernel")
+    handler.rotation_axis = proj.domain["rotation_axis"]
+    handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
+
+    while True:
+        print handler
+        print ""
+
+        inp = raw_input("Enter 'COMPONENT DEPTH' ('quit' to exit): ")
+        if inp.lower() == "quit":
+            break
+        try:
+            component, depth = inp.split()
+        except:
+            continue
+
+        try:
+            handler.parse_component(component)
+        except:
+            continue
+        handler.plot_depth_slice(component, int(depth))
+
+
 def lasif_plot_model(args):
     """
     Usage lasif plot_model MODEL_NAME
