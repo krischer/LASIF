@@ -27,7 +27,7 @@ setup_config = dict(
     license="GNU General Public License, version 3 (GPLv3)",
     platforms="OS Independent",
     install_requires=["obspy >= 0.8.3", "progressbar", "requests",
-        "geographiclib"],
+        "geographiclib", "numpy", "matplotlib", "lxml"],
     entry_points={
         # Register the console scripts.
         "console_scripts": [
