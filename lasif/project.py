@@ -72,6 +72,7 @@ class Project(object):
         self.paths["models"] = os.path.join(root_path, "MODELS")
         self.paths["iterations"] = os.path.join(root_path, "ITERATIONS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
+        self.paths["kernels"] = os.path.join(root_path, "KERNELS")
         self.paths["stations"] = os.path.join(root_path, "STATIONS")
         # Station subfolders
         self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
@@ -153,18 +154,18 @@ class Project(object):
         return ret_str
 
     def get_station_filename(self, network, station, location, channel,
-            format):
+            file_format):
         """
         Function returning the filename a station file of a certain format
         should be written to. Only useful as a callback function.
 
-        :type format: String
-        :param format: 'datalessSEED', 'StationXML', or 'RESP'
+        :type file_format: String
+        :param file_format: 'datalessSEED', 'StationXML', or 'RESP'
         """
-        if format not in ["datalessSEED", "StationXML", "RESP"]:
-            msg = "Unknown format '%s'" % format
+        if file_format not in ["datalessSEED", "StationXML", "RESP"]:
+            msg = "Unknown format '%s'" % file_format
             raise ValueError(msg)
-        if format == "datalessSEED":
+        if file_format == "datalessSEED":
             def seed_filename_generator():
                 i = 0
                 while True:
@@ -179,7 +180,7 @@ class Project(object):
                 if not os.path.exists(filename):
                     break
             return filename
-        if format == "RESP":
+        if file_format == "RESP":
             def resp_filename_generator():
                 i = 0
                 while True:
@@ -311,6 +312,10 @@ class Project(object):
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=True, show_plot=True, zoom=True)
+
+    def get_kernel_dir(self, iteration_name, event_name):
+        return os.path.join(self.paths["KERNELS"], "ITERATION_%s" %
+            iteration_name, event_name)
 
     def get_event(self, event_name):
         """
@@ -502,7 +507,7 @@ class Project(object):
         plt.figure(figsize=(20, 21))
 
         bounds = self.domain["bounds"]
-        map = visualization.plot_domain(bounds["minimum_latitude"],
+        map_object = visualization.plot_domain(bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
             bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
@@ -516,13 +521,13 @@ class Project(object):
             stations = self.get_stations_for_event(event_name)
             event_stations.append((event, stations))
 
-        visualization.plot_raydensity(map, event_stations,
+        visualization.plot_raydensity(map_object, event_stations,
             bounds["minimum_latitude"], bounds["maximum_latitude"],
             bounds["minimum_longitude"], bounds["maximum_longitude"],
             self.domain["rotation_axis"], self.domain["rotation_angle"])
 
         events = self.get_all_events()
-        visualization.plot_events(events, map_object=map)
+        visualization.plot_events(events, map=map_object)
 
         plt.tight_layout()
 
@@ -701,11 +706,6 @@ class Project(object):
             "station_cache.sqlite"), self.paths["dataless_seed"],
             self.paths["resp"])
         return self._station_cache
-
-    @station_cache.setter
-    def station_cache(self, value):
-        msg = "Not allowed. Please update the StationCache instance instead."
-        raise Exception(msg)
 
     def _get_waveform_cache_file(self, event_name, tag):
         """
@@ -1011,7 +1011,7 @@ class Project(object):
                     e_d_trace = None
                 try:
                     z_d_trace = data.select(component="Z")[0]
-                except:
+                except Exception:
                     z_d_trace = None
                 n_s_trace = synthetics.select(component="N")[0]
                 e_s_trace = synthetics.select(component="E")[0]
