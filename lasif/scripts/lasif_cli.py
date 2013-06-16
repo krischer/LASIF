@@ -13,15 +13,18 @@ interface feels sluggish and slow.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-FCT_PREFIX = "lasif_"
-
-import colorama
 import os
 import random
+import shutil
 import sys
 import traceback
 
+import colorama
+
 from lasif.project import Project
+
+
+FCT_PREFIX = "lasif_"
 
 
 class LASIFCommandLineException(Exception):
@@ -248,6 +251,7 @@ def lasif_plot_kernel(args):
     """
     Usage lasif plot_kernel ITERATION_NAME EVENT_NAME
     """
+    from glob import glob
     from lasif import ses3d_models
 
     if len(args) != 2:
@@ -261,7 +265,48 @@ def lasif_plot_kernel(args):
 
     kernel_dir = proj.get_kernel_dir(iteration_name, event_name)
 
-    handler = ses3d_models.RawSES3DModelHandler(kernel_dir, type="kernel")
+    # Check if the kernel directory contains a boxfile,
+    # if not search all model directories for one that fits. If none is
+    # found, raise an error.
+    model_directories = proj.get_model_dict().values()
+    boxfile = os.path.join(kernel_dir, "boxfile")
+    if not os.path.exists(boxfile):
+        boxfile_found = False
+        # Find all vp gradients.
+        vp_gradients = glob(os.path.join(kernel_dir, "grad_cp_*_*"))
+        file_count = len(vp_gradients)
+        filesize = list(set([os.path.getsize(_i) for _i in vp_gradients]))
+        if len(filesize) != 1:
+            msg = ("The grad_cp_*_* files in '%s' do not all have "
+                "identical size.") % kernel_dir
+            raise LASIFCommandLineException(msg)
+        filesize = filesize[0]
+        # Now loop over all model directories until a fitting one if found.
+        for model_dir in model_directories:
+            # Use the lambda parameter files. One could also use any of the
+            # others.
+            lambda_files = glob(os.path.join(model_dir, "lambda*"))
+            if len(lambda_files) != file_count:
+                continue
+            l_filesize = list(
+                set([os.path.getsize(_i) for _i in lambda_files]))
+            if len(l_filesize) != 1 or l_filesize[0] != filesize:
+                continue
+            model_boxfile = os.path.join(model_dir, "boxfile")
+            if not os.path.exists(model_boxfile):
+                continue
+            boxfile_found = True
+            boxfile = model_boxfile
+        if boxfile_found is not True:
+            msg = ("Could not find a suitable boxfile for the kernel stored "
+                "in '%s'. Please either copy a suitable one to this "
+                "directory or add a model with the same dimension to LASIF. "
+                "LASIF will then be able to figure out the dimensions of it.")
+            raise LASIFCommandLineException(msg)
+        shutil.copyfile(boxfile, os.path.join(kernel_dir, "boxfile"))
+
+    handler = ses3d_models.RawSES3DModelHandler(kernel_dir,
+        model_type="kernel")
     handler.rotation_axis = proj.domain["rotation_axis"]
     handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
 

@@ -71,7 +71,7 @@ class RawSES3DModelHandler(object):
     """
     Class able to deal with a directory of raw SES3D 4.0 models.
 
-    A directory is defined by containing:
+    An earth model directory is defined by containing:
         * boxfile              -> File describing the discretization
         * A0-A[XX]             -> Anisotropic parameters (one per CPU)
         * B0-B[XX]             -> Anisotropic parameters (one per CPU)
@@ -80,8 +80,29 @@ class RawSES3DModelHandler(object):
         * mu0 - mu[XX]         -> Elastic parameters (one per CPU)
         * rhoinv0 - rhoinv[XX] -> Elastic parameters (one per CPU)
         * Q0 - Q[XX]           -> Elastic parameters (one per CPU)
+
+    A kernel directory is defined by containing:
+        * grad_cp_[XX]_[XXXX]
+        * grad_csh_[XX]_[XXXX]
+        * grad_csv_[XX]_[XXXX]
+        * grad_rho_[XX]_[XXXX]
+
+        In this case the boxfile will be determined by searching a list of
+        provided model directories for one that fits or by directly
+        specifying the path to it.
     """
-    def __init__(self, directory, model_type="earth_model"):
+    def __init__(self, directory, model_type="earth_model",
+             boxfile_locations=None):
+        """
+        The init function.
+
+        :param directory: The directory where the earth model or kernel is
+            located.
+        :param model_type: Determined the type of model loaded. Currently
+            two are supported:
+                * earth_model - The standard SES3D model files (default)
+                * kernel - The kernels. Identifies by lots of grad_* files.
+        """
         self.directory = directory
         self.boxfile = os.path.join(self.directory, "boxfile")
         if not os.path.exists(self.boxfile):
@@ -94,37 +115,81 @@ class RawSES3DModelHandler(object):
         self.rotation_axis = None
         self.rotation_angle_in_degree = None
 
-        # Now check what different models are available in the directory. This
-        # information is also used to infer the degree of the used lagrange
-        # polynomial.
-        components = ["A", "B", "C", "lambda", "mu", "rhoinv", "Q"]
-        self.components = {}
-        self.parsed_components = {}
-        for component in components:
-            files = glob.glob(os.path.join(directory, "%s[0-9]*" % component))
-            if len(files) != len(self.setup["subdomains"]):
-                continue
-            # Check that the naming is continuous.
-            all_good = True
-            for _i in xrange(len(self.setup["subdomains"])):
-                if os.path.join(directory, "%s%i" % (component, _i)) in files:
+        if model_type == "earth_model":
+            # Now check what different models are available in the directory.
+            # This information is also used to infer the degree of the used
+            # lagrange polynomial.
+            components = ["A", "B", "C", "lambda", "mu", "rhoinv", "Q"]
+            self.available_derived_components = ["vp", "vsh", "vsv", "rho"]
+            self.components = {}
+            self.parsed_components = {}
+            for component in components:
+                files = glob.glob(
+                    os.path.join(directory, "%s[0-9]*" % component))
+                if len(files) != len(self.setup["subdomains"]):
                     continue
-                all_good = False
-                break
-            if all_good is False:
-                msg = "Naming for component %s is off. It will be skipped."
-                warnings.warn(msg)
-                continue
-            # They also all need to have the same size.
-            if len(set([os.path.getsize(_i) for _i in files])) != 1:
-                msg = ("Component %s has the right number of model files but "
-                    "they are not of equal size") % component
-                warnings.warn(msg)
-                continue
-            # Sort the files by ascending number.
-            files.sort(key=lambda x: int(re.findall(r"\d+$",
-                (os.path.basename(x)))[0]))
-            self.components[component] = {"filenames": files}
+                # Check that the naming is continuous.
+                all_good = True
+                for _i in xrange(len(self.setup["subdomains"])):
+                    if os.path.join(directory,
+                            "%s%i" % (component, _i)) in files:
+                        continue
+                    all_good = False
+                    break
+                if all_good is False:
+                    msg = "Naming for component %s is off. It will be skipped."
+                    warnings.warn(msg)
+                    continue
+                # They also all need to have the same size.
+                if len(set([os.path.getsize(_i) for _i in files])) != 1:
+                    msg = ("Component %s has the right number of model files "
+                        "but they are not of equal size") % component
+                    warnings.warn(msg)
+                    continue
+                # Sort the files by ascending number.
+                files.sort(key=lambda x: int(re.findall(r"\d+$",
+                    (os.path.basename(x)))[0]))
+                self.components[component] = {"filenames": files}
+        elif model_type == "kernel":
+            # Now check what different models are available in the directory.
+            # This information is also used to infer the degree of the used
+            # lagrange polynomial.
+            components = ["grad_cp", "grad_csh", "grad_csv", "grad_rho"]
+            self.available_derived_components = []
+            self.components = {}
+            self.parsed_components = {}
+            for component in components:
+                files = glob.glob(
+                    os.path.join(directory, "%s_[0-9]*_[0-9]*" % component))
+                length = int(files[0][files[0].rfind("_") + 1:])
+                if len(files) != len(self.setup["subdomains"]):
+                    continue
+                    # Check that the naming is continuous.
+                all_good = True
+                for _i in xrange(len(self.setup["subdomains"])):
+                    if os.path.join(directory,
+                            "%s_%i_%i" % (component, _i,  length)) in files:
+                        continue
+                    all_good = False
+                    break
+                if all_good is False:
+                    msg = "Naming for component %s is off. It will be skipped."
+                    warnings.warn(msg)
+                    continue
+                    # They also all need to have the same size.
+                if len(set([os.path.getsize(_i) for _i in files])) != 1:
+                    msg = ("Component %s has the right number of model files "
+                           "but they are not of equal size") % component
+                    warnings.warn(msg)
+                    continue
+                    # Sort the files by ascending number.
+                files.sort(key=lambda x: int(re.findall(r"\d+$",
+                                                        (os.path.basename(x)))[0]))
+                self.components[component] = {"filenames": files}
+        else:
+            msg = "model_type '%s' not known." % model_type
+            raise ValueError(msg)
+
         # All files for a single component have the same size. Now check that
         # all files have the same size.
         unique_filesizes = len(list(set([os.path.getsize(_i["filenames"][0])
@@ -143,8 +208,6 @@ class RawSES3DModelHandler(object):
             int(round(((size * 0.25) / (x * y * z)) ** (1.0 / 3.0) - 1))
 
         self._calculate_final_dimensions()
-
-        self.available_derived_components = ["vp", "vsh", "vsv", "rho"]
 
     def _read_single_box(self, component, file_number):
         """

@@ -314,8 +314,8 @@ class Project(object):
             plot_simulation_domain=True, show_plot=True, zoom=True)
 
     def get_kernel_dir(self, iteration_name, event_name):
-        return os.path.join(self.paths["KERNELS"], "ITERATION_%s" %
-            iteration_name, event_name)
+        return os.path.join(self.paths["kernels"], event_name,
+            "ITERATION_%s" % iteration_name)
 
     def get_event(self, event_name):
         """
