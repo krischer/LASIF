@@ -205,7 +205,7 @@ class RawSES3DModelHandler(object):
         sd = self.setup["subdomains"][0]
         x, y, z = sd["index_x_count"], sd["index_y_count"], sd["index_z_count"]
         self.lagrange_polynomial_degree = \
-            int(round(((size * 0.25) / (x * y * z)) ** (1.0 / 3.0) - 1))
+            int(round(((size * 0.25) / (x * y * z)) ** (1.0 / 3.0) - 1)) + 1
 
         self._calculate_final_dimensions()
 
@@ -227,7 +227,7 @@ class RawSES3DModelHandler(object):
         filename = self.components[component]["filenames"][file_number]
         domain = self.setup["subdomains"][file_number]
 
-        lpd = self.lagrange_polynomial_degree
+        lpd = self.lagrange_polynomial_degree - 1
 
         shape = (domain["index_x_count"], domain["index_y_count"],
             domain["index_z_count"], lpd + 1, lpd + 1, lpd + 1)
@@ -340,11 +340,11 @@ class RawSES3DModelHandler(object):
         self.setup["total_element_count"] = x * y * z
 
         self.setup["point_count_in_x"] = \
-            (x * self. lagrange_polynomial_degree + 1)
+            (x * (self.lagrange_polynomial_degree - 1) + 1)
         self.setup["point_count_in_y"] = \
-            (y * self. lagrange_polynomial_degree + 1)
+            (y * (self.lagrange_polynomial_degree - 1) + 1)
         self.setup["point_count_in_z"] = \
-            (z * self. lagrange_polynomial_degree + 1)
+            (z * (self.lagrange_polynomial_degree - 1) + 1)
         self.setup["total_point_count"] = (
             self.setup["point_count_in_x"] *
             self.setup["point_count_in_y"] *
@@ -410,8 +410,8 @@ class RawSES3DModelHandler(object):
         m.drawcountries()
 
         x, y = m(lon, lat)
-        im = m.pcolormesh(x, y, data[::-1, :, depth_index],
-            cmap=tomo_colormap)
+        im = m.pcolormesh(x, y, data[::-1, :, depth_index], vmin=2.9,
+            vmax=3.9, cmap=tomo_colormap)
 
         # Add colorbar and potentially unit.
         cm = m.colorbar(im, "right", size="3%", pad='2%')
