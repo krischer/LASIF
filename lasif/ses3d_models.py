@@ -483,8 +483,8 @@ class RawSES3DModelHandler(object):
             for _i in self.setup["physical_boundaries_z"][::-1]])
         ret_str += "\t\tTotal element count: %i\n" % \
             self.setup["total_element_count"]
-        ret_str += "\t\tTotal grid point count: %i (without duplicates: " \
-            "%i)\n" % (self.setup["total_point_count"],
+        ret_str += "\t\tTotal collocation point count: %i (without " \
+            "duplicates: %i)\n" % (self.setup["total_point_count"],
             self.setup["total_point_count_without_duplicates"])
         ret_str += "\tMemory requirement per component: %.1f MB\n" % \
             ((self.setup["total_point_count_without_duplicates"] * 4) /
