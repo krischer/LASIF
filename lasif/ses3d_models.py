@@ -91,8 +91,7 @@ class RawSES3DModelHandler(object):
         provided model directories for one that fits or by directly
         specifying the path to it.
     """
-    def __init__(self, directory, model_type="earth_model",
-             boxfile_locations=None):
+    def __init__(self, directory, model_type="earth_model"):
         """
         The init function.
 
@@ -110,7 +109,7 @@ class RawSES3DModelHandler(object):
             raise ValueError(msg)
 
         # Read the boxfile.
-        self.setup = self._parse_boxfile()
+        self.setup = self._read_boxfile()
 
         self.rotation_axis = None
         self.rotation_angle_in_degree = None
@@ -168,7 +167,7 @@ class RawSES3DModelHandler(object):
                 all_good = True
                 for _i in xrange(len(self.setup["subdomains"])):
                     if os.path.join(directory,
-                            "%s_%i_%i" % (component, _i,  length)) in files:
+                            "%s_%i_%i" % (component, _i, length)) in files:
                         continue
                     all_good = False
                     break
@@ -184,7 +183,7 @@ class RawSES3DModelHandler(object):
                     continue
                     # Sort the files by ascending number.
                 files.sort(key=lambda x: int(re.findall(r"\d+$",
-                                                        (os.path.basename(x)))[0]))
+                    (os.path.basename(x)))[0]))
                 self.components[component] = {"filenames": files}
         else:
             msg = "model_type '%s' not known." % model_type
@@ -197,7 +196,7 @@ class RawSES3DModelHandler(object):
         if unique_filesizes != 1:
             msg = ("The different components in the folder do not have the "
                 "same number of samples")
-            raise ValueError
+            raise ValueError(msg)
 
         # Now calculate the lagrange polynomial degree. All necessary
         # information is present.
@@ -205,7 +204,7 @@ class RawSES3DModelHandler(object):
         sd = self.setup["subdomains"][0]
         x, y, z = sd["index_x_count"], sd["index_y_count"], sd["index_z_count"]
         self.lagrange_polynomial_degree = \
-            int(round(((size * 0.25) / (x * y * z)) ** (1.0 / 3.0) - 1)) + 1
+            int(round(((size * 0.25) / (x * y * z)) ** (1.0 / 3.0) - 1))
 
         self._calculate_final_dimensions()
 
@@ -215,54 +214,53 @@ class RawSES3DModelHandler(object):
         snapshots, as well as model parameter files or sensitivity kernels. It
         returns the field as an array of rank 3 with shape (nx*lpd+1, ny*lpd+1,
         nz*lpd+1), discarding the duplicates by default.
-
-        Parameters:
-        -----------
-        par: dictionary
-            Dictionary with parameters from read_par_file()
-        file_name: str
-            Filename of Ses3d 3d raw-output
         """
         # Get the file and the corresponding domain.
         filename = self.components[component]["filenames"][file_number]
         domain = self.setup["subdomains"][file_number]
 
-        lpd = self.lagrange_polynomial_degree - 1
+        lpd = self.lagrange_polynomial_degree
 
         shape = (domain["index_x_count"], domain["index_y_count"],
             domain["index_z_count"], lpd + 1, lpd + 1, lpd + 1)
 
-        # Take care: The first and last four bytes in the arrays are invalid.
+        # Take care: The first and last four bytes in the arrays are invalid
+        #  due to them being written by Fortran.
         with open(filename, "rb") as open_file:
             field = np.ndarray(shape, buffer=open_file.read()[4:-4],
                 dtype="float32", order="F")
+        # field = np.require(field, requirements="C")
 
-        # Calculate the new shape by multiplying every dimension with the lpd +
-        # 1 value for every dimension.
+        # Calculate the new shape by multiplying every dimension with lpd + 1
+        # value for every dimension.
         new_shape = [_i * _j for _i, _j in zip(shape[:3], shape[3:])]
 
         # Reorder the axes:
-        # v[x, y, z, lpd+1 ,lpd+1, lpd+1] -> v[x, lpd+1, y, z, lpd+1, lpd+1] ->
-        #   v[x, lpd+1, y, lpd+1, z, lpd+1]
-        field = np.rollaxis(np.rollaxis(field, 3, 1), 3, 5)
+        # v[x, y, z, lpd + 1 ,lpd + 1, lpd + 1] -> v[x, lpd + 1, y, z,
+        # lpd + 1, lpd + 1] -> v[x, lpd + 1, y, lpd + 1, z, lpd + 1]
+        field = np.rollaxis(np.rollaxis(field, 3, 1), 3, lpd + 1)
 
         # Reshape the data:
-        # v[nx,lpd,ny,lpd,nz,lpd] to v[nx*(lpd+1),ny*(lpd+1),nz*(lpd+1)]
-        # XXX: Check how this depends on C and Fortran memory layout.
+        # v[nx,lpd+1,ny,lpd+1,nz,lpd+1] to v[nx*(lpd+1),ny*(lpd+1),nz*(lpd+1)]
         field = field.reshape(new_shape, order="C")
 
         # XXX: Attempt to do this in one step.
         for axis, count in enumerate(new_shape):
             # Mask the duplicate values.
             mask = np.ones(count, dtype="bool")
-            mask[::(lpd + 1)] = False
-            mask[0] = True
+            mask[::lpd + 1][1:] = False
             # Remove them by compressing the array.
             field = field.compress(mask, axis=axis)
 
-        return field
+        return field[:, :, ::-1]
 
     def parse_component(self, component):
+        """
+        Helper function parsing a whole component.
+
+        :param component: The component name.
+        :type component: basestring
+        """
         # If a real component,
         if component in self.components.keys():
             self._parse_component(component)
@@ -315,15 +313,17 @@ class RawSES3DModelHandler(object):
             x_min, x_max = domain["boundaries_x"]
             y_min, y_max = domain["boundaries_y"]
             z_min, z_max = domain["boundaries_z"]
-            x_min, x_max, y_min, y_max, z_min, z_max = [(_j + 1) * 4
-                for _j in (x_min, x_max, y_min, y_max, z_min, z_max)]
-            x_min, y_min, z_min = [_j - 4 for _j in (x_min, y_min, z_min)]
-            subdata = self._read_single_box(component, _i)
+
+            # Minimum indices
+            x_min, y_min, z_min = [self.lagrange_polynomial_degree * _j
+               for _j in (x_min, y_min, z_min)]
+            # Maximum indices
+            x_max, y_max, z_max = [self.lagrange_polynomial_degree * (_j + 1)
+                for _j in (x_max, y_max, z_max)]
+
             # Merge into data.
-            # XXX: Whacky z-indexing...put some more thought into this.
-            z1 = data.shape[2] - z_min
-            z2 = data.shape[2] - z_max
-            data[x_min:x_max + 1, y_min:y_max + 1, z2 - 1: z1] = subdata
+            data[x_min: x_max + 1, y_min: y_max + 1, z_min: z_max + 1] = \
+                self._read_single_box(component, _i)
 
         self.parsed_components[component] = data
 
@@ -340,11 +340,11 @@ class RawSES3DModelHandler(object):
         self.setup["total_element_count"] = x * y * z
 
         self.setup["point_count_in_x"] = \
-            (x * (self.lagrange_polynomial_degree - 1) + 1)
+            (x * self.lagrange_polynomial_degree + 1)
         self.setup["point_count_in_y"] = \
-            (y * (self.lagrange_polynomial_degree - 1) + 1)
+            (y * self.lagrange_polynomial_degree + 1)
         self.setup["point_count_in_z"] = \
-            (z * (self.lagrange_polynomial_degree - 1) + 1)
+            (z * self.lagrange_polynomial_degree + 1)
         self.setup["total_point_count"] = (
             self.setup["point_count_in_x"] *
             self.setup["point_count_in_y"] *
@@ -357,12 +357,12 @@ class RawSES3DModelHandler(object):
         lat_bounds = [rotations.colat2lat(_i)
             for _i in self.setup["physical_boundaries_x"][::-1]]
         lng_bounds = self.setup["physical_boundaries_y"]
-        depth_bounds = [6371 - _i / 1000
+        depth_bounds = [6371 - _i / 1000.0
             for _i in self.setup["physical_boundaries_z"]]
 
         data = self.parsed_components[component]
 
-        available_depths = np.linspace(*depth_bounds, num=data.shape[2])[::-1]
+        available_depths = np.linspace(*depth_bounds, num=data.shape[2])
         depth_index = np.argmin(np.abs(available_depths - depth_in_km))
 
         lon, lat = np.meshgrid(
@@ -401,7 +401,6 @@ class RawSES3DModelHandler(object):
             m = Basemap(projection='ortho', lon_0=lon_0, lat_0=lat_0,
                 resolution="c")
 
-
         m.drawcoastlines()
         m.fillcontinents("0.9", zorder=0)
         m.drawmapboundary(fill_color="white")
@@ -410,8 +409,7 @@ class RawSES3DModelHandler(object):
         m.drawcountries()
 
         x, y = m(lon, lat)
-        im = m.pcolormesh(x, y, data[::-1, :, depth_index], vmin=2.9,
-            vmax=3.9, cmap=tomo_colormap)
+        im = m.pcolormesh(x, y, data[::-1, :, depth_index], cmap=tomo_colormap)
 
         # Add colorbar and potentially unit.
         cm = m.colorbar(im, "right", size="3%", pad='2%')
@@ -484,11 +482,11 @@ class RawSES3DModelHandler(object):
             sorted(self.parsed_components.keys())))
         return ret_str
 
-    def _parse_boxfile(self):
+    def _read_boxfile(self):
         setup = {"subdomains": []}
-        with open(self.boxfile, "rt") as open_file:
+        with open(self.boxfile, "rt") as fh:
             # The first 14 lines denote the header
-            lines = open_file.readlines()[14:]
+            lines = fh.readlines()[14:]
             # Strip lines and remove empty lines.
             lines = [_i.strip() for _i in lines if _i.strip()]
 
@@ -510,6 +508,12 @@ class RawSES3DModelHandler(object):
 
             # Now parse the rest of file which contains the subdomains.
             def subdomain_generator(data):
+                """
+                Simple generator looping over each defined box and yielding
+                a dictionary for each.
+
+                :param data: The text.
+                """
                 while data:
                     subdom = {}
                     # Convert both indices to 0-based indices
@@ -529,9 +533,18 @@ class RawSES3DModelHandler(object):
                         data.pop(0).split())
                     for component in ("x", "y", "z"):
                         idx = "boundaries_%s" % component
-                        subdom["index_%s_count" % component] = \
-                            subdom[idx][1] - subdom[idx][0] + 1
-                    # Remove seperator_line if existant.
+                        index_count = subdom[idx][1] - subdom[idx][0] + 1
+                        subdom["index_%s_count" % component] = index_count
+                        # The boxfiles are slightly awkward in that the indices
+                        # are not really continuous. For example if one box
+                        # has 22 as the last index, the first index of the next
+                        # box will also be 22, even though it should be 23. The
+                        # next snippet attempts to fix this deficiency.
+                        offset = int(round(subdom[idx][0] /
+                            float(index_count - 1)))
+                        subdom[idx][0] += offset
+                        subdom[idx][1] += offset
+                    # Remove separator_line if existent.
                     if set(lines[0]) == set("-"):
                         lines.pop(0)
                     yield subdom
@@ -570,10 +583,8 @@ def get_lpd_sampling_points(lpd):
     Returns the sampling points for to the n-th degree lagrange polynomial in
     an interval between -1 and 1.
 
-    Parameters:
-    -----------
-    lpd : int
-        Lagrange polynomial degree (between 2 to 7)
+    :param lpd: Lagrange polynomial degree (between 2 to 7)
+    :type lpd: integer
     """
     if lpd == 2:
         knots = np.array([-1.0, 0.0, 1.0])
@@ -581,127 +592,18 @@ def get_lpd_sampling_points(lpd):
         knots = np.array([-1.0, -0.4472135954999579, 0.4472135954999579, 1.0])
     elif lpd == 4:
         knots = np.array([-1.0, -0.6546536707079772, 0.0,
-           0.6546536707079772, 1.0])
+            0.6546536707079772, 1.0])
     elif lpd == 5:
         knots = np.array([-1.0, -0.7650553239294647, -0.2852315164806451,
-           0.2852315164806451, 0.7650553239294647, 1.0])
+            0.2852315164806451, 0.7650553239294647, 1.0])
     elif lpd == 6:
         knots = np.array([-1.0, -0.8302238962785670, -0.4688487934707142,
-           0.0, 0.4688487934707142, 0.8302238962785670, 1.0])
+            0.0, 0.4688487934707142, 0.8302238962785670, 1.0])
     elif lpd == 7:
         knots = np.array([-1.0, -0.8717401485096066, -0.5917001814331423,
             -0.2092992179024789, 0.2092992179024789, 0.5917001814331423,
             0.8717401485096066, 1.0])
+    else:
+        msg = "Invalid degree. It has to be between 2 and 7."
+        raise ValueError(msg)
     return knots
-
-
-def _read_blockfile(path):
-    """
-    Helper function reading a single block file and returning a list of
-    np.arrays, each containing one subdomain.
-
-    A blockfile is a custom ASCII file format with the following specification:
-
-    2       <-- Total number of subdomains
-    10      <-- Number of entries in the first subdomain
-    ...     <-- 10 lines of data for the first subdomain
-    12      <-- Number of entries in the second subdomain
-    ...     <- 12 lines of data for the second subdomain
-
-    and so on.
-
-    :param path: Path to the blockfile.
-    """
-    raw_data = np.loadtxt(path, dtype="float32")
-    number_of_subdomains = int(raw_data[0])
-
-    def subdomain_generator(data):
-        """
-        Simple generator yielding one subdomain at a time.
-        """
-        while len(data):
-            npts = int(data[0])
-            yield data[1:npts + 1]
-            data = data[npts + 1:]
-
-    contents = list(subdomain_generator(raw_data[1:]))
-
-    # Sanity check.
-    if len(contents) != number_of_subdomains:
-        msg = ("Number of subdomains in blockfile (%i) does not correspond to "
-            "the number specified in the header (%i)." % (len(contents),
-            number_of_subdomains))
-        warnings.warn(msg)
-
-    return contents
-
-
-class SES3D_Model(object):
-    """
-    Class for reading, writing, plotting and manipulating a SES3D model
-    """
-    def __init__(self, blockfile_directory, model_filename, rotation_axis=None,
-            rotation_angle_in_degree=None):
-        """
-        Initiates a list of Submodels
-        """
-        self.blockfile_directory = blockfile_directory
-        self.model_filename = model_filename
-
-        self.subvolumes = []
-        self.read()
-
-    def __str__(self):
-        """
-        Pretty print some information about the model.
-        """
-        ret = "Contains %i subvolume%s:\n" % (len(self.subvolumes), "s" if
-            len(self.subvolumes) > 1 else "")
-        for subvol in self.subvolumes:
-            ret += "\tLat: %.2f-%.2f | Lng: %.2f-%.2f | Dep: %.1f-%.1f\n" \
-                % (subvol["latitudes"][-1], subvol["latitudes"][0],
-                subvol["longitudes"][0], subvol["longitudes"][-1],
-                subvol["depths_in_km"][0], subvol["depths_in_km"][-1])
-        return ret
-
-    def read(self):
-        """
-        Reads a SES3D model from a file.
-        """
-        # Read all block files
-        folder = self.blockfile_directory
-        blockfile_x = _read_blockfile(os.path.join(folder, "block_x"))
-        blockfile_y = _read_blockfile(os.path.join(folder, "block_y"))
-        blockfile_z = _read_blockfile(os.path.join(folder, "block_z"))
-        blockfiles = (blockfile_x, blockfile_y, blockfile_z)
-
-        # Sanity checking that they all have the same number of subdomains.
-        unique_subdomain_counts = len(set([len(_i) for _i in blockfiles]))
-        if unique_subdomain_counts != 1:
-            msg = ("Invalid blockfiles. They do not contain equal amounts of "
-                "subdomains.")
-            raise ValueError(msg)
-
-        # Create the subvolume. Currently uses dictionaries.
-        for x, y, z in zip(*blockfiles):
-            self.subvolumes.append({
-                "latitudes": np.array(map(rotations.colat2lat, x)),
-                "longitudes": y,
-                "depths_in_km": z})
-
-        #- read model volume
-        with open(os.path.join(directory, filename), "rb") as open_file:
-
-            v=np.array(open_file.read().strip().splitlines(), dtype=float)
-
-        #- assign values ======================================================
-        idx=1
-        for k in np.arange(self.nsubvol):
-            n=int(v[idx])
-            nx=len(self.m[k].lat)-1
-            ny=len(self.m[k].lon)-1
-            nz=len(self.m[k].r)-1
-
-            self.m[k].v=v[(idx+1):(idx+1+n)].reshape(nx,ny,nz)
-
-            idx=idx+n+1
