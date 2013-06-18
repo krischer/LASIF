@@ -356,6 +356,38 @@ class RawSES3DModelHandler(object):
             self.setup["point_count_in_y"] *
             self.setup["point_count_in_z"])
 
+    def _get_collocation_points_along_axis(self, min_value, max_value, count):
+        """
+        Calculates count collocation points from min_value to max_value as
+        they would be used by a simulation. The border elements are not
+        repeated.
+
+        :param min_value: The minimum value.
+        :param max_value: The maximum value.
+        :param count: The number of values.
+        """
+        # Normalize from 0.0 to 1.0
+        coll_points = get_lpd_sampling_points(self.lagrange_polynomial_degree)
+        coll_points += 1.0
+        coll_points /= 2.0
+
+        # Some view and reshaping tricks to ensure performance. Probably not
+        # needed.
+        points = np.empty(count)
+        lpd = self.lagrange_polynomial_degree
+        p_view = points[:count - 1].view().reshape(((count - 1) / lpd, lpd))
+        for _i in xrange(p_view.shape[0]):
+            p_view[_i] = _i
+        points[-1] = points[-2] + 1
+        for _i, value in enumerate(coll_points[1:-1]):
+            points[_i + 1::lpd] += value
+
+        # Normalize from min_value to max_value.
+        points /= points.max()
+        points *= abs(max_value - min_value)
+        points += min_value
+        return points
+
     def plot_depth_slice(self, component, depth_in_km):
         """
         Plots a depth slice.
@@ -378,9 +410,12 @@ class RawSES3DModelHandler(object):
         depth_index = np.argmin(np.abs(available_depths - depth_in_km))
         actual_depth = available_depths[depth_index]
 
-        lon, lat = np.meshgrid(
-            np.linspace(*lng_bounds, num=data.shape[1]),
-            np.linspace(*lat_bounds, num=data.shape[0]))
+        lngs = self._get_collocation_points_along_axis(lng_bounds[0],
+            lng_bounds[1], data.shape[1])
+        lats = self._get_collocation_points_along_axis(lat_bounds[0],
+            lat_bounds[1], data.shape[0])
+
+        lon, lat = np.meshgrid(lngs, lats)
         if self.rotation_axis and self.rotation_angle_in_degree:
             lon_shape = lon.shape
             lat_shape = lat.shape
