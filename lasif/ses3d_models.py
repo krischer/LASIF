@@ -337,15 +337,21 @@ class RawSES3DModelHandler(object):
             self.setup["boundaries_x"][1] - self.setup["boundaries_x"][0] + 1,
             self.setup["boundaries_y"][1] - self.setup["boundaries_y"][0] + 1,
             self.setup["boundaries_z"][1] - self.setup["boundaries_z"][0] + 1)
-        self.setup["total_element_count"] = x * y * z
 
+        self.setup["total_element_count"] = x * y * z
+        self.setup["total_point_count"] = (x * y * z) * \
+            (self.lagrange_polynomial_degree + 1) ** 3
+
+        # This is the actual point count with removed duplicates. Much
+        # smaller because each element shared a large number of elements
+        # with its neighbours.
         self.setup["point_count_in_x"] = \
             (x * self.lagrange_polynomial_degree + 1)
         self.setup["point_count_in_y"] = \
             (y * self.lagrange_polynomial_degree + 1)
         self.setup["point_count_in_z"] = \
             (z * self.lagrange_polynomial_degree + 1)
-        self.setup["total_point_count"] = (
+        self.setup["total_point_count_without_duplicates"] = (
             self.setup["point_count_in_x"] *
             self.setup["point_count_in_y"] *
             self.setup["point_count_in_z"])
@@ -353,6 +359,12 @@ class RawSES3DModelHandler(object):
     def plot_depth_slice(self, component, depth_in_km):
         """
         Plots a depth slice.
+
+        :param component: The component to plot.
+        :type component: basestring
+        :param depth_in_km: The depth in km to plot. If the exact depth does
+             not exists, the nearest neighbour will be plotted.
+        :type depth_in_km: integer or float
         """
         lat_bounds = [rotations.colat2lat(_i)
             for _i in self.setup["physical_boundaries_x"][::-1]]
@@ -364,6 +376,7 @@ class RawSES3DModelHandler(object):
 
         available_depths = np.linspace(*depth_bounds, num=data.shape[2])
         depth_index = np.argmin(np.abs(available_depths - depth_in_km))
+        actual_depth = available_depths[depth_index]
 
         lon, lat = np.meshgrid(
             np.linspace(*lng_bounds, num=data.shape[1]),
@@ -417,7 +430,7 @@ class RawSES3DModelHandler(object):
             cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
 
         plt.suptitle("Depth slice of %s at %i km" % (component,
-            int(depth_in_km)), size="large")
+            int(round(actual_depth))), size="large")
 
         def _on_button_press(event):
             if event.button != 1 or not event.inaxes:
@@ -470,10 +483,12 @@ class RawSES3DModelHandler(object):
             for _i in self.setup["physical_boundaries_z"][::-1]])
         ret_str += "\t\tTotal element count: %i\n" % \
             self.setup["total_element_count"]
-        ret_str += "\t\tTotal grid point count: %i\n" % \
-            self.setup["total_point_count"]
+        ret_str += "\t\tTotal grid point count: %i (without duplicates: " \
+            "%i)\n" % (self.setup["total_point_count"],
+            self.setup["total_point_count_without_duplicates"])
         ret_str += "\tMemory requirement per component: %.1f MB\n" % \
-            ((self.setup["total_point_count"] * 4) / (1024.0 ** 2))
+            ((self.setup["total_point_count_without_duplicates"] * 4) /
+            (1024.0 ** 2))
         ret_str += "\tAvailable components: %s\n" % (", ".join(
             sorted(self.components.keys())))
         ret_str += "\tAvailable derived components: %s\n" % (", ".join(

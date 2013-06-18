@@ -363,7 +363,7 @@ def lasif_plot_model(args):
             handler.parse_component(component)
         except:
             continue
-        handler.plot_depth_slice(component, int(depth))
+        handler.plot_depth_slice(component, float(depth))
 
 
 def lasif_event_info(args):
