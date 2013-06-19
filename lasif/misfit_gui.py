@@ -33,6 +33,7 @@ from matplotlib_selection_rectangle import WindowSelectionRectangle
 
 import warnings
 
+from lasif.window_selection import select_windows
 from lasif import visualization
 from lasif.adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 
@@ -140,18 +141,21 @@ class MisfitGUI:
         self.axnext = plt.axes([0.90, 0.95, 0.08, 0.03])
         self.axprev = plt.axes([0.90, 0.90, 0.08, 0.03])
         self.axreset = plt.axes([0.90, 0.85, 0.08, 0.03])
+        self.axautopick = plt.axes([0.90, 0.80, 0.08, 0.03])
         self.bnext = Button(self.axnext, 'Next')
         self.bprev = Button(self.axprev, 'Prev')
         self.breset = Button(self.axreset, 'Reset Station')
+        self.bautopick = Button(self.axautopick, 'Autoselect')
 
         # Axis displaying the current weight
-        self.axweight = plt.axes([0.90, 0.80, 0.08, 0.03])
+        self.axweight = plt.axes([0.90, 0.75, 0.08, 0.03])
         self._update_current_weight(1.0)
 
     def __connect_signals(self):
         self.bnext.on_clicked(self.next)
         self.bprev.on_clicked(self.prev)
         self.breset.on_clicked(self.reset)
+        self.bautopick.on_clicked(self.autoselect_windows)
 
         self.plot_axis_z.figure.canvas.mpl_connect('button_press_event',
             self._onButtonPress)
@@ -169,6 +173,32 @@ class MisfitGUI:
         # Connect the picker. Connecting once is enough. It will still fire for
         # all axes.
         self.plot_axis_z.figure.canvas.mpl_connect('pick_event', self._on_pick)
+
+    def autoselect_windows(self, event):
+        """
+        Automatically select proper time windows.
+        """
+        for component in ["Z", "N", "E"]:
+            real_trace = self.data["data"].select(component=component)
+            synth_trace = self.data["synthetics"].select(component=component)
+            if not real_trace or not synth_trace:
+                continue
+            real_trace = real_trace[0]
+            synth_trace = synth_trace[0]
+
+            windows = select_windows(real_trace, synth_trace,
+                self.event_latitude, self.event_longitude,
+                self.event_depth / 1000.0,
+                self.data["coordinates"]["latitude"],
+                self.data["coordinates"]["longitude"])
+
+            for idx_start, idx_end in windows:
+                window_start = self.time_axis[int(round(idx_start))]
+                window_end = self.time_axis[int(round(idx_end))]
+                self._onWindowSelected(window_start,
+                    window_end - window_start,
+                    axis=getattr(self,  "plot_axis_%s" %  component.lower()))
+
 
     def _on_pick(self, event):
         artist = event.artist
@@ -303,15 +333,16 @@ class MisfitGUI:
         self.plot_axis_e.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
 
         s_stats = self.data["synthetics"][0].stats
-        time_axis = np.linspace(0, s_stats.npts * s_stats.delta, s_stats.npts)
+        self.time_axis = np.linspace(0, s_stats.npts * s_stats.delta,
+                                 s_stats.npts)
 
         def plot_trace(axis, component):
             real_trace = self.data["data"].select(component=component)
             synth_trace = self.data["synthetics"].select(component=component)
             if real_trace:
-                axis.plot(time_axis, real_trace[0].data, color="black")
+                axis.plot(self.time_axis, real_trace[0].data, color="black")
             if synth_trace:
-                axis.plot(time_axis, synth_trace[0].data, color="red")
+                axis.plot(self.time_axis, synth_trace[0].data, color="red")
 
             if real_trace:
                 text = real_trace[0].id
@@ -329,7 +360,7 @@ class MisfitGUI:
                     bbox=dict(facecolor='red', alpha=0.5),
                     verticalalignment="top")
 
-            axis.set_xlim(time_axis[0], time_axis[-1])
+            axis.set_xlim(self.time_axis[0], self.time_axis[-1])
             axis.set_ylabel("m/s")
             axis.grid()
 
