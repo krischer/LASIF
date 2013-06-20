@@ -6,6 +6,42 @@ Window selection algorithm.
 This module aims to provide a window selection algorithm suitable for
 calculating phase misfits between two seismic waveforms.
 
+The main function is the plot_windows() function. The selection process is a
+multi-stage process. Initially all time steps are considered to be valid in
+the sense as being suitable for window selection. Then a number of selectors
+is applied, progressively excluding more and more time steps.
+
+Unscientific description of the employed algorithm. Some figures would be
+needed to really explain the reasoning behind it and the wording should be
+clearer:
+
+1. All time steps before the theoretical first arrival (calculated with
+   TauP) are set to invalid.
+2. A local extrema finding algorithm is employed, finding all local troughs
+   and peaks for data and synthetics.
+3. A kind of instantaneous peak-to-peak and trough-to-trough distance and a
+   mix of both is calculated for data and synthetics.
+3. At each time step, the relative difference between those metrics for data
+   and synthetics is calculated. Every time step where the maximum for
+   each of the three previously described metrics exceeds 1.0 is set to
+   invalid. This keeps the difference in "wiggliness" between data and
+   synthetics at a reasonable level.
+4. Now the peaks and troughs for data and synthetics are directly compared.
+   For every suitable window, it should be possible to map every peak in the
+   data to one in the synthetics. Time intervals where this is not possible
+   are set to invalid.
+5. All of the above now results in a list of potential windows that will
+   have to pass some further selection tests:
+
+   1. The minimum length for each window is the minimum of the instantaneous
+      peak-to-peak or trough-to-trough distance. Every window that does not
+      fulfill this requirement is rejected. This in essence limits the window
+      length to one wave length.
+   2. The "energy" of data and synthetics in one window should not differ by
+      more than 50 %. The "energy" used here is simply the sum of all
+      squared values in each window. This is reasonable for velocity
+      seismograms. All windows not fullfilling this will be rejected.
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 
