@@ -38,9 +38,9 @@ clearer:
       fulfill this requirement is rejected. This in essence limits the window
       length to one wave length.
    2. The "energy" of data and synthetics in one window should not differ by
-      more than 50 %. The "energy" used here is simply the sum of all
-      squared values in each window. This is reasonable for velocity
-      seismograms. All windows not fullfilling this will be rejected.
+      more than one order of magnitude. The "energy" used here is simply the
+      sum of all squared values in each window. This is reasonable for velocity
+      seismograms. All windows not fulfilling this will be rejected.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
@@ -335,9 +335,24 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
     window_mask &= inverse_mask
 
     window_mask = np.ma.masked_array(window_mask, mask=np.invert(window_mask))
+
+    # Now assemble the windows and apply some more selection algorithms.
     final_windows = []
     for i in np.ma.flatnotmasked_contiguous(window_mask):
-        if (i.stop - i.start) < 100:
+        # Use the middle index to get the current peak-to-peak and
+        # trough-to-trough distance for the synthetics. Choose the maximum
+        # of both the be the minimum of the acceptable window length.
+        window_length = i.stop - i.start
+        min_window_length = max(peak_distance_synth[i.start: i.stop].mean(),
+            trough_distance_synth[i.start: i.stop].mean())
+        if window_length < min_window_length:
+            continue
+        # Now compare the energy in the data window in the synthetic window.
+        # If they differ by more then one order of magnitude, discard them.
+        data_energy = (data_trace.data[i.start: i.stop] ** 2).sum()
+        synth_energy = (synthetic_trace.data[i.start: i.stop] ** 2).sum()
+        energies = sorted([data_energy, synth_energy])
+        if energies[1] > 10.0 * energies[0]:
             continue
         final_windows.append((i.start, i.stop))
     return final_windows
