@@ -358,7 +358,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
     return final_windows
 
 
-def plot_windows(data_trace, synthetic_trace, windows):
+def plot_windows(data_trace, synthetic_trace, windows, filename=None):
     """
     Helper function plotting the picked windows in some variants. Useful for
     debugging and checking what's actually going on.
@@ -369,9 +369,14 @@ def plot_windows(data_trace, synthetic_trace, windows):
     :type synthetic_trace: obspy.core.trace.Trace
     :param windows: The windows, as returned by select_windows()
     :type windows: list
+    :param filename: If given, a file will be written. Otherwise the plot
+        will be shown.
+    :type filename: basestring
     """
     import matplotlib.pylab as plt
     from obspy.signal.invsim import cosTaper
+
+    plt.figure(figsize=(16, 10))
 
     npts = synthetic_trace.stats.npts
 
@@ -433,8 +438,12 @@ def plot_windows(data_trace, synthetic_trace, windows):
     plt.xlim(0, time_array[-1])
     plt.title("Tapered windows, scaled to same amplitude")
 
-    plt.tight_layout()
-    plt.show()
+    plt.suptitle(data_trace.id)
+
+    if filename:
+        plt.savefig(filename)
+    else:
+        plt.show()
 
 
 if __name__ == '__main__':
