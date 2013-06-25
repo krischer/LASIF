@@ -87,6 +87,8 @@ def lat2colat(lat):
     45.0
     >>> lat2colat(90)
     0.0
+
+    :param lat: The latitude.
     """
     return 90.0 - lat
 
@@ -106,6 +108,8 @@ def colat2lat(colat):
     45.0
     >>> colat2lat(0.0)
     90.0
+
+    :param colat: The colatitude.
     """
     return -1.0 * (colat - 90.0)
 
@@ -116,14 +120,14 @@ def rotate_vector(vector, rotation_axis, angle):
 
     :param vector: The vector to be rotated given as [x, y, z].
     :param rotation_axis: The axis to be rotating around given as [x, y, z].
-    :angle: The rotation angle in degree.
+    :param angle: The rotation angle in degree.
     """
     # Convert angle to radian.
     angle = np.deg2rad(angle)
 
     # Normalize the rotation_axis
     rotation_axis = map(float, rotation_axis)
-    rotation_axis = rotation_axis / np.linalg.norm(rotation_axis)
+    rotation_axis /= np.linalg.norm(rotation_axis)
 
     # Use c1, c2, and c3 as shortcuts for the rotation axis.
     c1 = rotation_axis[0]
@@ -182,8 +186,8 @@ def rotate_lat_lon(lat, lon, rotation_axis, angle):
 
     :param lat: Latitude of original point
     :param lon: Longitude of original point
-    :rotation_axis: Rotation axis specified as [x, y, z].
-    :angle: Rotation angle in degree.
+    :param rotation_axis: Rotation axis specified as [x, y, z].
+    :param angle: Rotation angle in degree.
     """
     # Convert to xyz. Do the calculation on the unit sphere as the radius does
     # not matter.
@@ -223,6 +227,10 @@ def xyz_to_lat_lon_radius(*args):
 def lat_lon_radius_to_xyz(lat, lon, r):
     """
     Converts latitude, longitude and radius to x, y, and z.
+
+    :param lat: The latitude.
+    :param lon:  The longitude.
+    :param r: The radius.
     """
     colat = lat2colat(lat)
     # To radian
@@ -280,7 +288,7 @@ def _get_rotation_and_base_transfer_matrix(lat, lon, rotation_axis, angle):
 
     # Calculate the transfer matrix. This works because both sets of basis
     # vectors are orthonormal.
-    transfer_matrix = np.matrix(( \
+    transfer_matrix = np.matrix((
         [np.dot(e_theta_new, e_theta), np.dot(e_theta_new, e_phi),
             np.dot(e_theta_new, e_r)],
         [np.dot(e_phi_new, e_theta), np.dot(e_phi_new, e_phi),
@@ -298,8 +306,12 @@ def rotate_moment_tensor(Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, lat, lon, rotation_axis,
     spherical unit vectors at lat/lon to the unit vectors at the new
     coordinates.
 
-    :param Mrr, Mtt, Mpp, Mrt, Mrp, Mtp: The six independent components of a
-        moment tensor.
+    :param Mrr: A moment tensor component.
+    :param Mtt: A moment tensor component.
+    :param Mpp: A moment tensor component.
+    :param Mrt: A moment tensor component.
+    :param Mrp: A moment tensor component.
+    :param Mtp: A moment tensor component.
     :param lat: Latitude of the recording point.
     :param lon: Longitude of the recording point.
     :param rotation_axis: Rotation axis given as [x, y, z].
@@ -320,7 +332,7 @@ def rotate_moment_tensor(Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, lat, lon, rotation_axis,
 
 
 def rotate_data(north_data, east_data, vertical_data, lat, lon, rotation_axis,
-    angle):
+        angle):
     """
     Rotates three component data recorded at lat/lon a certain amount of
     degrees around a given rotation axis.
@@ -351,12 +363,20 @@ def rotate_data(north_data, east_data, vertical_data, lat, lon, rotation_axis,
 
 
 def get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
-    number_of_points_per_side=25, rotation_axis=[0, 0, 1],
-    rotation_angle_in_degree=0):
+        number_of_points_per_side=25, rotation_axis=(0, 0, 1),
+        rotation_angle_in_degree=0):
     """
     Helper function taking a spherical section defined by latitudinal and
     longitudal extension, rotate it around the given axis and rotation angle
     and return a list of points outlining the region. Useful for plotting.
+
+    :param min_lat: The minimum latitude.
+    :param max_lat: The maximum latitude.
+    :param min_lng: The minimum longitude.
+    :param max_lng: The maximum longitude.
+    :param number_of_points_per_side:  The number of points per side desired.
+    :param rotation_axis: The rotation axis. Optional.
+    :param rotation_angle_in_degree: The rotation angle in degrees. Optional.
     """
     north_border = np.empty((number_of_points_per_side, 2))
     south_border = np.empty((number_of_points_per_side, 2))
@@ -394,8 +414,7 @@ def get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
 
 
 def get_max_extention_of_domain(min_lat, max_lat, min_lng, max_lng,
-    number_of_points_per_side=25, rotation_axis=[0, 0, 1],
-    rotation_angle_in_degree=0):
+        rotation_axis=(0, 0, 1), rotation_angle_in_degree=0):
     """
     Helper function getting the maximum extends of a rotated domain.
 
@@ -404,6 +423,13 @@ def get_max_extention_of_domain(min_lat, max_lat, min_lng, max_lng,
         * maximum_latitude
         * minimum_longitude
         * maximum_longitude
+
+    :param min_lat: The minimum latitude.
+    :param max_lat: The maximum latitude.
+    :param min_lng: The minimum longitude.
+    :param max_lng: The maximum longitude.
+    :param rotation_axis: The rotation axis in degree.
+    :param rotation_angle_in_degree: The rotation angle in degree.
     """
     border = get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
         number_of_points_per_side=25, rotation_axis=rotation_axis,
