@@ -33,14 +33,16 @@ clearer:
 5. All of the above now results in a list of potential windows that will
    have to pass some further selection tests:
 
-   1. The minimum length for each window is the minimum of the instantaneous
-      peak-to-peak or trough-to-trough distance. Every window that does not
-      fulfill this requirement is rejected. This in essence limits the window
-      length to one wave length.
+   1. The minimum length for each window will be restricted to one dominant
+      period.
    2. The "energy" of data and synthetics in one window should not differ by
       more than one order of magnitude. The "energy" used here is simply the
       sum of all squared values in each window. This is reasonable for velocity
       seismograms. All windows not fulfilling this will be rejected.
+   3. The maxmimum amplitude of the data in each window must be
+      significantly above the noise level. The noise level is determined by
+      taking the maximum amplitude before the first arrival.
+
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
@@ -246,8 +248,30 @@ def skip_finder(d, s):
         yield left_idx, right_idx
 
 
+def find_first_valid_index(st_lat, st_lng, ev_lat, ev_lng,
+        ev_depth_in_km, delta):
+    """
+    Helper function to determine the first valid index.
+
+    It will be determined by calculating the first possible theoretical
+    arrival time.
+
+    :param st_lat: The station latitude.
+    :param st_lng: The station longitude.
+    :param ev_lat: The event latitude.
+    :param ev_lng: The event longitude.
+    :param ev_depth_in_km: The event depth in km.
+    :param delta: The sample spacing of the data to convert the time to an
+        index.
+    """
+    dist_in_deg = geodetics.locations2degrees(st_lat, st_lng, ev_lat, ev_lng)
+    tts = getTravelTimes(dist_in_deg, ev_depth_in_km, model="ak135")
+    first_tt_arrival = min([_i["time"] for _i in tts])
+    return first_tt_arrival / delta
+
+
 def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
-        ev_depth_in_km, st_lat, st_lng):
+        ev_depth_in_km, st_lat, st_lng, dominant_period):
     """
     Window selection function.
 
@@ -276,14 +300,21 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
     :type st_lat: float
     :param st_lng: The longitude of the recording station.
     :type st_lng: float
+    :param dominant_period: The dominant period of the data. Used for some
+        selection criteria.
+    :type dominant_period: float
     """
+    min_window_length = int(round(dominant_period /
+        synthetic_trace.stats.delta))
     npts = synthetic_trace.stats.npts
     # Only data after the first possible theoretical arrival will be
     # considered.
-    dist_in_deg = geodetics.locations2degrees(st_lat, st_lng, ev_lat, ev_lng)
-    tts = getTravelTimes(dist_in_deg, ev_depth_in_km, model="ak135")
-    first_tt_arrival = min([_i["time"] for _i in tts])
-    first_valid_index = first_tt_arrival / synthetic_trace.stats.delta
+    first_valid_index = find_first_valid_index(st_lat, st_lng, ev_lat,
+        ev_lng, ev_depth_in_km, synthetic_trace.stats.delta)
+
+    noise_level = np.abs(data_trace.data[:first_valid_index]).max()
+    data_trace.stats.first_valid_index = first_valid_index
+    data_trace.stats.noise_level = noise_level
 
     # Get the local extreme value of the data as well as the synthetics.
     data_p, data_t, data_extrema = find_local_extrema(data_trace.data,
@@ -294,6 +325,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
     # The actual window selection is handled via a simple boolean array.
     # True values are considered valid data points.
     window_mask = np.ones(len(data_trace.data), dtype="bool")
+    window_mask[:first_valid_index] = False
 
     # Create the index distance curves for all metrics.
     peak_distance_data = complete_index_distance(data_p, npts)
@@ -343,10 +375,17 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
         # trough-to-trough distance for the synthetics. Choose the maximum
         # of both the be the minimum of the acceptable window length.
         window_length = i.stop - i.start
-        min_window_length = max(peak_distance_synth[i.start: i.stop].mean(),
-            trough_distance_synth[i.start: i.stop].mean())
         if window_length < min_window_length:
             continue
+
+        # Make sure the window is at least 10 times above the noise level
+        # for data and synthetics.
+        if np.abs(data_trace.data[i.start: i.stop]).max() \
+                < (5 * noise_level) or \
+                np.abs(synthetic_trace.data[i.start: i .stop]).max() \
+                < (5 * noise_level):
+            continue
+
         # Now compare the energy in the data window in the synthetic window.
         # If they differ by more then one order of magnitude, discard them.
         data_energy = (data_trace.data[i.start: i.stop] ** 2).sum()
@@ -358,10 +397,15 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
     return final_windows
 
 
-def plot_windows(data_trace, synthetic_trace, windows, filename=None):
+def plot_windows(data_trace, synthetic_trace, windows, dominant_period,
+        filename=None, debug=False):
     """
     Helper function plotting the picked windows in some variants. Useful for
     debugging and checking what's actually going on.
+
+    If using the debug option, please use the same data_trace and
+    synthetic_trace as you used for the select_windows() function. They will
+    be augmented with certain values used for the debugging plots.
 
     :param data_trace: The data trace.
     :type data_trace: obspy.core.trace.Trace
@@ -369,14 +413,21 @@ def plot_windows(data_trace, synthetic_trace, windows, filename=None):
     :type synthetic_trace: obspy.core.trace.Trace
     :param windows: The windows, as returned by select_windows()
     :type windows: list
+    :param dominant_period: The dominant period of the data. Used for the
+        tapering.
+    :type dominant_period: float
     :param filename: If given, a file will be written. Otherwise the plot
         will be shown.
     :type filename: basestring
+    :param debug: Toggle plotting debugging information. Optional. Defaults
+        to False.
+    :type debug: bool
     """
     import matplotlib.pylab as plt
     from obspy.signal.invsim import cosTaper
 
     plt.figure(figsize=(16, 10))
+    plt.subplots_adjust(hspace=0.3)
 
     npts = synthetic_trace.stats.npts
 
@@ -413,7 +464,14 @@ def plot_windows(data_trace, synthetic_trace, windows, filename=None):
     for left_idx, right_idx in windows:
         right_idx += 1
         length = right_idx - left_idx
-        taper = cosTaper(length, p=0.2)
+
+        # Setup the taper.
+        p = (dominant_period / synthetic_trace.stats.delta / length) / 2.0
+        if p >= 0.5:
+            p = 0.49
+        elif p < 0.1:
+            p = 0.1
+        taper = cosTaper(length, p=p)
 
         data_window = taper * data_trace.data[left_idx: right_idx].copy()
         synth_window = taper * synthetic_trace.data[left_idx: right_idx].copy()
@@ -437,6 +495,41 @@ def plot_windows(data_trace, synthetic_trace, windows, filename=None):
     plt.plot(time_array, synth_data_scaled, color="red")
     plt.xlim(0, time_array[-1])
     plt.title("Tapered windows, scaled to same amplitude")
+
+    if debug:
+        first_valid_index = data_trace.stats.first_valid_index * \
+            synthetic_trace.stats.delta
+        noise_level = data_trace.stats.noise_level
+
+        data_p, data_t, data_e = find_local_extrema(data_trace.data,
+            start_index=first_valid_index)
+        synth_p, synth_t, synth_e = find_local_extrema(synthetic_trace.data,
+            start_index=first_valid_index)
+
+        for _i in xrange(1, 3):
+            plt.subplot(4, 1, _i)
+            ymin, ymax = plt.ylim()
+            xmin, xmax = plt.xlim()
+            plt.vlines(first_valid_index, ymin, ymax, color="green",
+                label="Theoretical First Arrival")
+            plt.hlines(noise_level, xmin, xmax, color="0.5",
+                       label="Noise Level", linestyles="--")
+            plt.hlines(-noise_level, xmin, xmax, color="0.5", linestyles="--")
+
+            plt.hlines(noise_level * 5, xmin, xmax, color="0.8",
+                       label="Minimal acceptable amplitude", linestyles="--")
+            plt.hlines(-noise_level * 5, xmin, xmax, color="0.8",
+                       linestyles="--")
+            if _i == 2:
+                plt.scatter(time_array[data_e], data_trace.data[data_e],
+                            color="black", s=10)
+                plt.scatter(time_array[synth_e], synthetic_trace.data[synth_e],
+                            color="red", s=10)
+            plt.ylim(ymin, ymax)
+            plt.xlim(xmin, xmax)
+
+        plt.subplot(411)
+        plt.legend(prop={"size": "small"})
 
     plt.suptitle(data_trace.id)
 
