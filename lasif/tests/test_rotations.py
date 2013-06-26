@@ -24,39 +24,39 @@ class RotationsTestCase(unittest.TestCase):
         """
         Test the basic vector rotation around an arbitrary axis.
         """
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([0, 0, 1], [0, 1, 0], 90),
             np.array([1.0, 0.0, 0.0]), decimal=10)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([0, 0, 1], [0, 1, 0], 180),
             np.array([0.0, 0.0, -1.0]), decimal=10)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([0, 0, 1], [0, 1, 0], 270),
             np.array([-1.0, 0.0, 0.0]), decimal=10)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([0, 0, 1], [0, 1, 0], 360),
             np.array([0.0, 0.0, 1.0]), decimal=10)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([0, 0, 1], [0, 1, 0], 45),
             np.array([np.sqrt(0.5), 0.0, np.sqrt(0.5)]), decimal=10)
         # Use a different vector and rotation angle.
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([1, 1, 1], [1, 0, 0], 90),
             np.array([1.0, -1.0, 1.0]), decimal=10)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([1, 1, 1], [1, 0, 0], 180),
             np.array([1.0, -1.0, -1.0]), decimal=10)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([1, 1, 1], [1, 0, 0], 270),
             np.array([1.0, 1.0, -1.0]), decimal=10)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([1, 1, 1], [1, 0, 0], 360),
             np.array([1.0, 1.0, 1.0]), decimal=10)
         # Some more arbitrary rotations.
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([234.3, -5645.4, 345.45], [1, 0, 0], 360),
             np.array([234.3, -5645.4, 345.45]), decimal=10)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.rotate_vector([234.3, -5645.4, 345.45], [1, 0, 0], 180),
             np.array([234.3, 5645.4, -345.45]), decimal=10)
 
@@ -66,43 +66,43 @@ class RotationsTestCase(unittest.TestCase):
         """
         # At 0, 0
         e_theta, e_phi, e_r = rotations.get_spherical_unit_vectors(0.0, 0.0)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_theta, np.array([0, 0, -1]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_phi, np.array([0, 1, 0]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_r, np.array([1, 0, 0]))
         # At the north pole
         e_theta, e_phi, e_r = rotations.get_spherical_unit_vectors(90.0, 0.0)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_theta, np.array([1, 0, 0]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_phi, np.array([0, 1, 0]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_r, np.array([0, 0, 1]))
         # At the south pole
         e_theta, e_phi, e_r = rotations.get_spherical_unit_vectors(-90.0, 0.0)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_theta, np.array([-1, 0, 0]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_phi, np.array([0, 1, 0]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_r, np.array([0, 0, -1]))
         # At the "east pole"
         e_theta, e_phi, e_r = rotations.get_spherical_unit_vectors(0.0, 90.0)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_theta, np.array([0, 0, -1]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_phi, np.array([-1, 0, 0]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_r, np.array([0, 1, 0]))
         # At the "west pole"
         e_theta, e_phi, e_r = rotations.get_spherical_unit_vectors(0.0, -90.0)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_theta, np.array([0, 0, -1]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_phi, np.array([1, 0, 0]))
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             e_r, np.array([0, -1, 0]))
 
     def test_LatLonRadiusToXyz(self):
@@ -110,23 +110,23 @@ class RotationsTestCase(unittest.TestCase):
         Test the rotations.lat_lon_radius_to_xyz() function.
         """
         # For (0/0)
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.lat_lon_radius_to_xyz(0.0, 0.0, 1.0),
             np.array([1.0, 0.0, 0.0]))
         # At the North Pole
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.lat_lon_radius_to_xyz(90.0, 0.0, 1.0),
             np.array([0.0, 0.0, 1.0]))
         # At the South Pole
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.lat_lon_radius_to_xyz(-90.0, 0.0, 1.0),
             np.array([0.0, 0.0, -1.0]))
         # At the "West Pole"
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.lat_lon_radius_to_xyz(0.0, -90.0, 1.0),
             np.array([0.0, -1.0, 0.0]))
         # At the "East Pole"
-        np.testing.assert_array_almost_equal( \
+        np.testing.assert_array_almost_equal(
             rotations.lat_lon_radius_to_xyz(0.0, 90.0, 1.0),
             np.array([0.0, 1.0, 0.0]))
 
@@ -261,7 +261,7 @@ class RotationsTestCase(unittest.TestCase):
 
         # The following ones are tested against a well proven Matlab script by
         # Andreas Fichtner.
-        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor( \
+        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor(
             -0.704, 0.071, 0.632, 0.226, -0.611, 3.290,
             rotations.colat2lat(26.08), -21.17,
             [0, 1, 0], 57.5)
@@ -275,7 +275,7 @@ class RotationsTestCase(unittest.TestCase):
         self.assertAlmostEqual(Mrp, Mrp_new, 6)
         self.assertAlmostEqual(Mtp, Mtp_new, 6)
         # Another example.
-        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor( \
+        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor(
             -0.818, -1.300, 2.120, 1.720, 2.290, -0.081,
             rotations.colat2lat(53.51), -9.87,
             [np.sqrt(2) / 2, -np.sqrt(2) / 2, 0], -31.34)
@@ -290,7 +290,7 @@ class RotationsTestCase(unittest.TestCase):
         self.assertAlmostEqual(Mtp, Mtp_new, 6)
         # The same as before, but with a non-normalized axis. Should work just
         # as well.
-        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor( \
+        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor(
             -0.818, -1.300, 2.120, 1.720, 2.290, -0.081,
             rotations.colat2lat(53.51), -9.87,
             [11.12, -11.12, 0], -31.34)
@@ -304,7 +304,7 @@ class RotationsTestCase(unittest.TestCase):
         self.assertAlmostEqual(Mrp, Mrp_new, 6)
         self.assertAlmostEqual(Mtp, Mtp_new, 6)
         # One more.
-        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor( \
+        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor(
             0.952, -1.030, 0.076, 0.226, -0.040, -0.165,
             rotations.colat2lat(63.34), 55.80,
             [np.sqrt(3) / 3, -np.sqrt(3) / 3, -np.sqrt(3) / 3], 123.45)
