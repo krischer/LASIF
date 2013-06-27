@@ -775,7 +775,8 @@ class Project(object):
                 # Now check if the station_coordinates are available in the
                 # inventory DB and use those.
                 coords = get_station_coordinates(self.paths["inv_db_file"],
-                    station)
+                    station, self.paths["cache"],
+                    self.config["download_settings"]["arclink_username"])
 
                 if coords:
                     stations[station] = {

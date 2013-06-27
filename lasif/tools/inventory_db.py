@@ -9,6 +9,10 @@ Simple query functions for the inventory database.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
+import cPickle
+import obspy
+import obspy.arclink
+import os
 import re
 import requests
 import sqlite3
@@ -70,7 +74,7 @@ def reset_coordinate_less_stations(db_file):
     inv_db.conn.commit()
 
 
-def get_station_coordinates(db_file, station_id):
+def get_station_coordinates(db_file, station_id, cache_folder, arclink_user):
     """
     Returns either a dictionary containing "latitude", "longitude",
     "elevation_in_m", "local_depth_in_m" keys or None if nothing was found.
@@ -105,9 +109,41 @@ def get_station_coordinates(db_file, station_id):
         except:
             time.sleep(0.1)
     if str(req.status_code)[0] != "2":
-        print "Failure."
-        inv_db.put_station_coordinates(station_id, None, None, None, None)
-        return None
+        # Now also attempt to download via ArcLink.
+        pickled_inventory = os.path.join(cache_folder, "arclink_inv.pickle")
+        # Download all 30 days...
+        if not os.path.exists(pickled_inventory) or (
+                (time.time() - os.path.getmtime(pickled_inventory))
+                > 30 * 86500):
+            c = obspy.arclink.Client(user=arclink_user)
+            try:
+                inv = c.getNetworks(obspy.UTCDateTime(1970),
+                    obspy.UTCDateTime())
+                inv = {key: value for (key, value) in inv.iteritems()
+                       if len(key.split('.')) == 2}
+                with open(pickled_inventory, "wb") as fh:
+                    cPickle.dump(inv, fh)
+            except:
+                msg = ("Failed to download ArcLink Inventory. If the problem "
+                    "persits, contact the developers.")
+                raise Exception(msg)
+                inv = None
+        else:
+            with open(pickled_inventory, "rb") as fh:
+                inv = cPickle.load(fh)
+        if inv is None or station_id not in inv:
+            print "Failure."
+            inv_db.put_station_coordinates(station_id, None, None, None, None)
+            return None
+        stat = inv[station_id]
+        lat = stat.latitude
+        lng = stat.longitude
+        ele = stat.elevation
+        depth = stat.depth
+        inv_db.put_station_coordinates(station_id, lat, lng, ele, depth)
+        print "Success."
+        return {"latitude": lat, "longitude": lng, "elevation_in_m": ele,
+                "local_depth_in_m": depth}
 
     # Now simply find the coordinates.
     lat = float(re.findall("<Latitude>(.*)</Latitude>", req.text)[0])
@@ -117,4 +153,4 @@ def get_station_coordinates(db_file, station_id):
     inv_db.put_station_coordinates(station_id, lat, lng, ele, None)
     print "Success."
     return {"latitude": lat, "longitude": lng, "elevation_in_m": ele,
-        "local_depth_in_m": 0.0}
+            "local_depth_in_m": 0.0}
