@@ -10,7 +10,6 @@ Some utility functionality.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from fnmatch import fnmatch
-from lxml import etree
 from lxml.builder import E
 
 
@@ -59,3 +58,30 @@ def recursive_dict(element):
     """
     return element.tag, \
         dict(map(recursive_dict, element)) or element.text
+
+
+def generate_ses3d_4_0_template():
+    """
+    Generates a template for SES3D input files.
+
+    Returns the etree representation.
+    """
+    doc = E.solver_settings(
+        E.simulation_parameters(
+            E.number_of_time_steps("500"),
+            E.time_increment("0.75"),
+            E.is_dissipative("false")),
+        E.output_directory("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
+        E.adjoint_output_parameters(
+            E.sampling_rate_of_forward_field("10"),
+            E.forward_field_output_directory(
+                "../OUTPUT/CHANGE_ME/ADJOINT/{{EVENT_NAME}}")),
+        E.computational_setup(
+            E.nx_global("15"),
+            E.ny_global("15"),
+            E.nz_global("10"),
+            E.lagrange_polynomial_degree("4"),
+            E.px_processors_in_theta_direction("1"),
+            E.py_processors_in_phi_direction("1"),
+            E.pz_processors_in_r_direction("1")))
+    return doc
