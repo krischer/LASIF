@@ -1,6 +1,5 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -9,7 +8,7 @@
     
     <title>lasif.rotations &mdash; LASIF 0.0.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -25,7 +24,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html" /> 
+    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+<link href="_static/solarized-dark.css" rel="stylesheet">
   </head>
   <body>
     <div class="related">
@@ -39,7 +39,29 @@
              >modules</a> |</li>
         <li><a href="index.html">LASIF 0.0.1 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/rotations.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -106,19 +128,44 @@ quite an error source.</p>
 <span class="go">90.0</span>
 </pre></div>
 </div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>colat</strong> &#8211; The colatitude.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="lasif.rotations.get_border_latlng_list">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">get_border_latlng_list</tt><big>(</big><em>min_lat, max_lat, min_lng, max_lng, number_of_points_per_side=25, rotation_axis=[0, 0, 1], rotation_angle_in_degree=0</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#get_border_latlng_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_border_latlng_list" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lasif.rotations.</tt><tt class="descname">get_border_latlng_list</tt><big>(</big><em>min_lat</em>, <em>max_lat</em>, <em>min_lng</em>, <em>max_lng</em>, <em>number_of_points_per_side=25</em>, <em>rotation_axis=(0</em>, <em>0</em>, <em>1)</em>, <em>rotation_angle_in_degree=0</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#get_border_latlng_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_border_latlng_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function taking a spherical section defined by latitudinal and
 longitudal extension, rotate it around the given axis and rotation angle
 and return a list of points outlining the region. Useful for plotting.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>min_lat</strong> &#8211; The minimum latitude.</li>
+<li><strong>max_lat</strong> &#8211; The maximum latitude.</li>
+<li><strong>min_lng</strong> &#8211; The minimum longitude.</li>
+<li><strong>max_lng</strong> &#8211; The maximum longitude.</li>
+<li><strong>number_of_points_per_side</strong> &#8211; The number of points per side desired.</li>
+<li><strong>rotation_axis</strong> &#8211; The rotation axis. Optional.</li>
+<li><strong>rotation_angle_in_degree</strong> &#8211; The rotation angle in degrees. Optional.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="lasif.rotations.get_max_extention_of_domain">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">get_max_extention_of_domain</tt><big>(</big><em>min_lat, max_lat, min_lng, max_lng, number_of_points_per_side=25, rotation_axis=[0, 0, 1], rotation_angle_in_degree=0</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#get_max_extention_of_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_max_extention_of_domain" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lasif.rotations.</tt><tt class="descname">get_max_extention_of_domain</tt><big>(</big><em>min_lat</em>, <em>max_lat</em>, <em>min_lng</em>, <em>max_lng</em>, <em>rotation_axis=(0</em>, <em>0</em>, <em>1)</em>, <em>rotation_angle_in_degree=0</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#get_max_extention_of_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_max_extention_of_domain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function getting the maximum extends of a rotated domain.</p>
 <dl class="docutils">
 <dt>Returns a dictionary with the following keys:</dt>
@@ -130,6 +177,22 @@ and return a list of points outlining the region. Useful for plotting.</p>
 </ul>
 </dd>
 </dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>min_lat</strong> &#8211; The minimum latitude.</li>
+<li><strong>max_lat</strong> &#8211; The maximum latitude.</li>
+<li><strong>min_lng</strong> &#8211; The minimum longitude.</li>
+<li><strong>max_lng</strong> &#8211; The maximum longitude.</li>
+<li><strong>rotation_axis</strong> &#8211; The rotation axis in degree.</li>
+<li><strong>rotation_angle_in_degree</strong> &#8211; The rotation angle in degree.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -169,12 +232,33 @@ quite an error source.</p>
 <span class="go">0.0</span>
 </pre></div>
 </div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lat</strong> &#8211; The latitude.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="lasif.rotations.lat_lon_radius_to_xyz">
 <tt class="descclassname">lasif.rotations.</tt><tt class="descname">lat_lon_radius_to_xyz</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>r</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#lat_lon_radius_to_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat_lon_radius_to_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts latitude, longitude and radius to x, y, and z.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>lat</strong> &#8211; The latitude.</li>
+<li><strong>lon</strong> &#8211; The longitude.</li>
+<li><strong>r</strong> &#8211; The radius.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -212,16 +296,12 @@ by angle.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>lat</strong> &#8211; Latitude of original point</li>
 <li><strong>lon</strong> &#8211; Longitude of original point</li>
+<li><strong>rotation_axis</strong> &#8211; Rotation axis specified as [x, y, z].</li>
+<li><strong>angle</strong> &#8211; Rotation angle in degree.</li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Rotation_axis :</th><td class="field-body"><p class="first">Rotation axis specified as [x, y, z].</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Angle :</th><td class="field-body"><p class="first last">Rotation angle in degree.</p>
 </td>
 </tr>
 </tbody>
@@ -240,8 +320,12 @@ coordinates.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>Mtt, Mpp, Mrt, Mrp, Mtp</strong> (<em>Mrr,</em>) &#8211; The six independent components of a
-moment tensor.</li>
+<li><strong>Mrr</strong> &#8211; A moment tensor component.</li>
+<li><strong>Mtt</strong> &#8211; A moment tensor component.</li>
+<li><strong>Mpp</strong> &#8211; A moment tensor component.</li>
+<li><strong>Mrt</strong> &#8211; A moment tensor component.</li>
+<li><strong>Mrp</strong> &#8211; A moment tensor component.</li>
+<li><strong>Mtp</strong> &#8211; A moment tensor component.</li>
 <li><strong>lat</strong> &#8211; Latitude of the recording point.</li>
 <li><strong>lon</strong> &#8211; Longitude of the recording point.</li>
 <li><strong>rotation_axis</strong> &#8211; Rotation axis given as [x, y, z].</li>
@@ -261,13 +345,11 @@ moment tensor.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>vector</strong> &#8211; The vector to be rotated given as [x, y, z].</li>
 <li><strong>rotation_axis</strong> &#8211; The axis to be rotating around given as [x, y, z].</li>
+<li><strong>angle</strong> &#8211; The rotation angle in degree.</li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Angle :</th><td class="field-body"><p class="first last">The rotation angle in degree.</p>
 </td>
 </tr>
 </tbody>
@@ -302,28 +384,6 @@ moment tensor.</li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/rotations.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
     <div class="related">
@@ -340,7 +400,7 @@ moment tensor.</li>
     </div>
     <div class="footer">
         &copy; Copyright 2013, Lion Krischer &amp; Andreas Fichtner.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.Theme by <a href="http://github.com/vkvn">vkvn</a>
     </div>
   </body>
 </html>

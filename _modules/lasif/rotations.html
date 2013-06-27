@@ -1,6 +1,5 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -9,7 +8,7 @@
     
     <title>lasif.rotations &mdash; LASIF 0.0.1 documentation</title>
     
-    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/solar.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -26,7 +25,8 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="LASIF 0.0.1 documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" /> 
+    <link rel="up" title="Module code" href="../index.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+<link href="../../_static/solarized-dark.css" rel="stylesheet">
   </head>
   <body>
     <div class="related">
@@ -41,7 +41,24 @@
         <li><a href="../../index.html">LASIF 0.0.1 documentation</a> &raquo;</li>
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -138,6 +155,8 @@
 <span class="sd">    45.0</span>
 <span class="sd">    &gt;&gt;&gt; lat2colat(90)</span>
 <span class="sd">    0.0</span>
+
+<span class="sd">    :param lat: The latitude.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="mf">90.0</span> <span class="o">-</span> <span class="n">lat</span>
 
@@ -157,6 +176,8 @@
 <span class="sd">    45.0</span>
 <span class="sd">    &gt;&gt;&gt; colat2lat(0.0)</span>
 <span class="sd">    90.0</span>
+
+<span class="sd">    :param colat: The colatitude.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">colat</span> <span class="o">-</span> <span class="mf">90.0</span><span class="p">)</span>
 
@@ -167,14 +188,14 @@
 
 <span class="sd">    :param vector: The vector to be rotated given as [x, y, z].</span>
 <span class="sd">    :param rotation_axis: The axis to be rotating around given as [x, y, z].</span>
-<span class="sd">    :angle: The rotation angle in degree.</span>
+<span class="sd">    :param angle: The rotation angle in degree.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Convert angle to radian.</span>
     <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
 
     <span class="c"># Normalize the rotation_axis</span>
     <span class="n">rotation_axis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">)</span>
-    <span class="n">rotation_axis</span> <span class="o">=</span> <span class="n">rotation_axis</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">)</span>
+    <span class="n">rotation_axis</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">)</span>
 
     <span class="c"># Use c1, c2, and c3 as shortcuts for the rotation axis.</span>
     <span class="n">c1</span> <span class="o">=</span> <span class="n">rotation_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -233,8 +254,8 @@
 
 <span class="sd">    :param lat: Latitude of original point</span>
 <span class="sd">    :param lon: Longitude of original point</span>
-<span class="sd">    :rotation_axis: Rotation axis specified as [x, y, z].</span>
-<span class="sd">    :angle: Rotation angle in degree.</span>
+<span class="sd">    :param rotation_axis: Rotation axis specified as [x, y, z].</span>
+<span class="sd">    :param angle: Rotation angle in degree.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># Convert to xyz. Do the calculation on the unit sphere as the radius does</span>
     <span class="c"># not matter.</span>
@@ -274,6 +295,10 @@
 <div class="viewcode-block" id="lat_lon_radius_to_xyz"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.lat_lon_radius_to_xyz">[docs]</a><span class="k">def</span> <span class="nf">lat_lon_radius_to_xyz</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts latitude, longitude and radius to x, y, and z.</span>
+
+<span class="sd">    :param lat: The latitude.</span>
+<span class="sd">    :param lon:  The longitude.</span>
+<span class="sd">    :param r: The radius.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">colat</span> <span class="o">=</span> <span class="n">lat2colat</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
     <span class="c"># To radian</span>
@@ -331,7 +356,7 @@
 
     <span class="c"># Calculate the transfer matrix. This works because both sets of basis</span>
     <span class="c"># vectors are orthonormal.</span>
-    <span class="n">transfer_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">((</span> \
+    <span class="n">transfer_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">((</span>
         <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_theta_new</span><span class="p">,</span> <span class="n">e_theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_theta_new</span><span class="p">,</span> <span class="n">e_phi</span><span class="p">),</span>
             <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_theta_new</span><span class="p">,</span> <span class="n">e_r</span><span class="p">)],</span>
         <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_phi_new</span><span class="p">,</span> <span class="n">e_theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">e_phi_new</span><span class="p">,</span> <span class="n">e_phi</span><span class="p">),</span>
@@ -349,8 +374,12 @@
 <span class="sd">    spherical unit vectors at lat/lon to the unit vectors at the new</span>
 <span class="sd">    coordinates.</span>
 
-<span class="sd">    :param Mrr, Mtt, Mpp, Mrt, Mrp, Mtp: The six independent components of a</span>
-<span class="sd">        moment tensor.</span>
+<span class="sd">    :param Mrr: A moment tensor component.</span>
+<span class="sd">    :param Mtt: A moment tensor component.</span>
+<span class="sd">    :param Mpp: A moment tensor component.</span>
+<span class="sd">    :param Mrt: A moment tensor component.</span>
+<span class="sd">    :param Mrp: A moment tensor component.</span>
+<span class="sd">    :param Mtp: A moment tensor component.</span>
 <span class="sd">    :param lat: Latitude of the recording point.</span>
 <span class="sd">    :param lon: Longitude of the recording point.</span>
 <span class="sd">    :param rotation_axis: Rotation axis given as [x, y, z].</span>
@@ -371,7 +400,7 @@
 
 </div>
 <div class="viewcode-block" id="rotate_data"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.rotate_data">[docs]</a><span class="k">def</span> <span class="nf">rotate_data</span><span class="p">(</span><span class="n">north_data</span><span class="p">,</span> <span class="n">east_data</span><span class="p">,</span> <span class="n">vertical_data</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span>
-    <span class="n">angle</span><span class="p">):</span>
+        <span class="n">angle</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Rotates three component data recorded at lat/lon a certain amount of</span>
 <span class="sd">    degrees around a given rotation axis.</span>
@@ -402,12 +431,20 @@
 
 </div>
 <div class="viewcode-block" id="get_border_latlng_list"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_border_latlng_list">[docs]</a><span class="k">def</span> <span class="nf">get_border_latlng_list</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lng</span><span class="p">,</span> <span class="n">max_lng</span><span class="p">,</span>
-    <span class="n">number_of_points_per_side</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">rotation_angle_in_degree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">number_of_points_per_side</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">rotation_angle_in_degree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function taking a spherical section defined by latitudinal and</span>
 <span class="sd">    longitudal extension, rotate it around the given axis and rotation angle</span>
 <span class="sd">    and return a list of points outlining the region. Useful for plotting.</span>
+
+<span class="sd">    :param min_lat: The minimum latitude.</span>
+<span class="sd">    :param max_lat: The maximum latitude.</span>
+<span class="sd">    :param min_lng: The minimum longitude.</span>
+<span class="sd">    :param max_lng: The maximum longitude.</span>
+<span class="sd">    :param number_of_points_per_side:  The number of points per side desired.</span>
+<span class="sd">    :param rotation_axis: The rotation axis. Optional.</span>
+<span class="sd">    :param rotation_angle_in_degree: The rotation angle in degrees. Optional.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">north_border</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">number_of_points_per_side</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
     <span class="n">south_border</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">number_of_points_per_side</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
@@ -445,8 +482,7 @@
 
 </div>
 <div class="viewcode-block" id="get_max_extention_of_domain"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_max_extention_of_domain">[docs]</a><span class="k">def</span> <span class="nf">get_max_extention_of_domain</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lng</span><span class="p">,</span> <span class="n">max_lng</span><span class="p">,</span>
-    <span class="n">number_of_points_per_side</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="n">rotation_angle_in_degree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">rotation_axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">rotation_angle_in_degree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function getting the maximum extends of a rotated domain.</span>
 
@@ -455,6 +491,13 @@
 <span class="sd">        * maximum_latitude</span>
 <span class="sd">        * minimum_longitude</span>
 <span class="sd">        * maximum_longitude</span>
+
+<span class="sd">    :param min_lat: The minimum latitude.</span>
+<span class="sd">    :param max_lat: The maximum latitude.</span>
+<span class="sd">    :param min_lng: The minimum longitude.</span>
+<span class="sd">    :param max_lng: The maximum longitude.</span>
+<span class="sd">    :param rotation_axis: The rotation axis in degree.</span>
+<span class="sd">    :param rotation_angle_in_degree: The rotation angle in degree.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">border</span> <span class="o">=</span> <span class="n">get_border_latlng_list</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lng</span><span class="p">,</span> <span class="n">max_lng</span><span class="p">,</span>
         <span class="n">number_of_points_per_side</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="o">=</span><span class="n">rotation_axis</span><span class="p">,</span>
@@ -476,23 +519,6 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
     <div class="related">
@@ -510,7 +536,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2013, Lion Krischer &amp; Andreas Fichtner.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.Theme by <a href="http://github.com/vkvn">vkvn</a>
     </div>
   </body>
 </html>

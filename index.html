@@ -1,6 +1,5 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -9,7 +8,7 @@
     
     <title>Welcome to LASIF’s Documentation! &mdash; LASIF 0.0.1 documentation</title>
     
-    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -25,7 +24,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="LASIF 0.0.1 documentation" href="#" /> 
+    <link rel="top" title="LASIF 0.0.1 documentation" href="#" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+<link href="_static/solarized-dark.css" rel="stylesheet">
   </head>
   <body>
     <div class="related">
@@ -39,7 +39,84 @@
              >modules</a> |</li>
         <li><a href="#">LASIF 0.0.1 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to LASIF&#8217;s Documentation!</a></li>
+<li><a class="reference internal" href="#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li><a class="reference internal" href="#supported-data-formats">Supported Data Formats</a><ul>
+<li><a class="reference internal" href="#further-notes">Further Notes</a><ul>
+<li><a class="reference internal" href="#quakeml-files">QuakeML files</a></li>
+<li><a class="reference internal" href="#synthetic-data-files">Synthetic Data Files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tutorial">Tutorial</a><ul>
+<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a></li>
+<li><a class="reference internal" href="#creating-a-new-project">Creating a New Project</a></li>
+<li><a class="reference internal" href="#adding-seismic-events">Adding Seismic Events</a></li>
+<li><a class="reference internal" href="#adding-waveform-data">Adding Waveform Data</a></li>
+<li><a class="reference internal" href="#station-data">Station Data</a><ul>
+<li><a class="reference internal" href="#naming-scheme">Naming scheme</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#download-helpers">Download Helpers</a><ul>
+<li><a class="reference internal" href="#downloading-waveforms">Downloading Waveforms</a></li>
+<li><a class="reference internal" href="#downloading-station-metadata">Downloading Station Metadata</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#inspecting-the-data">Inspecting the Data</a></li>
+<li><a class="reference internal" href="#defining-a-new-iteration">Defining a New Iteration</a><ul>
+<li><a class="reference internal" href="#the-iteration-xml-files">The Iteration XML Files</a></li>
+<li><a class="reference internal" href="#source-time-functions">Source Time Functions</a></li>
+<li><a class="reference internal" href="#data-preprocessing">Data Preprocessing</a></li>
+<li><a class="reference internal" href="#data-rejection">Data Rejection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generating-ses3d-input-files">Generating SES3D Input Files</a><ul>
+<li><a class="reference internal" href="#input-file-generation">Input File Generation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#organizing-the-models">Organizing the Models</a><ul>
+<li><a class="reference internal" href="#short-deviation-creating-an-initial-model-with-ses3d-4-0">Short Deviation: Creating an initial model with SES3D 4.0</a></li>
+<li><a class="reference internal" href="#models-in-lasif">Models in LASIF</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#synthetics">Synthetics</a></li>
+<li><a class="reference internal" href="#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a><ul>
+<li><a class="reference internal" href="#weighting-scheme">Weighting Scheme</a></li>
+<li><a class="reference internal" href="#misfit-gui">Misfit GUI</a></li>
+<li><a class="reference internal" href="#final-adjoint-source-calculation">Final Adjoint Source Calculation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -74,6 +151,17 @@ every LASIF operation, the tool checks what data is available and uses it. To
 achieve reasonable performance it employs a transparent caching scheme able to
 quickly any changes the user makes to the data. Also important to keep in mind
 is that <strong>LASIF will never delete any data</strong>.</p>
+</div>
+<div class="section" id="to-do-things-that-are-still-missing">
+<h1>TO DO: Things that are still missing<a class="headerlink" href="#to-do-things-that-are-still-missing" title="Permalink to this headline">¶</a></h1>
+<p>This is mainly useful for the developers.</p>
+<ul class="simple">
+<li>Applying the time corrections for events and stations</li>
+<li>Settings for the time frequency misfit</li>
+<li>A clean way to integrate other misfits</li>
+<li>Data rejection criteria implementation</li>
+<li>Log more things for better provenance</li>
+</ul>
 </div>
 <div class="section" id="supported-data-formats">
 <h1>Supported Data Formats<a class="headerlink" href="#supported-data-formats" title="Permalink to this headline">¶</a></h1>
@@ -1012,6 +1100,111 @@ plot a different component or different depth. To leave the model viewer simply
 type <strong>quit</strong>.</p>
 </div>
 </div>
+<div class="section" id="synthetics">
+<h2>Synthetics<a class="headerlink" href="#synthetics" title="Permalink to this headline">¶</a></h2>
+<p>Now that everything is set up, you have to actually perform the simulations.
+Please keep in mind that the adjoint forward simulation require a very large
+amount of disc space due to the need to store the forward wavefield. <strong>The
+example for this tutorial requires around 450 GB.</strong></p>
+<p>The important output of the simulation are the waveform files. These should be
+placed in the <em>SYNTHETICS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}</em> folder.
+So for the given examples, they should be placed in the
+<em>SYNTHETICS/GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/ITERATION_1</em> and
+<em>SYNTHETICS/GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/ITERATION_1</em>. Just put
+the raw output files of the simulation in the corresponding folder; there is
+no need to process them in any way.</p>
+</div>
+<div class="section" id="misfit-and-adjoint-source-calculation">
+<h2>Misfit and Adjoint Source Calculation<a class="headerlink" href="#misfit-and-adjoint-source-calculation" title="Permalink to this headline">¶</a></h2>
+<p>In order to simulate the adjoint wavefield one needs to calculate the adjoint
+sources. An adjoint source is usually dependent on the misfit between the
+synthetics and real data.</p>
+<p>LASIF currently supports misfits in the time-frequency domain as defined by
+Fichtner, 2008. Great care has to be taken to avoid cycle skips/phase jumps
+between synthetics and data. This is achieved by careful windowing.</p>
+<div class="section" id="weighting-scheme">
+<h3>Weighting Scheme<a class="headerlink" href="#weighting-scheme" title="Permalink to this headline">¶</a></h3>
+<p>You might have noticed that at various points it has been possible to
+distribute weights. These weights all contribute to the final adjoint source.
+The inversion scheme requires one adjoint source per iteration, event, station,
+and component.</p>
+<p>In each iteration&#8217;s XML file you can specify the weight for each event, denoted
+as <span class="math">\(w_{event}\)</span> in the following. The weight is allowed to range between
+0.0 and 1.0. A weight of 0.0 corresponds to no weight at all, e.g. skip the
+event and a weight of 1.0 is the maximum weight.</p>
+<p>Within each event is possible to weight each station separately, in the
+following named <span class="math">\(w_{station}\)</span>. The station weights can also range from
+0.0 to 1.0 and follow the same logic as the event weights.</p>
+<p>You can furthermore choose an arbitrary number of windows per component for
+which the misfit and adjoint source will be calculated. Each window has a
+separate weight with the only limitation being that the weight has to be
+positive. Assuming <span class="math">\(N\)</span> windows in a given component, the corresponding
+adjoint sources will be called <span class="math">\(ad\_src_{1..N}\)</span> while their weights are
+<span class="math">\(w_{1..N}\)</span>.</p>
+<p>The final adjoint source for every component will be calculated according to
+the following formula:</p>
+<div class="math">
+\[adj\_source = w_{event} \cdot w_{station} \cdot \frac{1}{\sum_{i=1}^N w_i} \cdot \sum_{i=1}^N w_i \cdot ad\_src_i\]</div>
+</div>
+<div class="section" id="misfit-gui">
+<h3>Misfit GUI<a class="headerlink" href="#misfit-gui" title="Permalink to this headline">¶</a></h3>
+<p>LASIF comes with a graphical utility dubbed the Misfit GUI, that helps to pick
+correct windows.</p>
+<p>To launch it, execute the <strong>launch_misfit_gui</strong> together with the iteration
+name and the event name.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif launch_misfit_gui 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+</pre></div>
+</div>
+<p>This will open a window akin to the following:</p>
+<img alt="_images/misfit_gui.png" class="align-center" src="_images/misfit_gui.png" style="width: 90%;" />
+<p>It is essentially partitioned into three parts. The top part is devoted to plot
+all three traces of a single station. The bottom left part shows a
+representation of the misfit for the last chosen window and the bottom left
+part shows a simple map.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The current interface is based purely on matplotlib. This has the advantage
+of keeping dependencies to minimum. Unfortunately matplotlib is not a GUI
+toolkit and therefore the GUI is not particularly pleasing from a UI/UX
+point of view. Some operations might feel clunky. We might move to a proper
+GUI toolkit in the future.</p>
+</div>
+<p>With the <strong>Next</strong> and <strong>Prev</strong> button you can jump from one station to the
+next. The <strong>Reset Station</strong> button will remove all windows for the current
+station.</p>
+<p>The weight for any window has to be chosen before the windows are picked. To
+chose the current weight, press the <strong>w</strong> key. At this point, the weight box
+will be red. Now simply type the desired new weight and press <strong>Enter</strong> to
+finish setting the new weight. All windows chosen from this point on will
+be assigned this weight.</p>
+<p>To actually choose a window simply drag in any of the waveform windows. Upon
+mouse button release the window will be saved and the adjoint source will be
+calculated. The number in the top left of each chosen window reflects the
+weight for that window.</p>
+<p>Right clicking on an already existing window will delete it, left clicking will
+plot the misfit once again.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">At any point you can press <strong>h</strong> to get an up-to-date help text for the
+GUI.</p>
+</div>
+</div>
+<div class="section" id="final-adjoint-source-calculation">
+<h3>Final Adjoint Source Calculation<a class="headerlink" href="#final-adjoint-source-calculation" title="Permalink to this headline">¶</a></h3>
+<p>During window selection the adjoint source for each chosen window will be
+stored separately. To combine them to, apply the weighting scheme and convert
+them to a format, that SES3D can actually use, run the
+<strong>finalize_adjoint_sources</strong> command with the iteration name and the event
+name.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif finalize_adjoint_sources 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+</pre></div>
+</div>
+<p>This will also rotate the adjoint sources to the frame of reference used in the
+simulations.</p>
+<p>If you pick any more windows or change them in any way, you need to run the
+command again.</p>
+</div>
+</div>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -1024,75 +1217,6 @@ type <strong>quit</strong>.</p>
 
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Welcome to LASIF&#8217;s Documentation!</a></li>
-<li><a class="reference internal" href="#supported-data-formats">Supported Data Formats</a><ul>
-<li><a class="reference internal" href="#further-notes">Further Notes</a><ul>
-<li><a class="reference internal" href="#quakeml-files">QuakeML files</a></li>
-<li><a class="reference internal" href="#synthetic-data-files">Synthetic Data Files</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#tutorial">Tutorial</a><ul>
-<li><a class="reference internal" href="#command-line-interface">Command Line Interface</a></li>
-<li><a class="reference internal" href="#creating-a-new-project">Creating a New Project</a></li>
-<li><a class="reference internal" href="#adding-seismic-events">Adding Seismic Events</a></li>
-<li><a class="reference internal" href="#adding-waveform-data">Adding Waveform Data</a></li>
-<li><a class="reference internal" href="#station-data">Station Data</a><ul>
-<li><a class="reference internal" href="#naming-scheme">Naming scheme</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#download-helpers">Download Helpers</a><ul>
-<li><a class="reference internal" href="#downloading-waveforms">Downloading Waveforms</a></li>
-<li><a class="reference internal" href="#downloading-station-metadata">Downloading Station Metadata</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#inspecting-the-data">Inspecting the Data</a></li>
-<li><a class="reference internal" href="#defining-a-new-iteration">Defining a New Iteration</a><ul>
-<li><a class="reference internal" href="#the-iteration-xml-files">The Iteration XML Files</a></li>
-<li><a class="reference internal" href="#source-time-functions">Source Time Functions</a></li>
-<li><a class="reference internal" href="#data-preprocessing">Data Preprocessing</a></li>
-<li><a class="reference internal" href="#data-rejection">Data Rejection</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#generating-ses3d-input-files">Generating SES3D Input Files</a><ul>
-<li><a class="reference internal" href="#input-file-generation">Input File Generation</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#organizing-the-models">Organizing the Models</a><ul>
-<li><a class="reference internal" href="#short-deviation-creating-an-initial-model-with-ses3d-4-0">Short Deviation: Creating an initial model with SES3D 4.0</a></li>
-<li><a class="reference internal" href="#models-in-lasif">Models in LASIF</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1111,7 +1235,7 @@ type <strong>quit</strong>.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2013, Lion Krischer &amp; Andreas Fichtner.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.Theme by <a href="http://github.com/vkvn">vkvn</a>
     </div>
   </body>
 </html>
