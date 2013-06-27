@@ -244,7 +244,7 @@ def skip_finder(d, s):
     """
     for min_idx, max_idx in find_ones(np.diff(find_closest(d, s))):
         left_idx = int(np.ceil(s[min_idx - 1: min_idx + 1].sum() * 0.5))
-        right_idx = int(np.floor(s[max_idx: max_idx + 2].sum() * 0.5))
+        right_idx = int(np.floor(s[max_idx + 1: max_idx + 3].sum() * 0.5))
         yield left_idx, right_idx
 
 
@@ -352,7 +352,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
 
     # Apply it to the mask. The relative difference of 1.0 results in a
     # pretty large possible difference but still within one wavelength.
-    window_mask[rel_diff_complete > 1.0] = False
+    # window_mask[rel_diff_complete > 1.0] = False
 
     # Now apply the skip detection for peaks and troughs and add it to the
     # same window mask. Only parts still set to True after everything will
@@ -393,7 +393,13 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
         energies = sorted([data_energy, synth_energy])
         if energies[1] > 10.0 * energies[0]:
             continue
-        final_windows.append((i.start, i.stop))
+        # Potentially merge with the previous window if there is no
+        # difference.
+        if final_windows and (final_windows[-1][1] + 1) == i.start:
+            final_windows[-1] = (final_windows[-1][0], i.stop)
+        else:
+            final_windows.append((i.start, i.stop))
+
     return final_windows
 
 
