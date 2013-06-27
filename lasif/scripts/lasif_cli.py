@@ -602,6 +602,21 @@ def lasif_iteration_info(args):
     print iteration
 
 
+def lasif_remove_empty_coordinate_entries(args):
+    """
+    Usage: lasif remove_empty_coordinate_entries
+
+    Removes all empty coordinate entries in the inventory cache. This is
+    useful if you want to try to download coordinates again.
+    """
+    from lasif.tools.inventory_db import reset_coordinate_less_stations
+
+    proj = _find_project_root(".")
+    reset_coordinate_less_stations(proj.paths["inv_db_file"])
+
+    print "SUCCESS"
+
+
 def lasif_preprocess_data(args):
     """
     Usage: lasif preprocess_data ITERATION_NAME

@@ -59,6 +59,17 @@ class InventoryDB(object):
         self.conn.commit()
 
 
+def reset_coordinate_less_stations(db_file):
+    inv_db = InventoryDB(db_file)
+
+    SQL = """
+    DELETE FROM stations
+    WHERE latitude is null;
+    """
+    inv_db.cursor.execute(SQL)
+    inv_db.conn.commit()
+
+
 def get_station_coordinates(db_file, station_id):
     """
     Returns either a dictionary containing "latitude", "longitude",
