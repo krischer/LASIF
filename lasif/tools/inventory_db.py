@@ -64,6 +64,11 @@ class InventoryDB(object):
 
 
 def reset_coordinate_less_stations(db_file):
+    """
+    Simple command removing all stations that have no associated coordinates.
+
+    :param db_file: The SQLite database filepath.
+    """
     inv_db = InventoryDB(db_file)
 
     SQL = """
