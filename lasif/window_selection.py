@@ -270,6 +270,135 @@ def find_first_valid_index(st_lat, st_lng, ev_lat, ev_lng,
     return first_tt_arrival / delta
 
 
+def select_windows_2(data_trace, synthetic_trace, ev_lat, ev_lng,
+        ev_depth_in_km, st_lat, st_lng, dominant_period):
+    """
+    :param data_trace:
+    :param synthetic_trace:
+    :param ev_lat:
+    :param ev_lng:
+    :param ev_depth_in_km:
+    :param st_lat:
+    :param st_lng:
+    :param dominant_period:
+    """
+    dt = synthetic_trace.stats.delta
+    npts = synthetic_trace.stats.npts
+    dist_in_deg = geodetics.locations2degrees(st_lat, st_lng, ev_lat, ev_lng)
+    dist_in_km = geodetics.calcVincentyInverse(st_lat, st_lng, ev_lat,
+        ev_lng)[0] / 1000.0
+    tts = getTravelTimes(dist_in_deg, ev_depth_in_km, model="ak135")
+    first_tt_arrival = min([_i["time"] for _i in tts])
+
+    # The window length. Currently set to one dominant period of the
+    # synthetics. Make sure it is an uneven number; just to have an easy
+    # midpoint definition.
+    window_length = int(round(float(dominant_period) / dt))
+
+    if not window_length % 2:
+        window_length += 1
+
+    # Naive sliding window approach. Can be replaced by more efficient
+    # variants if necessary.
+    def window_generator(data_length, window_width):
+        """
+
+        :param data_length:
+        :param window_width:
+        """
+        window_start = 0
+        while True:
+            window_end = window_start + window_width
+            if window_end > data_length:
+                break
+            yield (window_start, window_end, window_start + window_width // 2)
+            window_start += 1
+
+    # Allocate arrays to collect the time dependent values.
+    sliding_time_shift = np.ma.masked_all(npts, dtype="float32")
+    max_cc_coeff = np.ma.masked_all(npts, dtype="float32")
+
+    taper = np.hanning(window_length)
+
+    for start_idx, end_idx, midpoint_idx in window_generator(npts,
+            window_length):
+        # Slice windows. Create a copy to be able to taper without affecting
+        #  the original time series.
+        data_window = data_trace.data[start_idx: end_idx].copy() * taper
+        synthetic_window = synthetic_trace.data[start_idx: end_idx].copy() * \
+            taper
+
+        # Skip windows that have essentially no energy to avoid instabilities.
+        if synthetic_window.ptp() < synthetic_trace.data.ptp() * 0.001:
+            continue
+
+        # Calculate the time shift. Here this is defined as the shift of the
+        # synthetics relative to the data. So a value of 2 means that the
+        # synthetics are 2 timesteps later then the data.
+        cc = np.correlate(data_window, synthetic_window, mode="full")
+
+        time_shift = cc.argmax() - window_length + 1
+        # Express the time shift in fraction of dominant period.
+        sliding_time_shift[midpoint_idx] = (time_shift * dt) / \
+            dominant_period
+
+        # Normalized cross correlation.
+        max_cc_value = cc.max() / np.sqrt((synthetic_window ** 2).sum() *
+            (data_window ** 2).sum())
+        max_cc_coeff[midpoint_idx] = max_cc_value
+
+    threshold_travel_time = 2.0
+
+    # Step 1
+    time_windows = np.ma.ones(npts)
+    time_windows.mask = np.zeros(npts)
+
+    # Step 2: Mark everything more then half a dominant period before the
+    # first theoretical arrival as positive.
+    time_windows.mask[:int(np.ceil((first_tt_arrival - dominant_period * 0.5)
+        / dt))] = True
+
+    # Step 3: Mark everything more then half a dominant period after the
+    # chosen threshold surface wave velocity time as negative
+    time_windows.mask[int(np.floor(dist_in_km /
+        threshold_travel_time / dt)):] = True
+
+    # Step 4: Mark everything with an absolute travel time shift of more then
+    # 0.2 time the dominant period as negative
+    time_windows.mask[np.abs(sliding_time_shift) > 0.2] = True
+
+    # Step 5: Mark the area around every "travel time shift jump" (based on
+    # the traveltime time difference) negative. The width of the area is
+    # currently chosen to be a tenth of a dominant period to each side.
+    sample_buffer = int(np.ceil(dominant_period / dt * 0.1))
+    indices = np.ma.where(np.abs(np.diff(sliding_time_shift)) > 0.1)[0]
+    for index in indices:
+        time_windows.mask[index - sample_buffer: index + sample_buffer] = \
+            True
+
+    # Step 6: Mark all areas where the normalized cross correlation coefficient
+    # is under 0.7 as negative
+    time_windows.mask[max_cc_coeff < 0.7] = True
+
+    # Step 7: Throw away all windows with a length of less then 0.5 the
+    # dominant period.
+    min_length = dominant_period / dt * 0.5
+    final_windows = []
+    for i in np.ma.flatnotmasked_contiguous(time_windows):
+        if (i.stop - i.start) < min_length:
+            continue
+        # Now compare the energy in the data window in the synthetic window.
+        # If they differ by more then one order of magnitude, discard them.
+        data_energy = (data_trace.data[i.start: i.stop] ** 2).sum()
+        synth_energy = (synthetic_trace.data[i.start: i.stop] ** 2).sum()
+        energies = sorted([data_energy, synth_energy])
+        if energies[1] > 10.0 * energies[0]:
+            continue
+        final_windows.append((i.start, i.stop))
+
+    return final_windows
+
+
 def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
         ev_depth_in_km, st_lat, st_lng, dominant_period):
     """
