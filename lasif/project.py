@@ -431,12 +431,19 @@ class Project(object):
                         self.station_cache.get_station_filename(
                             waveform["channel_id"],
                             obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                    if not ret_dict["station_filename"]:
+                        msg = ("Could not find a station file for channel "
+                            "%s at time %s. File will not be processed.") % (
+                            waveform["channel_id"],
+                            obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                        warnings.warn(msg)
+                        continue
                     yield ret_dict
 
         count = preprocessing.launch_processing(processing_data_generator())
 
         print colorama.Fore.GREEN + ("\nDONE - Preprocessed %i files." %
-            (count)) + colorama.Style.RESET_ALL
+            count) + colorama.Style.RESET_ALL
 
     def get_all_events(self):
         """
