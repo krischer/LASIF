@@ -142,7 +142,8 @@ def preprocess_file(file_info):
 
     # Convert to single precision.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
-    tr.stats.mseed.encoding = "FLOAT32"
+    if hasattr(tr.stats, "mseed"):
+        tr.stats.mseed.encoding = "FLOAT32"
 
     # The lock is necessary for MiniSEED files. This is a limitation of the
     # current version of ObsPy and will hopefully be resolved soon!
