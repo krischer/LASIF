@@ -135,8 +135,10 @@ def preprocess_file(file_info):
     tr.stats.starttime = starttime
     tr.stats.delta = file_info["dt"]
 
-    tr.filter("bandpass", freqmin=file_info["highpass"],
-        freqmax=file_info["lowpass"], zerophase=True)
+    # This is exactly the same filter as in the source time function. Should
+    #  eventually be configurable.
+    tr.filter("lowpass", freq=file_info["lowpass"], corners=5)
+    tr.filter("highpass", freq=file_info["highpass"], corners=2)
 
     # Convert to single precision.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
