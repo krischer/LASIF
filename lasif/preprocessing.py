@@ -110,17 +110,14 @@ def preprocess_file(file_info):
     # Instrument correction
     #==================================================================================
 
-    # Instrument correction
-
     # Decimate in case there is a large difference between synthetic
     # sampling rate and sampling_rate of the data to accelerate the
     # process..
     # XXX: Ugly filter, change!
-#    if tr.stats.sampling_rate > (6 * 1.0 / file_info["dt"]):
-#        new_nyquist = tr.stats.sampling_rate / 2.0 / 5.0
-#        tr.filter("lowpass", freq=new_nyquist, corners=4,
-#            zerophase=True)
-#        tr.decimate(factor=5, no_filter=None)
+    if tr.stats.sampling_rate > (6 * 1.0 / file_info["dt"]):
+        new_nyquist = tr.stats.sampling_rate / 2.0 / 5.0
+        tr.filter("lowpass", freq=new_nyquist, corners=4, zerophase=True)
+        tr.decimate(factor=5, no_filter=True)
 
     # Remove instrument response to produce velocity seismograms
     station_file = file_info["station_filename"]

@@ -590,23 +590,30 @@ class Project(object):
         """
         from wfs_input_generator import InputFileGenerator
 
+        #=====================================================================================
+        # read iteration xml file, get event and list of stations
+        #=====================================================================================
+
         iteration = self._get_iteration(iteration_name)
+        
         # Check that the event is part of the iterations.
         if event_name not in iteration.events:
-            msg = "Event '%s' not part of iteration '%s'." % (event_name,
-                    iteration_name)
+            msg = "Event '%s' not part of iteration '%s'." % (event_name, iteration_name)
             raise ValueError(msg)
         event = self.get_event(event_name)
         stations_for_event = iteration.events[event_name]["stations"].keys()
 
-        # Get all stations and create a dictionary for the input file
-        # generator.
+        # Get all stations and create a dictionary for the input file generator.
         stations = self.get_stations_for_event(event_name)
-        stations = [{"id": key, "latitude": value["latitude"],
+        stations = [{"id": key, "latitude": value["latitude"], 
             "longitude": value["longitude"],
             "elevation_in_m": value["elevation"],
             "local_depth_in_m": value["local_depth"]} for key, value in
             stations.iteritems() if key in stations_for_event]
+
+        #=====================================================================================
+        # set solver options
+        #=====================================================================================
 
         solver = iteration.solver_settings
 
@@ -617,38 +624,40 @@ class Project(object):
 
         solver = solver["solver_settings"]
 
+        #=====================================================================================
+        # create the input file generator, add event and stations, 
+        # populate the configuration items
+        #=====================================================================================
+
         # Add the event and the stations to the input file generator.
         gen = InputFileGenerator()
         gen.add_events(event)
         gen.add_stations(stations)
 
+        # event tag
+        gen.config.event_tag=event_name
+
+        # Time configuration.
         npts = solver["simulation_parameters"]["number_of_time_steps"]
         delta = solver["simulation_parameters"]["time_increment"]
-        # Time configuration.
         gen.config.number_of_time_steps = npts
         gen.config.time_increment_in_s = delta
 
         # SES3D specific configuration
-        gen.config.output_folder = solver["output_directory"].replace(
-            "{{EVENT_NAME}}", event_name.replace(" ", "_"))
+        gen.config.output_folder = solver["output_directory"].replace("{{EVENT_NAME}}", event_name.replace(" ", "_"))
         gen.config.simulation_type = simulation_type
 
-        gen.config.adjoint_forward_wavefield_output_folder = \
-            solver["adjoint_output_parameters"][
-                "forward_field_output_directory"].replace(
-                    "{{EVENT_NAME}}", event_name.replace(" ", "_"))
-        gen.config.adjoint_forward_sampling_rate = \
-            solver["adjoint_output_parameters"][
-                "sampling_rate_of_forward_field"]
+        gen.config.adjoint_forward_wavefield_output_folder = solver["adjoint_output_parameters"]["forward_field_output_directory"].replace("{{EVENT_NAME}}", event_name.replace(" ", "_"))
+        gen.config.adjoint_forward_sampling_rate = solver["adjoint_output_parameters"]["sampling_rate_of_forward_field"]
 
+        # visco-elastic dissipation
         diss = solver["simulation_parameters"]["is_dissipative"]
         if diss.lower() == "false":
             diss = False
         elif diss.lower() == "true":
             diss = True
         else:
-            msg = ("is_dissipative value of '%s' unknown. Choose "
-                "true or false.") % diss
+            msg = ("is_dissipative value of '%s' unknown. Choose true or false.") % diss
             raise ValueError(msg)
         gen.config.is_dissipative = diss
 
@@ -664,28 +673,24 @@ class Project(object):
             disc["lagrange_polynomial_degree"]
 
         # Configure the mesh.
-        gen.config.mesh_min_latitude = \
-            self.domain["bounds"]["minimum_latitude"]
-        gen.config.mesh_max_latitude = \
-            self.domain["bounds"]["maximum_latitude"]
-        gen.config.mesh_min_longitude = \
-            self.domain["bounds"]["minimum_longitude"]
-        gen.config.mesh_max_longitude = \
-            self.domain["bounds"]["maximum_longitude"]
-        gen.config.mesh_min_depth_in_km = \
-            self.domain["bounds"]["minimum_depth_in_km"]
-        gen.config.mesh_max_depth_in_km = \
-            self.domain["bounds"]["maximum_depth_in_km"]
+        gen.config.mesh_min_latitude = self.domain["bounds"]["minimum_latitude"]
+        gen.config.mesh_max_latitude = self.domain["bounds"]["maximum_latitude"]
+        gen.config.mesh_min_longitude = self.domain["bounds"]["minimum_longitude"]
+        gen.config.mesh_max_longitude = self.domain["bounds"]["maximum_longitude"]
+        gen.config.mesh_min_depth_in_km = self.domain["bounds"]["minimum_depth_in_km"]
+        gen.config.mesh_max_depth_in_km = self.domain["bounds"]["maximum_depth_in_km"]
+        
         # Set the rotation parameters.
         gen.config.rotation_angle_in_degree = self.domain["rotation_angle"]
         gen.config.rotation_axis = self.domain["rotation_axis"]
 
-        gen.config.source_time_function = \
-            iteration.get_source_time_function()["data"]
+        gen.config.source_time_function = iteration.get_source_time_function()["data"]
 
-        output_dir = self.get_output_folder(
-            "input_files___ITERATION_%s__EVENT_%s" % (iteration_name,
-            event_name))
+        #=====================================================================================
+        # output
+        #=====================================================================================
+
+        output_dir = self.get_output_folder("input_files___ITERATION_%s__EVENT_%s" % (iteration_name,event_name))
 
         gen.write(format="ses3d_4_0", output_dir=output_dir)
         print "Written files to '%s'." % output_dir
