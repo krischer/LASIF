@@ -57,7 +57,15 @@ def preprocess_file(file_info):
     current versions of ObsPy. It is probably a good idea to have serial I/O in
     any case, at least with normal HDD. SSD might be a different issue.
     """
-    sys.stdout.write("Processing file %i...\n" % file_info["file_number"])
+
+    #==================================================================================
+    # initialisation
+    #==================================================================================
+
+    reject=False
+
+    sys.stdout.write("Processing file %i: " % file_info["file_number"])
+    sys.stdout.write("%s \n" % file_info["data_path"])
     sys.stdout.flush()
     starttime = file_info["origin_time"]
     endtime = starttime + file_info["dt"] * (file_info["npts"] - 1)
@@ -76,7 +84,13 @@ def preprocess_file(file_info):
         warnings.warn(msg)
     tr = st[0]
 
+    #==================================================================================
+    # Detrend and taper before filtering and response removal
+    #==================================================================================
+
     # Trim with a short buffer in an attempt to avoid boundary effects.
+    # starttime is the origin time of the event
+    # endtime is the origin time plus the length of the synthetics
     tr.trim(starttime - 0.05 * duration, endtime + 0.05 * duration)
 
     if len(tr) == 0:
@@ -87,33 +101,50 @@ def preprocess_file(file_info):
             "the waveform data actually contains data in that "
             "time span.") % file_info["data_path"]
         warnings.warn(msg)
+
+    tr.detrend("demean")
     tr.detrend("linear")
     tr.taper()
 
-    new_time_array = np.linspace(starttime.timestamp,
-            endtime.timestamp, file_info["npts"])
+    #==================================================================================
+    # Instrument correction
+    #==================================================================================
 
     # Instrument correction
+
     # Decimate in case there is a large difference between synthetic
     # sampling rate and sampling_rate of the data to accelerate the
     # process..
     # XXX: Ugly filter, change!
-    if tr.stats.sampling_rate > (6 * 1.0 / file_info["dt"]):
-        new_nyquist = tr.stats.sampling_rate / 2.0 / 5.0
-        tr.filter("lowpass", freq=new_nyquist, corners=4,
-            zerophase=True)
-        tr.decimate(factor=5, no_filter=None)
+#    if tr.stats.sampling_rate > (6 * 1.0 / file_info["dt"]):
+#        new_nyquist = tr.stats.sampling_rate / 2.0 / 5.0
+#        tr.filter("lowpass", freq=new_nyquist, corners=4,
+#            zerophase=True)
+#        tr.decimate(factor=5, no_filter=None)
 
+    # Remove instrument response to produce velocity seismograms
     station_file = file_info["station_filename"]
     if "/SEED/" in station_file:
-        paz = Parser(station_file).getPAZ(tr.id,
-            tr.stats.starttime)
-        tr.simulate(paz_remove=paz)
+        paz = Parser(station_file).getPAZ(tr.id,tr.stats.starttime)
+        try:
+            tr.simulate(paz_remove=paz)
+        except (ValueError):
+            reject=True
+            msg=("Warning: Response of '%s' could not be removed. Skipped.") % file_info["data_path"]
+            warnings.warn(msg)
     elif "/RESP/" in station_file:
-        tr.simulate(seedresp={"filename": station_file,
-            "units": "VEL", "date": tr.stats.starttime})
+        try:
+            tr.simulate(seedresp={"filename": station_file,"units": "VEL", "date": tr.stats.starttime})
+        except (ValueError):
+            reject=True
+            msg=("Warning: Response of '%s' could not be removed. Skipped.") % file_info["data_path"]
+            warnings.warn(msg)
     else:
         raise NotImplementedError
+
+    #==================================================================================
+    # Bandpass and interpolation
+    #==================================================================================
 
     # Make sure that the data array is at least as long as the
     # synthetics array. Also add some buffer sample for the
@@ -124,21 +155,27 @@ def preprocess_file(file_info):
     if endtime > (tr.stats.endtime - buf):
         tr.trim(endtime=endtime + buf, pad=True, fill_value=0.0)
 
-    old_time_array = np.linspace(
-        tr.stats.starttime.timestamp,
-        tr.stats.endtime.timestamp,
-        tr.stats.npts)
+    # This is exactly the same filter as in the source time function. Should
+    # eventually be configurable.
+    tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
+    tr.filter("highpass", freq=file_info["highpass"], corners=2, zerophase=False)
+
+    # Decimation.
+    factor=int(round(file_info["dt"]/tr.stats.delta))
+    try:
+        tr.decimate(factor,no_filter=True)
+    except ValueError:
+        reject=True
+        msg=("Warning: File '%s' could not be decimated. Skipped.") % file_info["data_path"]
+        warnings.warn(msg)
 
     # Interpolation.
-    tr.data = interp1d(old_time_array, tr.data,
-        kind=1)(new_time_array)
+    new_time_array = np.linspace(starttime.timestamp, endtime.timestamp, file_info["npts"])
+    old_time_array = np.linspace(tr.stats.starttime.timestamp,tr.stats.endtime.timestamp,tr.stats.npts)
+
+    tr.data = interp1d(old_time_array,tr.data,kind=1)(new_time_array)
     tr.stats.starttime = starttime
     tr.stats.delta = file_info["dt"]
-
-    # This is exactly the same filter as in the source time function. Should
-    #  eventually be configurable.
-    tr.filter("lowpass", freq=file_info["lowpass"], corners=5)
-    tr.filter("highpass", freq=file_info["highpass"], corners=2)
 
     # Convert to single precision.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
@@ -148,9 +185,10 @@ def preprocess_file(file_info):
     # The lock is necessary for MiniSEED files. This is a limitation of the
     # current version of ObsPy and will hopefully be resolved soon!
     # Do not remove it!
-    lock.acquire()
-    tr.write(file_info["processed_data_path"], format=tr.stats._format)
-    lock.release()
+    if reject==False:
+        lock.acquire()
+        tr.write(file_info["processed_data_path"], format=tr.stats._format)
+        lock.release()
 
     return True
 
@@ -220,7 +258,7 @@ def launch_processing(data_generator):
     processes = 2 * multiprocessing.cpu_count()
 
     print ("%sLaunching preprocessing using %i processes...%s\n"
-        "This might take a file. Press Ctrl + C to cancel.\n") % (
+        "This might take a while. Press Ctrl + C to cancel.\n") % (
         colorama.Fore.GREEN, processes, colorama.Style.RESET_ALL)
 
     # Give the user some time to read the message.
