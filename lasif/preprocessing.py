@@ -233,6 +233,12 @@ def preprocess_file(file_info):
 
 
 def worker(receiving_queue, sending_queue):
+    """
+    Queue for each worker.
+
+    :param receiving_queue: The queue where the jobs are stored.
+    :param sending_queue: The quere where the results are stored.
+    """
     # Use None as the poison pill to stop the worker.
     for func, args, counter in iter(receiving_queue.get, None):
         args["file_number"] = counter
@@ -247,6 +253,10 @@ def pool_imap_unordered(function, iterable, processes):
     whole iterable upfront but only when it needs them. This enables infinitely
     long input queues. This might actually become relevant for LASIF if enough
     data is present.
+
+    :param function: The function to run for each item.
+    :param iterable: The iterable yielding items.
+    :param processes: The number of processes to launch.
     """
     # Creating the queues for sending and receiving items from the iterable.
     sending_queue = multiprocessing.Queue(processes)
@@ -292,7 +302,12 @@ def pool_imap_unordered(function, iterable, processes):
 
 
 def launch_processing(data_generator):
-    # Use twice as many processes as core. The whole operations does a lot of
+    """
+    Launch the parallel processing.
+
+    :param data_generator: A generator yielding file information as required.
+    """
+    # Use twice as many processes as cores. The whole operation does a lot of
     # I/O thus more time is available for calculations.
     processes = 2 * multiprocessing.cpu_count()
 
@@ -304,7 +319,7 @@ def launch_processing(data_generator):
     time.sleep(4.0)
 
     file_count = 0
-    for i in pool_imap_unordered(preprocess_file, data_generator, processes):
+    for _ in pool_imap_unordered(preprocess_file, data_generator, processes):
         file_count += 1
 
     return file_count
