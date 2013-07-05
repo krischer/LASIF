@@ -638,6 +638,35 @@ def lasif_preprocess_data(args):
     proj.preprocess_data(iteration_name)
 
 
+def lasif_plot_selected_windows(args):
+    """
+    Usage: lasif plot_selected_windows ITERATION_NAME EVENT_NAME
+
+    Plots the automatically selected windows for a given Iteration and event.
+    """
+    if len(args) != 2:
+        msg = "ITERATION_NAME and EVENT_NAME must be given."
+        raise LASIFCommandLineException(msg)
+
+    proj = _find_project_root(".")
+
+    iteration_name = args[0]
+    event_name = args[1]
+
+    events = proj.get_event_dict()
+    if event_name not in events:
+        msg = "Event '%s' not found in project." % event_name
+        raise LASIFCommandLineException(msg)
+
+    iterator = proj.data_synthetic_iterator(event_name, iteration_name)
+
+    long_iteration_name = "ITERATION_%s" % iteration_name
+
+    for i in iterator:
+        print i
+
+
+
 def lasif_generate_dummy_data(args):
     """
     Usage: lasif generate_dummy_data

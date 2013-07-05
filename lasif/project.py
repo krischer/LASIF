@@ -996,6 +996,9 @@ class Project(object):
                     raise StopIteration
                 return self.get_value()
 
+            def __iter__(self):
+                return self
+
             def get_value(self):
                 station_id, coordinates = self.items[self.current_index]
 
