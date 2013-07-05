@@ -17,6 +17,7 @@ from obspy.xseed import Parser
 from Queue import Full as QueueFull
 from Queue import Empty as QueueEmpty
 from scipy.interpolate import interp1d
+from scipy import signal
 import sys
 import time
 import warnings
@@ -24,6 +25,38 @@ import warnings
 
 # File wide lock for reading/writing MiniSEED files.
 lock = multiprocessing.Lock()
+
+
+def zerophase_chebychev_lowpass_filter(trace, freqmax):
+    """
+    Custom zerophase Chebychev type two zerophase lowpass filter useful for
+    decimation filtering.
+
+    This filter is stable up to a reduction in frequency with a factor of 10.
+    If more reduction is desired, simply decimate in steps.
+
+    Partly based on a filter in ObsPy.
+
+    :param trace: The trace to be filtered.
+    :param freqmax: The desired lowpass frequency.
+
+    Will be replaced once ObsPy has a proper decimation filter.
+    """
+    # rp - maximum ripple of passband, rs - attenuation of stopband
+    rp, rs, order = 1, 96, 1e99
+    ws = freqmax / (trace.stats.sampling_rate * 0.5)  # stop band frequency
+    wp = ws  # pass band frequency
+
+    while True:
+        if order <= 12:
+            break
+        wp *= 0.99
+        order, wn = signal.cheb2ord(wp, ws, rp, rs, analog=0)
+
+    b, a = signal.cheby2(order, rs, wn, btype="low", analog=0, output="ba")
+
+    # Apply twice to get rid of the phase distortion.
+    trace.data = signal.filtfilt(b, a, trace.data)
 
 
 def preprocess_file(file_info):
@@ -58,11 +91,12 @@ def preprocess_file(file_info):
 
     Please remember to not touch the lock/mutexes, otherwise it will break with
     current versions of ObsPy. It is probably a good idea to have serial I/O in
-    any case, at least with normal HDD. SSD might be a different issue.
+    any case, at least with a normal HDD. SSD might be a different issue.
     """
-    sys.stdout.write("Processing file %i: " % file_info["file_number"])
-    sys.stdout.write("%s \n" % file_info["data_path"])
+    sys.stdout.write("Processing file %i: %s\n" % (file_info["file_number"],
+        file_info["data_path"]))
     sys.stdout.flush()
+
     starttime = file_info["origin_time"]
     endtime = starttime + file_info["dt"] * (file_info["npts"] - 1)
     duration = endtime - starttime
@@ -80,10 +114,6 @@ def preprocess_file(file_info):
         warnings.warn(msg)
     tr = st[0]
 
-    #==========================================================================
-    # Detrend and taper before filtering and response removal
-    #==========================================================================
-
     # Trim with a short buffer in an attempt to avoid boundary effects.
     # starttime is the origin time of the event
     # endtime is the origin time plus the length of the synthetics
@@ -91,33 +121,49 @@ def preprocess_file(file_info):
 
     if len(tr) == 0:
         msg = ("After trimming the file '%s' to "
-            "a time window around the event, no more data is "
-            "left. The reference time is the one given in the "
-            "QuakeML file. Make sure it is correct and that "
-            "the waveform data actually contains data in that "
-            "time span.") % file_info["data_path"]
+               "a time window around the event, no more data is "
+               "left. The reference time is the one given in the "
+               "QuakeML file. Make sure it is correct and that "
+               "the waveform data actually contains data in that "
+               "time span.") % file_info["data_path"]
         warnings.warn(msg)
+        return True
 
-    tr.detrend("demean")
+    #==========================================================================
+    # Step 1: Detrend and taper.
+    #==========================================================================
     tr.detrend("linear")
     tr.taper()
 
     #==========================================================================
-    # Instrument correction
+    # Step 2: Decimation
+    # Decimate with the factor closest to the sampling rate of the synthetics.
+    # The data is still oversampled by a large amount so there should be no
+    # problems. This has to be done here so that the instrument correction is
+    # reasonably fast even for input data with a large sampling rate.
     #==========================================================================
+    while True:
+        decimation_factor = int(file_info["dt"] / tr.stats.delta)
+        # Decimate in steps for large sample rate reductions.
+        if decimation_factor > 8:
+            decimation_factor = 8
+        if decimation_factor > 1:
+            new_nyquist = tr.stats.sampling_rate / 2.0 / float(
+                decimation_factor)
+            zerophase_chebychev_lowpass_filter(tr, new_nyquist)
+            tr.decimate(factor=decimation_factor, no_filter=True)
+        else:
+            break
 
-    # Decimate in case there is a large difference between synthetic
-    # sampling rate and sampling_rate of the data to accelerate the
-    # process..
-    # XXX: Ugly filter, change!
-    if tr.stats.sampling_rate > (6 * 1.0 / file_info["dt"]):
-        new_nyquist = tr.stats.sampling_rate / 2.0 / 5.0
-        tr.filter("lowpass", freq=new_nyquist, corners=4, zerophase=True)
-        tr.decimate(factor=5, no_filter=True)
-
-    # Remove instrument response to produce velocity seismograms
+    #==========================================================================
+    # Step 3: Instrument correction
+    # Correct seismograms to velocity in m/s.
+    #==========================================================================
     station_file = file_info["station_filename"]
     if "/SEED/" in station_file:
+        # XXX: Check if this is m/s. In all cases encountered so far it
+        # always is, but SEED is in theory also able to specify corrections
+        # to other units...
         paz = Parser(station_file).getPAZ(tr.id, tr.stats.starttime)
         try:
             tr.simulate(paz_remove=paz)
@@ -139,9 +185,11 @@ def preprocess_file(file_info):
         raise NotImplementedError
 
     #==========================================================================
-    # Bandpass and interpolation
+    # Step 4: Interpolation
     #==========================================================================
-
+    # Apply one more taper to avoid high frequency contributions from sudden
+    # steps at the beginning/end if padded with zeros.
+    tr.taper()
     # Make sure that the data array is at least as long as the
     # synthetics array. Also add some buffer sample for the
     # spline interpolation to work in any case.
@@ -151,23 +199,25 @@ def preprocess_file(file_info):
     if endtime > (tr.stats.endtime - buf):
         tr.trim(endtime=endtime + buf, pad=True, fill_value=0.0)
 
-    # This is exactly the same filter as in the source time function. Should
-    # eventually be configurable.
-    tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
-    tr.filter("highpass", freq=file_info["highpass"], corners=2,
-        zerophase=False)
-
-    # Interpolation.
+    # Actual interpolation. Currently a linear interpolation is used.
     new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,
         file_info["npts"])
     old_time_array = np.linspace(tr.stats.starttime.timestamp,
         tr.stats.endtime.timestamp, tr.stats.npts)
-
     tr.data = interp1d(old_time_array, tr.data, kind=1)(new_time_array)
     tr.stats.starttime = starttime
     tr.stats.delta = file_info["dt"]
 
-    # Convert to single precision.
+    #==========================================================================
+    # Step 5: Bandpass filtering
+    # This has to be exactly the same filter as in the source time function.
+    # Should eventually be configurable.
+    #==========================================================================
+    tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
+    tr.filter("highpass", freq=file_info["highpass"], corners=2,
+              zerophase=False)
+
+    # Convert to single precision for saving.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
     if hasattr(tr.stats, "mseed"):
         tr.stats.mseed.encoding = "FLOAT32"
@@ -251,7 +301,7 @@ def launch_processing(data_generator):
         colorama.Fore.GREEN, processes, colorama.Style.RESET_ALL)
 
     # Give the user some time to read the message.
-    time.sleep(7.5)
+    time.sleep(4.0)
 
     file_count = 0
     for i in pool_imap_unordered(preprocess_file, data_generator, processes):
