@@ -75,8 +75,8 @@ def preprocess_file(file_info):
     lock.release()
 
     if len(st) != 1:
-        msg = ("Warning: File '%s' has %i traces and not 1. "
-            "Will be skipped") % (file_info["data_path"], len(st))
+        msg = "File '%s' has %i traces and not 1. Will be skipped" % \
+            (file_info["data_path"], len(st))
         warnings.warn(msg)
     tr = st[0]
 
@@ -90,7 +90,7 @@ def preprocess_file(file_info):
     tr.trim(starttime - 0.05 * duration, endtime + 0.05 * duration)
 
     if len(tr) == 0:
-        msg = ("Warning: After trimming the file '%s' to "
+        msg = ("After trimming the file '%s' to "
             "a time window around the event, no more data is "
             "left. The reference time is the one given in the "
             "QuakeML file. Make sure it is correct and that "
@@ -122,7 +122,7 @@ def preprocess_file(file_info):
         try:
             tr.simulate(paz_remove=paz)
         except ValueError:
-            msg = "Warning: Response of '%s' could not be removed. Skipped."\
+            msg = "Response of '%s' could not be removed. Skipped."\
                 % file_info["data_path"]
             warnings.warn(msg)
             return True
@@ -131,7 +131,7 @@ def preprocess_file(file_info):
             tr.simulate(seedresp={"filename": station_file, "units": "VEL",
                 "date": tr.stats.starttime})
         except ValueError:
-            msg = "Warning: Response of '%s' could not be removed. Skipped."\
+            msg = "Response of '%s' could not be removed. Skipped."\
                 % file_info["data_path"]
             warnings.warn(msg)
             return True
@@ -162,7 +162,7 @@ def preprocess_file(file_info):
     try:
         tr.decimate(factor, no_filter=True)
     except ValueError:
-        msg = "Warning: File '%s' could not be decimated. Skipped." % \
+        msg = "File '%s' could not be decimated. Skipped." % \
             file_info["data_path"]
         warnings.warn(msg)
         return True
