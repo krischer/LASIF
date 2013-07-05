@@ -22,6 +22,9 @@ import warnings
 
 
 class LASIFException(Exception):
+    """
+    Base LASIF specific exception.
+    """
     pass
 
 
