@@ -644,6 +644,7 @@ def lasif_plot_selected_windows(args):
 
     Plots the automatically selected windows for a given Iteration and event.
     """
+    from lasif.window_selection import select_windows, plot_windows
     if len(args) != 2:
         msg = "ITERATION_NAME and EVENT_NAME must be given."
         raise LASIFCommandLineException(msg)
@@ -659,12 +660,31 @@ def lasif_plot_selected_windows(args):
         raise LASIFCommandLineException(msg)
 
     iterator = proj.data_synthetic_iterator(event_name, iteration_name)
+    event_info = proj.get_event_info(event_name)
 
-    long_iteration_name = "ITERATION_%s" % iteration_name
+    iteration = proj._get_iteration(iteration_name)
+    process_params = iteration.get_process_params()
+    minimum_period = 1.0 / process_params["lowpass"]
+    maximum_period = 1.0 / process_params["highpass"]
+
+    output_folder = proj.get_output_folder(
+        "Selected_Windows_Iteration_%s__%s" % (event_name, iteration_name))
 
     for i in iterator:
-        print i
-
+        for component in ["Z", "N", "E"]:
+            try:
+                data = i["data"].select(component=component)[0]
+            except IndexError:
+                continue
+            synthetics = i["synthetics"].select(component=component)[0]
+            windows = select_windows(data, synthetics,
+                event_info["latitude"], event_info["longitude"],
+                event_info["depth_in_km"], i["coordinates"]["latitude"],
+                i["coordinates"]["longitude"], minimum_period, maximum_period)
+            plot_windows(data, synthetics, windows, maximum_period,
+                filename=os.path.join(output_folder,
+                "windows_%s.pdf" % data.id))
+    print "Done. Written output to folder %s." % output_folder
 
 
 def lasif_generate_dummy_data(args):

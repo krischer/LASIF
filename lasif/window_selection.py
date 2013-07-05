@@ -225,7 +225,6 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
         # Assert a certain minimal length.
         if (i.stop - i.start) < min_length:
             continue
-        print "FOUND TOP WINDOW"
 
         window_npts = i.stop - i.start
         synthetic_window = synthetic_trace.data[i.start: i.stop]
@@ -258,7 +257,6 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
                 end = -1
             window_mask[start: end] = False
 
-        print data_t, synth_t
         closest_troughs = find_closest(data_t, synth_t)
         diffs = np.diff(closest_troughs)
 
