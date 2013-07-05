@@ -60,12 +60,6 @@ def preprocess_file(file_info):
     current versions of ObsPy. It is probably a good idea to have serial I/O in
     any case, at least with normal HDD. SSD might be a different issue.
     """
-
-    #==========================================================================
-    # initialisation
-    #==========================================================================
-    reject = False
-
     sys.stdout.write("Processing file %i: " % file_info["file_number"])
     sys.stdout.write("%s \n" % file_info["data_path"])
     sys.stdout.flush()
@@ -128,19 +122,19 @@ def preprocess_file(file_info):
         try:
             tr.simulate(paz_remove=paz)
         except ValueError:
-            reject = True
             msg = "Warning: Response of '%s' could not be removed. Skipped."\
                 % file_info["data_path"]
             warnings.warn(msg)
+            return True
     elif "/RESP/" in station_file:
         try:
             tr.simulate(seedresp={"filename": station_file, "units": "VEL",
                 "date": tr.stats.starttime})
         except ValueError:
-            reject = True
             msg = "Warning: Response of '%s' could not be removed. Skipped."\
                 % file_info["data_path"]
             warnings.warn(msg)
+            return True
     else:
         raise NotImplementedError
 
@@ -168,10 +162,10 @@ def preprocess_file(file_info):
     try:
         tr.decimate(factor, no_filter=True)
     except ValueError:
-        reject = True
         msg = "Warning: File '%s' could not be decimated. Skipped." % \
             file_info["data_path"]
         warnings.warn(msg)
+        return True
 
     # Interpolation.
     new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,
@@ -191,10 +185,9 @@ def preprocess_file(file_info):
     # The lock is necessary for MiniSEED files. This is a limitation of the
     # current version of ObsPy and will hopefully be resolved soon!
     # Do not remove it!
-    if reject is False:
-        lock.acquire()
-        tr.write(file_info["processed_data_path"], format=tr.stats._format)
-        lock.release()
+    lock.acquire()
+    tr.write(file_info["processed_data_path"], format=tr.stats._format)
+    lock.release()
 
     return True
 
