@@ -36,6 +36,9 @@ def preprocess_file(file_info):
 
     Furthermore the data has to be converted to m/s.
 
+    :param file_info: A dictionary containing information about the file to
+        be processed.
+
     file_info is dictionary containing the following keys:
         * data_path: Path to the raw data. This has to be read.
         * processed_data_path: The path where the processed file has to be
@@ -58,11 +61,10 @@ def preprocess_file(file_info):
     any case, at least with normal HDD. SSD might be a different issue.
     """
 
-    #==================================================================================
+    #==========================================================================
     # initialisation
-    #==================================================================================
-
-    reject=False
+    #==========================================================================
+    reject = False
 
     sys.stdout.write("Processing file %i: " % file_info["file_number"])
     sys.stdout.write("%s \n" % file_info["data_path"])
@@ -84,9 +86,9 @@ def preprocess_file(file_info):
         warnings.warn(msg)
     tr = st[0]
 
-    #==================================================================================
+    #==========================================================================
     # Detrend and taper before filtering and response removal
-    #==================================================================================
+    #==========================================================================
 
     # Trim with a short buffer in an attempt to avoid boundary effects.
     # starttime is the origin time of the event
@@ -106,9 +108,9 @@ def preprocess_file(file_info):
     tr.detrend("linear")
     tr.taper()
 
-    #==================================================================================
+    #==========================================================================
     # Instrument correction
-    #==================================================================================
+    #==========================================================================
 
     # Decimate in case there is a large difference between synthetic
     # sampling rate and sampling_rate of the data to accelerate the
@@ -122,26 +124,29 @@ def preprocess_file(file_info):
     # Remove instrument response to produce velocity seismograms
     station_file = file_info["station_filename"]
     if "/SEED/" in station_file:
-        paz = Parser(station_file).getPAZ(tr.id,tr.stats.starttime)
+        paz = Parser(station_file).getPAZ(tr.id, tr.stats.starttime)
         try:
             tr.simulate(paz_remove=paz)
-        except (ValueError):
-            reject=True
-            msg=("Warning: Response of '%s' could not be removed. Skipped.") % file_info["data_path"]
+        except ValueError:
+            reject = True
+            msg = "Warning: Response of '%s' could not be removed. Skipped."\
+                % file_info["data_path"]
             warnings.warn(msg)
     elif "/RESP/" in station_file:
         try:
-            tr.simulate(seedresp={"filename": station_file,"units": "VEL", "date": tr.stats.starttime})
-        except (ValueError):
-            reject=True
-            msg=("Warning: Response of '%s' could not be removed. Skipped.") % file_info["data_path"]
+            tr.simulate(seedresp={"filename": station_file, "units": "VEL",
+                "date": tr.stats.starttime})
+        except ValueError:
+            reject = True
+            msg = "Warning: Response of '%s' could not be removed. Skipped."\
+                % file_info["data_path"]
             warnings.warn(msg)
     else:
         raise NotImplementedError
 
-    #==================================================================================
+    #==========================================================================
     # Bandpass and interpolation
-    #==================================================================================
+    #==========================================================================
 
     # Make sure that the data array is at least as long as the
     # synthetics array. Also add some buffer sample for the
@@ -155,22 +160,26 @@ def preprocess_file(file_info):
     # This is exactly the same filter as in the source time function. Should
     # eventually be configurable.
     tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
-    tr.filter("highpass", freq=file_info["highpass"], corners=2, zerophase=False)
+    tr.filter("highpass", freq=file_info["highpass"], corners=2,
+        zerophase=False)
 
     # Decimation.
-    factor=int(round(file_info["dt"]/tr.stats.delta))
+    factor = int(round(file_info["dt"] / tr.stats.delta))
     try:
-        tr.decimate(factor,no_filter=True)
+        tr.decimate(factor, no_filter=True)
     except ValueError:
-        reject=True
-        msg=("Warning: File '%s' could not be decimated. Skipped.") % file_info["data_path"]
+        reject = True
+        msg = "Warning: File '%s' could not be decimated. Skipped." % \
+            file_info["data_path"]
         warnings.warn(msg)
 
     # Interpolation.
-    new_time_array = np.linspace(starttime.timestamp, endtime.timestamp, file_info["npts"])
-    old_time_array = np.linspace(tr.stats.starttime.timestamp,tr.stats.endtime.timestamp,tr.stats.npts)
+    new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,
+        file_info["npts"])
+    old_time_array = np.linspace(tr.stats.starttime.timestamp,
+        tr.stats.endtime.timestamp, tr.stats.npts)
 
-    tr.data = interp1d(old_time_array,tr.data,kind=1)(new_time_array)
+    tr.data = interp1d(old_time_array, tr.data, kind=1)(new_time_array)
     tr.stats.starttime = starttime
     tr.stats.delta = file_info["dt"]
 
@@ -182,7 +191,7 @@ def preprocess_file(file_info):
     # The lock is necessary for MiniSEED files. This is a limitation of the
     # current version of ObsPy and will hopefully be resolved soon!
     # Do not remove it!
-    if reject==False:
+    if reject is False:
         lock.acquire()
         tr.write(file_info["processed_data_path"], format=tr.stats._format)
         lock.release()
