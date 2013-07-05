@@ -157,16 +157,6 @@ def preprocess_file(file_info):
     tr.filter("highpass", freq=file_info["highpass"], corners=2,
         zerophase=False)
 
-    # Decimation.
-    factor = int(round(file_info["dt"] / tr.stats.delta))
-    try:
-        tr.decimate(factor, no_filter=True)
-    except ValueError:
-        msg = "File '%s' could not be decimated. Skipped." % \
-            file_info["data_path"]
-        warnings.warn(msg)
-        return True
-
     # Interpolation.
     new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,
         file_info["npts"])
