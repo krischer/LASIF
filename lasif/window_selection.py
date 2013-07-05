@@ -6,43 +6,10 @@ Window selection algorithm.
 This module aims to provide a window selection algorithm suitable for
 calculating phase misfits between two seismic waveforms.
 
-The main function is the plot_windows() function. The selection process is a
+The main function is the select_windoes() function. The selection process is a
 multi-stage process. Initially all time steps are considered to be valid in
 the sense as being suitable for window selection. Then a number of selectors
 is applied, progressively excluding more and more time steps.
-
-Unscientific description of the employed algorithm. Some figures would be
-needed to really explain the reasoning behind it and the wording should be
-clearer:
-
-1. All time steps before the theoretical first arrival (calculated with
-   TauP) are set to invalid.
-2. A local extrema finding algorithm is employed, finding all local troughs
-   and peaks for data and synthetics.
-3. A kind of instantaneous peak-to-peak and trough-to-trough distance and a
-   mix of both is calculated for data and synthetics.
-3. At each time step, the relative difference between those metrics for data
-   and synthetics is calculated. Every time step where the maximum for
-   each of the three previously described metrics exceeds 1.0 is set to
-   invalid. This keeps the difference in "wiggliness" between data and
-   synthetics at a reasonable level.
-4. Now the peaks and troughs for data and synthetics are directly compared.
-   For every suitable window, it should be possible to map every peak in the
-   data to one in the synthetics. Time intervals where this is not possible
-   are set to invalid.
-5. All of the above now results in a list of potential windows that will
-   have to pass some further selection tests:
-
-   1. The minimum length for each window will be restricted to one dominant
-      period.
-   2. The "energy" of data and synthetics in one window should not differ by
-      more than one order of magnitude. The "energy" used here is simply the
-      sum of all squared values in each window. This is reasonable for velocity
-      seismograms. All windows not fulfilling this will be rejected.
-   3. The maxmimum amplitude of the data in each window must be
-      significantly above the noise level. The noise level is determined by
-      taking the maximum amplitude before the first arrival.
-
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
@@ -252,7 +219,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
 
     # Step 7: Throw away all windows with a length of less then 0.5 the
     # dominant period.
-    min_length = min(minimum_period / dt  * 1.5, maximum_period / dt)
+    min_length = min(minimum_period / dt * 1.5, maximum_period / dt)
     final_windows = []
     for i in np.ma.flatnotmasked_contiguous(time_windows):
         # Assert a certain minimal length.
@@ -306,7 +273,6 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
                 end = -1
             window_mask[start: end] = False
 
-
         window_mask = np.ma.masked_array(window_mask, mask=window_mask)
         if window_mask.mask.all():
             continue
@@ -314,8 +280,9 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
             # Again assert a certain minimal length.
             if (j.stop - j.start) < min_length:
                 continue
-            # Now compare the energy in the data window in the synthetic window.
-            # If they differ by more then one order of magnitude, discard them.
+            # Now compare the energy in the data window in the synthetic
+            # window. If they differ by more then one order of magnitude,
+            # discard them.
             data_energy = (data_window[j.start: j.stop] ** 2).sum()
             synth_energy = (synthetic_window[j.start: j.stop] ** 2).sum()
             energies = sorted([data_energy, synth_energy])
@@ -324,6 +291,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
             final_windows.append((i.start + j.start, i.start + j.stop))
 
     return final_windows
+
 
 def plot_windows(data_trace, synthetic_trace, windows, dominant_period,
         filename=None, debug=False):
