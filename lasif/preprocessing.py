@@ -29,8 +29,8 @@ lock = multiprocessing.Lock()
 
 def zerophase_chebychev_lowpass_filter(trace, freqmax):
     """
-    Custom zerophase Chebychev type two zerophase lowpass filter useful for
-    decimation filtering.
+    Custom Chebychev type two zerophase lowpass filter useful for decimation
+    filtering.
 
     This filter is stable up to a reduction in frequency with a factor of 10.
     If more reduction is desired, simply decimate in steps.
