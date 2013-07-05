@@ -168,8 +168,9 @@ def preprocess_file(file_info):
         try:
             tr.simulate(paz_remove=paz)
         except ValueError:
-            msg = "Response of '%s' could not be removed. Skipped."\
-                % file_info["data_path"]
+            msg = ("File '%s' could not be corrected with the help of the "
+                "SEED file '%s'. Will be skipped.") % (file_info["data_path"],
+                file_info["station_info"])
             warnings.warn(msg)
             return True
     elif "/RESP/" in station_file:
@@ -177,8 +178,9 @@ def preprocess_file(file_info):
             tr.simulate(seedresp={"filename": station_file, "units": "VEL",
                 "date": tr.stats.starttime})
         except ValueError:
-            msg = "Response of '%s' could not be removed. Skipped."\
-                % file_info["data_path"]
+            msg = ("File '%s' could not be corrected with the help of the "
+                "RESP file '%s'. Will be skipped.") % (file_info["data_path"],
+                file_info["station_info"])
             warnings.warn(msg)
             return True
     else:
