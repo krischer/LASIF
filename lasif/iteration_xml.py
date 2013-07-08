@@ -17,6 +17,7 @@ from lasif.project import LASIFException
 
 
 class Iteration(object):
+
     def __init__(self, iteration_xml_filename):
         """
         Init function takes a Iteration XML file.
@@ -34,20 +35,16 @@ class Iteration(object):
         root = etree.parse(iteration_xml_filename).getroot()
 
         self.iteration_name = self._get(root, "iteration_name")
-        self.description = self._get_if_available(root,
-            "iteration_description")
+        self.description = self._get_if_available(root, "iteration_description")
         self.comments = [_i.text for _i in root.findall("comment") if _i.text]
         self.source_time_function = self._get(root, "source_time_function")
 
         self.data_preprocessing = {}
         prep = root.find("data_preprocessing")
-        self.data_preprocessing["highpass_period"] = \
-            float(self._get(prep, "highpass_period"))
-        self.data_preprocessing["lowpass_period"] = \
-            float(self._get(prep, "lowpass_period"))
+        self.data_preprocessing["highpass_period"] = float(self._get(prep, "highpass_period"))
+        self.data_preprocessing["lowpass_period"] = float(self._get(prep, "lowpass_period"))
 
-        self.solver_settings = self._recursive_dict(root.find(
-            "solver_parameters"))[1]
+        self.solver_settings = self._recursive_dict(root.find("solver_parameters"))[1]
 
         self.events = {}
         for event in root.findall("event"):
@@ -80,25 +77,21 @@ class Iteration(object):
         stfs_l = [_i.lower() for _i in STFS]
 
         stf = self.source_time_function.lower()
-        delta = float(self.solver_settings["solver_settings"][
-            "simulation_parameters"]["time_increment"])
-        npts = int(self.solver_settings["solver_settings"][
-            "simulation_parameters"]["number_of_time_steps"])
+        delta = float(self.solver_settings["solver_settings"]["simulation_parameters"]["time_increment"])
+        npts = int(self.solver_settings["solver_settings"]["simulation_parameters"]["number_of_time_steps"])
 
         freqmin = 1.0 / self.data_preprocessing["highpass_period"]
         freqmax = 1.0 / self.data_preprocessing["lowpass_period"]
 
         if stf not in stfs_l:
-            msg = "Source time function '%s' not known. Available STFs: %s" % \
-                (self.source_time_function, "\n".join(STFS))
+            msg = "Source time function '%s' not known. Available STFs: %s" % (self.source_time_function, "\n".join(STFS))
             raise NotImplementedError(msg)
 
         ret_dict = {"delta": delta}
 
         if stf == "filtered heaviside":
             from lasif.source_time_functions import filtered_heaviside
-            ret_dict["data"] = filtered_heaviside(npts, delta, freqmin,
-                freqmax)
+            ret_dict["data"] = filtered_heaviside(npts, delta, freqmin, freqmax)
         else:
             msg = "Should not happen. Contact the developers or fix it."
             raise Exception(msg)

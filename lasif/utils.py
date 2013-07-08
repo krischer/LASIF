@@ -83,5 +83,14 @@ def generate_ses3d_4_0_template():
             E.lagrange_polynomial_degree("4"),
             E.px_processors_in_theta_direction("1"),
             E.py_processors_in_phi_direction("1"),
-            E.pz_processors_in_r_direction("1")))
+            E.pz_processors_in_r_direction("1")),
+        E.relaxation_parameters(
+            E.number_of_mechanisms("3"),
+            E.tau_1("1.7360"),
+            E.tau_2("14.6211"),
+            E.tau_3("13.7054"),
+            E.w_1("2.5133"),
+            E.w_2("2.4089"),
+            E.w_3("0.1005")))
+
     return doc

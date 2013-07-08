@@ -349,11 +349,9 @@ class Project(object):
 
         # Get a dictionary containing the event names as keys and a list of
         # stations per event as values.
-        events_dict = {event: self.get_stations_for_event(event).keys()
-            for event in self.get_event_dict().keys()}
+        events_dict = {event: self.get_stations_for_event(event).keys() for event in self.get_event_dict().keys()}
 
-        xml_string = iteration_xml.create_iteration_xml_string(
-            iteration_name, solver_name, events_dict)
+        xml_string = iteration_xml.create_iteration_xml_string(iteration_name, solver_name, events_dict)
 
         with open(filename, "wt") as fh:
             fh.write(xml_string)
@@ -576,8 +574,7 @@ class Project(object):
             "magnitude_type": mag.magnitude_type}
         return info
 
-    def generate_input_files(self, iteration_name, event_name,
-            simulation_type):
+    def generate_input_files(self, iteration_name, event_name, simulation_type):
         """
         Generate the input files for one event.
 
@@ -661,6 +658,14 @@ class Project(object):
             raise ValueError(msg)
         gen.config.is_dissipative = diss
 
+        relax=solver["relaxation_parameters"]
+        gen.config.nr_diss=relax["number_of_mechanisms"]
+        gen.config.tau=[]
+        gen.config.w=[]
+        for k in range(1,1+int(gen.config.nr_diss)):            
+            gen.config.tau.append(relax["tau_"+str(k)])
+            gen.config.w.append(relax["w_"+str(k)])
+
         # Discretization
         disc = solver["computational_setup"]
         gen.config.nx_global = disc["nx_global"]
@@ -684,6 +689,7 @@ class Project(object):
         gen.config.rotation_angle_in_degree = self.domain["rotation_angle"]
         gen.config.rotation_axis = self.domain["rotation_axis"]
 
+        # Make source time function
         gen.config.source_time_function = iteration.get_source_time_function()["data"]
 
         #=====================================================================================
