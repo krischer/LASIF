@@ -147,9 +147,10 @@ def plot_events(events, map_object):
         b.detailed_description = (
             "Event %.1f %s\n"
             "Lat: %.1f, Lng: %.1f, Depth: %.1f km\n"
+            "Time: %s\n"
             "%s"
         ) % (mag.mag, mag.magnitude_type, org.latitude, org.longitude,
-            org.depth / 1000.0, os.path.basename(event.filename))
+            org.depth / 1000.0, org.time, os.path.basename(event.filename))
 
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
