@@ -334,3 +334,32 @@ def plot_tf(data, delta):
 
     plotTfr(data, dt=delta, fmin=1.0 / (npts * delta),
         fmax=1.0 / (2.0 * delta))
+
+
+def plot_event_histogram(events, plot_type):
+    from matplotlib.dates import date2num, num2date
+    from matplotlib import ticker
+
+    plt.figure(figsize=(12, 4))
+
+    values = []
+    for event in events:
+        org = event.preferred_origin() or event.origins[0]
+        if plot_type == "depth":
+            values.append(org.depth / 1000.0)
+        elif plot_type == "time":
+            values.append(date2num(org.time.datetime))
+
+    plt.hist(values, bins=250)
+
+    if plot_type == "time":
+        plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(
+            lambda numdate, _: num2date(numdate).strftime('%Y-%d-%m')))
+        plt.gcf().autofmt_xdate()
+        plt.xlabel("Origin time (UTC)")
+        plt.title("Origin time distribution (%i events)" % len(events))
+    elif plot_type == "depth":
+        plt.xlabel("Event depth in km")
+        plt.title("Hypocenter depth distribution (%i events)" % len(events))
+
+    plt.tight_layout()

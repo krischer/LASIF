@@ -492,22 +492,38 @@ class Project(object):
 
         plt.show()
 
-    def plot_events(self):
+    def plot_events(self, plot_type="map"):
         """
         Plots the domain and beachballs for all events on the map.
+
+        :param plot_type: Determines the type of plot created.
+            * ``map`` (default) - a map view of the events
+            * ``depth`` - a depth distribution histogram
+            * ``time`` - a time distribution histogram
         """
         from lasif import visualization
         import matplotlib.pyplot as plt
 
-        bounds = self.domain["bounds"]
-        map = visualization.plot_domain(bounds["minimum_latitude"],
-            bounds["maximum_latitude"], bounds["minimum_longitude"],
-            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
-            rotation_axis=self.domain["rotation_axis"],
-            rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=False, show_plot=False, zoom=True)
         events = self.get_all_events()
-        visualization.plot_events(events, map_object=map)
+
+        if plot_type == "map":
+            bounds = self.domain["bounds"]
+            map = visualization.plot_domain(bounds["minimum_latitude"],
+                bounds["maximum_latitude"], bounds["minimum_longitude"],
+                bounds["maximum_longitude"],
+                bounds["boundary_width_in_degree"],
+                rotation_axis=self.domain["rotation_axis"],
+                rotation_angle_in_degree=self.domain["rotation_angle"],
+                plot_simulation_domain=False, show_plot=False, zoom=True)
+            visualization.plot_events(events, map_object=map)
+        elif plot_type == "depth":
+            visualization.plot_event_histogram(events, "depth")
+        elif plot_type == "time":
+            visualization.plot_event_histogram(events, "time")
+        else:
+            msg = "Unknown plot_type"
+            raise LASIFException(msg)
+
         plt.show()
 
     def plot_raydensity(self):

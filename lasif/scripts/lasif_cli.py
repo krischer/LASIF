@@ -74,12 +74,33 @@ def lasif_plot_event(args):
 
 def lasif_plot_events(args):
     """
-    Usage: lasif plot_events
+    Usage: lasif plot_events [TYPE]
 
     Plots all events.
+
+    TYPE can be one of:
+        * ``map`` (default) - a map view of the events
+        * ``depth`` - a depth distribution histogram
+        * ``time`` - a time distribution histogram
     """
+    valid_plot_types = ["map", "depth", "time"]
+
     proj = _find_project_root(".")
-    proj.plot_events()
+
+    if len(args) > 1:
+        msg = "TYPE can be given. No other arguments allowed."
+        raise LASIFCommandLineException(msg)
+    if not args:
+        plot_type = "map"
+    else:
+        plot_type = args[0].lower()
+
+    if plot_type not in valid_plot_types:
+        msg = "Type '%s' not valid. Valid types: %s." % (plot_type, ", ".join(
+            valid_plot_types))
+        raise LASIFCommandLineException(msg)
+
+    proj.plot_events(plot_type)
 
 
 def lasif_plot_raydensity(args):
