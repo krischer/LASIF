@@ -96,8 +96,9 @@ def lasif_add_spud_event(args):
     """
     Usage: lasif add_spud_event URL
 
-    Adds an event from the IRIS SPUD GCMT webservice to the project. URL is any
-    SPUD momenttensor URL.
+    Adds an event from the IRIS SPUD GCMT webservice to the project.
+
+    URL is any SPUD momenttensor URL.
     """
     from lasif.scripts.iris2quakeml import iris2quakeml
 
@@ -123,9 +124,10 @@ def lasif_download_waveforms(args):
     """
     Usage: lasif download_waveforms EVENT_NAME
 
-    Attempts to download all missing waveform files for a given event. The list
-    of possible events can be obtained with "lasif list_events". The files will
-    be saved in the DATA/EVENT_NAME/raw directory.
+    Downloads all waveform files for a given event.
+
+    The list of possible events can be obtained with "lasif list_events". The
+    files will be saved in the DATA/EVENT_NAME/raw directory.
     """
     from lasif.download_helpers import downloader
 
@@ -177,9 +179,10 @@ def lasif_download_stations(args):
     """
     Usage: lasif download_stations EVENT_NAME
 
-    Attempts to download all missing station data files for a given event. The
-    list of possible events can be obtained with "lasif list_events". The files
-    will be saved in the STATION/*.
+    Downloads all missing station data files for a given event.
+
+    The list of possible events can be obtained with "lasif list_events". The
+    files will be saved in the STATION/*.
     """
     from lasif.download_helpers import downloader
     proj = _find_project_root(".")
@@ -223,9 +226,9 @@ def lasif_download_stations(args):
 
 def lasif_list_events(args):
     """
-    usage: lasif list_events
+    Usage: lasif list_events
 
-    returns a list of all events in the project.
+    Returns a list of all events in the project.
     """
     events = _find_project_root(".").get_event_dict()
     print("%i event%s in project:" % (len(events), "s" if len(events) > 1
@@ -250,6 +253,8 @@ def lasif_list_models(args):
 def lasif_plot_kernel(args):
     """
     Usage lasif plot_kernel ITERATION_NAME EVENT_NAME
+
+    Work in progress.
     """
     from glob import glob
     from lasif import ses3d_models
@@ -332,6 +337,8 @@ def lasif_plot_kernel(args):
 def lasif_plot_model(args):
     """
     Usage lasif plot_model MODEL_NAME
+
+    Plots a SES3D model.
     """
     from lasif import ses3d_models
 
@@ -406,6 +413,8 @@ def lasif_plot_stf(args):
     """
     Usage: lasif plot_stf ITERATION_NAME
 
+    Plot the source time function.
+
     Convenience function to have a look at how a source time function will
     look for any iteration.
     """
@@ -427,12 +436,12 @@ def lasif_generate_input_files(args):
     """
     Usage: lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
 
+    Generate the input files for one event.
+
     TYPE denotes the type of simulation to run. Available types are
         * "normal_simulation"
         * "adjoint_forward"
         * "adjoint_reverse"
-
-    Generates the input files for one event for a specific iteration.
     """
     proj = _find_project_root(".")
 
@@ -461,6 +470,8 @@ def lasif_init_project(args):
     """
     Usage: lasif init_project FOLDER_PATH
 
+    Create a new LASIF project.
+
     Creates a new LASIF project at FOLDER_PATH. FOLDER_PATH must not exist
     yet and will be created.
     """
@@ -488,7 +499,7 @@ def lasif_finalize_adjoint_sources(args):
     """
     Usage: lasif finalize_adjoint_sources ITERATION_NAME EVENT_NAME
 
-    Finalizes the adjoint sources for the given iteration and event.
+    Finalize the adjoint sources for the given iteration and event.
     """
     if len(args) != 2:
         msg = "ITERATION_NAME and EVENT_NAME must be given."
@@ -606,8 +617,9 @@ def lasif_remove_empty_coordinate_entries(args):
     """
     Usage: lasif remove_empty_coordinate_entries
 
-    Removes all empty coordinate entries in the inventory cache. This is
-    useful if you want to try to download coordinates again.
+    Remove all empty coordinate entries in the inventory cache.
+
+    This is useful if you want to try to download coordinates again.
     """
     from lasif.tools.inventory_db import reset_coordinate_less_stations
 
@@ -621,7 +633,7 @@ def lasif_preprocess_data(args):
     """
     Usage: lasif preprocess_data ITERATION_NAME
 
-    Preprocesses all currently available data for a given iteration.
+    Preprocesse all currently available data for a given iteration.
     """
     if len(args) != 1:
         msg = "ITERATION_NAME must be given. No other arguments allowed."
@@ -642,7 +654,7 @@ def lasif_plot_selected_windows(args):
     """
     Usage: lasif plot_selected_windows ITERATION_NAME EVENT_NAME
 
-    Plots the automatically selected windows for a given Iteration and event.
+    Plot the automatically selected windows for a given iteration and event.
     """
     from lasif.window_selection import select_windows, plot_windows
     if len(args) != 2:
@@ -691,8 +703,9 @@ def lasif_generate_dummy_data(args):
     """
     Usage: lasif generate_dummy_data
 
-    Generates some random example event and waveforms. Useful for debugging,
-    testing, and following the tutorial.
+    Generates some random example event and waveforms.
+
+    Useful for debugging, testing, and following the tutorial.
     """
     import inspect
     from lasif import rotations
@@ -942,10 +955,17 @@ def _print_generic_help(fcts):
     """
     Small helper function printing a generic help message.
     """
-    print("Usage: lasif FUNCTION PARAMETERS\n")
+    print(colorama.Style.BRIGHT + "LASIF - LArge Scale Inversion Framework\n"
+     + colorama.Style.RESET_ALL)
+    print(colorama.Fore.GREEN + "Usage: lasif FUNCTION PARAMETERS\n" +
+        colorama.Style.RESET_ALL)
     print("Available functions:")
+
     for name in sorted(fcts.keys()):
-        print("\t%s" % name)
+        print("%s  %32s: %s%s%s" % (colorama.Fore.YELLOW, name,
+            colorama.Fore.BLUE,
+            fcts[name].__doc__.strip().split("\n")[2].strip(),
+            colorama.Style.RESET_ALL))
     print("\nTo get help for a specific function type")
     print("\tlasif FUNCTION help")
 
