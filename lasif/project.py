@@ -335,6 +335,9 @@ class Project(object):
             if not os.path.exists(filename):
                 return None
             self._seismic_events[event_name] = readEvents(filename)[0]
+            # Add the filename to the event object to later on be able to find
+            # it.
+            self._seismic_events[event_name].filename = filename
         return self._seismic_events[event_name]
 
     def create_new_iteration(self, iteration_name, solver_name):

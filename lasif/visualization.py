@@ -17,6 +17,7 @@ from mpl_toolkits.basemap import Basemap
 import numpy as np
 from obspy.imaging.mopad_wrapper import Beach
 from obspy.signal.tf_misfit import plotTfr
+import os
 
 import rotations
 
@@ -113,8 +114,24 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
 def plot_events(events, map_object):
     """
     """
+    def event_pick_handler(event, annotations=[]):
+        # Remove any potentially existing annotations.
+        for i in annotations:
+            i.remove()
+        annotations[:] = []
+        x, y = event.mouseevent.xdata, event.mouseevent.ydata
+        annotation = plt.annotate(event.artist.detailed_description,
+            xy=(x, y), xytext=(0.98, 0.98), textcoords="figure fraction",
+            horizontalalignment="right", verticalalignment="top",
+            arrowprops=dict(arrowstyle="fancy", color="0.5",
+            connectionstyle="arc3,rad=0.3"), zorder=10E9,
+            fontsize="small")
+        annotations.append(annotation)
+        plt.gcf().canvas.draw()
+
     for event in events:
         org = event.preferred_origin() or event.origins[0]
+        mag = event.preferred_magnitude() or event.magnitudes[0]
         fm = event.preferred_focal_mechanism() or event.focal_mechanisms[0]
         mt = fm.moment_tensor.tensor
 
@@ -126,8 +143,18 @@ def plot_events(events, map_object):
         width = max((map_object.xmax - map_object.xmin,
             map_object.ymax - map_object.ymin)) * 0.020
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
+        b.set_picker(True)
+        b.detailed_description = (
+            "Event %.1f %s\n"
+            "Lat: %.1f, Lng: %.1f, Depth: %.1f km\n"
+            "%s"
+        ) % (mag.mag, mag.magnitude_type, org.latitude, org.longitude,
+            org.depth / 1000.0, os.path.basename(event.filename))
+
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
+
+    plt.gcf().canvas.mpl_connect("pick_event", event_pick_handler)
 
 
 def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
