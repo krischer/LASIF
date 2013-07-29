@@ -84,13 +84,12 @@ def generate_ses3d_4_0_template():
             E.px_processors_in_theta_direction("1"),
             E.py_processors_in_phi_direction("1"),
             E.pz_processors_in_r_direction("1")),
-        E.relaxation_parameters(
-            E.number_of_mechanisms("3"),
-            E.tau_1("1.7360"),
-            E.tau_2("14.6211"),
-            E.tau_3("13.7054"),
-            E.w_1("2.5133"),
-            E.w_2("2.4089"),
-            E.w_3("0.1005")))
+        E.relaxation_parameter_list(
+            E.tau("1.7360", number="0"),
+            E.w("2.5133", number="0"),
+            E.tau("14.6211", number="1"),
+            E.w("2.4089", number="1"),
+            E.tau("13.7054", number="2"),
+            E.w("0.1005", number="2")))
 
     return doc

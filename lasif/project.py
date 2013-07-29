@@ -352,9 +352,11 @@ class Project(object):
 
         # Get a dictionary containing the event names as keys and a list of
         # stations per event as values.
-        events_dict = {event: self.get_stations_for_event(event).keys() for event in self.get_event_dict().keys()}
+        events_dict = {event: self.get_stations_for_event(event).keys()
+            for event in self.get_event_dict().keys()}
 
-        xml_string = iteration_xml.create_iteration_xml_string(iteration_name, solver_name, events_dict)
+        xml_string = iteration_xml.create_iteration_xml_string(iteration_name,
+            solver_name, events_dict)
 
         with open(filename, "wt") as fh:
             fh.write(xml_string)
@@ -577,7 +579,8 @@ class Project(object):
             "magnitude_type": mag.magnitude_type}
         return info
 
-    def generate_input_files(self, iteration_name, event_name, simulation_type):
+    def generate_input_files(self, iteration_name, event_name,
+            simulation_type):
         """
         Generate the input files for one event.
 
@@ -595,7 +598,7 @@ class Project(object):
         #======================================================================
 
         iteration = self._get_iteration(iteration_name)
-        
+
         # Check that the event is part of the iterations.
         if event_name not in iteration.events:
             msg = "Event '%s' not part of iteration '%s'." % (event_name,
@@ -607,7 +610,7 @@ class Project(object):
         # Get all stations and create a dictionary for the input file
         # generator.
         stations = self.get_stations_for_event(event_name)
-        stations = [{"id": key, "latitude": value["latitude"], 
+        stations = [{"id": key, "latitude": value["latitude"],
             "longitude": value["longitude"],
             "elevation_in_m": value["elevation"],
             "local_depth_in_m": value["local_depth"]} for key, value in
@@ -627,7 +630,7 @@ class Project(object):
         solver = solver["solver_settings"]
 
         #======================================================================
-        # create the input file generator, add event and stations, 
+        # create the input file generator, add event and stations,
         # populate the configuration items
         #======================================================================
 
@@ -670,13 +673,11 @@ class Project(object):
             raise ValueError(msg)
         gen.config.is_dissipative = diss
 
-        relax=solver["relaxation_parameters"]
-        gen.config.nr_diss=relax["number_of_mechanisms"]
-        gen.config.tau=[]
-        gen.config.w=[]
-        for k in range(1,1+int(gen.config.nr_diss)):            
-            gen.config.tau.append(relax["tau_"+str(k)])
-            gen.config.w.append(relax["w_"+str(k)])
+        relax = solver["relaxation_parameters"]
+        gen.config.nr_diss = relax["number_of_mechanisms"]
+
+        gen.config.tau = solver["relaxation_parameter_list"]["tau"]
+        gen.config.w = solver["relaxation_parameter_list"]["w"]
 
         # Discretization
         disc = solver["computational_setup"]
@@ -702,23 +703,18 @@ class Project(object):
             self.domain["bounds"]["minimum_depth_in_km"]
         gen.config.mesh_max_depth_in_km = \
             self.domain["bounds"]["maximum_depth_in_km"]
-        
+
         # Set the rotation parameters.
         gen.config.rotation_angle_in_degree = self.domain["rotation_angle"]
         gen.config.rotation_axis = self.domain["rotation_axis"]
 
-<<<<<<< HEAD
+        # Make source time function
         gen.config.source_time_function = \
             iteration.get_source_time_function()["data"]
-=======
-        # Make source time function
-        gen.config.source_time_function = iteration.get_source_time_function()["data"]
->>>>>>> develop
 
         #======================================================================
         # output
         #======================================================================
-
         output_dir = self.get_output_folder(
             "input_files___ITERATION_%s__EVENT_%s" % (iteration_name,
             event_name))
