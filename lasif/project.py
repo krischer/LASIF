@@ -406,42 +406,35 @@ class Project(object):
         def processing_data_generator():
             for event_name, event in iteration.events.iteritems():
                 event_info = self.get_event_info(event_name)
-                # The folder where all preprocessed data for this event will
-                # go.
-                event_data_path = os.path.join(self.paths["data"], event_name,
-                    processing_tag)
+                
+                # The folder where all preprocessed data for this event will go.
+                event_data_path = os.path.join(self.paths["data"], event_name, processing_tag)
                 if not os.path.exists(event_data_path):
                     os.makedirs(event_data_path)
-                # All stations that will be processed for this iteration and
-                # event.
+                
+                # All stations that will be processed for this iteration and event.
                 stations = event["stations"].keys()
-                waveforms = self._get_waveform_cache_file(event_name, "raw")\
-                    .get_values()
+                waveforms = self._get_waveform_cache_file(event_name, "raw").get_values()
                 for waveform in waveforms:
                     station_id = "{network}.{station}".format(**waveform)
-                    # Only process data from stations needed for the current
-                    # iteration.
+                    
+                    # Only process data from stations needed for the current iteration.
                     if station_id not in stations:
                         continue
-                    # Generate the new filename for the waveform. If it already
-                    # exists, continue.
-                    processed_filename = os.path.join(event_data_path,
-                        os.path.basename(waveform["filename"]))
+
+                    # Generate the new filename for the waveform. If it already exists, continue.
+                    processed_filename = os.path.join(event_data_path,os.path.basename(waveform["filename"]))
                     if os.path.exists(processed_filename):
                         continue
+
                     ret_dict = process_params.copy()
                     ret_dict["data_path"] = waveform["filename"]
                     ret_dict["processed_data_path"] = processed_filename
                     ret_dict.update(event_info)
-                    ret_dict["station_filename"] = \
-                        self.station_cache.get_station_filename(
-                            waveform["channel_id"],
-                            obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                    ret_dict["station_filename"] = self.station_cache.get_station_filename(waveform["channel_id"],obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                    
                     if not ret_dict["station_filename"]:
-                        msg = ("Could not find a station file for channel "
-                            "%s at time %s. File will not be processed.") % (
-                            waveform["channel_id"],
-                            obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                        msg = ("Could not find a station file for channel %s at time %s. File will not be processed.") % (waveform["channel_id"],obspy.UTCDateTime(waveform["starttime_timestamp"]))
                         warnings.warn(msg)
                         continue
                     yield ret_dict

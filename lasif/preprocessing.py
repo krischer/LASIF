@@ -61,7 +61,7 @@ def zerophase_chebychev_lowpass_filter(trace, freqmax):
 
 def preprocess_file(file_info):
     """
-    Function to perform the actual preprocessing.
+    Function to perform the actual preprocessing for one individual seismogram.
 
     One goal of this function is to make sure that the data is available at the
     same time steps as the synthetics. The first time sample of the synthetics
@@ -93,8 +93,12 @@ def preprocess_file(file_info):
     current versions of ObsPy. It is probably a good idea to have serial I/O in
     any case, at least with a normal HDD. SSD might be a different issue.
     """
-    sys.stdout.write("Processing file %i: %s\n" % (file_info["file_number"],
-        file_info["data_path"]))
+
+    #==========================================================================
+    # Read seismograms and gather basic information.
+    #==========================================================================
+
+    sys.stdout.write("Processing file %i: %s\n" % (file_info["file_number"],file_info["data_path"]))
     sys.stdout.flush()
 
     starttime = file_info["origin_time"]
@@ -109,8 +113,7 @@ def preprocess_file(file_info):
     lock.release()
 
     if len(st) != 1:
-        msg = "File '%s' has %i traces and not 1. Will be skipped" % \
-            (file_info["data_path"], len(st))
+        msg = "File '%s' has %i traces and not 1. Will be skipped" % (file_info["data_path"], len(st))
         warnings.warn(msg)
     tr = st[0]
 
@@ -118,6 +121,12 @@ def preprocess_file(file_info):
     # starttime is the origin time of the event
     # endtime is the origin time plus the length of the synthetics
     tr.trim(starttime - 0.05 * duration, endtime + 0.05 * duration)
+
+    #==========================================================================
+    # Some basic checks on the data.
+    #==========================================================================  
+
+    # non-zero length
 
     if len(tr) == 0:
         msg = ("After trimming the file '%s' to "
@@ -129,9 +138,22 @@ def preprocess_file(file_info):
         warnings.warn(msg)
         return True
 
+    # infinity or nan
+
+    if True in np.isnan(tr.data):
+        msg= ("File '%s' contains NaN. Skipped.") % file_info["data_path"]
+        warnings.warn(msg)
+        return True
+
+    if True in np.isinf(tr.data):
+        msg= ("File '%s' contains inf. Skipped.") % file_info["data_path"]
+        warnings.warn(msg)
+        return True
+
     #==========================================================================
     # Step 1: Detrend and taper.
     #==========================================================================
+    tr.detrend("demean")
     tr.detrend("linear")
     tr.taper()
 
@@ -175,12 +197,10 @@ def preprocess_file(file_info):
             return True
     elif "/RESP/" in station_file:
         try:
-            tr.simulate(seedresp={"filename": station_file, "units": "VEL",
-                "date": tr.stats.starttime})
+            tr.simulate(seedresp={"filename": station_file, "units": "VEL", "date": tr.stats.starttime})
         except ValueError:
             msg = ("File '%s' could not be corrected with the help of the "
-                "RESP file '%s'. Will be skipped.") % (file_info["data_path"],
-                file_info["station_info"])
+                "RESP file '%s'. Will be skipped.") % (file_info["data_path"], file_info["station_info"])
             warnings.warn(msg)
             return True
     else:
@@ -202,10 +222,8 @@ def preprocess_file(file_info):
         tr.trim(endtime=endtime + buf, pad=True, fill_value=0.0)
 
     # Actual interpolation. Currently a linear interpolation is used.
-    new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,
-        file_info["npts"])
-    old_time_array = np.linspace(tr.stats.starttime.timestamp,
-        tr.stats.endtime.timestamp, tr.stats.npts)
+    new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,file_info["npts"])
+    old_time_array = np.linspace(tr.stats.starttime.timestamp,tr.stats.endtime.timestamp, tr.stats.npts)
     tr.data = interp1d(old_time_array, tr.data, kind=1)(new_time_array)
     tr.stats.starttime = starttime
     tr.stats.delta = file_info["dt"]
@@ -216,8 +234,7 @@ def preprocess_file(file_info):
     # Should eventually be configurable.
     #==========================================================================
     tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
-    tr.filter("highpass", freq=file_info["highpass"], corners=2,
-              zerophase=False)
+    tr.filter("highpass", freq=file_info["highpass"], corners=2, zerophase=False)
 
     # Convert to single precision for saving.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
