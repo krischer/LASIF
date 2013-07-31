@@ -720,6 +720,35 @@ def lasif_plot_selected_windows(args):
     print "Done. Written output to folder %s." % output_folder
 
 
+def lasif_validate_data(args):
+    """
+    Usage lasif validate_data
+
+    Validates all data of the current project.
+
+    This commands walks through all available data and checks it for validity.
+    It furthermore does some sanity checks to detect common problems. These
+    should be fixed.
+
+    Things the command does:
+
+    Event files:
+        * Validate against QuakeML 1.2 scheme.
+        * Make sure they contain at least one origin, magnitude and focal
+          mechanism object.
+        * Check for duplicate ids amongst all QuakeML files.
+        * Some simply sanity checks so that the event depth is reasonable and
+          the moment tensor values as well. This is rather fragile and mainly
+          intended to detect values specified in wrong units.
+    """
+    if len(args):
+        msg = "No arguments allowed."
+        raise LASIFCommandLineException(msg)
+
+    proj = _find_project_root(".")
+    proj.validate_data()
+
+
 def lasif_generate_dummy_data(args):
     """
     Usage: lasif generate_dummy_data

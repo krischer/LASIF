@@ -15,6 +15,7 @@ needed.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import colorama
 import cPickle
 import glob
 import os
@@ -395,7 +396,6 @@ class Project(object):
         Preprocesses all data for a given iteration.
         """
         from lasif import preprocessing
-        import colorama
         import obspy
 
         iteration = self._get_iteration(iteration_name)
@@ -406,24 +406,31 @@ class Project(object):
         def processing_data_generator():
             for event_name, event in iteration.events.iteritems():
                 event_info = self.get_event_info(event_name)
-                
-                # The folder where all preprocessed data for this event will go.
-                event_data_path = os.path.join(self.paths["data"], event_name, processing_tag)
+
+                # The folder where all preprocessed data for this event will
+                # go.
+                event_data_path = os.path.join(self.paths["data"], event_name,
+                    processing_tag)
                 if not os.path.exists(event_data_path):
                     os.makedirs(event_data_path)
-                
-                # All stations that will be processed for this iteration and event.
+
+                # All stations that will be processed for this iteration and
+                # event.
                 stations = event["stations"].keys()
-                waveforms = self._get_waveform_cache_file(event_name, "raw").get_values()
+                waveforms = self._get_waveform_cache_file(event_name, "raw")\
+                    .get_values()
                 for waveform in waveforms:
                     station_id = "{network}.{station}".format(**waveform)
-                    
-                    # Only process data from stations needed for the current iteration.
+
+                    # Only process data from stations needed for the current
+                    # iteration.
                     if station_id not in stations:
                         continue
 
-                    # Generate the new filename for the waveform. If it already exists, continue.
-                    processed_filename = os.path.join(event_data_path,os.path.basename(waveform["filename"]))
+                    # Generate the new filename for the waveform. If it already
+                    # exists, continue.
+                    processed_filename = os.path.join(event_data_path,
+                        os.path.basename(waveform["filename"]))
                     if os.path.exists(processed_filename):
                         continue
 
@@ -431,10 +438,16 @@ class Project(object):
                     ret_dict["data_path"] = waveform["filename"]
                     ret_dict["processed_data_path"] = processed_filename
                     ret_dict.update(event_info)
-                    ret_dict["station_filename"] = self.station_cache.get_station_filename(waveform["channel_id"],obspy.UTCDateTime(waveform["starttime_timestamp"]))
-                    
+                    ret_dict["station_filename"] = \
+                        self.station_cache.get_station_filename(
+                            waveform["channel_id"],
+                            obspy.UTCDateTime(waveform["starttime_timestamp"]))
+
                     if not ret_dict["station_filename"]:
-                        msg = ("Could not find a station file for channel %s at time %s. File will not be processed.") % (waveform["channel_id"],obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                        msg = ("Could not find a station file for channel %s "
+                            "at time %s. File will not be processed.") % \
+                            (waveform["channel_id"],
+                            obspy.UTCDateTime(waveform["starttime_timestamp"]))
                         warnings.warn(msg)
                         continue
                     yield ret_dict
@@ -841,6 +854,85 @@ class Project(object):
                     warnings.warn(msg)
 
         return stations
+
+    def validate_data(self):
+        """
+        Validates all data of the current project.
+
+        This commands walks through all available data and checks it for
+        validity.  It furthermore does some sanity checks to detect common
+        problems. These should be fixed.
+
+        Event files:
+            * Validate against QuakeML 1.2 scheme.
+            * Make sure they contain at least one origin, magnitude and focal
+              mechanism object.
+            * Check for duplicate ids amongst all QuakeML files.
+            * Some simply sanity checks so that the event depth is reasonable
+              and the moment tensor values as well. This is rather fragile and
+              mainly intended to detect values specified in wrong units.
+        """
+        self._validate_event_files()
+
+    def _validate_event_files(self):
+        """
+        Validates all event files in the currently active project.
+
+        The following tasks are performed:
+            * Validate against QuakeML 1.2 scheme.
+            * Check for duplicate ids amongst all QuakeML files.
+            * Make sure they contain at least one origin, magnitude and focal
+              mechanism object.
+            * Some simply sanity checks so that the event depth is reasonable
+              and the moment tensor values as well. This is rather fragile and
+              mainly intended to detect values specified in wrong units.
+        """
+        ok_string = "%s[%sOK%s]%s" % (colorama.Style.BRIGHT,
+            colorama.Style.NORMAL + colorama.Fore.GREEN,
+            colorama.Fore.RESET + colorama.Style.BRIGHT,
+            colorama.Style.RESET_ALL)
+        fail_string = "%s[%sFAIL%s]%s" % (colorama.Style.BRIGHT,
+            colorama.Style.NORMAL + colorama.Fore.RED,
+            colorama.Fore.RESET + colorama.Style.BRIGHT,
+            colorama.Style.RESET_ALL)
+        seperator_string = 80 * "="
+
+        from obspy.core.quakeml import validate as validate_quakeml
+
+        print "Validating all event files..."
+
+        print "\tValidating against QuakeML 1.2 schema",
+        event_files = self.get_event_dict().values()
+        all_valid = True
+        for filename in event_files:
+            print ".",
+            if validate_quakeml(filename) is not True:
+                all_valid = False
+                msg = ("\n\n{seperator}\n{red}ERROR:{reset} "
+                    "The QuakeML file '{basename}' did not validate against "
+                    "the QuakeML 1.2 schema. Unfortunately the error messages "
+                    "delivered by lxml are not useful at all. To get useful "
+                    "error messages make sure jing is installed "
+                    "('brew install jing' (OSX) or "
+                    "'sudo apt-get install jing' (Debian/Ubuntu)) and "
+                    "execute the following command:\n\n{yellow}"
+                    "\tjing http://quake.ethz.ch/schema/rng/QuakeML-1.2.rng "
+                    "{filename}{reset}\n\n"
+                    "Alternatively you could also use the "
+                    "'lasif add_spud_event' command to redownload the event "
+                    "if it is in the GCMT "
+                    "catalog.\n{seperator}\n").format(
+                        basename=os.path.basename(filename),
+                        filename=os.path.relpath(filename),
+                        yellow=colorama.Fore.YELLOW,
+                        red=colorama.Fore.RED,
+                        reset=colorama.Style.RESET_ALL,
+                        seperator=seperator_string)
+                print msg
+        if all_valid is True:
+            print ok_string
+        else:
+            print fail_string
 
     def finalize_adjoint_sources(self, iteration_name, event_name):
         """
