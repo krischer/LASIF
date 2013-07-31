@@ -887,6 +887,10 @@ class Project(object):
               and the moment tensor values as well. This is rather fragile and
               mainly intended to detect values specified in wrong units.
         """
+        import collections
+        from obspy.core.quakeml import validate as validate_quakeml
+        from lxml import etree
+
         ok_string = "%s[%sOK%s]%s" % (colorama.Style.BRIGHT,
             colorama.Style.NORMAL + colorama.Fore.GREEN,
             colorama.Fore.RESET + colorama.Style.BRIGHT,
@@ -897,10 +901,10 @@ class Project(object):
             colorama.Style.RESET_ALL)
         seperator_string = 80 * "="
 
-        from obspy.core.quakeml import validate as validate_quakeml
 
         print "Validating all event files..."
 
+        # Start with the schema validation.
         print "\tValidating against QuakeML 1.2 schema",
         event_files = self.get_event_dict().values()
         all_valid = True
@@ -933,6 +937,32 @@ class Project(object):
             print ok_string
         else:
             print fail_string
+
+        # Now check for duplicate public IDs.
+        print "\tChecking for duplicate public IDs",
+        ids = collections.defaultdict(list)
+        for filename in event_files:
+            print ".",
+            # Now walk all files and collect all public ids. Each should be
+            # unique!
+            with open(filename, "rt") as fh:
+                for event, elem in etree.iterparse(fh, events=("start",)):
+                    if "publicID" not in elem.keys():
+                        continue
+                    ids[elem.get("publicID")].append(filename)
+        ids = {key: list(set(value)) for (key, value) in ids.iteritems()
+            if len(value) > 1}
+        if not ids:
+            print ok_string
+        else:
+            print fail_string
+            print seperator_string
+            print "Found the following duplicate publicIDs:"
+            print "\n".join(["\t%s%s%s in files: %s" % (colorama.Fore.YELLOW,
+                id_string, colorama.Fore.RESET,
+                ", ".join([os.path.basename(i) for i in value]))
+                for id_string, value in ids.iteritems()])
+            print seperator_string
 
     def finalize_adjoint_sources(self, iteration_name, event_name):
         """
