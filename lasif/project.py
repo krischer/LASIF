@@ -888,8 +888,11 @@ class Project(object):
               mainly intended to detect values specified in wrong units.
         """
         import collections
+        import math
+        from obspy import readEvents
         from obspy.core.quakeml import validate as validate_quakeml
         from lxml import etree
+        import sys
 
         ok_string = "%s[%sOK%s]%s" % (colorama.Style.BRIGHT,
             colorama.Style.NORMAL + colorama.Fore.GREEN,
@@ -901,15 +904,19 @@ class Project(object):
             colorama.Style.RESET_ALL)
         seperator_string = 80 * "="
 
+        def flush_point():
+            sys.stdout.write(".")
+            sys.stdout.flush()
 
-        print "Validating all event files..."
+        event_files = self.get_event_dict().values()
+
+        print "Validating %i event files..." % len(event_files)
 
         # Start with the schema validation.
-        print "\tValidating against QuakeML 1.2 schema",
-        event_files = self.get_event_dict().values()
+        print "\tValidating against QuakeML 1.2 schema ",
         all_valid = True
         for filename in event_files:
-            print ".",
+            flush_point()
             if validate_quakeml(filename) is not True:
                 all_valid = False
                 msg = ("\n\n{seperator}\n{red}ERROR:{reset} "
@@ -939,10 +946,10 @@ class Project(object):
             print fail_string
 
         # Now check for duplicate public IDs.
-        print "\tChecking for duplicate public IDs",
+        print "\tChecking for duplicate public IDs ",
         ids = collections.defaultdict(list)
         for filename in event_files:
-            print ".",
+            flush_point()
             # Now walk all files and collect all public ids. Each should be
             # unique!
             with open(filename, "rt") as fh:
@@ -960,9 +967,99 @@ class Project(object):
             print "Found the following duplicate publicIDs:"
             print "\n".join(["\t%s%s%s in files: %s" % (colorama.Fore.YELLOW,
                 id_string, colorama.Fore.RESET,
-                ", ".join([os.path.basename(i) for i in value]))
-                for id_string, value in ids.iteritems()])
+                ", ".join([os.path.basename(i) for i in faulty_files]))
+                for id_string, faulty_files in ids.iteritems()])
             print seperator_string
+
+        def print_warning(filename, message):
+            print("\n{sep}\n{yellow}WARNING:{reset} File '{event_name}' "
+                "contains {msg}.\n{sep}".format(
+                sep=seperator_string, event_name=os.path.basename(filename),
+                msg=message,
+                yellow=colorama.Fore.YELLOW,
+                reset=colorama.Style.RESET_ALL))
+
+        # Performing simple sanity checks.
+        print "\tPerforming some basic sanity checks ",
+        all_good = True
+        for filename in event_files:
+            flush_point()
+            cat = readEvents(filename)
+            filename = os.path.basename(filename)
+            # Check that all files contain exactly one event!
+            if len(cat) != 1:
+                all_good = False
+                print_warning(filename, "%i events instead of only one." %
+                    len(cat))
+            event = cat[0]
+
+            # Sanity checks related to the origin.
+            if not event.origins:
+                all_good = False
+                print_warning(filename, "no origin")
+                continue
+            origin = event.preferred_origin() or event.origins[0]
+            if (origin.depth % 100.0):
+                all_good = False
+                print_warning(filename, "a depth of %.1f meters. This kind of "
+                    "accuracy seems unrealistic. The depth in the QuakeML "
+                    "file has to be specified in meters. Checking all other "
+                    "QuakeML files for the correct units might be a good idea"
+                    % origin.depth)
+            if (origin.depth > (800.0 * 1000.0)):
+                all_good = False
+                print_warning(filename, "a depth of more than 800 km. This is"
+                    "likely wrong.")
+
+            # Sanity checks related to the magnitude.
+            if not event.magnitudes:
+                all_good = False
+                print_warning(filename, "no magnitude")
+                continue
+
+            # Sanity checks related to the focal mechanism.
+            if not event.focal_mechanisms:
+                all_good = False
+                print_warning(filename, "no focal mechanism")
+                continue
+
+            focmec = event.preferred_focal_mechanism() or \
+                event.focal_mechanisms[0]
+            if not hasattr(focmec, "moment_tensor") or \
+                    not focmec.moment_tensor:
+                all_good = False
+                print_warning(filename, "no moment tensor")
+                continue
+
+            mt = focmec.moment_tensor
+            if not hasattr(mt, "tensor") or \
+                    not mt.tensor:
+                all_good = False
+                print_warning(filename, "no actual moment tensor")
+                continue
+            tensor = mt.tensor
+
+            # Convert the moment tensor to a magnitude and see if it is
+            # reasonable.
+            mag_in_file = event.preferred_magnitude() or event.magnitudes[0]
+            mag_in_file = mag_in_file.mag
+            M_0 = 1.0 / math.sqrt(2.0) * math.sqrt(tensor.m_rr ** 2 +
+                tensor.m_tt ** 2 + tensor.m_pp ** 2)
+            magnitude = 2.0 / 3.0 * math.log10(M_0) - 6.0
+            # Use some buffer to account for different magnitudes.
+            if not (mag_in_file - 1.0) < magnitude < (mag_in_file + 1.0):
+                all_good = False
+                print_warning(filename, "a moment tensor that would result in "
+                    "a moment magnitude of %.2f. The magnitude specified in "
+                    "the file is %.2f. "
+                    "Please check that all components of the tensor are in "
+                    "Newton * meter"
+                    % (magnitude, mag_in_file))
+
+        if all_good is True:
+            print ok_string
+        else:
+            print fail_string
 
     def finalize_adjoint_sources(self, iteration_name, event_name):
         """
