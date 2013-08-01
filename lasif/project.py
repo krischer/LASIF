@@ -886,6 +886,9 @@ class Project(object):
             * Some simply sanity checks so that the event depth is reasonable
               and the moment tensor values as well. This is rather fragile and
               mainly intended to detect values specified in wrong units.
+            * Events that are too close in time. Events that are less then one
+              hour apart can in general not be used for adjoint tomography.
+              This will naturally also detect duplicate events.
         """
         import collections
         import math
@@ -982,6 +985,7 @@ class Project(object):
         # Performing simple sanity checks.
         print "\tPerforming some basic sanity checks ",
         all_good = True
+        event_times = {}
         for filename in event_files:
             flush_point()
             cat = readEvents(filename)
@@ -999,6 +1003,8 @@ class Project(object):
                 print_warning(filename, "no origin")
                 continue
             origin = event.preferred_origin() or event.origins[0]
+            # Collect event times to be analyzed later on.
+            event_times[filename] = origin.time
             if (origin.depth % 100.0):
                 all_good = False
                 print_warning(filename, "a depth of %.1f meters. This kind of "
