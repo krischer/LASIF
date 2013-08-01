@@ -891,17 +891,18 @@ class Project(object):
               This will naturally also detect duplicate events.
         """
         import collections
+        import itertools
         import math
         from obspy import readEvents
         from obspy.core.quakeml import validate as validate_quakeml
         from lxml import etree
         import sys
 
-        ok_string = "%s[%sOK%s]%s" % (colorama.Style.BRIGHT,
+        ok_string = " %s[%sOK%s]%s" % (colorama.Style.BRIGHT,
             colorama.Style.NORMAL + colorama.Fore.GREEN,
             colorama.Fore.RESET + colorama.Style.BRIGHT,
             colorama.Style.RESET_ALL)
-        fail_string = "%s[%sFAIL%s]%s" % (colorama.Style.BRIGHT,
+        fail_string = " %s[%sFAIL%s]%s" % (colorama.Style.BRIGHT,
             colorama.Style.NORMAL + colorama.Fore.RED,
             colorama.Fore.RESET + colorama.Style.BRIGHT,
             colorama.Style.RESET_ALL)
@@ -985,7 +986,7 @@ class Project(object):
         # Performing simple sanity checks.
         print "\tPerforming some basic sanity checks ",
         all_good = True
-        event_times = {}
+        event_times = []
         for filename in event_files:
             flush_point()
             cat = readEvents(filename)
@@ -1004,7 +1005,7 @@ class Project(object):
                 continue
             origin = event.preferred_origin() or event.origins[0]
             # Collect event times to be analyzed later on.
-            event_times[filename] = origin.time
+            event_times.append((filename, origin.time))
             if (origin.depth % 100.0):
                 all_good = False
                 print_warning(filename, "a depth of %.1f meters. This kind of "
@@ -1062,6 +1063,35 @@ class Project(object):
                     "Newton * meter"
                     % (magnitude, mag_in_file))
 
+        if all_good is True:
+            print ok_string
+        else:
+            print fail_string
+
+        # Now check the time distribution of events.
+        print "\tChecking for duplicates and events too close in time %s" % \
+            (len(event_files) * "."),
+        all_good = True
+        # Sort the events by time.
+        event_times = sorted(event_times, key=lambda x: x[1])
+        # Loop over adjacent indices.
+        a, b = itertools.tee(event_times)
+        next(b, None)
+        for event_1, event_2 in itertools.izip(a, b):
+            time_diff = event_2[1] - event_1[1]
+            # If time difference is under one hour, it could be either a
+            # duplicate event or interfering events.
+            if time_diff <= 3600.0:
+                all_good = False
+                print("\n{sep}\n{yellow}WARNING:{reset} "
+                    "The time difference between events '{file_1}' and "
+                    "'{file_2}' is only {diff:.1f} minutes. This could "
+                    "be either due to a duplicate event or events that have "
+                    "interfering waveforms.\n{sep}".format(
+                    sep=seperator_string, file_1=event_1[0], file_2=event_2[0],
+                    diff=time_diff / 60.0,
+                    yellow=colorama.Fore.YELLOW,
+                    reset=colorama.Style.RESET_ALL))
         if all_good is True:
             print ok_string
         else:
