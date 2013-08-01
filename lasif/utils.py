@@ -93,3 +93,39 @@ def generate_ses3d_4_0_template():
             E.w("0.1005", number="2")))
 
     return doc
+
+
+def point_in_domain(latitude, longitude, domain,
+        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0):
+    """
+    Simple function checking if a geographic point is placed inside a
+    rotated spherical section. It simple rotates the point and checks if it
+    is inside the unrotated domain.
+
+    Domain is a dictionary containing at least the following keys:
+        * "minimum_latitude"
+        * "maximum_latitude"
+        * "minimum_longitude"
+        * "maximum_longitude"
+        * "boundary_width_in_degree"
+
+    Returns True or False.
+    """
+    from lasif import rotations
+    min_latitude = domain["minimum_latitude"] + \
+        domain["boundary_width_in_degree"]
+    max_latitude = domain["maximum_latitude"] - \
+        domain["boundary_width_in_degree"]
+    min_longitude = domain["minimum_longitude"] + \
+        domain["boundary_width_in_degree"]
+    max_longitude = domain["maximum_longitude"] - \
+        domain["boundary_width_in_degree"]
+
+    # Rotate the station and check if it is still in bounds.
+    r_lat, r_lng = rotations.rotate_lat_lon(latitude, longitude,
+        rotation_axis, -1.0 * rotation_angle_in_degree)
+    # Check if in bounds. If not continue.
+    if not (min_latitude <= r_lat <= max_latitude) or \
+            not (min_longitude <= r_lng <= max_longitude):
+        return False
+    return True

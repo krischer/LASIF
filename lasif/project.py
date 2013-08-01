@@ -894,7 +894,9 @@ class Project(object):
         import itertools
         import math
         from obspy import readEvents
+        from obspy.core.event import ResourceIdentifier
         from obspy.core.quakeml import validate as validate_quakeml
+        from lasif import utils
         from lxml import etree
         import sys
 
@@ -986,7 +988,6 @@ class Project(object):
         # Performing simple sanity checks.
         print "\tPerforming some basic sanity checks ",
         all_good = True
-        event_times = []
         for filename in event_files:
             flush_point()
             cat = readEvents(filename)
@@ -1004,8 +1005,6 @@ class Project(object):
                 print_warning(filename, "no origin")
                 continue
             origin = event.preferred_origin() or event.origins[0]
-            # Collect event times to be analyzed later on.
-            event_times.append((filename, origin.time))
             if (origin.depth % 100.0):
                 all_good = False
                 print_warning(filename, "a depth of %.1f meters. This kind of "
@@ -1063,22 +1062,34 @@ class Project(object):
                     "Newton * meter"
                     % (magnitude, mag_in_file))
 
+        # HACKISH! Reset the dictionary collecting the id references! This is
+        # done to be able to read the same file twice.
+        ResourceIdentifier._ResourceIdentifier__resource_id_weak_dict.clear()
+
         if all_good is True:
             print ok_string
         else:
             print fail_string
+
+        # Collect event times
+        event_infos = []
+        for filename in event_files:
+            event_info = self.get_event_info(os.path.splitext(
+                os.path.basename(filename))[0])
+            event_info["filename"] = os.path.basename(filename)
+            event_infos.append(event_info)
 
         # Now check the time distribution of events.
         print "\tChecking for duplicates and events too close in time %s" % \
             (len(event_files) * "."),
         all_good = True
         # Sort the events by time.
-        event_times = sorted(event_times, key=lambda x: x[1])
+        event_infos = sorted(event_infos, key=lambda x: x["origin_time"])
         # Loop over adjacent indices.
-        a, b = itertools.tee(event_times)
+        a, b = itertools.tee(event_infos)
         next(b, None)
         for event_1, event_2 in itertools.izip(a, b):
-            time_diff = event_2[1] - event_1[1]
+            time_diff = abs(event_2["origin_time"] - event_1["origin_time"])
             # If time difference is under one hour, it could be either a
             # duplicate event or interfering events.
             if time_diff <= 3600.0:
@@ -1088,10 +1099,34 @@ class Project(object):
                     "'{file_2}' is only {diff:.1f} minutes. This could "
                     "be either due to a duplicate event or events that have "
                     "interfering waveforms.\n{sep}".format(
-                    sep=seperator_string, file_1=event_1[0], file_2=event_2[0],
+                    sep=seperator_string, file_1=event_1["filename"],
+                    file_2=event_2["filename"],
                     diff=time_diff / 60.0,
                     yellow=colorama.Fore.YELLOW,
                     reset=colorama.Style.RESET_ALL))
+        if all_good is True:
+            print ok_string
+        else:
+            print fail_string
+
+        # Check that all events fall within the chosen boundaries.
+        print "\tAssure events are in chosen domain %s" % \
+            (len(event_files) * "."),
+        all_good = True
+        for event in event_infos:
+            if utils.point_in_domain(event["latitude"],
+                    event["longitude"], self.domain["bounds"],
+                    self.domain["rotation_axis"],
+                    self.domain["rotation_angle"]) is True:
+                continue
+            all_good = False
+            print("\n{sep}\n{yellow}WARNING:{reset} "
+                "Event '{filename}' is out of bounds of the chosen domain."
+                "\n{sep}".format(
+                sep=seperator_string, filename=event["filename"],
+                yellow=colorama.Fore.YELLOW,
+                reset=colorama.Style.RESET_ALL))
+
         if all_good is True:
             print ok_string
         else:
