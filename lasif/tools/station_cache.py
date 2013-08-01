@@ -23,7 +23,8 @@ class StationCache(FileInfoCache):
 
     Currently supports SEED, XML-SEED and RESP files.
     """
-    def __init__(self, cache_db_file, seed_folder, resp_folder):
+    def __init__(self, cache_db_file, seed_folder, resp_folder,
+            show_progress=True):
         self.index_values = [
             ("channel_id", "TEXT"),
             ("start_date", "INTEGER"),
@@ -38,7 +39,8 @@ class StationCache(FileInfoCache):
         self.seed_folder = seed_folder
         self.resp_folder = resp_folder
 
-        super(StationCache, self).__init__(cache_db_file=cache_db_file)
+        super(StationCache, self).__init__(cache_db_file=cache_db_file,
+            show_progress=show_progress)
 
     def _find_files_seed(self):
         seed_files = []

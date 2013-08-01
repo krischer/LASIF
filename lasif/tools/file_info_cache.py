@@ -81,8 +81,9 @@ class FileInfoCache(object):
 
     Intended to be subclassed.
     """
-    def __init__(self, cache_db_file):
+    def __init__(self, cache_db_file, show_progress=True):
         self.cache_db_file = cache_db_file
+        self.show_progress = show_progress
         self._init_database()
         self.update()
 
@@ -180,12 +181,13 @@ class FileInfoCache(object):
         # Use a progressbar if the filecount is large so something appears on
         # screen.
         pbar = None
-        if filecount > 110:
-            widgets = ["Updating cache: ", progressbar.Percentage(),
-                progressbar.Bar(), "", progressbar.ETA()]
-            pbar = progressbar.ProgressBar(widgets=widgets,
-                maxval=filecount).start()
-            update_interval = int(filecount / 100)
+        if self.show_progress is True:
+            if filecount > 110:
+                widgets = ["Updating cache: ", progressbar.Percentage(),
+                    progressbar.Bar(), "", progressbar.ETA()]
+                pbar = progressbar.ProgressBar(widgets=widgets,
+                    maxval=filecount).start()
+                update_interval = int(filecount / 100)
 
         current_file_count = 0
         # Now update all filetypes separately.

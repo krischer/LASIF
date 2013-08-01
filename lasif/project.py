@@ -763,15 +763,24 @@ class Project(object):
         """
         Kind of like an instance wide StationCache singleton.
         """
+        return self._update_station_cache(show_progress=True)
+
+    def _update_station_cache(self, show_progress=True):
+        """
+        Function actually updating the station cache.
+
+        Separate function from the property so it can be accessed separately if
+        the need arises.
+        """
         from lasif.tools.station_cache import StationCache
         if hasattr(self, "_station_cache"):
             return self._station_cache
         self._station_cache = StationCache(os.path.join(self.paths["cache"],
             "station_cache.sqlite"), self.paths["dataless_seed"],
-            self.paths["resp"])
+            self.paths["resp"], show_progress=show_progress)
         return self._station_cache
 
-    def _get_waveform_cache_file(self, event_name, tag):
+    def _get_waveform_cache_file(self, event_name, tag, show_progress=True):
         """
         Helper function returning the waveform cache file for the data from a
         specific event and a certain tag.
@@ -783,7 +792,9 @@ class Project(object):
         waveform_db_file = os.path.join(self.paths["data"], event_name,
             "%s_cache.sqlite" % tag)
         data_path = os.path.join(self.paths["data"], event_name, tag)
-        return WaveformCache(waveform_db_file, data_path)
+        if not os.path.exists(data_path):
+            return False
+        return WaveformCache(waveform_db_file, data_path, show_progress)
 
     def get_stations_for_event(self, event_name):
         """
@@ -872,9 +883,89 @@ class Project(object):
               and the moment tensor values as well. This is rather fragile and
               mainly intended to detect values specified in wrong units.
         """
-        self._validate_event_files()
+        import sys
 
-    def _validate_event_files(self):
+        # Shared formatting for all.
+        ok_string = " %s[%sOK%s]%s" % (colorama.Style.BRIGHT,
+            colorama.Style.NORMAL + colorama.Fore.GREEN,
+            colorama.Fore.RESET + colorama.Style.BRIGHT,
+            colorama.Style.RESET_ALL)
+        fail_string = " %s[%sFAIL%s]%s" % (colorama.Style.BRIGHT,
+            colorama.Style.NORMAL + colorama.Fore.RED,
+            colorama.Fore.RESET + colorama.Style.BRIGHT,
+            colorama.Style.RESET_ALL)
+        seperator_string = 80 * "="
+
+        def flush_point():
+            sys.stdout.write(".")
+            sys.stdout.flush()
+
+        # Update the caches.
+        self._validate_event_files(ok_string, fail_string, seperator_string,
+            flush_point)
+        self._update_all_waveform_caches(ok_string, fail_string,
+                seperator_string, flush_point)
+        print "Updating station cache ...",
+        self._update_station_cache(show_progress=False)
+        print ok_string
+
+        self._validate_station_files_availability(ok_string, fail_string,
+            seperator_string, flush_point)
+
+        self._validate_coordinate_deduction(self):
+
+    def _update_all_waveform_caches(self, ok_string, fail_string,
+            seperator_string, flush_point):
+        """
+        Update all waveform caches.
+        """
+        print "Updating all raw waveform caches ",
+        for event_name in self.get_event_dict().iterkeys():
+            flush_point()
+            self._get_waveform_cache_file(event_name, "raw",
+                show_progress=False)
+        print ok_string
+
+    def _validate_station_files_availability(self, ok_string, fail_string,
+            seperator_string, flush_point):
+        """
+        Checks that all waveform files have an associated station file.
+        """
+        from obspy import UTCDateTime
+
+        print ("Confirming that station metainformation files exist for "
+            "all waveforms "),
+        station_cache = self.station_cache
+        all_good = True
+        for event_name in self.get_event_dict().iterkeys():
+            flush_point()
+            waveform_cache = self._get_waveform_cache_file(event_name, "raw",
+                show_progress=False)
+            for channel in waveform_cache.get_values():
+                station_file = station_cache.get_station_filename(
+                    channel["channel_id"],
+                    UTCDateTime(channel["starttime_timestamp"]))
+                if station_file is not None:
+                    continue
+                print("\n{sep}\n{yellow}WARNING:{reset} "
+                    "No station metainformation available for the waveform "
+                    "file\n\t'{waveform_file}'\n"
+                    "If you have a station file for that channel make sure "
+                    "it actually covers the time span of the data.\n"
+                    "Otherwise contact the developers..."
+                    "\n{sep}".format(
+                    sep=seperator_string,
+                    waveform_file=os.path.relpath(channel["filename"]),
+                    yellow=colorama.Fore.YELLOW,
+                    reset=colorama.Style.RESET_ALL))
+                all_good = False
+        if all_good:
+            print ok_string
+        else:
+            print fail_string
+
+    def _validate_event_files(self, ok_string, fail_string, seperator_string,
+            flush_point):
         """
         Validates all event files in the currently active project.
 
@@ -898,21 +989,6 @@ class Project(object):
         from obspy.core.quakeml import validate as validate_quakeml
         from lasif import utils
         from lxml import etree
-        import sys
-
-        ok_string = " %s[%sOK%s]%s" % (colorama.Style.BRIGHT,
-            colorama.Style.NORMAL + colorama.Fore.GREEN,
-            colorama.Fore.RESET + colorama.Style.BRIGHT,
-            colorama.Style.RESET_ALL)
-        fail_string = " %s[%sFAIL%s]%s" % (colorama.Style.BRIGHT,
-            colorama.Style.NORMAL + colorama.Fore.RED,
-            colorama.Fore.RESET + colorama.Style.BRIGHT,
-            colorama.Style.RESET_ALL)
-        seperator_string = 80 * "="
-
-        def flush_point():
-            sys.stdout.write(".")
-            sys.stdout.flush()
 
         event_files = self.get_event_dict().values()
 
