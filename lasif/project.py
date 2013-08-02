@@ -806,8 +806,6 @@ class Project(object):
 
         Will return an empty dictionary if nothing is found.
         """
-        from lasif.tools.inventory_db import get_station_coordinates
-
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
@@ -831,54 +829,70 @@ class Project(object):
             chan_id = waveform["channel_id"]
             if chan_id not in available_channels:
                 continue
-            waveform_channel = available_channels[chan_id][0]
-            # Now check if the waveform has coordinates (in the case of SAC
-            # files).
-            if waveform["latitude"]:
-                stations[station] = {
-                    "latitude": waveform["latitude"],
-                    "longitude": waveform["longitude"],
-                    "elevation": waveform["elevation_in_m"],
-                    "local_depth": waveform["local_depth_in_m"]}
-            elif waveform_channel["latitude"]:
-                stations[station] = {
-                    "latitude": waveform_channel["latitude"],
-                    "longitude": waveform_channel["longitude"],
-                    "elevation": waveform_channel["elevation_in_m"],
-                    "local_depth": waveform_channel["local_depth_in_m"]}
-            else:
-                # Now check if the station_coordinates are available in the
-                # inventory DB and use those.
-                coords = get_station_coordinates(self.paths["inv_db_file"],
-                    station, self.paths["cache"],
-                    self.config["download_settings"]["arclink_username"])
-
-                if coords:
-                    stations[station] = {
-                        "latitude": coords["latitude"],
-                        "longitude": coords["longitude"],
-                        "elevation": coords["elevation_in_m"],
-                        "local_depth": coords["local_depth_in_m"]}
-                else:
-                    msg = "No coordinates available for waveform file '%s'" % \
-                        waveform["filename"]
-                    warnings.warn(msg)
-
+            coordinates = self._get_coordinates_for_channel(waveform,
+                available_channels)
+            if not coordinates:
+                msg = "No coordinates available for waveform file '%s'" % \
+                    waveform["filename"]
+                warnings.warn(msg)
+                continue
+            stations[station] = {
+                "latitude": coordinates["latitude"],
+                "longitude": coordinates["longitude"],
+                "elevation": coordinates["elevation"],
+                "local_depth": coordinates["local_depth"]}
         return stations
 
-    def _get_coordinates_for_channel(self, channel_id, ):
+    def _get_coordinates_for_channel(self, waveform_cache_entry,
+            channels_from_station_cache):
         """
-        Helper function retrieving the coordinates for one specific station.
+        Internal function used to grab station coordinates from the various
+        sources.
 
-        This function is potentially pretty expensive as it will loop over all
-        waveform caches if it has to.
+        Used to make sure the same functionality is used everywhere.
 
-        It first checks the station cache. If that has no coordinates it will
-        check the inventory database and last but not least it will attempt to
-        gather the nekkkkkkkkk
+        :param waveform_cache_entry: The entry of the file in question from the
+            waveform cache.
+        :param channels_from_station_cache: self.station_cache.get_channels()
+
+        Returns a dictionary containing "latitude", "longitude", "elevation",
+            "local_depth". Returns None if no coordinates could be found.
         """
         from lasif.tools.inventory_db import get_station_coordinates
-        get_station_coordinates
+        channel_id = waveform_cache_entry["channel_id"]
+
+        # Now check if the waveform has coordinates (in the case of SAC
+        # files).
+        if channel_id not in channels_from_station_cache:
+            return None
+        channel = channels_from_station_cache[channel_id][0]
+        if waveform_cache_entry["latitude"]:
+            return {
+                "latitude": waveform_cache_entry["latitude"],
+                "longitude": waveform_cache_entry["longitude"],
+                "elevation": waveform_cache_entry["elevation_in_m"],
+                "local_depth": waveform_cache_entry["local_depth_in_m"]}
+        elif channel["latitude"]:
+            return {
+                "latitude": channel["latitude"],
+                "longitude": channel["longitude"],
+                "elevation": channel["elevation_in_m"],
+                "local_depth": channel["local_depth_in_m"]}
+        else:
+            # Now check if the station_coordinates are available in the
+            # inventory DB and use those.
+            coords = get_station_coordinates(self.paths["inv_db_file"],
+                ".".join(channel_id.split(".")[:2]),
+                self.paths["cache"],
+                self.config["download_settings"]["arclink_username"])
+            if coords:
+                return {
+                    "latitude": coords["latitude"],
+                    "longitude": coords["longitude"],
+                    "elevation": coords["elevation_in_m"],
+                    "local_depth": coords["local_depth_in_m"]}
+            else:
+                return None
 
     def validate_data(self):
         """
@@ -975,7 +989,25 @@ class Project(object):
         RESP files. Otherwise either a SAC file or other station files will
         contain the coordinates.
         """
-        pass
+        print ("Confirming that station metainformation files exist for "
+            "all waveforms "),
+        channels_from_station_cache = self.station_cache.get_channels()
+        all_good = True
+        for event_name in self.get_event_dict().iterkeys():
+            flush_point()
+            waveform_cache = self._get_waveform_cache_file(event_name, "raw",
+                show_progress=False)
+            if not waveform_cache:
+                continue
+            for channel in waveform_cache.get_values():
+                coordinates = self._get_coordinates_for_channel(channel,
+                    channels_from_station_cache)
+                #print coordinates
+
+        if all_good is True:
+            print ok_string
+        else:
+            print fail_string
 
     def _validate_station_files_availability(self, ok_string, fail_string,
             flush_point, add_report):
@@ -1226,7 +1258,7 @@ class Project(object):
             print fail_string
 
         # Check that all events fall within the chosen boundaries.
-        print "\tAssure events are in chosen domain %s" % \
+        print "\tAssure all events are in chosen domain %s" % \
             (len(event_files) * "."),
         all_good = True
         for event in event_infos:
