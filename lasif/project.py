@@ -866,6 +866,20 @@ class Project(object):
 
         return stations
 
+    def _get_coordinates_for_channel(self, channel_id, ):
+        """
+        Helper function retrieving the coordinates for one specific station.
+
+        This function is potentially pretty expensive as it will loop over all
+        waveform caches if it has to.
+
+        It first checks the station cache. If that has no coordinates it will
+        check the inventory database and last but not least it will attempt to
+        gather the nekkkkkkkkk
+        """
+        from lasif.tools.inventory_db import get_station_coordinates
+        get_station_coordinates
+
     def validate_data(self):
         """
         Validates all data of the current project.
@@ -894,28 +908,54 @@ class Project(object):
             colorama.Style.NORMAL + colorama.Fore.RED,
             colorama.Fore.RESET + colorama.Style.BRIGHT,
             colorama.Style.RESET_ALL)
-        seperator_string = 80 * "="
 
         def flush_point():
             sys.stdout.write(".")
             sys.stdout.flush()
 
+        reports = []
+        total_error_count = [0]
+
+        def add_report(message, error_count=1):
+            reports.append(message)
+            total_error_count[0] += error_count
+
         # Update the caches.
-        self._validate_event_files(ok_string, fail_string, seperator_string,
-            flush_point)
+        self._validate_event_files(ok_string, fail_string,
+            flush_point, add_report)
         self._update_all_waveform_caches(ok_string, fail_string,
-                seperator_string, flush_point)
+                flush_point, add_report)
         print "Updating station cache ...",
         self._update_station_cache(show_progress=False)
         print ok_string
 
         self._validate_station_files_availability(ok_string, fail_string,
-            seperator_string, flush_point)
+            flush_point, add_report)
 
-        self._validate_coordinate_deduction(self):
+        self._validate_coordinate_deduction(ok_string, fail_string,
+            flush_point, add_report)
+
+        if not reports:
+            print("\n%sALL CHECKS PASSED%s\n"
+                "The data seems to be valid. If we missed something please "
+                "contact the developers." % (colorama.Fore.GREEN,
+                colorama.Fore.RESET))
+        else:
+            filename = os.path.join(self.get_output_folder(
+                "DATA_INTEGRITY_REPORT"), "report.txt")
+            seperator_string = "\n" + 80 * "=" + "\n" + 80 * "=" + "\n"
+            with open(filename, "wt") as fh:
+                for report in reports:
+                    fh.write(report.strip())
+                    fh.write(seperator_string)
+            print("\n%sFAILED%s\n"
+                "Encountered %i errors!\nA report has been created at '%s'.\n"
+                % (colorama.Fore.RED,
+                colorama.Fore.RESET, total_error_count[0],
+                os.path.relpath(filename)))
 
     def _update_all_waveform_caches(self, ok_string, fail_string,
-            seperator_string, flush_point):
+            flush_point, add_report):
         """
         Update all waveform caches.
         """
@@ -926,8 +966,19 @@ class Project(object):
                 show_progress=False)
         print ok_string
 
+    def _validate_coordinate_deduction(self, ok_string, fail_string,
+            flush_point, add_report):
+        """
+        Function validating that coordinates for all stations can be found.
+
+        This is essentially only important for the combination of MiniSEED and
+        RESP files. Otherwise either a SAC file or other station files will
+        contain the coordinates.
+        """
+        pass
+
     def _validate_station_files_availability(self, ok_string, fail_string,
-            seperator_string, flush_point):
+            flush_point, add_report):
         """
         Checks that all waveform files have an associated station file.
         """
@@ -941,31 +992,30 @@ class Project(object):
             flush_point()
             waveform_cache = self._get_waveform_cache_file(event_name, "raw",
                 show_progress=False)
+            if not waveform_cache:
+                continue
             for channel in waveform_cache.get_values():
                 station_file = station_cache.get_station_filename(
                     channel["channel_id"],
                     UTCDateTime(channel["starttime_timestamp"]))
                 if station_file is not None:
                     continue
-                print("\n{sep}\n{yellow}WARNING:{reset} "
+                add_report("WARNING: "
                     "No station metainformation available for the waveform "
                     "file\n\t'{waveform_file}'\n"
                     "If you have a station file for that channel make sure "
                     "it actually covers the time span of the data.\n"
-                    "Otherwise contact the developers..."
-                    "\n{sep}".format(
-                    sep=seperator_string,
-                    waveform_file=os.path.relpath(channel["filename"]),
-                    yellow=colorama.Fore.YELLOW,
-                    reset=colorama.Style.RESET_ALL))
+                    "Otherwise contact the developers...".format(
+                    waveform_file=os.path.relpath(channel["filename"])))
                 all_good = False
+            break
         if all_good:
             print ok_string
         else:
             print fail_string
 
-    def _validate_event_files(self, ok_string, fail_string, seperator_string,
-            flush_point):
+    def _validate_event_files(self, ok_string, fail_string, flush_point,
+            add_report):
         """
         Validates all event files in the currently active project.
 
@@ -1001,27 +1051,23 @@ class Project(object):
             flush_point()
             if validate_quakeml(filename) is not True:
                 all_valid = False
-                msg = ("\n\n{seperator}\n{red}ERROR:{reset} "
+                msg = ("ERROR: "
                     "The QuakeML file '{basename}' did not validate against "
                     "the QuakeML 1.2 schema. Unfortunately the error messages "
                     "delivered by lxml are not useful at all. To get useful "
                     "error messages make sure jing is installed "
                     "('brew install jing' (OSX) or "
                     "'sudo apt-get install jing' (Debian/Ubuntu)) and "
-                    "execute the following command:\n\n{yellow}"
+                    "execute the following command:\n\n"
                     "\tjing http://quake.ethz.ch/schema/rng/QuakeML-1.2.rng "
-                    "{filename}{reset}\n\n"
+                    "{filename}\n\n"
                     "Alternatively you could also use the "
                     "'lasif add_spud_event' command to redownload the event "
                     "if it is in the GCMT "
-                    "catalog.\n{seperator}\n").format(
+                    "catalog.\n\n").format(
                         basename=os.path.basename(filename),
-                        filename=os.path.relpath(filename),
-                        yellow=colorama.Fore.YELLOW,
-                        red=colorama.Fore.RED,
-                        reset=colorama.Style.RESET_ALL,
-                        seperator=seperator_string)
-                print msg
+                        filename=os.path.relpath(filename))
+                add_report(msg)
         if all_valid is True:
             print ok_string
         else:
@@ -1045,21 +1091,17 @@ class Project(object):
             print ok_string
         else:
             print fail_string
-            print seperator_string
-            print "Found the following duplicate publicIDs:"
-            print "\n".join(["\t%s%s%s in files: %s" % (colorama.Fore.YELLOW,
-                id_string, colorama.Fore.RESET,
+            add_report("Found the following duplicate publicIDs:\n" +
+                "\n".join(["\t%s in files: %s" % (id_string,
                 ", ".join([os.path.basename(i) for i in faulty_files]))
-                for id_string, faulty_files in ids.iteritems()])
-            print seperator_string
+                    for id_string, faulty_files in ids.iteritems()]),
+                error_count=len(ids))
 
         def print_warning(filename, message):
-            print("\n{sep}\n{yellow}WARNING:{reset} File '{event_name}' "
-                "contains {msg}.\n{sep}".format(
-                sep=seperator_string, event_name=os.path.basename(filename),
-                msg=message,
-                yellow=colorama.Fore.YELLOW,
-                reset=colorama.Style.RESET_ALL))
+            add_report("WARNING: File '{event_name}' "
+                "contains {msg}.\n".format(
+                event_name=os.path.basename(filename),
+                msg=message))
 
         # Performing simple sanity checks.
         print "\tPerforming some basic sanity checks ",
@@ -1170,16 +1212,14 @@ class Project(object):
             # duplicate event or interfering events.
             if time_diff <= 3600.0:
                 all_good = False
-                print("\n{sep}\n{yellow}WARNING:{reset} "
+                add_report("WARNING: "
                     "The time difference between events '{file_1}' and "
                     "'{file_2}' is only {diff:.1f} minutes. This could "
                     "be either due to a duplicate event or events that have "
-                    "interfering waveforms.\n{sep}".format(
-                    sep=seperator_string, file_1=event_1["filename"],
+                    "interfering waveforms.\n".format(
+                    file_1=event_1["filename"],
                     file_2=event_2["filename"],
-                    diff=time_diff / 60.0,
-                    yellow=colorama.Fore.YELLOW,
-                    reset=colorama.Style.RESET_ALL))
+                    diff=time_diff / 60.0))
         if all_good is True:
             print ok_string
         else:
@@ -1196,12 +1236,10 @@ class Project(object):
                     self.domain["rotation_angle"]) is True:
                 continue
             all_good = False
-            print("\n{sep}\n{yellow}WARNING:{reset} "
+            add_report("\nWARNING: "
                 "Event '{filename}' is out of bounds of the chosen domain."
-                "\n{sep}".format(
-                sep=seperator_string, filename=event["filename"],
-                yellow=colorama.Fore.YELLOW,
-                reset=colorama.Style.RESET_ALL))
+                "\n".format(
+                filename=event["filename"]))
 
         if all_good is True:
             print ok_string
