@@ -95,6 +95,13 @@ def preprocess_file(file_info):
     """
 
     #==========================================================================
+    # Open logfile. Write basic info.
+    #==========================================================================
+
+    fid_log = open(file_info["logfile_name"],'a')
+    fid_log.write('Processing '+file_info["data_path"]+'\n')
+
+    #==========================================================================
     # Read seismograms and gather basic information.
     #==========================================================================
 
@@ -113,6 +120,7 @@ def preprocess_file(file_info):
     lock.release()
 
     if len(st) != 1:
+        fid_log.write("* File has more than one trace. Skip all but the first.\n")
         msg = "File '%s' has %i traces and not 1. Will be skipped" % (file_info["data_path"], len(st))
         warnings.warn(msg)
     tr = st[0]
@@ -129,23 +137,21 @@ def preprocess_file(file_info):
     # non-zero length
 
     if len(tr) == 0:
-        msg = ("After trimming the file '%s' to "
-               "a time window around the event, no more data is "
-               "left. The reference time is the one given in the "
-               "QuakeML file. Make sure it is correct and that "
-               "the waveform data actually contains data in that "
-               "time span.") % file_info["data_path"]
+        fid_log.write("* No data contained in time window around the event. Skipped.\n")
+        msg = ("No data contained in time window around the event.")
         warnings.warn(msg)
         return True
 
     # infinity or nan
 
     if True in np.isnan(tr.data):
+        fid_log.write("* File contains NaN. Skipped.\n")
         msg= ("File '%s' contains NaN. Skipped.") % file_info["data_path"]
         warnings.warn(msg)
         return True
 
     if True in np.isinf(tr.data):
+        fid_log.write("* File contains Inf. Skipped.\n")
         msg= ("File '%s' contains inf. Skipped.") % file_info["data_path"]
         warnings.warn(msg)
         return True
@@ -181,7 +187,17 @@ def preprocess_file(file_info):
     # Step 3: Instrument correction
     # Correct seismograms to velocity in m/s.
     #==========================================================================
+    
     station_file = file_info["station_filename"]
+    
+    #- check if the station file actually exists ==============================
+    if not file_info["station_filename"]:
+        fid_log.write("* Could not find station file for the relevant time window. Skipped,\n")
+        msg = ("Could not find a station file in the relevant time window. File will not be processed.")
+        warnings.warn(msg)
+        return True
+
+    #- processing for seed files ==============================================
     if "/SEED/" in station_file:
         # XXX: Check if this is m/s. In all cases encountered so far it
         # always is, but SEED is in theory also able to specify corrections
@@ -190,13 +206,17 @@ def preprocess_file(file_info):
         try:
             tr.simulate(paz_remove=paz)
         except ValueError:
+            fid_log.write("* Instrument correction failed. Skipped.\n")
             msg = ("File '%s' could not be corrected with the help of the SEED file '%s'. Will be skipped.") % (file_info["data_path"],file_info["station_filename"])
             warnings.warn(msg)
             return True
+
+    #- processing with seed files ==============================================
     elif "/RESP/" in station_file:
         try:
             tr.simulate(seedresp={"filename": station_file, "units": "VEL", "date": tr.stats.starttime})
         except ValueError:
+            fid_log.write("* Instrument correction failed. Skipped.\n")
             msg = ("File '%s' could not be corrected with the help of the RESP file '%s'. Will be skipped.") % (file_info["data_path"], file_info["station_filename"])
             warnings.warn(msg)
             return True
@@ -233,10 +253,13 @@ def preprocess_file(file_info):
     tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
     tr.filter("highpass", freq=file_info["highpass"], corners=2, zerophase=False)
 
+    #==========================================================================
+    # Save processed data and clean up.
+    #==========================================================================
+
     # Convert to single precision for saving.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
-    if hasattr(tr.stats, "mseed"):
-        tr.stats.mseed.encoding = "FLOAT32"
+    if hasattr(tr.stats, "mseed"): tr.stats.mseed.encoding = "FLOAT32"
 
     # The lock is necessary for MiniSEED files. This is a limitation of the
     # current version of ObsPy and will hopefully be resolved soon!
@@ -244,6 +267,8 @@ def preprocess_file(file_info):
     lock.acquire()
     tr.write(file_info["processed_data_path"], format=tr.stats._format)
     lock.release()
+
+    fid_log.close()
 
     return True
 

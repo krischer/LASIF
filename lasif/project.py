@@ -403,11 +403,16 @@ class Project(object):
         process_params = iteration.get_process_params()
         processing_tag = iteration.get_processing_tag()
 
+        #==========================================================================================
+        #- Waveform information generator for event information
+        #==========================================================================================
+
         def processing_data_generator():
             """
-            Here comes a short description.
+            Generate a dictionary with information for processing for each waveform.
             """
 
+            #- loop over events ===================================================================
             for event_name, event in iteration.events.iteritems():
 
                 if (event_id==event_name) or (event_id=="all"):
@@ -418,38 +423,42 @@ class Project(object):
                     event_data_path = os.path.join(self.paths["data"], event_name, processing_tag)
                     if not os.path.exists(event_data_path): os.makedirs(event_data_path)
 
+                    #- Folder for processing logfiles. Logfile.
+                    logfile_path = os.path.join(self.paths["logs"], "PROCESSING", event_name)
+                    if not os.path.exists(logfile_path): os.makedirs(logfile_path)
+
+                    logfile_name=logfile_path+'/'+processing_tag+'.at.'+str(obspy.UTCDateTime())
+
                     # All stations that will be processed for this iteration and event.
                     stations = event["stations"].keys()
                     waveforms = self._get_waveform_cache_file(event_name, "raw").get_values()
+
+                    #- loop over waveforms in the event ===========================================
                     for waveform in waveforms:
                         station_id = "{network}.{station}".format(**waveform)
 
                         # Only process data from stations needed for the current iteration.
-                        if station_id not in stations:
-                            continue
+                        if station_id not in stations: continue
 
                         # Generate the new filename for the waveform. If it already exists, continue.
                         processed_filename = os.path.join(event_data_path,os.path.basename(waveform["filename"]))
-                        if os.path.exists(processed_filename):
-                          continue
+                        if os.path.exists(processed_filename): continue
 
                         ret_dict = process_params.copy()
                         ret_dict["data_path"] = waveform["filename"]
                         ret_dict["processed_data_path"] = processed_filename
                         ret_dict.update(event_info)
                         ret_dict["station_filename"] = self.station_cache.get_station_filename(waveform["channel_id"],obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                        ret_dict["logfile_name"] = logfile_name
 
-                        if not ret_dict["station_filename"]:
-                            msg = ("Could not find a station file for channel %s at time %s. File will not be processed.") % \
-                                (waveform["channel_id"], obspy.UTCDateTime(waveform["starttime_timestamp"]))
-                            warnings.warn(msg)
-                            continue
                         yield ret_dict
+
+        #==========================================================================================
+        #==========================================================================================
 
         count = preprocessing.launch_processing(processing_data_generator())
 
-        print colorama.Fore.GREEN + ("\nDONE - Preprocessed %i files." %
-            count) + colorama.Style.RESET_ALL
+        print colorama.Fore.GREEN + ("\nDONE - Preprocessed %i files." % count) + colorama.Style.RESET_ALL
 
     def get_all_events(self):
         """
