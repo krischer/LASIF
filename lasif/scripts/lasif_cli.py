@@ -651,23 +651,23 @@ def lasif_remove_empty_coordinate_entries(args):
 
 def lasif_preprocess_data(args):
     """
-    Usage: lasif preprocess_data ITERATION_NAME
+    Usage: lasif preprocess_data ITERATION_NAME (EVENT_NAME)
 
     Preprocesse all currently available data for a given iteration.
     """
-    if len(args) != 1:
-        msg = "ITERATION_NAME must be given. No other arguments allowed."
+    if len(args) != 2:
+        msg = "ITERATION_NAME and at most one EVENT_NAME must be given. No other arguments allowed."
         raise LASIFCommandLineException(msg)
     iteration_name = args[0]
+    event_id = args[1]
 
     proj = _find_project_root(".")
     iterations = proj.get_iteration_dict()
     if iteration_name not in iterations:
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-            "a list of all available iterations.") % iteration_name
+        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get a list of all available iterations.") % iteration_name
         raise LASIFCommandLineException(msg)
 
-    proj.preprocess_data(iteration_name)
+    proj.preprocess_data(iteration_name,event_id)
 
 
 def lasif_plot_selected_windows(args):
