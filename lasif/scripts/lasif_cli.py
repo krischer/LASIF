@@ -561,12 +561,9 @@ def lasif_launch_misfit_gui(args):
 
     long_iteration_name = "ITERATION_%s" % iteration_name
 
-    window_directory = os.path.join(proj.paths["windows"], event_name,
-        long_iteration_name)
-    ad_src_directory = os.path.join(proj.paths["adjoint_sources"], event_name,
-        long_iteration_name)
-    window_manager = MisfitWindowManager(window_directory, long_iteration_name,
-        event_name)
+    window_directory = os.path.join(proj.paths["windows"], event_name, long_iteration_name)
+    ad_src_directory = os.path.join(proj.paths["adjoint_sources"], event_name, long_iteration_name)
+    window_manager = MisfitWindowManager(window_directory, long_iteration_name, event_name)
     adj_src_manager = AdjointSourceManager(ad_src_directory)
 
     event = proj.get_event(event_name)

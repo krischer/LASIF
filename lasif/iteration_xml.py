@@ -42,13 +42,10 @@ class Iteration(object):
 
         self.data_preprocessing = {}
         prep = root.find("data_preprocessing")
-        self.data_preprocessing["highpass_period"] = \
-            float(self._get(prep, "highpass_period"))
-        self.data_preprocessing["lowpass_period"] = \
-            float(self._get(prep, "lowpass_period"))
+        self.data_preprocessing["highpass_period"] = float(self._get(prep, "highpass_period"))
+        self.data_preprocessing["lowpass_period"] = float(self._get(prep, "lowpass_period"))
 
-        self.solver_settings = \
-            self._recursive_dict(root.find("solver_parameters"))[1]
+        self.solver_settings = self._recursive_dict(root.find("solver_parameters"))[1]
 
         self.events = {}
         for event in root.findall("event"):

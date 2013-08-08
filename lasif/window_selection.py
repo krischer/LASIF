@@ -116,8 +116,7 @@ def _window_generator(data_length, window_width):
         window_start += 1
 
 
-def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng,
-        ev_depth_in_km, st_lat, st_lng, minimum_period, maximum_period):
+def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km, st_lat, st_lng, minimum_period, maximum_period):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.

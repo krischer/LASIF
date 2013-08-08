@@ -1404,30 +1404,25 @@ class Project(object):
         print "Wrote %i adjoint sources to %s." % (_i, output_folder)
 
     def data_synthetic_iterator(self, event_name, iteration_name):
+        
         from lasif import rotations
         from obspy import read, Stream
 
         event_info = self.get_event_info(event_name)
         iteration = self._get_iteration(iteration_name)
+
         iteration_stations = iteration.events[event_name]["stations"].keys()
 
-        stations = {key: value for key, value in
-            self.get_stations_for_event(event_name).iteritems() if key in
-            iteration_stations}
+        stations = {key: value for key, value in self.get_stations_for_event(event_name).iteritems() if key in iteration_stations}
 
-        waveforms = \
-            self._get_waveform_cache_file(event_name,
-                iteration.get_processing_tag()).get_values()
+        waveforms = self._get_waveform_cache_file(event_name, iteration.get_processing_tag()).get_values()
 
         long_iteration_name = "ITERATION_%s" % iteration_name
-        synthetics_path = os.path.join(self.paths["synthetics"], event_name,
-            long_iteration_name)
-        synthetic_files = {os.path.basename(_i).replace("_", ""): _i for _i in
-            glob.iglob(os.path.join(synthetics_path, "*"))}
+        synthetics_path = os.path.join(self.paths["synthetics"], event_name, long_iteration_name)
+        synthetic_files = {os.path.basename(_i).replace("_", ""): _i for _i in glob.iglob(os.path.join(synthetics_path, "*"))}
 
         if not synthetic_files:
-            msg = "Could not find any synthetic files in '%s'." % \
-                synthetics_path
+            msg = "Could not find any synthetic files in '%s'." % synthetics_path
             raise ValueError(msg)
 
         SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
@@ -1438,6 +1433,8 @@ class Project(object):
                 self.current_index = -1
                 self.rot_angle = rot_angle
                 self.rot_axis = rot_axis
+                self.highpass_period = iteration.data_preprocessing["highpass_period"] 
+                self.lowpass_period = iteration.data_preprocessing["lowpass_period"]
 
             def next(self):
                 self.current_index += 1
@@ -1543,11 +1540,9 @@ class Project(object):
                     z_d_trace.stats.scaling_factor = scaling_factor
                     z_d_trace.data *= scaling_factor
 
-                return {"data": data, "synthetics": synthetics,
-                    "coordinates": coordinates}
+                return {"data": data, "synthetics": synthetics, "coordinates": coordinates}
 
-        return TwoWayIter(self.domain["rotation_angle"],
-            self.domain["rotation_axis"])
+        return TwoWayIter(self.domain["rotation_angle"], self.domain["rotation_axis"])
 
     def has_station_file(self, channel_id, time):
         """

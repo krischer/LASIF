@@ -66,8 +66,8 @@ KEYMAP = {
 
 
 class MisfitGUI:
-    def __init__(self, event, seismogram_generator, project, window_manager,
-            adjoint_source_manager):
+    def __init__(self, event, seismogram_generator, project, window_manager, adjoint_source_manager):
+
         plt.figure(figsize=(22, 12))
         self.event = event
         self.event_latitude = event.origins[0].latitude
@@ -85,14 +85,14 @@ class MisfitGUI:
         self.__connect_signals()
 
         self.next()
-        plt.tight_layout()
+        #plt.tight_layout()
         plt.gcf().canvas.set_window_title("Misfit GUI - Press 'h' for help.")
         plt.show()
 
     def _activate_multicursor(self):
+
         self._deactivate_multicursor
-        self.multicursor = MultiCursor(plt.gcf().canvas, (self.plot_axis_z,
-            self.plot_axis_n, self.plot_axis_e), color="blue", lw=1)
+        self.multicursor = MultiCursor(plt.gcf().canvas, (self.plot_axis_z, self.plot_axis_n, self.plot_axis_e), color="blue", lw=1)
 
     def _deactivate_multicursor(self):
         try:
@@ -105,6 +105,7 @@ class MisfitGUI:
             pass
 
     def __setup_plots(self):
+
         # Some actual plots.
         self.plot_axis_z = plt.subplot2grid((6, 20), (0, 0), colspan=18)
         self.plot_axis_n = plt.subplot2grid((6, 20), (1, 0), colspan=18)
@@ -118,14 +119,10 @@ class MisfitGUI:
 
         self._activate_multicursor()
 
-        self.misfit_axis = plt.subplot2grid((6, 20), (3, 0), colspan=11,
-            rowspan=3)
-        self.colorbar_axis = plt.subplot2grid((6, 20), (3, 12), colspan=1,
-            rowspan=3)
-        #self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0), colspan=4,
-            #rowspan=1)
-        self.map_axis = plt.subplot2grid((6, 20), (3, 14), colspan=7,
-            rowspan=3)
+        self.misfit_axis = plt.subplot2grid((6, 20), (3, 0), colspan=11, rowspan=3)
+        self.colorbar_axis = plt.subplot2grid((6, 20), (3, 12), colspan=1, rowspan=3)
+        #self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0), colspan=4, rowspan=1)
+        self.map_axis = plt.subplot2grid((6, 20), (3, 14), colspan=7, rowspan=3)
 
         # Plot the map and the beachball.
         bounds = self.project.domain["bounds"]
@@ -151,33 +148,32 @@ class MisfitGUI:
         self.axweight = plt.axes([0.90, 0.75, 0.08, 0.03])
         self._update_current_weight(1.0)
 
+
     def __connect_signals(self):
+
         self.bnext.on_clicked(self.next)
         self.bprev.on_clicked(self.prev)
         self.breset.on_clicked(self.reset)
         self.bautopick.on_clicked(self.autoselect_windows)
 
-        self.plot_axis_z.figure.canvas.mpl_connect('button_press_event',
-            self._onButtonPress)
-        self.plot_axis_n.figure.canvas.mpl_connect('button_press_event',
-            self._onButtonPress)
-        self.plot_axis_e.figure.canvas.mpl_connect('button_press_event',
-            self._onButtonPress)
+        self.plot_axis_z.figure.canvas.mpl_connect('button_press_event',self._onButtonPress)
+        self.plot_axis_n.figure.canvas.mpl_connect('button_press_event',self._onButtonPress)
+        self.plot_axis_e.figure.canvas.mpl_connect('button_press_event',self._onButtonPress)
 
-        self.plot_axis_e.figure.canvas.mpl_connect('key_release_event',
-            self._onKeyRelease)
+        self.plot_axis_e.figure.canvas.mpl_connect('key_release_event',self._onKeyRelease)
 
-        self.plot_axis_z.figure.canvas.mpl_connect('resize_event',
-            self._on_resize)
+        self.plot_axis_z.figure.canvas.mpl_connect('resize_event',self._on_resize)
 
-        # Connect the picker. Connecting once is enough. It will still fire for
-        # all axes.
+        # Connect the picker. Connecting once is enough. It will still fire for all axes.
         self.plot_axis_z.figure.canvas.mpl_connect('pick_event', self._on_pick)
 
     def autoselect_windows(self, event):
         """
         Automatically select proper time windows.
         """
+
+        print self.seismogram_generator.lowpass_period
+
         for component in ["Z", "N", "E"]:
             real_trace = self.data["data"].select(component=component)
             synth_trace = self.data["synthetics"].select(component=component)
@@ -190,7 +186,10 @@ class MisfitGUI:
                 self.event_latitude, self.event_longitude,
                 self.event_depth / 1000.0,
                 self.data["coordinates"]["latitude"],
-                self.data["coordinates"]["longitude"])
+                self.data["coordinates"]["longitude"],
+                self.seismogram_generator.lowpass_period,
+                self.seismogram_generator.highpass_period
+                )
 
             for idx_start, idx_end in windows:
                 window_start = self.time_axis[int(round(idx_start))]
@@ -214,11 +213,11 @@ class MisfitGUI:
             plt.draw()
 
         if event.mouseevent.button == 1:
-            self._onWindowSelected(artist.get_x(), artist.get_width(),
-                artist.axes, plot_only=True)
+            self._onWindowSelected(artist.get_x(), artist.get_width(), artist.axes, plot_only=True)
 
     def _on_resize(self, *args):
-        plt.tight_layout()
+        #plt.tight_layout()
+        print" "
 
     def next(self, *args):
         while True:
@@ -477,7 +476,7 @@ class MisfitGUI:
             for ax in self._axes_to_restore:
                 plt.gcf().add_axes(ax)
             del self._axes_to_restore
-            plt.tight_layout()
+            #plt.tight_layout()
             self._activate_multicursor()
             plt.draw()
             self._current_app_mode = None
@@ -519,28 +518,23 @@ class MisfitGUI:
                 data = self.data["data"].select(component="Z")
                 if not data:
                     return
-                self.rect = WindowSelectionRectangle(event, self.plot_axis_z,
-                    self._onWindowSelected)
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_z, self._onWindowSelected)
             if event.inaxes == self.plot_axis_n:
                 data = self.data["data"].select(component="N")
                 if not data:
                     return
-                self.rect = WindowSelectionRectangle(event, self.plot_axis_n,
-                    self._onWindowSelected)
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_n, self._onWindowSelected)
             if event.inaxes == self.plot_axis_e:
                 data = self.data["data"].select(component="E")
                 if not data:
                     return
-                self.rect = WindowSelectionRectangle(event, self.plot_axis_e,
-                    self._onWindowSelected)
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_e, self._onWindowSelected)
 
-    def _onWindowSelected(self, window_start, window_width, axis,
-            plot_only=False):
+    def _onWindowSelected(self, window_start, window_width, axis, plot_only=False):
         """
         Function called upon window selection.
 
-        :param plot_only: If True, do not write anything to disk, but only
-            plot.
+        :param plot_only: If True, do not write anything to disk, but only plot.
         """
         # Minimum window length is 50 samples.
         delta = self.data["synthetics"][0].stats.delta
@@ -610,7 +604,7 @@ class MisfitGUI:
         self.colorbar_axis.yaxis.set_major_formatter(
             FormatStrFormatter("%.1f"))
 
-        plt.tight_layout()
+        #plt.tight_layout()
         plt.draw()
 
         if plot_only is not True:
