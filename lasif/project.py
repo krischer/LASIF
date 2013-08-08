@@ -1408,6 +1408,10 @@ class Project(object):
         from lasif import rotations
         from obspy import read, Stream
 
+        #==========================================================================================
+        # Retrieve information on the event, iteration and waveforms
+        #==========================================================================================
+
         event_info = self.get_event_info(event_name)
         iteration = self._get_iteration(iteration_name)
 
@@ -1454,21 +1458,21 @@ class Project(object):
                 return self
 
             def get_value(self):
-                station_id, coordinates = self.items[self.current_index]
 
+                station_id, coordinates = self.items[self.current_index]
                 data = Stream()
-                # Now get the actual waveform files. Also find the
-                # corresponding station file and check the coordinates.
+
+                # Now get the actual waveform files. Also find the corresponding station file and check the coordinates.
                 this_waveforms = {_i["channel_id"]: _i for _i in waveforms
                     if _i["channel_id"].startswith(station_id + ".")}
 
                 for key, value in this_waveforms.iteritems():
                     data += read(value["filename"])[0]
                 if not this_waveforms:
-                    msg = "Could not retrieve data for station '%s'." % \
-                        station_id
+                    msg = "Could not retrieve data for station '%s'." % station_id
                     warnings.warn(msg)
                     return None
+
                 # Now attempt to get the synthetics.
                 synthetics_filenames = []
                 for name, path in synthetic_files.iteritems():
@@ -1476,12 +1480,12 @@ class Project(object):
                         synthetics_filenames.append(path)
 
                 if len(synthetics_filenames) != 3:
-                    msg = "Found %i not 3 synthetics for station '%s'." % (
-                        len(synthetics_filenames), station_id)
+                    msg = "Found %i not 3 synthetics for station '%s'." % (len(synthetics_filenames), station_id)
                     warnings.warn(msg)
                     return None
 
                 synthetics = Stream()
+
                 # Read all synthetics.
                 for filename in synthetics_filenames:
                     synthetics += read(filename)
@@ -1508,35 +1512,27 @@ class Project(object):
                 e_s_trace = synthetics.select(component="E")[0]
                 z_s_trace = synthetics.select(component="Z")[0]
 
-                # Rotate the synthetics if nessesary.
+                #- Rotate the synthetics if nessesary. --------------------------------------------
                 if self.rot_angle:
-                    # First rotate the station back to see, where it was
-                    # recorded.
-                    lat, lng = rotations.rotate_lat_lon(
-                        coordinates["latitude"], coordinates["longitude"],
-                        self.rot_axis, -self.rot_angle)
-                    # Rotate the data.
-                    n, e, z = rotations.rotate_data(n_s_trace.data,
-                        e_s_trace.data, z_s_trace.data, lat, lng,
-                        self.rot_axis, self.rot_angle)
+                    # First rotate the station back to see, where it was recorded.
+                    lat, lng = rotations.rotate_lat_lon(coordinates["latitude"], coordinates["longitude"], self.rot_axis, -self.rot_angle)
+                    # Rotate the synthetics.
+                    n, e, z = rotations.rotate_data(n_s_trace.data,e_s_trace.data, z_s_trace.data, lat, lng, self.rot_axis, self.rot_angle)
                     n_s_trace.data = n
                     e_s_trace.data = e
                     z_s_trace.data = z
 
-                # Scale the data to the synthetics.
+                #- Scale the data to the synthetics. ----------------------------------------------
                 if n_d_trace:
-                    scaling_factor = n_s_trace.data.ptp() / \
-                        n_d_trace.data.ptp()
+                    scaling_factor = n_s_trace.data.ptp() / n_d_trace.data.ptp()
                     n_d_trace.stats.scaling_factor = scaling_factor
                     n_d_trace.data *= scaling_factor
                 if e_d_trace:
-                    scaling_factor = e_s_trace.data.ptp() / \
-                        e_d_trace.data.ptp()
+                    scaling_factor = e_s_trace.data.ptp() / e_d_trace.data.ptp()
                     e_d_trace.stats.scaling_factor = scaling_factor
                     e_d_trace.data *= scaling_factor
                 if z_d_trace:
-                    scaling_factor = z_s_trace.data.ptp() / \
-                        z_d_trace.data.ptp()
+                    scaling_factor = z_s_trace.data.ptp() / z_d_trace.data.ptp()
                     z_d_trace.stats.scaling_factor = scaling_factor
                     z_d_trace.data *= scaling_factor
 
