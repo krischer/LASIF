@@ -118,8 +118,7 @@ def _window_generator(data_length, window_width):
 
 def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km, st_lat, st_lng, minimum_period, maximum_period):
     """
-    Window selection algorithm for picking windows suitable for misfit
-    calculation based on phase differences.
+    Window selection algorithm for picking windows suitable for misfit calculation based on phase differences.
 
     :param data_trace:
     :param synthetic_trace:
@@ -131,77 +130,135 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km, 
     :param minimum_period:
     :param maximum_period:
     """
+
+    print "* ---------------------------"
+    print "* autoselect "+data_trace.stats.channel
+
+    #==============================================================================================
+    #- set a couple of selection parameters - might become üart of the input in future versions
+    #==============================================================================================
+
+    #- Minimum normalised correlation coefficient of the complete traces.
+    min_cc = 0.5
+    #- Maximum relative noise level for the whole trace. Measured from maximum amplitudes before and after the first arrival.
+    max_noise = 0.05
+    #- Maximum relative noise level for individual windows.
+    max_noise_window = 0.2
+    #- All arrivals later than those corresponding to the threshold velocity [km/s] will be excluded.
+    threshold_velocity = 2.3
+    #- Maximum allowable time shift within a window, as a fraction of the minimum period.
+    threshold_shift = 0.3
+    #- Maximum allowable normalised correlation coeficient within a window.
+    threshold_correlation = 0.7
+    #- Minimum length of the time windows relative to the minimum period.
+    min_length_period = 1.5
+    #- Minimum number of extreme in an individual time window (excluding the edges).
+    min_peaks_troughs = 2
+    #- Maximum energy ratio between data and synthetics within a time window.
+    max_energy_ratio = 2.0
+
+    #==============================================================================================
+    #- initialisations
+    #==============================================================================================
+
     dt = synthetic_trace.stats.delta
     npts = synthetic_trace.stats.npts
     dist_in_deg = geodetics.locations2degrees(st_lat, st_lng, ev_lat, ev_lng)
-    dist_in_km = geodetics.calcVincentyInverse(st_lat, st_lng, ev_lat,
-        ev_lng)[0] / 1000.0
+    dist_in_km = geodetics.calcVincentyInverse(st_lat, st_lng, ev_lat, ev_lng)[0] / 1000.0
     tts = getTravelTimes(dist_in_deg, ev_depth_in_km, model="ak135")
     first_tt_arrival = min([_i["time"] for _i in tts])
 
-    # The window length. Currently set to one dominant period of the
-    # synthetics. Make sure it is an uneven number; just to have an easy
-    # midpoint definition.
+    # Number of samples in the sliding window. Currently, the length of the window is set to one dominant period of the
+    # synthetics. Make sure it is an uneven number; just to have an easy midpoint definition.
     window_length = int(round(float(minimum_period) / dt))
 
     if not window_length % 2:
         window_length += 1
 
-    # Naive sliding window approach. Can be replaced by more efficient
-    # variants if necessary.
-
     # Allocate arrays to collect the time dependent values.
-    sliding_time_shift = np.ma.masked_all(npts, dtype="float32")
-    max_cc_coeff = np.ma.masked_all(npts, dtype="float32")
+    sliding_time_shift = np.zeros(npts, dtype="float32")
+    max_cc_coeff = np.zeros(npts, dtype="float32")
 
     taper = np.hanning(window_length)
 
-    for start_idx, end_idx, midpoint_idx in _window_generator(npts,
-            window_length):
-        # Slice windows. Create a copy to be able to taper without affecting
-        #  the original time series.
+    #==============================================================================================
+    #- check if whole seismograms are sufficiently correlated and estimate noise level
+    #==============================================================================================
+
+    synth=synthetic_trace.data
+    data=data_trace.data
+
+    #- compute correlation coefficient 
+    norm=np.sqrt(np.sum(data**2))*np.sqrt(np.sum(synth**2))
+    cc=np.sum(data*synth)/norm
+    print "** correlation coefficient: "+str(cc)
+
+    #- estimate noise level from waveforms prior to the first arrival
+    idx=int(np.ceil((first_tt_arrival - minimum_period * 0.5) / dt))
+    noise_absolute = data[50:idx].ptp()
+    noise_relative = noise_absolute / data.ptp()
+    print "** absolute noise level: "+str(noise_absolute)+" m/s"
+    print "** relative noise level: "+str(noise_relative)
+
+    #- rejection criteria
+    accept = True
+    if cc < min_cc: 
+        print "** no windows selected, correlation "+str(cc)+" is below threshold value of "+str(min_cc)
+        accept = False
+    if noise_relative > max_noise:
+        print "** no windows selected, noise level "+str(noise_relative)+" is above threshold value of "+str(max_noise)
+        accept = False
+
+    if accept == False:
+        print "* autoselect done"
+        return []
+
+    #==============================================================================================
+    #- compute sliding time shifts and correlation coefficients
+    #==============================================================================================
+
+    for start_idx, end_idx, midpoint_idx in _window_generator(npts, window_length):
+        
+        # Slice windows. Create a copy to be able to taper without affecting the original time series.
         data_window = data_trace.data[start_idx: end_idx].copy() * taper
-        synthetic_window = synthetic_trace.data[start_idx: end_idx].copy() * \
-            taper
+        synthetic_window = synthetic_trace.data[start_idx: end_idx].copy() * taper
 
         # Skip windows that have essentially no energy to avoid instabilities.
         if synthetic_window.ptp() < synthetic_trace.data.ptp() * 0.001:
             continue
 
         # Calculate the time shift. Here this is defined as the shift of the
-        # synthetics relative to the data. So a value of 2 means that the
+        # synthetics relative to the data. So a value of 2, for instance, means that the
         # synthetics are 2 timesteps later then the data.
         cc = np.correlate(data_window, synthetic_window, mode="full")
 
         time_shift = cc.argmax() - window_length + 1
-        # Express the time shift in fraction of dominant period.
-        sliding_time_shift[midpoint_idx] = (time_shift * dt) / \
-            minimum_period
+        # Express the time shift in fraction of the minimum period.
+        sliding_time_shift[midpoint_idx] = (time_shift * dt) / minimum_period
 
         # Normalized cross correlation.
-        max_cc_value = cc.max() / np.sqrt((synthetic_window ** 2).sum() *
-            (data_window ** 2).sum())
+        max_cc_value = cc.max() / np.sqrt((synthetic_window ** 2).sum() * (data_window ** 2).sum())
         max_cc_coeff[midpoint_idx] = max_cc_value
 
-    threshold_travel_time = 2.0
+    #==============================================================================================
+    #- compute the initial mask, i.e. intervals (windows) where no measurements are made. 
+    #==============================================================================================
 
-    # Step 1
+    # Step 1: Initialise masked arrays. The mask will be set to True where no windows are chosen.
     time_windows = np.ma.ones(npts)
     time_windows.mask = np.zeros(npts)
 
     # Step 2: Mark everything more then half a dominant period before the
     # first theoretical arrival as positive.
-    time_windows.mask[:int(np.ceil((first_tt_arrival - minimum_period * 0.5)
-        / dt))] = True
+    time_windows.mask[:int(np.ceil((first_tt_arrival - minimum_period * 0.5) / dt))] = True
 
     # Step 3: Mark everything more then half a dominant period after the
-    # chosen threshold surface wave velocity time as negative
-    time_windows.mask[int(np.floor(dist_in_km /
-        threshold_travel_time / dt)):] = True
+    # threshold arrival time - computed from the threshold velocity - as negative.
+    time_windows.mask[int(np.floor(dist_in_km / threshold_velocity / dt)):] = True
 
-    # Step 4: Mark everything with an absolute travel time shift of more then
-    # 0.2 time the dominant period as negative
-    time_windows.mask[np.abs(sliding_time_shift) > 0.2] = True
+    # Step 4: Mark everything with an absolute travel time shift of more than
+    # threshold_shift times the dominant period as negative
+    time_windows.mask[np.abs(sliding_time_shift) > threshold_shift] = True
 
     # Step 5: Mark the area around every "travel time shift jump" (based on
     # the traveltime time difference) negative. The width of the area is
@@ -209,37 +266,34 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km, 
     sample_buffer = int(np.ceil(minimum_period / dt * 0.1))
     indices = np.ma.where(np.abs(np.diff(sliding_time_shift)) > 0.1)[0]
     for index in indices:
-        time_windows.mask[index - sample_buffer: index + sample_buffer] = \
-            True
+        time_windows.mask[index - sample_buffer: index + sample_buffer] = True
 
-    # Step 6: Mark all areas where the normalized cross correlation coefficient
-    # is under 0.7 as negative
-    time_windows.mask[max_cc_coeff < 0.7] = True
+    # Step 6: Mark all areas where the normalized cross correlation coefficient is under threshold_correlation as negative
+    time_windows.mask[max_cc_coeff < threshold_correlation] = True
 
-    # Step 7: Throw away all windows with a length of less then 0.5 the
-    # dominant period.
-    min_length = min(minimum_period / dt * 1.5, maximum_period / dt)
+    #==============================================================================================
+    #- Make the final window selection. 
+    #==============================================================================================
+
+    min_length = min(minimum_period / dt * min_length_period, maximum_period / dt)
     final_windows = []
+
+    #- loop through all the time windows
     for i in np.ma.flatnotmasked_contiguous(time_windows):
-        # Assert a certain minimal length.
-        if (i.stop - i.start) < min_length:
-            continue
 
         window_npts = i.stop - i.start
         synthetic_window = synthetic_trace.data[i.start: i.stop]
         data_window = data_trace.data[i.start: i.stop]
+        
+        # Step 7: Throw away all windows with a length of less then min_length_period the dominant period.
+        if (i.stop - i.start) < min_length: continue
 
-        # Get the local extreme value of the data as well as the synthetics.
+        # Step 8: Exclude windows without a real peak or trough (except for the edges).
         data_p, data_t, data_extrema = find_local_extrema(data_window, 0)
-        synth_p, synth_t, synth_extrema = find_local_extrema(synthetic_window,
-            0)
+        synth_p, synth_t, synth_extrema = find_local_extrema(synthetic_window,0)
+        if np.min([len(synth_p), len(synth_t), len(data_p), len(data_t)]) < min_peaks_troughs: continue
 
-        if 0 in [len(synth_p), len(synth_t), len(data_p), len(data_t)]:
-            continue
-
-        if 1 in [len(synth_p), len(synth_t), len(data_p), len(data_t)]:
-            continue
-
+        # Step 9: Peak and trough matching algorithm
         window_mask = np.ones(window_npts, dtype="bool")
 
         closest_peaks = find_closest(data_p, synth_p)
@@ -271,21 +325,26 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km, 
             window_mask[start: end] = False
 
         window_mask = np.ma.masked_array(window_mask, mask=window_mask)
-        if window_mask.mask.all():
-            continue
+        if window_mask.mask.all(): continue
+
+        # Step 10: Check if the time windows have sufficiently similar energy and are above the noise
         for j in np.ma.flatnotmasked_contiguous(window_mask):
+            
             # Again assert a certain minimal length.
-            if (j.stop - j.start) < min_length:
-                continue
-            # Now compare the energy in the data window in the synthetic
-            # window. If they differ by more then one order of magnitude,
-            # discard them.
+            if (j.stop - j.start) < min_length: continue
+
+            # Compare the energy in the data window and the synthetic window. 
             data_energy = (data_window[j.start: j.stop] ** 2).sum()
             synth_energy = (synthetic_window[j.start: j.stop] ** 2).sum()
             energies = sorted([data_energy, synth_energy])
-            if energies[1] > 10.0 * energies[0]:
-                continue
+            if energies[1] > max_energy_ratio * energies[0]: continue
+
+            # Check that amplitudes in the data are above the noise
+            if noise_absolute / data_window[j.start: j.stop].ptp() > max_noise_window: continue
+
             final_windows.append((i.start + j.start, i.start + j.stop))
+
+    print "* autoselect done"
 
     return final_windows
 
