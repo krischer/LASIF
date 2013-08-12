@@ -254,8 +254,7 @@ class MisfitGUI:
         self.plot()
         for trace in self.data["data"]:
             windows = self.window_manager.get_windows(trace.id)
-            if not windows or "windows" not in windows or \
-                    not windows["windows"]:
+            if not windows or "windows" not in windows or not windows["windows"]:
                 continue
             for window in windows["windows"]:
                 self.plot_window(component=windows["channel_id"][-1],
@@ -365,8 +364,7 @@ class MisfitGUI:
         self.plot_axis_e.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
 
         s_stats = self.data["synthetics"][0].stats
-        self.time_axis = np.linspace(0, s_stats.npts * s_stats.delta,
-                                 s_stats.npts)
+        self.time_axis = np.linspace(0, s_stats.npts * s_stats.delta, s_stats.npts)
 
         def plot_trace(axis, component):
             real_trace = self.data["data"].select(component=component)
@@ -569,6 +567,9 @@ class MisfitGUI:
 
         :param plot_only: If True, do not write anything to disk, but only plot.
         """
+
+        #- Initialisation -------------------------------------------------------------------------
+
         # Minimum window length is 50 samples.
         delta = self.data["synthetics"][0].stats.delta
         if window_width < 50 * delta:
@@ -576,8 +577,7 @@ class MisfitGUI:
             return
 
         data = self.data["data"].select(component=axis.seismic_component)[0]
-        synth = self.data["synthetics"].select(
-            component=axis.seismic_component)[0]
+        synth = self.data["synthetics"].select(component=axis.seismic_component)[0]
 
         if not data:
             plt.draw()
@@ -586,30 +586,34 @@ class MisfitGUI:
         trace = data
         time_range = trace.stats.endtime - trace.stats.starttime
         plot_range = axis.get_xlim()[1] - axis.get_xlim()[0]
-        starttime = trace.stats.starttime + (window_start / plot_range) * \
-            time_range
+        starttime = trace.stats.starttime + (window_start / plot_range) * time_range
         endtime = starttime + window_width / plot_range * time_range
 
         if plot_only is not True:
-            self.window_manager.write_window(trace.id, starttime, endtime,
-                self.weight, "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
-            self.plot_window(component=trace.id[-1], starttime=starttime,
-                endtime=endtime, window_weight=self.weight)
+            self.window_manager.write_window(trace.id, starttime, endtime, self.weight, "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
+            self.plot_window(component=trace.id[-1], starttime=starttime, endtime=endtime, window_weight=self.weight)
 
-        # Window the data.
+        #- window data and synthetics -------------------------------------------------------------
+
+        #- Decimal percentage of cosine taper (ranging from 0 to 1). Set to the fraction of the minimum period to the window length.
+        taper_percentage = np.min([1.0, self.seismogram_generator.lowpass_period / window_width])
+
+        #- data
         data_trimmed = data.copy()
         data_trimmed.trim(starttime, endtime)
-        data_trimmed.taper()
-        data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True,
-            fill_value=0.0)
+        data_trimmed.taper(type='cosine',p=taper_percentage)
+        data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True, fill_value=0.0)
+
+        #- synthetics
         synth_trimmed = synth.copy()
         synth_trimmed.trim(starttime, endtime)
         synth_trimmed.taper()
-        synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime,
-            pad=True, fill_value=0.0)
+        synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True, fill_value=0.0)
 
-        t = np.linspace(0, synth.stats.npts * synth.stats.delta,
-            synth.stats.npts)
+        #- make time axis
+        t = np.linspace(0, synth.stats.npts * synth.stats.delta, synth.stats.npts)
+
+        #- clear axes of misfit plot --------------------------------------------------------------
 
         self.misfit_axis.cla()
         self.colorbar_axis.cla()
@@ -620,29 +624,34 @@ class MisfitGUI:
         except:
             pass
 
-        t = np.require(t, dtype="float64", requirements="C")
-        data_d = np.require(data_trimmed.data, dtype="float64",
-            requirements="C")
-        synth_d = np.require(synth_trimmed.data, dtype="float64",
-            requirements="C")
+        #- set data and synthetics, compute actual misfit -----------------------------------------
 
-        adsrc = adsrc_tf_phase_misfit(t, data_d, synth_d, 5.0, 50.0,
-            0.00000001, axis=self.misfit_axis,
-            colorbar_axis=self.colorbar_axis)
+        t = np.require(t, dtype="float64", requirements="C")
+        data_d = np.require(data_trimmed.data, dtype="float64", requirements="C")
+        synth_d = np.require(synth_trimmed.data, dtype="float64", requirements="C")
+
+        #- compute new time increments and Gaussian window width for the time-frequency transforms
+        dt_new = float(int(self.seismogram_generator.lowpass_period / 5.0))
+        width = 2.0 * self.seismogram_generator.lowpass_period
+
+        #- compute misfit and adjoint source
+        adsrc = adsrc_tf_phase_misfit(t, data_d, synth_d, dt_new, width, 0.00000001, axis=self.misfit_axis, colorbar_axis=self.colorbar_axis)
+
+
+        #- plot misfit distribution ---------------------------------------------------------------
 
         # Format all the axis.
         self.misfit_axis.yaxis.set_major_formatter(FormatStrFormatter("%.3f"))
-        self.misfit_axis.twin_axis.yaxis.set_major_formatter(
-            FormatStrFormatter("%.2g"))
-        self.colorbar_axis.yaxis.set_major_formatter(
-            FormatStrFormatter("%.1f"))
+        self.misfit_axis.twin_axis.yaxis.set_major_formatter(FormatStrFormatter("%.2g"))
+        self.colorbar_axis.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
 
         plt.tight_layout()
         plt.draw()
 
+        #- write adjoint source to file -----------------------------------------------------------
+
         if plot_only is not True:
-            self.adjoint_source_manager.write_adjoint_src(
-                adsrc["adjoint_source"], trace.id, starttime, endtime)
+            self.adjoint_source_manager.write_adjoint_src(adsrc["adjoint_source"], trace.id, starttime, endtime)
 
 
 def launch(event, seismogram_generator, project):

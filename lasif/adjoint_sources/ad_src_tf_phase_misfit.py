@@ -20,8 +20,7 @@ from lasif.adjoint_sources import time_frequency
 eps = np.spacing(1)
 
 
-def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
-        axis=None, colorbar_axis=None):
+def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold, axis=None, colorbar_axis=None):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -31,15 +30,18 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold,
             in the calculation.
     """
     messages = []
-    # Compute time-frequency representation via cross-correlation
-    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(
-        t, data, synthetic, dt_new, width, threshold)
-    # Compute the time-frequency representation of the synthetic
-    tau, nu, tf_synth = time_frequency.time_frequency_transform(t,
-        synthetic, dt_new, width, threshold)
 
-    # 2D interpolation. Use a two step interpolation for the real and the
-    # imaginary parts.
+    #- Compute time-frequency representations -----------------------------------------------------
+
+    # Compute time-frequency representation via cross-correlation
+    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(t, data, synthetic, dt_new, width, threshold)
+    # Compute the time-frequency representation of the synthetic
+    tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic, dt_new, width, threshold)
+
+
+
+
+    # 2D interpolation. Use a two step interpolation for the real and the imaginary parts.
     tf_cc_interp = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.real,
         kx=1, ky=1, s=0)(tau[0], nu[:, 0])
     tf_cc_interp = np.require(tf_cc_interp, dtype="complex128")
