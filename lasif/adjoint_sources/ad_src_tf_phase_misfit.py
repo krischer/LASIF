@@ -20,7 +20,7 @@ from lasif.adjoint_sources import time_frequency
 eps = np.spacing(1)
 
 
-def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold, axis=None, colorbar_axis=None):
+def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None, colorbar_axis=None):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -33,39 +33,44 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold, axis=Non
 
     #- Compute time-frequency representations -----------------------------------------------------
 
-    # Compute time-frequency representation via cross-correlation
-    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(t, data, synthetic, dt_new, width, threshold)
+    #- compute new time increments and Gaussian window width for the time-frequency transforms
+    dt_new = float(int(min_period / 5.0))
+    width = 2.0 * min_period
+
+    # Compute time-frequency representation of the cross-correlation
+    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(t, data, synthetic, dt_new, width)
     # Compute the time-frequency representation of the synthetic
-    tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic, dt_new, width, threshold)
+    tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic, dt_new, width)
 
-
-
-
-    # 2D interpolation. Use a two step interpolation for the real and the imaginary parts.
-    tf_cc_interp = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.real,
-        kx=1, ky=1, s=0)(tau[0], nu[:, 0])
+    # 2D interpolation to bring the tf representation of the correlation on the same grid as the tf
+    # representation of the synthetics. Uses a two-step procedure for real and imaginary parts.
+    tf_cc_interp = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.real, kx=1, ky=1, s=0)(tau[0], nu[:, 0])
     tf_cc_interp = np.require(tf_cc_interp, dtype="complex128")
-    tf_cc_interp.imag = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.imag,
-        kx=1, ky=1, s=0)(tau[0], nu[:, 0])
+    tf_cc_interp.imag = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.imag, kx=1, ky=1, s=0)(tau[0], nu[:, 0])
     tf_cc = tf_cc_interp
 
-    # Make window functionality
-    # noise taper
-    m = np.abs(tf_cc).max() / 10.0
+    #- compute tf window and weighting function ---------------------------------------------------
+
+    # noise taper: downweigh tf amplitudes that are very low
+    m = np.abs(tf_cc).max() / 20.0
     weight = 1.0 - np.exp(-(np.abs(tf_cc) ** 2) / (m ** 2))
     nu_t = nu.transpose()
-    # high-pass filter
-    weight *= (1.0 - np.exp((-nu_t ** 2) / (0.002 ** 2)))
+
+    # highpass filter (periods longer than max_period are suppressed exponentially)
+    weight *= (1.0 - np.exp(-(nu_t * max_period) ** 2))
+    
+    # lowpass filter (periods shorter than min_period are suppressed exponentially)
     nu_t_large = np.zeros(nu_t.shape)
     nu_t_small = np.zeros(nu_t.shape)
-    thres = (nu_t <= 0.005)
-    nu_t_large[np.invert(thres)] = 1.0
-    nu_t_small[thres] = 1.0
-    # low-pass filter
-    weight *= (np.exp(-(nu_t - 0.005) ** 4 / 0.005 ** 4) *
-        nu_t_large + nu_t_small)
+    thres = (nu_t <= 1.0/min_period)
+    nu_t_large[np.invert(thres)] = 1.0      
+    nu_t_small[thres] = 1.0                 
+    weight *= (np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large + nu_t_small)
+    
     # normalisation
     weight /= weight.max()
+
+    #- computation of phase difference, make quality checks and misfit ----------------------------
 
     # Compute the phase difference.
     DP = np.imag(np.log(eps + tf_cc / (eps + np.abs(tf_cc))))
@@ -77,7 +82,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold, axis=Non
     criterion_2 = np.abs(np.diff(test_field, axis=1)).max()
     criterion = max(criterion_1, criterion_2)
     if criterion > 0.7:
-        warning = "Possible phase jump detected"
+        warning = "Possible phase jump detected. Misfit included. No adjoint source computed."
         warnings.warn(warning)
         messages.append(warning)
 
@@ -90,39 +95,45 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold, axis=Non
         msg = "The phase misfit is NaN."
         raise Exception(msg)
 
-    # Make kernel for the inverse tf transform
-    idp = weight * weight * DP * tf_synth / (eps + np.abs(tf_synth) *
-        np.abs(tf_synth))
+    #- compute the adjoint source when no phase jump detected -------------------------------------
 
-    # Invert tf transform and make adjoint source
-    ad_src, it, I = time_frequency.itfa(tau, nu, idp, width, threshold)
+    if criterion <= 0.7:
 
-    # Interpolate to original time axis
-    current_time = tau[0, :]
-    new_time = t[t <= current_time.max()]
-    ad_src = interp1d(current_time, np.imag(ad_src), kind=2)(new_time)
-    if len(t) > len(new_time):
-        ad_src = np.concatenate([ad_src, np.zeros(len(t) - len(new_time))])
+        # Make kernel for the inverse tf transform
+        idp = weight * weight * DP * tf_synth / (eps + np.abs(tf_synth) * np.abs(tf_synth))
 
-    # Divide by the misfit.
-    ad_src /= (phase_misfit + eps)
-    ad_src = np.diff(ad_src) / (t[1] - t[0])
+        # Invert tf transform and make adjoint source
+        ad_src, it, I = time_frequency.itfa(tau, nu, idp, width)
 
-    # Reverse time and add a leading zero so the adjoint source has the same
-    # length as the input time series.
-    ad_src = ad_src[::-1]
-    ad_src = np.concatenate([[0.0], ad_src])
+        # Interpolate to original time axis
+        current_time = tau[0, :]
+        new_time = t[t <= current_time.max()]
+        ad_src = interp1d(current_time, np.imag(ad_src), kind=2)(new_time)
+        if len(t) > len(new_time):
+            ad_src = np.concatenate([ad_src, np.zeros(len(t) - len(new_time))])
 
-    # Plot if required.
+        # Divide by the misfit.
+        ad_src /= (phase_misfit + eps)
+        ad_src = np.diff(ad_src) / (t[1] - t[0])
+
+        # Reverse time and add a leading zero so the adjoint source has the same length as the input time series.
+        ad_src = ad_src[::-1]
+        ad_src = np.concatenate([[0.0], ad_src])
+
+    else:
+
+        ad_src=np.zeros(len(t))
+
+    # Plot if required. ---------------------------------------------------------------------------
+
     if axis:
         import matplotlib.cm as cm
         import matplotlib.pyplot as plt
+
         weighted_phase_difference = (DP * weight).transpose()
         abs_diff = np.abs(weighted_phase_difference)
         max_val = abs_diff.max()
-        mappable = axis.pcolormesh(tau, nu,
-            weighted_phase_difference, vmin=-max_val, vmax=max_val,
-            cmap=cm.RdBu_r)
+        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference, vmin=-max_val, vmax=max_val, cmap=cm.RdBu_r)
         axis.set_xlabel("Seconds since event")
         axis.set_ylabel("TF Phase Misfit: Frequency [Hz]")
 
@@ -131,7 +142,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold, axis=Non
         ymax = len(temp[temp > temp.max() / 1000.0])
         ymax *= nu[1, 0] - nu[0, 0]
         ymax *= 2
-        axis.set_ylim(0, ymax)
+        #axis.set_ylim(0, ymax)
+        axis.set_ylim(0, 2.0/min_period)
 
         if colorbar_axis:
             cm = plt.gcf().colorbar(mappable, cax=colorbar_axis)
@@ -147,8 +159,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, dt_new, width, threshold, axis=Non
         max_value = max(data.max(), synthetic.max())
         value_range = max_value - min_value
         axis.twin_axis = ax2
-        ax2.set_ylim(min_value - 2.5 * value_range,
-            max_value + 0.5 * value_range)
+        ax2.set_ylim(min_value - 2.5 * value_range, max_value + 0.5 * value_range)
         ax2.set_ylabel("Waveforms: Amplitude [m/s]")
         axis.set_xlim(0, tau[:, -1][-1])
         ax2.set_xlim(0, tau[:, -1][-1])

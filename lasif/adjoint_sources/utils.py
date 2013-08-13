@@ -78,8 +78,7 @@ def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
 
 def cross_correlation(f, g):
     """
-    Computes a cross correlation similar to numpy's "full" correlation, except
-    shifted indices.
+    Computes a cross correlation similar to numpy's "full" correlation, except shifted indices.
 
     :type f: numpy array
     :param f: function 1
@@ -104,5 +103,4 @@ def gaussian_window(y, width):
     :param width: float
     :param width: variance = (width ^ 2) / 2
     """
-    return 1.0 / (np.pi * width ** 2) ** (0.25) * \
-        np.exp(-0.5 * y ** 2 / width ** 2)
+    return 1.0 / (np.pi * width ** 2) ** (0.25) * np.exp(-0.5 * y ** 2 / width ** 2)

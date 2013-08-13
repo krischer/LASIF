@@ -607,7 +607,7 @@ class MisfitGUI:
         #- synthetics
         synth_trimmed = synth.copy()
         synth_trimmed.trim(starttime, endtime)
-        synth_trimmed.taper()
+        synth_trimmed.taper(type='cosine',p=taper_percentage)
         synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True, fill_value=0.0)
 
         #- make time axis
@@ -630,12 +630,8 @@ class MisfitGUI:
         data_d = np.require(data_trimmed.data, dtype="float64", requirements="C")
         synth_d = np.require(synth_trimmed.data, dtype="float64", requirements="C")
 
-        #- compute new time increments and Gaussian window width for the time-frequency transforms
-        dt_new = float(int(self.seismogram_generator.lowpass_period / 5.0))
-        width = 2.0 * self.seismogram_generator.lowpass_period
-
         #- compute misfit and adjoint source
-        adsrc = adsrc_tf_phase_misfit(t, data_d, synth_d, dt_new, width, 0.00000001, axis=self.misfit_axis, colorbar_axis=self.colorbar_axis)
+        adsrc = adsrc_tf_phase_misfit(t, data_d, synth_d, self.seismogram_generator.lowpass_period, self.seismogram_generator.highpass_period, axis=self.misfit_axis, colorbar_axis=self.colorbar_axis)
 
 
         #- plot misfit distribution ---------------------------------------------------------------

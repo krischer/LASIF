@@ -139,16 +139,16 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km, 
     #==============================================================================================
 
     #- Minimum normalised correlation coefficient of the complete traces.
-    min_cc = 0.5
+    min_cc = 0.3
     #- Maximum relative noise level for the whole trace. Measured from maximum amplitudes before and after the first arrival.
-    max_noise = 0.05
+    max_noise = 0.3
     #- Maximum relative noise level for individual windows.
-    max_noise_window = 0.2
+    max_noise_window = 0.4
     #- All arrivals later than those corresponding to the threshold velocity [km/s] will be excluded.
-    threshold_velocity = 2.3
+    threshold_velocity = 2.1
     #- Maximum allowable time shift within a window, as a fraction of the minimum period.
     threshold_shift = 0.3
-    #- Maximum allowable normalised correlation coeficient within a window.
+    #- Minimum normalised correlation coeficient within a window.
     threshold_correlation = 0.7
     #- Minimum length of the time windows relative to the minimum period.
     min_length_period = 1.5
