@@ -633,7 +633,6 @@ class MisfitGUI:
         #- compute misfit and adjoint source
         adsrc = adsrc_tf_phase_misfit(t, data_d, synth_d, self.seismogram_generator.lowpass_period, self.seismogram_generator.highpass_period, axis=self.misfit_axis, colorbar_axis=self.colorbar_axis)
 
-
         #- plot misfit distribution ---------------------------------------------------------------
 
         # Format all the axis.

@@ -1285,6 +1285,7 @@ class Project(object):
         """
         Finalizes the adjoint sources.
         """
+
         from itertools import izip
         import numpy as np
 
@@ -1292,15 +1293,16 @@ class Project(object):
         from lasif.window_manager import MisfitWindowManager
         from lasif.adjoint_src_manager import AdjointSourceManager
 
+        #==========================================================================================
+        #- initialisations
+        #==========================================================================================
+
         iteration = self._get_iteration(iteration_name)
         long_iteration_name = "ITERATION_%s" % iteration_name
 
-        window_directory = os.path.join(self.paths["windows"], event_name,
-            long_iteration_name)
-        ad_src_directory = os.path.join(self.paths["adjoint_sources"],
-            event_name, long_iteration_name)
-        window_manager = MisfitWindowManager(window_directory,
-            long_iteration_name, event_name)
+        window_directory = os.path.join(self.paths["windows"], event_name, long_iteration_name)
+        ad_src_directory = os.path.join(self.paths["adjoint_sources"], event_name, long_iteration_name)
+        window_manager = MisfitWindowManager(window_directory, long_iteration_name, event_name)
         adj_src_manager = AdjointSourceManager(ad_src_directory)
 
         this_event = iteration.events[event_name]
@@ -1311,14 +1313,18 @@ class Project(object):
         all_coordinates = []
         _i = 0
 
-        output_folder = self.get_output_folder(
-            "adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
+        output_folder = self.get_output_folder("adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
+
+        #==========================================================================================
+        #- loop through all the stations of this event
+        #==========================================================================================
 
         for station_name, station in this_event["stations"].iteritems():
+            
             this_station = all_stations[station_name]
-
             station_weight = station["station_weight"]
             windows = window_manager.get_windows_for_station(station_name)
+
             if not windows:
                 msg = "No adjoint sources for station '%s'." % station_name
                 warnings.warn(msg)
@@ -1326,18 +1332,28 @@ class Project(object):
 
             all_channels = {}
 
+            #- loop through all channels for that station -----------------------------------------
             for channel_windows in windows:
+
                 channel_id = channel_windows["channel_id"]
                 cumulative_weight = 0
                 all_data = []
+
+                #- loop through all windows of one channel ----------------------------------------
                 for window in channel_windows["windows"]:
+                    
+                    #- get window properties 
                     window_weight = window["weight"]
                     starttime = window["starttime"]
                     endtime = window["endtime"]
-                    data = adj_src_manager.get_adjoint_src(channel_id,
-                        starttime, endtime)
+                    #- load previously stored adjoint source
+                    data = adj_src_manager.get_adjoint_src(channel_id, starttime, endtime)
+                    #- lump all adjoint sources together
                     all_data.append(window_weight * data)
+                    #- compute cumulative weight of all windows for that channel
                     cumulative_weight += window_weight
+
+                #- apply weights for that channel -------------------------------------------------
                 data = all_data.pop()
                 for d in all_data:
                     data += d
@@ -1352,19 +1368,16 @@ class Project(object):
                     continue
                 all_channels[component] = np.zeros(length)
 
-            # Rotate.
+            #- Rotate. if needed ------------------------------------------------------------------
+
             rec_lat = this_station["latitude"]
             rec_lng = this_station["longitude"]
+            
             if self.domain["rotation_angle"]:
                 # Rotate the adjoint source location.
-                r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(rec_lat,
-                    rec_lng, self.domain["rotation_axis"],
-                    -self.domain["rotation_angle"])
-                # Rotate the data.
-                all_channels["N"], all_channels["E"], all_channels["Z"] = \
-                    rotations.rotate_data(all_channels["N"], all_channels["E"],
-                        all_channels["Z"], rec_lat, rec_lng,
-                        self.domain["rotation_axis"], self.domain["angle"])
+                r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(rec_lat, rec_lng, self.domain["rotation_axis"], -self.domain["rotation_angle"])
+                # Rotate the adjoint sources.
+                all_channels["N"], all_channels["E"], all_channels["Z"] = rotations.rotate_data(all_channels["N"], all_channels["E"], all_channels["Z"], rec_lat, rec_lng, self.domain["rotation_axis"], self.domain["rotation_angle"])
             else:
                 r_rec_lat = rec_lat
                 r_rec_lng = rec_lng
@@ -1375,22 +1388,18 @@ class Project(object):
 
             _i += 1
 
-            adjoint_src_filename = os.path.join(output_folder,
-                "ad_src_%i" % _i)
+            adjoint_src_filename = os.path.join(output_folder, "ad_src_%i" % _i)
 
             all_coordinates.append((r_rec_colat, r_rec_lng, r_rec_depth))
 
-            # Actually write the adjoint source file in SES3D specific format.
+            #- Actually write the adjoint source file in SES3D specific format.--------------------
+
             with open(adjoint_src_filename, "wt") as open_file:
                 open_file.write("-- adjoint source ------------------\n")
                 open_file.write("-- source coordinates (colat,lon,depth)\n")
-                open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng,
-                    r_rec_depth))
+                open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng, r_rec_depth))
                 open_file.write("-- source time function (x, y, z) --\n")
-                for x, y, z in izip(
-                        -1.0 * all_channels[CHANNEL_MAPPING["X"]],
-                        all_channels[CHANNEL_MAPPING["Y"]],
-                        -1.0 * all_channels[CHANNEL_MAPPING["Z"]]):
+                for x, y, z in izip(-1.0 * all_channels[CHANNEL_MAPPING["X"]], all_channels[CHANNEL_MAPPING["Y"]], -1.0 * all_channels[CHANNEL_MAPPING["Z"]]):
                     open_file.write("%e %e %e\n" % (x, y, z))
                 open_file.write("\n")
 
