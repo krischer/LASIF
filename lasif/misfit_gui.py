@@ -225,6 +225,7 @@ class MisfitGUI:
             try:
                 data = self.seismogram_generator.next()
             except StopIteration:
+                print "* MEASUREMENT PROCESS FINISHED *"
                 return
             if not data:
                 continue

@@ -696,13 +696,12 @@ class Project(object):
         elif diss.lower() == "true":
             diss = True
         else:
-            msg = ("is_dissipative value of '%s' unknown. Choose true or "
-                "false.") % diss
+            msg = ("is_dissipative value of '%s' unknown. Choose true or false.") % diss
             raise ValueError(msg)
         gen.config.is_dissipative = diss
 
-        relax = solver["relaxation_parameters"]
-        gen.config.nr_diss = relax["number_of_mechanisms"]
+        relax = solver["relaxation_parameter_list"]
+        #gen.config.nr_diss = relax["number_of_mechanisms"]
 
         gen.config.tau = solver["relaxation_parameter_list"]["tau"]
         gen.config.w = solver["relaxation_parameter_list"]["w"]
@@ -1321,7 +1320,11 @@ class Project(object):
 
         for station_name, station in this_event["stations"].iteritems():
             
-            this_station = all_stations[station_name]
+            try:
+                this_station = all_stations[station_name]
+            except KeyError:
+                continue
+                
             station_weight = station["station_weight"]
             windows = window_manager.get_windows_for_station(station_name)
 
