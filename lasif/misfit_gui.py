@@ -279,16 +279,19 @@ class MisfitGUI:
             
             #- transcribe traces
             synth=self.data["synthetics"].select(component=comp)[0].data
-            data=self.data["data"].select(component=comp)[0].data
+            try:
+                data=self.data["data"].select(component=comp)[0].data
+            except IndexError:
+                return
 
             #- compute correlation coefficient ----------------------------------------------------
             norm=np.sqrt(np.sum(data**2))*np.sqrt(np.sum(synth**2))
             cc=np.sum(data*synth)/norm
 
             #- flip traces if correlation coefficient is close to -1 ------------------------------
-            if cc<(-0.8):
+            if cc<(-0.7):
                 self.data["data"].select(component=comp)[0].data=-data
-                print "correlation coefficient below -0.8, data fliped"
+                print "correlation coefficient below -0.7, data fliped"
 
         print "============================================"
 

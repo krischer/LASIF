@@ -139,23 +139,23 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km, 
     #==============================================================================================
 
     #- Minimum normalised correlation coefficient of the complete traces.
-    min_cc = 0.3
+    min_cc = 0.0
     #- Maximum relative noise level for the whole trace. Measured from maximum amplitudes before and after the first arrival.
     max_noise = 0.3
     #- Maximum relative noise level for individual windows.
     max_noise_window = 0.4
     #- All arrivals later than those corresponding to the threshold velocity [km/s] will be excluded.
-    threshold_velocity = 2.1
+    threshold_velocity = 2.4
     #- Maximum allowable time shift within a window, as a fraction of the minimum period.
-    threshold_shift = 0.3
+    threshold_shift = 0.2
     #- Minimum normalised correlation coeficient within a window.
-    threshold_correlation = 0.7
+    threshold_correlation = 0.5
     #- Minimum length of the time windows relative to the minimum period.
     min_length_period = 1.5
     #- Minimum number of extreme in an individual time window (excluding the edges).
     min_peaks_troughs = 2
     #- Maximum energy ratio between data and synthetics within a time window.
-    max_energy_ratio = 2.0
+    max_energy_ratio = 3.0
 
     #==============================================================================================
     #- initialisations
@@ -168,9 +168,9 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km, 
     tts = getTravelTimes(dist_in_deg, ev_depth_in_km, model="ak135")
     first_tt_arrival = min([_i["time"] for _i in tts])
 
-    # Number of samples in the sliding window. Currently, the length of the window is set to one dominant period of the
+    # Number of samples in the sliding window. Currently, the length of the window is set to a multiple of the dominant period of the
     # synthetics. Make sure it is an uneven number; just to have an easy midpoint definition.
-    window_length = int(round(float(minimum_period) / dt))
+    window_length = int(round(float(2*minimum_period) / dt))
 
     if not window_length % 2:
         window_length += 1

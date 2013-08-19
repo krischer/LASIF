@@ -34,7 +34,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
     #- Compute time-frequency representations -----------------------------------------------------
 
     #- compute new time increments and Gaussian window width for the time-frequency transforms
-    dt_new = float(int(min_period / 5.0))
+    dt_new = float(int(min_period / 3.0))
     width = 2.0 * min_period
 
     # Compute time-frequency representation of the cross-correlation
@@ -52,7 +52,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
     #- compute tf window and weighting function ---------------------------------------------------
 
     # noise taper: downweigh tf amplitudes that are very low
-    m = np.abs(tf_cc).max() / 20.0
+    m = np.abs(tf_cc).max() / 10.0
     weight = 1.0 - np.exp(-(np.abs(tf_cc) ** 2) / (m ** 2))
     nu_t = nu.transpose()
 
@@ -73,15 +73,19 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
     #- computation of phase difference, make quality checks and misfit ----------------------------
 
     # Compute the phase difference.
-    DP = np.imag(np.log(eps + tf_cc / (eps + np.abs(tf_cc))))
+    #DP = np.imag(np.log(m + tf_cc / (2 * m + np.abs(tf_cc))))
+    DP = np.angle(tf_cc)
 
     # Attempt to detect phase jumps by taking the derivatives in time and
     # frequency direction. 0.7 is an emperical value.
     test_field = weight * DP / np.abs(weight * DP).max()
-    criterion_1 = np.abs(np.diff(test_field, axis=0)).max()
-    criterion_2 = np.abs(np.diff(test_field, axis=1)).max()
-    criterion = max(criterion_1, criterion_2)
-    if criterion > 0.7:
+    criterion_1 = np.sum([np.abs(np.diff(test_field, axis=0)) > 0.7])
+    criterion_2 = np.sum([np.abs(np.diff(test_field, axis=1)) > 0.7])
+    criterion = np.sum([criterion_1, criterion_2])
+    #criterion_1 = np.abs(np.diff(test_field, axis=0)).max()
+    #criterion_2 = np.abs(np.diff(test_field, axis=1)).max()
+    #criterion = max(criterion_1, criterion_2)
+    if criterion > 7.0:
         warning = "Possible phase jump detected. Misfit included. No adjoint source computed."
         warnings.warn(warning)
         messages.append(warning)
@@ -97,10 +101,10 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
 
     #- compute the adjoint source when no phase jump detected -------------------------------------
 
-    if criterion <= 0.7:
+    if criterion <= 7.0:
 
         # Make kernel for the inverse tf transform
-        idp = weight * weight * DP * tf_synth / (eps + np.abs(tf_synth) * np.abs(tf_synth))
+        idp = weight * weight * DP * tf_synth / (m + np.abs(tf_synth) * np.abs(tf_synth))
 
         # Invert tf transform and make adjoint source
         ad_src, it, I = time_frequency.itfa(tau, nu, idp, width)
@@ -133,7 +137,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
         weighted_phase_difference = (DP * weight).transpose()
         abs_diff = np.abs(weighted_phase_difference)
         max_val = abs_diff.max()
-        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference, vmin=-max_val, vmax=max_val, cmap=cm.RdBu_r)
+        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference, vmin=-1.0, vmax=1.0, cmap=cm.RdBu_r)
         axis.set_xlabel("Seconds since event")
         axis.set_ylabel("TF Phase Misfit: Frequency [Hz]")
 
@@ -142,7 +146,6 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
         ymax = len(temp[temp > temp.max() / 1000.0])
         ymax *= nu[1, 0] - nu[0, 0]
         ymax *= 2
-        #axis.set_ylim(0, ymax)
         axis.set_ylim(0, 2.0/min_period)
 
         if colorbar_axis:
