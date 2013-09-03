@@ -125,7 +125,7 @@ class FileInfoCache(object):
             except:
                 pass
             msg = ("Could not enable foreign key support for SQLite. Please "
-                "contact the LASIF developers.")
+                   "contact the LASIF developers.")
             raise ValueError(msg)
 
         # Create the tables.
@@ -184,9 +184,9 @@ class FileInfoCache(object):
         if self.show_progress is True:
             if filecount > 110:
                 widgets = ["Updating cache: ", progressbar.Percentage(),
-                    progressbar.Bar(), "", progressbar.ETA()]
+                           progressbar.Bar(), "", progressbar.ETA()]
                 pbar = progressbar.ProgressBar(widgets=widgets,
-                    maxval=filecount).start()
+                                               maxval=filecount).start()
                 update_interval = int(filecount / 100)
 
         current_file_count = 0
@@ -202,8 +202,10 @@ class FileInfoCache(object):
                     this_file = db_files[filename]
                     del db_files[filename]
                     last_modified = os.path.getmtime(filename)
-                    # If the last modified time is identical, nothing to do.
-                    if int(round(last_modified)) == int(round(this_file[1])):
+                    # If the last modified time is identical to a tenth of
+                    # second, nothing to do.
+                    if int(round(last_modified * 10)) == \
+                            int(round(this_file[1] * 10)):
                         continue
                     # Otherwise check the hash.
                     with open(filename, "rb") as open_file:
@@ -219,7 +221,7 @@ class FileInfoCache(object):
         # Remove all files no longer part of the cache DB.
         for filename in db_files:
             self.db_cursor.execute("DELETE FROM files WHERE filename='%s';" %
-                filename)
+                                   filename)
         self.db_conn.commit()
 
     def get_values(self):
@@ -259,7 +261,7 @@ class FileInfoCache(object):
         ON indices.filepath_id=files.id
         WHERE files.filename='%s'
         """ % (", ".join(["indices.%s" % _i[0] for _i in self.index_values]),
-            filename)
+               filename)
 
         all_values = []
         indices = [_i[0] for _i in self.index_values]
@@ -279,7 +281,7 @@ class FileInfoCache(object):
         # Remove all old indices for the file if it is an update.
         if filepath_id is not None:
             self.db_cursor.execute("DELETE FROM indices WHERE "
-                "filepath_id = %i" % filepath_id)
+                                   "filepath_id = %i" % filepath_id)
             self.db_conn.commit()
 
         # Get the hash
@@ -288,12 +290,14 @@ class FileInfoCache(object):
 
         # Add or update the file.
         if filepath_id is not None:
-            self.db_cursor.execute("UPDATE files SET last_modified=%f, "
+            self.db_cursor.execute(
+                "UPDATE files SET last_modified=%f, "
                 "crc32_hash=%i WHERE id=%i;" % (os.path.getmtime(filename),
                 filehash, filepath_id))
             self.db_conn.commit()
         else:
-            self.db_cursor.execute("INSERT into files(filename, last_modified,"
+            self.db_cursor.execute(
+                "INSERT into files(filename, last_modified,"
                 " crc32_hash) VALUES('%s', %f, %i);" % (
                 filename, os.path.getmtime(filename), filehash))
             self.db_conn.commit()
@@ -301,7 +305,7 @@ class FileInfoCache(object):
 
         # Get all indices from the file.
         indices = getattr(self, "_extract_index_values_%s" %
-            filetype)(filename)
+                          filetype)(filename)
         if not indices:
             return
 
