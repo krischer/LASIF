@@ -43,7 +43,7 @@ class StationCacheTest(unittest.TestCase):
 
         # Copy the SEED file.
         shutil.copy2(os.path.join(cls.data_dir, "dataless.IU_PAB"),
-            os.path.join(cls.seed_directory, "dataless.IU_PAB"))
+                     os.path.join(cls.seed_directory, "dataless.IU_PAB"))
 
     def test_station_cache(self):
         """
@@ -51,7 +51,7 @@ class StationCacheTest(unittest.TestCase):
         """
         # Init the station cache.
         station_cache = StationCache(self.cache_file, self.seed_directory,
-            self.resp_directory)
+                                     self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
         # Check that the correct station is in there.
@@ -63,10 +63,10 @@ class StationCacheTest(unittest.TestCase):
         seed_file = os.path.join(self.seed_directory, "dataless.BW_FURT")
         # Copy one more SEED file and check if the changes are reflected.
         shutil.copy2(os.path.join(self.data_dir, "dataless.BW_FURT"),
-            seed_file)
+                     seed_file)
         # Init the station cache once more.
         station_cache = StationCache(self.cache_file, self.seed_directory,
-            self.resp_directory)
+                                     self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
         self.assertEqual(len(channels), 4)
@@ -80,7 +80,7 @@ class StationCacheTest(unittest.TestCase):
         # Delete the file, and check if everything else is removed as well.
         os.remove(seed_file)
         station_cache = StationCache(self.cache_file, self.seed_directory,
-            self.resp_directory)
+                                     self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
         # Check that the correct station is in there.
@@ -90,18 +90,18 @@ class StationCacheTest(unittest.TestCase):
         # Add the file once again...
         del station_cache
         shutil.copy2(os.path.join(self.data_dir, "dataless.BW_FURT"),
-            seed_file)
+                     seed_file)
         station_cache = StationCache(self.cache_file, self.seed_directory,
-            self.resp_directory)
+                                     self.resp_directory)
         del station_cache
 
         # Now replace the file with an empty SEED file and assure that all
         # associated channels have been removed.
-        shutil.copy2(os.path.join(self.data_dir,
-            "channelless_datalessSEED"), seed_file)
+        shutil.copy2(os.path.join(self.data_dir, "channelless_datalessSEED"),
+                     seed_file)
         # Init the station cache once more.
         station_cache = StationCache(self.cache_file, self.seed_directory,
-            self.resp_directory)
+                                     self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
         # Check that the correct station is in there.
@@ -113,10 +113,10 @@ class StationCacheTest(unittest.TestCase):
         # Now copy some RESP files.
         resp_file = os.path.join(self.resp_directory, "RESP.G.FDF.00.BHE")
         shutil.copy2(os.path.join(self.data_dir,
-            os.path.basename(resp_file)), resp_file)
+                                  os.path.basename(resp_file)), resp_file)
         # Init the station cache once more.
         station_cache = StationCache(self.cache_file, self.seed_directory,
-            self.resp_directory)
+                                     self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
         # Check that the correct station is in there.
@@ -141,7 +141,7 @@ class StationCacheTest(unittest.TestCase):
             os.path.join(self.resp_directory, "RESP.G.FDF.00.BHZ"))
         # Init the station cache once more.
         station_cache = StationCache(self.cache_file, self.seed_directory,
-            self.resp_directory)
+                                     self.resp_directory)
         # Get the list of available channels.
         channels = station_cache.get_channels()
         # Check that the correct station is in there.
