@@ -50,7 +50,7 @@ class Project(object):
             self._init_new_project(init_project)
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
-                "path or uninitialized project?")
+                   "path or uninitialized project?")
             raise LASIFException(msg)
         self.update_folder_structure()
         self._read_config_file()
@@ -64,14 +64,14 @@ class Project(object):
         self.paths = {}
         self.paths["root"] = root_path
         self.paths["config_file"] = os.path.join(root_path,
-            "config.xml")
+                                                 "config.xml")
         self.paths["events"] = os.path.join(root_path, "EVENTS")
         self.paths["data"] = os.path.join(root_path, "DATA")
         self.paths["cache"] = os.path.join(root_path, "CACHE")
-        self.paths["config_file_cache"] = os.path.join(self.paths["cache"],
-            "config.xml_cache.pickle")
-        self.paths["inv_db_file"] = os.path.join(self.paths["cache"],
-            "inventory_db.sqlite")
+        self.paths["config_file_cache"] = \
+            os.path.join(self.paths["cache"], "config.xml_cache.pickle")
+        self.paths["inv_db_file"] = \
+            os.path.join(self.paths["cache"], "inventory_db.sqlite")
         self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["models"] = os.path.join(root_path, "MODELS")
         self.paths["iterations"] = os.path.join(root_path, "ITERATIONS")
@@ -80,16 +80,16 @@ class Project(object):
         self.paths["stations"] = os.path.join(root_path, "STATIONS")
         # Station subfolders
         self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
-            "SEED")
+                                                   "SEED")
         self.paths["station_xml"] = os.path.join(self.paths["stations"],
-            "StationXML")
+                                                 "StationXML")
         self.paths["resp"] = os.path.join(self.paths["stations"],
-            "RESP")
+                                          "RESP")
         self.paths["output"] = os.path.join(root_path, "OUTPUT")
-        self.paths["windows"] = os.path.join(root_path,
-            "ADJOINT_SOURCES_AND_WINDOWS", "WINDOWS")
-        self.paths["adjoint_sources"] = os.path.join(root_path,
-            "ADJOINT_SOURCES_AND_WINDOWS", "ADJOINT_SOURCES")
+        self.paths["windows"] = os.path.join(
+            root_path, "ADJOINT_SOURCES_AND_WINDOWS", "WINDOWS")
+        self.paths["adjoint_sources"] = os.path.join(
+            root_path, "ADJOINT_SOURCES_AND_WINDOWS", "ADJOINT_SOURCES")
 
     def update_folder_structure(self):
         """
@@ -143,7 +143,7 @@ class Project(object):
                     E.rotation_angle_in_degree(str(-45.0)))))
 
         string_doc = etree.tostring(doc, pretty_print=True,
-            xml_declaration=True, encoding="UTF-8")
+                                    xml_declaration=True, encoding="UTF-8")
 
         with open(self.paths["config_file"], "wt") as open_file:
             open_file.write(string_doc)
@@ -158,7 +158,7 @@ class Project(object):
         return ret_str
 
     def get_station_filename(self, network, station, location, channel,
-            file_format):
+                             file_format):
         """
         Function returning the filename a station file of a certain format
         should be written to. Only useful as a callback function.
@@ -173,7 +173,8 @@ class Project(object):
             def seed_filename_generator():
                 i = 0
                 while True:
-                    filename = os.path.join(self.paths["dataless_seed"],
+                    filename = os.path.join(
+                        self.paths["dataless_seed"],
                         "dataless.{network}_{station}".format(network=network,
                         station=station))
                     if i:
@@ -188,10 +189,11 @@ class Project(object):
             def resp_filename_generator():
                 i = 0
                 while True:
-                    filename = os.path.join(self.paths["resp"],
+                    filename = os.path.join(
+                        self.paths["resp"],
                         "RESP.{network}.{station}.{location}.{channel}"
                         .format(network=network, station=station,
-                            location=location, channel=channel))
+                                location=location, channel=channel))
                     if i:
                         filename += ".%i" % i
                     i += 1
@@ -283,7 +285,7 @@ class Project(object):
         model names and the values the full paths to each model.
         """
         contents = [os.path.join(self.paths["models"], _i)
-            for _i in os.listdir(self.paths["models"])]
+                    for _i in os.listdir(self.paths["models"])]
         models = [os.path.abspath(_i) for _i in contents if os.path.isdir(_i)]
         models = {os.path.basename(_i): _i for _i in models}
         return models
@@ -295,7 +297,7 @@ class Project(object):
         """
         events = {}
         for event in glob.iglob(os.path.join(self.paths["events"],
-                "*%sxml" % os.extsep)):
+                                             "*%sxml" % os.extsep)):
             event = os.path.abspath(event)
             event_name = os.path.splitext(os.path.basename(event))[0]
             events[event_name] = event
@@ -310,7 +312,8 @@ class Project(object):
         from lasif import visualization
 
         bounds = self.domain["bounds"]
-        visualization.plot_domain(bounds["minimum_latitude"],
+        visualization.plot_domain(
+            bounds["minimum_latitude"],
             bounds["maximum_latitude"], bounds["minimum_longitude"],
             bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
@@ -319,7 +322,7 @@ class Project(object):
 
     def get_kernel_dir(self, iteration_name, event_name):
         return os.path.join(self.paths["kernels"], event_name,
-            "ITERATION_%s" % iteration_name)
+                            "ITERATION_%s" % iteration_name)
 
     def get_event(self, event_name):
         """
@@ -332,7 +335,7 @@ class Project(object):
         # Read the file if it does not exist.
         if event_name not in self._seismic_events:
             filename = os.path.join(self.paths["events"], "%s%sxml" %
-                (event_name, os.path.extsep))
+                                    (event_name, os.path.extsep))
             if not os.path.exists(filename):
                 return None
             self._seismic_events[event_name] = readEvents(filename)[0]
@@ -357,10 +360,10 @@ class Project(object):
         # Get a dictionary containing the event names as keys and a list of
         # stations per event as values.
         events_dict = {event: self.get_stations_for_event(event).keys()
-            for event in self.get_event_dict().keys()}
+                       for event in self.get_event_dict().keys()}
 
-        xml_string = iteration_xml.create_iteration_xml_string(iteration_name,
-            solver_name, events_dict)
+        xml_string = iteration_xml.create_iteration_xml_string(
+            iteration_name, solver_name, events_dict)
 
         with open(filename, "wt") as fh:
             fh.write(xml_string)
@@ -374,7 +377,7 @@ class Project(object):
         """
         iterations = {}
         for iteration in glob.iglob(os.path.join(self.paths["iterations"],
-                "*%sxml" % os.extsep)):
+                                                 "*%sxml" % os.extsep)):
             iteration = os.path.abspath(iteration)
             iteration_name = os.path.splitext(os.path.basename(iteration))[0]
             if iteration_name.startswith("ITERATION_"):
@@ -403,62 +406,80 @@ class Project(object):
         process_params = iteration.get_process_params()
         processing_tag = iteration.get_processing_tag()
 
-        #==========================================================================================
+        #======================================================================
         #- Waveform information generator for event information
-        #==========================================================================================
+        #======================================================================
 
         def processing_data_generator():
             """
-            Generate a dictionary with information for processing for each waveform.
+            Generate a dictionary with information for processing for each
+            waveform.
             """
 
-            #- loop over events ===================================================================
+            #- loop over events ===============================================
             for event_name, event in iteration.events.iteritems():
 
-                if (event_id==event_name) or (event_id=="all"):
+                if (event_id == event_name) or (event_id == "all"):
 
                     event_info = self.get_event_info(event_name)
 
-                    # The folder where all preprocessed data for this event will go.
-                    event_data_path = os.path.join(self.paths["data"], event_name, processing_tag)
-                    if not os.path.exists(event_data_path): os.makedirs(event_data_path)
+                    # The folder where all preprocessed data for this event
+                    # will go.
+                    event_data_path = os.path.join(self.paths["data"],
+                                                   event_name, processing_tag)
+                    if not os.path.exists(event_data_path):
+                        os.makedirs(event_data_path)
 
                     #- Folder for processing logfiles. Logfile.
-                    logfile_path = os.path.join(self.paths["logs"], "PROCESSING", event_name)
-                    if not os.path.exists(logfile_path): os.makedirs(logfile_path)
+                    logfile_path = os.path.join(self.paths["logs"],
+                                                "PROCESSING", event_name)
+                    if not os.path.exists(logfile_path):
+                        os.makedirs(logfile_path)
 
-                    logfile_name=logfile_path+'/'+processing_tag+'.at.'+str(obspy.UTCDateTime())
+                    logfile_name = logfile_path + "/" + processing_tag + \
+                        ".at." + str(obspy.UTCDateTime())
 
-                    # All stations that will be processed for this iteration and event.
+                    # All stations that will be processed for this iteration
+                    # and event.
                     stations = event["stations"].keys()
-                    waveforms = self._get_waveform_cache_file(event_name, "raw").get_values()
+                    waveforms = self._get_waveform_cache_file(
+                        event_name, "raw").get_values()
 
-                    #- loop over waveforms in the event ===========================================
+                    #- loop over waveforms in the event =======================
                     for waveform in waveforms:
                         station_id = "{network}.{station}".format(**waveform)
 
-                        # Only process data from stations needed for the current iteration.
-                        if station_id not in stations: continue
+                        # Only process data from stations needed for the
+                        # current iteration.
+                        if station_id not in stations:
+                            continue
 
-                        # Generate the new filename for the waveform. If it already exists, continue.
-                        processed_filename = os.path.join(event_data_path,os.path.basename(waveform["filename"]))
-                        if os.path.exists(processed_filename): continue
+                        # Generate the new filename for the waveform. If it
+                        # already exists, continue.
+                        processed_filename = os.path.join(
+                            event_data_path,
+                            os.path.basename(waveform["filename"]))
+                        if os.path.exists(processed_filename):
+                            continue
 
                         ret_dict = process_params.copy()
                         ret_dict["data_path"] = waveform["filename"]
                         ret_dict["processed_data_path"] = processed_filename
                         ret_dict.update(event_info)
-                        ret_dict["station_filename"] = self.station_cache.get_station_filename(waveform["channel_id"],obspy.UTCDateTime(waveform["starttime_timestamp"]))
+                        ret_dict["station_filename"] = \
+                            self.station_cache.get_station_filename(
+                                waveform["channel_id"],
+                                obspy.UTCDateTime(
+                                    waveform["starttime_timestamp"]))
                         ret_dict["logfile_name"] = logfile_name
 
                         yield ret_dict
 
-        #==========================================================================================
-        #==========================================================================================
-
         count = preprocessing.launch_processing(processing_data_generator())
 
-        print colorama.Fore.GREEN + ("\nDONE - Preprocessed %i files." % count) + colorama.Style.RESET_ALL
+        print colorama.Fore.GREEN + \
+            ("\nDONE - Preprocessed %i files." % count) + \
+            colorama.Style.RESET_ALL
 
     def get_all_events(self):
         """
@@ -478,9 +499,10 @@ class Project(object):
 
         # Plot the domain.
         bounds = self.domain["bounds"]
-        map = visualization.plot_domain(bounds["minimum_latitude"],
-            bounds["maximum_latitude"], bounds["minimum_longitude"],
-            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
+        map = visualization.plot_domain(
+            bounds["minimum_latitude"], bounds["maximum_latitude"],
+            bounds["minimum_longitude"], bounds["maximum_longitude"],
+            bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=False, show_plot=False, zoom=True)
@@ -494,8 +516,8 @@ class Project(object):
         event_info = self.get_event_info(event_name)
 
         stations = self.get_stations_for_event(event_name)
-        visualization.plot_stations_for_event(map_object=map,
-            station_dict=stations, event_info=event_info)
+        visualization.plot_stations_for_event(
+            map_object=map, station_dict=stations, event_info=event_info)
         # Plot the beachball for one event.
         visualization.plot_events([event], map_object=map)
 
@@ -517,9 +539,9 @@ class Project(object):
 
         if plot_type == "map":
             bounds = self.domain["bounds"]
-            map = visualization.plot_domain(bounds["minimum_latitude"],
-                bounds["maximum_latitude"], bounds["minimum_longitude"],
-                bounds["maximum_longitude"],
+            map = visualization.plot_domain(
+                bounds["minimum_latitude"], bounds["maximum_latitude"],
+                bounds["minimum_longitude"], bounds["maximum_longitude"],
                 bounds["boundary_width_in_degree"],
                 rotation_axis=self.domain["rotation_axis"],
                 rotation_angle_in_degree=self.domain["rotation_angle"],
@@ -545,9 +567,10 @@ class Project(object):
         plt.figure(figsize=(20, 21))
 
         bounds = self.domain["bounds"]
-        map_object = visualization.plot_domain(bounds["minimum_latitude"],
-            bounds["maximum_latitude"], bounds["minimum_longitude"],
-            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
+        map_object = visualization.plot_domain(
+            bounds["minimum_latitude"], bounds["maximum_latitude"],
+            bounds["minimum_longitude"], bounds["maximum_longitude"],
+            bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=False, show_plot=False, zoom=True,
@@ -559,10 +582,11 @@ class Project(object):
             stations = self.get_stations_for_event(event_name)
             event_stations.append((event, stations))
 
-        visualization.plot_raydensity(map_object, event_stations,
-            bounds["minimum_latitude"], bounds["maximum_latitude"],
-            bounds["minimum_longitude"], bounds["maximum_longitude"],
-            self.domain["rotation_axis"], self.domain["rotation_angle"])
+        visualization.plot_raydensity(
+            map_object, event_stations, bounds["minimum_latitude"],
+            bounds["maximum_latitude"], bounds["minimum_longitude"],
+            bounds["maximum_longitude"], self.domain["rotation_axis"],
+            self.domain["rotation_angle"])
 
         events = self.get_all_events()
         visualization.plot_events(events, map_object=map_object)
@@ -570,7 +594,7 @@ class Project(object):
         plt.tight_layout()
 
         outfile = os.path.join(self.get_output_folder("raydensity_plot"),
-            "raydensity.png")
+                               "raydensity.png")
         plt.savefig(outfile, dpi=200)
         print "Saved picture at %s" % outfile
 
@@ -594,7 +618,7 @@ class Project(object):
 
         if mag.magnitude_type is None:
             warnings.warn("Magnitude has no specified type. Will be assumed "
-                "to be Mw")
+                          "to be Mw")
             mag.magnitude_type = "Mw"
 
         info = {
@@ -608,7 +632,7 @@ class Project(object):
         return info
 
     def generate_input_files(self, iteration_name, event_name,
-            simulation_type):
+                             simulation_type):
         """
         Generate the input files for one event.
 
@@ -629,8 +653,8 @@ class Project(object):
 
         # Check that the event is part of the iterations.
         if event_name not in iteration.events:
-            msg = "Event '%s' not part of iteration '%s'." % (event_name,
-                iteration_name)
+            msg = "Event '%s' not part of iteration '%s'." % (
+                event_name, iteration_name)
             raise ValueError(msg)
         event = self.get_event(event_name)
         stations_for_event = iteration.events[event_name]["stations"].keys()
@@ -638,7 +662,8 @@ class Project(object):
         # Get all stations and create a dictionary for the input file
         # generator.
         stations = self.get_stations_for_event(event_name)
-        stations = [{"id": key, "latitude": value["latitude"],
+        stations = [{
+            "id": key, "latitude": value["latitude"],
             "longitude": value["longitude"],
             "elevation_in_m": value["elevation"],
             "local_depth_in_m": value["local_depth"]} for key, value in
@@ -696,12 +721,10 @@ class Project(object):
         elif diss.lower() == "true":
             diss = True
         else:
-            msg = ("is_dissipative value of '%s' unknown. Choose true or false.") % diss
+            msg = ("is_dissipative value of '%s' unknown. "
+                   "Choose true or false.") % diss
             raise ValueError(msg)
         gen.config.is_dissipative = diss
-
-        relax = solver["relaxation_parameter_list"]
-        #gen.config.nr_diss = relax["number_of_mechanisms"]
 
         gen.config.tau = solver["relaxation_parameter_list"]["tau"]
         gen.config.w = solver["relaxation_parameter_list"]["w"]
@@ -777,9 +800,10 @@ class Project(object):
         from lasif.tools.station_cache import StationCache
         if hasattr(self, "_station_cache"):
             return self._station_cache
-        self._station_cache = StationCache(os.path.join(self.paths["cache"],
-            "station_cache.sqlite"), self.paths["dataless_seed"],
-            self.paths["resp"], show_progress=show_progress)
+        self._station_cache = StationCache(
+            os.path.join(self.paths["cache"], "station_cache.sqlite"),
+            self.paths["dataless_seed"], self.paths["resp"],
+            show_progress=show_progress)
         return self._station_cache
 
     def _get_waveform_cache_file(self, event_name, tag, show_progress=True):
@@ -791,8 +815,8 @@ class Project(object):
         """
         from lasif.tools.waveform_cache import WaveformCache
 
-        waveform_db_file = os.path.join(self.paths["data"], event_name,
-            "%s_cache.sqlite" % tag)
+        waveform_db_file = os.path.join(
+            self.paths["data"], event_name, "%s_cache.sqlite" % tag)
         data_path = os.path.join(self.paths["data"], event_name, tag)
         if not os.path.exists(data_path):
             return False
@@ -831,8 +855,8 @@ class Project(object):
             chan_id = waveform["channel_id"]
             if chan_id not in available_channels:
                 continue
-            coordinates = self._get_coordinates_for_channel(waveform,
-                available_channels)
+            coordinates = self._get_coordinates_for_channel(
+                waveform, available_channels)
             if not coordinates:
                 msg = "No coordinates available for waveform file '%s'" % \
                     waveform["filename"]
@@ -846,7 +870,7 @@ class Project(object):
         return stations
 
     def _get_coordinates_for_channel(self, waveform_cache_entry,
-            channels_from_station_cache):
+                                     channels_from_station_cache):
         """
         Internal function used to grab station coordinates from the various
         sources.
@@ -883,8 +907,8 @@ class Project(object):
         else:
             # Now check if the station_coordinates are available in the
             # inventory DB and use those.
-            coords = get_station_coordinates(self.paths["inv_db_file"],
-                ".".join(channel_id.split(".")[:2]),
+            coords = get_station_coordinates(
+                self.paths["inv_db_file"], ".".join(channel_id.split(".")[:2]),
                 self.paths["cache"],
                 self.config["download_settings"]["arclink_username"])
             if coords:
@@ -916,12 +940,12 @@ class Project(object):
         import sys
 
         # Shared formatting for all.
-        ok_string = " %s[%sOK%s]%s" % (colorama.Style.BRIGHT,
-            colorama.Style.NORMAL + colorama.Fore.GREEN,
+        ok_string = " %s[%sOK%s]%s" % (
+            colorama.Style.BRIGHT, colorama.Style.NORMAL + colorama.Fore.GREEN,
             colorama.Fore.RESET + colorama.Style.BRIGHT,
             colorama.Style.RESET_ALL)
-        fail_string = " %s[%sFAIL%s]%s" % (colorama.Style.BRIGHT,
-            colorama.Style.NORMAL + colorama.Fore.RED,
+        fail_string = " %s[%sFAIL%s]%s" % (
+            colorama.Style.BRIGHT, colorama.Style.NORMAL + colorama.Fore.RED,
             colorama.Fore.RESET + colorama.Style.BRIGHT,
             colorama.Style.RESET_ALL)
 
@@ -938,24 +962,24 @@ class Project(object):
 
         # Update the caches.
         self._validate_event_files(ok_string, fail_string,
-            flush_point, add_report)
+                                   flush_point, add_report)
         self._update_all_waveform_caches(ok_string, fail_string,
-                flush_point, add_report)
+                                         flush_point, add_report)
         print "Updating station cache ...",
         self._update_station_cache(show_progress=False)
         print ok_string
 
         self._validate_station_files_availability(ok_string, fail_string,
-            flush_point, add_report)
+                                                  flush_point, add_report)
 
         self._validate_coordinate_deduction(ok_string, fail_string,
-            flush_point, add_report)
+                                            flush_point, add_report)
 
         if not reports:
             print("\n%sALL CHECKS PASSED%s\n"
-                "The data seems to be valid. If we missed something please "
-                "contact the developers." % (colorama.Fore.GREEN,
-                colorama.Fore.RESET))
+                  "The data seems to be valid. If we missed something please "
+                  "contact the developers." % (colorama.Fore.GREEN,
+                                               colorama.Fore.RESET))
         else:
             filename = os.path.join(self.get_output_folder(
                 "DATA_INTEGRITY_REPORT"), "report.txt")
@@ -964,14 +988,13 @@ class Project(object):
                 for report in reports:
                     fh.write(report.strip())
                     fh.write(seperator_string)
-            print("\n%sFAILED%s\n"
-                "Encountered %i errors!\nA report has been created at '%s'.\n"
-                % (colorama.Fore.RED,
-                colorama.Fore.RESET, total_error_count[0],
-                os.path.relpath(filename)))
+            print("\n%sFAILED%s\nEncountered %i errors!\n"
+                  "A report has been created at '%s'.\n" %
+                  (colorama.Fore.RED, colorama.Fore.RESET,
+                   total_error_count[0], os.path.relpath(filename)))
 
     def _update_all_waveform_caches(self, ok_string, fail_string,
-            flush_point, add_report):
+                                    flush_point, add_report):
         """
         Update all waveform caches.
         """
@@ -979,11 +1002,11 @@ class Project(object):
         for event_name in self.get_event_dict().iterkeys():
             flush_point()
             self._get_waveform_cache_file(event_name, "raw",
-                show_progress=False)
+                                          show_progress=False)
         print ok_string
 
     def _validate_coordinate_deduction(self, ok_string, fail_string,
-            flush_point, add_report):
+                                       flush_point, add_report):
         """
         Function validating that coordinates for all stations can be found.
 
@@ -992,19 +1015,18 @@ class Project(object):
         contain the coordinates.
         """
         print ("Confirming that station metainformation files exist for "
-            "all waveforms "),
-        channels_from_station_cache = self.station_cache.get_channels()
+               "all waveforms "),
+        #channels_from_station_cache = self.station_cache.get_channels()
         all_good = True
         for event_name in self.get_event_dict().iterkeys():
             flush_point()
             waveform_cache = self._get_waveform_cache_file(event_name, "raw",
-                show_progress=False)
+                                                           show_progress=False)
             if not waveform_cache:
                 continue
-            for channel in waveform_cache.get_values():
-                coordinates = self._get_coordinates_for_channel(channel,
-                    channels_from_station_cache)
-                #print coordinates
+            #for channel in waveform_cache.get_values():
+                #coordinates = self._get_coordinates_for_channel(
+                    #channel, channels_from_station_cache)
 
         if all_good is True:
             print ok_string
@@ -1012,20 +1034,20 @@ class Project(object):
             print fail_string
 
     def _validate_station_files_availability(self, ok_string, fail_string,
-            flush_point, add_report):
+                                             flush_point, add_report):
         """
         Checks that all waveform files have an associated station file.
         """
         from obspy import UTCDateTime
 
         print ("Confirming that station metainformation files exist for "
-            "all waveforms "),
+               "all waveforms "),
         station_cache = self.station_cache
         all_good = True
         for event_name in self.get_event_dict().iterkeys():
             flush_point()
             waveform_cache = self._get_waveform_cache_file(event_name, "raw",
-                show_progress=False)
+                                                           show_progress=False)
             if not waveform_cache:
                 continue
             for channel in waveform_cache.get_values():
@@ -1034,7 +1056,8 @@ class Project(object):
                     UTCDateTime(channel["starttime_timestamp"]))
                 if station_file is not None:
                     continue
-                add_report("WARNING: "
+                add_report(
+                    "WARNING: "
                     "No station metainformation available for the waveform "
                     "file\n\t'{waveform_file}'\n"
                     "If you have a station file for that channel make sure "
@@ -1049,7 +1072,7 @@ class Project(object):
             print fail_string
 
     def _validate_event_files(self, ok_string, fail_string, flush_point,
-            add_report):
+                              add_report):
         """
         Validates all event files in the currently active project.
 
@@ -1085,7 +1108,8 @@ class Project(object):
             flush_point()
             if validate_quakeml(filename) is not True:
                 all_valid = False
-                msg = ("ERROR: "
+                msg = (
+                    "ERROR: "
                     "The QuakeML file '{basename}' did not validate against "
                     "the QuakeML 1.2 schema. Unfortunately the error messages "
                     "delivered by lxml are not useful at all. To get useful "
@@ -1120,12 +1144,13 @@ class Project(object):
                         continue
                     ids[elem.get("publicID")].append(filename)
         ids = {key: list(set(value)) for (key, value) in ids.iteritems()
-            if len(value) > 1}
+               if len(value) > 1}
         if not ids:
             print ok_string
         else:
             print fail_string
-            add_report("Found the following duplicate publicIDs:\n" +
+            add_report(
+                "Found the following duplicate publicIDs:\n" +
                 "\n".join(["\t%s in files: %s" % (id_string,
                 ", ".join([os.path.basename(i) for i in faulty_files]))
                     for id_string, faulty_files in ids.iteritems()]),
@@ -1133,9 +1158,9 @@ class Project(object):
 
         def print_warning(filename, message):
             add_report("WARNING: File '{event_name}' "
-                "contains {msg}.\n".format(
-                event_name=os.path.basename(filename),
-                msg=message))
+                       "contains {msg}.\n".format(
+                           event_name=os.path.basename(filename),
+                           msg=message))
 
         # Performing simple sanity checks.
         print "\tPerforming some basic sanity checks ",
@@ -1148,7 +1173,7 @@ class Project(object):
             if len(cat) != 1:
                 all_good = False
                 print_warning(filename, "%i events instead of only one." %
-                    len(cat))
+                              len(cat))
             event = cat[0]
 
             # Sanity checks related to the origin.
@@ -1159,7 +1184,8 @@ class Project(object):
             origin = event.preferred_origin() or event.origins[0]
             if (origin.depth % 100.0):
                 all_good = False
-                print_warning(filename, "a depth of %.1f meters. This kind of "
+                print_warning(
+                    filename, "a depth of %.1f meters. This kind of "
                     "accuracy seems unrealistic. The depth in the QuakeML "
                     "file has to be specified in meters. Checking all other "
                     "QuakeML files for the correct units might be a good idea"
@@ -1167,7 +1193,7 @@ class Project(object):
             if (origin.depth > (800.0 * 1000.0)):
                 all_good = False
                 print_warning(filename, "a depth of more than 800 km. This is"
-                    "likely wrong.")
+                              "likely wrong.")
 
             # Sanity checks related to the magnitude.
             if not event.magnitudes:
@@ -1201,13 +1227,14 @@ class Project(object):
             # reasonable.
             mag_in_file = event.preferred_magnitude() or event.magnitudes[0]
             mag_in_file = mag_in_file.mag
-            M_0 = 1.0 / math.sqrt(2.0) * math.sqrt(tensor.m_rr ** 2 +
-                tensor.m_tt ** 2 + tensor.m_pp ** 2)
+            M_0 = 1.0 / math.sqrt(2.0) * math.sqrt(
+                tensor.m_rr ** 2 + tensor.m_tt ** 2 + tensor.m_pp ** 2)
             magnitude = 2.0 / 3.0 * math.log10(M_0) - 6.0
             # Use some buffer to account for different magnitudes.
             if not (mag_in_file - 1.0) < magnitude < (mag_in_file + 1.0):
                 all_good = False
-                print_warning(filename, "a moment tensor that would result in "
+                print_warning(
+                    filename, "a moment tensor that would result in "
                     "a moment magnitude of %.2f. The magnitude specified in "
                     "the file is %.2f. "
                     "Please check that all components of the tensor are in "
@@ -1246,7 +1273,8 @@ class Project(object):
             # duplicate event or interfering events.
             if time_diff <= 3600.0:
                 all_good = False
-                add_report("WARNING: "
+                add_report(
+                    "WARNING: "
                     "The time difference between events '{file_1}' and "
                     "'{file_2}' is only {diff:.1f} minutes. This could "
                     "be either due to a duplicate event or events that have "
@@ -1264,13 +1292,15 @@ class Project(object):
             (len(event_files) * "."),
         all_good = True
         for event in event_infos:
-            if utils.point_in_domain(event["latitude"],
+            if utils.point_in_domain(
+                    event["latitude"],
                     event["longitude"], self.domain["bounds"],
                     self.domain["rotation_axis"],
                     self.domain["rotation_angle"]) is True:
                 continue
             all_good = False
-            add_report("\nWARNING: "
+            add_report(
+                "\nWARNING: "
                 "Event '{filename}' is out of bounds of the chosen domain."
                 "\n".format(
                 filename=event["filename"]))
@@ -1292,16 +1322,19 @@ class Project(object):
         from lasif.window_manager import MisfitWindowManager
         from lasif.adjoint_src_manager import AdjointSourceManager
 
-        #==========================================================================================
+        #=====================================================================
         #- initialisations
-        #==========================================================================================
+        #=====================================================================
 
         iteration = self._get_iteration(iteration_name)
         long_iteration_name = "ITERATION_%s" % iteration_name
 
-        window_directory = os.path.join(self.paths["windows"], event_name, long_iteration_name)
-        ad_src_directory = os.path.join(self.paths["adjoint_sources"], event_name, long_iteration_name)
-        window_manager = MisfitWindowManager(window_directory, long_iteration_name, event_name)
+        window_directory = os.path.join(self.paths["windows"], event_name,
+                                        long_iteration_name)
+        ad_src_directory = os.path.join(self.paths["adjoint_sources"],
+                                        event_name, long_iteration_name)
+        window_manager = MisfitWindowManager(window_directory,
+                                             long_iteration_name, event_name)
         adj_src_manager = AdjointSourceManager(ad_src_directory)
 
         this_event = iteration.events[event_name]
@@ -1312,19 +1345,20 @@ class Project(object):
         all_coordinates = []
         _i = 0
 
-        output_folder = self.get_output_folder("adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
+        output_folder = self.get_output_folder(
+            "adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
 
-        #==========================================================================================
+        #======================================================================
         #- loop through all the stations of this event
-        #==========================================================================================
+        #======================================================================
 
         for station_name, station in this_event["stations"].iteritems():
-            
+
             try:
                 this_station = all_stations[station_name]
             except KeyError:
                 continue
-                
+
             station_weight = station["station_weight"]
             windows = window_manager.get_windows_for_station(station_name)
 
@@ -1335,28 +1369,29 @@ class Project(object):
 
             all_channels = {}
 
-            #- loop through all channels for that station -----------------------------------------
+            #- loop through all channels for that station --------------------
             for channel_windows in windows:
 
                 channel_id = channel_windows["channel_id"]
                 cumulative_weight = 0
                 all_data = []
 
-                #- loop through all windows of one channel ----------------------------------------
+                #- loop through all windows of one channel -------------------
                 for window in channel_windows["windows"]:
-                    
-                    #- get window properties 
+
+                    #- get window properties
                     window_weight = window["weight"]
                     starttime = window["starttime"]
                     endtime = window["endtime"]
                     #- load previously stored adjoint source
-                    data = adj_src_manager.get_adjoint_src(channel_id, starttime, endtime)
-                    #- lump all adjoint sources together
+                    data = adj_src_manager.get_adjoint_src(channel_id,
+                                                           starttime, endtime)
+                    # lump all adjoint sources together
                     all_data.append(window_weight * data)
-                    #- compute cumulative weight of all windows for that channel
+                    # compute cumulative weight of all windows for that channel
                     cumulative_weight += window_weight
 
-                #- apply weights for that channel -------------------------------------------------
+                #- apply weights for that channel -----------------------------
                 data = all_data.pop()
                 for d in all_data:
                     data += d
@@ -1371,16 +1406,23 @@ class Project(object):
                     continue
                 all_channels[component] = np.zeros(length)
 
-            #- Rotate. if needed ------------------------------------------------------------------
+            #- Rotate. if needed ----------------------------------------------
 
             rec_lat = this_station["latitude"]
             rec_lng = this_station["longitude"]
-            
+
             if self.domain["rotation_angle"]:
                 # Rotate the adjoint source location.
-                r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(rec_lat, rec_lng, self.domain["rotation_axis"], -self.domain["rotation_angle"])
+                r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(
+                    rec_lat, rec_lng, self.domain["rotation_axis"],
+                    -self.domain["rotation_angle"])
                 # Rotate the adjoint sources.
-                all_channels["N"], all_channels["E"], all_channels["Z"] = rotations.rotate_data(all_channels["N"], all_channels["E"], all_channels["Z"], rec_lat, rec_lng, self.domain["rotation_axis"], self.domain["rotation_angle"])
+                all_channels["N"], all_channels["E"], all_channels["Z"] = \
+                    rotations.rotate_data(
+                        all_channels["N"], all_channels["E"],
+                        all_channels["Z"], rec_lat, rec_lng,
+                        self.domain["rotation_axis"],
+                        self.domain["rotation_angle"])
             else:
                 r_rec_lat = rec_lat
                 r_rec_lng = rec_lng
@@ -1391,18 +1433,22 @@ class Project(object):
 
             _i += 1
 
-            adjoint_src_filename = os.path.join(output_folder, "ad_src_%i" % _i)
+            adjoint_src_filename = os.path.join(output_folder,
+                                                "ad_src_%i" % _i)
 
             all_coordinates.append((r_rec_colat, r_rec_lng, r_rec_depth))
 
-            #- Actually write the adjoint source file in SES3D specific format.--------------------
+            #- Actually write the adjoint source file in SES3D specific format.
 
             with open(adjoint_src_filename, "wt") as open_file:
                 open_file.write("-- adjoint source ------------------\n")
                 open_file.write("-- source coordinates (colat,lon,depth)\n")
-                open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng, r_rec_depth))
+                open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng,
+                                                r_rec_depth))
                 open_file.write("-- source time function (x, y, z) --\n")
-                for x, y, z in izip(-1.0 * all_channels[CHANNEL_MAPPING["X"]], all_channels[CHANNEL_MAPPING["Y"]], -1.0 * all_channels[CHANNEL_MAPPING["Z"]]):
+                for x, y, z in izip(-1.0 * all_channels[CHANNEL_MAPPING["X"]],
+                                    all_channels[CHANNEL_MAPPING["Y"]],
+                                    -1.0 * all_channels[CHANNEL_MAPPING["Z"]]):
                     open_file.write("%e %e %e\n" % (x, y, z))
                 open_file.write("\n")
 
@@ -1416,29 +1462,36 @@ class Project(object):
         print "Wrote %i adjoint sources to %s." % (_i, output_folder)
 
     def data_synthetic_iterator(self, event_name, iteration_name):
-        
+
         from lasif import rotations
         from obspy import read, Stream
 
-        #==========================================================================================
+        #======================================================================
         # Retrieve information on the event, iteration and waveforms
-        #==========================================================================================
+        #======================================================================
 
         event_info = self.get_event_info(event_name)
         iteration = self._get_iteration(iteration_name)
 
         iteration_stations = iteration.events[event_name]["stations"].keys()
 
-        stations = {key: value for key, value in self.get_stations_for_event(event_name).iteritems() if key in iteration_stations}
+        stations = {key: value for key, value in
+                    self.get_stations_for_event(event_name).iteritems()
+                    if key in iteration_stations}
 
-        waveforms = self._get_waveform_cache_file(event_name, iteration.get_processing_tag()).get_values()
+        waveforms = self._get_waveform_cache_file(
+            event_name, iteration.get_processing_tag()).get_values()
 
         long_iteration_name = "ITERATION_%s" % iteration_name
-        synthetics_path = os.path.join(self.paths["synthetics"], event_name, long_iteration_name)
-        synthetic_files = {os.path.basename(_i).replace("_", ""): _i for _i in glob.iglob(os.path.join(synthetics_path, "*"))}
+        synthetics_path = os.path.join(self.paths["synthetics"],
+                                       event_name, long_iteration_name)
+        synthetic_files = {os.path.basename(_i).replace("_", ""): _i
+                           for _i in glob.iglob(
+                               os.path.join(synthetics_path, "*"))}
 
         if not synthetic_files:
-            msg = "Could not find any synthetic files in '%s'." % synthetics_path
+            msg = "Could not find any synthetic files in '%s'." % \
+                synthetics_path
             raise ValueError(msg)
 
         SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
@@ -1449,8 +1502,10 @@ class Project(object):
                 self.current_index = -1
                 self.rot_angle = rot_angle
                 self.rot_axis = rot_axis
-                self.highpass_period = iteration.data_preprocessing["highpass_period"] 
-                self.lowpass_period = iteration.data_preprocessing["lowpass_period"]
+                self.highpass_period = \
+                    iteration.data_preprocessing["highpass_period"]
+                self.lowpass_period = \
+                    iteration.data_preprocessing["lowpass_period"]
 
             def next(self):
                 self.current_index += 1
@@ -1474,14 +1529,17 @@ class Project(object):
                 station_id, coordinates = self.items[self.current_index]
                 data = Stream()
 
-                # Now get the actual waveform files. Also find the corresponding station file and check the coordinates.
-                this_waveforms = {_i["channel_id"]: _i for _i in waveforms
+                # Now get the actual waveform files. Also find the
+                # corresponding station file and check the coordinates.
+                this_waveforms = {
+                    _i["channel_id"]: _i for _i in waveforms
                     if _i["channel_id"].startswith(station_id + ".")}
 
                 for key, value in this_waveforms.iteritems():
                     data += read(value["filename"])[0]
                 if not this_waveforms:
-                    msg = "Could not retrieve data for station '%s'." % station_id
+                    msg = "Could not retrieve data for station '%s'." % \
+                        station_id
                     warnings.warn(msg)
                     return None
 
@@ -1492,7 +1550,8 @@ class Project(object):
                         synthetics_filenames.append(path)
 
                 if len(synthetics_filenames) != 3:
-                    msg = "Found %i not 3 synthetics for station '%s'." % (len(synthetics_filenames), station_id)
+                    msg = "Found %i not 3 synthetics for station '%s'." % (
+                        len(synthetics_filenames), station_id)
                     warnings.warn(msg)
                     return None
 
@@ -1524,33 +1583,43 @@ class Project(object):
                 e_s_trace = synthetics.select(component="E")[0]
                 z_s_trace = synthetics.select(component="Z")[0]
 
-                #- Rotate the synthetics if nessesary. --------------------------------------------
+                #- Rotate the synthetics if nessesary. ------------------------
                 if self.rot_angle:
-                    # First rotate the station back to see, where it was recorded.
-                    lat, lng = rotations.rotate_lat_lon(coordinates["latitude"], coordinates["longitude"], self.rot_axis, -self.rot_angle)
+                    # First rotate the station back to see, where it was
+                    # recorded.
+                    lat, lng = rotations.rotate_lat_lon(
+                        coordinates["latitude"], coordinates["longitude"],
+                        self.rot_axis, -self.rot_angle)
                     # Rotate the synthetics.
-                    n, e, z = rotations.rotate_data(n_s_trace.data,e_s_trace.data, z_s_trace.data, lat, lng, self.rot_axis, self.rot_angle)
+                    n, e, z = rotations.rotate_data(
+                        n_s_trace.data, e_s_trace.data, z_s_trace.data, lat,
+                        lng, self.rot_axis, self.rot_angle)
                     n_s_trace.data = n
                     e_s_trace.data = e
                     z_s_trace.data = z
 
-                #- Scale the data to the synthetics. ----------------------------------------------
+                #- Scale the data to the synthetics. --------------------------
                 if n_d_trace:
-                    scaling_factor = n_s_trace.data.ptp() / n_d_trace.data.ptp()
+                    scaling_factor = n_s_trace.data.ptp() / \
+                        n_d_trace.data.ptp()
                     n_d_trace.stats.scaling_factor = scaling_factor
                     n_d_trace.data *= scaling_factor
                 if e_d_trace:
-                    scaling_factor = e_s_trace.data.ptp() / e_d_trace.data.ptp()
+                    scaling_factor = e_s_trace.data.ptp() / \
+                        e_d_trace.data.ptp()
                     e_d_trace.stats.scaling_factor = scaling_factor
                     e_d_trace.data *= scaling_factor
                 if z_d_trace:
-                    scaling_factor = z_s_trace.data.ptp() / z_d_trace.data.ptp()
+                    scaling_factor = z_s_trace.data.ptp() / \
+                        z_d_trace.data.ptp()
                     z_d_trace.stats.scaling_factor = scaling_factor
                     z_d_trace.data *= scaling_factor
 
-                return {"data": data, "synthetics": synthetics, "coordinates": coordinates}
+                return {"data": data, "synthetics": synthetics,
+                        "coordinates": coordinates}
 
-        return TwoWayIter(self.domain["rotation_angle"], self.domain["rotation_axis"])
+        return TwoWayIter(self.domain["rotation_angle"],
+                          self.domain["rotation_axis"])
 
     def has_station_file(self, channel_id, time):
         """
