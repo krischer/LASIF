@@ -35,9 +35,17 @@ def project(tmpdir):
     every time that will be deleted after the test has finished so every test
     can mess with the contents of the folder.
     """
+    # A new project will be created many times. ObsPy complains if objects that
+    # already exists are created again.
+    obspy.core.event.ResourceIdentifier\
+        ._ResourceIdentifier__resource_id_weak_dict.clear()
+
+    # Copy the example project
     example_project = os.path.join(DATA, "ExampleProject")
     project_path = os.path.join(str(tmpdir), "ExampleProject")
     shutil.copytree(example_project, project_path)
+
+    # Init it. This will create the missing paths.
     return Project(project_path)
 
 
@@ -191,6 +199,7 @@ def test_domain_plotting(tmpdir):
     this_image = os.path.join(str(tmpdir), "simple_test_domain.png")
 
     plt.savefig(this_image)
+    plt.close()
 
     assert images_are_identical(baseline_image, this_image)
 
@@ -216,3 +225,34 @@ def test_event_handling(project):
     assert isinstance(event_2, obspy.core.event.Event)
     events = sorted([event_1, event_2])
     assert events == sorted(project.get_all_events())
+
+
+def test_event_plotting(project):
+    """
+    Tests the plotting of all events.
+
+    The commands supports three types of plots: Beachballs on a map and depth
+    and time distribution histograms.
+    """
+    baseline_image = os.path.join(IMAGES, "two_events_plot_map.png")
+    this_image = os.path.join(project.paths["root"], "two_events_plot_map.png")
+    project.plot_events(plot_type="map", show_plot=False)
+    plt.savefig(this_image)
+    assert images_are_identical(baseline_image, this_image)
+    plt.close()
+
+    baseline_image = os.path.join(IMAGES, "two_events_plot_depth.png")
+    this_image = os.path.join(project.paths["root"],
+                              "two_events_plot_depth.png")
+    project.plot_events(plot_type="depth", show_plot=False)
+    plt.savefig(this_image)
+    assert images_are_identical(baseline_image, this_image)
+    plt.close()
+
+    baseline_image = os.path.join(IMAGES, "two_events_plot_time.png")
+    this_image = os.path.join(project.paths["root"],
+                              "two_events_plot_time.png")
+    project.plot_events(plot_type="time", show_plot=False)
+    plt.savefig(this_image)
+    assert images_are_identical(baseline_image, this_image)
+    plt.close()
