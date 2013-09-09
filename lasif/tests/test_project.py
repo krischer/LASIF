@@ -285,3 +285,59 @@ def test_event_info_retrieval(project):
     assert event_info["region"] == "TURKEY"
     assert event_info["magnitude"] == 5.9
     assert event_info["magnitude_type"] == "Mwc"
+
+
+def test_waveform_cache_usage(project):
+    """
+    Tests the automatic creation and usage of the waveform caches.
+    """
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    waveform_cache = os.path.join(project.paths["data"], event_name,
+                                  "raw_cache.sqlite")
+    waveform_folder = os.path.join(project.paths["data"], event_name, "raw")
+
+    # The example project does not yet have the cache.
+    assert not os.path.exists(waveform_cache)
+
+    # Create the cache.
+    a = time.time()
+    cache = project._get_waveform_cache_file(event_name, "raw",
+                                             show_progress=False)
+    b = time.time()
+    time_for_uncached_cache_retrieval = b - a
+
+    # Make sure it now exists.
+    assert os.path.exists(waveform_cache)
+
+    # Accessing it again should be much faster as it already exists.
+    a = time.time()
+    cache = project._get_waveform_cache_file(event_name, "raw",
+                                             show_progress=False)
+    b = time.time()
+    time_for_cached_cache_retrieval = b - a
+
+    assert time_for_cached_cache_retrieval < time_for_uncached_cache_retrieval
+
+    # The cache has to point to the correct folder and file.
+    assert cache.waveform_folder == waveform_folder
+    assert cache.cache_db_file == waveform_cache
+    # Make sure the cache contains all files.
+    assert sorted(cache.files["waveform"]) == \
+        sorted([os.path.join(waveform_folder, _i)
+                for _i in os.listdir(waveform_folder)])
+
+    # Tests an exemplary file.
+    filename = os.path.join(project.paths["data"], event_name, "raw",
+                            "HL.ARG..BHZ.mseed")
+    assert os.path.exists(filename)
+    info = cache.get_details(filename)[0]
+    assert info["network"] == "HL"
+    assert info["station"] == "ARG"
+    assert info["location"] == ""
+    assert info["channel"] == "BHZ"
+    # The file does not contain information about the location of the station.
+    assert info["latitude"] is None
+    assert info["longitude"] is None
+    assert info["elevation_in_m"] is None
+    assert info["local_depth_in_m"] is None
+
