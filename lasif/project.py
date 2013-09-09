@@ -493,7 +493,7 @@ class Project(object):
             self.get_event(event)
         return self._seismic_events.values()
 
-    def plot_event(self, event_name):
+    def plot_event(self, event_name, show_plot=True):
         """
         Plots information about one event on the map.
         """
@@ -524,9 +524,10 @@ class Project(object):
         # Plot the beachball for one event.
         visualization.plot_events([event], map_object=map)
 
-        plt.show()
+        if show_plot:
+            plt.show()
 
-    def plot_events(self, plot_type="map"):
+    def plot_events(self, plot_type="map", show_plot=True):
         """
         Plots the domain and beachballs for all events on the map.
 
@@ -557,8 +558,8 @@ class Project(object):
         else:
             msg = "Unknown plot_type"
             raise LASIFException(msg)
-
-        plt.show()
+        if show_plot:
+            plt.show()
 
     def plot_raydensity(self):
         """
