@@ -306,7 +306,7 @@ class Project(object):
             events[event_name] = event
         return events
 
-    def plot_domain(self):
+    def plot_domain(self, show_plot=True):
         """
         Plots the simulation domain and the actual physical domain.
 
@@ -321,7 +321,7 @@ class Project(object):
             bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=True, show_plot=True, zoom=True)
+            plot_simulation_domain=True, show_plot=show_plot, zoom=True)
 
     def get_kernel_dir(self, iteration_name, event_name):
         return os.path.join(self.paths["kernels"], event_name,

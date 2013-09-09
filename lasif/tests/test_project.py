@@ -10,11 +10,34 @@ Test cases for the project class.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import copy
+import inspect
+import matplotlib.pylab as plt
 import os
 import pytest
 import time
 
 from lasif.project import Project, LASIFException
+
+
+# Folder where all the images for comparison are stored.
+IMAGES = os.path.join(os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe()))), "baseline_images")
+
+
+def images_are_identical(expected, actual):
+    """
+    Partially copied from ObsPy
+    """
+    from matplotlib.testing.compare import compare_images as mpl_compare_images
+    from matplotlib.pyplot import rcdefaults
+    # set matplotlib builtin default settings for testing
+    rcdefaults()
+    import locale
+    locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
+    if mpl_compare_images(expected, actual, 0.001) is None:
+        return True
+    else:
+        return False
 
 
 def test_initalizing_project_in_wrong_path():
@@ -138,3 +161,18 @@ def test_config_file_caching(tmpdir):
     # Assert that nothing changed.
     assert config == pr.config
     assert domain == pr.domain
+
+
+def test_domain_plotting(tmpdir):
+    """
+    Very simple domain plotting test.
+    """
+    pr = Project(str(tmpdir), init_project="TestProject")
+    pr.plot_domain(show_plot=False)
+
+    baseline_image = os.path.join(IMAGES, "simple_test_domain.png")
+    this_image = os.path.join(str(tmpdir), "simple_test_domain.png")
+
+    plt.savefig(this_image)
+
+    assert images_are_identical(baseline_image, this_image)
