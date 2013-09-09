@@ -256,3 +256,32 @@ def test_event_plotting(project):
     plt.savefig(this_image)
     assert images_are_identical(baseline_image, this_image)
     plt.close()
+
+
+def test_event_info_retrieval(project):
+    """
+    Test the dictionary retrieved from each event.
+
+    The dictionary is used to extract information about a single event.
+    """
+    event_info = project.get_event_info(
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert event_info["latitude"] == 38.82
+    assert event_info["longitude"] == 40.14
+    assert event_info["depth_in_km"] == 4.5
+    assert event_info["origin_time"] == \
+        obspy.UTCDateTime(2010, 3, 24, 14, 11, 31)
+    assert event_info["region"] == "TURKEY"
+    assert event_info["magnitude"] == 5.1
+    assert event_info["magnitude_type"] == "Mwc"
+
+    event_info = project.get_event_info(
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
+    assert event_info["latitude"] == 39.15
+    assert event_info["longitude"] == 29.1
+    assert event_info["depth_in_km"] == 7.0
+    assert event_info["origin_time"] == \
+        obspy.UTCDateTime(2011, 5, 19, 20, 15, 22, 900000)
+    assert event_info["region"] == "TURKEY"
+    assert event_info["magnitude"] == 5.9
+    assert event_info["magnitude_type"] == "Mwc"
