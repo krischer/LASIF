@@ -12,8 +12,10 @@ Test cases for the project class.
 import copy
 import inspect
 import matplotlib.pylab as plt
+import obspy
 import os
 import pytest
+import shutil
 import time
 
 from lasif.project import Project, LASIFException
@@ -22,6 +24,21 @@ from lasif.project import Project, LASIFException
 # Folder where all the images for comparison are stored.
 IMAGES = os.path.join(os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe()))), "baseline_images")
+DATA = os.path.join(os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe()))), "data")
+
+
+@pytest.fixture
+def project(tmpdir):
+    """
+    Fixture returning the initialized example project. It will be a fresh copy
+    every time that will be deleted after the test has finished so every test
+    can mess with the contents of the folder.
+    """
+    example_project = os.path.join(DATA, "ExampleProject")
+    project_path = os.path.join(str(tmpdir), "ExampleProject")
+    shutil.copytree(example_project, project_path)
+    return Project(project_path)
 
 
 def images_are_identical(expected, actual):
@@ -176,3 +193,26 @@ def test_domain_plotting(tmpdir):
     plt.savefig(this_image)
 
     assert images_are_identical(baseline_image, this_image)
+
+
+def test_event_handling(project):
+    """
+    Tests the event handling.
+    """
+    # Get the event dictionary. This is a simple mapping between internal event
+    # name and QuakeML filename.
+    event_dict = project.get_event_dict()
+    assert len(event_dict) == 2
+    assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in event_dict
+    assert event_dict["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"].endswith(
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml")
+    assert event_dict["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"].endswith(
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml")
+
+    # Test single and multiple event retrieval.
+    event_1 = project.get_event("GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
+    event_2 = project.get_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert isinstance(event_1, obspy.core.event.Event)
+    assert isinstance(event_2, obspy.core.event.Event)
+    events = sorted([event_1, event_2])
+    assert events == sorted(project.get_all_events())
