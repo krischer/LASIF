@@ -250,7 +250,7 @@ def _get_default_solver_settings(solver):
     Helper function returning etree representation of a solver's default
     settings.
     """
-    known_solvers = ["ses3d_4_0A"]
+    known_solvers = ["ses3d_4_0"]
     if solver.lower() == "ses3d_4_0":
         from lasif.utils import generate_ses3d_4_0_template
         return generate_ses3d_4_0_template()

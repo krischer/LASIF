@@ -370,3 +370,69 @@ def test_station_filename_generator(project):
     resp_filename_2 = project.get_station_filename("A", "B", "C", "D", "RESP")
     assert resp_filename_1 != resp_filename_2
     assert os.path.dirname(resp_filename_2) == project.paths["resp"]
+
+
+def test_generating_new_iteration(project):
+    """
+    Tests that iteration creation works.
+    """
+    assert os.listdir(project.paths["iterations"]) == []
+
+    # Using an invalid solver raises.
+    with pytest.raises(LASIFException) as excinfo:
+        project.create_new_iteration("1", "unknown_solver")
+    msg = excinfo.value.message
+    assert "not known" in msg
+    assert "unknown_solver" in msg
+
+    # Nothing should have happened.
+    assert os.listdir(project.paths["iterations"]) == []
+
+    # Now actually create a new iteration.
+    project.create_new_iteration("1", "ses3d_4_0")
+    assert os.listdir(project.paths["iterations"]) == ["ITERATION_1.xml"]
+
+    # Creating an already existing iteration raises.
+    with pytest.raises(LASIFException) as excinfo:
+        project.create_new_iteration("1", "ses3d_4_0")
+    assert excinfo.value.message.lower() == "iteration already exists."
+
+
+def test_iteration_handling(project):
+    """
+    Tests the managing of the iterations.
+    """
+    # First create two iterations.
+    project.create_new_iteration("1", "ses3d_4_0")
+    project.create_new_iteration("2", "ses3d_4_0")
+    assert sorted(os.listdir(project.paths["iterations"])) == \
+        sorted(["ITERATION_1.xml", "ITERATION_2.xml"])
+
+    # Make sure they are found correctly.
+    assert project.get_iteration_dict() == {key: os.path.join(
+        project.paths["iterations"], "ITERATION_" + key + ".xml")
+        for key in ["1", "2"]}
+
+    iteration = project._get_iteration("1")
+
+    # Assert that the aspects of the example project did get picked up by the
+    # iteration.
+    assert len(iteration.events) == 2
+
+    assert len(iteration.events["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
+               ["stations"]) == 4
+    assert len(iteration.events["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"]
+               ["stations"]) == 0
+    assert iteration.iteration_name == "1"
+    assert iteration.source_time_function == "Filtered Heaviside"
+    assert iteration.data_preprocessing["lowpass_period"] == 8.0
+    assert iteration.data_preprocessing["highpass_period"] == 100.0
+
+    # Assert the processing parameters. This is somewhat redundant and should
+    # rather be tested in the iteration test suite.
+    process_params = iteration.get_process_params()
+    assert process_params["npts"] == 500
+    assert process_params["dt"] == 0.75
+    assert process_params["stf"] == "Filtered Heaviside"
+    assert process_params["lowpass"] == 0.125
+    assert process_params["highpass"] == 0.01
