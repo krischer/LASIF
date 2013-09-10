@@ -132,7 +132,7 @@ def preprocess_file(file_info):
 
     #==========================================================================
     # Some basic checks on the data.
-    #==========================================================================  
+    #==========================================================================
 
     # non-zero length
 
@@ -187,9 +187,9 @@ def preprocess_file(file_info):
     # Step 3: Instrument correction
     # Correct seismograms to velocity in m/s.
     #==========================================================================
-    
+
     station_file = file_info["station_filename"]
-    
+
     #- check if the station file actually exists ==============================
     if not file_info["station_filename"]:
         fid_log.write("* Could not find station file for the relevant time window. Skipped,\n")
@@ -342,11 +342,14 @@ def pool_imap_unordered(function, iterable, processes):
         sending_queue.put(None)
 
 
-def launch_processing(data_generator):
+def launch_processing(data_generator, waiting_time=4.0):
     """
     Launch the parallel processing.
 
     :param data_generator: A generator yielding file information as required.
+    :param waiting_time: The time spent sleeping after the initial message has
+        been printed. Useful if the user should be given the chance to cancel
+        the processing.
     """
     # Use twice as many processes as cores. The whole operation does a lot of
     # I/O thus more time is available for calculations.
@@ -357,7 +360,7 @@ def launch_processing(data_generator):
         colorama.Fore.GREEN, processes, colorama.Style.RESET_ALL)
 
     # Give the user some time to read the message.
-    time.sleep(4.0)
+    time.sleep(waiting_time)
 
     file_count = 0
     for _ in pool_imap_unordered(preprocess_file, data_generator, processes):

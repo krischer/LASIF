@@ -436,3 +436,21 @@ def test_iteration_handling(project):
     assert process_params["stf"] == "Filtered Heaviside"
     assert process_params["lowpass"] == 0.125
     assert process_params["highpass"] == 0.01
+
+
+def test_preprocessing_runs(project):
+    """
+    Simple tests to assure the preprocessing actually runs. Does not test if it
+    does the right thing but will at least assure the program flow works as
+    expected.
+    """
+    project.create_new_iteration("1", "ses3d_4_0")
+    processing_tag = project._get_iteration("1").get_processing_tag()
+    event_data_dir = os.path.join(
+        project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert processing_tag not in os.listdir(event_data_dir)
+    project.preprocess_data("1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+                            waiting_time=0.0)
+    assert processing_tag in os.listdir(event_data_dir)
+    contents = os.listdir(os.path.join(event_data_dir, processing_tag))
+    assert len(contents) == 4

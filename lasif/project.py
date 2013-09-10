@@ -397,9 +397,13 @@ class Project(object):
         iterations = self.get_iteration_dict()
         return Iteration(iterations[iteration_name])
 
-    def preprocess_data(self, iteration_name, event_id):
+    def preprocess_data(self, iteration_name, event_id, waiting_time=4.0):
         """
         Preprocesses all data for a given iteration.
+
+        :param waiting_time: The time spent sleeping after the initial message
+            has been printed. Useful if the user should be given the chance to
+            cancel the processing.
         """
         from lasif import preprocessing
         import obspy
@@ -478,7 +482,8 @@ class Project(object):
 
                         yield ret_dict
 
-        count = preprocessing.launch_processing(processing_data_generator())
+        count = preprocessing.launch_processing(processing_data_generator(),
+                                                waiting_time=waiting_time)
 
         print colorama.Fore.GREEN + \
             ("\nDONE - Preprocessed %i files." % count) + \
