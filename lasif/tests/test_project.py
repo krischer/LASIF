@@ -454,3 +454,16 @@ def test_preprocessing_runs(project):
     assert processing_tag in os.listdir(event_data_dir)
     contents = os.listdir(os.path.join(event_data_dir, processing_tag))
     assert len(contents) == 4
+
+
+def test_single_event_plot(project):
+    """
+    Tests the plotting of a single event.
+    """
+    baseline_image = os.path.join(IMAGES, "single_event_plot.png")
+    this_image = os.path.join(project.paths["root"], "single_event_plot.png")
+    project.plot_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+                       show_plot=False)
+    plt.savefig(this_image)
+    assert images_are_identical(baseline_image, this_image)
+    plt.close()
