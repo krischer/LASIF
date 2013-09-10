@@ -481,3 +481,39 @@ def test_simple_raydensity(project):
     plt.savefig(this_image, dpi=25)
     assert images_are_identical(baseline_image, this_image)
     plt.close()
+
+
+def test_input_file_invocation(project):
+    """
+    Tests if the input file generation actually creates some files and works in
+    the first place.
+
+    Does not test the input files. That is the responsibility of the input file
+    generator module.
+    """
+    assert os.listdir(project.paths["output"]) == []
+    project.create_new_iteration("1", "ses3d_4_0")
+
+    # Normal simulation.
+    project.generate_input_files(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "normal simulation")
+    output_dir = [_i for _i in os.listdir(project.paths["output"])
+                  if "normal_simulation" in _i][0]
+    assert len(os.listdir(os.path.join(
+        project.paths["output"], output_dir))) != 0
+
+    # Adjoint forward.
+    project.generate_input_files(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "adjoint forward")
+    output_dir = [_i for _i in os.listdir(project.paths["output"])
+                  if "adjoint_forward" in _i][0]
+    assert len(os.listdir(os.path.join(
+        project.paths["output"], output_dir))) != 0
+
+    # Adjoint reverse.
+    project.generate_input_files(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "adjoint reverse")
+    output_dir = [_i for _i in os.listdir(project.paths["output"])
+                  if "adjoint_reverse" in _i][0]
+    assert len(os.listdir(os.path.join(
+        project.paths["output"], output_dir))) != 0

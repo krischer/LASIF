@@ -779,8 +779,8 @@ class Project(object):
         # output
         #======================================================================
         output_dir = self.get_output_folder(
-            "input_files___ITERATION_%s__EVENT_%s" % (iteration_name,
-            event_name))
+            "input_files___ITERATION_%s__%s__EVENT_%s" % (iteration_name,
+            simulation_type.replace(" ", "_"), event_name))
 
         gen.write(format="ses3d_4_0", output_dir=output_dir)
         print "Written files to '%s'." % output_dir
