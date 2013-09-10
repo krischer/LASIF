@@ -467,3 +467,17 @@ def test_single_event_plot(project):
     plt.savefig(this_image)
     assert images_are_identical(baseline_image, this_image)
     plt.close()
+
+
+def test_simple_raydensity(project):
+    """
+    Tests the plotting of a single event.
+    """
+    baseline_image = os.path.join(IMAGES, "simple_raydensity_plot.png")
+    this_image = os.path.join(project.paths["root"],
+                              "simple_raydensity_plot.png")
+    project.plot_raydensity(show_plot=False, save_plot=False)
+    # Use a low dpi to keep the test filesize in check.
+    plt.savefig(this_image, dpi=25)
+    assert images_are_identical(baseline_image, this_image)
+    plt.close()

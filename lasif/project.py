@@ -566,7 +566,7 @@ class Project(object):
         if show_plot:
             plt.show()
 
-    def plot_raydensity(self):
+    def plot_raydensity(self, show_plot=False, save_plot=True):
         """
         Plots the raydensity.
         """
@@ -602,10 +602,14 @@ class Project(object):
 
         plt.tight_layout()
 
-        outfile = os.path.join(self.get_output_folder("raydensity_plot"),
-                               "raydensity.png")
-        plt.savefig(outfile, dpi=200)
-        print "Saved picture at %s" % outfile
+        if show_plot:
+            plt.show()
+
+        if save_plot:
+            outfile = os.path.join(self.get_output_folder("raydensity_plot"),
+                                   "raydensity.png")
+            plt.savefig(outfile, dpi=200)
+            print "Saved picture at %s" % outfile
 
     def get_event_info(self, event_name):
         """
