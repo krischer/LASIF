@@ -10,6 +10,7 @@ Test cases for the project class.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import copy
+import glob
 import inspect
 import matplotlib.pylab as plt
 import obspy
@@ -341,3 +342,31 @@ def test_waveform_cache_usage(project):
     assert info["elevation_in_m"] is None
     assert info["local_depth_in_m"] is None
 
+
+def test_station_filename_generator(project):
+    """
+    Make sure existing stations are not overwritten by creating unique new
+    station filenames. This is used when downloading new station files.
+    """
+    new_seed_filename = \
+        project.get_station_filename("HL", "ARG", "", "BHZ", "datalessSEED")
+    existing_seed_filename = glob.glob(os.path.join(
+        project.paths["dataless_seed"], "dataless.HL_*"))[0]
+
+    assert os.path.exists(existing_seed_filename)
+    assert existing_seed_filename != new_seed_filename
+    assert os.path.dirname(existing_seed_filename) == \
+        os.path.dirname(new_seed_filename)
+    assert os.path.dirname(new_seed_filename) == project.paths["dataless_seed"]
+
+    # Test RESP file name generation.
+    resp_filename_1 = project.get_station_filename("A", "B", "C", "D", "RESP")
+    assert not os.path.exists(resp_filename_1)
+    assert os.path.dirname(resp_filename_1) == project.paths["resp"]
+    with open(resp_filename_1, "wt") as fh:
+        fh.write("blub")
+    assert os.path.exists(resp_filename_1)
+
+    resp_filename_2 = project.get_station_filename("A", "B", "C", "D", "RESP")
+    assert resp_filename_1 != resp_filename_2
+    assert os.path.dirname(resp_filename_2) == project.paths["resp"]
