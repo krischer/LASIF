@@ -1106,7 +1106,7 @@ class Project(object):
         import math
         from obspy import readEvents
         from obspy.core.event import ResourceIdentifier
-        from obspy.core.quakeml import validate as validate_quakeml
+        from obspy.core.quakeml import _validate as validate_quakeml
         from lasif import utils
         from lxml import etree
 
