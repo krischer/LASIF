@@ -33,8 +33,8 @@ class OneDimensionalModel(object):
         if model_name.lower() == "ak135-F":
             self._read_ak135f()
         else:
-            msg = "Unknown model '%s'. Possible models: %s" % (model_name,
-                ", ".join(MODELS.keys()))
+            msg = "Unknown model '%s'. Possible models: %s" % (
+                model_name, ", ".join(MODELS.keys()))
             raise ValueError(msg)
 
     def _read_ak135f(self):
