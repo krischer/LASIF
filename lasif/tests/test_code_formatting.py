@@ -39,7 +39,6 @@ def test_flake8():
             continue
         for py_file in filenames:
             file_count += 1
-            print os.path.join(dirpath, py_file)
             full_path = os.path.join(dirpath, py_file)
         if flake8.main.check_file(full_path):
             error_count += 1
