@@ -3,6 +3,10 @@
 """
 Test cases for the project class.
 
+Some of these tests are not actually verifying the results but rather assure
+that all components of LASIF are able to work together so these test can be
+viewed as integration tests.
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
@@ -481,6 +485,29 @@ def test_simple_raydensity(project):
     plt.savefig(this_image, dpi=25)
     assert images_are_identical(baseline_image, this_image)
     plt.close()
+
+
+def test_has_station_file(project):
+    """
+    Tests if the has_station_file_method().
+    """
+    assert project.has_station_file(
+        "HL.ARG..BHZ", obspy.UTCDateTime(2010, 3, 24, 14, 30)) is True
+    assert project.has_station_file(
+        "HT.SIGR..HHZ", obspy.UTCDateTime(2010, 3, 24, 14, 30)) is True
+    assert project.has_station_file(
+        "KO.KULA..BHZ", obspy.UTCDateTime(2010, 3, 24, 14, 30)) is True
+    assert project.has_station_file(
+        "KO.RSDY..BHZ", obspy.UTCDateTime(2010, 3, 24, 14, 30)) is True
+
+    assert project.has_station_file(
+        "HL.ARG..BHZ", obspy.UTCDateTime(1970, 3, 24, 14, 30)) is False
+    assert project.has_station_file(
+        "HT.SIGR..HHZ", obspy.UTCDateTime(1970, 3, 24, 14, 30)) is False
+    assert project.has_station_file(
+        "KO.KULA..BHZ", obspy.UTCDateTime(1970, 3, 24, 14, 30)) is False
+    assert project.has_station_file(
+        "KO.RSDY..BHZ", obspy.UTCDateTime(1970, 3, 24, 14, 30)) is False
 
 
 def test_input_file_invocation(project):
