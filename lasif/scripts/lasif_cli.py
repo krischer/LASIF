@@ -212,6 +212,7 @@ def lasif_download_waveforms(args):
         channel_priority_list=channel_priority_list, logfile=logfile,
         download_folder=download_folder, waveform_format="mseed")
 
+
 @add_command_to_group("Data Acquisition")
 def lasif_download_stations(args):
     """
@@ -277,6 +278,7 @@ def lasif_list_events(args):
     for event in events.iterkeys():
         print ("\t%s" % event)
 
+
 @add_command_to_group("Project Management")
 def lasif_list_models(args):
     """
@@ -291,7 +293,7 @@ def lasif_list_models(args):
         print ("\t%s" % model)
 
 
-@add_command_to_group("Project Management")
+@add_command_to_group("Plotting")
 def lasif_plot_kernel(args):
     """
     Usage lasif plot_kernel ITERATION_NAME EVENT_NAME
@@ -480,7 +482,7 @@ def lasif_plot_stf(args):
     lasif.visualization.plot_tf(stf["data"], stf["delta"])
 
 
-@add_command_to_group("Project Management")
+@add_command_to_group("Iteration Management")
 def lasif_generate_input_files(args):
     """
     Usage: lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
@@ -761,7 +763,7 @@ def lasif_plot_selected_windows(args):
     print "Done. Written output to folder %s." % output_folder
 
 
-@add_command_to_group("Iteration Management")
+@add_command_to_group("Project Management")
 def lasif_validate_data(args):
     """
     Usage lasif validate_data
@@ -835,10 +837,18 @@ def _print_generic_help(fcts):
     """
     Small helper function printing a generic help message.
     """
-    print(colorama.Style.BRIGHT + "LASIF - LArge Scale Inversion Framework\n"
-          + colorama.Style.RESET_ALL)
-    print(colorama.Fore.GREEN + "Usage: lasif FUNCTION PARAMETERS\n" +
-          colorama.Style.RESET_ALL)
+    print(80 * "#" + "\n")
+    header = ("{default_style}LASIF - LArge Scale {inverted_style}Inversion"
+              "{default_style} Framework{reset_style}".format(
+              default_style=colorama.Style.BRIGHT + colorama.Fore.WHITE +
+                  colorama.Back.BLACK,
+              inverted_style=colorama.Style.BRIGHT + colorama.Fore.BLACK +
+                  colorama.Back.WHITE,
+              reset_style=colorama.Style.RESET_ALL))
+    print "\t" + header
+    print "\n\thttp://krischer.github.io/LASIF"
+    print("\n" + 80 * "#")
+    print("\nUsage: lasif FUNCTION PARAMETERS\n")
 
     # Group the functions. Functions with no group will be placed in the group
     # "Misc".
