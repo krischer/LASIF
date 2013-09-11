@@ -1,3 +1,5 @@
 doc/_build/*
 lasif.egg-info/*
 *.pyc
+.coverage
+htmlcov
