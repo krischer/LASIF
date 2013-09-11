@@ -1,0 +1,16 @@
+language: python
+python:
+  - "2.7"
+virtualenv:
+  system_site_packages: true
+before_install:
+  - lsb_release -a # get info on the operating system
+  - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-matplotlib python-suds python-lxml python-sqlalchemy python-m2crypto python-mpltoolkits.basemap
+  - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
+  - pip install geographiclib
+  - pip install requests
+  - pip install progressbar
+  - pip install https://github.com/obspy/obspy/archive/master.zip
+  - pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
+install:
+  - pip install --use-mirrors .
