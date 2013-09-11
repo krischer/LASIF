@@ -38,9 +38,10 @@ def test_flake8():
         if not filenames:
             continue
         for py_file in filenames:
+            print os.path.join(dirpath, py_file)
             file_count += 1
             full_path = os.path.join(dirpath, py_file)
-        if flake8.main.check_file(full_path):
-            error_count += 1
+            if flake8.main.check_file(full_path):
+                error_count += 1
     assert file_count > 10
     assert not error_count
