@@ -11,9 +11,9 @@ before_install:
   - pip install --use-mirrors progressbar
   - pip install --use-mirrors flake8
   - pip install --use-mirrors colorama
-  - pip install https://github.com/obspy/obspy/archive/master.zip
-  - pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
+  - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
+  - pip install  --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 script:
   - cd lasif; py.test
 install:
-  - pip install --use-mirrors .
+  - pip install  --no-deps --use-mirrors .
