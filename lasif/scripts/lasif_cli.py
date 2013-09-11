@@ -793,6 +793,16 @@ def lasif_validate_data(args):
     proj.validate_data()
 
 
+def lasif_tutorial(args):
+    """
+    Usage lasif tutorial
+
+    Opens the tutorial.
+    """
+    import webbrowser
+    webbrowser.open("http://krischer.github.io/LASIF/")
+
+
 def main():
     """
     Main entry point for the script collection.
