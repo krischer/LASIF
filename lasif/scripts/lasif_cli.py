@@ -184,11 +184,12 @@ def lasif_download_waveforms(args):
         os.makedirs(download_folder)
 
     channel_priority_list = ["HH[Z,N,E]", "BH[Z,N,E]", "MH[Z,N,E]",
-        "EH[Z,N,E]", "LH[Z,N,E]"]
+                             "EH[Z,N,E]", "LH[Z,N,E]"]
 
     logfile = os.path.join(proj.paths["logs"], "waveform_download_log.txt")
 
-    downloader.download_waveforms(min_lat, max_lat, min_lng, max_lng,
+    downloader.download_waveforms(
+        min_lat, max_lat, min_lng, max_lng,
         domain["rotation_axis"], domain["rotation_angle"], starttime, endtime,
         proj.config["download_settings"]["arclink_username"],
         channel_priority_list=channel_priority_list, logfile=logfile,
@@ -225,7 +226,8 @@ def lasif_download_stations(args):
 
     # Get all channels.
     channels = proj._get_waveform_cache_file(event_name, "raw").get_values()
-    channels = [{"channel_id": _i["channel_id"], "network": _i["network"],
+    channels = [{
+        "channel_id": _i["channel_id"], "network": _i["network"],
         "station": _i["station"], "location": _i["location"],
         "channel": _i["channel"], "starttime": starttime, "endtime": endtime}
         for _i in channels]
@@ -237,7 +239,8 @@ def lasif_download_stations(args):
             continue
         channels_to_download.append(channel)
 
-    downloader.download_stations(channels_to_download, proj.paths["resp"],
+    downloader.download_stations(
+        channels_to_download, proj.paths["resp"],
         proj.paths["station_xml"], proj.paths["dataless_seed"],
         logfile=os.path.join(proj.paths["logs"], "station_download_log.txt"),
         arclink_user=proj.config["download_settings"]["arclink_username"],
@@ -252,7 +255,7 @@ def lasif_list_events(args):
     """
     events = _find_project_root(".").get_event_dict()
     print("%i event%s in project:" % (len(events), "s" if len(events) > 1
-        else ""))
+          else ""))
     for event in events.iterkeys():
         print ("\t%s" % event)
 
@@ -265,7 +268,7 @@ def lasif_list_models(args):
     """
     models = _find_project_root(".").get_model_dict()
     print("%i model%s in project:" % (len(models), "s" if len(models) > 1
-        else ""))
+          else ""))
     for model in models.iterkeys():
         print ("\t%s" % model)
 
@@ -303,7 +306,7 @@ def lasif_plot_kernel(args):
         filesize = list(set([os.path.getsize(_i) for _i in vp_gradients]))
         if len(filesize) != 1:
             msg = ("The grad_cp_*_* files in '%s' do not all have "
-                "identical size.") % kernel_dir
+                   "identical size.") % kernel_dir
             raise LASIFCommandLineException(msg)
         filesize = filesize[0]
         # Now loop over all model directories until a fitting one if found.
@@ -323,7 +326,8 @@ def lasif_plot_kernel(args):
             boxfile_found = True
             boxfile = model_boxfile
         if boxfile_found is not True:
-            msg = ("Could not find a suitable boxfile for the kernel stored "
+            msg = (
+                "Could not find a suitable boxfile for the kernel stored "
                 "in '%s'. Please either copy a suitable one to this "
                 "directory or add a model with the same dimension to LASIF. "
                 "LASIF will then be able to figure out the dimensions of it.")
@@ -331,7 +335,7 @@ def lasif_plot_kernel(args):
         shutil.copyfile(boxfile, os.path.join(kernel_dir, "boxfile"))
 
     handler = ses3d_models.RawSES3DModelHandler(kernel_dir,
-        model_type="kernel")
+                                                model_type="kernel")
     handler.rotation_axis = proj.domain["rotation_axis"]
     handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
 
@@ -411,8 +415,9 @@ def lasif_event_info(args):
     except Exception as e:
         raise LASIFCommandLineException(str(e))
 
-    print "Earthquake with %.1f %s at %s" % (event_dict["magnitude"],
-        event_dict["magnitude_type"], event_dict["region"])
+    print "Earthquake with %.1f %s at %s" % (
+        event_dict["magnitude"], event_dict["magnitude_type"],
+        event_dict["region"])
     print "\tLatitude: %.3f, Longitude: %.3f, Depth: %.1f km" % (
         event_dict["latitude"], event_dict["longitude"],
         event_dict["depth_in_km"])
@@ -423,7 +428,8 @@ def lasif_event_info(args):
         % len(stations)
     header = ["id", "latitude", "longitude", "elevation", "local depth"]
     keys = sorted(stations.keys())
-    data = [[key, stations[key]["latitude"], stations[key]["longitude"],
+    data = [[
+        key, stations[key]["latitude"], stations[key]["longitude"],
         stations[key]["elevation"], stations[key]["local_depth"]]
         for key in keys]
     table_printer(header, data)
@@ -467,7 +473,7 @@ def lasif_generate_input_files(args):
 
     if len(args) != 3:
         msg = ("ITERATION_NAME, EVENT_NAME, and SIMULATION_TYPE must be given."
-            " No other arguments allowed.")
+               " No other arguments allowed.")
         raise LASIFCommandLineException(msg)
     iteration_name = args[0]
     event_name = args[1]
@@ -475,7 +481,7 @@ def lasif_generate_input_files(args):
 
     # Assert a correct simulation type.
     simulation_types = ("normal_simulation", "adjoint_forward",
-            "adjoint_reverse")
+                        "adjoint_reverse")
     if simulation_type not in simulation_types:
         msg = "Invalid simulation type '%s'. Available types: %s" % \
             (simulation_type, ", ".join(simulation_types))
@@ -510,7 +516,7 @@ def lasif_init_project(args):
         raise LASIFCommandLineException(msg)
 
     Project(project_root_path=folder_path,
-        init_project=os.path.basename(folder_path))
+            init_project=os.path.basename(folder_path))
 
     print("Initialized project in: \n\t%s" % folder_path)
 
@@ -561,9 +567,12 @@ def lasif_launch_misfit_gui(args):
 
     long_iteration_name = "ITERATION_%s" % iteration_name
 
-    window_directory = os.path.join(proj.paths["windows"], event_name, long_iteration_name)
-    ad_src_directory = os.path.join(proj.paths["adjoint_sources"], event_name, long_iteration_name)
-    window_manager = MisfitWindowManager(window_directory, long_iteration_name, event_name)
+    window_directory = os.path.join(proj.paths["windows"],
+                                    event_name, long_iteration_name)
+    ad_src_directory = os.path.join(proj.paths["adjoint_sources"],
+                                    event_name, long_iteration_name)
+    window_manager = MisfitWindowManager(window_directory, long_iteration_name,
+                                         event_name)
     adj_src_manager = AdjointSourceManager(ad_src_directory)
 
     event = proj.get_event(event_name)
@@ -601,7 +610,7 @@ def lasif_list_iterations(args):
     """
     iterations = _find_project_root(".").get_iteration_dict().keys()
     print("%i Iteration%s in project:" % (len(iterations),
-        "s" if len(iterations) > 1 else ""))
+          "s" if len(iterations) > 1 else ""))
     for iteration in sorted(iterations):
         print ("\t%s" % iteration)
 
@@ -623,7 +632,7 @@ def lasif_iteration_info(args):
     iterations = proj.get_iteration_dict()
     if iteration_name not in iterations:
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-            "a list of all available iterations.") % iteration_name
+               "a list of all available iterations.") % iteration_name
         raise LASIFCommandLineException(msg)
 
     iteration = Iteration(iterations[iteration_name])
@@ -653,7 +662,8 @@ def lasif_preprocess_data(args):
     Preprocesse all currently available data for a given iteration.
     """
     if len(args) != 2:
-        msg = "ITERATION_NAME and at most one EVENT_NAME must be given. No other arguments allowed."
+        msg = ("ITERATION_NAME and at most one EVENT_NAME must be given. No"
+               " other arguments allowed.")
         raise LASIFCommandLineException(msg)
     iteration_name = args[0]
     event_id = args[1]
@@ -661,10 +671,11 @@ def lasif_preprocess_data(args):
     proj = _find_project_root(".")
     iterations = proj.get_iteration_dict()
     if iteration_name not in iterations:
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get a list of all available iterations.") % iteration_name
+        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
+               "a list of all available iterations.") % iteration_name
         raise LASIFCommandLineException(msg)
 
-    proj.preprocess_data(iteration_name,event_id)
+    proj.preprocess_data(iteration_name, event_id)
 
 
 def lasif_plot_selected_windows(args):
@@ -706,13 +717,15 @@ def lasif_plot_selected_windows(args):
             except IndexError:
                 continue
             synthetics = i["synthetics"].select(component=component)[0]
-            windows = select_windows(data, synthetics,
+            windows = select_windows(
+                data, synthetics,
                 event_info["latitude"], event_info["longitude"],
                 event_info["depth_in_km"], i["coordinates"]["latitude"],
                 i["coordinates"]["longitude"], minimum_period, maximum_period)
-            plot_windows(data, synthetics, windows, maximum_period,
+            plot_windows(
+                data, synthetics, windows, maximum_period,
                 filename=os.path.join(output_folder,
-                "windows_%s.pdf" % data.id))
+                                      "windows_%s.pdf" % data.id))
     print "Done. Written output to folder %s." % output_folder
 
 
@@ -776,7 +789,7 @@ def main():
         fcts[fct_name](further_args)
     except LASIFCommandLineException as e:
         print(colorama.Fore.YELLOW + ("Error: %s\n" % e.message) +
-            colorama.Style.RESET_ALL)
+              colorama.Style.RESET_ALL)
         print_fct_help(fct_name)
         sys.exit(1)
     except Exception as e:
@@ -790,16 +803,16 @@ def _print_generic_help(fcts):
     Small helper function printing a generic help message.
     """
     print(colorama.Style.BRIGHT + "LASIF - LArge Scale Inversion Framework\n"
-     + colorama.Style.RESET_ALL)
+          + colorama.Style.RESET_ALL)
     print(colorama.Fore.GREEN + "Usage: lasif FUNCTION PARAMETERS\n" +
-        colorama.Style.RESET_ALL)
+          colorama.Style.RESET_ALL)
     print("Available functions:")
 
     for name in sorted(fcts.keys()):
         print("%s  %32s: %s%s%s" % (colorama.Fore.YELLOW, name,
-            colorama.Fore.BLUE,
-            fcts[name].__doc__.strip().split("\n")[2].strip(),
-            colorama.Style.RESET_ALL))
+              colorama.Fore.BLUE,
+              fcts[name].__doc__.strip().split("\n")[2].strip(),
+              colorama.Style.RESET_ALL))
     print("\nTo get help for a specific function type")
     print("\tlasif FUNCTION help")
 
