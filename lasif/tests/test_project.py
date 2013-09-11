@@ -629,3 +629,53 @@ def test_data_validation(project, capsys):
             if _i.strip().startswith("Assure all events are in chosen")][0]
     assert "FAIL" in line
     reset()
+
+
+def test_data_synthetic_iterator(project, recwarn):
+    """
+    Tests that the data synthetic iterator works as expected.
+    """
+    # It requires an existing iteration with processed data.
+    project.create_new_iteration("1", "ses3d_4_0")
+    project.preprocess_data("1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+                            waiting_time=0.0)
+    iterator = project.data_synthetic_iterator(
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "1")
+
+    # The example project only contains synthetics for two stations.
+    expected = {
+        "HL.ARG..BHZ": {"latitude": 36.216, "local_depth": 0.0,
+                        "elevation": 170.0, "longitude": 28.126},
+        "HT.SIGR..HHZ": {"latitude": 39.2114, "local_depth": 0.0,
+                         "elevation": 93.0, "longitude": 25.8553}}
+
+    found = []
+    no_synthetics_found_count = 0
+
+    assert recwarn.list == []
+
+    for _i in iterator:
+        if _i is None:
+            # If the data is not found it should always warn.
+            w = recwarn.pop(UserWarning)
+            assert "Found 0 not 3" in w.message.args[0]
+            no_synthetics_found_count += 1
+            continue
+        data = _i["data"]
+        synth = _i["synthetics"]
+        coods = _i["coordinates"]
+        assert recwarn.list == []
+
+        # Only one real data is present at all times.
+        assert len(data) == 1
+        # Three synthetic components.
+        assert len(synth) == 3
+
+        found.append(data[0].id)
+        assert data[0].id in expected
+
+        assert expected[data[0].id] == coods
+
+    assert sorted(found) == sorted(expected.keys())
+    # No synthetics exists for the other two.
+    assert no_synthetics_found_count == 2
