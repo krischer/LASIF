@@ -12,5 +12,7 @@ before_install:
   - pip install progressbar
   - pip install https://github.com/obspy/obspy/archive/master.zip
   - pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
+script:
+  - cd lasif; py.test
 install:
   - pip install --use-mirrors .
