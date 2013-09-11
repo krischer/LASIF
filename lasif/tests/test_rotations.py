@@ -200,58 +200,58 @@ class RotationsTestCase(unittest.TestCase):
         # equator should not change anything.
         new_north_data, new_east_data, new_vertical_data = \
             rotations.rotate_data(north_data, east_data, vertical_data, 0.0,
-            123.45, [0, 0, 1], 77.7)
+                                  123.45, [0, 0, 1], 77.7)
         np.testing.assert_array_almost_equal(north_data, new_north_data, 5)
         np.testing.assert_array_almost_equal(east_data, new_east_data, 5)
         np.testing.assert_array_almost_equal(vertical_data, new_vertical_data,
-            5)
+                                             5)
         # A rotation around the rotation axis of the earth should not change
         # the vertical component.
         new_north_data, new_east_data, new_vertical_data = \
             rotations.rotate_data(north_data, east_data, vertical_data, -55.66,
-            123.45, [0, 0, 1], 77.7)
+                                  123.45, [0, 0, 1], 77.7)
         np.testing.assert_array_almost_equal(vertical_data, new_vertical_data,
-            5)
+                                             5)
         # The same is true for any other rotation with an axis through the
         # center of the earth.
         new_north_data, new_east_data, new_vertical_data = \
             rotations.rotate_data(north_data, east_data, vertical_data, -55.66,
-            123.45, [123, 345.0, 0.234], 77.7)
+                                  123.45, [123, 345.0, 0.234], 77.7)
         np.testing.assert_array_almost_equal(vertical_data, new_vertical_data,
-            5)
+                                             5)
         # Any data along the Greenwich meridian and the opposite one should not
         # change with a rotation around the "East Pole" or the "West Pole".
         new_north_data, new_east_data, new_vertical_data = \
             rotations.rotate_data(north_data, east_data, vertical_data, 0.0,
-            0.0, [0, 1, 0], 55.0)
+                                  0.0, [0, 1, 0], 55.0)
         np.testing.assert_array_almost_equal(north_data, new_north_data, 5)
         np.testing.assert_array_almost_equal(east_data, new_east_data, 5)
         np.testing.assert_array_almost_equal(vertical_data, new_vertical_data,
-            5)
+                                             5)
         new_north_data, new_east_data, new_vertical_data = \
             rotations.rotate_data(north_data, east_data, vertical_data, 0.0,
-            0.0, [0, -1, 0], 55.0)
+                                  0.0, [0, -1, 0], 55.0)
         np.testing.assert_array_almost_equal(north_data, new_north_data, 5)
         np.testing.assert_array_almost_equal(east_data, new_east_data, 5)
         np.testing.assert_array_almost_equal(vertical_data, new_vertical_data,
-            5)
+                                             5)
         # A rotation of one hundred degree around the x-axis inverts (in this
         # case) north and east components.
         new_north_data, new_east_data, new_vertical_data = \
             rotations.rotate_data(north_data, east_data, vertical_data, 0.0,
-            90.0, [1, 0, 0], 180.0)
+                                  90.0, [1, 0, 0], 180.0)
         np.testing.assert_array_almost_equal(north_data, -new_north_data, 5)
         np.testing.assert_array_almost_equal(east_data, -new_east_data, 5)
         np.testing.assert_array_almost_equal(vertical_data, new_vertical_data,
-            5)
+                                             5)
 
     def test_RotateMomentTensor(self):
         """
         Tests the moment tensor rotations.
         """
         # A full rotation should not change anything.
-        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor(1, 2, 3,
-            4, 5, 6, 7, 8, [9, 10, 11], 360)
+        Mrr, Mtt, Mpp, Mrt, Mrp, Mtp = rotations.rotate_moment_tensor(
+            1, 2, 3, 4, 5, 6, 7, 8, [9, 10, 11], 360)
         self.assertAlmostEqual(Mrr, 1.0, 6)
         self.assertAlmostEqual(Mtt, 2.0, 6)
         self.assertAlmostEqual(Mpp, 3.0, 6)
@@ -267,7 +267,7 @@ class RotationsTestCase(unittest.TestCase):
             [0, 1, 0], 57.5)
         Mrr_new, Mtt_new, Mpp_new, Mrt_new, Mrp_new, Mtp_new = \
             [-0.70400000, 2.04919171, -1.34619171, 0.02718681, -0.65089007,
-            2.83207047]
+             2.83207047]
         self.assertAlmostEqual(Mrr, Mrr_new, 6)
         self.assertAlmostEqual(Mtt, Mtt_new, 6)
         self.assertAlmostEqual(Mpp, Mpp_new, 6)
@@ -281,7 +281,7 @@ class RotationsTestCase(unittest.TestCase):
             [np.sqrt(2) / 2, -np.sqrt(2) / 2, 0], -31.34)
         Mrr_new, Mtt_new, Mpp_new, Mrt_new, Mrp_new, Mtp_new = \
             [-0.81800000, -0.69772178, 1.51772178, 2.55423451, 1.29552541,
-            1.30522545]
+             1.30522545]
         self.assertAlmostEqual(Mrr, Mrr_new, 6)
         self.assertAlmostEqual(Mtt, Mtt_new, 6)
         self.assertAlmostEqual(Mpp, Mpp_new, 6)
@@ -296,7 +296,7 @@ class RotationsTestCase(unittest.TestCase):
             [11.12, -11.12, 0], -31.34)
         Mrr_new, Mtt_new, Mpp_new, Mrt_new, Mrp_new, Mtp_new = \
             [-0.81800000, -0.69772178, 1.51772178, 2.55423451, 1.29552541,
-            1.30522545]
+             1.30522545]
         self.assertAlmostEqual(Mrr, Mrr_new, 6)
         self.assertAlmostEqual(Mtt, Mtt_new, 6)
         self.assertAlmostEqual(Mpp, Mpp_new, 6)
@@ -310,7 +310,7 @@ class RotationsTestCase(unittest.TestCase):
             [np.sqrt(3) / 3, -np.sqrt(3) / 3, -np.sqrt(3) / 3], 123.45)
         Mrr_new, Mtt_new, Mpp_new, Mrt_new, Mrp_new, Mtp_new = \
             [0.95200000, -0.41458722, -0.53941278, -0.09170855, 0.21039378,
-            0.57370606]
+             0.57370606]
         self.assertAlmostEqual(Mrr, Mrr_new, 6)
         self.assertAlmostEqual(Mtt, Mtt_new, 6)
         self.assertAlmostEqual(Mpp, Mpp_new, 6)

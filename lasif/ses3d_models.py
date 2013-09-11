@@ -131,7 +131,7 @@ class RawSES3DModelHandler(object):
                 all_good = True
                 for _i in xrange(len(self.setup["subdomains"])):
                     if os.path.join(directory,
-                            "%s%i" % (component, _i)) in files:
+                                    "%s%i" % (component, _i)) in files:
                         continue
                     all_good = False
                     break
@@ -142,12 +142,12 @@ class RawSES3DModelHandler(object):
                 # They also all need to have the same size.
                 if len(set([os.path.getsize(_i) for _i in files])) != 1:
                     msg = ("Component %s has the right number of model files "
-                        "but they are not of equal size") % component
+                           "but they are not of equal size") % component
                     warnings.warn(msg)
                     continue
                 # Sort the files by ascending number.
                 files.sort(key=lambda x: int(re.findall(r"\d+$",
-                    (os.path.basename(x)))[0]))
+                                             (os.path.basename(x)))[0]))
                 self.components[component] = {"filenames": files}
         elif model_type == "kernel":
             # Now check what different models are available in the directory.
@@ -166,8 +166,8 @@ class RawSES3DModelHandler(object):
                     # Check that the naming is continuous.
                 all_good = True
                 for _i in xrange(len(self.setup["subdomains"])):
-                    if os.path.join(directory,
-                            "%s_%i_%i" % (component, _i, length)) in files:
+                    if os.path.join(directory, "%s_%i_%i" % (
+                            component, _i, length)) in files:
                         continue
                     all_good = False
                     break
@@ -182,8 +182,9 @@ class RawSES3DModelHandler(object):
                     warnings.warn(msg)
                     continue
                     # Sort the files by ascending number.
-                files.sort(key=lambda x: int(re.findall(r"\d+$",
-                    (os.path.basename(x)))[0]))
+                files.sort(key=lambda x: int(
+                    re.findall(r"\d+$",
+                               (os.path.basename(x)))[0]))
                 self.components[component] = {"filenames": files}
         else:
             msg = "model_type '%s' not known." % model_type
@@ -191,11 +192,12 @@ class RawSES3DModelHandler(object):
 
         # All files for a single component have the same size. Now check that
         # all files have the same size.
-        unique_filesizes = len(list(set([os.path.getsize(_i["filenames"][0])
+        unique_filesizes = len(list(set([
+            os.path.getsize(_i["filenames"][0])
             for _i in self.components.itervalues()])))
         if unique_filesizes != 1:
             msg = ("The different components in the folder do not have the "
-                "same number of samples")
+                   "same number of samples")
             raise ValueError(msg)
 
         # Now calculate the lagrange polynomial degree. All necessary
@@ -222,13 +224,13 @@ class RawSES3DModelHandler(object):
         lpd = self.lagrange_polynomial_degree
 
         shape = (domain["index_x_count"], domain["index_y_count"],
-            domain["index_z_count"], lpd + 1, lpd + 1, lpd + 1)
+                 domain["index_z_count"], lpd + 1, lpd + 1, lpd + 1)
 
         # Take care: The first and last four bytes in the arrays are invalid
         #  due to them being written by Fortran.
         with open(filename, "rb") as open_file:
             field = np.ndarray(shape, buffer=open_file.read()[4:-4],
-                dtype="float32", order="F")
+                               dtype="float32", order="F")
         # field = np.require(field, requirements="C")
 
         # Calculate the new shape by multiplying every dimension with lpd + 1
@@ -305,7 +307,8 @@ class RawSES3DModelHandler(object):
         if component in self.parsed_components:
             return
         # Allocate empty array with the necessary dimensions.
-        data = np.empty((self.setup["point_count_in_x"],
+        data = np.empty((
+            self.setup["point_count_in_x"],
             self.setup["point_count_in_y"], self.setup["point_count_in_z"]),
             dtype="float32")
 
@@ -316,10 +319,10 @@ class RawSES3DModelHandler(object):
 
             # Minimum indices
             x_min, y_min, z_min = [self.lagrange_polynomial_degree * _j
-               for _j in (x_min, y_min, z_min)]
+                                   for _j in (x_min, y_min, z_min)]
             # Maximum indices
             x_max, y_max, z_max = [self.lagrange_polynomial_degree * (_j + 1)
-                for _j in (x_max, y_max, z_max)]
+                                   for _j in (x_max, y_max, z_max)]
 
             # Merge into data.
             data[x_min: x_max + 1, y_min: y_max + 1, z_min: z_max + 1] = \
@@ -399,10 +402,10 @@ class RawSES3DModelHandler(object):
         :type depth_in_km: integer or float
         """
         lat_bounds = [rotations.colat2lat(_i)
-            for _i in self.setup["physical_boundaries_x"][::-1]]
+                      for _i in self.setup["physical_boundaries_x"][::-1]]
         lng_bounds = self.setup["physical_boundaries_y"]
         depth_bounds = [6371 - _i / 1000.0
-            for _i in self.setup["physical_boundaries_z"]]
+                        for _i in self.setup["physical_boundaries_z"]]
 
         data = self.parsed_components[component]
 
@@ -410,10 +413,10 @@ class RawSES3DModelHandler(object):
         depth_index = np.argmin(np.abs(available_depths - depth_in_km))
         actual_depth = available_depths[depth_index]
 
-        lngs = self._get_collocation_points_along_axis(lng_bounds[0],
-            lng_bounds[1], data.shape[1])
-        lats = self._get_collocation_points_along_axis(lat_bounds[0],
-            lat_bounds[1], data.shape[0])
+        lngs = self._get_collocation_points_along_axis(
+            lng_bounds[0], lng_bounds[1], data.shape[1])
+        lats = self._get_collocation_points_along_axis(
+            lat_bounds[0], lat_bounds[1], data.shape[0])
 
         lon, lat = np.meshgrid(lngs, lats)
         if self.rotation_axis and self.rotation_angle_in_degree:
@@ -422,7 +425,7 @@ class RawSES3DModelHandler(object):
             lon.shape = lon.size
             lat.shape = lat.size
             lat, lon = rotations.rotate_lat_lon(lat, lon, self.rotation_axis,
-                self.rotation_angle_in_degree)
+                                                self.rotation_angle_in_degree)
             lon.shape = lon_shape
             lat.shape = lat_shape
 
@@ -440,14 +443,13 @@ class RawSES3DModelHandler(object):
             y_buffer = 0.2 * lat.ptp()
 
             m = Basemap(projection='merc', resolution="l",
-                #lat_0=lat_0, lon_0=lon_0,
-                llcrnrlon=lon.min() - x_buffer,
-                urcrnrlon=lon.max() + x_buffer,
-                llcrnrlat=lat.min() - y_buffer,
-                urcrnrlat=lat.max() + y_buffer)
+                        llcrnrlon=lon.min() - x_buffer,
+                        urcrnrlon=lon.max() + x_buffer,
+                        llcrnrlat=lat.min() - y_buffer,
+                        urcrnrlat=lat.max() + y_buffer)
         else:
             m = Basemap(projection='ortho', lon_0=lon_0, lat_0=lat_0,
-                resolution="c")
+                        resolution="c")
 
         m.drawcoastlines()
         m.fillcontinents("0.9", zorder=0)
@@ -464,8 +466,8 @@ class RawSES3DModelHandler(object):
         if component in UNIT_DICT:
             cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
 
-        plt.suptitle("Depth slice of %s at %i km" % (component,
-            int(round(actual_depth))), size="large")
+        plt.suptitle("Depth slice of %s at %i km" % (
+            component, int(round(actual_depth))), size="large")
 
         def _on_button_press(event):
             if event.button != 1 or not event.inaxes:
@@ -475,17 +477,17 @@ class RawSES3DModelHandler(object):
             colat = rotations.lat2colat(lat)
 
             x_range = (self.setup["physical_boundaries_x"][1] -
-                self.setup["physical_boundaries_x"][0])
+                       self.setup["physical_boundaries_x"][0])
             x_frac = (colat - self.setup["physical_boundaries_x"][0]) / x_range
             x_index = int(((self.setup["boundaries_x"][1] -
-                self.setup["boundaries_x"][0]) * x_frac) +
-                self.setup["boundaries_x"][0])
+                            self.setup["boundaries_x"][0]) * x_frac) +
+                          self.setup["boundaries_x"][0])
             y_range = (self.setup["physical_boundaries_y"][1] -
-                self.setup["physical_boundaries_y"][0])
+                       self.setup["physical_boundaries_y"][0])
             y_frac = (lon - self.setup["physical_boundaries_y"][0]) / y_range
             y_index = int(((self.setup["boundaries_y"][1] -
-                self.setup["boundaries_y"][0]) * y_frac) +
-                self.setup["boundaries_y"][0])
+                            self.setup["boundaries_y"][0]) * y_frac) +
+                          self.setup["boundaries_y"][0])
 
             plt.figure(1, figsize=(3, 8))
             depths = available_depths
@@ -510,12 +512,12 @@ class RawSES3DModelHandler(object):
         ret_str += "\tSetup:\n"
         ret_str += "\t\tLatitude: {:.2f} - {:.2f}\n".format(
             *[rotations.colat2lat(_i)
-            for _i in self.setup["physical_boundaries_x"][::-1]])
+              for _i in self.setup["physical_boundaries_x"][::-1]])
         ret_str += "\t\tLongitude: %.2f - %.2f\n" % \
             self.setup["physical_boundaries_y"]
         ret_str += "\t\tDepth in km: {:.2f} - {:.2f}\n".format(
             *[6371 - _i / 1000
-            for _i in self.setup["physical_boundaries_z"][::-1]])
+              for _i in self.setup["physical_boundaries_z"][::-1]])
         ret_str += "\t\tTotal element count: %i\n" % \
             self.setup["total_element_count"]
         ret_str += "\t\tTotal collocation point count: %i (without " \
@@ -553,7 +555,7 @@ class RawSES3DModelHandler(object):
                     setup["cpu_count_in_y_direction"] * \
                     setup["cpu_count_in_z_direction"]:
                 msg = ("Invalid boxfile. Total and individual processor "
-                    "counts do not match.")
+                       "counts do not match.")
                 raise ValueError(msg)
 
             # Now parse the rest of file which contains the subdomains.
@@ -569,7 +571,7 @@ class RawSES3DModelHandler(object):
                     # Convert both indices to 0-based indices
                     subdom["single_index"] = int(data.pop(0)) - 1
                     subdom["multi_index"] = map(lambda x: int(x) - 1,
-                        data.pop(0).split())
+                                                data.pop(0).split())
                     subdom["boundaries_x"] = map(int, data.pop(0).split())
                     subdom["boundaries_y"] = map(int, data.pop(0).split())
                     subdom["boundaries_z"] = map(int, data.pop(0).split())
@@ -579,8 +581,8 @@ class RawSES3DModelHandler(object):
                     subdom["physical_boundaries_y"] = map(
                         lambda x: math.degrees(float(x)), data.pop(0).split())
                     # z is in meter.
-                    subdom["physical_boundaries_z"] = map(float,
-                        data.pop(0).split())
+                    subdom["physical_boundaries_z"] = \
+                        map(float, data.pop(0).split())
                     for component in ("x", "y", "z"):
                         idx = "boundaries_%s" % component
                         index_count = subdom[idx][1] - subdom[idx][0] + 1
@@ -591,7 +593,7 @@ class RawSES3DModelHandler(object):
                         # box will also be 22, even though it should be 23. The
                         # next snippet attempts to fix this deficiency.
                         offset = int(round(subdom[idx][0] /
-                            float(index_count - 1)))
+                                     float(index_count - 1)))
                         subdom[idx][0] += offset
                         subdom[idx][1] += offset
                     # Remove separator_line if existent.
@@ -600,30 +602,31 @@ class RawSES3DModelHandler(object):
                     yield subdom
             # Sort them after with the single index.
             setup["subdomains"] = sorted(list(subdomain_generator(lines)),
-                key=lambda x: x["single_index"])
+                                         key=lambda x: x["single_index"])
             # Do some more sanity checks.
             if len(setup["subdomains"]) != setup["total_cpu_count"]:
                 msg = ("Invalid boxfile. Number of processors and subdomains "
-                    "to not match.")
+                       "to not match.")
                 raise ValueError(msg)
             for component in ("x", "y", "z"):
                 idx = "index_%s_count" % component
                 if len(set([_i[idx] for _i in setup["subdomains"]])) != 1:
                     msg = ("Invalid boxfile. Unequal %s index count across "
-                        "subdomains.") % component
+                           "subdomains.") % component
                     raise ValueError(msg)
 
             # Now generate the absolute indices for the whole domains.
             for component in ("x", "y", "z"):
-                setup["boundaries_%s" % component] = (min([_i["boundaries_%s" %
-                    component][0] for _i in setup["subdomains"]]),
+                setup["boundaries_%s" % component] = (
+                    min([_i["boundaries_%s" % component][0]
+                         for _i in setup["subdomains"]]),
                     max([_i["boundaries_%s" %
-                    component][1] for _i in setup["subdomains"]]))
-                setup["physical_boundaries_%s" % component] = \
-                    (min([_i["physical_boundaries_%s" % component][0] for
-                        _i in setup["subdomains"]]),
+                         component][1] for _i in setup["subdomains"]]))
+                setup["physical_boundaries_%s" % component] = (
+                    min([_i["physical_boundaries_%s" % component][0] for
+                         _i in setup["subdomains"]]),
                     max([_i["physical_boundaries_%s" % component][1] for _i in
-                        setup["subdomains"]]))
+                         setup["subdomains"]]))
 
             return setup
 
@@ -642,15 +645,16 @@ def get_lpd_sampling_points(lpd):
         knots = np.array([-1.0, -0.4472135954999579, 0.4472135954999579, 1.0])
     elif lpd == 4:
         knots = np.array([-1.0, -0.6546536707079772, 0.0,
-            0.6546536707079772, 1.0])
+                          0.6546536707079772, 1.0])
     elif lpd == 5:
         knots = np.array([-1.0, -0.7650553239294647, -0.2852315164806451,
-            0.2852315164806451, 0.7650553239294647, 1.0])
+                          0.2852315164806451, 0.7650553239294647, 1.0])
     elif lpd == 6:
         knots = np.array([-1.0, -0.8302238962785670, -0.4688487934707142,
-            0.0, 0.4688487934707142, 0.8302238962785670, 1.0])
+                          0.0, 0.4688487934707142, 0.8302238962785670, 1.0])
     elif lpd == 7:
-        knots = np.array([-1.0, -0.8717401485096066, -0.5917001814331423,
+        knots = np.array([
+            -1.0, -0.8717401485096066, -0.5917001814331423,
             -0.2092992179024789, 0.2092992179024789, 0.5917001814331423,
             0.8717401485096066, 1.0])
     else:

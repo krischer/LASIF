@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS stations(
 
 
 URL = ("http://service.iris.edu/fdsnws/station/1/query?"
-    "network={network}&sta={station}&level=station&nodata=404")
+       "network={network}&sta={station}&level=station&nodata=404")
 
 
 class InventoryDB(object):
@@ -47,7 +47,7 @@ class InventoryDB(object):
             pass
 
     def put_station_coordinates(self, station_id, latitude, longitude,
-            elevation_in_m, depth_in_m):
+                                elevation_in_m, depth_in_m):
         latitude = str(latitude) if latitude is not None else "NULL"
         longitude = str(longitude) if longitude is not None else "NULL"
         elevation_in_m = str(elevation_in_m) \
@@ -99,11 +99,11 @@ def get_station_coordinates(db_file, station_id, cache_folder, arclink_user):
 
     elif coordinates:
         return {"latitude": coordinates[0], "longitude": coordinates[1],
-            "elevation_in_m": coordinates[2],
-            "local_depth_in_m": coordinates[3]}
+                "elevation_in_m": coordinates[2],
+                "local_depth_in_m": coordinates[3]}
 
     msg = ("Attempting to download coordinates for %s. This will only "
-        "happen once ... ") % station_id
+           "happen once ... ") % station_id
     print msg,
     # Otherwise try to download the necessary information.
     network, station = station_id.split(".")
@@ -123,14 +123,14 @@ def get_station_coordinates(db_file, station_id, cache_folder, arclink_user):
             c = obspy.arclink.Client(user=arclink_user)
             try:
                 inv = c.getNetworks(obspy.UTCDateTime(1970),
-                    obspy.UTCDateTime())
+                                    obspy.UTCDateTime())
                 inv = {key: value for (key, value) in inv.iteritems()
                        if len(key.split('.')) == 2}
                 with open(pickled_inventory, "wb") as fh:
                     cPickle.dump(inv, fh)
             except:
                 msg = ("Failed to download ArcLink Inventory. If the problem "
-                    "persits, contact the developers.")
+                       "persits, contact the developers.")
                 raise Exception(msg)
                 inv = None
         else:

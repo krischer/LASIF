@@ -96,13 +96,14 @@ def read_SES3D(file_or_file_object, *args, **kwargs):
 
     # Read the data.
     data = np.array(map(float, file_or_file_object.readlines()),
-        dtype="float32")
+                    dtype="float32")
 
     # Setup Obspy Stream/Trace structure.
     tr = Trace(data=data)
     tr.stats.delta = delta
     # Map the channel attributes.
-    tr.stats.channel = {"theta": "X",
+    tr.stats.channel = {
+        "theta": "X",
         "phi": "Y",
         "r": "Z"}[component]
     tr.stats.ses3d = AttribDict()

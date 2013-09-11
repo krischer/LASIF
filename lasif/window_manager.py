@@ -42,7 +42,7 @@ class MisfitWindowManager(object):
 
     def get_windows_for_station(self, station_id):
         files = iglob(os.path.join(self.directory, "window_%s.*.*.xml" %
-            station_id))
+                      station_id))
         windows = []
         for filename in files:
             windows.append(self._read_windowfile(filename))
@@ -141,7 +141,7 @@ class MisfitWindowManager(object):
         return windows
 
     def write_window(self, channel_id, starttime, endtime, weight, taper,
-            misfit):
+                     misfit):
         window = self.get_windows(channel_id)
         if not window:
             window["event"] = self.event_name
@@ -174,4 +174,4 @@ class MisfitWindowManager(object):
                 *windows))
         with open(windowfile, "wb") as fh:
             fh.write(etree.tostring(doc, pretty_print=True,
-                xml_declaration=True, encoding="utf-8"))
+                                    xml_declaration=True, encoding="utf-8"))

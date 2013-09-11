@@ -24,7 +24,7 @@ class StationCache(FileInfoCache):
     Currently supports SEED, XML-SEED and RESP files.
     """
     def __init__(self, cache_db_file, seed_folder, resp_folder,
-            show_progress=True):
+                 show_progress=True):
         self.index_values = [
             ("channel_id", "TEXT"),
             ("start_date", "INTEGER"),
@@ -40,13 +40,13 @@ class StationCache(FileInfoCache):
         self.resp_folder = resp_folder
 
         super(StationCache, self).__init__(cache_db_file=cache_db_file,
-            show_progress=show_progress)
+                                           show_progress=show_progress)
 
     def _find_files_seed(self):
         seed_files = []
         # Get all dataless SEED files.
         for filename in glob.iglob(os.path.join(self.seed_folder,
-                "dataless.*")):
+                                                "dataless.*")):
             seed_files.append(filename)
         return seed_files
 
@@ -68,7 +68,8 @@ class StationCache(FileInfoCache):
             raise ValueError(msg)
         channels = p.getInventory()["channels"]
 
-        channels = [[_i["channel_id"], int(_i["start_date"].timestamp),
+        channels = [[
+            _i["channel_id"], int(_i["start_date"].timestamp),
             int(_i["end_date"].timestamp) if _i["end_date"] else None,
             _i["latitude"], _i["longitude"], _i["elevation_in_m"],
             _i["local_depth_in_m"]] for _i in channels]
@@ -78,12 +79,13 @@ class StationCache(FileInfoCache):
     def _extract_index_values_resp(self, filename):
         try:
             channels = simple_resp_parser.get_inventory(filename,
-                remove_duplicates=True)
+                                                        remove_duplicates=True)
         except:
             msg = "Could not read RESP file '%s'." % filename
             raise ValueError(msg)
 
-        channels = [[_i["channel_id"], int(_i["start_date"].timestamp),
+        channels = [[
+            _i["channel_id"], int(_i["start_date"].timestamp),
             int(_i["end_date"].timestamp) if _i["end_date"] else None,
             None, None, None, None] for _i in channels]
 

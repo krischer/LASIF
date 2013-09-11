@@ -78,21 +78,22 @@ class SES3DFileParserTestCase(unittest.TestCase):
         self.assertAlmostEqual(tr.stats.delta, 0.15)
         # Latitude in the file is actually the colatitude.
         self.assertAlmostEqual(tr.stats.ses3d.receiver_latitude, 90.0 -
-            107.84100)
+                               107.84100)
         self.assertAlmostEqual(tr.stats.ses3d.receiver_longitude, -3.5212801)
         self.assertAlmostEqual(tr.stats.ses3d.receiver_depth_in_m, 0.0)
         self.assertAlmostEqual(tr.stats.ses3d.source_latitude, 90.0 -
-            111.01999)
+                               111.01999)
         self.assertAlmostEqual(tr.stats.ses3d.source_longitude, -8.9499998)
         self.assertAlmostEqual(tr.stats.ses3d.source_depth_in_m, 20000)
         # Test head and tail of the actual data. Assume the rest to be correct
         # as well.
         np.testing.assert_array_equal(tr.data[:50],
-            np.zeros(50, dtype="float32"))
+                                      np.zeros(50, dtype="float32"))
         # The data is just copied from the actual file.
-        np.testing.assert_almost_equal(tr.data[-9:], np.array([3.41214417E-07,
-            2.95646032E-07, 2.49543859E-07, 2.03108399E-07, 1.56527761E-07,
-            1.09975687E-07, 6.36098676E-08, 1.75719919E-08, -2.80116144E-08]))
+        np.testing.assert_almost_equal(tr.data[-9:], np.array([
+            3.41214417E-07, 2.95646032E-07, 2.49543859E-07, 2.03108399E-07,
+            1.56527761E-07, 1.09975687E-07, 6.36098676E-08, 1.75719919E-08,
+            -2.80116144E-08]))
 
     def test_readingSES3DFileFromStringIO(self):
         """
@@ -109,21 +110,22 @@ class SES3DFileParserTestCase(unittest.TestCase):
         self.assertAlmostEqual(tr.stats.delta, 0.15)
         # Latitude in the file is actually the colatitude.
         self.assertAlmostEqual(tr.stats.ses3d.receiver_latitude, 90.0 -
-            107.84100)
+                               107.84100)
         self.assertAlmostEqual(tr.stats.ses3d.receiver_longitude, -3.5212801)
         self.assertAlmostEqual(tr.stats.ses3d.receiver_depth_in_m, 0.0)
         self.assertAlmostEqual(tr.stats.ses3d.source_latitude, 90.0 -
-            111.01999)
+                               111.01999)
         self.assertAlmostEqual(tr.stats.ses3d.source_longitude, -8.9499998)
         self.assertAlmostEqual(tr.stats.ses3d.source_depth_in_m, 20000)
         # Test head and tail of the actual data. Assume the rest to be correct
         # as well.
         np.testing.assert_array_equal(tr.data[:50],
-            np.zeros(50, dtype="float32"))
+                                      np.zeros(50, dtype="float32"))
         # The data is just copied from the actual file.
-        np.testing.assert_almost_equal(tr.data[-9:], np.array([3.41214417E-07,
-            2.95646032E-07, 2.49543859E-07, 2.03108399E-07, 1.56527761E-07,
-            1.09975687E-07, 6.36098676E-08, 1.75719919E-08, -2.80116144E-08]))
+        np.testing.assert_almost_equal(tr.data[-9:], np.array([
+            3.41214417E-07, 2.95646032E-07, 2.49543859E-07, 2.03108399E-07,
+            1.56527761E-07, 1.09975687E-07, 6.36098676E-08, 1.75719919E-08,
+            -2.80116144E-08]))
 
     def test_ComponentMapping(self):
         """
@@ -153,9 +155,10 @@ class SES3DFileParserTestCase(unittest.TestCase):
         tr = read_SES3D(filename)[0]
         self.assertEqual(tr.stats.channel, "X")
         # The data actually in the file. This points south.
-        data = np.array([4.23160685E-07, 3.80973177E-07, 3.39335969E-07,
-            2.98305707E-07, 2.57921158E-07, 2.18206054E-07, 1.79171423E-07,
-            1.40820376E-07, 1.03153077E-07, 6.61708626E-08])
+        data = np.array([
+            4.23160685E-07, 3.80973177E-07, 3.39335969E-07, 2.98305707E-07,
+            2.57921158E-07, 2.18206054E-07, 1.79171423E-07, 1.40820376E-07,
+            1.03153077E-07, 6.61708626E-08])
         # Check.
         np.testing.assert_almost_equal(tr.data[-10:], data)
 
@@ -168,16 +171,18 @@ class SES3DFileParserTestCase(unittest.TestCase):
 
         tr_phi = read_SES3D(filename_phi)[0]
         self.assertEqual(tr_phi.stats.channel, "Y")
-        phi_data = np.array([4.23160685E-07, 3.80973177E-07, 3.39335969E-07,
-            2.98305707E-07, 2.57921158E-07, 2.18206054E-07, 1.79171423E-07,
-            1.40820376E-07, 1.03153077E-07, 6.61708626E-08])
+        phi_data = np.array([
+            4.23160685E-07, 3.80973177E-07, 3.39335969E-07, 2.98305707E-07,
+            2.57921158E-07, 2.18206054E-07, 1.79171423E-07, 1.40820376E-07,
+            1.03153077E-07, 6.61708626E-08])
         np.testing.assert_almost_equal(tr_phi.data[-10:], phi_data)
 
         tr_r = read_SES3D(filename_r)[0]
         self.assertEqual(tr_r.stats.channel, "Z")
-        r_data = np.array([3.33445854E-07, 3.32186886E-07, 3.32869206E-07,
-            3.35317537E-07, 3.39320707E-07, 3.44629825E-07, 3.50957549E-07,
-            3.57983453E-07, 3.65361842E-07, 3.72732785E-07])
+        r_data = np.array([
+            3.33445854E-07, 3.32186886E-07, 3.32869206E-07, 3.35317537E-07,
+            3.39320707E-07, 3.44629825E-07, 3.50957549E-07, 3.57983453E-07,
+            3.65361842E-07, 3.72732785E-07])
         np.testing.assert_almost_equal(tr_r.data[-10:], r_data)
 
 

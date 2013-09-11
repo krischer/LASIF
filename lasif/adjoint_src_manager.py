@@ -26,21 +26,25 @@ class AdjointSourceManager(object):
         """
         Helper method returning the filename of the adjoint source.
         """
-        return "adjoint_source_%s__%s__%s.npy" % (channel_id, str(starttime), str(endtime))
+        return "adjoint_source_%s__%s__%s.npy" % (channel_id, str(starttime),
+                                                  str(endtime))
 
     def write_adjoint_src(self, data, channel_id, starttime, endtime):
         """
         Writes the adjoint sources to a file.
         """
-        filename = os.path.join(self.directory, self._get_tag(channel_id, starttime, endtime))
+        filename = os.path.join(self.directory, self._get_tag(
+            channel_id, starttime, endtime))
         if os.path.exists(filename):
             return
 
-        # Save as 64bit floats just to be able to handle any solver and what not.
+        # Save as 64bit floats just to be able to handle any solver and what
+        # not.
         np.save(filename, np.require(data, "float64"))
 
     def get_adjoint_src(self, channel_id, starttime, endtime):
-        filename = os.path.join(self.directory, self._get_tag(channel_id, starttime, endtime))
+        filename = os.path.join(self.directory, self._get_tag(
+            channel_id, starttime, endtime))
         if not os.path.exists(filename):
             return None
         return np.load(filename)

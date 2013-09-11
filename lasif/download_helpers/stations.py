@@ -24,7 +24,7 @@ from lasif import utils
 
 
 def download_station_files(channels, save_station_fct, arclink_user,
-        logger=None):
+                           logger=None):
     """
     Downloads station files.
 
@@ -57,30 +57,31 @@ def download_station_files(channels, save_station_fct, arclink_user,
                 starttime = channel["starttime"]
                 endtime = channel["endtime"]
                 channel_id = "%s.%s.%s.%s" % (network, station, location,
-                    chan)
+                                              chan)
                 time.sleep(0.5)
                 if logger:
                     logger.debug("Starting ArcLink download for %s..." %
-                        channel_id)
+                                 channel_id)
                 # Telnet sometimes has issues...
                 success = False
                 for _i in xrange(3):
                     try:
                         arc_client = obspy.arclink.Client(user=arclink_user,
-                            timeout=30)
+                                                          timeout=30)
                         success = True
                         break
                     except:
                         time.sleep(0.3)
                 if success is False:
                     msg = (" A problem occured initializing ArcLink. Try "
-                        "again later")
+                           "again later")
                     logger.error(msg)
                     failed_downloads.put(channel)
                     continue
                 try:
                     memfile = StringIO.StringIO()
-                    arc_client.saveResponse(memfile, channel["network"],
+                    arc_client.saveResponse(
+                        memfile, channel["network"],
                         channel["station"], channel["location"],
                         channel["channel"], starttime=channel["starttime"],
                         endtime=channel["endtime"], format="SEED")
@@ -96,15 +97,17 @@ def download_station_files(channels, save_station_fct, arclink_user,
                 try:
                     parser = Parser(memfile)
                 except:
-                    msg = ("Arclink did not return a valid dataless SEED file "
+                    msg = (
+                        "Arclink did not return a valid dataless SEED file "
                         "for channel %s [%s-%s]") % (channel_id, starttime,
-                        endtime)
+                                                     endtime)
                     logger.error(msg)
                     failed_downloads.put(channel)
                     continue
                 if not utils.channel_in_parser(parser, channel_id, starttime,
-                        endtime):
-                    msg = ("Arclink returned a valid dataless SEED file "
+                                               endtime):
+                    msg = (
+                        "Arclink returned a valid dataless SEED file "
                         "for channel %s [%s to %s], but it does not actually "
                         " contain data for the requested channel and time "
                         "frame.") % \
@@ -113,15 +116,16 @@ def download_station_files(channels, save_station_fct, arclink_user,
                     failed_downloads.put(channel)
                     continue
                 memfile.seek(0, 0)
-                save_station_fct(memfile, channel["network"],
+                save_station_fct(
+                    memfile, channel["network"],
                     channel["station"], channel["location"],
                     channel["channel"], format="datalessSEED")
                 successful_downloads.put(channel)
                 if logger:
                     logger.info("Successfully downloaded dataless SEED for "
-                        "channel %s.%s.%s.%s from ArcLink." % (
-                            channel["network"], channel["station"],
-                            channel["location"], channel["channel"]))
+                                "channel %s.%s.%s.%s from ArcLink." % (
+                                    channel["network"], channel["station"],
+                                    channel["location"], channel["channel"]))
 
     class IRISDownloadThread(threading.Thread):
         def __init__(self, queue, successful_downloads):
@@ -140,16 +144,17 @@ def download_station_files(channels, save_station_fct, arclink_user,
                 location = channel["location"]
                 chan = channel["channel"]
                 channel_id = "%s.%s.%s.%s" % (network, station, location,
-                    chan)
+                                              chan)
                 time.sleep(0.5)
                 if logger:
                     logger.debug("Starting IRIS download for %s..." %
-                        channel_id)
+                                 channel_id)
                 client = obspy.iris.Client()
                 try:
-                    resp_data = client.resp(channel["network"],
-                        channel["station"], channel["location"],
-                        channel["channel"], starttime=channel["starttime"],
+                    resp_data = client.resp(
+                        channel["network"], channel["station"],
+                        channel["location"], channel["channel"],
+                        starttime=channel["starttime"],
                         endtime=channel["endtime"])
                 except Exception as e:
                     msg = "While downloading %s from IRIS [%s to %s]: %s" % (
@@ -160,8 +165,9 @@ def download_station_files(channels, save_station_fct, arclink_user,
 
                 if not resp_data:
                     msg = ("While downloading %s from IRIS [%s to %s]: "
-                        "No data returned") % (channel_id,
-                        channel["starttime"], channel["endtime"])
+                           "No data returned") % (
+                               channel_id, channel["starttime"],
+                               channel["endtime"])
                     logger.error(msg)
                     continue
 
@@ -169,11 +175,12 @@ def download_station_files(channels, save_station_fct, arclink_user,
                 memfile.seek(0, 0)
 
                 save_station_fct(memfile, channel["network"],
-                    channel["station"], channel["location"],
-                    channel["channel"], format="RESP")
+                                 channel["station"], channel["location"],
+                                 channel["channel"], format="RESP")
                 successful_downloads.put(channel)
                 if logger:
-                    logger.info("Successfully downloaded RESP file for "
+                    logger.info(
+                        "Successfully downloaded RESP file for "
                         "channel %s.%s.%s.%s from IRIS." % (
                             channel["network"], channel["station"],
                             channel["location"], channel["channel"]))
@@ -205,8 +212,8 @@ def download_station_files(channels, save_station_fct, arclink_user,
     # 60 seconds and they start with 1 second between each other.
     thread_count = min(20, len(arclink_channels))
     for _i in xrange(thread_count):
-        thread = ArcLinkDownloadThread(queue=queue,
-            successful_downloads=successful_downloads,
+        thread = ArcLinkDownloadThread(
+            queue=queue, successful_downloads=successful_downloads,
             failed_downloads=failed_downloads)
         my_threads.append(thread)
         thread.start()
@@ -239,8 +246,8 @@ def download_station_files(channels, save_station_fct, arclink_user,
     # 60 seconds and they start with 1 second between each other.
     thread_count = min(20, len(iris_channels))
     for _i in xrange(thread_count):
-        thread = IRISDownloadThread(queue=queue,
-            successful_downloads=successful_downloads)
+        thread = IRISDownloadThread(
+            queue=queue, successful_downloads=successful_downloads)
         my_threads.append(thread)
         thread.start()
         time.sleep(0.5)

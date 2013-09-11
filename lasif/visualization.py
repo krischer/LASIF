@@ -23,19 +23,19 @@ import rotations
 
 
 def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
-        boundary_buffer_in_degree=0.0, rotation_axis=[0.0, 0.0, 1.0],
-        rotation_angle_in_degree=0.0, show_plot=True,
-        plot_simulation_domain=False, zoom=False, resolution=None):
+                boundary_buffer_in_degree=0.0, rotation_axis=[0.0, 0.0, 1.0],
+                rotation_angle_in_degree=0.0, show_plot=True,
+                plot_simulation_domain=False, zoom=False, resolution=None):
     """
     """
-    bounds = rotations.get_max_extention_of_domain(min_latitude,
-        max_latitude, min_longitude, max_longitude,
+    bounds = rotations.get_max_extention_of_domain(
+        min_latitude, max_latitude, min_longitude, max_longitude,
         rotation_axis=rotation_axis,
         rotation_angle_in_degree=rotation_angle_in_degree)
-    center_lat = bounds["minimum_latitude"] + (bounds["maximum_latitude"] -
-        bounds["minimum_latitude"]) / 2.0
-    center_lng = bounds["minimum_longitude"] + (bounds["maximum_longitude"] -
-        bounds["minimum_longitude"]) / 2.0
+    center_lat = bounds["minimum_latitude"] + (
+        bounds["maximum_latitude"] - bounds["minimum_latitude"]) / 2.0
+    center_lng = bounds["minimum_longitude"] + (
+        bounds["maximum_longitude"] - bounds["minimum_longitude"]) / 2.0
 
     extend_x = bounds["maximum_longitude"] - bounds["minimum_longitude"]
     extend_y = bounds["maximum_latitude"] - bounds["minimum_latitude"]
@@ -46,22 +46,23 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         if resolution is None:
             resolution = "c"
         m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
-            resolution=resolution)
+                    resolution=resolution)
     else:
         if resolution is None:
             resolution = "l"
         buffer = max_extend * 0.1
         m = Basemap(projection='merc', resolution=resolution,
-            llcrnrlat=bounds["minimum_latitude"] - buffer,
-            urcrnrlat=bounds["maximum_latitude"] + buffer,
-            llcrnrlon=bounds["minimum_longitude"] - buffer,
-            urcrnrlon=bounds["maximum_longitude"] + buffer)
+                    llcrnrlat=bounds["minimum_latitude"] - buffer,
+                    urcrnrlat=bounds["maximum_latitude"] + buffer,
+                    llcrnrlon=bounds["minimum_longitude"] - buffer,
+                    urcrnrlon=bounds["maximum_longitude"] + buffer)
 
     m.drawmapboundary(fill_color='#cccccc')
     m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
 
-    border = rotations.get_border_latlng_list(min_latitude, max_latitude,
-        min_longitude, max_longitude, rotation_axis=rotation_axis,
+    border = rotations.get_border_latlng_list(
+        min_latitude, max_latitude, min_longitude, max_longitude,
+        rotation_axis=rotation_axis,
         rotation_angle_in_degree=rotation_angle_in_degree)
     border = np.array(border)
     lats = border[:, 0]
@@ -84,8 +85,8 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         m.plot(lngs, lats, color="black", lw=2, alpha=0.4)
 
     if plot_simulation_domain is True:
-        border = rotations.get_border_latlng_list(min_latitude, max_latitude,
-            min_longitude, max_longitude)
+        border = rotations.get_border_latlng_list(
+            min_latitude, max_latitude, min_longitude, max_longitude)
         border = np.array(border)
         lats = border[:, 0]
         lngs = border[:, 1]
@@ -120,12 +121,13 @@ def plot_events(events, map_object):
             i.remove()
         annotations[:] = []
         x, y = event.mouseevent.xdata, event.mouseevent.ydata
-        annotation = plt.annotate(event.artist.detailed_description,
+        annotation = plt.annotate(
+            event.artist.detailed_description,
             xy=(x, y), xytext=(0.98, 0.98), textcoords="figure fraction",
             horizontalalignment="right", verticalalignment="top",
             arrowprops=dict(arrowstyle="fancy", color="0.5",
-            connectionstyle="arc3,rad=0.3"), zorder=10E9,
-            fontsize="small")
+                            connectionstyle="arc3,rad=0.3"),
+            zorder=10E9, fontsize="small")
         annotations.append(annotation)
         plt.gcf().canvas.draw()
 
@@ -141,7 +143,7 @@ def plot_events(events, map_object):
         focmec = [mt.m_rr, mt.m_tt, mt.m_pp, mt.m_rt, mt.m_rp, mt.m_tp]
         # Attempt to calculate the best beachball size.
         width = max((map_object.xmax - map_object.xmin,
-            map_object.ymax - map_object.ymin)) * 0.020
+                     map_object.ymax - map_object.ymin)) * 0.020
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_picker(True)
         b.detailed_description = (
@@ -150,7 +152,7 @@ def plot_events(events, map_object):
             "Time: %s\n"
             "%s"
         ) % (mag.mag, mag.magnitude_type, org.latitude, org.longitude,
-            org.depth / 1000.0, org.time, os.path.basename(event.filename))
+             org.depth / 1000.0, org.time, os.path.basename(event.filename))
 
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
@@ -159,7 +161,7 @@ def plot_events(events, map_object):
 
 
 def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
-        max_lng, rot_axis, rot_angle):
+                    max_lng, rot_axis, rot_angle):
     """
     Create a ray-density plot for all events and all stations.
 
@@ -172,8 +174,9 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     import progressbar
     from scipy.stats import scoreatpercentile
 
-    bounds = rotations.get_max_extention_of_domain(min_lat, max_lat, min_lng,
-        max_lng, rotation_axis=rot_axis, rotation_angle_in_degree=rot_angle)
+    bounds = rotations.get_max_extention_of_domain(
+        min_lat, max_lat, min_lng, max_lng, rotation_axis=rot_axis,
+        rotation_angle_in_degree=rot_angle)
 
     # Merge everything so that a list with coordinate pairs is created. This
     # list is then distributed among all processors.
@@ -183,7 +186,7 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
         e_point = Point(org.latitude, org.longitude)
         for station in stations.itervalues():
             station_event_list.append((e_point, Point(station["latitude"],
-                station["longitude"])))
+                                                      station["longitude"])))
 
     circle_count = len(station_event_list)
 
@@ -208,16 +211,16 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
         (circle_count, cpu_count)
 
     widgets = ["Progress: ", progressbar.Percentage(),
-        progressbar.Bar(), "", progressbar.ETA()]
+               progressbar.Bar(), "", progressbar.ETA()]
     pbar = progressbar.ProgressBar(widgets=widgets,
-        maxval=circle_count).start()
+                                   maxval=circle_count).start()
 
     def great_circle_binning(sta_evs, bin_data_buffer, bin_data_shape,
-            lock, counter):
-        new_bins = GreatCircleBinner(bounds["minimum_latitude"],
-            bounds["maximum_latitude"], lat_lng_count,
-            bounds["minimum_longitude"], bounds["maximum_longitude"],
-            lat_lng_count)
+                             lock, counter):
+        new_bins = GreatCircleBinner(
+            bounds["minimum_latitude"], bounds["maximum_latitude"],
+            lat_lng_count, bounds["minimum_longitude"],
+            bounds["maximum_longitude"], lat_lng_count)
         for event, station in sta_evs:
             with lock:
                 counter.value += 1
@@ -241,15 +244,16 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     chunks = chunk(station_event_list, cpu_count)
 
     # One instance that collects everything.
-    collected_bins = GreatCircleBinner(bounds["minimum_latitude"],
-        bounds["maximum_latitude"], lat_lng_count, bounds["minimum_longitude"],
-        bounds["maximum_longitude"], lat_lng_count)
+    collected_bins = GreatCircleBinner(
+        bounds["minimum_latitude"], bounds["maximum_latitude"], lat_lng_count,
+        bounds["minimum_longitude"], bounds["maximum_longitude"],
+        lat_lng_count)
 
     # Use a multiprocessing shared memory array and map it to a numpy view.
     collected_bins_data = multiprocessing.Array(C.c_uint32,
-        collected_bins.bins.size)
+                                                collected_bins.bins.size)
     collected_bins.bins = to_numpy(collected_bins_data, np.uint32,
-        collected_bins.bins.shape)
+                                   collected_bins.bins.shape)
 
     # Create, launch and join one process per CPU. Use a shared value as a
     # counter and a lock to avoid race conditions.
@@ -257,9 +261,10 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     lock = multiprocessing.Lock()
     counter = multiprocessing.Value("i", 0)
     for _i in xrange(cpu_count):
-        processes.append(multiprocessing.Process(target=great_circle_binning,
-            args=(chunks[_i], collected_bins_data, collected_bins.bins.shape,
-                lock, counter)))
+        processes.append(multiprocessing.Process(
+            target=great_circle_binning, args=(chunks[_i], collected_bins_data,
+                                               collected_bins.bins.shape, lock,
+                                               counter)))
     for process in processes:
         process.start()
     for process in processes:
@@ -313,12 +318,13 @@ def plot_stations_for_event(map_object, station_dict, event_info):
     lats = [_i["latitude"] for _i in station_dict.itervalues()]
     x, y = map_object(lngs, lats)
     map_object.scatter(x, y, color="green", s=35, marker="v", zorder=100,
-        edgecolor="black")
+                       edgecolor="black")
 
     # Plot the ray paths.
     for sta_lng, sta_lat in izip(lngs, lats):
         map_object.drawgreatcircle(event_info["longitude"],
-            event_info["latitude"], sta_lng, sta_lat, lw=2, alpha=0.3)
+                                   event_info["latitude"], sta_lng, sta_lat,
+                                   lw=2, alpha=0.3)
 
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
         event_info["region"], str(event_info["origin_time"]),
@@ -333,7 +339,7 @@ def plot_tf(data, delta):
     npts = len(data)
 
     plotTfr(data, dt=delta, fmin=1.0 / (npts * delta),
-        fmax=1.0 / (2.0 * delta))
+            fmax=1.0 / (2.0 * delta))
 
 
 def plot_event_histogram(events, plot_type):

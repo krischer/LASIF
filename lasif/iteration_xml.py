@@ -42,28 +42,31 @@ class Iteration(object):
 
         self.data_preprocessing = {}
         prep = root.find("data_preprocessing")
-        self.data_preprocessing["highpass_period"] = float(self._get(prep, "highpass_period"))
-        self.data_preprocessing["lowpass_period"] = float(self._get(prep, "lowpass_period"))
+        self.data_preprocessing["highpass_period"] = \
+            float(self._get(prep, "highpass_period"))
+        self.data_preprocessing["lowpass_period"] = \
+            float(self._get(prep, "lowpass_period"))
 
-        self.solver_settings = self._recursive_dict(root.find("solver_parameters"))[1]
+        self.solver_settings = \
+            self._recursive_dict(root.find("solver_parameters"))[1]
 
         self.events = {}
         for event in root.findall("event"):
             event_name = self._get(event, "event_name")
             self.events[event_name] = {
                 "event_weight": float(self._get(event, "event_weight")),
-                "time_correction_in_s": float(self._get(event,
-                    "time_correction_in_s")),
+                "time_correction_in_s": float(
+                    self._get(event, "time_correction_in_s")),
                 "stations": {}}
             for station in event.findall("station"):
                 station_id = self._get(station, "station_id")
                 comments = [_i.text
-                    for _i in station.findall("comment") if _i.text]
+                            for _i in station.findall("comment") if _i.text]
                 self.events[event_name]["stations"][station_id] = {
                     "station_weight": float(self._get(station,
-                        "station_weight")),
-                    "time_correction_in_s": float(self._get(station,
-                        "time_correction_in_s")),
+                                            "station_weight")),
+                    "time_correction_in_s": float(
+                        self._get(station, "time_correction_in_s")),
                     "comments": comments}
 
     def get_source_time_function(self):
@@ -148,7 +151,8 @@ class Iteration(object):
         # Generate a preprocessing tag. This will identify the used
         # preprocessing so that duplicates can be avoided.
         processing_tag = ("preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_"
-            "npts_{npts}_dt_{dt:5f}").format(**self.get_process_params())
+                          "npts_{npts}_dt_{dt:5f}").format(
+                              **self.get_process_params())
         return processing_tag
 
     def __str__(self):
@@ -169,8 +173,8 @@ class Iteration(object):
             "unique stations\n"
             "\t{pair_count} event-station pairs (\"rays\")")
 
-        comments = "\n".join("\tComment: %s" % comment
-            for comment in self.comments)
+        comments = "\n".join("\tComment: %s" %
+                             comment for comment in self.comments)
         if comments:
             comments += "\n"
 
@@ -178,7 +182,8 @@ class Iteration(object):
         for ev in self.events.itervalues():
             all_stations.extend(ev["stations"].iterkeys())
 
-        return ret_str.format(self=self, comments=comments,
+        return ret_str.format(
+            self=self, comments=comments,
             hp=self.data_preprocessing["highpass_period"],
             lp=self.data_preprocessing["lowpass_period"],
             solver=self.solver_settings["solver"],
@@ -241,7 +246,7 @@ def create_iteration_xml_string(iteration_name, solver_name, events):
         *events_doc)
 
     string_doc = etree.tostring(doc, pretty_print=True,
-        xml_declaration=True, encoding="UTF-8")
+                                xml_declaration=True, encoding="UTF-8")
     return string_doc
 
 
@@ -255,6 +260,6 @@ def _get_default_solver_settings(solver):
         from lasif.utils import generate_ses3d_4_0_template
         return generate_ses3d_4_0_template()
     else:
-        msg = "Solver '%s' not known. Known solvers: %s" % (solver,
-            ",".join(known_solvers))
+        msg = "Solver '%s' not known. Known solvers: %s" % (
+            solver, ",".join(known_solvers))
         raise LASIFException(msg)

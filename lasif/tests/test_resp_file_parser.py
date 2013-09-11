@@ -39,7 +39,7 @@ class RESPFileParserTestCase(unittest.TestCase):
         self.assertEqual(channel["location"], "00")
         self.assertEqual(channel["channel"], "BHE")
         self.assertEqual(channel["start_date"],
-            obspy.UTCDateTime(2006, 11, 22, 13))
+                         obspy.UTCDateTime(2006, 11, 22, 13))
         self.assertEqual(channel["end_date"], None)
         self.assertEqual(channel["channel_id"], "G.FDF.00.BHE")
 
@@ -58,7 +58,7 @@ class RESPFileParserTestCase(unittest.TestCase):
         self.assertEqual(channel["location"], "")
         self.assertEqual(channel["channel"], "BHE")
         self.assertEqual(channel["start_date"],
-            obspy.UTCDateTime(2009, 8, 9, 0))
+                         obspy.UTCDateTime(2009, 8, 9, 0))
         self.assertEqual(channel["end_date"], None)
         self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
         # The two have the same information for some reason...
@@ -68,7 +68,7 @@ class RESPFileParserTestCase(unittest.TestCase):
         self.assertEqual(channel["location"], "")
         self.assertEqual(channel["channel"], "BHE")
         self.assertEqual(channel["start_date"],
-            obspy.UTCDateTime(2009, 8, 9, 0))
+                         obspy.UTCDateTime(2009, 8, 9, 0))
         self.assertEqual(channel["end_date"], None)
         self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
 
@@ -78,7 +78,7 @@ class RESPFileParserTestCase(unittest.TestCase):
         """
         filename = os.path.join(self.data_dir, "RESP.AF.DODT..BHE")
         channels = simple_resp_parser.get_inventory(filename,
-            remove_duplicates=True)
+                                                    remove_duplicates=True)
         self.assertEqual(len(channels), 1)
         channel = channels[0]
         self.assertEqual(channel["network"], "AF")
@@ -86,7 +86,7 @@ class RESPFileParserTestCase(unittest.TestCase):
         self.assertEqual(channel["location"], "")
         self.assertEqual(channel["channel"], "BHE")
         self.assertEqual(channel["start_date"],
-            obspy.UTCDateTime(2009, 8, 9, 0))
+                         obspy.UTCDateTime(2009, 8, 9, 0))
         self.assertEqual(channel["end_date"], None)
         self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
 

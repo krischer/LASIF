@@ -98,14 +98,15 @@ def preprocess_file(file_info):
     # Open logfile. Write basic info.
     #==========================================================================
 
-    fid_log = open(file_info["logfile_name"],'a')
-    fid_log.write('Processing '+file_info["data_path"]+'\n')
+    fid_log = open(file_info["logfile_name"], 'a')
+    fid_log.write('Processing ' + file_info["data_path"] + '\n')
 
     #==========================================================================
     # Read seismograms and gather basic information.
     #==========================================================================
 
-    sys.stdout.write("Processing file %i: %s\n" % (file_info["file_number"],file_info["data_path"]))
+    sys.stdout.write("Processing file %i: %s\n" % (file_info["file_number"],
+                                                   file_info["data_path"]))
     sys.stdout.flush()
 
     starttime = file_info["origin_time"]
@@ -120,8 +121,10 @@ def preprocess_file(file_info):
     lock.release()
 
     if len(st) != 1:
-        fid_log.write("* File has more than one trace. Skip all but the first.\n")
-        msg = "File '%s' has %i traces and not 1. Will be skipped" % (file_info["data_path"], len(st))
+        fid_log.write("* File has more than one trace. "
+                      "Skip all but the first.\n")
+        msg = "File '%s' has %i traces and not 1. Will be skipped" % (
+            file_info["data_path"], len(st))
         warnings.warn(msg)
     tr = st[0]
 
@@ -137,7 +140,8 @@ def preprocess_file(file_info):
     # non-zero length
 
     if len(tr) == 0:
-        fid_log.write("* No data contained in time window around the event. Skipped.\n")
+        fid_log.write("* No data contained in time window around the event. "
+                      "Skipped.\n")
         msg = ("No data contained in time window around the event.")
         warnings.warn(msg)
         return True
@@ -146,13 +150,13 @@ def preprocess_file(file_info):
 
     if True in np.isnan(tr.data):
         fid_log.write("* File contains NaN. Skipped.\n")
-        msg= ("File '%s' contains NaN. Skipped.") % file_info["data_path"]
+        msg = ("File '%s' contains NaN. Skipped.") % file_info["data_path"]
         warnings.warn(msg)
         return True
 
     if True in np.isinf(tr.data):
         fid_log.write("* File contains Inf. Skipped.\n")
-        msg= ("File '%s' contains inf. Skipped.") % file_info["data_path"]
+        msg = ("File '%s' contains inf. Skipped.") % file_info["data_path"]
         warnings.warn(msg)
         return True
 
@@ -192,8 +196,10 @@ def preprocess_file(file_info):
 
     #- check if the station file actually exists ==============================
     if not file_info["station_filename"]:
-        fid_log.write("* Could not find station file for the relevant time window. Skipped,\n")
-        msg = ("Could not find a station file in the relevant time window. File will not be processed.")
+        fid_log.write("* Could not find station file for the relevant time "
+                      "window. Skipped,\n")
+        msg = ("Could not find a station file in the relevant time window. "
+               "File will not be processed.")
         warnings.warn(msg)
         return True
 
@@ -207,17 +213,22 @@ def preprocess_file(file_info):
             tr.simulate(paz_remove=paz)
         except ValueError:
             fid_log.write("* Instrument correction failed. Skipped.\n")
-            msg = ("File '%s' could not be corrected with the help of the SEED file '%s'. Will be skipped.") % (file_info["data_path"],file_info["station_filename"])
+            msg = ("File '%s' could not be corrected with the help of the "
+                   "SEED file '%s'. Will be skipped.") % \
+                (file_info["data_path"], file_info["station_filename"])
             warnings.warn(msg)
             return True
 
-    #- processing with seed files ==============================================
+    #- processing with seed files =============================================
     elif "/RESP/" in station_file:
         try:
-            tr.simulate(seedresp={"filename": station_file, "units": "VEL", "date": tr.stats.starttime})
+            tr.simulate(seedresp={"filename": station_file, "units": "VEL",
+                                  "date": tr.stats.starttime})
         except ValueError:
             fid_log.write("* Instrument correction failed. Skipped.\n")
-            msg = ("File '%s' could not be corrected with the help of the RESP file '%s'. Will be skipped.") % (file_info["data_path"], file_info["station_filename"])
+            msg = ("File '%s' could not be corrected with the help of the "
+                   "RESP file '%s'. Will be skipped.") % \
+                (file_info["data_path"], file_info["station_filename"])
             warnings.warn(msg)
             return True
     else:
@@ -239,8 +250,10 @@ def preprocess_file(file_info):
         tr.trim(endtime=endtime + buf, pad=True, fill_value=0.0)
 
     # Actual interpolation. Currently a linear interpolation is used.
-    new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,file_info["npts"])
-    old_time_array = np.linspace(tr.stats.starttime.timestamp,tr.stats.endtime.timestamp, tr.stats.npts)
+    new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,
+                                 file_info["npts"])
+    old_time_array = np.linspace(tr.stats.starttime.timestamp,
+                                 tr.stats.endtime.timestamp, tr.stats.npts)
     tr.data = interp1d(old_time_array, tr.data, kind=1)(new_time_array)
     tr.stats.starttime = starttime
     tr.stats.delta = file_info["dt"]
@@ -251,7 +264,8 @@ def preprocess_file(file_info):
     # Should eventually be configurable.
     #==========================================================================
     tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
-    tr.filter("highpass", freq=file_info["highpass"], corners=2, zerophase=False)
+    tr.filter("highpass", freq=file_info["highpass"], corners=2,
+              zerophase=False)
 
     #==========================================================================
     # Save processed data and clean up.
@@ -259,7 +273,8 @@ def preprocess_file(file_info):
 
     # Convert to single precision for saving.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
-    if hasattr(tr.stats, "mseed"): tr.stats.mseed.encoding = "FLOAT32"
+    if hasattr(tr.stats, "mseed"):
+        tr.stats.mseed.encoding = "FLOAT32"
 
     # The lock is necessary for MiniSEED files. This is a limitation of the
     # current version of ObsPy and will hopefully be resolved soon!
@@ -306,7 +321,7 @@ def pool_imap_unordered(function, iterable, processes):
     # Start the worker processes.
     for rpt in xrange(processes):
         multiprocessing.Process(target=worker, args=(sending_queue,
-            receiving_queue)).start()
+                                receiving_queue)).start()
 
     # Iterate over the iterable and communicate with the worker process.
     send_len = 0
@@ -356,8 +371,8 @@ def launch_processing(data_generator, waiting_time=4.0):
     processes = 2 * multiprocessing.cpu_count()
 
     print ("%sLaunching preprocessing using %i processes...%s\n"
-        "This might take a while. Press Ctrl + C to cancel.\n") % (
-        colorama.Fore.GREEN, processes, colorama.Style.RESET_ALL)
+           "This might take a while. Press Ctrl + C to cancel.\n") % (
+               colorama.Fore.GREEN, processes, colorama.Style.RESET_ALL)
 
     # Give the user some time to read the message.
     time.sleep(waiting_time)

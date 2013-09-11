@@ -96,7 +96,8 @@ def generate_ses3d_4_0_template():
 
 
 def point_in_domain(latitude, longitude, domain,
-        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0):
+                    rotation_axis=[0.0, 0.0, 1.0],
+                    rotation_angle_in_degree=0.0):
     """
     Simple function checking if a geographic point is placed inside a
     rotated spherical section. It simple rotates the point and checks if it
@@ -122,8 +123,8 @@ def point_in_domain(latitude, longitude, domain,
         domain["boundary_width_in_degree"]
 
     # Rotate the station and check if it is still in bounds.
-    r_lat, r_lng = rotations.rotate_lat_lon(latitude, longitude,
-        rotation_axis, -1.0 * rotation_angle_in_degree)
+    r_lat, r_lng = rotations.rotate_lat_lon(
+        latitude, longitude, rotation_axis, -1.0 * rotation_angle_in_degree)
     # Check if in bounds. If not continue.
     if not (min_latitude <= r_lat <= max_latitude) or \
             not (min_longitude <= r_lng <= max_longitude):

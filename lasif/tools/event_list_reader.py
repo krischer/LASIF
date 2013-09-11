@@ -38,8 +38,8 @@ def read_event_list(filename):
             index, date, colat, lon, depth, exp, Mrr, Mtt, Mpp, Mrt, Mrp, \
                 Mtp, time, Mw = line[:14]
             index, exp = map(int, (index, exp))
-            colat, lon, depth, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, Mw = map(float,
-                (colat, lon, depth, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, Mw))
+            colat, lon, depth, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, Mw = map(
+                float, (colat, lon, depth, Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, Mw))
             year, month, day = map(int, date.split("/"))
             split_time = time.split(":")
             if len(split_time) == 3:
@@ -52,7 +52,7 @@ def read_event_list(filename):
             microsecond = int(microsecond) * 10 ** (6 - len(microsecond))
             hour, minute, second = map(int, (hour, minute, second))
             event_time = UTCDateTime(year, month, day, hour, minute, second,
-                microsecond)
+                                     microsecond)
             event = {
                 "longitude": lon,
                 "latitude": -1.0 * (colat - 90.0),

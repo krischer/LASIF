@@ -20,7 +20,8 @@ from lasif.adjoint_sources import time_frequency
 eps = np.spacing(1)
 
 
-def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None, colorbar_axis=None):
+def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
+                          axis=None, colorbar_axis=None):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -31,46 +32,55 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
     """
     messages = []
 
-    #- Compute time-frequency representations -----------------------------------------------------
+    # Compute time-frequency representations ----------------------------------
 
-    #- compute new time increments and Gaussian window width for the time-frequency transforms
+    # compute new time increments and Gaussian window width for the
+    # time-frequency transforms
     dt_new = float(int(min_period / 3.0))
     width = 2.0 * min_period
 
     # Compute time-frequency representation of the cross-correlation
-    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(t, data, synthetic, dt_new, width)
+    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(
+        t, data, synthetic, dt_new, width)
     # Compute the time-frequency representation of the synthetic
-    tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic, dt_new, width)
+    tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic,
+                                                                dt_new, width)
 
-    # 2D interpolation to bring the tf representation of the correlation on the same grid as the tf
-    # representation of the synthetics. Uses a two-step procedure for real and imaginary parts.
-    tf_cc_interp = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.real, kx=1, ky=1, s=0)(tau[0], nu[:, 0])
+    # 2D interpolation to bring the tf representation of the correlation on the
+    # same grid as the tf representation of the synthetics. Uses a two-step
+    # procedure for real and imaginary parts.
+    tf_cc_interp = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.real,
+                                       kx=1, ky=1, s=0)(tau[0], nu[:, 0])
     tf_cc_interp = np.require(tf_cc_interp, dtype="complex128")
-    tf_cc_interp.imag = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.imag, kx=1, ky=1, s=0)(tau[0], nu[:, 0])
+    tf_cc_interp.imag = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.imag,
+                                            kx=1, ky=1, s=0)(tau[0], nu[:, 0])
     tf_cc = tf_cc_interp
 
-    #- compute tf window and weighting function ---------------------------------------------------
+    # compute tf window and weighting function --------------------------------
 
     # noise taper: downweigh tf amplitudes that are very low
     m = np.abs(tf_cc).max() / 10.0
     weight = 1.0 - np.exp(-(np.abs(tf_cc) ** 2) / (m ** 2))
     nu_t = nu.transpose()
 
-    # highpass filter (periods longer than max_period are suppressed exponentially)
+    # highpass filter (periods longer than max_period are suppressed
+    # exponentially)
     weight *= (1.0 - np.exp(-(nu_t * max_period) ** 2))
-    
-    # lowpass filter (periods shorter than min_period are suppressed exponentially)
+
+    # lowpass filter (periods shorter than min_period are suppressed
+    # exponentially)
     nu_t_large = np.zeros(nu_t.shape)
     nu_t_small = np.zeros(nu_t.shape)
     thres = (nu_t <= 1.0/min_period)
-    nu_t_large[np.invert(thres)] = 1.0      
-    nu_t_small[thres] = 1.0                 
-    weight *= (np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large + nu_t_small)
-    
+    nu_t_large[np.invert(thres)] = 1.0
+    nu_t_small[thres] = 1.0
+    weight *= (np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large +
+               nu_t_small)
+
     # normalisation
     weight /= weight.max()
 
-    #- computation of phase difference, make quality checks and misfit ----------------------------
+    # computation of phase difference, make quality checks and misfit ---------
 
     # Compute the phase difference.
     #DP = np.imag(np.log(m + tf_cc / (2 * m + np.abs(tf_cc))))
@@ -86,7 +96,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
     #criterion_2 = np.abs(np.diff(test_field, axis=1)).max()
     #criterion = max(criterion_1, criterion_2)
     if criterion > 7.0:
-        warning = "Possible phase jump detected. Misfit included. No adjoint source computed."
+        warning = ("Possible phase jump detected. Misfit included. No "
+                   "adjoint source computed.")
         warnings.warn(warning)
         messages.append(warning)
 
@@ -99,12 +110,12 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
         msg = "The phase misfit is NaN."
         raise Exception(msg)
 
-    #- compute the adjoint source when no phase jump detected -------------------------------------
+    # compute the adjoint source when no phase jump detected ------------------
 
     if criterion <= 7.0:
-
         # Make kernel for the inverse tf transform
-        idp = weight * weight * DP * tf_synth / (m + np.abs(tf_synth) * np.abs(tf_synth))
+        idp = weight * weight * DP * tf_synth / (m + np.abs(tf_synth) *
+                                                 np.abs(tf_synth))
 
         # Invert tf transform and make adjoint source
         ad_src, it, I = time_frequency.itfa(tau, nu, idp, width)
@@ -120,15 +131,15 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
         ad_src /= (phase_misfit + eps)
         ad_src = np.diff(ad_src) / (t[1] - t[0])
 
-        # Reverse time and add a leading zero so the adjoint source has the same length as the input time series.
+        # Reverse time and add a leading zero so the adjoint source has the
+        # same length as the input time series.
         ad_src = ad_src[::-1]
         ad_src = np.concatenate([[0.0], ad_src])
 
     else:
+        ad_src = np.zeros(len(t))
 
-        ad_src=np.zeros(len(t))
-
-    # Plot if required. ---------------------------------------------------------------------------
+    # Plot if required. -------------------------------------------------------
 
     if axis:
         import matplotlib.cm as cm
@@ -136,8 +147,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
 
         weighted_phase_difference = (DP * weight).transpose()
         abs_diff = np.abs(weighted_phase_difference)
-        max_val = abs_diff.max()
-        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference, vmin=-1.0, vmax=1.0, cmap=cm.RdBu_r)
+        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference,
+                                   vmin=-1.0, vmax=1.0, cmap=cm.RdBu_r)
         axis.set_xlabel("Seconds since event")
         axis.set_ylabel("TF Phase Misfit: Frequency [Hz]")
 
@@ -162,23 +173,24 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period, axis=None,
         max_value = max(data.max(), synthetic.max())
         value_range = max_value - min_value
         axis.twin_axis = ax2
-        ax2.set_ylim(min_value - 2.5 * value_range, max_value + 0.5 * value_range)
+        ax2.set_ylim(min_value - 2.5 * value_range, max_value + 0.5 *
+                     value_range)
         ax2.set_ylabel("Waveforms: Amplitude [m/s]")
         axis.set_xlim(0, tau[:, -1][-1])
         ax2.set_xlim(0, tau[:, -1][-1])
 
         text = "Misfit: %.4f" % phase_misfit
         axis.text(x=0.99, y=0.02, s=text, transform=axis.transAxes,
-            bbox=dict(facecolor='orange', alpha=0.8),
-            verticalalignment="bottom",
-            horizontalalignment="right")
+                  bbox=dict(facecolor='orange', alpha=0.8),
+                  verticalalignment="bottom",
+                  horizontalalignment="right")
 
         if messages:
             message = "\n".join(messages)
             axis.text(x=0.99, y=0.98, s=message, transform=axis.transAxes,
-                bbox=dict(facecolor='red', alpha=0.8),
-                verticalalignment="top",
-                horizontalalignment="right")
+                      bbox=dict(facecolor='red', alpha=0.8),
+                      verticalalignment="top",
+                      horizontalalignment="right")
 
     ret_dict = {
         "adjoint_source": ad_src,

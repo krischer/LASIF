@@ -42,7 +42,7 @@ class WaveformCache(FileInfoCache):
         self.waveform_folder = waveform_folder
 
         super(WaveformCache, self).__init__(cache_db_file=cache_db_file,
-            show_progress=show_progress)
+                                            show_progress=show_progress)
 
     def _find_files_waveform(self):
         return glob.glob(os.path.join(self.waveform_folder, "*"))

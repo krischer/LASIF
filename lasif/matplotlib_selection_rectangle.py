@@ -21,7 +21,7 @@ class WindowSelectionRectangle(object):
         self.min_x = event.xdata
         self.intial_selection_active = True
         self.rect = Rectangle((event.xdata, ymin), 0, ymax - ymin,
-            facecolor="0.3", alpha=0.5, edgecolor="0.5")
+                              facecolor="0.3", alpha=0.5, edgecolor="0.5")
         self.axes.add_patch(self.rect)
         # Get the canvas.
         self.canvas = self.rect.figure.canvas

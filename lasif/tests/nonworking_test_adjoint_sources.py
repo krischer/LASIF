@@ -32,11 +32,11 @@ class AdjointSourceUtilsTestCase(unittest.TestCase):
         Tests the Matlab range command.
         """
         np.testing.assert_array_equal(utils.matlab_range(0, 5, 1),
-            np.arange(6))
+                                      np.arange(6))
         np.testing.assert_array_equal(utils.matlab_range(0, 5.5, 1),
-            np.arange(6))
+                                      np.arange(6))
         np.testing.assert_array_equal(utils.matlab_range(0, 4.9, 1),
-            np.arange(5))
+                                      np.arange(5))
 
     def test_dispersive_wavetrain(self):
         """
@@ -44,7 +44,8 @@ class AdjointSourceUtilsTestCase(unittest.TestCase):
         reference solution implemented in Matlab.
         """
         # Load the matlab file.
-        matlab_file = os.path.join(self.data_dir,
+        matlab_file = os.path.join(
+            self.data_dir,
             "matlab_dispersive_wavetrain_reference_solution.mat")
         matlab_file = loadmat(matlab_file)
         u_matlab = matlab_file["u"][0]
@@ -52,8 +53,9 @@ class AdjointSourceUtilsTestCase(unittest.TestCase):
         t, u = utils.get_dispersed_wavetrain()
         np.testing.assert_allclose(u, u_matlab)
         np.testing.assert_allclose(t, np.arange(901))
-        t0, u0 = utils.get_dispersed_wavetrain(a=3.91, b=0.87, c=0.8,
-            body_wave_factor=0.015, body_wave_freq_scale=1.0 / 2.2)
+        t0, u0 = utils.get_dispersed_wavetrain(
+            a=3.91, b=0.87, c=0.8, body_wave_factor=0.015,
+            body_wave_freq_scale=1.0 / 2.2)
         np.testing.assert_allclose(u0, u0_matlab)
         np.testing.assert_allclose(t0, np.arange(901))
 
@@ -63,14 +65,16 @@ class AdjointSourceUtilsTestCase(unittest.TestCase):
         solution calculated in Matlab.
         """
         # Load the matlab file.
-        matlab_file = os.path.join(self.data_dir,
+        matlab_file = os.path.join(
+            self.data_dir,
             "matlab_cross_correlation_reference_solution.mat")
         cc_matlab = loadmat(matlab_file)["cc"][0]
 
         # Calculate two test signals.
         _, u = utils.get_dispersed_wavetrain()
-        _, u0 = utils.get_dispersed_wavetrain(a=3.91, b=0.87, c=0.8,
-            body_wave_factor=0.015, body_wave_freq_scale=1.0 / 2.2)
+        _, u0 = utils.get_dispersed_wavetrain(
+            a=3.91, b=0.87, c=0.8, body_wave_factor=0.015,
+            body_wave_freq_scale=1.0 / 2.2)
 
         cc = utils.cross_correlation(u, u0)
         np.testing.assert_allclose(cc, cc_matlab)
@@ -94,7 +98,8 @@ class TimeFrequencyTestCase(unittest.TestCase):
             time_frequency.time_frequency_transform(t, u, 2, 10, 0.0)
 
         # Load the matlab output.
-        matlab = os.path.join(self.data_dir,
+        matlab = os.path.join(
+            self.data_dir,
             "matlab_tfa_output_reference_solution.mat")
         matlab = loadmat(matlab)
         #tau_matlab = matlab["TAU"]
@@ -126,14 +131,16 @@ class AdjointSourceTestCase(unittest.TestCase):
         misfit after Fichtner et. al. (2008).
         """
         # Load the matlab output.
-        ad_src_matlab = os.path.join(self.data_dir,
+        ad_src_matlab = os.path.join(
+            self.data_dir,
             "matlab_tf_phase_misfit_adjoint_source_reference_solution.mat")
         ad_src_matlab = loadmat(ad_src_matlab)["ad_src"].transpose()[0]
 
         # Generate some data.
         t, u = utils.get_dispersed_wavetrain()
-        _, u0 = utils.get_dispersed_wavetrain(a=3.91, b=0.87, c=0.8,
-            body_wave_factor=0.015, body_wave_freq_scale=1.0 / 2.2)
+        _, u0 = utils.get_dispersed_wavetrain(
+            a=3.91, b=0.87, c=0.8, body_wave_factor=0.015,
+            body_wave_freq_scale=1.0 / 2.2)
 
         adjoint_src = ad_src_tf_phase_misfit.adsrc_tf_phase_misfit(
             t, u, u0, 2, 10, 0.0)

@@ -66,9 +66,9 @@ KEYMAP = {
 
 
 class MisfitGUI:
-    def __init__(self, event, seismogram_generator, project, window_manager, adjoint_source_manager):
-
-        #- gather basic information ---------------------------------------------------------------
+    def __init__(self, event, seismogram_generator, project, window_manager,
+                 adjoint_source_manager):
+        # gather basic information --------------------------------------------
 
         plt.figure(figsize=(22, 12))
         self.event = event
@@ -83,12 +83,12 @@ class MisfitGUI:
 
         self._current_app_mode = None
 
-        #- setup necessary info for plot layout and buttons ---------------------------------------
+        # setup necessary info for plot layout and buttons --------------------
 
         self.__setup_plots()
         self.__connect_signals()
 
-        #- read seismograms, show the gui, print basic info on the screen -------------------------
+        # read seismograms, show the gui, print basic info on the screen ------
 
         self.next()
         plt.tight_layout()
@@ -98,7 +98,9 @@ class MisfitGUI:
     def _activate_multicursor(self):
 
         self._deactivate_multicursor
-        self.multicursor = MultiCursor(plt.gcf().canvas, (self.plot_axis_z, self.plot_axis_n, self.plot_axis_e), color="blue", lw=1)
+        self.multicursor = MultiCursor(plt.gcf().canvas, (
+            self.plot_axis_z, self.plot_axis_n, self.plot_axis_e),
+            color="blue", lw=1)
 
     def _deactivate_multicursor(self):
         try:
@@ -125,16 +127,21 @@ class MisfitGUI:
 
         self._activate_multicursor()
 
-        self.misfit_axis = plt.subplot2grid((6, 20), (3, 0), colspan=11, rowspan=3)
-        self.colorbar_axis = plt.subplot2grid((6, 20), (3, 12), colspan=1, rowspan=3)
-        #self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0), colspan=4, rowspan=1)
-        self.map_axis = plt.subplot2grid((6, 20), (3, 14), colspan=7, rowspan=3)
+        self.misfit_axis = plt.subplot2grid((6, 20), (3, 0), colspan=11,
+                                            rowspan=3)
+        self.colorbar_axis = plt.subplot2grid((6, 20), (3, 12), colspan=1,
+                                              rowspan=3)
+        # self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0),
+        # colspan=4, rowspan=1)
+        self.map_axis = plt.subplot2grid((6, 20), (3, 14), colspan=7,
+                                         rowspan=3)
 
         # Plot the map and the beachball.
         bounds = self.project.domain["bounds"]
-        self.map_obj = visualization.plot_domain(bounds["minimum_latitude"],
-            bounds["maximum_latitude"], bounds["minimum_longitude"],
-            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
+        self.map_obj = visualization.plot_domain(
+            bounds["minimum_latitude"], bounds["maximum_latitude"],
+            bounds["minimum_longitude"], bounds["maximum_longitude"],
+            bounds["boundary_width_in_degree"],
             rotation_axis=self.project.domain["rotation_axis"],
             rotation_angle_in_degree=self.project.domain["rotation_angle"],
             plot_simulation_domain=False, show_plot=False, zoom=True)
@@ -154,23 +161,27 @@ class MisfitGUI:
         self.axweight = plt.axes([0.90, 0.75, 0.08, 0.03])
         self._update_current_weight(1.0)
 
-
     def __connect_signals(self):
-
         self.bnext.on_clicked(self.next)
         self.bprev.on_clicked(self.prev)
         self.breset.on_clicked(self.reset)
         self.bautopick.on_clicked(self.autoselect_windows)
 
-        self.plot_axis_z.figure.canvas.mpl_connect('button_press_event',self._onButtonPress)
-        self.plot_axis_n.figure.canvas.mpl_connect('button_press_event',self._onButtonPress)
-        self.plot_axis_e.figure.canvas.mpl_connect('button_press_event',self._onButtonPress)
+        self.plot_axis_z.figure.canvas.mpl_connect('button_press_event',
+                                                   self._onButtonPress)
+        self.plot_axis_n.figure.canvas.mpl_connect('button_press_event',
+                                                   self._onButtonPress)
+        self.plot_axis_e.figure.canvas.mpl_connect('button_press_event',
+                                                   self._onButtonPress)
 
-        self.plot_axis_e.figure.canvas.mpl_connect('key_release_event',self._onKeyRelease)
+        self.plot_axis_e.figure.canvas.mpl_connect('key_release_event',
+                                                   self._onKeyRelease)
 
-        self.plot_axis_z.figure.canvas.mpl_connect('resize_event',self._on_resize)
+        self.plot_axis_z.figure.canvas.mpl_connect('resize_event',
+                                                   self._on_resize)
 
-        # Connect the picker. Connecting once is enough. It will still fire for all axes.
+        # Connect the picker. Connecting once is enough. It will still fire for
+        # all axes.
         self.plot_axis_z.figure.canvas.mpl_connect('pick_event', self._on_pick)
 
     def autoselect_windows(self, event):
@@ -186,20 +197,20 @@ class MisfitGUI:
             real_trace = real_trace[0]
             synth_trace = synth_trace[0]
 
-            windows = select_windows(real_trace, synth_trace,
-                self.event_latitude, self.event_longitude,
-                self.event_depth / 1000.0,
+            windows = select_windows(
+                real_trace, synth_trace, self.event_latitude,
+                self.event_longitude, self.event_depth / 1000.0,
                 self.data["coordinates"]["latitude"],
                 self.data["coordinates"]["longitude"],
                 self.seismogram_generator.lowpass_period,
-                self.seismogram_generator.highpass_period
-                )
+                self.seismogram_generator.highpass_period)
 
             for idx_start, idx_end in windows:
                 window_start = self.time_axis[int(round(idx_start))]
                 window_end = self.time_axis[int(round(idx_end))]
-                self._onWindowSelected(window_start, window_end - window_start, axis=getattr(self,  "plot_axis_%s" %  component.lower()))
-
+                self._onWindowSelected(window_start, window_end - window_start,
+                                       axis=getattr(self,  "plot_axis_%s" %
+                                                    component.lower()))
 
     def _on_pick(self, event):
         artist = event.artist
@@ -211,11 +222,12 @@ class MisfitGUI:
 
             artist.remove()
             self.delete_window(x_min=x_min, x_max=x_max,
-                component=artist.axes.seismic_component)
+                               component=artist.axes.seismic_component)
             plt.draw()
 
         if event.mouseevent.button == 1:
-            self._onWindowSelected(artist.get_x(), artist.get_width(), artist.axes, plot_only=True)
+            self._onWindowSelected(artist.get_x(), artist.get_width(),
+                                   artist.axes, plot_only=True)
 
     def _on_resize(self, *args):
         plt.tight_layout()
@@ -255,46 +267,41 @@ class MisfitGUI:
         self.plot()
         for trace in self.data["data"]:
             windows = self.window_manager.get_windows(trace.id)
-            if not windows or "windows" not in windows or not windows["windows"]:
+            if not windows or "windows" not in windows or \
+                    not windows["windows"]:
                 continue
             for window in windows["windows"]:
-                self.plot_window(component=windows["channel_id"][-1],
+                self.plot_window(
+                    component=windows["channel_id"][-1],
                     starttime=window["starttime"], endtime=window["endtime"],
                     window_weight=window["weight"])
         plt.draw()
 
     def checks_and_infos(self):
-
-        #- provide some basic screen output -------------------------------------------------------
-        
-        d=self.data["data"][0]
-
+        # provide some basic screen output -----------------------------------
+        d = self.data["data"][0]
         print "============================================"
         print "station: "+d.stats.network+'.'+d.stats.station
 
-
-        #- loop through components and check if they are flipped ----------------------------------
-
+        # loop through components and check if they are flipped --------------
         for comp in {"N", "E", "Z"}:
-            
-            #- transcribe traces
-            synth=self.data["synthetics"].select(component=comp)[0].data
+            # transcribe traces
+            synth = self.data["synthetics"].select(component=comp)[0].data
             try:
-                data=self.data["data"].select(component=comp)[0].data
+                data = self.data["data"].select(component=comp)[0].data
             except IndexError:
                 return
 
-            #- compute correlation coefficient ----------------------------------------------------
-            norm=np.sqrt(np.sum(data**2))*np.sqrt(np.sum(synth**2))
-            cc=np.sum(data*synth)/norm
+            # compute correlation coefficient --------------------------------
+            norm = np.sqrt(np.sum(data ** 2)) * np.sqrt(np.sum(synth ** 2))
+            cc = np.sum(data * synth) / norm
 
-            #- flip traces if correlation coefficient is close to -1 ------------------------------
-            if cc<(-0.7):
-                self.data["data"].select(component=comp)[0].data=-data
+            # flip traces if correlation coefficient is close to -1 ----------
+            if cc < (-0.7):
+                self.data["data"].select(component=comp)[0].data = -data
                 print "correlation coefficient below -0.7, data fliped"
 
         print "============================================"
-
 
     def delete_window(self, x_min, x_max, component):
         trace = self.data["data"].select(component=component)[0]
@@ -320,12 +327,12 @@ class MisfitGUI:
         width = endtime - starttime
         height = ymax - ymin
         rect = Rectangle((xmin, ymin), width, height, facecolor="0.6",
-            alpha=0.5, edgecolor="0.5", picker=True)
+                         alpha=0.5, edgecolor="0.5", picker=True)
         axis.add_patch(rect)
-        attached_text = axis.text(x=xmin + 0.02 * width,
-            y=ymax - 0.02 * height, s=str(window_weight),
-            verticalalignment="top", horizontalalignment="left", color="0.4",
-            weight=1000)
+        attached_text = axis.text(
+            x=xmin + 0.02 * width, y=ymax - 0.02 * height,
+            s=str(window_weight), verticalalignment="top",
+            horizontalalignment="left", color="0.4", weight=1000)
 
         # Monkey patch to trigger text removal as soon as the rectangle is
         # removed.
@@ -368,7 +375,8 @@ class MisfitGUI:
         self.plot_axis_e.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
 
         s_stats = self.data["synthetics"][0].stats
-        self.time_axis = np.linspace(0, s_stats.npts * s_stats.delta, s_stats.npts)
+        self.time_axis = np.linspace(0, s_stats.npts * s_stats.delta,
+                                     s_stats.npts)
 
         def plot_trace(axis, component):
             real_trace = self.data["data"].select(component=component)
@@ -380,17 +388,20 @@ class MisfitGUI:
 
             if real_trace:
                 text = real_trace[0].id
-                axis.text(x=0.01, y=0.95, s=text, transform=axis.transAxes,
+                axis.text(
+                    x=0.01, y=0.95, s=text, transform=axis.transAxes,
                     bbox=dict(facecolor='white', alpha=0.5),
                     verticalalignment="top")
-                axis.text(x=0.01, y=0.05, s="Data Scaling Factor: %.3g" %
+                axis.text(
+                    x=0.01, y=0.05, s="Data Scaling Factor: %.3g" %
                     real_trace[0].stats.scaling_factor,
-                    transform=axis.transAxes, bbox=dict(facecolor='white',
-                        alpha=0.5), verticalalignment="bottom",
-                    horizontalalignment="left")
+                    transform=axis.transAxes, bbox=dict(
+                        facecolor='white', alpha=0.5),
+                    verticalalignment="bottom", horizontalalignment="left")
             else:
                 text = "No data, component %s" % component
-                axis.text(x=0.01, y=0.95, s=text, transform=axis.transAxes,
+                axis.text(
+                    x=0.01, y=0.95, s=text, transform=axis.transAxes,
                     bbox=dict(facecolor='red', alpha=0.5),
                     verticalalignment="top")
 
@@ -410,11 +421,12 @@ class MisfitGUI:
         plt.draw()
 
     def plot_traveltimes(self):
-        great_circle_distance = locations2degrees(self.event_latitude,
-            self.event_longitude, self.data["coordinates"]["latitude"],
+        great_circle_distance = locations2degrees(
+            self.event_latitude, self.event_longitude,
+            self.data["coordinates"]["latitude"],
             self.data["coordinates"]["longitude"])
         tts = getTravelTimes(great_circle_distance, self.event_depth / 1000.0,
-            model="ak135")
+                             model="ak135")
         for component in ["z", "n", "e"]:
             axis = getattr(self, "plot_axis_%s" % component)
             ymin, ymax = axis.get_ylim()
@@ -424,7 +436,7 @@ class MisfitGUI:
                 else:
                     color = "red"
                 axis.axvline(x=phase["time"], ymin=-1, ymax=+1,
-                    color=color, alpha=0.5)
+                             color=color, alpha=0.5)
             axis.set_ylim(ymin, ymax)
 
     def plot_raypath(self):
@@ -445,9 +457,10 @@ class MisfitGUI:
             color='green', ax=self.map_axis)
 
         lng, lats = self.map_obj([self.data["coordinates"]["longitude"]],
-            [self.data["coordinates"]["latitude"]])
-        self.station_icon = self.map_axis.scatter(lng, lats, facecolor="blue",
-            edgecolor="black", zorder=10000, marker="^", s=40)
+                                 [self.data["coordinates"]["latitude"]])
+        self.station_icon = self.map_axis.scatter(
+            lng, lats, facecolor="blue", edgecolor="black", zorder=10000,
+            marker="^", s=40)
 
     def _onKeyRelease(self, event):
         """
@@ -465,8 +478,8 @@ class MisfitGUI:
                 self._current_app_mode = "help"
                 self._axes_to_restore = plt.gcf().axes
                 self.help_axis = plt.gcf().add_axes((0, 0, 1, 1))
-                self.help_axis.text(0.5, 0.8, HELP_TEXT,
-                    transform=self.help_axis.transAxes,
+                self.help_axis.text(
+                    0.5, 0.8, HELP_TEXT, transform=self.help_axis.transAxes,
                     verticalalignment="center", horizontalalignment="center")
                 self.help_axis.set_xticks([])
                 self.help_axis.set_yticks([])
@@ -523,8 +536,8 @@ class MisfitGUI:
         except:
             pass
 
-        self._weight_text = self.axweight.text(x=0.5, y=0.5,
-            s="Weight: %s" % str(weight),
+        self._weight_text = self.axweight.text(
+            x=0.5, y=0.5, s="Weight: %s" % str(weight),
             transform=self.axweight.transAxes, verticalalignment="center",
             horizontalalignment="center")
 
@@ -553,26 +566,30 @@ class MisfitGUI:
                 data = self.data["data"].select(component="Z")
                 if not data:
                     return
-                self.rect = WindowSelectionRectangle(event, self.plot_axis_z, self._onWindowSelected)
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_z,
+                                                     self._onWindowSelected)
             if event.inaxes == self.plot_axis_n:
                 data = self.data["data"].select(component="N")
                 if not data:
                     return
-                self.rect = WindowSelectionRectangle(event, self.plot_axis_n, self._onWindowSelected)
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_n,
+                                                     self._onWindowSelected)
             if event.inaxes == self.plot_axis_e:
                 data = self.data["data"].select(component="E")
                 if not data:
                     return
-                self.rect = WindowSelectionRectangle(event, self.plot_axis_e, self._onWindowSelected)
+                self.rect = WindowSelectionRectangle(event, self.plot_axis_e,
+                                                     self._onWindowSelected)
 
-    def _onWindowSelected(self, window_start, window_width, axis, plot_only=False):
+    def _onWindowSelected(self, window_start, window_width, axis,
+                          plot_only=False):
         """
         Function called upon window selection.
 
-        :param plot_only: If True, do not write anything to disk, but only plot.
+        :param plot_only: If True, do not write anything to disk, but only
+            plot.
         """
-
-        #- Initialisation -------------------------------------------------------------------------
+        #- Initialisation -----------------------------------------------------
 
         # Minimum window length is 50 samples.
         delta = self.data["synthetics"][0].stats.delta
@@ -581,7 +598,8 @@ class MisfitGUI:
             return
 
         data = self.data["data"].select(component=axis.seismic_component)[0]
-        synth = self.data["synthetics"].select(component=axis.seismic_component)[0]
+        synth = self.data["synthetics"].select(
+            component=axis.seismic_component)[0]
 
         if not data:
             plt.draw()
@@ -590,34 +608,43 @@ class MisfitGUI:
         trace = data
         time_range = trace.stats.endtime - trace.stats.starttime
         plot_range = axis.get_xlim()[1] - axis.get_xlim()[0]
-        starttime = trace.stats.starttime + (window_start / plot_range) * time_range
+        starttime = trace.stats.starttime + (window_start / plot_range) * \
+            time_range
         endtime = starttime + window_width / plot_range * time_range
 
         if plot_only is not True:
-            self.window_manager.write_window(trace.id, starttime, endtime, self.weight, "cosine", "TimeFrequencyPhaseMisfitFichtner2008")
-            self.plot_window(component=trace.id[-1], starttime=starttime, endtime=endtime, window_weight=self.weight)
+            self.window_manager.write_window(
+                trace.id, starttime, endtime, self.weight, "cosine",
+                "TimeFrequencyPhaseMisfitFichtner2008")
+            self.plot_window(component=trace.id[-1], starttime=starttime,
+                             endtime=endtime, window_weight=self.weight)
 
-        #- window data and synthetics -------------------------------------------------------------
+        #- window data and synthetics -----------------------------------------
 
-        #- Decimal percentage of cosine taper (ranging from 0 to 1). Set to the fraction of the minimum period to the window length.
-        taper_percentage = np.min([1.0, self.seismogram_generator.lowpass_period / window_width])
+        #- Decimal percentage of cosine taper (ranging from 0 to 1). Set to the
+        # fraction of the minimum period to the window length.
+        taper_percentage = np.min(
+            [1.0, self.seismogram_generator.lowpass_period / window_width])
 
         #- data
         data_trimmed = data.copy()
         data_trimmed.trim(starttime, endtime)
-        data_trimmed.taper(type='cosine',p=taper_percentage)
-        data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True, fill_value=0.0)
+        data_trimmed.taper(type='cosine', p=taper_percentage)
+        data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True,
+                          fill_value=0.0)
 
         #- synthetics
         synth_trimmed = synth.copy()
         synth_trimmed.trim(starttime, endtime)
-        synth_trimmed.taper(type='cosine',p=taper_percentage)
-        synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True, fill_value=0.0)
+        synth_trimmed.taper(type='cosine', p=taper_percentage)
+        synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime,
+                           pad=True, fill_value=0.0)
 
         #- make time axis
-        t = np.linspace(0, synth.stats.npts * synth.stats.delta, synth.stats.npts)
+        t = np.linspace(0, synth.stats.npts * synth.stats.delta,
+                        synth.stats.npts)
 
-        #- clear axes of misfit plot --------------------------------------------------------------
+        #- clear axes of misfit plot ------------------------------------------
 
         self.misfit_axis.cla()
         self.colorbar_axis.cla()
@@ -628,29 +655,37 @@ class MisfitGUI:
         except:
             pass
 
-        #- set data and synthetics, compute actual misfit -----------------------------------------
+        #- set data and synthetics, compute actual misfit ---------------------
 
         t = np.require(t, dtype="float64", requirements="C")
-        data_d = np.require(data_trimmed.data, dtype="float64", requirements="C")
-        synth_d = np.require(synth_trimmed.data, dtype="float64", requirements="C")
+        data_d = np.require(data_trimmed.data, dtype="float64",
+                            requirements="C")
+        synth_d = np.require(synth_trimmed.data, dtype="float64",
+                             requirements="C")
 
         #- compute misfit and adjoint source
-        adsrc = adsrc_tf_phase_misfit(t, data_d, synth_d, self.seismogram_generator.lowpass_period, self.seismogram_generator.highpass_period, axis=self.misfit_axis, colorbar_axis=self.colorbar_axis)
+        adsrc = adsrc_tf_phase_misfit(
+            t, data_d, synth_d, self.seismogram_generator.lowpass_period,
+            self.seismogram_generator.highpass_period, axis=self.misfit_axis,
+            colorbar_axis=self.colorbar_axis)
 
-        #- plot misfit distribution ---------------------------------------------------------------
+        #- plot misfit distribution -------------------------------------------
 
         # Format all the axis.
         self.misfit_axis.yaxis.set_major_formatter(FormatStrFormatter("%.3f"))
-        self.misfit_axis.twin_axis.yaxis.set_major_formatter(FormatStrFormatter("%.2g"))
-        self.colorbar_axis.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
+        self.misfit_axis.twin_axis.yaxis.set_major_formatter(
+            FormatStrFormatter("%.2g"))
+        self.colorbar_axis.yaxis.set_major_formatter(
+            FormatStrFormatter("%.1f"))
 
         plt.tight_layout()
         plt.draw()
 
-        #- write adjoint source to file -----------------------------------------------------------
+        #- write adjoint source to file ---------------------------------------
 
         if plot_only is not True:
-            self.adjoint_source_manager.write_adjoint_src(adsrc["adjoint_source"], trace.id, starttime, endtime)
+            self.adjoint_source_manager.write_adjoint_src(
+                adsrc["adjoint_source"], trace.id, starttime, endtime)
 
 
 def launch(event, seismogram_generator, project):

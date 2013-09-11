@@ -90,12 +90,12 @@ def iris2quakeml(url, output_folder=None):
     # Get the flinn_engdahl region for a nice name.
     fe = FlinnEngdahl()
     region_name = fe.get_region(ev.origins[0].longitude,
-        ev.origins[0].latitude)
+                                ev.origins[0].latitude)
     region_name = region_name.replace(" ", "_")
     event_name = "GCMT_event_%s_Mag_%.1f_%s-%s-%s-%s-%s.xml" % \
         (region_name, ev.magnitudes[0].mag, ev.origins[0].time.year,
-        ev.origins[0].time.month, ev.origins[0].time.day,
-        ev.origins[0].time.hour, ev.origins[0].time.minute)
+         ev.origins[0].time.month, ev.origins[0].time.day,
+         ev.origins[0].time.hour, ev.origins[0].time.minute)
 
     if output_folder:
         event_name = os.path.join(output_folder, event_name)
@@ -109,7 +109,7 @@ def main():
         "momenttensor service. Will be saved as a QuakeML file in the "
         "current folder."))
     parser.add_argument("url", metavar="U", type=str,
-                       help="The URL to download.")
+                        help="The URL to download.")
     args = parser.parse_args()
 
     url = args.url

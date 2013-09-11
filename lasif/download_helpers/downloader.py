@@ -14,7 +14,6 @@ import colorama
 from datetime import datetime
 import logging
 import numpy as np
-import obspy
 import os
 import sys
 
@@ -31,7 +30,7 @@ class Logger(object):
     def __init__(self, log_filename, debug=False):
         FORMAT = "[%(asctime)-15s] %(levelname)s: %(message)s"
         logging.basicConfig(filename=log_filename, level=logging.DEBUG,
-            format=FORMAT)
+                            format=FORMAT)
         self.logger = logging.getLogger("LASIF")
         self.set_debug(debug)
 
@@ -45,17 +44,17 @@ class Logger(object):
 
     def critical(self, msg):
         print(colorama.Fore.WHITE + colorama.Back.RED +
-            self._format_message("CRITICAL", msg) + colorama.Style.RESET_ALL)
+              self._format_message("CRITICAL", msg) + colorama.Style.RESET_ALL)
         self.logger.critical(msg)
 
     def error(self, msg):
         print(colorama.Fore.RED + self._format_message("ERROR", msg) +
-            colorama.Style.RESET_ALL)
+              colorama.Style.RESET_ALL)
         self.logger.error(msg)
 
     def warning(self, msg):
         print(colorama.Fore.YELLOW + self._format_message("WARNING", msg) +
-            colorama.Style.RESET_ALL)
+              colorama.Style.RESET_ALL)
         self.logger.warning(msg)
 
     def info(self, msg):
@@ -66,7 +65,7 @@ class Logger(object):
         if not self._debug:
             return
         print(colorama.Fore.BLUE + self._format_message("DEBUG", msg) +
-            colorama.Style.RESET_ALL)
+              colorama.Style.RESET_ALL)
         self.logger.debug(msg)
 
     def _format_message(self, prefix, msg):
@@ -74,7 +73,7 @@ class Logger(object):
 
 
 def _get_maximum_bounds(min_lat, max_lat, min_lng, max_lng, rotation_axis,
-        rotation_angle_in_degree):
+                        rotation_angle_in_degree):
     """
     Small helper function to get the domain bounds of a rotated spherical
     section.
@@ -93,20 +92,20 @@ def _get_maximum_bounds(min_lat, max_lat, min_lng, max_lng, rotation_axis,
     west_border = np.empty((number_of_points_per_side, 2))
 
     north_border[:, 0] = np.linspace(min_lng, max_lng,
-        number_of_points_per_side)
+                                     number_of_points_per_side)
     north_border[:, 1] = min_lat
 
     south_border[:, 0] = np.linspace(max_lng, min_lng,
-        number_of_points_per_side)
+                                     number_of_points_per_side)
     south_border[:, 1] = max_lat
 
     east_border[:, 0] = max_lng
     east_border[:, 1] = np.linspace(min_lat, max_lat,
-        number_of_points_per_side)
+                                    number_of_points_per_side)
 
     west_border[:, 0] = min_lng
     west_border[:, 1] = np.linspace(max_lat, min_lat,
-        number_of_points_per_side)
+                                    number_of_points_per_side)
 
     # Rotate everything.
     for border in [north_border, south_border, east_border, west_border]:
@@ -116,7 +115,7 @@ def _get_maximum_bounds(min_lat, max_lat, min_lng, max_lng, rotation_axis,
                 rotation_angle_in_degree)
 
     border = np.concatenate([north_border, south_border, east_border,
-        west_border])
+                             west_border])
 
     min_lng, max_lng = border[:, 0].min(), border[:, 0].max()
     min_lat, max_lat = border[:, 1].min(), border[:, 1].max()
@@ -124,9 +123,10 @@ def _get_maximum_bounds(min_lat, max_lat, min_lng, max_lng, rotation_axis,
     return min_lat, max_lat, min_lng, max_lng
 
 
-def download_waveforms(min_latitude, max_latitude, min_longitude,
-        max_longitude, rotation_axis, rotation_angle_in_degree, starttime,
-        endtime, arclink_user, channel_priority_list, logfile, download_folder,
+def download_waveforms(
+        min_latitude, max_latitude, min_longitude, max_longitude,
+        rotation_axis, rotation_angle_in_degree, starttime, endtime,
+        arclink_user, channel_priority_list, logfile, download_folder,
         waveform_format="mseed"):
     """
     Convenience function downloading all waveform files in the specified
@@ -150,8 +150,9 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
         Returns True or False.
         """
         # Rotate the station and check if it is still in bounds.
-        r_lat, r_lng = rotations.rotate_lat_lon(latitude, longitude,
-            rotation_axis, -1.0 * rotation_angle_in_degree)
+        r_lat, r_lng = rotations.rotate_lat_lon(
+            latitude, longitude, rotation_axis, -1.0 *
+            rotation_angle_in_degree)
         # Check if in bounds. If not continue.
         if not (min_latitude <= r_lat <= max_latitude) or \
                 not (min_longitude <= r_lng <= max_longitude):
@@ -159,14 +160,15 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
         return True
 
     # Get the maximum bounds of the domain.
-    min_lat, max_lat, min_lng, max_lng = _get_maximum_bounds(min_latitude,
-        max_latitude, min_longitude, max_longitude, rotation_axis,
-        rotation_angle_in_degree)
+    min_lat, max_lat, min_lng, max_lng = _get_maximum_bounds(
+        min_latitude, max_latitude, min_longitude, max_longitude,
+        rotation_axis, rotation_angle_in_degree)
 
     # Get the availability.
-    channels = get_availability(min_lat, max_lat, min_lng, max_lng, starttime,
-        endtime, arclink_user, channel_priority_list=channel_priority_list,
-        logger=logger, filter_location_fct=filter_location_fct)
+    channels = get_availability(
+        min_lat, max_lat, min_lng, max_lng, starttime, endtime, arclink_user,
+        channel_priority_list=channel_priority_list, logger=logger,
+        filter_location_fct=filter_location_fct)
 
     if not channels:
         msg = "No matching channels found. Program will terminate."
@@ -205,17 +207,17 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
             logger.error(msg)
 
     logger.info("Attempting to download %i (missing) waveform channels..." %
-        len(channels_to_download))
+                len(channels_to_download))
     # Download in chunks of 100 channels.
     channels_to_download.sort()
     CHUNK_SIZE = 100
     current_position = 1
     successful_downloads = 0
     for chunk in (channels_to_download[_i: _i + CHUNK_SIZE] for _i in xrange(0,
-            len(channels_to_download), CHUNK_SIZE)):
+                  len(channels_to_download), CHUNK_SIZE)):
         logger.info(70 * "=")
         logger.info("Starting download for channels %i to %i..." %
-            (current_position, current_position + CHUNK_SIZE))
+                    (current_position, current_position + CHUNK_SIZE))
         logger.info(70 * "=")
         current_position += CHUNK_SIZE
         successful_downloads += \
@@ -228,8 +230,8 @@ def download_waveforms(min_latitude, max_latitude, min_longitude,
 
 
 def download_stations(channels, resp_file_folder, station_xml_folder,
-        dataless_seed_folder, logfile, arclink_user,
-        get_station_filename_fct):
+                      dataless_seed_folder, logfile, arclink_user,
+                      get_station_filename_fct):
     """
     Convenience function downloading station information for all channels in
     the channels filename list. It will only download what does not exist yet.
@@ -255,24 +257,24 @@ def download_stations(channels, resp_file_folder, station_xml_folder,
     logger.info(70 * "=")
     logger.info(70 * "=")
     logger.info("Starting to download station files for %i missing "
-        "channels..." % len(channels))
+                "channels..." % len(channels))
 
     def save_station_file(memfile, network, station, location, channel,
-            format):
+                          format):
         """
         Callback function saving a single file given as a StringIO instance.
         """
         filename = get_station_filename_fct(network, station, location,
-            channel, format)
+                                            channel, format)
         memfile.seek(0, 0)
         with open(filename, "wb") as open_file:
             open_file.write(memfile.read())
 
     # Now download all the missing stations files.
     successful_downloads = \
-        lasif.download_helpers.stations.download_station_files(channels,
-            save_station_fct=save_station_file, arclink_user=arclink_user,
-            logger=logger)
+        lasif.download_helpers.stations.download_station_files(
+            channels, save_station_fct=save_station_file,
+            arclink_user=arclink_user, logger=logger)
 
     print "Done. Successfully downloaded %i station files." % \
         successful_downloads

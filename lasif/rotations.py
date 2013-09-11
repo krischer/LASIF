@@ -169,12 +169,12 @@ def get_spherical_unit_vectors(lat, lon):
     colat, lon = map(np.deg2rad, [colat, lon])
 
     e_theta = _get_vector(np.cos(lon) * np.cos(colat),
-                         np.sin(lon) * np.cos(colat),
-                         -np.sin(colat))
+                          np.sin(lon) * np.cos(colat),
+                          -np.sin(colat))
     e_phi = _get_vector(-np.sin(lon), np.cos(lon), 0.0)
     e_r = _get_vector(np.cos(lon) * np.sin(colat),
-                     np.sin(lon) * np.sin(colat),
-                     np.cos(colat))
+                      np.sin(lon) * np.sin(colat),
+                      np.cos(colat))
     return e_theta, e_phi, e_r
 
 
@@ -278,7 +278,7 @@ def _get_rotation_and_base_transfer_matrix(lat, lon, rotation_axis, angle):
     # system.
     e_theta, e_phi, e_r = get_spherical_unit_vectors(lat, lon)
     e_theta_new, e_phi_new, e_r_new = get_spherical_unit_vectors(lat_new,
-        lon_new)
+                                                                 lon_new)
 
     # Rotate the new unit vectors in the opposite direction to simulate a
     # rotation in the wanted direction.
@@ -294,12 +294,12 @@ def _get_rotation_and_base_transfer_matrix(lat, lon, rotation_axis, angle):
         [np.dot(e_phi_new, e_theta), np.dot(e_phi_new, e_phi),
             np.dot(e_phi_new, e_r)],
         [np.dot(e_r_new, e_theta), np.dot(e_r_new, e_phi), np.dot(e_r_new,
-            e_r)]))
+                                                                  e_r)]))
     return transfer_matrix
 
 
 def rotate_moment_tensor(Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, lat, lon, rotation_axis,
-        angle):
+                         angle):
     """
     Rotates a moment tensor, given in spherical coordinates, located at lat/lon
     around the rotation axis and simultaneously performs a base change from the
@@ -317,8 +317,8 @@ def rotate_moment_tensor(Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, lat, lon, rotation_axis,
     :param rotation_axis: Rotation axis given as [x, y, z].
     :param angle: Rotation angle in degree.
     """
-    transfer_matrix = _get_rotation_and_base_transfer_matrix(lat, lon,
-        rotation_axis, angle)
+    transfer_matrix = _get_rotation_and_base_transfer_matrix(
+        lat, lon, rotation_axis, angle)
     # Assemble the second order tensor.
     mt = np.matrix(([Mtt, Mtp, Mrt],
                     [Mtp, Mpp, Mrp],
@@ -332,7 +332,7 @@ def rotate_moment_tensor(Mrr, Mtt, Mpp, Mrt, Mrp, Mtp, lat, lon, rotation_axis,
 
 
 def rotate_data(north_data, east_data, vertical_data, lat, lon, rotation_axis,
-        angle):
+                angle):
     """
     Rotates three component data recorded at lat/lon a certain amount of
     degrees around a given rotation axis.
@@ -346,14 +346,14 @@ def rotate_data(north_data, east_data, vertical_data, lat, lon, rotation_axis,
     :param rotation_axis: Rotation axis given as [x, y, z].
     :param angle: Rotation angle in degree.
     """
-    transfer_matrix = _get_rotation_and_base_transfer_matrix(lat, lon,
-        rotation_axis, angle)
+    transfer_matrix = _get_rotation_and_base_transfer_matrix(
+        lat, lon, rotation_axis, angle)
 
     # Apply the transfer matrix. Invert north data because they have
     # to point in the other direction to be consistent with the spherical
     # coordinates.
     new_data = np.array(transfer_matrix.dot([-1.0 * north_data,
-        east_data, vertical_data]))
+                                             east_data, vertical_data]))
 
     # Return the transferred data arrays. Again negate north data.
     north_data = -1.0 * new_data[0]
@@ -362,9 +362,9 @@ def rotate_data(north_data, east_data, vertical_data, lat, lon, rotation_axis,
     return north_data, east_data, vertical_data
 
 
-def get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
-        number_of_points_per_side=25, rotation_axis=(0, 0, 1),
-        rotation_angle_in_degree=0):
+def get_border_latlng_list(
+        min_lat, max_lat, min_lng, max_lng, number_of_points_per_side=25,
+        rotation_axis=(0, 0, 1), rotation_angle_in_degree=0):
     """
     Helper function taking a spherical section defined by latitudinal and
     longitudal extension, rotate it around the given axis and rotation angle
@@ -385,36 +385,38 @@ def get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
 
     north_border[:, 0] = min_lat
     north_border[:, 1] = np.linspace(min_lng, max_lng,
-        number_of_points_per_side)
+                                     number_of_points_per_side)
 
     south_border[:, 0] = max_lat
     south_border[:, 1] = np.linspace(max_lng, min_lng,
-        number_of_points_per_side)
+                                     number_of_points_per_side)
 
     east_border[:, 0] = np.linspace(min_lat, max_lat,
-        number_of_points_per_side)
+                                    number_of_points_per_side)
     east_border[:, 1] = max_lng
 
     west_border[:, 0] = np.linspace(max_lat, min_lat,
-        number_of_points_per_side)
+                                    number_of_points_per_side)
     west_border[:, 1] = min_lng
 
     # Rotate everything.
     for border in [north_border, south_border, east_border, west_border]:
         for _i in xrange(number_of_points_per_side):
-            border[_i, 0], border[_i, 1] = rotate_lat_lon(border[_i, 0],
-                border[_i, 1], rotation_axis, rotation_angle_in_degree)
+            border[_i, 0], border[_i, 1] = rotate_lat_lon(
+                border[_i, 0], border[_i, 1], rotation_axis,
+                rotation_angle_in_degree)
 
     # Take care to only use every corner once.
     borders = np.concatenate([north_border, east_border[1:], south_border[1:],
-        west_border[1:]])
+                              west_border[1:]])
     borders = list(borders)
     borders = [list(_i) for _i in borders]
     return borders
 
 
 def get_max_extention_of_domain(min_lat, max_lat, min_lng, max_lng,
-        rotation_axis=(0, 0, 1), rotation_angle_in_degree=0):
+                                rotation_axis=(0, 0, 1),
+                                rotation_angle_in_degree=0):
     """
     Helper function getting the maximum extends of a rotated domain.
 
@@ -431,8 +433,9 @@ def get_max_extention_of_domain(min_lat, max_lat, min_lng, max_lng,
     :param rotation_axis: The rotation axis in degree.
     :param rotation_angle_in_degree: The rotation angle in degree.
     """
-    border = get_border_latlng_list(min_lat, max_lat, min_lng, max_lng,
-        number_of_points_per_side=25, rotation_axis=rotation_axis,
+    border = get_border_latlng_list(
+        min_lat, max_lat, min_lng, max_lng, number_of_points_per_side=25,
+        rotation_axis=rotation_axis,
         rotation_angle_in_degree=rotation_angle_in_degree)
     border = np.array(border)
     lats = border[:, 0]

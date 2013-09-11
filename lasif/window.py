@@ -9,6 +9,7 @@ Window handling.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import glob
 from obspy import UTCDateTime
 from lxml import etree
 from lxml.builder import E
@@ -19,8 +20,8 @@ WINDOWS = {
     "cosine": {
         "percentage": {
             "description": ("Decimal percentage being tapered. Default is 0.1 "
-                "resulting in 10% being tapered. 5% at the beginning, 5 % at "
-                "the end."),
+                            "resulting in 10% being tapered. 5% at the "
+                            "beginning, 5 % at the end."),
             "default_value": 0.1,
             "obspy_name": "p"
         }
@@ -40,14 +41,14 @@ class WindowManager(object):
 
     def get_windows(self, channel_id):
         for windowfile in glob.iglob(os.path.join(self.directory,
-                "window_%s.*.xml" % channel_id)):
+                                     "window_%s.*.xml" % channel_id)):
             print windowfile
 
 
 class Window(object):
     def __init__(self, event_identifier, additional_identifier, event_time,
-            window_offset, window_length, window_type, window_options,
-            channel_id):
+                 window_offset, window_length, window_type, window_options,
+                 channel_id):
         self.event_identifier = event_identifier
         self.additional_identifier = additional_identifier
         self.event_time = event_time
@@ -110,7 +111,7 @@ class Window(object):
             )
         )
         return etree.tostring(doc, pretty_print=True, xml_declaration=True,
-            encoding="utf-8")
+                              encoding="utf-8")
 
     def _filename_generator(self):
         _i = 0
@@ -167,7 +168,7 @@ class Window(object):
 
         # Check that both times are available in the trace.
         if not (starttime <= window_starttime <= endtime) or \
-            not (starttime <= window_endtime <= endtime):
+                not (starttime <= window_endtime <= endtime):
             msg = "The trace does not have data for the window."
             raise ValueError(msg)
 
@@ -183,6 +184,6 @@ class Window(object):
 
 if __name__ == "__main__":
     win = Window("1", "iteration_15.17s", UTCDateTime(), 123.3, 234.23,
-        "cosine", window_options={"percentage": 0.1},
-        channel_id="BW.FURT..N")
+                 "cosine", window_options={"percentage": 0.1},
+                 channel_id="BW.FURT..N")
     win.write("OUTPUT")

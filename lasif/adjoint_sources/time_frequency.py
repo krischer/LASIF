@@ -51,7 +51,7 @@ def time_frequency_transform(t, s, dt_new, width):
 
         tfs[k, :] = np.fft.fft(f) / np.sqrt(2.0 * np.pi) * dt_new
         tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
-        
+
     return TAU, NU, tfs
 
 
@@ -64,7 +64,8 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
     :param s2: discrete signal 2
     :param dt_new: time increment in the tf domain
     :param width: width of the Gaussian window
-    :param threshold: fraction of the absolute signal below which the Fourier transform is set to zero in order to reduce computation time
+    :param threshold: fraction of the absolute signal below which the Fourier
+        transform is set to zero in order to reduce computation time
     """
     # New time axis
     ti = utils.matlab_range(t[0], t[-1], dt_new)
@@ -101,7 +102,7 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
         cc = utils.cross_correlation(f2, f1)
         tfs[k, :] = np.fft.fft(cc) / np.sqrt(2.0 * np.pi) * dt_new
         tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
-        
+
     return TAU, NU, tfs
 
 
@@ -118,12 +119,11 @@ def itfa(TAU, NU, tfs, width):
     t_min = tau[0]
 
     for k in xrange(len(tau)):
-        tfs[k, :] = tfs[k, :] * np.exp(2.0 * np.pi * 1j * nu.transpose() * t_min)
+        tfs[k, :] = tfs[k, :] * np.exp(2.0 * np.pi * 1j * nu.transpose() *
+                                       t_min)
 
     # inverse fft
     I = np.zeros((N, N), dtype="complex128")
-
-    max_tfs = np.abs(tfs).max()
 
     for k in xrange(N):
         I[k, :] = 2.0 * np.pi * np.fft.ifft(tfs[k, :]) / dt

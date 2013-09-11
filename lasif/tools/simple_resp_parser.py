@@ -86,7 +86,7 @@ def get_inventory(resp_file, remove_duplicates=False):
 
 def _is_channel_complete(channel_dict):
     keys = sorted(["station", "network", "location", "channel",
-        "start_date", "end_date"])
+                   "start_date", "end_date"])
     if sorted(channel_dict.keys()) == keys:
         return True
     return False
@@ -112,11 +112,11 @@ def _parse_resp_datetime_string(datetime_string):
             # Add the seconds seperately because the constructor does not
             # accept seconds as floats.
             return UTCDateTime(year=year, julday=julday, hour=int(hour),
-                    minute=int(minute)) + float(second)
+                               minute=int(minute)) + float(second)
         elif len(time_split) == 2:
             hour, minute = map(int, time_split)
             return UTCDateTime(year=year, julday=julday, hour=int(hour),
-                    minute=int(minute))
+                               minute=int(minute))
         elif len(time_split) == 1:
             hour = int(time_split[0])
             return UTCDateTime(year=year, julday=julday, hour=hour)
