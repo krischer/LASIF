@@ -12,8 +12,11 @@ before_install:
   - pip install --use-mirrors flake8
   - pip install --use-mirrors colorama
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
-  - pip install  --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
+  - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 script:
   - cd lasif; py.test
 install:
-  - pip install  --no-deps --use-mirrors .
+  # Python's multiprocessing shared memory requires /dev/shm with r/w access.
+  # The VM's in travis do not offer this.
+  - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
+  - pip install  --no-deps .
