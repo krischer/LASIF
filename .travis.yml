@@ -4,16 +4,6 @@ python:
 virtualenv:
   system_site_packages: true
 before_install:
-  # Make matplotlib use the Agg backend.
-  - ls -a $HOME
-  - mkdir -p $HOME/.config/matplotlib
-  - ls -a $HOME
-  - ls $HOME/.config
-  - ls $HOME/.config/matplotlib
-  - touch $HOME/.config/matplotlib/matplotlibrc
-  - ls $HOME/.config/matplotlib
-  - "echo \"backend:AGG\" > $HOME/.config/matplotlib/matplotlibrc"
-  - ls $HOME/.config/matplotlib
   - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-matplotlib python-suds python-lxml python-sqlalchemy python-m2crypto python-mpltoolkits.basemap
   - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
   - pip install --use-mirrors geographiclib
@@ -23,7 +13,8 @@ before_install:
   - pip install --use-mirrors colorama
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
-  - python -c "import matplotlib; print matplotlib.matplotlib_fname()"
+  # Make matplotlib use the Agg backend. This construct ensures that the correct matplotlibrc.
+  - "echo \"backend:AGG\" > `python -c \"import matplotlib; print matplotlib.matplotlib_fname()\"`"
 script:
   - cd lasif; py.test
 install:
