@@ -14,7 +14,8 @@ before_install:
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
   # Make matplotlib use the Agg backend.
-  - mkdir -p $HOME/.config/matplotlib && echo "backend: AGG" > $HOME/.config/matplotlib/matplotlibrc
+  - mkdir -p $HOME/.config/matplotlib
+  - echo "backend: AGG" > $HOME/.config/matplotlib/matplotlibrc
   - python -c "import matplotlib; print matplotlib.matplotlib_fname()"
 script:
   - cd lasif; py.test
