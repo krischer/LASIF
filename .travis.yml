@@ -17,6 +17,7 @@ before_install:
   #- ./configure --prefix=$GEOS_DIR
   #- make install
   #- cd ..
+  - export GEOS_DIR=/usr/lib
   - python setup.py install
   - rm -rf basemap-1.0.7
   - cd ..
