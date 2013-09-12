@@ -26,7 +26,7 @@ before_install:
   # The MATPLOTLIBRC environment variable is set to $HOME
   - "echo \"backend:AGG\" > $HOME/matplotlibrc"
 script:
-  - cd lasif; py.test -s
+  - cd lasif; py.test
 install:
   # Python's multiprocessing shared memory requires /dev/shm with r/w access.
   # The VM's in travis do not offer this.
