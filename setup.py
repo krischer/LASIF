@@ -52,8 +52,17 @@ setup_config = dict(
     packages=find_packages(),
     license="GNU General Public License, version 3 (GPLv3)",
     platforms="OS Independent",
-    install_requires=["obspy >= 0.8.3", "progressbar", "requests",
-        "geographiclib", "numpy", "matplotlib", "lxml"],
+    install_requires=[
+        "obspy >= 0.8.3",
+        "progressbar",
+        "requests",
+        "geographiclib",
+        "numpy",
+        "colorama",
+        "matplotlib",
+        "lxml"],
+    extras_require={
+        "tests": ["nose", "pytest"]},
     package_data={
         "lasif": get_package_data()},
     entry_points={
