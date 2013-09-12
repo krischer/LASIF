@@ -24,12 +24,7 @@ def test_flake8():
         warnings.warn(msg)
     test_dir = os.path.dirname(os.path.abspath(inspect.getfile(
         inspect.currentframe())))
-    root_dir = os.path.dirname(os.path.dirname(test_dir))
-    # Short sanity check.
-    if not os.path.exists(os.path.join(root_dir, "setup.py")):
-        msg = "Could not find project root."
-        raise Exception(msg)
-    lasif_dir = os.path.join(root_dir, "lasif")
+    lasif_dir = os.path.dirname(test_dir)
     error_count = 0
     file_count = 0
     for dirpath, _, filenames in os.walk(lasif_dir):
