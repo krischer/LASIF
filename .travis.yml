@@ -5,8 +5,7 @@ virtualenv:
   system_site_packages: true
 env: MATPLOTLIBRC=$HOME
 before_install:
-  - sudo apt-cache search geos
-  - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-suds python-lxml python-sqlalchemy libgeos-3.2.2
+  - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-suds python-lxml python-sqlalchemy libgeos-3.2.2 libgeos-dev
   # Install matplotlib with pip to get a recent version.
   - pip install --use-mirrors matplotlib
   - wget http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.7/basemap-1.0.7.tar.gz/download -O basemap-1.0.7.tar.gz
