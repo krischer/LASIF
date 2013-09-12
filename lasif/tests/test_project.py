@@ -13,6 +13,10 @@ viewed as integration tests.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import matplotlib as mpl
+mpl.rcdefaults()
+mpl.use("agg")
+
 import copy
 import glob
 import inspect
