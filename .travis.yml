@@ -12,7 +12,8 @@ before_install:
   - ls $HOME/.config/matplotlib
   - touch $HOME/.config/matplotlib/matplotlibrc
   - ls $HOME/.config/matplotlib
-  - echo "backend: AGG" > $HOME/.config/matplotlib/matplotlibrc
+  #- echo "backend: AGG" > $HOME/.config/matplotlib/matplotlibrc
+  - python -c "with open('$HOME/.config/matplotlib/matplotlibrc', 'wt') as fh: fh.write('backend: AGG')"
   - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-matplotlib python-suds python-lxml python-sqlalchemy python-m2crypto python-mpltoolkits.basemap
   - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
   - pip install --use-mirrors geographiclib
