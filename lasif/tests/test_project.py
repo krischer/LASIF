@@ -68,7 +68,7 @@ def images_are_identical(expected, actual):
     rcdefaults()
     import locale
     locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
-    if mpl_compare_images(expected, actual, 0.001) is None:
+    if mpl_compare_images(expected, actual, 0.02) is None:
         return True
     else:
         return False
