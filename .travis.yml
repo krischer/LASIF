@@ -3,6 +3,7 @@ python:
   - "2.7"
 virtualenv:
   system_site_packages: true
+env: MATPLOTLIBRC=$HOME
 before_install:
   - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-matplotlib python-suds python-lxml python-sqlalchemy python-m2crypto python-mpltoolkits.basemap
   - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
@@ -13,8 +14,9 @@ before_install:
   - pip install --use-mirrors colorama
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
-  # Make matplotlib use the Agg backend. This construct ensures that the correct matplotlibrc.
-  - "sudo echo \"backend:AGG\" > `python -c \"import matplotlib; print matplotlib.matplotlib_fname()\"`"
+  # The MATPLOTLIBRC environment variable is set to $HOME
+  - "echo \"backend:AGG\" > $HOME/matplotlibrc"
+  - python -c "import matplotlib; print matplotlib.matplotlib_fname()"
 script:
   - cd lasif; py.test
 install:
