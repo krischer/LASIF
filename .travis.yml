@@ -16,6 +16,8 @@ before_install:
   - make install
   - cd ..
   - python setup.py install
+  - rm -rf basemap-1.0.7
+  - cd ..
   - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
   - pip install --use-mirrors geographiclib
   - pip install --use-mirrors requests
