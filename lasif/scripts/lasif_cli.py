@@ -850,11 +850,11 @@ def _print_generic_help(fcts):
     print(80 * "#" + "\n")
     header = ("{default_style}LASIF - LArge Scale {inverted_style}Inversion"
               "{default_style} Framework{reset_style}".format(
-              default_style=colorama.Style.BRIGHT + colorama.Fore.WHITE +
+                  default_style=colorama.Style.BRIGHT + colorama.Fore.WHITE +
                   colorama.Back.BLACK,
-              inverted_style=colorama.Style.BRIGHT + colorama.Fore.BLACK +
+                  inverted_style=colorama.Style.BRIGHT + colorama.Fore.BLACK +
                   colorama.Back.WHITE,
-              reset_style=colorama.Style.RESET_ALL))
+                  reset_style=colorama.Style.RESET_ALL))
     print "\t" + header
     print "\n\thttp://krischer.github.io/LASIF"
     print("\n" + 80 * "#")

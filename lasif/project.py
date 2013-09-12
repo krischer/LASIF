@@ -178,8 +178,8 @@ class Project(object):
                 while True:
                     filename = os.path.join(
                         self.paths["dataless_seed"],
-                        "dataless.{network}_{station}".format(network=network,
-                        station=station))
+                        "dataless.{network}_{station}".format(
+                            network=network, station=station))
                     if i:
                         filename += ".%i" % i
                     i += 1
@@ -722,7 +722,7 @@ class Project(object):
         gen.config.adjoint_forward_wavefield_output_folder = \
             solver["adjoint_output_parameters"][
                 "forward_field_output_directory"].replace(
-                    "{{EVENT_NAME}}", event_name.replace(" ", "_"))
+                "{{EVENT_NAME}}", event_name.replace(" ", "_"))
         gen.config.adjoint_forward_sampling_rate = \
             solver["adjoint_output_parameters"][
                 "sampling_rate_of_forward_field"]
@@ -779,8 +779,8 @@ class Project(object):
         # output
         #======================================================================
         output_dir = self.get_output_folder(
-            "input_files___ITERATION_%s__%s__EVENT_%s" % (iteration_name,
-            simulation_type.replace(" ", "_"), event_name))
+            "input_files___ITERATION_%s__%s__EVENT_%s" % (
+                iteration_name, simulation_type.replace(" ", "_"), event_name))
 
         gen.write(format="ses3d_4_0", output_dir=output_dir)
         print "Written files to '%s'." % output_dir
@@ -1076,7 +1076,7 @@ class Project(object):
                     "If you have a station file for that channel make sure "
                     "it actually covers the time span of the data.\n"
                     "Otherwise contact the developers...".format(
-                    waveform_file=os.path.relpath(channel["filename"])))
+                        waveform_file=os.path.relpath(channel["filename"])))
                 all_good = False
             break
         if all_good:
@@ -1136,8 +1136,8 @@ class Project(object):
                     "'lasif add_spud_event' command to redownload the event "
                     "if it is in the GCMT "
                     "catalog.\n\n").format(
-                        basename=os.path.basename(filename),
-                        filename=os.path.relpath(filename))
+                    basename=os.path.basename(filename),
+                    filename=os.path.relpath(filename))
                 add_report(msg)
         if all_valid is True:
             print ok_string
@@ -1164,8 +1164,9 @@ class Project(object):
             print fail_string
             add_report(
                 "Found the following duplicate publicIDs:\n" +
-                "\n".join(["\t%s in files: %s" % (id_string,
-                ", ".join([os.path.basename(i) for i in faulty_files]))
+                "\n".join(["\t%s in files: %s" % (
+                    id_string,
+                    ", ".join([os.path.basename(i) for i in faulty_files]))
                     for id_string, faulty_files in ids.iteritems()]),
                 error_count=len(ids))
 
@@ -1292,9 +1293,9 @@ class Project(object):
                     "'{file_2}' is only {diff:.1f} minutes. This could "
                     "be either due to a duplicate event or events that have "
                     "interfering waveforms.\n".format(
-                    file_1=event_1["filename"],
-                    file_2=event_2["filename"],
-                    diff=time_diff / 60.0))
+                        file_1=event_1["filename"],
+                        file_2=event_2["filename"],
+                        diff=time_diff / 60.0))
         if all_good is True:
             print ok_string
         else:
@@ -1315,9 +1316,7 @@ class Project(object):
             add_report(
                 "\nWARNING: "
                 "Event '{filename}' is out of bounds of the chosen domain."
-                "\n".format(
-                filename=event["filename"]))
-
+                "\n".format(filename=event["filename"]))
         if all_good is True:
             print ok_string
         else:

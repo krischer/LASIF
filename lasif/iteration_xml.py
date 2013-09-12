@@ -152,7 +152,7 @@ class Iteration(object):
         # preprocessing so that duplicates can be avoided.
         processing_tag = ("preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_"
                           "npts_{npts}_dt_{dt:5f}").format(
-                              **self.get_process_params())
+            **self.get_process_params())
         return processing_tag
 
     def __str__(self):

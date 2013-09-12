@@ -124,7 +124,7 @@ def download_waveforms(channels, starttime, endtime, minimumlength,
                     if e.message.lower() != "no data available":
                         msg = ("Failed to download %s from ArcLink because of "
                                "an error (%s: %s)") % (
-                                   channel, e.__class__.__name__, e.message)
+                            channel, e.__class__.__name__, e.message)
                         if logger:
                             logger.error(msg)
                         else:
@@ -149,8 +149,8 @@ def download_waveforms(channels, starttime, endtime, minimumlength,
                         else:
                             msg = ("Trace %s is only %.2f seconds long (%.2f "
                                    "seconds required)") % (
-                                       channel, st[0].stats.endtime -
-                                       st[0].stats.starttime, minimum_duration)
+                                channel, st[0].stats.endtime -
+                                st[0].stats.starttime, minimum_duration)
                             logger.warning(msg)
                     continue
                 save_trace_fct(st[0])
@@ -185,7 +185,7 @@ def download_waveforms(channels, starttime, endtime, minimumlength,
                 except Exception as e:
                     msg = ("Failed to download %s from Neries because of "
                            "an error (%s: %s)") % (
-                               channel, e.__class__.__name__, str(e.message))
+                        channel, e.__class__.__name__, str(e.message))
                     if logger:
                         logger.error(msg)
                     else:

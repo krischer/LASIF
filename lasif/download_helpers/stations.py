@@ -166,8 +166,8 @@ def download_station_files(channels, save_station_fct, arclink_user,
                 if not resp_data:
                     msg = ("While downloading %s from IRIS [%s to %s]: "
                            "No data returned") % (
-                               channel_id, channel["starttime"],
-                               channel["endtime"])
+                        channel_id, channel["starttime"],
+                        channel["endtime"])
                     logger.error(msg)
                     continue
 

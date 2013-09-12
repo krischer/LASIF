@@ -372,7 +372,7 @@ def launch_processing(data_generator, waiting_time=4.0):
 
     print ("%sLaunching preprocessing using %i processes...%s\n"
            "This might take a while. Press Ctrl + C to cancel.\n") % (
-               colorama.Fore.GREEN, processes, colorama.Style.RESET_ALL)
+        colorama.Fore.GREEN, processes, colorama.Style.RESET_ALL)
 
     # Give the user some time to read the message.
     time.sleep(waiting_time)

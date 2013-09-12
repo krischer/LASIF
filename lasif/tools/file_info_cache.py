@@ -293,13 +293,13 @@ class FileInfoCache(object):
             self.db_cursor.execute(
                 "UPDATE files SET last_modified=%f, "
                 "crc32_hash=%i WHERE id=%i;" % (os.path.getmtime(filename),
-                filehash, filepath_id))
+                                                filehash, filepath_id))
             self.db_conn.commit()
         else:
             self.db_cursor.execute(
                 "INSERT into files(filename, last_modified,"
                 " crc32_hash) VALUES('%s', %f, %i);" % (
-                filename, os.path.getmtime(filename), filehash))
+                    filename, os.path.getmtime(filename), filehash))
             self.db_conn.commit()
             filepath_id = self.db_cursor.lastrowid
 

@@ -521,11 +521,12 @@ class RawSES3DModelHandler(object):
         ret_str += "\t\tTotal element count: %i\n" % \
             self.setup["total_element_count"]
         ret_str += "\t\tTotal collocation point count: %i (without " \
-            "duplicates: %i)\n" % (self.setup["total_point_count"],
-            self.setup["total_point_count_without_duplicates"])
+            "duplicates: %i)\n" % (
+                self.setup["total_point_count"],
+                self.setup["total_point_count_without_duplicates"])
         ret_str += "\tMemory requirement per component: %.1f MB\n" % \
             ((self.setup["total_point_count_without_duplicates"] * 4) /
-            (1024.0 ** 2))
+                (1024.0 ** 2))
         ret_str += "\tAvailable components: %s\n" % (", ".join(
             sorted(self.components.keys())))
         ret_str += "\tAvailable derived components: %s\n" % (", ".join(

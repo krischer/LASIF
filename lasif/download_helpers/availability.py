@@ -135,8 +135,8 @@ def _get_iris_availability(min_lat, max_lat, min_lng, max_lng, starttime,
                     if channel_starttime <= average_requested_time <= \
                             channel_endtime:
                         available_channels[
-                            "%s.%s.%s.%s" % (network_code,
-                            station_code, location_code, channel_code)] = \
+                            "%s.%s.%s.%s" % (network_code, station_code,
+                                             location_code, channel_code)] = \
                             {"latitude": latitude, "longitude": longitude}
     return available_channels
 
