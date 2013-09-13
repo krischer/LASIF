@@ -1,4 +1,6 @@
 ![Logo](/doc/images/logo/lasif_logo.png)
+---
+[![Build Status](https://travis-ci.org/krischer/LASIF.png?branch=master)](https://travis-ci.org/krischer/LASIF)
 
 ---
 ---
