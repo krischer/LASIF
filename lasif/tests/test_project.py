@@ -14,7 +14,6 @@ viewed as integration tests.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import matplotlib as mpl
-mpl.rcdefaults()
 mpl.use("agg")
 
 import copy
@@ -59,23 +58,10 @@ def project(tmpdir):
     return Project(project_path)
 
 
-def images_are_identical(image_name, temp_dir, dpi=None):
+def setup_function(function):
     """
-    Partially copied from ObsPy
+    Make sure matplotlib behaves the same on every machine.
     """
-    image_name += os.path.extsep + "png"
-    expected = os.path.join(IMAGES, image_name)
-    assert os.path.exists(expected)
-    actual = os.path.join(temp_dir, image_name)
-
-    if dpi:
-        plt.savefig(actual, dpi=dpi)
-    else:
-        plt.savefig(actual)
-    plt.close()
-
-    assert os.path.exists(actual)
-
     # Set all default values.
     mpl.rcdefaults()
     # These settings must be hardcoded for running the comparision tests and
@@ -85,6 +71,25 @@ def images_are_identical(image_name, temp_dir, dpi=None):
     mpl.rcParams['text.hinting_factor'] = 8
     import locale
     locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
+
+
+def images_are_identical(image_name, temp_dir, dpi=None):
+    """
+    Partially copied from ObsPy
+    """
+    image_name += os.path.extsep + "png"
+    expected = os.path.join(IMAGES, image_name)
+    actual = os.path.join(temp_dir, image_name)
+
+    if dpi:
+        plt.savefig(actual, dpi=dpi)
+    else:
+        plt.savefig(actual)
+    plt.close()
+
+    assert os.path.exists(expected)
+    assert os.path.exists(actual)
+
     result = mpl_compare_images(expected, actual, 0.02, in_decorator=True)
     if result is not None:
         print result
