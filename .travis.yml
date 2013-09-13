@@ -32,8 +32,8 @@ install:
   # The VM's in travis do not offer this.
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
   - pip install  --no-deps .
-# Upload any potentially produced diffs to imgur after a test failure.
+# Upload any potentially produced diffs and produced images to imgur after a test failure.
 after_failure:
   - cd
   - wget "http://imgur.com/tools/imgurbash.sh"
-  - "find /tmp/pytest-* -name \"*-failed-diff.png\" | xargs -I % sh imgurbash.sh %"
+  - "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgurbash.sh %"
