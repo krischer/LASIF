@@ -65,6 +65,7 @@ def images_are_identical(image_name, temp_dir, dpi=None):
     """
     image_name += os.path.extsep + "png"
     expected = os.path.join(IMAGES, image_name)
+    assert os.path.exists(expected)
     actual = os.path.join(temp_dir, image_name)
 
     if dpi:
@@ -72,6 +73,8 @@ def images_are_identical(image_name, temp_dir, dpi=None):
     else:
         plt.savefig(actual)
     plt.close()
+
+    assert os.path.exists(actual)
 
     # Set all default values.
     mpl.rcdefaults()
@@ -83,11 +86,9 @@ def images_are_identical(image_name, temp_dir, dpi=None):
     import locale
     locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
     result = mpl_compare_images(expected, actual, 0.02, in_decorator=True)
-    if result is None:
-        return True
-    else:
+    if result is not None:
         print result
-        return False
+    assert result is None
 
 
 def test_initalizing_project_in_wrong_path():
@@ -220,7 +221,7 @@ def test_domain_plotting(tmpdir):
     pr = Project(str(tmpdir), init_project="TestProject")
     pr.plot_domain(show_plot=False)
 
-    assert images_are_identical("simple_test_domain", str(tmpdir))
+    images_are_identical("simple_test_domain", str(tmpdir))
 
 
 def test_event_handling(project):
@@ -254,16 +255,13 @@ def test_event_plotting(project):
     and time distribution histograms.
     """
     project.plot_events(plot_type="map", show_plot=False)
-    assert images_are_identical("two_events_plot_map",
-                                project.paths["root"])
+    images_are_identical("two_events_plot_map", project.paths["root"])
 
     project.plot_events(plot_type="depth", show_plot=False)
-    assert images_are_identical("two_events_plot_depth",
-                                project.paths["root"])
+    images_are_identical("two_events_plot_depth", project.paths["root"])
 
     project.plot_events(plot_type="time", show_plot=False)
-    assert images_are_identical("two_events_plot_time",
-                                project.paths["root"])
+    images_are_identical("two_events_plot_time", project.paths["root"])
 
 
 def test_event_info_retrieval(project):
@@ -469,7 +467,7 @@ def test_single_event_plot(project):
     """
     project.plot_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
                        show_plot=False)
-    assert images_are_identical("single_event_plot", project.paths["root"])
+    images_are_identical("single_event_plot", project.paths["root"])
 
 
 def test_simple_raydensity(project):
@@ -478,8 +476,8 @@ def test_simple_raydensity(project):
     """
     project.plot_raydensity(show_plot=False, save_plot=False)
     # Use a low dpi to keep the test filesize in check.
-    assert images_are_identical("simple_raydensity_plot",
-                                project.paths["root"], dpi=25)
+    images_are_identical("simple_raydensity_plot", project.paths["root"],
+                         dpi=25)
 
 
 def test_has_station_file(project):
