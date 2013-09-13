@@ -59,10 +59,20 @@ def project(tmpdir):
     return Project(project_path)
 
 
-def images_are_identical(expected, actual):
+def images_are_identical(image_name, temp_dir, dpi=None):
     """
     Partially copied from ObsPy
     """
+    image_name += os.path.extsep + "png"
+    expected = os.path.join(IMAGES, image_name)
+    actual = os.path.join(temp_dir, image_name)
+
+    if dpi:
+        plt.savefig(actual, dpi=dpi)
+    else:
+        plt.savefig(actual)
+    plt.close()
+
     # Set all default values.
     mpl.rcdefaults()
     # These settings must be hardcoded for running the comparision tests and
@@ -72,9 +82,11 @@ def images_are_identical(expected, actual):
     mpl.rcParams['text.hinting_factor'] = 8
     import locale
     locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
-    if mpl_compare_images(expected, actual, 0.02) is None:
+    result = mpl_compare_images(expected, actual, 0.02, in_decorator=True)
+    if result is None:
         return True
     else:
+        print result
         return False
 
 
@@ -208,13 +220,7 @@ def test_domain_plotting(tmpdir):
     pr = Project(str(tmpdir), init_project="TestProject")
     pr.plot_domain(show_plot=False)
 
-    baseline_image = os.path.join(IMAGES, "simple_test_domain.png")
-    this_image = os.path.join(str(tmpdir), "simple_test_domain.png")
-
-    plt.savefig(this_image)
-    plt.close()
-
-    assert images_are_identical(baseline_image, this_image)
+    assert images_are_identical("simple_test_domain", str(tmpdir))
 
 
 def test_event_handling(project):
@@ -247,28 +253,17 @@ def test_event_plotting(project):
     The commands supports three types of plots: Beachballs on a map and depth
     and time distribution histograms.
     """
-    baseline_image = os.path.join(IMAGES, "two_events_plot_map.png")
-    this_image = os.path.join(project.paths["root"], "two_events_plot_map.png")
     project.plot_events(plot_type="map", show_plot=False)
-    plt.savefig(this_image)
-    assert images_are_identical(baseline_image, this_image)
-    plt.close()
+    assert images_are_identical("two_events_plot_map",
+                                project.paths["root"])
 
-    baseline_image = os.path.join(IMAGES, "two_events_plot_depth.png")
-    this_image = os.path.join(project.paths["root"],
-                              "two_events_plot_depth.png")
     project.plot_events(plot_type="depth", show_plot=False)
-    plt.savefig(this_image)
-    assert images_are_identical(baseline_image, this_image)
-    plt.close()
+    assert images_are_identical("two_events_plot_depth",
+                                project.paths["root"])
 
-    baseline_image = os.path.join(IMAGES, "two_events_plot_time.png")
-    this_image = os.path.join(project.paths["root"],
-                              "two_events_plot_time.png")
     project.plot_events(plot_type="time", show_plot=False)
-    plt.savefig(this_image)
-    assert images_are_identical(baseline_image, this_image)
-    plt.close()
+    assert images_are_identical("two_events_plot_time",
+                                project.paths["root"])
 
 
 def test_event_info_retrieval(project):
@@ -472,27 +467,19 @@ def test_single_event_plot(project):
     """
     Tests the plotting of a single event.
     """
-    baseline_image = os.path.join(IMAGES, "single_event_plot.png")
-    this_image = os.path.join(project.paths["root"], "single_event_plot.png")
     project.plot_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
                        show_plot=False)
-    plt.savefig(this_image)
-    assert images_are_identical(baseline_image, this_image)
-    plt.close()
+    assert images_are_identical("single_event_plot", project.paths["root"])
 
 
 def test_simple_raydensity(project):
     """
     Tests the plotting of a single event.
     """
-    baseline_image = os.path.join(IMAGES, "simple_raydensity_plot.png")
-    this_image = os.path.join(project.paths["root"],
-                              "simple_raydensity_plot.png")
     project.plot_raydensity(show_plot=False, save_plot=False)
     # Use a low dpi to keep the test filesize in check.
-    plt.savefig(this_image, dpi=25)
-    assert images_are_identical(baseline_image, this_image)
-    plt.close()
+    assert images_are_identical("simple_raydensity_plot",
+                                project.paths["root"], dpi=25)
 
 
 def test_has_station_file(project):
