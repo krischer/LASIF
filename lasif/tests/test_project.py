@@ -25,7 +25,6 @@ import obspy
 import os
 import pytest
 import shutil
-import time
 
 from lasif.project import Project, LASIFException
 
@@ -195,10 +194,7 @@ def test_config_file_caching(tmpdir):
     os.remove(cache)
     assert not os.path.exists(cache)
 
-    a = time.time()
     pr = Project(str(tmpdir), init_project="TestProject")
-    b = time.time()
-    time_for_non_cached_read = b - a
 
     # Assert that everything is still the same.
     assert config == pr.config
@@ -208,13 +204,7 @@ def test_config_file_caching(tmpdir):
     # This should have created the cached file.
     assert os.path.exists(cache)
 
-    a = time.time()
     pr = Project(str(tmpdir), init_project="TestProject")
-    b = time.time()
-    time_for_cached_read = b - a
-
-    # A cached read should always be faster.
-    assert time_for_cached_read < time_for_non_cached_read
 
     # Assert that nothing changed.
     assert config == pr.config
@@ -313,23 +303,15 @@ def test_waveform_cache_usage(project):
     assert not os.path.exists(waveform_cache)
 
     # Create the cache.
-    a = time.time()
     cache = project._get_waveform_cache_file(event_name, "raw",
                                              show_progress=False)
-    b = time.time()
-    time_for_uncached_cache_retrieval = b - a
 
     # Make sure it now exists.
     assert os.path.exists(waveform_cache)
 
     # Accessing it again should be much faster as it already exists.
-    a = time.time()
     cache = project._get_waveform_cache_file(event_name, "raw",
                                              show_progress=False)
-    b = time.time()
-    time_for_cached_cache_retrieval = b - a
-
-    assert time_for_cached_cache_retrieval < time_for_uncached_cache_retrieval
 
     # The cache has to point to the correct folder and file.
     assert cache.waveform_folder == waveform_folder
