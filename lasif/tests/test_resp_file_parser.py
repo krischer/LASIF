@@ -12,88 +12,73 @@ Simple test suite for the RESP file parser.
 import inspect
 import obspy
 import os
-import unittest
 
 from lasif.tools import simple_resp_parser
 
 
-class RESPFileParserTestCase(unittest.TestCase):
+# Most generic way to get the actual data directory.
+data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
+    inspect.currentframe()))), "data")
+
+
+def test_reading_simple_resp_file():
     """
-    Simple test case for the RESP file parser.
+    Tests reading of a very simple RESP file.
     """
-    def setUp(self):
-        # Most generic way to get the actual data directory.
-        self.data_dir = os.path.join(os.path.dirname(os.path.abspath(
-            inspect.getfile(inspect.currentframe()))), "data")
-
-    def test_reading_simple_resp_file(self):
-        """
-        Tests reading of a very simple RESP file.
-        """
-        filename = os.path.join(self.data_dir, "RESP.G.FDF.00.BHE")
-        channels = simple_resp_parser.get_inventory(filename)
-        self.assertEqual(len(channels), 1)
-        channel = channels[0]
-        self.assertEqual(channel["network"], "G")
-        self.assertEqual(channel["station"], "FDF")
-        self.assertEqual(channel["location"], "00")
-        self.assertEqual(channel["channel"], "BHE")
-        self.assertEqual(channel["start_date"],
-                         obspy.UTCDateTime(2006, 11, 22, 13))
-        self.assertEqual(channel["end_date"], None)
-        self.assertEqual(channel["channel_id"], "G.FDF.00.BHE")
-
-    def test_reading_more_complex_resp_file(self):
-        """
-        Tests reading a slightly more complex RESP file. This one contains two
-        (identical!!!) channels. That is pretty much the maximum complexity of
-        RESP files.
-        """
-        filename = os.path.join(self.data_dir, "RESP.AF.DODT..BHE")
-        channels = simple_resp_parser.get_inventory(filename)
-        self.assertEqual(len(channels), 2)
-        channel = channels[0]
-        self.assertEqual(channel["network"], "AF")
-        self.assertEqual(channel["station"], "DODT")
-        self.assertEqual(channel["location"], "")
-        self.assertEqual(channel["channel"], "BHE")
-        self.assertEqual(channel["start_date"],
-                         obspy.UTCDateTime(2009, 8, 9, 0))
-        self.assertEqual(channel["end_date"], None)
-        self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
-        # The two have the same information for some reason...
-        channel = channels[1]
-        self.assertEqual(channel["network"], "AF")
-        self.assertEqual(channel["station"], "DODT")
-        self.assertEqual(channel["location"], "")
-        self.assertEqual(channel["channel"], "BHE")
-        self.assertEqual(channel["start_date"],
-                         obspy.UTCDateTime(2009, 8, 9, 0))
-        self.assertEqual(channel["end_date"], None)
-        self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
-
-    def test_removing_duplicates(self):
-        """
-        Tests the removal of duplicates.
-        """
-        filename = os.path.join(self.data_dir, "RESP.AF.DODT..BHE")
-        channels = simple_resp_parser.get_inventory(filename,
-                                                    remove_duplicates=True)
-        self.assertEqual(len(channels), 1)
-        channel = channels[0]
-        self.assertEqual(channel["network"], "AF")
-        self.assertEqual(channel["station"], "DODT")
-        self.assertEqual(channel["location"], "")
-        self.assertEqual(channel["channel"], "BHE")
-        self.assertEqual(channel["start_date"],
-                         obspy.UTCDateTime(2009, 8, 9, 0))
-        self.assertEqual(channel["end_date"], None)
-        self.assertEqual(channel["channel_id"], "AF.DODT..BHE")
+    filename = os.path.join(data_dir, "RESP.G.FDF.00.BHE")
+    channels = simple_resp_parser.get_inventory(filename)
+    assert len(channels) == 1
+    channel = channels[0]
+    assert channel["network"] == "G"
+    assert channel["station"] == "FDF"
+    assert channel["location"] == "00"
+    assert channel["channel"] == "BHE"
+    assert channel["start_date"] == obspy.UTCDateTime(2006, 11, 22, 13)
+    assert channel["end_date"] is None
+    assert channel["channel_id"] == "G.FDF.00.BHE"
 
 
-def suite():
-    return unittest.makeSuite(RESPFileParserTestCase, "test")
+def test_reading_more_complex_resp_file():
+    """
+    Tests reading a slightly more complex RESP file. This one contains two
+    (identical!!!) channels. That is pretty much the maximum complexity of
+    RESP files.
+    """
+    filename = os.path.join(data_dir, "RESP.AF.DODT..BHE")
+    channels = simple_resp_parser.get_inventory(filename)
+    assert len(channels) == 2
+    channel = channels[0]
+    assert channel["network"] == "AF"
+    assert channel["station"] == "DODT"
+    assert channel["location"] == ""
+    assert channel["channel"] == "BHE"
+    assert channel["start_date"] == obspy.UTCDateTime(2009, 8, 9, 0)
+    assert channel["end_date"] is None
+    assert channel["channel_id"] == "AF.DODT..BHE"
+    # The two have the same information for some reason...
+    channel = channels[1]
+    assert channel["network"] == "AF"
+    assert channel["station"] == "DODT"
+    assert channel["location"] == ""
+    assert channel["channel"] == "BHE"
+    assert channel["start_date"] == obspy.UTCDateTime(2009, 8, 9, 0)
+    assert channel["end_date"] is None
+    assert channel["channel_id"] == "AF.DODT..BHE"
 
 
-if __name__ == "__main__":
-    unittest.main(defaultTest="suite")
+def test_removing_duplicates():
+    """
+    Tests the removal of duplicates.
+    """
+    filename = os.path.join(data_dir, "RESP.AF.DODT..BHE")
+    channels = simple_resp_parser.get_inventory(filename,
+                                                remove_duplicates=True)
+    assert len(channels) == 1
+    channel = channels[0]
+    assert channel["network"] == "AF"
+    assert channel["station"] == "DODT"
+    assert channel["location"] == ""
+    assert channel["channel"] == "BHE"
+    assert channel["start_date"] == obspy.UTCDateTime(2009, 8, 9, 0)
+    assert channel["end_date"] is None
+    assert channel["channel_id"] == "AF.DODT..BHE"
