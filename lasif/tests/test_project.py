@@ -21,6 +21,7 @@ import copy
 import glob
 import inspect
 import matplotlib.pylab as plt
+from matplotlib.testing.compare import compare_images as mpl_compare_images
 import obspy
 import os
 import pytest
@@ -62,10 +63,13 @@ def images_are_identical(expected, actual):
     """
     Partially copied from ObsPy
     """
-    from matplotlib.testing.compare import compare_images as mpl_compare_images
-    from matplotlib.pyplot import rcdefaults
-    # set matplotlib builtin default settings for testing
-    rcdefaults()
+    # Set all default values.
+    mpl.rcdefaults()
+    # These settings must be hardcoded for running the comparision tests and
+    # are not necessarily the default values.
+    mpl.rcParams['font.family'] = 'Bitstream Vera Sans'
+    mpl.rcParams['text.hinting'] = False
+    mpl.rcParams['text.hinting_factor'] = 8
     import locale
     locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
     if mpl_compare_images(expected, actual, 0.02) is None:
