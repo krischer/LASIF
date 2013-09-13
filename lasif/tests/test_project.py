@@ -90,7 +90,9 @@ def images_are_identical(image_name, temp_dir, dpi=None):
     assert os.path.exists(expected)
     assert os.path.exists(actual)
 
-    result = mpl_compare_images(expected, actual, 0.02, in_decorator=True)
+    # Use a reasonably high tolerance to get around difference with different
+    # freetype and possibly agg versions. matplotlib uses a tolerance of 13.
+    result = mpl_compare_images(expected, actual, 5, in_decorator=True)
     if result is not None:
         print result
     assert result is None
