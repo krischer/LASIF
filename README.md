@@ -71,9 +71,9 @@ $ cd ...
 
 The test are written with the pytest framework and require two additional modules:
 
-```python
-pip install pytest
-pip install nose
+```bash
+$ pip install pytest
+$ pip install nose
 ```
 
 The `nose` module is required for the image comparison tests which leverage
@@ -81,9 +81,9 @@ matplotlib's testing facilities which in turn require nose to run.
 
 To run the test, cd to into the LASIF project and type
 
-```
-py.test
+```bash
+$ py.test
 ```
 
-Many more options for testing are available. Please read the pytest
-documentation for more information.
+Many more options for testing are available. Please read the [pytest
+documentation](http://pytest.org/) for more information.
