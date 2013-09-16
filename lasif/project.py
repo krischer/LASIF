@@ -161,6 +161,7 @@ class Project(object):
         raw_data_file_count = 0
         processed_data_file_count = 0
         synthetic_data_file_count = 0
+        station_file_count = 0
         project_filesize = 0
 
         for dirpath, _, filenames in os.walk(self.paths["root"]):
@@ -174,12 +175,15 @@ class Project(object):
                     processed_data_file_count += len(filenames)
             elif dirpath.startswith(self.paths["synthetics"]):
                 synthetic_data_file_count += len(filenames)
+            elif dirpath.startswith(self.paths["stations"]):
+                station_file_count += len(filenames)
 
         ret_str = "LASIF project \"%s\"\n" % self.config["name"]
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         ret_str += "\tContent:\n"
         ret_str += "\t\t%i events\n" % len(self.get_event_dict())
+        ret_str += "\t\t%i station files\n" % station_file_count
         ret_str += "\t\t%i raw waveform files\n" % raw_data_file_count
         ret_str += "\t\t%i processed waveform files \n" % \
             processed_data_file_count
