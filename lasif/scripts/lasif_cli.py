@@ -275,7 +275,7 @@ def lasif_list_events(args):
     events = _find_project_root(".").get_event_dict()
     print("%i event%s in project:" % (len(events), "s" if len(events) > 1
           else ""))
-    for event in events.iterkeys():
+    for event in sorted(events.keys()):
         print ("\t%s" % event)
 
 
