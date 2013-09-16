@@ -690,25 +690,40 @@ def lasif_remove_empty_coordinate_entries(args):
 @add_command_to_group("Iteration Management")
 def lasif_preprocess_data(args):
     """
-    Usage: lasif preprocess_data ITERATION_NAME (EVENT_NAME)
+    Usage: lasif preprocess_data ITERATION_NAME (EVENT_NAME[s])
 
     Preprocesses all currently available data for a given iteration.
+
+    The iteration name is required. If no event is given, data for all events
+    for the specified iterations will be preprocessed. Alternatively you can
+    specify one or more events that will then be processed, e.g.
+        lasif preprocess_data 1 EVENT_1 EVENT_2
     """
-    if len(args) != 2:
-        msg = ("ITERATION_NAME and at most one EVENT_NAME must be given. No"
-               " other arguments allowed.")
+    if len(args) == 0:
+        msg = ("At least the ITERATION_NAME must be given.")
         raise LASIFCommandLineException(msg)
     iteration_name = args[0]
-    event_id = args[1]
-
+    event_ids = args[1:]
+    if not event_ids:
+        event_ids = None
     proj = _find_project_root(".")
+
+    # Check if the iteration name is valid.
     iterations = proj.get_iteration_dict()
     if iteration_name not in iterations:
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
                "a list of all available iterations.") % iteration_name
         raise LASIFCommandLineException(msg)
 
-    proj.preprocess_data(iteration_name, event_id)
+    # Check if the event ids are valid.
+    if event_ids:
+        events = proj.get_event_dict().keys()
+        for event_name in event_ids:
+            if event_name not in events:
+                msg = "Event '%s' not found." % event_name
+                raise LASIFCommandLineException(msg)
+
+    proj.preprocess_data(iteration_name, event_ids)
 
 
 @add_command_to_group("Plotting")
