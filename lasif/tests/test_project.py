@@ -446,12 +446,21 @@ def test_preprocessing_runs(project):
     processing_tag = project._get_iteration("1").get_processing_tag()
     event_data_dir = os.path.join(
         project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-    assert processing_tag not in os.listdir(event_data_dir)
-    project.preprocess_data("1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+    processing_dir = os.path.join(event_data_dir, processing_tag)
+    assert not os.path.exists(processing_dir)
+    # This will process only one event.
+    project.preprocess_data("1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"],
                             waiting_time=0.0)
-    assert processing_tag in os.listdir(event_data_dir)
-    contents = os.listdir(os.path.join(event_data_dir, processing_tag))
-    assert len(contents) == 4
+    assert os.path.exists(processing_dir)
+    assert len(os.listdir(processing_dir)) == 4
+
+    # Remove and try again, this time not specifying the event which will
+    # simply use all events. Should have the same result.
+    shutil.rmtree(processing_dir)
+    assert not os.path.exists(processing_dir)
+    project.preprocess_data("1", waiting_time=0.0)
+    assert os.path.exists(processing_dir)
+    assert len(os.listdir(processing_dir)) == 4
 
 
 def test_single_event_plot(project):

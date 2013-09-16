@@ -397,13 +397,16 @@ class Project(object):
         iterations = self.get_iteration_dict()
         return Iteration(iterations[iteration_name])
 
-    def preprocess_data(self, iteration_name, event_id, waiting_time=4.0):
+    def preprocess_data(self, iteration_name, event_ids=None,
+                        waiting_time=4.0):
         """
         Preprocesses all data for a given iteration.
 
         :param waiting_time: The time spent sleeping after the initial message
             has been printed. Useful if the user should be given the chance to
             cancel the processing.
+        :param event_ids: event_ids is a list of events to process in this run.
+            It will process all events if not given.
         """
         from lasif import preprocessing
         import obspy
@@ -422,11 +425,11 @@ class Project(object):
             Generate a dictionary with information for processing for each
             waveform.
             """
-
-            #- loop over events ===============================================
+            # Loop over the chosen events.
             for event_name, event in iteration.events.iteritems():
-
-                if (event_id == event_name) or (event_id == "all"):
+                # None means to process all events, otherwise it will be a list
+                # of events.
+                if (event_ids is None) or (event_name in event_ids):
 
                     event_info = self.get_event_info(event_name)
 
@@ -449,11 +452,17 @@ class Project(object):
                     # All stations that will be processed for this iteration
                     # and event.
                     stations = event["stations"].keys()
-                    waveforms = self._get_waveform_cache_file(
-                        event_name, "raw").get_values()
+                    waveforms = self._get_waveform_cache_file(event_name,
+                                                              "raw")
+                    if waveforms is False:
+                        msg = ("Could not find any waveforms for event "
+                               "{event}. Will be skipped.".format(
+                                   event=event_name))
+                        warnings.warn(msg)
+                        continue
 
                     #- loop over waveforms in the event =======================
-                    for waveform in waveforms:
+                    for waveform in waveforms.get_values():
                         station_id = "{network}.{station}".format(**waveform)
 
                         # Only process data from stations needed for the
