@@ -153,11 +153,41 @@ class Project(object):
 
     def __str__(self):
         """
-        Pretty string representation. Currently very basic.
+        Pretty string representation.
         """
+        from lasif.utils import sizeof_fmt
+        # Count all files and sizes.
+
+        raw_data_file_count = 0
+        processed_data_file_count = 0
+        synthetic_data_file_count = 0
+        project_filesize = 0
+
+        for dirpath, _, filenames in os.walk(self.paths["root"]):
+            size = sum([os.path.getsize(os.path.join(dirpath, _i))
+                        for _i in filenames])
+            project_filesize += size
+            if dirpath.startswith(self.paths["data"]):
+                if dirpath.endswith("raw"):
+                    raw_data_file_count += len(filenames)
+                elif "processed" in dirpath:
+                    processed_data_file_count += len(filenames)
+            elif dirpath.startswith(self.paths["synthetics"]):
+                synthetic_data_file_count += len(filenames)
+
         ret_str = "LASIF project \"%s\"\n" % self.config["name"]
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
+        ret_str += "\tContent:\n"
+        ret_str += "\t\t%i events\n" % len(self.get_event_dict())
+        ret_str += "\t\t%i raw waveform files\n" % raw_data_file_count
+        ret_str += "\t\t%i processed waveform files \n" % \
+            processed_data_file_count
+        ret_str += "\t\t%i synthetic waveform files\n" % \
+            synthetic_data_file_count
+
+        ret_str += "\tTotal project size: %s" % sizeof_fmt(project_filesize)
+
         return ret_str
 
     def get_station_filename(self, network, station, location, channel,

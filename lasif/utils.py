@@ -130,3 +130,16 @@ def point_in_domain(latitude, longitude, domain,
             not (min_longitude <= r_lng <= max_longitude):
         return False
     return True
+
+
+def sizeof_fmt(num):
+    """
+    Handy formatting for human readable filesize.
+
+    From http://stackoverflow.com/a/1094933/1657047
+    """
+    for x in ["bytes", "KB", "MB", "GB"]:
+        if num < 1024.0 and num > -1024.0:
+            return "%3.1f %s" % (num, x)
+        num /= 1024.0
+    return "%3.1f %s" % (num, "TB")
