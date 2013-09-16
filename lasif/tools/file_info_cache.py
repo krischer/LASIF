@@ -73,6 +73,7 @@ from itertools import izip
 import os
 import progressbar
 import sqlite3
+import time
 
 
 class FileInfoCache(object):
@@ -181,19 +182,22 @@ class FileInfoCache(object):
         # Use a progressbar if the filecount is large so something appears on
         # screen.
         pbar = None
-        if self.show_progress is True:
-            if filecount > 110:
-                widgets = ["Updating cache: ", progressbar.Percentage(),
-                           progressbar.Bar(), "", progressbar.ETA()]
-                pbar = progressbar.ProgressBar(widgets=widgets,
-                                               maxval=filecount).start()
-                update_interval = int(filecount / 100)
-
+        update_interval = None
         current_file_count = 0
+        start_time = time.time()
         # Now update all filetypes separately.
         for filetype in self.filetypes:
             for filename in self.files[filetype]:
                 current_file_count += 1
+                # Only show the progressbar if more then 5 seconds have passed.
+                if not pbar and self.show_progress and \
+                        (time.time() - start_time > 5):
+                    widgets = ["Updating cache: ", progressbar.Percentage(),
+                               progressbar.Bar(), "", progressbar.ETA()]
+                    pbar = progressbar.ProgressBar(widgets=widgets,
+                                                   maxval=filecount).start()
+                    update_interval = int(filecount / 100)
+                    pbar.update(current_file_count)
                 if pbar and not current_file_count % update_interval:
                     pbar.update(current_file_count)
                 if filename in db_files:
