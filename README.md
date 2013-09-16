@@ -69,11 +69,12 @@ $ cd ...
 
 ### Testing
 
-The test are written with the pytest framework and require two additional modules:
+The test are written with the pytest framework and require three additional modules:
 
 ```bash
 $ pip install pytest
 $ pip install nose
+$ pip install flake8
 ```
 
 The `nose` module is required for the image comparison tests which leverage
