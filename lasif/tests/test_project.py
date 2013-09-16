@@ -674,3 +674,14 @@ def test_data_synthetic_iterator(project, recwarn):
     assert sorted(found) == sorted(expected.keys())
     # No synthetics exists for the other two.
     assert no_synthetics_found_count == 2
+
+
+def test_string_representation(project, capsys):
+    print(project)
+    out = capsys.readouterr()[0]
+    assert "\"ExampleProject\"" in out
+    assert "Toy Project used in the Test Suite" in out
+    assert "2 events" in out
+    assert "4 raw waveform files" in out
+    assert "0 processed waveform files" in out
+    assert "6 synthetic waveform files" in out
