@@ -1216,7 +1216,7 @@ class Project(object):
             if (origin.depth > (800.0 * 1000.0)):
                 all_good = False
                 print_warning(filename, "a depth of more than 800 km. This is"
-                              "likely wrong.")
+                              " likely wrong.")
 
             # Sanity checks related to the magnitude.
             if not event.magnitudes:
