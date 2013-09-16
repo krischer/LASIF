@@ -692,7 +692,7 @@ def lasif_preprocess_data(args):
     """
     Usage: lasif preprocess_data ITERATION_NAME (EVENT_NAME)
 
-    Preprocesse all currently available data for a given iteration.
+    Preprocesses all currently available data for a given iteration.
     """
     if len(args) != 2:
         msg = ("ITERATION_NAME and at most one EVENT_NAME must be given. No"
