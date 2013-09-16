@@ -93,7 +93,7 @@ def test_station_cache(tmpdir):
     del station_cache
 
     # The tolerance in last modified time is 0.2.
-    time.sleep(0.2)
+    time.sleep(0.5)
     # Now replace the file with an empty SEED file and assure that all
     # associated channels have been removed.
     shutil.copy(os.path.join(data_dir, "channelless_datalessSEED"), seed_file)
