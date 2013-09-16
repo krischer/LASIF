@@ -67,7 +67,11 @@ def setup_function(function):
     # are not necessarily the default values.
     mpl.rcParams['font.family'] = 'Bitstream Vera Sans'
     mpl.rcParams['text.hinting'] = False
-    mpl.rcParams['text.hinting_factor'] = 8
+    # Not available for all matplotlib versions.
+    try:
+        mpl.rcParams['text.hinting_factor'] = 8
+    except KeyError:
+        pass
     import locale
     locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
 
