@@ -289,7 +289,7 @@ def lasif_list_models(args):
     models = _find_project_root(".").get_model_dict()
     print("%i model%s in project:" % (len(models), "s" if len(models) > 1
           else ""))
-    for model in models.iterkeys():
+    for model in sorted(models.keys()):
         print ("\t%s" % model)
 
 
