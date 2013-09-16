@@ -34,13 +34,15 @@ Dependencies:
 * requests
 * progressbar
 * geographiclib
+* colorama
 
-The later three can simply be installed via pip:
+The later four can simply be installed via pip:
 
 ```bash
 $ pip install requests
 $ pip install progressbar
 $ pip install geographiclib
+$ pip install colorama
 ```
 
 ObsPy and basemap are slightly more complicated to install. Please refer to the
@@ -63,3 +65,25 @@ $ cd LASIF
 $ pip install -v -e .
 $ cd ...
 ```
+
+
+### Testing
+
+The test are written with the pytest framework and require two additional modules:
+
+```python
+pip install pytest
+pip install nose
+```
+
+The `nose` module is required for the image comparison tests which leverage
+matplotlib's testing facilities which in turn require nose to run.
+
+To run the test, cd to into the LASIF project and type
+
+```
+py.test
+```
+
+Many more options for testing are available. Please read the pytest
+documentation for more information.
