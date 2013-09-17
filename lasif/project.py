@@ -1392,6 +1392,44 @@ class Project(object):
         else:
             print fail_string
 
+    def is_event_station_raypath_within_boundaries(
+            self, event_name, station_latitude, station_longitude,
+            raypath_steps=25):
+        """
+        Checks if the full station-event raypath is within the project's domain
+        boundaries.
+
+        Returns True if this is the case, False if not.
+
+        :type event_name: string
+        :param event_name: The project internal event name.
+        :type station_latitude: float
+        :param station_latitude: The station latitude.
+        :type station_longitude: float
+        :param station_longitude: The station longitude.
+        :type raypath_steps: int, optional
+        :param raypath_steps: The number of discrete points along the raypath
+            that will be checked.
+        """
+        from lasif.utils import greatcircle_points, Point, point_in_domain
+
+        # Get the event information.
+        ev = self.get_event_info(event_name)
+        event_latitude = ev["latitude"]
+        event_longitude = ev["longitude"]
+
+        for point in greatcircle_points(
+                Point(station_latitude, station_longitude),
+                Point(event_latitude, event_longitude),
+                max_npts=raypath_steps):
+
+            if not point_in_domain(
+                    point.lat, point.lng, self.domain["bounds"],
+                    rotation_axis=self.domain["rotation_axis"],
+                    rotation_angle_in_degree=self.domain["rotation_angle"]):
+                return False
+            return True
+
     def finalize_adjoint_sources(self, iteration_name, event_name):
         """
         Finalizes the adjoint sources.
