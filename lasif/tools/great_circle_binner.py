@@ -12,11 +12,9 @@ Useful for ray-density plots.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from collections import namedtuple
-from geographiclib import geodesic
 import numpy as np
 
-
-Point = namedtuple("Point", ["lat", "lng"])
+from lasif.utils import greatcircle_points
 
 
 class Range(namedtuple("Range", ["min", "max", "count"])):
@@ -54,16 +52,9 @@ class GreatCircleBinner(object):
         self.bins[lng_index, lat_index] += 1
 
     def add_greatcircle(self, point_1, point_2, max_npts=3000):
-        point = geodesic.Geodesic.WGS84.Inverse(
-            lat1=point_1.lat, lon1=point_1.lng, lat2=point_2.lat,
-            lon2=point_2.lng)
-        line = geodesic.Geodesic.WGS84.Line(
-            point_1.lat, point_1.lng, point["azi1"])
-
-        npts = int((point["a12"] / self.max_range) * max_npts)
-        for i in xrange(npts + 1):
-            line_point = line.Position(i * point["s12"] / float(npts))
-            self.add_point(Point(line_point["lat2"], line_point["lon2"]))
+        for point in greatcircle_points(point_1, point_2, self.max_range,
+                                        max_npts):
+            self.add_point(point)
 
     @property
     def coordinates(self):

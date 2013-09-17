@@ -169,7 +169,8 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     Does require geographiclib to be installed.
     """
     import ctypes as C
-    from lasif.tools.great_circle_binner import GreatCircleBinner, Point
+    from lasif.tools.great_circle_binner import GreatCircleBinner
+    from lasif.utils import Point
     import multiprocessing
     import progressbar
     from scipy.stats import scoreatpercentile
