@@ -654,9 +654,19 @@ class Project(object):
             plt.savefig(outfile, dpi=200)
             print "Saved picture at %s" % outfile
 
-    def get_event_info(self, event_name):
+    def get_event_info(self, event_name, get_filecount=False):
         """
         Returns a dictionary with information about one, specific event.
+
+        :param name: The event name.
+        :type get_filecount: bool, optional
+        :param get_filecount: Whether or not to count the files for a given
+            event. If True, it will also return the number of files associated
+            with the event. Defaults to False.
+            It will contain the additional keys:
+                * raw_waveform_file_count
+                * preprocessed_waveform_file_count
+                * synthetic_data_file_count
         """
         from obspy.core.util import FlinnEngdahl
 
@@ -685,6 +695,23 @@ class Project(object):
             "magnitude": mag.mag,
             "region": FlinnEngdahl().get_region(org.longitude, org.latitude),
             "magnitude_type": mag.magnitude_type}
+
+        if get_filecount is True:
+            data_path = os.path.join(self.paths["data"], event_name)
+            synth_path = os.path.join(self.paths["synthetics"], event_name)
+            raw_data_count = 0
+            processed_data_count = 0
+            synthetic_data_count = 0
+            for dirpath, _, filenames in os.walk(data_path):
+                if dirpath.endswith("raw"):
+                    raw_data_count += len(filenames)
+                elif "preprocessed" in dirpath:
+                    processed_data_count += len(filenames)
+            for dirpath, _, filenames in os.walk(synth_path):
+                synthetic_data_count += len(filenames)
+            info["raw_waveform_file_count"] = raw_data_count
+            info["synthetic_waveform_file_count"] = synthetic_data_count
+            info["preprocessed_waveform_file_count"] = processed_data_count
         return info
 
     def generate_input_files(self, iteration_name, event_name,
