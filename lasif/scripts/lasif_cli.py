@@ -272,11 +272,21 @@ def lasif_list_events(args):
 
     Returns a list of all events in the project.
     """
-    events = _find_project_root(".").get_event_dict()
+    from lasif.tools.prettytable import PrettyTable
+    proj = _find_project_root(".")
+    events = proj.get_event_dict()
     print("%i event%s in project:" % (len(events), "s" if len(events) > 1
           else ""))
+    tab = PrettyTable(["Event Name", "Lat", "Lng", "Depth", "Mag"])
+    tab.align["Event Name"] = "l"
     for event in sorted(events.keys()):
-        print ("\t%s" % event)
+        ev = proj.get_event_info(event)
+        tab.add_row([event, "%7.1f" % ev["latitude"],
+                     "%7.1f" % ev["longitude"],
+                     "%5.1f km" % ev["depth_in_km"],
+                     "%5.1f" % ev["magnitude"],
+                     ])
+    print tab
 
 
 @add_command_to_group("Project Management")
