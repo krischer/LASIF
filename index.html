@@ -69,6 +69,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#inspecting-the-data">Inspecting the Data</a></li>
+<li><a class="reference internal" href="#interlude-validating-the-data">Interlude: Validating the data</a></li>
 <li><a class="reference internal" href="#defining-a-new-iteration">Defining a New Iteration</a><ul>
 <li><a class="reference internal" href="#the-iteration-xml-files">The Iteration XML Files</a></li>
 <li><a class="reference internal" href="#source-time-functions">Source Time Functions</a></li>
@@ -449,10 +450,7 @@ the project.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_events
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//index-3.py">Source code</a>, <a class="reference external" href=".//index-3.png">png</a>, <a class="reference external" href=".//index-3.hires.png">hires.png</a>, <a class="reference external" href=".//index-3.pdf">pdf</a>)</p>
-<div class="figure">
-<img alt="_images/index-3.png" src="_images/index-3.png" />
-</div>
+<p>(<a class="reference external" href=".//index-3.py">Source code</a>)</p>
 <p>The <strong>event_info</strong> command is your friend if you desire more information about
 a certain event:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
@@ -706,10 +704,7 @@ including a very simple ray coverage plot with:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_event GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 </pre></div>
 </div>
-<p>(<a class="reference external" href=".//index-4.py">Source code</a>, <a class="reference external" href=".//index-4.png">png</a>, <a class="reference external" href=".//index-4.hires.png">hires.png</a>, <a class="reference external" href=".//index-4.pdf">pdf</a>)</p>
-<div class="figure">
-<img alt="_images/index-4.png" src="_images/index-4.png" />
-</div>
+<p>(<a class="reference external" href=".//index-4.py">Source code</a>)</p>
 <p>If you are interested in getting a coverage plot of all events and data
 available for the current project, please execute the <strong>plot_raydensity</strong>
 command:</p>
@@ -721,6 +716,19 @@ data; for the toy example used in the tutorial it will not work. It is not a
 physically accurate plot but helps in judging data coverage and directionality
 effects. An example from a larger LASIF project illustrates this:</p>
 <img alt="_images/raydensity.jpg" class="align-center" src="_images/raydensity.jpg" style="width: 70%;" />
+</div>
+<div class="section" id="interlude-validating-the-data">
+<h2>Interlude: Validating the data<a class="headerlink" href="#interlude-validating-the-data" title="Permalink to this headline">¶</a></h2>
+<p>You might have noticed that LASIF projects can potentially contain many million
+files and it will thus be impossible to validate the data by hand. Therefore
+LASIF contains a number of functions attempting to check the data of a
+project. All of these can be called with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif validate_data
+</pre></div>
+</div>
+<p>Please make sure no errors appear otherwise LASIF cannot guarantee to work
+correctly.  With time more checks will be added to this function as more
+problems arise.</p>
 </div>
 <div class="section" id="defining-a-new-iteration">
 <h2>Defining a New Iteration<a class="headerlink" href="#defining-a-new-iteration" title="Permalink to this headline">¶</a></h2>
