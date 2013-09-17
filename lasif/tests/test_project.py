@@ -294,6 +294,37 @@ def test_event_info_retrieval(project):
     assert event_info["magnitude_type"] == "Mwc"
 
 
+def test_event_info_filecount_retrieval(project):
+    """
+    Checks the filecount retrieval with the event_info method.
+    """
+    event_info = project.get_event_info(
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        get_filecount=True)
+    assert event_info["raw_waveform_file_count"] == 4
+    assert event_info["preprocessed_waveform_file_count"] == 0
+    assert event_info["synthetic_waveform_file_count"] == 6
+
+    event_info = project.get_event_info(
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15",
+        get_filecount=True)
+    assert event_info["raw_waveform_file_count"] == 0
+    assert event_info["preprocessed_waveform_file_count"] == 0
+    assert event_info["synthetic_waveform_file_count"] == 0
+
+    # If called with the get_filecount flag, the keys should not exist.
+    event_info = project.get_event_info(
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert "raw_waveform_file_count" not in event_info
+    assert "preprocessed_waveform_file_count" not in event_info
+    assert "synthetic_waveform_file_count" not in event_info
+    event_info = project.get_event_info(
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
+    assert "raw_waveform_file_count" not in event_info
+    assert "preprocessed_waveform_file_count" not in event_info
+    assert "synthetic_waveform_file_count" not in event_info
+
+
 def test_waveform_cache_usage(project):
     """
     Tests the automatic creation and usage of the waveform caches.
