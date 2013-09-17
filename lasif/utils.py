@@ -157,21 +157,20 @@ def greatcircle_points(point_1, point_2, max_extension=None,
     point_2. Max extension is the normalization factor. If the distance between
     point_1 and point_2 is exactly max_extension, then 3000 points will be
     returned, otherwise a fraction will be returned.
-    """
-    # If not given, set it to the maximum extension of the (in this case
-    # rectangular) domain.
-    if max_extension is None:
-        max_extension = max(
-            abs(point_1.lat - point_2.lat),
-            abs(point_1.lng - point_2.lng))
 
+    If max_extension is not given, the generator will yield exactly max_npts
+    points.
+    """
     point = geodesic.Geodesic.WGS84.Inverse(
         lat1=point_1.lat, lon1=point_1.lng, lat2=point_2.lat,
         lon2=point_2.lng)
     line = geodesic.Geodesic.WGS84.Line(
         point_1.lat, point_1.lng, point["azi1"])
 
-    npts = int((point["a12"] / float(max_extension)) * max_npts)
+    if max_extension:
+        npts = int((point["a12"] / float(max_extension)) * max_npts)
+    else:
+        npts = max_npts - 1
     for i in xrange(npts + 1):
         line_point = line.Position(i * point["s12"] / float(npts))
         yield Point(line_point["lat2"], line_point["lon2"])
