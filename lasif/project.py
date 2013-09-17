@@ -914,6 +914,12 @@ class Project(object):
         file and an existing waveform file.
 
         Will return an empty dictionary if nothing is found.
+
+        Example return value:
+        {"BW.ROTZ": {"latitude": 10, "longitude": 11, "elevation": 12,
+                     "local_depth": 13},
+         "BW.ROTZ2": ...,
+         ...}
         """
         all_events = self.get_event_dict()
         if event_name not in all_events:
@@ -1058,6 +1064,9 @@ class Project(object):
         self._validate_coordinate_deduction(ok_string, fail_string,
                                             flush_point, add_report)
 
+        self._validate_raypaths_in_domain(ok_string, fail_string, flush_point,
+                                          add_report)
+
         if not reports:
             print("\n%sALL CHECKS PASSED%s\n"
                   "The data seems to be valid. If we missed something please "
@@ -1075,6 +1084,49 @@ class Project(object):
                   "A report has been created at '%s'.\n" %
                   (colorama.Fore.RED, colorama.Fore.RESET,
                    total_error_count[0], os.path.relpath(filename)))
+
+    def _validate_raypaths_in_domain(self, ok_string, fail_string, flush_point,
+                                     add_report):
+        """
+        Checks that all raypaths are within the specified domain boundaries.
+        """
+        print "Making sure raypaths are within boundaries ",
+
+        all_good = True
+
+        for event in self.get_event_dict().iterkeys():
+            waveform_files_for_event = \
+                self._get_waveform_cache_file(event, "raw").get_values()
+            flush_point()
+            for station_id, value in \
+                    self.get_stations_for_event(event).iteritems():
+                network, station = station_id.split(".")
+                value["latitude"], value["longitude"]
+                # Check if the whole path of the event-station pair is within
+                # the domain boundaries.
+                if self.is_event_station_raypath_within_boundaries(
+                        event, value["latitude"], value["longitude"],
+                        raypath_steps=12):
+                    continue
+                # Otherwise get all waveform files for that station.
+                waveform_files = [_i["filename"]
+                                  for _i in waveform_files_for_event
+                                  if (_i["network"] == network) and
+                                  (_i["station"] == station)]
+                if not waveform_files:
+                    continue
+                all_good = False
+                for filename in waveform_files:
+                    add_report(
+                        "WARNING: "
+                        "The event-station raypath for the file\n\t'{f}'\n "
+                        "does not fully lay within the domain. You might want "
+                        "to remove the file or change the domain "
+                        "specifications.".format(f=os.path.relpath(filename)))
+        if all_good:
+            print ok_string
+        else:
+            print fail_string
 
     def _update_all_waveform_caches(self, ok_string, fail_string,
                                     flush_point, add_report):
@@ -1428,7 +1480,7 @@ class Project(object):
                     rotation_axis=self.domain["rotation_axis"],
                     rotation_angle_in_degree=self.domain["rotation_angle"]):
                 return False
-            return True
+        return True
 
     def finalize_adjoint_sources(self, iteration_name, event_name):
         """
