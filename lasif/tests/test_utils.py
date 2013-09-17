@@ -10,6 +10,7 @@ Test suite for some utility functions.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import inspect
+import numpy as np
 from obspy import UTCDateTime
 from obspy.xseed import Parser
 import os
@@ -57,3 +58,19 @@ def test_channel_in_parser():
         parser_object, channel_id, starttime, starttime + 10) is True
     assert utils.channel_in_parser(
         parser_object, channel_id, endtime - 100, endtime) is True
+
+
+def test_greatcircle_points_generator():
+    """
+    Tests the greatcircle discrete point generator.
+    """
+    points = list(utils.greatcircle_points(
+        utils.Point(0, 0), utils.Point(0, 90), max_npts=90))
+    assert len(points) == 90
+    assert [_i.lat for _i in points] == 90 * [0.0]
+    np.testing.assert_array_almost_equal([_i.lng for _i in points],
+                                         np.linspace(0, 90, 90))
+
+    points = list(utils.greatcircle_points(
+        utils.Point(0, 0), utils.Point(0, 90), max_npts=110))
+    assert len(points) == 110
