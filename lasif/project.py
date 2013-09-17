@@ -1009,7 +1009,7 @@ class Project(object):
             else:
                 return None
 
-    def validate_data(self):
+    def validate_data(self, full_check=False):
         """
         Validates all data of the current project.
 
@@ -1064,8 +1064,11 @@ class Project(object):
         self._validate_coordinate_deduction(ok_string, fail_string,
                                             flush_point, add_report)
 
-        self._validate_raypaths_in_domain(ok_string, fail_string, flush_point,
-                                          add_report)
+        if full_check is True:
+            self._validate_raypaths_in_domain(ok_string, fail_string,
+                                              flush_point, add_report)
+        else:
+            print "Skipping raypath check. Perform a full check for it."
 
         if not reports:
             print("\n%sALL CHECKS PASSED%s\n"

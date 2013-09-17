@@ -795,13 +795,16 @@ def lasif_plot_selected_windows(args):
 @add_command_to_group("Project Management")
 def lasif_validate_data(args):
     """
-    Usage lasif validate_data
+    Usage lasif validate_data [full]
 
     Validates all data of the current project.
 
     This commands walks through all available data and checks it for validity.
     It furthermore does some sanity checks to detect common problems. These
     should be fixed.
+
+    By default is only checks some things. A full check is recommended but
+    potentially takes a very long time.
 
     Things the command does:
 
@@ -814,12 +817,16 @@ def lasif_validate_data(args):
           the moment tensor values as well. This is rather fragile and mainly
           intended to detect values specified in wrong units.
     """
-    if len(args):
-        msg = "No arguments allowed."
+    if args and (len(args) > 1 or args[0] != "full"):
+        msg = "The only allowed argument is 'full'"
         raise LASIFCommandLineException(msg)
 
     proj = _find_project_root(".")
-    proj.validate_data()
+
+    if len(args) and args[0] == "full":
+        proj.validate_data(full_check=True)
+    else:
+        proj.validate_data()
 
 
 def lasif_tutorial(args):
