@@ -708,6 +708,9 @@ def test_data_synthetic_iterator(project, recwarn):
 
 
 def test_string_representation(project, capsys):
+    """
+    Tests the projects string representation.
+    """
     print(project)
     out = capsys.readouterr()[0]
     assert "\"ExampleProject\"" in out
@@ -717,3 +720,17 @@ def test_string_representation(project, capsys):
     assert "4 raw waveform files" in out
     assert "0 processed waveform files" in out
     assert "6 synthetic waveform files" in out
+
+
+def test_is_event_station_raypath_within_boundaries(project):
+    """
+    Tests the raypath checker.
+    """
+    # latitude = 38.82
+    # longitude = 40.14
+    event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+
+    assert project.is_event_station_raypath_within_boundaries(
+        event, 38.92, 40.0)
+    assert not project.is_event_station_raypath_within_boundaries(
+        event, 38.92, 140.0)
