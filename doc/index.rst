@@ -791,6 +791,24 @@ effects. An example from a larger LASIF project illustrates this:
     :align: center
 
 
+
+Interlude: Validating the data
+------------------------------
+
+You might have noticed that LASIF projects can potentially contain many million
+files and it will thus be impossible to validate the data by hand. Therefore
+LASIF contains a number of functions attempting to check the data of a
+project. All of these can be called with
+
+.. code-block:: bash
+
+    $ lasif validate_data
+
+Please make sure no errors appear otherwise LASIF cannot guarantee to work
+correctly.  With time more checks will be added to this function as more
+problems arise.
+
+
 Defining a New Iteration
 ------------------------
 
