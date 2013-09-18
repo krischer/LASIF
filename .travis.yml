@@ -39,4 +39,4 @@ after_failure:
   - wget "http://imgur.com/tools/imgurbash.sh"
   - "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgurbash.sh %"
 after_success:
-  - bash ./.update-gh-pages.sh
+  - bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh
