@@ -9,6 +9,7 @@ Welcome to LASIF's Documentation!
 .. image:: images/logo/lasif_logo.png
     :width: 50%
 
+
 LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
 **data-driven workflow tool** to perform full waveform inversions.  It is
 opinionated and strict meaning that it enforces a certain data and directory
@@ -392,6 +393,7 @@ the project.
     # Create event.
     from obspy.core.event import *
     ev = Event()
+    ev.filename = "example_1.xml"
     cat = Catalog(events=[ev])
     org = Origin()
     fm = FocalMechanism()
@@ -403,13 +405,17 @@ the project.
     mt.tensor = t
     org.latitude = 39.15
     org.longitude = 29.1
+    org.depth = 10000
     t.m_rr = -8.07e+17
     t.m_tt = 8.92e+17
     t.m_pp = -8.5e+16
     t.m_rt = 2.8e+16
     t.m_rp = -5.3e+16
     t.m_tp = -2.17e+17
+    ev.magnitudes.append(Magnitude(mag=5.1, magnitude_type="Mw"))
     ev2 = Event()
+    ev2.filename = "example_2.xml"
+    cat = Catalog(events=[ev])
     cat.append(ev2)
     org = Origin()
     fm = FocalMechanism()
@@ -421,12 +427,14 @@ the project.
     mt.tensor = t
     org.latitude = 38.82
     org.longitude = 40.14
+    org.depth = 10000
     t.m_rr = 5.47e+15
     t.m_tt = -4.11e+16
     t.m_pp = 3.56e+16
     t.m_rt = 2.26e+16
     t.m_rp = -2.25e+16
     t.m_tp = 1.92e+16
+    ev2.magnitudes.append(Magnitude(mag=5.1, magnitude_type="Mw"))
     lasif.visualization.plot_events(cat, map)
 
 
@@ -751,6 +759,7 @@ including a very simple ray coverage plot with:
     from obspy.core.event import *
     cat = Catalog(events=[])
     ev = Event()
+    ev.filename = "example.xml"
     cat.append(ev)
     org = Origin()
     fm = FocalMechanism()
@@ -762,12 +771,14 @@ including a very simple ray coverage plot with:
     mt.tensor = t
     org.latitude = 38.82
     org.longitude = 40.14
+    org.depth = 10000
     t.m_rr = 5.47e+15
     t.m_tt = -4.11e+16
     t.m_pp = 3.56e+16
     t.m_rt = 2.26e+16
     t.m_rp = -2.25e+16
     t.m_tp = 1.92e+16
+    ev.magnitudes.append(Magnitude(mag=5.1, magnitude_type="Mw"))
     lasif.visualization.plot_events(cat, map)
     plt.show()
 
@@ -1015,13 +1026,16 @@ the **plot_stf** command with the iteration name:
 This command will read the corresponding iteration file and open a plot with a
 time series and a time frequency representation of the source time function.
 
+
 .. plot::
 
     import lasif.visualization
+
     from lasif.source_time_functions import filtered_heaviside
 
     data = filtered_heaviside(4000, 0.13, 1.0 / 500.0, 1.0 / 60.0)
     lasif.visualization.plot_tf(data, 0.13)
+
 
 Data Preprocessing
 ^^^^^^^^^^^^^^^^^^
@@ -1405,9 +1419,11 @@ command again.
 
 
 
-Indices and tables
-==================
+Further Documentation
+=====================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. toctree::
+    :maxdepth: 2
+
+    iris2quakeml
+    rotations

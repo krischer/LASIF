@@ -4,6 +4,7 @@
 A collection of functions to rotate vectors, seismograms and moment tensors on
 a spherical body, e.g. the Earth.
 
+
 .. note:: **On the used coordinate system**
 
     Latitude and longitude are natural geographical coordinates used on Earth.
@@ -27,12 +28,12 @@ a spherical body, e.g. the Earth.
     For convenience reasons, most function in this module work with coordinates
     given in latitude and longitude.
 
-:copyright:
-Lion Krischer (krischer@geophysik.uni-muenchen.de), 2012-2013
 
-:license:
-GNU General Public License, Version 3
-(http://www.gnu.org/copyleft/gpl.html)
+:copyright: Lion Krischer (krischer@geophysik.uni-muenchen.de), 2012-2013
+
+
+:license: GNU General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
 
