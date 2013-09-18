@@ -214,7 +214,7 @@ have the SES3D documentation at hand.</p>
 <strong>lasif</strong>.</p>
 <p>Assuming the installation was successful, the following command will print a
 short overview of all commands available within LASIF:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif <span class="nb">help</span>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif --help
 
 Usage: lasif FUNCTION PARAMETERS
 
@@ -224,8 +224,8 @@ Available functions:
     ...
 </pre></div>
 </div>
-<p>To learn more about a specific command, append <em>help</em> to it:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project <span class="nb">help</span>
+<p>To learn more about a specific command, append <em>&#8211;help</em> to it:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project --help
 
 Usage: lasif init_project FOLDER_PATH
 
@@ -736,7 +736,7 @@ some errors are due to others and the <em>validate_data</em> command tries to be
 and checks for simple errors first. Per default the command will launch only a
 simplified validation function as some tests are rather slow. To get a full
 validation going use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif validate_data full
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif validate_data --full
 </pre></div>
 </div>
 <p>Be aware that this may take a while.</p>
@@ -1017,7 +1017,7 @@ used in the SES3D 4.0 tutorial so we will just use those here.</p>
 <div class="section" id="input-file-generation">
 <h3>Input File Generation<a class="headerlink" href="#input-file-generation" title="Permalink to this headline">¶</a></h3>
 <p>The actual input file generation is now very straightforward:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files ITERATION_NAME EVENT_NAME --simulation_type<span class="o">=</span>SIMULATION_TYPE
 </pre></div>
 </div>
 <p><strong>TYPE</strong> has to be one of</p>
@@ -1034,8 +1034,8 @@ on.</li>
 </div></blockquote>
 <p>The other parameters should be clear.</p>
 <p>For this tutorial you can generate input files for both events with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 adjoint_forward
-<span class="nv">$ </span>lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 adjoint_forward
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 --simulation_type<span class="o">=</span>adjoint_forward
+<span class="nv">$ </span>lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 --simulation_type<span class="o">=</span>adjoint_forward
 </pre></div>
 </div>
 <p>This will place input files in the <em>OUTPUT</em> subdirectory of the project. In
