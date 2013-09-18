@@ -113,7 +113,7 @@ short overview of all commands available within LASIF:
 
 .. code-block:: bash
 
-    $ lasif help
+    $ lasif --help
 
     Usage: lasif FUNCTION PARAMETERS
 
@@ -122,11 +122,11 @@ short overview of all commands available within LASIF:
         create_new_iteration
         ...
 
-To learn more about a specific command, append *help* to it:
+To learn more about a specific command, append *--help* to it:
 
 .. code-block:: bash
 
-    $ lasif init_project help
+    $ lasif init_project --help
 
     Usage: lasif init_project FOLDER_PATH
 
@@ -818,7 +818,7 @@ validation going use
 
 .. code-block:: bash
 
-    $ lasif validate_data full
+    $ lasif validate_data --full
 
 Be aware that this may take a while.
 
@@ -1150,7 +1150,7 @@ The actual input file generation is now very straightforward:
 
 .. code-block:: bash
 
-    $ lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
+    $ lasif generate_input_files ITERATION_NAME EVENT_NAME --simulation_type=SIMULATION_TYPE
 
 **TYPE** has to be one of
 
@@ -1168,8 +1168,8 @@ For this tutorial you can generate input files for both events with
 
 .. code-block:: bash
 
-    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 adjoint_forward
-    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 adjoint_forward
+    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 --simulation_type=adjoint_forward
+    $ lasif generate_input_files 1 GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 --simulation_type=adjoint_forward
 
 
 This will place input files in the *OUTPUT* subdirectory of the project. In
