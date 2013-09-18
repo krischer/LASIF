@@ -28,7 +28,7 @@ before_install:
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 script:
   - cd lasif; py.test
-  - cd; cd doc; make html
+  - cd $HOME/doc; make html
 install:
   # Python's multiprocessing shared memory requires /dev/shm with r/w access.
   # The VM's in travis do not offer this.
