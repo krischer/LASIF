@@ -25,6 +25,15 @@ The former will be converted to the later and each subcommand is responsible
 for handling the --help argument.
 
 
+Each function will be passed a parser and args. It is the function author's
+responsibility to add any arguments and call
+
+parser.parse_args(args)
+
+when done. See the existing functions for some examples. This architecture
+should scale fairly well and makes it trivial to add new methods.
+
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
