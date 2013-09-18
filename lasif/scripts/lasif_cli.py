@@ -54,7 +54,7 @@ from lasif.project import Project
 FCT_PREFIX = "lasif_"
 
 
-def cli_add_cmd_to_group(group_name):
+def command_group(group_name):
     """
     Decorator to be able to logically group commands.
     """
@@ -83,7 +83,7 @@ def _find_project_root(folder):
     raise LASIFCommandLineException(msg)
 
 
-@cli_add_cmd_to_group("Plotting")
+@command_group("Plotting")
 def lasif_plot_domain(parser, args):
     """
     Plot the project's domain on a map.
@@ -94,7 +94,7 @@ def lasif_plot_domain(parser, args):
     proj.plot_domain()
 
 
-@cli_add_cmd_to_group("Plotting")
+@command_group("Plotting")
 def lasif_plot_event(parser, args):
     """
     Plot a single event including stations on a map.
@@ -107,7 +107,7 @@ def lasif_plot_event(parser, args):
     proj.plot_event(event_name)
 
 
-@cli_add_cmd_to_group("Plotting")
+@command_group("Plotting")
 def lasif_plot_events(parser, args):
     """
     Plot all events.
@@ -128,7 +128,7 @@ def lasif_plot_events(parser, args):
     proj.plot_events(plot_type)
 
 
-@cli_add_cmd_to_group("Plotting")
+@command_group("Plotting")
 def lasif_plot_raydensity(parser, args):
     """
     Plot a binned raycoverage plot for all events.
@@ -139,7 +139,7 @@ def lasif_plot_raydensity(parser, args):
     proj.plot_raydensity()
 
 
-@cli_add_cmd_to_group("Data Acquisition")
+@command_group("Data Acquisition")
 def lasif_add_spud_event(parser, args):
     """
     Add an event from the IRIS SPUD webservice to the project.
@@ -154,7 +154,7 @@ def lasif_add_spud_event(parser, args):
     iris2quakeml(url, proj.paths["events"])
 
 
-@cli_add_cmd_to_group("Project Management")
+@command_group("Project Management")
 def lasif_info(parser, args):
     """
     Print a summary of the project.
@@ -165,7 +165,7 @@ def lasif_info(parser, args):
     print(proj)
 
 
-@cli_add_cmd_to_group("Data Acquisition")
+@command_group("Data Acquisition")
 def lasif_download_waveforms(parser, args):
     """
     Download waveforms for one event.
@@ -216,7 +216,7 @@ def lasif_download_waveforms(parser, args):
         download_folder=download_folder, waveform_format="mseed")
 
 
-@cli_add_cmd_to_group("Data Acquisition")
+@command_group("Data Acquisition")
 def lasif_download_stations(parser, args):
     """
     Download station files for one event.
@@ -263,7 +263,7 @@ def lasif_download_stations(parser, args):
         get_station_filename_fct=proj.get_station_filename)
 
 
-@cli_add_cmd_to_group("Event Management")
+@command_group("Event Management")
 def lasif_list_events(parser, args):
     """
     Print a list of all events in the project.
@@ -291,7 +291,7 @@ def lasif_list_events(parser, args):
     print tab
 
 
-@cli_add_cmd_to_group("Project Management")
+@command_group("Project Management")
 def lasif_list_models(parser, args):
     """
     Print a list of all models in the project.
@@ -305,7 +305,7 @@ def lasif_list_models(parser, args):
         print ("\t%s" % model)
 
 
-@cli_add_cmd_to_group("Plotting")
+@command_group("Plotting")
 def lasif_plot_kernel(parser, args):
     """
     Work in progress.
@@ -389,7 +389,7 @@ def lasif_plot_kernel(parser, args):
         handler.plot_depth_slice(component, int(depth))
 
 
-@cli_add_cmd_to_group("Plotting")
+@command_group("Plotting")
 def lasif_plot_model(parser, args):
     """
     Plot a SES3D model.
@@ -425,7 +425,7 @@ def lasif_plot_model(parser, args):
         handler.plot_depth_slice(component, float(depth))
 
 
-@cli_add_cmd_to_group("Event Management")
+@command_group("Event Management")
 def lasif_event_info(parser, args):
     """
     Print information about a single event.
@@ -461,7 +461,7 @@ def lasif_event_info(parser, args):
     table_printer(header, data)
 
 
-@cli_add_cmd_to_group("Plotting")
+@command_group("Plotting")
 def lasif_plot_stf(parser, args):
     """
     Plot the source time function for one iteration.
@@ -478,7 +478,7 @@ def lasif_plot_stf(parser, args):
     lasif.visualization.plot_tf(stf["data"], stf["delta"])
 
 
-@cli_add_cmd_to_group("Iteration Management")
+@command_group("Iteration Management")
 def lasif_generate_input_files(parser, args):
     """
     Generate the input files for the waveform solver.
@@ -505,7 +505,7 @@ def lasif_generate_input_files(parser, args):
     proj.generate_input_files(iteration_name, event_name, simulation_type)
 
 
-@cli_add_cmd_to_group("Project Management")
+@command_group("Project Management")
 def lasif_init_project(parser, args):
     """
     Create a new project.
@@ -529,7 +529,7 @@ def lasif_init_project(parser, args):
     print("Initialized project in: \n\t%s" % folder_path)
 
 
-@cli_add_cmd_to_group("Iteration Management")
+@command_group("Iteration Management")
 def lasif_finalize_adjoint_sources(parser, args):
     """
     Finalize the adjoint sources.
@@ -544,7 +544,7 @@ def lasif_finalize_adjoint_sources(parser, args):
     proj.finalize_adjoint_sources(iteration_name, event_name)
 
 
-@cli_add_cmd_to_group("Iteration Management")
+@command_group("Iteration Management")
 def lasif_launch_misfit_gui(parser, args):
     """
     Launch the misfit GUI.
@@ -581,7 +581,7 @@ def lasif_launch_misfit_gui(parser, args):
     MisfitGUI(event, iterator, proj, window_manager, adj_src_manager)
 
 
-@cli_add_cmd_to_group("Iteration Management")
+@command_group("Iteration Management")
 def lasif_create_new_iteration(parser, args):
     """
     Create a new iteration.
@@ -597,7 +597,7 @@ def lasif_create_new_iteration(parser, args):
     proj.create_new_iteration(iteration_name, solver_name)
 
 
-@cli_add_cmd_to_group("Iteration Management")
+@command_group("Iteration Management")
 def lasif_list_iterations(parser, args):
     """
     Print a list of all iterations in the project.
@@ -612,7 +612,7 @@ def lasif_list_iterations(parser, args):
         print ("\t%s" % iteration)
 
 
-@cli_add_cmd_to_group("Iteration Management")
+@command_group("Iteration Management")
 def lasif_iteration_info(parser, args):
     """
     Print information about a single iteration.
@@ -633,7 +633,7 @@ def lasif_iteration_info(parser, args):
     print iteration
 
 
-@cli_add_cmd_to_group("Project Management")
+@command_group("Project Management")
 def lasif_remove_empty_coordinate_entries(parser, args):
     """
     Remove all empty coordinate entries in the inventory cache.
@@ -650,7 +650,7 @@ def lasif_remove_empty_coordinate_entries(parser, args):
     print "SUCCESS"
 
 
-@cli_add_cmd_to_group("Iteration Management")
+@command_group("Iteration Management")
 def lasif_preprocess_data(parser, args):
     """
     Launch data preprocessing.
@@ -683,7 +683,7 @@ def lasif_preprocess_data(parser, args):
     proj.preprocess_data(iteration_name, events)
 
 
-@cli_add_cmd_to_group("Plotting")
+@command_group("Plotting")
 def lasif_plot_selected_windows(parser, args):
     """
     Plot the selected windows.
@@ -733,7 +733,7 @@ def lasif_plot_selected_windows(parser, args):
     print "Done. Written output to folder %s." % output_folder
 
 
-@cli_add_cmd_to_group("Project Management")
+@command_group("Project Management")
 def lasif_validate_data(parser, args):
     """
     Validate the data currently in the project.
