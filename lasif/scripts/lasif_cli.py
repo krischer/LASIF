@@ -7,12 +7,32 @@ It is important to import necessary things at the method level to make
 importing this file as fast as possible. Otherwise using the command line
 interface feels sluggish and slow.
 
+
+All functions starting with "lasif_" will automatically be available as
+subcommands to the main "lasif" command. Several decorators are provided to
+enhance a function for example categorizing it and a summary that appears in
+the global "lasif" CLI help.
+
+The help for every function can be accessed either via
+
+lasif help CMD_NAME
+
+or
+
+lasif CMD_NAME --help
+
+
+The former will be converted to the later and each subcommand is responsible
+for handling the --help argument.
+
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import argparse
 import os
 import shutil
 import sys
@@ -73,6 +93,11 @@ def lasif_plot_domain(args):
 
     Plots the project's domain on a map.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif plot_domain",
+        description="Plots the project's domain on a map.")
+    parser.parse_args(args)
+
     proj = _find_project_root(".")
     proj.plot_domain()
 
@@ -875,46 +900,6 @@ def lasif_tutorial(args):
     webbrowser.open("http://krischer.github.io/LASIF/")
 
 
-def main():
-    """
-    Main entry point for the script collection.
-
-    Essentially just dispatches the different commands to the corresponding
-    functions. Also provides some convenience functionality like error catching
-    and printing the help.
-    """
-    # Get all functions in this script starting with "lasif_".
-    fcts = {fct_name[len(FCT_PREFIX):]: fct for (fct_name, fct) in
-            globals().iteritems()
-            if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")}
-    # Parse args.
-    args = sys.argv[1:]
-    # Print help if none are given.
-    if not args:
-        _print_generic_help(fcts)
-        sys.exit(1)
-    fct_name = args[0]
-    further_args = args[1:]
-    # Print help if given function is not known.
-    if fct_name not in fcts:
-        _print_generic_help(fcts)
-        sys.exit(1)
-    if further_args and further_args[0] == "help":
-        print_fct_help(fct_name)
-        sys.exit(0)
-    try:
-        fcts[fct_name](further_args)
-    except LASIFCommandLineException as e:
-        print(colorama.Fore.YELLOW + ("Error: %s\n" % e.message) +
-              colorama.Style.RESET_ALL)
-        print_fct_help(fct_name)
-        sys.exit(1)
-    except Exception as e:
-        print(colorama.Fore.RED)
-        traceback.print_exc()
-        print(colorama.Style.RESET_ALL)
-
-
 def _print_generic_help(fcts):
     """
     Small helper function printing a generic help message.
@@ -930,7 +915,9 @@ def _print_generic_help(fcts):
     print "\t" + header
     print "\n\thttp://krischer.github.io/LASIF"
     print("\n" + 80 * "#")
-    print("\nUsage: lasif FUNCTION PARAMETERS\n")
+    print("\n\n{cmd}usage: lasif [--help] COMMAND [ARGS]{reset}\n\n".format(
+        cmd=colorama.Style.BRIGHT + colorama.Fore.RED,
+        reset=colorama.Style.RESET_ALL))
 
     # Group the functions. Functions with no group will be placed in the group
     # "Misc".
@@ -952,15 +939,49 @@ def _print_generic_help(fcts):
                   desc,
                   colorama.Style.RESET_ALL))
     print("\nTo get help for a specific function type")
-    print("\tlasif FUNCTION help")
+    print("\tlasif help FUNCTION  or\n\tlasif FUNCTION --help")
 
 
-def print_fct_help(fct_name):
+def main():
     """
-    Prints a function specific help string. Essentially just prints the
-    docstring of the function which is supposed to be formatted in a way thats
-    useful as a console help message.
+    Main entry point for the script collection.
+
+    Essentially just dispatches the different commands to the corresponding
+    functions. Also provides some convenience functionality like error catching
+    and printing the help.
     """
-    doc = globals()[FCT_PREFIX + fct_name].__doc__
-    doc = doc.strip()
-    print(doc)
+    # Get all functions in this script starting with "lasif_".
+    fcts = {fct_name[len(FCT_PREFIX):]: fct for (fct_name, fct) in
+            globals().iteritems()
+            if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")}
+
+    # Parse args.
+    args = sys.argv[1:]
+    # Print help if none are given.
+    if not args:
+        _print_generic_help(fcts)
+        sys.exit(1)
+    fct_name = args[0]
+    further_args = args[1:]
+    # Map "lasif help CMD" to "lasif CMD --help"
+    if fct_name == "help":
+        if not further_args:
+            _print_generic_help(fcts)
+            sys.exit(1)
+        fct_name = further_args[0]
+        further_args = ["--help"]
+    # Print help if given function is not known.
+    elif fct_name not in fcts:
+        _print_generic_help(fcts)
+        sys.exit(1)
+    try:
+        fcts[fct_name](further_args)
+    except LASIFCommandLineException as e:
+        print(colorama.Fore.YELLOW + ("Error: %s\n" % e.message) +
+              colorama.Style.RESET_ALL)
+        fcts[fct_name](["--help"])
+        sys.exit(1)
+    except Exception as e:
+        print(colorama.Fore.RED)
+        traceback.print_exc()
+        print(colorama.Style.RESET_ALL)
