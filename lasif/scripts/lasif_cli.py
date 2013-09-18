@@ -89,9 +89,7 @@ def _find_project_root(folder):
 @cli_description("Plot the project's domain on a map.")
 def lasif_plot_domain(args):
     """
-    Usage: lasif plot_domain
-
-    Plots the project's domain on a map.
+    Simply plots a single event on the map.
     """
     parser = argparse.ArgumentParser(
         prog="lasif plot_domain",
@@ -106,17 +104,16 @@ def lasif_plot_domain(args):
 @cli_description("Plot a single event including stations on a map.")
 def lasif_plot_event(args):
     """
-    Usage: lasif plot_event EVENT_NAME
-
     Plots one event and raypaths on a map.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif plot_event",
+        description="Plots one event and it's raypaths on a map.")
+    parser.add_argument("event_name", help="name of the event to plot")
+
+    event_name = parser.parse_args(args).event_name
+
     proj = _find_project_root(".")
-
-    if len(args) != 1:
-        msg = "EVENT_NAME must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    event_name = args[0]
-
     proj.plot_event(event_name)
 
 
@@ -133,23 +130,17 @@ def lasif_plot_events(args):
         * ``depth`` - a depth distribution histogram
         * ``time`` - a time distribution histogram
     """
-    valid_plot_types = ["map", "depth", "time"]
+    parser = argparse.ArgumentParser(
+        prog="lasif plot_events",
+        description="Plots all events in the project.")
+    parser.add_argument("--type", default="map", choices=["map", "depth",
+                                                          "time"],
+                        help="the type of plot. 'map': beachballs on a map, "
+                        "'depth': depth distribution histogram, "
+                        "'time': time distribution histogram")
+    plot_type = parser.parse_args(args).type
 
     proj = _find_project_root(".")
-
-    if len(args) > 1:
-        msg = "TYPE can be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    if not args:
-        plot_type = "map"
-    else:
-        plot_type = args[0].lower()
-
-    if plot_type not in valid_plot_types:
-        msg = "Type '%s' not valid. Valid types: %s." % (plot_type, ", ".join(
-            valid_plot_types))
-        raise LASIFCommandLineException(msg)
-
     proj.plot_events(plot_type)
 
 
@@ -161,6 +152,11 @@ def lasif_plot_raydensity(args):
 
     Plots a binned raycoverage plot for all events.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif plot_raydensity",
+        description="Plots a binned raycoverage plot for all events.")
+    parser.parse_args(args)
+
     proj = _find_project_root(".")
     proj.plot_raydensity()
 
@@ -175,13 +171,17 @@ def lasif_add_spud_event(args):
 
     URL is any SPUD momenttensor URL.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif plot_event",
+        description=
+        "Adds an event from the IRIS SPUD GCMT webservice to the project.")
+    parser.add_argument("url", help="any SPUD momenttensor URL")
+
+    url = parser.parse_args(args).url
+
     from lasif.scripts.iris2quakeml import iris2quakeml
 
     proj = _find_project_root(".")
-    if len(args) != 1:
-        msg = "URL must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    url = args[0]
     iris2quakeml(url, proj.paths["events"])
 
 
@@ -193,6 +193,11 @@ def lasif_info(args):
 
     Print information about the current project.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif info",
+        description="Print a summary of the project.")
+    parser.parse_args(args)
+
     proj = _find_project_root(".")
     print(proj)
 
@@ -208,17 +213,19 @@ def lasif_download_waveforms(args):
     The list of possible events can be obtained with "lasif list_events". The
     files will be saved in the DATA/EVENT_NAME/raw directory.
     """
-    from lasif.download_helpers import downloader
+    parser = argparse.ArgumentParser(
+        prog="lasif download_waveforms",
+        description="Download waveforms for one event.")
+    parser.add_argument("event_name", help="name of the event")
+
+    event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
-    events = proj.get_event_dict()
-    if len(args) != 1:
-        msg = "EVENT_NAME must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    event_name = args[0]
-    if event_name not in events:
+    if not proj.is_event_in_project(event_name):
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
+
+    from lasif.download_helpers import downloader
 
     event = proj.get_event(event_name)
     origin = event.preferred_origin() or event.origins[0]
@@ -266,16 +273,19 @@ def lasif_download_stations(args):
     The list of possible events can be obtained with "lasif list_events". The
     files will be saved in the STATION/*.
     """
-    from lasif.download_helpers import downloader
+    parser = argparse.ArgumentParser(
+        prog="lasif download_stations",
+        description="Download station files for one event.")
+    parser.add_argument("event_name", help="name of the event")
+
+    event_name = parser.parse_args(args).event_name
+
     proj = _find_project_root(".")
-    events = proj.get_event_dict()
-    if len(args) != 1:
-        msg = "EVENT_NAME must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    event_name = args[0]
-    if event_name not in events:
+    if not proj.is_event_in_project(event_name):
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
+
+    from lasif.download_helpers import downloader
 
     # Fix the start- and endtime to ease download file grouping
     event_info = proj.get_event_info(event_name)
@@ -316,6 +326,11 @@ def lasif_list_events(args):
 
     Returns a list of all events in the project.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif list_events",
+        description="Print a list of all events in the project.")
+    parser.parse_args(args)
+
     from lasif.tools.prettytable import PrettyTable
     proj = _find_project_root(".")
     events = proj.get_event_dict()
@@ -345,6 +360,11 @@ def lasif_list_models(args):
 
     Returns a list of all models in the project.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif list_models",
+        description="Print a list of all models in the project.")
+    parser.parse_args(args)
+
     models = _find_project_root(".").get_model_dict()
     print("%i model%s in project:" % (len(models), "s" if len(models) > 1
           else ""))
@@ -360,15 +380,18 @@ def lasif_plot_kernel(args):
 
     Work in progress.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif plot_kernel",
+        description="Work in progress")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("event_name", help="name of the event")
+    args = parser.parse_args(args)
+
+    iteration_name = args.iteration_name
+    event_name = args.event_name
+
     from glob import glob
     from lasif import ses3d_models
-
-    if len(args) != 2:
-        msg = "ITERATION_NAME and EVENT_NAME must be given."
-        raise LASIFCommandLineException(msg)
-
-    iteration_name = args[0]
-    event_name = args[1]
 
     proj = _find_project_root(".")
 
@@ -447,12 +470,13 @@ def lasif_plot_model(args):
 
     Plots a SES3D model.
     """
-    from lasif import ses3d_models
+    parser = argparse.ArgumentParser(
+        prog="lasif plot_model",
+        description="Plot a SES3D model.")
+    parser.add_argument("model_name", help="name of the model")
+    model_name = parser.parse_args(args).model_name
 
-    if len(args) != 1:
-        msg = "MODEL_NAME must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    model_name = args[0]
+    from lasif import ses3d_models
 
     proj = _find_project_root(".")
 
@@ -488,11 +512,13 @@ def lasif_event_info(args):
 
     Prints information about the given event.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif event_info",
+        description="Print information about a single event.")
+    parser.add_argument("event_name", help="name of the event")
+    event_name = parser.parse_args(args).event_name
+
     from lasif.utils import table_printer
-    if len(args) != 1:
-        msg = "EVENT_NAME must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    event_name = args[0]
 
     proj = _find_project_root(".")
     try:
@@ -531,13 +557,14 @@ def lasif_plot_stf(args):
     Convenience function to have a look at how a source time function will
     look for any iteration.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif event_info",
+        description="Plot the source time function for one interation")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    iteration_name = parser.parse_args(args).iteration_name
+
     import lasif.visualization
     proj = _find_project_root(".")
-
-    if len(args) != 1:
-        msg = ("ITERATION_NAME must be given.")
-        raise LASIFCommandLineException(msg)
-    iteration_name = args[0]
 
     iteration = proj._get_iteration(iteration_name)
     stf = iteration.get_source_time_function()
@@ -558,26 +585,23 @@ def lasif_generate_input_files(args):
         * "adjoint_forward"
         * "adjoint_reverse"
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif generate_input_files",
+        description="Plot the source time function for one iteration")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("event_name", help="name of the event")
+    parser.add_argument("--simulation_type",
+                        choices=("normal_simulation", "adjoint_forward",
+                                 "adjoint_reverse"),
+                        default="normal_simulation",
+                        help="type of simulation to run")
+    args = parser.parse_args(args).args
+    iteration_name = args.iteration_name
+    event_name = args.event_name
+    simulation_type = args.simulation_type
+
     proj = _find_project_root(".")
-
-    if len(args) != 3:
-        msg = ("ITERATION_NAME, EVENT_NAME, and SIMULATION_TYPE must be given."
-               " No other arguments allowed.")
-        raise LASIFCommandLineException(msg)
-    iteration_name = args[0]
-    event_name = args[1]
-    simulation_type = args[2].lower()
-
-    # Assert a correct simulation type.
-    simulation_types = ("normal_simulation", "adjoint_forward",
-                        "adjoint_reverse")
-    if simulation_type not in simulation_types:
-        msg = "Invalid simulation type '%s'. Available types: %s" % \
-            (simulation_type, ", ".join(simulation_types))
-        raise LASIFCommandLineException(msg)
-
     simulation_type = simulation_type.replace("_", " ")
-
     proj.generate_input_files(iteration_name, event_name, simulation_type)
 
 
@@ -592,10 +616,12 @@ def lasif_init_project(args):
     Creates a new LASIF project at FOLDER_PATH. FOLDER_PATH must not exist
     yet and will be created.
     """
-    if len(args) != 1:
-        msg = "FOLDER_PATH must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    folder_path = args[0]
+    parser = argparse.ArgumentParser(
+        prog="lasif init_project",
+        description="Create a new project")
+    parser.add_argument("folder_path", help="where to create the project")
+    folder_path = parser.parse_args(args).folder_path
+
     if os.path.exists(folder_path):
         msg = "The given FOLDER_PATH already exists. It must not exist yet."
         raise LASIFCommandLineException(msg)
@@ -620,15 +646,16 @@ def lasif_finalize_adjoint_sources(args):
 
     Finalize the adjoint sources for the given iteration and event.
     """
-    if len(args) != 2:
-        msg = "ITERATION_NAME and EVENT_NAME must be given."
-        raise LASIFCommandLineException(msg)
+    parser = argparse.ArgumentParser(
+        prog="lasif finalize_adjoint_sources",
+        description="Finalize the adjoint sources")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("event_name", help="name of the event")
+    args = parser.parse_args(args).args
+    iteration_name = args.iteration_name
+    event_name = args.event_name
 
     proj = _find_project_root(".")
-
-    iteration_name = args[0]
-    event_name = args[1]
-
     proj.finalize_adjoint_sources(iteration_name, event_name)
 
 
@@ -640,17 +667,18 @@ def lasif_launch_misfit_gui(args):
 
     Launches the Misfit GUI for the given iteration and event.
     """
-    if len(args) != 2:
-        msg = "ITERATION_NAME and EVENT_NAME must be given."
-        raise LASIFCommandLineException(msg)
+    parser = argparse.ArgumentParser(
+        prog="lasif launch_misfit_gui",
+        description="Launch the misfit GUI")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("event_name", help="name of the event")
+    args = parser.parse_args(args).args
+    iteration_name = args.iteration_name
+    event_name = args.event_name
 
     proj = _find_project_root(".")
 
-    iteration_name = args[0]
-    event_name = args[1]
-
-    events = proj.get_event_dict()
-    if event_name not in events:
+    if not proj.is_event_in_project(event_name):
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
 
@@ -688,14 +716,16 @@ def lasif_create_new_iteration(args):
     SOLVER_NAME is the name of the waveform solver to use for this iteration.
     Currently available: "SES3D_4_0"
     """
-    if len(args) != 2:
-        msg = "ITERATION_NAME and SOLVER_NAME must be given."
-        raise LASIFCommandLineException(msg)
-    iteration_name = args[0]
-    solver_name = args[1]
+    parser = argparse.ArgumentParser(
+        prog="lasif create_new_iteration",
+        description="Create a new iteration.")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("solver_name", help="name of the solver")
+    args = parser.parse_args(args).args
+    iteration_name = args.iteration_name
+    solver_name = args.solver_name
 
     proj = _find_project_root(".")
-
     proj.create_new_iteration(iteration_name, solver_name)
 
 
@@ -707,7 +737,13 @@ def lasif_list_iterations(args):
 
     Returns a list of all iterations for this project.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif list_iterations",
+        description="Print a list of all iterations in the project.")
+    parser.parse_args(args)
+
     iterations = _find_project_root(".").get_iteration_dict().keys()
+
     print("%i Iteration%s in project:" % (len(iterations),
           "s" if len(iterations) > 1 else ""))
     for iteration in sorted(iterations):
@@ -722,12 +758,13 @@ def lasif_iteration_info(args):
 
     Prints information about the given event.
     """
-    from lasif.iteration_xml import Iteration
+    parser = argparse.ArgumentParser(
+        prog="lasif iteration_info",
+        description="Print information about a single iteration.")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    iteration_name = parser.parse_args(args).iteration_name
 
-    if len(args) != 1:
-        msg = "ITERATION_NAME must be given. No other arguments allowed."
-        raise LASIFCommandLineException(msg)
-    iteration_name = args[0]
+    from lasif.iteration_xml import Iteration
 
     proj = _find_project_root(".")
     iterations = proj.get_iteration_dict()
@@ -750,6 +787,12 @@ def lasif_remove_empty_coordinate_entries(args):
 
     This is useful if you want to try to download coordinates again.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif remove_empty_coordinate_entries",
+        description=
+        "Remove all empty coordinate entries in the inventory cache.")
+    parser.parse_args(args)
+
     from lasif.tools.inventory_db import reset_coordinate_less_stations
 
     proj = _find_project_root(".")
@@ -771,13 +814,17 @@ def lasif_preprocess_data(args):
     specify one or more events that will then be processed, e.g.
         lasif preprocess_data 1 EVENT_1 EVENT_2
     """
-    if len(args) == 0:
-        msg = ("At least the ITERATION_NAME must be given.")
-        raise LASIFCommandLineException(msg)
-    iteration_name = args[0]
-    event_ids = args[1:]
-    if not event_ids:
-        event_ids = None
+    parser = argparse.ArgumentParser(
+        prog="lasif preprocess_data",
+        description="Launch data preprocessing.")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument(
+        "events", help="One or more events. If none given, all will be done.",
+        nargs="*")
+    args = parser.parse_args(args)
+    iteration_name = args.iteration_name
+    events = args.events if args.events else None
+
     proj = _find_project_root(".")
 
     # Check if the iteration name is valid.
@@ -788,14 +835,14 @@ def lasif_preprocess_data(args):
         raise LASIFCommandLineException(msg)
 
     # Check if the event ids are valid.
-    if event_ids:
+    if events:
         events = proj.get_event_dict().keys()
-        for event_name in event_ids:
+        for event_name in events:
             if event_name not in events:
                 msg = "Event '%s' not found." % event_name
                 raise LASIFCommandLineException(msg)
 
-    proj.preprocess_data(iteration_name, event_ids)
+    proj.preprocess_data(iteration_name, events)
 
 
 @cli_add_cmd_to_group("Plotting")
@@ -806,15 +853,18 @@ def lasif_plot_selected_windows(args):
 
     Plot the automatically selected windows for a given iteration and event.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif plot_selected_windows",
+        description="Plot the selected windows.")
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("event_name", help="name of the event")
+    args = parser.parse_args(args)
+
+    iteration_name = args.iteration_name
+    event_name = args.event_name
+
     from lasif.window_selection import select_windows, plot_windows
-    if len(args) != 2:
-        msg = "ITERATION_NAME and EVENT_NAME must be given."
-        raise LASIFCommandLineException(msg)
-
     proj = _find_project_root(".")
-
-    iteration_name = args[0]
-    event_name = args[1]
 
     events = proj.get_event_dict()
     if event_name not in events:
@@ -877,16 +927,15 @@ def lasif_validate_data(args):
           the moment tensor values as well. This is rather fragile and mainly
           intended to detect values specified in wrong units.
     """
-    if args and (len(args) > 1 or args[0] != "full"):
-        msg = "The only allowed argument is 'full'"
-        raise LASIFCommandLineException(msg)
+    parser = argparse.ArgumentParser(
+        prog="lasif validate_data",
+        description="Validate the data currently in the project.")
+    parser.add_argument("--full", help="perform a full validation.",
+                        action="store_true")
+    full_check = parser.parse_args(args).full
 
     proj = _find_project_root(".")
-
-    if len(args) and args[0] == "full":
-        proj.validate_data(full_check=True)
-    else:
-        proj.validate_data()
+    proj.validate_data(full_check=full_check)
 
 
 @cli_description("Open the tutorial in a webbrowser.")
@@ -896,6 +945,11 @@ def lasif_tutorial(args):
 
     Opens the tutorial.
     """
+    parser = argparse.ArgumentParser(
+        prog="lasif tutorial",
+        description="Open the tutorial in a webbrowser")
+    parser.parse_args(args)
+
     import webbrowser
     webbrowser.open("http://krischer.github.io/LASIF/")
 

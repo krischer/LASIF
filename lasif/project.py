@@ -1802,3 +1802,12 @@ class Project(object):
         it's filename actually has a corresponding station file.
         """
         return self.station_cache.station_info_available(channel_id, time)
+
+    def is_event_in_project(self, event_name):
+        """
+        Convenience function. Returns true if the event is in the project,
+        False otherwise.
+        """
+        if event_name in self.get_event_dict().keys():
+            return True
+        return False
