@@ -9,9 +9,8 @@ interface feels sluggish and slow.
 
 
 All functions starting with "lasif_" will automatically be available as
-subcommands to the main "lasif" command. Several decorators are provided to
-enhance a function for example categorizing it and a summary that appears in
-the global "lasif" CLI help.
+subcommands to the main "lasif" command. A decorator to determine the category
+of a function is provided.
 
 The help for every function can be accessed either via
 
@@ -56,16 +55,6 @@ def cli_add_cmd_to_group(group_name):
     return wrapper
 
 
-def cli_description(description):
-    """
-    Decorator to add short descriptions to commands.
-    """
-    def wrapper(func):
-        func.cmd_description = description
-        return func
-    return wrapper
-
-
 class LASIFCommandLineException(Exception):
     pass
 
@@ -86,10 +75,9 @@ def _find_project_root(folder):
 
 
 @cli_add_cmd_to_group("Plotting")
-@cli_description("Plot the project's domain on a map.")
 def lasif_plot_domain(args):
     """
-    Simply plots a single event on the map.
+    Plot the project's domain on a map.
     """
     parser = argparse.ArgumentParser(
         prog="lasif plot_domain",
@@ -101,10 +89,9 @@ def lasif_plot_domain(args):
 
 
 @cli_add_cmd_to_group("Plotting")
-@cli_description("Plot a single event including stations on a map.")
 def lasif_plot_event(args):
     """
-    Plots one event and raypaths on a map.
+    Plot a single event including stations on a map.
     """
     parser = argparse.ArgumentParser(
         prog="lasif plot_event",
@@ -118,14 +105,11 @@ def lasif_plot_event(args):
 
 
 @cli_add_cmd_to_group("Plotting")
-@cli_description("Plot all events on a map.")
 def lasif_plot_events(args):
     """
-    Usage: lasif plot_events [TYPE]
+    Plot all events.
 
-    Plots all events.
-
-    TYPE can be one of:
+    type can be one of:
         * ``map`` (default) - a map view of the events
         * ``depth`` - a depth distribution histogram
         * ``time`` - a time distribution histogram
@@ -145,12 +129,9 @@ def lasif_plot_events(args):
 
 
 @cli_add_cmd_to_group("Plotting")
-@cli_description("Plot a binned raycoverage plot for all events.")
 def lasif_plot_raydensity(args):
     """
-    Usage: lasif plot_raydensity
-
-    Plots a binned raycoverage plot for all events.
+    Plot a binned raycoverage plot for all events.
     """
     parser = argparse.ArgumentParser(
         prog="lasif plot_raydensity",
@@ -162,14 +143,9 @@ def lasif_plot_raydensity(args):
 
 
 @cli_add_cmd_to_group("Data Acquisition")
-@cli_description("Add an event from the IRIS SPUD webservice to the project.")
 def lasif_add_spud_event(args):
     """
-    Usage: lasif add_spud_event URL
-
-    Adds an event from the IRIS SPUD GCMT webservice to the project.
-
-    URL is any SPUD momenttensor URL.
+    Add an event from the IRIS SPUD webservice to the project.
     """
     parser = argparse.ArgumentParser(
         prog="lasif plot_event",
@@ -186,12 +162,9 @@ def lasif_add_spud_event(args):
 
 
 @cli_add_cmd_to_group("Project Management")
-@cli_description("Print a summary of the project.")
 def lasif_info(args):
     """
-    Usage: lasif info
-
-    Print information about the current project.
+    Print a summary of the project.
     """
     parser = argparse.ArgumentParser(
         prog="lasif info",
@@ -203,15 +176,9 @@ def lasif_info(args):
 
 
 @cli_add_cmd_to_group("Data Acquisition")
-@cli_description("Download waveforms for one event.")
 def lasif_download_waveforms(args):
     """
-    Usage: lasif download_waveforms EVENT_NAME
-
-    Downloads all waveform files for a given event.
-
-    The list of possible events can be obtained with "lasif list_events". The
-    files will be saved in the DATA/EVENT_NAME/raw directory.
+    Download waveforms for one event.
     """
     parser = argparse.ArgumentParser(
         prog="lasif download_waveforms",
@@ -263,15 +230,9 @@ def lasif_download_waveforms(args):
 
 
 @cli_add_cmd_to_group("Data Acquisition")
-@cli_description("Download station files for one event.")
 def lasif_download_stations(args):
     """
-    Usage: lasif download_stations EVENT_NAME
-
-    Downloads all missing station data files for a given event.
-
-    The list of possible events can be obtained with "lasif list_events". The
-    files will be saved in the STATION/*.
+    Download station files for one event.
     """
     parser = argparse.ArgumentParser(
         prog="lasif download_stations",
@@ -319,12 +280,9 @@ def lasif_download_stations(args):
 
 
 @cli_add_cmd_to_group("Event Management")
-@cli_description("Print a list of all events in the project.")
 def lasif_list_events(args):
     """
-    Usage: lasif list_events
-
-    Returns a list of all events in the project.
+    Print a list of all events in the project.
     """
     parser = argparse.ArgumentParser(
         prog="lasif list_events",
@@ -353,12 +311,9 @@ def lasif_list_events(args):
 
 
 @cli_add_cmd_to_group("Project Management")
-@cli_description("Print a list of all models in the project.")
 def lasif_list_models(args):
     """
-    Usage: lasif list_models
-
-    Returns a list of all models in the project.
+    Print a list of all models in the project.
     """
     parser = argparse.ArgumentParser(
         prog="lasif list_models",
@@ -373,11 +328,8 @@ def lasif_list_models(args):
 
 
 @cli_add_cmd_to_group("Plotting")
-@cli_description("Work in progress.")
 def lasif_plot_kernel(args):
     """
-    Usage lasif plot_kernel ITERATION_NAME EVENT_NAME
-
     Work in progress.
     """
     parser = argparse.ArgumentParser(
@@ -463,12 +415,9 @@ def lasif_plot_kernel(args):
 
 
 @cli_add_cmd_to_group("Plotting")
-@cli_description("Plot a SES3D model.")
 def lasif_plot_model(args):
     """
-    Usage lasif plot_model MODEL_NAME
-
-    Plots a SES3D model.
+    Plot a SES3D model.
     """
     parser = argparse.ArgumentParser(
         prog="lasif plot_model",
@@ -505,12 +454,9 @@ def lasif_plot_model(args):
 
 
 @cli_add_cmd_to_group("Event Management")
-@cli_description("Print information about a single event.")
 def lasif_event_info(args):
     """
-    Usage: lasif event_info EVENT_NAME
-
-    Prints information about the given event.
+    Print information about a single event.
     """
     parser = argparse.ArgumentParser(
         prog="lasif event_info",
@@ -547,15 +493,9 @@ def lasif_event_info(args):
 
 
 @cli_add_cmd_to_group("Plotting")
-@cli_description("Plot the source time function for one iteration.")
 def lasif_plot_stf(args):
     """
-    Usage: lasif plot_stf ITERATION_NAME
-
-    Plot the source time function.
-
-    Convenience function to have a look at how a source time function will
-    look for any iteration.
+    Plot the source time function for one iteration.
     """
     parser = argparse.ArgumentParser(
         prog="lasif event_info",
@@ -573,12 +513,9 @@ def lasif_plot_stf(args):
 
 
 @cli_add_cmd_to_group("Iteration Management")
-@cli_description("Generate the input files for the waveform solver.")
 def lasif_generate_input_files(args):
     """
-    Usage: lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
-
-    Generate the input files for one event.
+    Generate the input files for the waveform solver.
 
     TYPE denotes the type of simulation to run. Available types are
         * "normal_simulation"
@@ -606,15 +543,9 @@ def lasif_generate_input_files(args):
 
 
 @cli_add_cmd_to_group("Project Management")
-@cli_description("Create a new project.")
 def lasif_init_project(args):
     """
-    Usage: lasif init_project FOLDER_PATH
-
-    Create a new LASIF project.
-
-    Creates a new LASIF project at FOLDER_PATH. FOLDER_PATH must not exist
-    yet and will be created.
+    Create a new project.
     """
     parser = argparse.ArgumentParser(
         prog="lasif init_project",
@@ -639,12 +570,9 @@ def lasif_init_project(args):
 
 
 @cli_add_cmd_to_group("Iteration Management")
-@cli_description("Finalize the adjoint sources.")
 def lasif_finalize_adjoint_sources(args):
     """
-    Usage: lasif finalize_adjoint_sources ITERATION_NAME EVENT_NAME
-
-    Finalize the adjoint sources for the given iteration and event.
+    Finalize the adjoint sources.
     """
     parser = argparse.ArgumentParser(
         prog="lasif finalize_adjoint_sources",
@@ -660,12 +588,9 @@ def lasif_finalize_adjoint_sources(args):
 
 
 @cli_add_cmd_to_group("Iteration Management")
-@cli_description("Launch the misfit GUI.")
 def lasif_launch_misfit_gui(args):
     """
-    Usage: lasif launch_misfit_gui ITERATION_NAME EVENT_NAME
-
-    Launches the Misfit GUI for the given iteration and event.
+    Launch the misfit GUI.
     """
     parser = argparse.ArgumentParser(
         prog="lasif launch_misfit_gui",
@@ -703,24 +628,16 @@ def lasif_launch_misfit_gui(args):
 
 
 @cli_add_cmd_to_group("Iteration Management")
-@cli_description("Create a new iteration.")
 def lasif_create_new_iteration(args):
     """
-    Usage: lasif create_new_iteration ITERATION_NAME SOLVER_NAME
-
-    Creates a new iteration XML file.
-
-    ITERATION_NAME determines the name of the iteration. Should always start
-    with a number, so that sorting works correctly.
-
-    SOLVER_NAME is the name of the waveform solver to use for this iteration.
-    Currently available: "SES3D_4_0"
+    Create a new iteration.
     """
     parser = argparse.ArgumentParser(
         prog="lasif create_new_iteration",
         description="Create a new iteration.")
     parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("solver_name", help="name of the solver")
+    parser.add_argument("solver_name", help="name of the solver",
+                        choices=("SES3D_4_0"))
     args = parser.parse_args(args).args
     iteration_name = args.iteration_name
     solver_name = args.solver_name
@@ -730,12 +647,9 @@ def lasif_create_new_iteration(args):
 
 
 @cli_add_cmd_to_group("Iteration Management")
-@cli_description("Print a list of all iterations in the project.")
 def lasif_list_iterations(args):
     """
-    Usage: lasif list_iterations
-
-    Returns a list of all iterations for this project.
+    Print a list of all iterations in the project.
     """
     parser = argparse.ArgumentParser(
         prog="lasif list_iterations",
@@ -751,12 +665,9 @@ def lasif_list_iterations(args):
 
 
 @cli_add_cmd_to_group("Iteration Management")
-@cli_description("Print information about a single iteration.")
 def lasif_iteration_info(args):
     """
-    Usage: lasif iteration_info ITERATION_NAME
-
-    Prints information about the given event.
+    Print information about a single iteration.
     """
     parser = argparse.ArgumentParser(
         prog="lasif iteration_info",
@@ -778,11 +689,8 @@ def lasif_iteration_info(args):
 
 
 @cli_add_cmd_to_group("Project Management")
-@cli_description("Remove all empty coordinate entries in the inventory cache.")
 def lasif_remove_empty_coordinate_entries(args):
     """
-    Usage: lasif remove_empty_coordinate_entries
-
     Remove all empty coordinate entries in the inventory cache.
 
     This is useful if you want to try to download coordinates again.
@@ -802,17 +710,9 @@ def lasif_remove_empty_coordinate_entries(args):
 
 
 @cli_add_cmd_to_group("Iteration Management")
-@cli_description("Launch data preprocessing.")
 def lasif_preprocess_data(args):
     """
-    Usage: lasif preprocess_data ITERATION_NAME (EVENT_NAME[s])
-
-    Preprocesses all currently available data for a given iteration.
-
-    The iteration name is required. If no event is given, data for all events
-    for the specified iterations will be preprocessed. Alternatively you can
-    specify one or more events that will then be processed, e.g.
-        lasif preprocess_data 1 EVENT_1 EVENT_2
+    Launch data preprocessing.
     """
     parser = argparse.ArgumentParser(
         prog="lasif preprocess_data",
@@ -846,12 +746,9 @@ def lasif_preprocess_data(args):
 
 
 @cli_add_cmd_to_group("Plotting")
-@cli_description("Plot the selected windows.")
 def lasif_plot_selected_windows(args):
     """
-    Usage: lasif plot_selected_windows ITERATION_NAME EVENT_NAME
-
-    Plot the automatically selected windows for a given iteration and event.
+    Plot the selected windows.
     """
     parser = argparse.ArgumentParser(
         prog="lasif plot_selected_windows",
@@ -902,12 +799,9 @@ def lasif_plot_selected_windows(args):
 
 
 @cli_add_cmd_to_group("Project Management")
-@cli_description("Validate the data currently in the project.")
 def lasif_validate_data(args):
     """
-    Usage lasif validate_data [full]
-
-    Validates all data of the current project.
+    Validate the data currently in the project.
 
     This commands walks through all available data and checks it for validity.
     It furthermore does some sanity checks to detect common problems. These
@@ -938,12 +832,9 @@ def lasif_validate_data(args):
     proj.validate_data(full_check=full_check)
 
 
-@cli_description("Open the tutorial in a webbrowser.")
 def lasif_tutorial(args):
     """
-    Usage lasif tutorial
-
-    Opens the tutorial.
+    Open the tutorial in a webbrowser.
     """
     parser = argparse.ArgumentParser(
         prog="lasif tutorial",
@@ -952,6 +843,16 @@ def lasif_tutorial(args):
 
     import webbrowser
     webbrowser.open("http://krischer.github.io/LASIF/")
+
+
+def _get_cmd_description(fct):
+    """
+    Convenience function extracting the first line of a docstring.
+    """
+    try:
+        return fct.__doc__.strip().split("\n")[0].strip()
+    except:
+        return ""
 
 
 def _print_generic_help(fcts):
@@ -986,11 +887,9 @@ def _print_generic_help(fcts):
         print("{0:=>25s} Functions".format(" " + group_name))
         current_fcts = fct_groups[group_name]
         for name in sorted(current_fcts.keys()):
-            desc = fcts[name].cmd_description \
-                if hasattr(fcts[name], "cmd_description") else ""
             print("%s  %32s: %s%s%s" % (colorama.Fore.YELLOW, name,
                   colorama.Fore.BLUE,
-                  desc,
+                  _get_cmd_description(fcts[name]),
                   colorama.Style.RESET_ALL))
     print("\nTo get help for a specific function type")
     print("\tlasif help FUNCTION  or\n\tlasif FUNCTION --help")
