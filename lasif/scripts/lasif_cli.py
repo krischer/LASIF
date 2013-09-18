@@ -100,7 +100,6 @@ def lasif_plot_event(parser, args):
     Plot a single event including stations on a map.
     """
     parser.add_argument("event_name", help="name of the event to plot")
-
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
@@ -145,7 +144,6 @@ def lasif_add_spud_event(parser, args):
     Add an event from the IRIS SPUD webservice to the project.
     """
     parser.add_argument("url", help="any SPUD momenttensor URL")
-
     url = parser.parse_args(args).url
 
     from lasif.scripts.iris2quakeml import iris2quakeml
@@ -171,7 +169,6 @@ def lasif_download_waveforms(parser, args):
     Download waveforms for one event.
     """
     parser.add_argument("event_name", help="name of the event")
-
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
@@ -222,7 +219,6 @@ def lasif_download_stations(parser, args):
     Download station files for one event.
     """
     parser.add_argument("event_name", help="name of the event")
-
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
@@ -313,7 +309,6 @@ def lasif_plot_kernel(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
     args = parser.parse_args(args)
-
     iteration_name = args.iteration_name
     event_name = args.event_name
 
