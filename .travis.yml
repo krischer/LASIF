@@ -27,8 +27,8 @@ before_install:
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 script:
-  - cd lasif; py.test
-  - cd $HOME/doc; make html
+  - cd $TRAVIS_BUILD_DIR/lasif; py.test
+  - cd $TRAVIS_BUILD_DIR/doc; make html
 install:
   # Python's multiprocessing shared memory requires /dev/shm with r/w access.
   # The VM's in travis do not offer this.
@@ -36,9 +36,7 @@ install:
   - pip install  --no-deps .
 # Upload any potentially produced diffs and produced images to imgur after a test failure.
 after_failure:
-  - cd
   - wget "http://imgur.com/tools/imgurbash.sh"
   - "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgurbash.sh %"
 after_success:
-  - cd
   - bash ./.update-gh-pages.sh
