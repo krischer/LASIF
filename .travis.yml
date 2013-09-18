@@ -3,7 +3,9 @@ python:
   - "2.7"
 virtualenv:
   system_site_packages: true
-env: MATPLOTLIBRC=$HOME
+env:
+  global:
+    secure: GStdSQ10ql5pKTEH0HGpZsZjlQnX2CgRAccZ0Pr4aTk7KbaCpZyAJQXdBTSaM1qzZo5QFn5tmIwBXljI4nncdwhAMM5NIKSTZwY+wmpCrLvRI0WrJarfGuK8lwV4NrPWkfCd8qfKx/6MERgrCvCUviXLFZf3YamB5o8icuur7jo=
 before_install:
   - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-suds python-lxml python-sqlalchemy libgeos-3.2.2 libgeos-dev
   # Install matplotlib with pip to get a recent version.
@@ -21,12 +23,12 @@ before_install:
   - pip install --use-mirrors progressbar
   - pip install --use-mirrors flake8
   - pip install --use-mirrors colorama
+  - pip install --use-mirrors sphinx
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
-  # The MATPLOTLIBRC environment variable is set to $HOME
-  - "echo \"backend:AGG\" > $HOME/matplotlibrc"
 script:
   - cd lasif; py.test
+  - cd; cd doc; make html
 install:
   # Python's multiprocessing shared memory requires /dev/shm with r/w access.
   # The VM's in travis do not offer this.
@@ -37,3 +39,6 @@ after_failure:
   - cd
   - wget "http://imgur.com/tools/imgurbash.sh"
   - "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgurbash.sh %"
+after_success:
+  - cd
+  - bash ./.update-gh-pages.sh
