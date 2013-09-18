@@ -26,12 +26,22 @@ from lasif.project import Project
 FCT_PREFIX = "lasif_"
 
 
-def add_command_to_group(group_name):
+def cli_add_cmd_to_group(group_name):
     """
     Decorator to be able to logically group commands.
     """
     def wrapper(func):
         func.group_name = group_name
+        return func
+    return wrapper
+
+
+def cli_description(description):
+    """
+    Decorator to add short descriptions to commands.
+    """
+    def wrapper(func):
+        func.cmd_description = description
         return func
     return wrapper
 
@@ -55,7 +65,8 @@ def _find_project_root(folder):
     raise LASIFCommandLineException(msg)
 
 
-@add_command_to_group("Plotting")
+@cli_add_cmd_to_group("Plotting")
+@cli_description("Plot the project's domain on a map.")
 def lasif_plot_domain(args):
     """
     Usage: lasif plot_domain
@@ -66,7 +77,8 @@ def lasif_plot_domain(args):
     proj.plot_domain()
 
 
-@add_command_to_group("Plotting")
+@cli_add_cmd_to_group("Plotting")
+@cli_description("Plot a single event including stations on a map.")
 def lasif_plot_event(args):
     """
     Usage: lasif plot_event EVENT_NAME
@@ -83,7 +95,8 @@ def lasif_plot_event(args):
     proj.plot_event(event_name)
 
 
-@add_command_to_group("Plotting")
+@cli_add_cmd_to_group("Plotting")
+@cli_description("Plot all events on a map.")
 def lasif_plot_events(args):
     """
     Usage: lasif plot_events [TYPE]
@@ -115,7 +128,8 @@ def lasif_plot_events(args):
     proj.plot_events(plot_type)
 
 
-@add_command_to_group("Plotting")
+@cli_add_cmd_to_group("Plotting")
+@cli_description("Plot a binned raycoverage plot for all events.")
 def lasif_plot_raydensity(args):
     """
     Usage: lasif plot_raydensity
@@ -126,7 +140,8 @@ def lasif_plot_raydensity(args):
     proj.plot_raydensity()
 
 
-@add_command_to_group("Data Acquisition")
+@cli_add_cmd_to_group("Data Acquisition")
+@cli_description("Add an event from the IRIS SPUD webservice to the project.")
 def lasif_add_spud_event(args):
     """
     Usage: lasif add_spud_event URL
@@ -145,7 +160,8 @@ def lasif_add_spud_event(args):
     iris2quakeml(url, proj.paths["events"])
 
 
-@add_command_to_group("Project Management")
+@cli_add_cmd_to_group("Project Management")
+@cli_description("Print a summary of the project.")
 def lasif_info(args):
     """
     Usage: lasif info
@@ -156,7 +172,8 @@ def lasif_info(args):
     print(proj)
 
 
-@add_command_to_group("Data Acquisition")
+@cli_add_cmd_to_group("Data Acquisition")
+@cli_description("Download waveforms for one event.")
 def lasif_download_waveforms(args):
     """
     Usage: lasif download_waveforms EVENT_NAME
@@ -213,7 +230,8 @@ def lasif_download_waveforms(args):
         download_folder=download_folder, waveform_format="mseed")
 
 
-@add_command_to_group("Data Acquisition")
+@cli_add_cmd_to_group("Data Acquisition")
+@cli_description("Download station files for one event.")
 def lasif_download_stations(args):
     """
     Usage: lasif download_stations EVENT_NAME
@@ -265,7 +283,8 @@ def lasif_download_stations(args):
         get_station_filename_fct=proj.get_station_filename)
 
 
-@add_command_to_group("Event Management")
+@cli_add_cmd_to_group("Event Management")
+@cli_description("Print a list of all events in the project.")
 def lasif_list_events(args):
     """
     Usage: lasif list_events
@@ -293,7 +312,8 @@ def lasif_list_events(args):
     print tab
 
 
-@add_command_to_group("Project Management")
+@cli_add_cmd_to_group("Project Management")
+@cli_description("Print a list of all models in the project.")
 def lasif_list_models(args):
     """
     Usage: lasif list_models
@@ -307,7 +327,8 @@ def lasif_list_models(args):
         print ("\t%s" % model)
 
 
-@add_command_to_group("Plotting")
+@cli_add_cmd_to_group("Plotting")
+@cli_description("Work in progress.")
 def lasif_plot_kernel(args):
     """
     Usage lasif plot_kernel ITERATION_NAME EVENT_NAME
@@ -393,7 +414,8 @@ def lasif_plot_kernel(args):
         handler.plot_depth_slice(component, int(depth))
 
 
-@add_command_to_group("Plotting")
+@cli_add_cmd_to_group("Plotting")
+@cli_description("Plot a SES3D model.")
 def lasif_plot_model(args):
     """
     Usage lasif plot_model MODEL_NAME
@@ -433,7 +455,8 @@ def lasif_plot_model(args):
         handler.plot_depth_slice(component, float(depth))
 
 
-@add_command_to_group("Event Management")
+@cli_add_cmd_to_group("Event Management")
+@cli_description("Print information about a single event.")
 def lasif_event_info(args):
     """
     Usage: lasif event_info EVENT_NAME
@@ -472,7 +495,8 @@ def lasif_event_info(args):
     table_printer(header, data)
 
 
-@add_command_to_group("Plotting")
+@cli_add_cmd_to_group("Plotting")
+@cli_description("Plot the source time function for one iteration.")
 def lasif_plot_stf(args):
     """
     Usage: lasif plot_stf ITERATION_NAME
@@ -496,7 +520,8 @@ def lasif_plot_stf(args):
     lasif.visualization.plot_tf(stf["data"], stf["delta"])
 
 
-@add_command_to_group("Iteration Management")
+@cli_add_cmd_to_group("Iteration Management")
+@cli_description("Generate the input files for the waveform solver.")
 def lasif_generate_input_files(args):
     """
     Usage: lasif generate_input_files ITERATION_NAME EVENT_NAME SIMULATION_TYPE
@@ -531,7 +556,8 @@ def lasif_generate_input_files(args):
     proj.generate_input_files(iteration_name, event_name, simulation_type)
 
 
-@add_command_to_group("Project Management")
+@cli_add_cmd_to_group("Project Management")
+@cli_description("Create a new project.")
 def lasif_init_project(args):
     """
     Usage: lasif init_project FOLDER_PATH
@@ -561,7 +587,8 @@ def lasif_init_project(args):
     print("Initialized project in: \n\t%s" % folder_path)
 
 
-@add_command_to_group("Iteration Management")
+@cli_add_cmd_to_group("Iteration Management")
+@cli_description("Finalize the adjoint sources.")
 def lasif_finalize_adjoint_sources(args):
     """
     Usage: lasif finalize_adjoint_sources ITERATION_NAME EVENT_NAME
@@ -580,7 +607,8 @@ def lasif_finalize_adjoint_sources(args):
     proj.finalize_adjoint_sources(iteration_name, event_name)
 
 
-@add_command_to_group("Iteration Management")
+@cli_add_cmd_to_group("Iteration Management")
+@cli_description("Launch the misfit GUI.")
 def lasif_launch_misfit_gui(args):
     """
     Usage: lasif launch_misfit_gui ITERATION_NAME EVENT_NAME
@@ -621,7 +649,8 @@ def lasif_launch_misfit_gui(args):
     MisfitGUI(event, iterator, proj, window_manager, adj_src_manager)
 
 
-@add_command_to_group("Iteration Management")
+@cli_add_cmd_to_group("Iteration Management")
+@cli_description("Create a new iteration.")
 def lasif_create_new_iteration(args):
     """
     Usage: lasif create_new_iteration ITERATION_NAME SOLVER_NAME
@@ -645,7 +674,8 @@ def lasif_create_new_iteration(args):
     proj.create_new_iteration(iteration_name, solver_name)
 
 
-@add_command_to_group("Iteration Management")
+@cli_add_cmd_to_group("Iteration Management")
+@cli_description("Print a list of all iterations in the project.")
 def lasif_list_iterations(args):
     """
     Usage: lasif list_iterations
@@ -659,7 +689,8 @@ def lasif_list_iterations(args):
         print ("\t%s" % iteration)
 
 
-@add_command_to_group("Iteration Management")
+@cli_add_cmd_to_group("Iteration Management")
+@cli_description("Print information about a single iteration.")
 def lasif_iteration_info(args):
     """
     Usage: lasif iteration_info ITERATION_NAME
@@ -684,7 +715,8 @@ def lasif_iteration_info(args):
     print iteration
 
 
-@add_command_to_group("Project Management")
+@cli_add_cmd_to_group("Project Management")
+@cli_description("Remove all empty coordinate entries in the inventory cache.")
 def lasif_remove_empty_coordinate_entries(args):
     """
     Usage: lasif remove_empty_coordinate_entries
@@ -701,7 +733,8 @@ def lasif_remove_empty_coordinate_entries(args):
     print "SUCCESS"
 
 
-@add_command_to_group("Iteration Management")
+@cli_add_cmd_to_group("Iteration Management")
+@cli_description("Launch data preprocessing.")
 def lasif_preprocess_data(args):
     """
     Usage: lasif preprocess_data ITERATION_NAME (EVENT_NAME[s])
@@ -740,7 +773,8 @@ def lasif_preprocess_data(args):
     proj.preprocess_data(iteration_name, event_ids)
 
 
-@add_command_to_group("Plotting")
+@cli_add_cmd_to_group("Plotting")
+@cli_description("Plot the selected windows.")
 def lasif_plot_selected_windows(args):
     """
     Usage: lasif plot_selected_windows ITERATION_NAME EVENT_NAME
@@ -792,7 +826,8 @@ def lasif_plot_selected_windows(args):
     print "Done. Written output to folder %s." % output_folder
 
 
-@add_command_to_group("Project Management")
+@cli_add_cmd_to_group("Project Management")
+@cli_description("Validate the data currently in the project.")
 def lasif_validate_data(args):
     """
     Usage lasif validate_data [full]
@@ -829,6 +864,7 @@ def lasif_validate_data(args):
         proj.validate_data()
 
 
+@cli_description("Open the tutorial in a webbrowser.")
 def lasif_tutorial(args):
     """
     Usage lasif tutorial
@@ -909,9 +945,11 @@ def _print_generic_help(fcts):
         print("{0:=>25s} Functions".format(" " + group_name))
         current_fcts = fct_groups[group_name]
         for name in sorted(current_fcts.keys()):
+            desc = fcts[name].cmd_description \
+                if hasattr(fcts[name], "cmd_description") else ""
             print("%s  %32s: %s%s%s" % (colorama.Fore.YELLOW, name,
                   colorama.Fore.BLUE,
-                  fcts[name].__doc__.strip().split("\n")[2].strip(),
+                  desc,
                   colorama.Style.RESET_ALL))
     print("\nTo get help for a specific function type")
     print("\tlasif FUNCTION help")
