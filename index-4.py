@@ -25,6 +25,7 @@ lasif.visualization.plot_stations_for_event(map_object=map,
 from obspy.core.event import *
 cat = Catalog(events=[])
 ev = Event()
+ev.filename = "example.xml"
 cat.append(ev)
 org = Origin()
 fm = FocalMechanism()
@@ -36,11 +37,13 @@ fm.moment_tensor = mt
 mt.tensor = t
 org.latitude = 38.82
 org.longitude = 40.14
+org.depth = 10000
 t.m_rr = 5.47e+15
 t.m_tt = -4.11e+16
 t.m_pp = 3.56e+16
 t.m_rt = 2.26e+16
 t.m_rp = -2.25e+16
 t.m_tp = 1.92e+16
+ev.magnitudes.append(Magnitude(mag=5.1, magnitude_type="Mw"))
 lasif.visualization.plot_events(cat, map)
 plt.show()
