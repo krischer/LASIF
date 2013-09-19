@@ -18,87 +18,21 @@ mpl.use("agg")
 
 import copy
 import glob
-import inspect
-import matplotlib.pylab as plt
-from matplotlib.testing.compare import compare_images as mpl_compare_images
 import obspy
 import os
 import pytest
 import shutil
 
 from lasif.project import Project, LASIFException
-
-
-# Folder where all the images for comparison are stored.
-IMAGES = os.path.join(os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe()))), "baseline_images")
-DATA = os.path.join(os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe()))), "data")
-
-
-@pytest.fixture
-def project(tmpdir):
-    """
-    Fixture returning the initialized example project. It will be a fresh copy
-    every time that will be deleted after the test has finished so every test
-    can mess with the contents of the folder.
-    """
-    # A new project will be created many times. ObsPy complains if objects that
-    # already exists are created again.
-    obspy.core.event.ResourceIdentifier\
-        ._ResourceIdentifier__resource_id_weak_dict.clear()
-
-    # Copy the example project
-    example_project = os.path.join(DATA, "ExampleProject")
-    project_path = os.path.join(str(tmpdir), "ExampleProject")
-    shutil.copytree(example_project, project_path)
-
-    # Init it. This will create the missing paths.
-    return Project(project_path)
+from lasif.tests.testing_helpers import project  # NOQA
+from lasif.tests.testing_helpers import images_are_identical, reset_matplotlib
 
 
 def setup_function(function):
     """
     Make sure matplotlib behaves the same on every machine.
     """
-    # Set all default values.
-    mpl.rcdefaults()
-    # These settings must be hardcoded for running the comparision tests and
-    # are not necessarily the default values.
-    mpl.rcParams['font.family'] = 'Bitstream Vera Sans'
-    mpl.rcParams['text.hinting'] = False
-    # Not available for all matplotlib versions.
-    try:
-        mpl.rcParams['text.hinting_factor'] = 8
-    except KeyError:
-        pass
-    import locale
-    locale.setlocale(locale.LC_ALL, str('en_US.UTF-8'))
-
-
-def images_are_identical(image_name, temp_dir, dpi=None):
-    """
-    Partially copied from ObsPy
-    """
-    image_name += os.path.extsep + "png"
-    expected = os.path.join(IMAGES, image_name)
-    actual = os.path.join(temp_dir, image_name)
-
-    if dpi:
-        plt.savefig(actual, dpi=dpi)
-    else:
-        plt.savefig(actual)
-    plt.close()
-
-    assert os.path.exists(expected)
-    assert os.path.exists(actual)
-
-    # Use a reasonably high tolerance to get around difference with different
-    # freetype and possibly agg versions. matplotlib uses a tolerance of 13.
-    result = mpl_compare_images(expected, actual, 5, in_decorator=True)
-    if result is not None:
-        print result
-    assert result is None
+    reset_matplotlib()
 
 
 def test_initalizing_project_in_wrong_path():
