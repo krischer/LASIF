@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 #-*- coding: utf-8 -*-
 """
-Test cases for the project class.
-
-Some of these tests are not actually verifying the results but rather assure
-that all components of LASIF are able to work together so these test can be
-viewed as integration tests.
+Utility functionality for the LASIF test suite.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
