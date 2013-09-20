@@ -63,7 +63,7 @@ def cli(project, request, capsys):
     Usage:
         stdout = cli.run("lasif info")
     """
-    request.project_dir = project.paths["root"]
+    request.project = project
 
     Output = namedtuple("Output", ["stdout", "stderr"])
 

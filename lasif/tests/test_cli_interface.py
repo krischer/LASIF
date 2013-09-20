@@ -118,3 +118,38 @@ def test_plotting_functions(cli):
     with mock.patch("lasif.project.Project.plot_raydensity") as patch:
         cli.run("lasif plot_raydensity")
         patch.assert_called_once_with()
+
+
+def test_download_utitlies(cli):
+    """
+    Testing the invocation of the downloaders.
+    """
+    # SPUD interface downloader.
+    with mock.patch("lasif.scripts.iris2quakeml.iris2quakeml") as patch:
+        cli.run("lasif add_spud_event https://test.org")
+        patch.assert_called_once_with(
+            "https://test.org", cli.project.paths["events"])
+
+    # Test the waveform downloader invocation.
+    with mock.patch("lasif.download_helpers.downloader.download_waveforms") \
+            as download_patch, \
+            mock.patch("lasif.project.Project.is_event_in_project") \
+            as is_event_patch:
+        cli.run("lasif download_waveforms "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        is_event_patch.return_value = True
+        is_event_patch.assert_called_with(
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        download_patch.assert_called_once()
+
+    # Test the station downloader invocation.
+    with mock.patch("lasif.download_helpers.downloader.download_stations") \
+            as download_patch, \
+            mock.patch("lasif.project.Project.is_event_in_project") \
+            as is_event_patch:
+        cli.run("lasif download_stations "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        is_event_patch.return_value = True
+        is_event_patch.assert_called_with(
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        download_patch.assert_called_once()
