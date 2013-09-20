@@ -1,7 +1,7 @@
 ![Logo](/doc/images/logo/lasif_logo.png)
 ---
 [![Build Status](https://travis-ci.org/krischer/LASIF.png?branch=master)](https://travis-ci.org/krischer/LASIF)
-
+[![GPLv3](http://www.gnu.org/graphics/gplv3-88x31.png)](https://github.com/krischer/LASIF/blob/master/LICENSE)
 > Work In Progress - Use With Caution
 
 
@@ -37,9 +37,8 @@ and exchange of tomographic images.
 * [Testing](#testing)
   - [Requirements and Rational](#requirements-and-rational)
   - [Running the Tests](#running-the-tests)
-
-
-
+* [Developing for LASIF](#developing-for-lasif)
+  - [Building the Documentation](#building-the-documentation)
 
 
 ### Documentation and Tutorial
@@ -163,3 +162,34 @@ $ py.test -k some_string
 
 For more information please read the [pytest
 documentation](http://pytest.org/).
+
+
+### Developing for LASIF
+
+The following rules should be followed when developing for **LASIF**:
+
+* **LASIF** is written entirely in Python.
+* C/Fortran code with proper bindings can be used to improve performance where necessary.
+* [Document](http://lukeplant.me.uk/blog/posts/docs-or-it-doesnt-exist/) the code.
+* Adhere to [PEP8](http://www.python.org/dev/peps/pep-0008/#comments).
+* All contributed code must be under the GPLv3.
+* Write tests where reasonable.
+  * **LASIF** utilizes [Travis CI](https://travis-ci.org/krischer/LASIF) for continuous
+    integration testing. This means that every commit will be automatically tested and
+    the responsible developer will receive an email in case her/his commit breaks **LASIF**.
+  * The tests also verify the PEP8 conformance of the entire code base.
+
+#### Building the Documentation
+
+`sphinx` is used to build the documentation so it needs to be installed.
+
+```bash
+$ pip install sphinx
+```
+
+To actually build the documentation and save it in a subfolder:
+
+```bash
+$ cd doc
+$ make html
+```
