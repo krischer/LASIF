@@ -7,6 +7,9 @@ Many of these test are very similar to the project tests. But this is what the
 CLI interface is supposed to provide: an easy way to interface with the project
 class.
 
+Furthermore many tests are simple mock tests only asserting that the proper
+methods are called.
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
@@ -80,3 +83,38 @@ def test_project_init(cli):
     # Invocation without a folder path fails.
     log = cli.run("lasif init_project")
     assert "error: too few arguments" in log.stderr
+
+
+def test_plotting_functions(cli):
+    """
+    Tests if the correct plotting functions are called.
+    """
+    with mock.patch("lasif.project.Project.plot_domain") as patch:
+        cli.run("lasif plot_domain")
+        patch.assert_called_once_with()
+
+    with mock.patch("lasif.project.Project.plot_event") as patch:
+        cli.run("lasif plot_event EVENT_NAME")
+        patch.assert_called_once_with("EVENT_NAME")
+
+    # Test the different variations of the plot_events function.
+    with mock.patch("lasif.project.Project.plot_events") as patch:
+        cli.run("lasif plot_events")
+        patch.assert_called_once_with("map")
+
+    with mock.patch("lasif.project.Project.plot_events") as patch:
+        cli.run("lasif plot_events --type=map")
+        patch.assert_called_once_with("map")
+
+    with mock.patch("lasif.project.Project.plot_events") as patch:
+        cli.run("lasif plot_events --type=time")
+        patch.assert_called_once_with("time")
+
+    with mock.patch("lasif.project.Project.plot_events") as patch:
+        cli.run("lasif plot_events --type=depth")
+        patch.assert_called_once_with("depth")
+
+    # Misc plotting functionality.
+    with mock.patch("lasif.project.Project.plot_raydensity") as patch:
+        cli.run("lasif plot_raydensity")
+        patch.assert_called_once_with()
