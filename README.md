@@ -2,26 +2,16 @@
 ---
 [![Build Status](https://travis-ci.org/krischer/LASIF.png?branch=master)](https://travis-ci.org/krischer/LASIF)
 
----
----
 
 > Work In Progress - Use With Caution
 
----
----
 
-### Documentation
+### Documentation and Tutorial
 
-[Preliminary Documentation](http://krischer.github.io/LASIF)
+[Documentation and Tutorial](http://krischer.github.io/LASIF)
 
-This is not up-to-date and will be replaced with a new version soon. Hang tight!
-
-To locally build the most recent version:
-
-```bash
-$ cd doc
-$ make html
-```
+The documentation is always kept up-to-date with the master branch. It contains
+a large tutorial intended to give an exhaustive tour of LASIF to aspiring new users.
 
 
 ### Installation
