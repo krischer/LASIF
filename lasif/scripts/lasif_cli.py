@@ -819,6 +819,16 @@ def _print_generic_help(fcts):
     print("\tlasif help FUNCTION  or\n\tlasif FUNCTION --help")
 
 
+def _get_argument_parser(fct):
+    """
+    Helper function to create a proper argument parser.
+    """
+    parser = argparse.ArgumentParser(
+        prog="lasif %s" % fct.func_name,
+        description=_get_cmd_description(fct))
+    return parser
+
+
 def main():
     """
     Main entry point for the script collection.
@@ -853,9 +863,7 @@ def main():
         sys.exit(1)
 
     # Create a parser and pass it to the single function.
-    parser = argparse.ArgumentParser(
-        prog="lasif %s" % fct_name,
-        description=_get_cmd_description(fcts[fct_name]))
+    parser = _get_argument_parser(fcts[fct_name])
 
     try:
         fcts[fct_name](parser, further_args)
