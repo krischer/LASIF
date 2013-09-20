@@ -12,6 +12,7 @@ Utility functionality for the LASIF test suite.
 import matplotlib as mpl
 mpl.use("agg")
 
+import copy
 import inspect
 import matplotlib.pylab as plt
 from matplotlib.testing.compare import compare_images as mpl_compare_images
@@ -19,8 +20,10 @@ import obspy
 import os
 import pytest
 import shutil
+import sys
 
 from lasif.project import Project
+from lasif.scripts import lasif_cli
 
 # Folder where all the images for comparison are stored.
 IMAGES = os.path.join(os.path.dirname(os.path.abspath(
@@ -49,6 +52,37 @@ def project(tmpdir):
 
     # Init it. This will create the missing paths.
     return Project(project_path)
+
+
+@pytest.fixture
+def cli(project, request, capsys):
+    """
+    Fixture for being able to easily test the command line interface.
+    """
+    def run(command):
+        old_dir = os.getcwd()
+        old_argv = copy.deepcopy(sys.argv)
+        try:
+            # Change the path to the root path of the project.
+            os.chdir(os.path.abspath(project.paths["root"]))
+            components = command.split()
+            if components[0] != "lasif":
+                msg = "Invalid LASIF CLI command."
+                raise Exception(msg)
+            sys.argv = components
+            capsys.readouterr()[0]
+            try:
+                lasif_cli.main()
+            except SystemExit:
+                pass
+        finally:
+            # Reset environment
+            os.chdir(old_dir)
+            sys.arv = old_argv
+        return capsys.readouterr()[0]
+
+    request.run = run
+    return request
 
 
 def images_are_identical(image_name, temp_dir, dpi=None):
