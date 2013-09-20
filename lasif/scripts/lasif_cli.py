@@ -824,7 +824,7 @@ def _get_argument_parser(fct):
     Helper function to create a proper argument parser.
     """
     parser = argparse.ArgumentParser(
-        prog="lasif %s" % fct.func_name,
+        prog="lasif %s" % fct.func_name.replace("lasif_", ""),
         description=_get_cmd_description(fct))
     return parser
 
