@@ -69,7 +69,12 @@ $ cd ...
 
 ### Testing
 
-The test are written with the pytest framework and require four additional modules:
+#### Requirements and Rational
+
+LASIF evolved into a fairly complex piece of code and thus extensive testing is
+required to assure that it works as expected.
+
+To run the tests, you need to install four additional modules:
 
 ```bash
 $ pip install pytest
@@ -78,16 +83,49 @@ $ pip install nose
 $ pip install flake8
 ```
 
-The `mock` module is used for testing the command line interface.
+The [pytest](http://pytest.org) module is an alternative testing framework for
+Python offering powerful test discovery features and a no-boilerplate approach
+to syntax. It furthermore provides a nice functional approach to writing tests
+for complex environments facilitating proper tests for LASIF.
 
-The `nose` module is required for the image comparison tests which leverage
-matplotlib's testing facilities which in turn require nose to run.
+Many operations in LASIF are computationally expensive or have side effects
+like requiring online access making them not particularly well suited to being
+testing. In order to verify some of the complex interactions within LASIF dummy
+objects are used. These are provided by the
+[mock](http://www.voidspace.org.uk/python/mock/) package.
 
-To run the test, cd to into the LASIF project and type
+LASIF contains some graphical functionality outputting maps and other plots.
+matplotlib's testing facilities are reused in LASIF which in turn require the
+[nose](http://nose.readthedocs.org/en/latest/) testing framework to be
+installed.
+
+The [flake8](http://flake8.readthedocs.org/en/2.0/) package is used to make
+sure that LASIF's code base adhere to the
+[PEP8](http://www.python.org/dev/peps/pep-0008/) standard.
+
+#### Running the tests
+
+To run the tests, cd somewhere into the LASIF project and type
 
 ```bash
 $ py.test
 ```
 
-Many more options for testing are available. Please read the [pytest
-documentation](http://pytest.org/) for more information.
+This will recursively find and execute all tests below the current working
+directory.
+
+The py.test command accepts a large number of additional parameters, e.g.
+
+```bash
+# Execute only tests within test_project.py.
+$ py.test test_project.py
+
+# Print stdout and stderr and do not capture it.
+$ py.test -s
+
+# Execute only tests whose name contains the string 'some_string'.
+$ py.test -k some_string
+```
+
+For more information please read the [pytest
+documentation](http://pytest.org/).
