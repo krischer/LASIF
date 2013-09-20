@@ -26,7 +26,8 @@ $ make html
 
 ### Installation
 
-Dependencies:
+LASIF depends on a number of third-party libraries. These need to be installed
+in order to enjoy all features of LASIF:
 
 * [ObsPy](http://www.obspy.org) (in a very recent repository version - will be fixed once the next ObsPy version is released)
 * The [matplotlib basemap toolkit](http://matplotlib.org/basemap/)
@@ -65,6 +66,13 @@ $ cd LASIF
 $ pip install -v -e .
 $ cd ...
 ```
+
+For running the tests, some additional modules are part of the requirements.
+See the 'Testing' section below for more details.
+
+Both, the `wfs_input_generator` and `LASIF` are in active development and thus
+should be installed as a develop installation so they can be easily upgraded
+via git.
 
 
 ### Testing
