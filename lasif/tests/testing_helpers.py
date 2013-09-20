@@ -58,6 +58,9 @@ def project(tmpdir):
 def cli(project, request, capsys):
     """
     Fixture for being able to easily test the command line interface.
+
+    Usage:
+        stdout = cli.run("lasif info")
     """
     def run(command):
         old_dir = os.getcwd()
