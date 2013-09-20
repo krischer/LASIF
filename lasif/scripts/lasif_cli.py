@@ -490,7 +490,7 @@ def lasif_generate_input_files(parser, args):
                                  "adjoint_reverse"),
                         default="normal_simulation",
                         help="type of simulation to run")
-    args = parser.parse_args(args).args
+    args = parser.parse_args(args)
     iteration_name = args.iteration_name
     event_name = args.event_name
     simulation_type = args.simulation_type
@@ -531,7 +531,7 @@ def lasif_finalize_adjoint_sources(parser, args):
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
-    args = parser.parse_args(args).args
+    args = parser.parse_args(args)
     iteration_name = args.iteration_name
     event_name = args.event_name
 
@@ -546,7 +546,7 @@ def lasif_launch_misfit_gui(parser, args):
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
-    args = parser.parse_args(args).args
+    args = parser.parse_args(args)
     iteration_name = args.iteration_name
     event_name = args.event_name
 
