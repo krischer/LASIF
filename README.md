@@ -69,13 +69,16 @@ $ cd ...
 
 ### Testing
 
-The test are written with the pytest framework and require three additional modules:
+The test are written with the pytest framework and require four additional modules:
 
 ```bash
 $ pip install pytest
+$ pip install mock
 $ pip install nose
 $ pip install flake8
 ```
+
+The `mock` module is used for testing the command line interface.
 
 The `nose` module is required for the image comparison tests which leverage
 matplotlib's testing facilities which in turn require nose to run.
