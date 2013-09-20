@@ -62,7 +62,7 @@ setup_config = dict(
         "matplotlib",
         "lxml"],
     extras_require={
-        "tests": ["nose", "pytest", "flake8"]},
+        "tests": ["nose", "pytest", "flake8", "mock"]},
     package_data={
         "lasif": get_package_data()},
     entry_points={
