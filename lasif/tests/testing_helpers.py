@@ -12,6 +12,7 @@ Utility functionality for the LASIF test suite.
 import matplotlib as mpl
 mpl.use("agg")
 
+from collections import namedtuple
 import copy
 import inspect
 import matplotlib.pylab as plt
@@ -62,6 +63,10 @@ def cli(project, request, capsys):
     Usage:
         stdout = cli.run("lasif info")
     """
+    request.project_dir = project.paths["root"]
+
+    Output = namedtuple("Output", ["stdout", "stderr"])
+
     def run(command):
         old_dir = os.getcwd()
         old_argv = copy.deepcopy(sys.argv)
@@ -73,7 +78,7 @@ def cli(project, request, capsys):
                 msg = "Invalid LASIF CLI command."
                 raise Exception(msg)
             sys.argv = components
-            capsys.readouterr()[0]
+            capsys.readouterr()
             try:
                 lasif_cli.main()
             except SystemExit:
@@ -82,7 +87,7 @@ def cli(project, request, capsys):
             # Reset environment
             os.chdir(old_dir)
             sys.arv = old_argv
-        return capsys.readouterr()[0]
+        return Output(*capsys.readouterr())
 
     request.run = run
     return request

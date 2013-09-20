@@ -16,6 +16,8 @@ class.
 import matplotlib as mpl
 mpl.use("agg")
 
+import mock
+
 from lasif.scripts import lasif_cli
 
 from lasif.tests.testing_helpers import project, cli  # NOQA
@@ -50,5 +52,31 @@ def test_invocation_without_parameters(cli):
     default_output = cli.run("lasif")
     # Should be the same as if invoced with --help.
     assert default_output == cli.run("lasif --help")
+    # It should furthermore contain a list of all commands.
     for cmd in CMD_LIST:
-        assert cmd in default_output
+        assert cmd in default_output.stdout
+
+
+def test_help_messages(cli):
+    """
+    Tests the help messages.
+    """
+    for cmd in CMD_LIST:
+        # Both invocations should work
+        assert cli.run("lasif %s --help" % cmd) == \
+            cli.run("lasif help %s" % cmd)
+        # Some things should always be shown. This also more or less tests that
+        # the argparse parser is used everywhere.
+        help_string = cli.run("lasif %s --help" % cmd).stdout
+        assert help_string.startswith("usage: lasif %s" % cmd)
+        assert "show this help message and exit" in help_string
+        assert "optional arguments:" in help_string
+
+
+def test_project_init(cli):
+    """
+    Tests the project initialization with the CLI interface.
+    """
+    # Invocation without a folder path fails.
+    log = cli.run("lasif init_project")
+    assert "error: too few arguments" in log.stderr
