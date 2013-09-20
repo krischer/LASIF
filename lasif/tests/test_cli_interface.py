@@ -20,6 +20,7 @@ import matplotlib as mpl
 mpl.use("agg")
 
 import mock
+import os
 
 from lasif.scripts import lasif_cli
 
@@ -153,3 +154,46 @@ def test_download_utitlies(cli):
         is_event_patch.assert_called_with(
             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
         download_patch.assert_called_once()
+
+
+def test_lasif_info(cli):
+    """
+    Tests the 'lasif info' command.
+    """
+    out = cli.run("lasif info").stdout
+    assert "\"ExampleProject\"" in out
+    assert "Toy Project used in the Test Suite" in out
+    assert "2 events" in out
+    assert "4 station files" in out
+    assert "4 raw waveform files" in out
+    assert "0 processed waveform files" in out
+    assert "6 synthetic waveform files" in out
+
+
+def test_various_list_functions(cli):
+    """
+    Tests all the "lasif list_" functions.
+    """
+    events = cli.run("lasif list_events").stdout
+    assert "2 events" in events
+    assert "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11" in events
+    assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in events
+
+    iterations = cli.run("lasif list_iterations").stdout
+    assert "0 iterations" in iterations
+    with open(os.path.join(cli.project.paths["iterations"], "1.xml"),
+              "wt") as fh:
+        fh.write("<>")
+    iterations = cli.run("lasif list_iterations").stdout
+    assert "1 iteration" in iterations
+    with open(os.path.join(cli.project.paths["iterations"], "temp.xml"),
+              "wt") as fh:
+        fh.write("<>")
+    iterations = cli.run("lasif list_iterations").stdout
+    assert "2 iteration" in iterations
+
+    models = cli.run("lasif list_models").stdout
+    assert "0 models" in models
+    os.makedirs(os.path.join(cli.project.paths["models"], "BLUB"))
+    models = cli.run("lasif list_models").stdout
+    assert "1 model" in models

@@ -601,7 +601,7 @@ def lasif_list_iterations(parser, args):
 
     iterations = _find_project_root(".").get_iteration_dict().keys()
 
-    print("%i Iteration%s in project:" % (len(iterations),
+    print("%i iteration%s in project:" % (len(iterations),
           "s" if len(iterations) != 1 else ""))
     for iteration in sorted(iterations):
         print ("\t%s" % iteration)
