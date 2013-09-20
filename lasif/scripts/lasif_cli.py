@@ -584,7 +584,7 @@ def lasif_create_new_iteration(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("solver_name", help="name of the solver",
                         choices=("SES3D_4_0",))
-    args = parser.parse_args(args).args
+    args = parser.parse_args(args)
     iteration_name = args.iteration_name
     solver_name = args.solver_name
 

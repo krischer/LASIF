@@ -19,6 +19,7 @@ methods are called.
 import matplotlib as mpl
 mpl.use("agg")
 
+import numpy as np
 import mock
 import os
 
@@ -197,3 +198,20 @@ def test_various_list_functions(cli):
     os.makedirs(os.path.join(cli.project.paths["models"], "BLUB"))
     models = cli.run("lasif list_models").stdout
     assert "1 model" in models
+
+
+def test_iteration_creation_and_stf_plotting(cli):
+    """
+    Tests the generation of an iteration and the supsequent STF plotting.
+    """
+    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+    assert "1" in cli.project.get_iteration_dict().keys()
+
+    with mock.patch("lasif.visualization.plot_tf") as patch:
+        cli.run("lasif plot_stf 1")
+        patch.assert_called_once()
+        data, delta = patch.call_args[0]
+        np.testing.assert_array_equal(
+            data,
+            cli.project._get_iteration("1").get_source_time_function()["data"])
+        assert delta == 0.75
