@@ -269,7 +269,7 @@ def lasif_list_events(parser, args):
     from lasif.tools.prettytable import PrettyTable
     proj = _find_project_root(".")
     events = proj.get_event_dict()
-    print("%i event%s in project:" % (len(events), "s" if len(events) > 1
+    print("%i event%s in project:" % (len(events), "s" if len(events) != 1
           else ""))
     tab = PrettyTable(["Event Name", "Lat", "Lng", "Depth", "Mag",
                        "Files raw/preproc/synth"])
@@ -295,7 +295,7 @@ def lasif_list_models(parser, args):
     parser.parse_args(args)
 
     models = _find_project_root(".").get_model_dict()
-    print("%i model%s in project:" % (len(models), "s" if len(models) > 1
+    print("%i model%s in project:" % (len(models), "s" if len(models) != 1
           else ""))
     for model in sorted(models.keys()):
         print ("\t%s" % model)
@@ -602,7 +602,7 @@ def lasif_list_iterations(parser, args):
     iterations = _find_project_root(".").get_iteration_dict().keys()
 
     print("%i Iteration%s in project:" % (len(iterations),
-          "s" if len(iterations) > 1 else ""))
+          "s" if len(iterations) != 1 else ""))
     for iteration in sorted(iterations):
         print ("\t%s" % iteration)
 
