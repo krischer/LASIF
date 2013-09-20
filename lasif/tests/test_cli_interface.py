@@ -215,3 +215,150 @@ def test_iteration_creation_and_stf_plotting(cli):
             data,
             cli.project._get_iteration("1").get_source_time_function()["data"])
         assert delta == 0.75
+
+
+def test_lasif_event_info(cli):
+    """
+    Tests the event info function.
+    """
+    event_1 = cli.run("lasif event_info "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11").stdout
+    event_2 = cli.run("lasif event_info "
+                      "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15").stdout
+
+    assert "5.1 Mw" in event_1
+    assert "TURKEY" in event_1
+    assert "38.820" in event_1
+    assert "available at 4 stations" in event_1
+
+    assert "5.9 Mw" in event_2
+    assert "TURKEY" in event_2
+    assert "39.150" in event_2
+    assert "available at 0 stations" in event_2
+
+
+def test_input_file_generatioN(cli):
+    """
+    Mock test to see if the input file generation routine is called. The
+    routine is tested partially by the event tests and more by the input file
+    generation module.
+    """
+    # No solver specified.
+    with mock.patch("lasif.project.Project.generate_input_files") as patch:
+        cli.run("lasif generate_input_files 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        patch.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "normal simulation")
+
+    # Normal simulation
+    with mock.patch("lasif.project.Project.generate_input_files") as patch:
+        cli.run("lasif generate_input_files 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                "--simulation_type=normal_simulation")
+        patch.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "normal simulation")
+
+    # Adjoint forward.
+    with mock.patch("lasif.project.Project.generate_input_files") as patch:
+        cli.run("lasif generate_input_files 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                "--simulation_type=adjoint_forward")
+        patch.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "adjoint forward")
+
+    # Adjoint reverse.
+    with mock.patch("lasif.project.Project.generate_input_files") as patch:
+        cli.run("lasif generate_input_files 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                "--simulation_type=adjoint_reverse")
+        patch.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "adjoint reverse")
+
+
+def test_finalize_adjoint_sources(cli):
+    """
+    Simple mock test.
+    """
+    with mock.patch("lasif.project.Project.finalize_adjoint_sources") as p:
+        cli.run("lasif generate_input_files 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        p.assert_calles_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+
+
+def test_preprocessing_and_launch_misfit_gui(cli):
+    """
+    Tests the proprocessing and the launching of the misfit gui. Both are done
+    together because the former is required by the later and takes a rather
+    long time.
+    """
+    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+
+    processing_tag = cli.project._get_iteration("1").get_processing_tag()
+    preprocessing_data = os.path.join(
+        cli.project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        processing_tag)
+    assert not os.path.exists(preprocessing_data)
+    cli.run("lasif preprocess_data 1")
+    assert os.path.exists(preprocessing_data)
+    assert len(os.listdir(preprocessing_data)) == 4
+
+    with mock.patch("lasif.misfit_gui.MisfitGUI") as patch:
+        cli.run("lasif launch_misfit_gui 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        patch.assert_called_once()
+        ev, it, proj, wm, ad_m = patch.call_args[0]
+        assert ev == cli.project.get_event(
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        assert proj.paths["root"] == cli.project.paths["root"]
+        assert it.__class__.__name__ == "TwoWayIter"
+        assert wm.__class__.__name__ == "MisfitWindowManager"
+        assert ad_m.__class__.__name__ == "AdjointSourceManager"
+
+
+def test_iteration_info(cli):
+    """
+    Tests the 'lasif iteration_info' command.
+    """
+    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+
+    out = cli.run("lasif iteration_info 1").stdout
+    assert "LASIF Iteration" in out
+    assert "Name: 1" in out
+    assert "Solver: SES3D 4.0" in out
+
+
+def test_remove_empty_coordinate_entries(cli):
+    """
+    Simple mock test.
+    """
+    with mock.patch("lasif.tools.inventory_db.reset_coordinate_less_stations")\
+            as patch:
+        cli.run("lasif remove_empty_coordinate_entires")
+        assert patch.assert_run_once_with(cli.project.paths["inv_db_file"])
+
+
+def test_validate_data(cli):
+    """
+    Simple mock test.
+    """
+    with mock.patch("lasif.project.Project.validate_data") as patch:
+        cli.run("lasif validate_data")
+        patch.assert_called_once_with(full_check=False)
+
+    with mock.patch("lasif.project.Project.validate_data") as patch:
+        cli.run("lasif validate_data --full")
+        patch.assert_called_once_with(full_check=True)
+
+
+def test_open_tutorial(cli):
+    """
+    Simple mock test.
+    """
+    with mock.patch("webbrowser.open") as patch:
+        cli.run("lasif tutorial")
+        patch.assert_called_once_with("http://krischer.github.io/LASIF/")
