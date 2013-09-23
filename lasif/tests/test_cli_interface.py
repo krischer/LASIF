@@ -372,10 +372,14 @@ def test_iteration_status_command(cli):
     """
     cli.run("lasif create_new_iteration 1 SES3D_4_0")
     out = cli.run("lasif iteration_status 1").stdout
-    assert "Name: 1" in out
-    assert "0 out of 4 files are preprocessed" in out
+    assert out == (
+        "Iteration Name: 1\n"
+        "\tAll necessary files available.\n"
+        "\t4 out of 4 files still require preprocessing.\n")
 
-    cli.run("lasif preprocessing_data 1")
+    cli.run("lasif preprocess_data 1")
     out = cli.run("lasif iteration_status 1").stdout
-    assert "4 out of 4 files are preprocessed" in out
-    assert "0 time windows selected for adjoint source calculation" in out
+    assert out == (
+        "Iteration Name: 1\n"
+        "\tAll necessary files available.\n"
+        "\tAll files are preprocessed.\n")
