@@ -429,6 +429,9 @@ class Project(object):
         from lasif.iteration_xml import Iteration
 
         iterations = self.get_iteration_dict()
+        if iteration_name not in iterations:
+            msg = "Could not find iteration '%s'." % iteration_name
+            raise LASIFException(msg)
         return Iteration(iterations[iteration_name])
 
     def preprocess_data(self, iteration_name, event_ids=None,
@@ -1811,3 +1814,63 @@ class Project(object):
         if event_name in self.get_event_dict().keys():
             return True
         return False
+
+    def get_iteration_status(self, iteration):
+        """
+        Return a dictionary with information about the current status of an
+        iteration.
+        """
+        iteration = self._get_iteration(iteration)
+        proc_tag = iteration.get_processing_tag()
+
+        # Dictionary collecting all the information.
+        status = {}
+        status["channels_not_yet_preprocessed"] = []
+        status["stations_in_iteration_that_do_not_exist"] = []
+
+        # Now check which events and stations are supposed to be part of the
+        # iteration and try to find them and their corresponding preprocessed
+        # counterparts.
+        for event_name, event_info in iteration.events.iteritems():
+            # Events with a weight of 0 are not considered.
+            if event_info["event_weight"] == 0.0:
+                continue
+            # Get the existing files.
+            raw_waveforms = self._get_waveform_cache_file(event_name, "raw")
+            proc_waveforms = self._get_waveform_cache_file(event_name,
+                                                           proc_tag)
+
+            # Extract the channels if some exist.
+            if raw_waveforms:
+                # Extract the channels.
+                raw_channels = [_i["channel_id"] for _i in
+                                raw_waveforms.get_values()]
+            else:
+                raw_channels = []
+            # Extract the processed channels if some exist.
+            if proc_waveforms:
+                proc_channels = [_i["channel_id"] for _i in
+                                 proc_waveforms.get_values()]
+            else:
+                proc_channels = []
+
+            for station_name, station_info \
+                    in event_info["stations"].iteritems():
+                # Stations with a weight of zero are not considered.
+                if station_info["station_weight"] == 0.0:
+                    continue
+                # Get all raw channels that have the current station.
+                current_chans = [_i for _i in raw_channels if
+                                 ".".join(_i.split(".")[:2]) == station_name]
+                # There should be at least one, otherwise the iteration xml
+                # file is wrong.
+                if not current_chans:
+                    status["stations_in_iteration_that_do_not_exist"].append(
+                        "Event '%s': '%s'" % (event_name, station_name))
+                    continue
+                for chan in current_chans:
+                    if chan in proc_channels:
+                        continue
+                    status["channels_not_yet_preprocessed"].append(
+                        "Event '%s': '%s'" % (event_name, chan))
+        return status
