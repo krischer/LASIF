@@ -900,12 +900,21 @@ class Project(object):
         specific event and a certain tag.
         Example to return the cache for the original data for 'event_1':
         _get_waveform_cache_file("event_1", "raw")
+
+        The event_name "SYNTHETIC" is special and will trigger a search in the
+        synthetics folder. The tag in this case is the tag of the simulation,
+        usually the iteration name.
         """
         from lasif.tools.waveform_cache import WaveformCache
 
-        waveform_db_file = os.path.join(
-            self.paths["data"], event_name, "%s_cache.sqlite" % tag)
-        data_path = os.path.join(self.paths["data"], event_name, tag)
+        if event_name != "SYNTHETIC":
+            waveform_db_file = os.path.join(
+                self.paths["data"], event_name, "%s_cache.sqlite" % tag)
+            data_path = os.path.join(self.paths["data"], event_name, tag)
+        else:
+            waveform_db_file = os.path.join(
+                self.paths["synthetics"], event_name, "%s_cache.sqlite" % tag)
+            data_path = os.path.join(self.paths["synthetics"], event_name, tag)
         if not os.path.exists(data_path):
             return False
         return WaveformCache(waveform_db_file, data_path, show_progress)
@@ -1840,12 +1849,12 @@ class Project(object):
         """
         return "ITERATION_%s" % short_iteration_name
 
-    def get_iteration_status(self, iteration):
+    def get_iteration_status(self, iteration_name):
         """
         Return a dictionary with information about the current status of an
         iteration.
         """
-        iteration = self._get_iteration(iteration)
+        iteration = self._get_iteration(iteration_name)
         proc_tag = iteration.get_processing_tag()
 
         # Dictionary collecting all the information.
