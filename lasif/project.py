@@ -1670,15 +1670,11 @@ class Project(object):
             event_name, iteration.get_processing_tag()).get_values()
 
         long_iteration_name = self._get_long_iteration_name(iteration_name)
-        synthetics_path = os.path.join(self.paths["synthetics"],
-                                       event_name, long_iteration_name)
-        synthetic_files = {os.path.basename(_i).replace("_", ""): _i
-                           for _i in glob.iglob(
-                               os.path.join(synthetics_path, "*"))}
+        synthetic_files = self._get_synthetic_waveform_filenames(
+            event_name, iteration_name)
 
         if not synthetic_files:
-            msg = "Could not find any synthetic files in '%s'." % \
-                synthetics_path
+            msg = "Could not find suitable synthetic files."
             raise ValueError(msg)
 
         SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
@@ -1731,21 +1727,23 @@ class Project(object):
                     return None
 
                 # Now attempt to get the synthetics.
-                synthetics_filenames = []
-                for name, path in synthetic_files.iteritems():
-                    if (station_id + ".") in name:
-                        synthetics_filenames.append(path)
+                if station_id not in synthetic_files:
+                    msg = "No synthetics found for station '%s'" % station_id
+                    warnings.warn(msg)
+                    return None
 
-                if len(synthetics_filenames) != 3:
+                station_synthetics = synthetic_files[station_id]
+
+                if len(station_synthetics) != 3:
                     msg = "Found %i not 3 synthetics for station '%s'." % (
-                        len(synthetics_filenames), station_id)
+                        len(station_synthetics), station_id)
                     warnings.warn(msg)
                     return None
 
                 synthetics = Stream()
 
                 # Read all synthetics.
-                for filename in synthetics_filenames:
+                for filename in station_synthetics.itervalues():
                     synthetics += read(filename)
                 for synth in synthetics:
                     if synth.stats.channel in ["X", "Z"]:

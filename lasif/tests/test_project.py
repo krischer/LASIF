@@ -618,7 +618,7 @@ def test_data_synthetic_iterator(project, recwarn):
         if _i is None:
             # If the data is not found it should always warn.
             w = recwarn.pop(UserWarning)
-            assert "Found 0 not 3" in w.message.args[0]
+            assert "No synthetics found" in w.message.args[0]
             no_synthetics_found_count += 1
             continue
         data = _i["data"]
