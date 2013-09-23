@@ -670,6 +670,28 @@ def test_is_event_station_raypath_within_boundaries(project):
         event, 38.92, 140.0)
 
 
+def test_synthetic_waveform_finding(project):
+    """
+    Tests the synthetic filename finder.
+    """
+    ev = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    it = "1"
+    stations = project._get_synthetic_waveform_filenames(ev, it)
+    assert "HL.ARG" in stations
+    assert "HT.SIGR" in stations
+    assert "X" in stations["HL.ARG"]
+    assert "Y" in stations["HL.ARG"]
+    assert "Z" in stations["HL.ARG"]
+    assert "X" in stations["HT.SIGR"]
+    assert "Y" in stations["HT.SIGR"]
+    assert "Z" in stations["HT.SIGR"]
+    assert stations["HT.SIGR"]["Z"] == os.path.join(
+        project.paths["synthetics"], ev, "ITERATION_" + it, "HT.SIGR_.___.z")
+
+    stations = project._get_synthetic_waveform_filenames(ev, it + "2")
+    assert stations == {}
+
+
 def test_iteration_status(project):
     """
     Tests the iteration status commands.

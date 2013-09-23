@@ -1847,6 +1847,30 @@ class Project(object):
         """
         return "ITERATION_%s" % short_iteration_name
 
+    def _get_synthetic_waveform_filenames(self, event_name, iteration_name):
+        """
+        Helper function finding all stations for one simulation, e.g. one event
+        and iteration combination.
+
+        Currently only uses the filenames for distinction as the current SES3D
+        version does not write that information in the file. Will have to be
+        updated in due time as new solver are incorporated.
+        """
+        # First step is to get the folder.
+        folder_name = os.path.join(self.paths["synthetics"], event_name,
+                                   self._get_long_iteration_name(
+                                       iteration_name))
+        stations = {}
+        for filename in glob.iglob(os.path.join(folder_name, "*")):
+            network, station, _, component = [
+                _i.replace("_", "")
+                for _i in os.path.basename(filename).split(".")]
+            station_name = "%s.%s" % (network, station)
+            stations.setdefault(station_name, {})
+            stations[station_name][component.upper()] = \
+                os.path.abspath(filename)
+        return stations
+
     def get_iteration_status(self, iteration_name):
         """
         Return a dictionary with information about the current status of an
@@ -1859,7 +1883,7 @@ class Project(object):
         status = {}
         status["channels_not_yet_preprocessed"] = []
         status["stations_in_iteration_that_do_not_exist"] = []
-        status["missing_synthetic_files"] = {}
+        status["synthetic_data_missing"] = {}
 
         # Now check which events and stations are supposed to be part of the
         # iteration and try to find them and their corresponding preprocessed
