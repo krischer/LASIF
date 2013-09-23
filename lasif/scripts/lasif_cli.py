@@ -759,6 +759,44 @@ def lasif_validate_data(parser, args):
     proj.validate_data(full_check=full_check)
 
 
+def lasif_iteration_status(parser, args):
+    """
+    Query the current status of an iteration.
+    """
+    parser.add_argument("iteration_name", help="name of the iteration")
+    iteration_name = parser.parse_args(args).iteration_name
+
+    proj = _find_project_root(".")
+    status = proj.get_iteration_status(iteration_name)
+
+    file_count = len(proj._get_all_raw_waveform_files_for_iteration(
+                     iteration_name))
+
+    if not status["stations_in_iteration_that_do_not_exist"]:
+        file_status = "All necessary files available."
+    else:
+        file_status = ("{count} waveform files specified in the iteration "
+                       "are not available."
+                       .format(count=len(status[
+                           "stations_in_iteration_that_do_not_exist"])))
+    if not status["channels_not_yet_preprocessed"]:
+        processing_status = "All files are preprocessed."
+    else:
+        processing_status = ("{proc_files} out of {file_count} files still "
+                             "require preprocessing.".format(
+                                 proc_files=len(status[
+                                     "channels_not_yet_preprocessed"]),
+                                 file_count=file_count))
+
+    print(
+        "Iteration Name: {iteration_name}\n"
+        "\t{file_status}\n"
+        "\t{processing_status}".format(
+            iteration_name=iteration_name,
+            file_status=file_status,
+            processing_status=processing_status))
+
+
 def lasif_tutorial(parser, args):
     """
     Open the tutorial in a webbrowser.
