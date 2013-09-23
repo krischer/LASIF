@@ -358,8 +358,8 @@ class Project(object):
             plot_simulation_domain=True, show_plot=show_plot, zoom=True)
 
     def get_kernel_dir(self, iteration_name, event_name):
-        return os.path.join(self.paths["kernels"], event_name,
-                            "ITERATION_%s" % iteration_name)
+        return os.path.join(self.paths["kernels"], event_name, self.
+                            _get_long_iteration_name(iteration_name))
 
     def get_event(self, event_name):
         """
@@ -388,7 +388,9 @@ class Project(object):
         from lasif import iteration_xml
 
         iteration_name = iteration_name.replace(" ", "_").upper()
-        filename = "ITERATION_%s.xml" % iteration_name
+        filename = self._get_long_iteration_name(iteration_name)
+        filename = self._get_long_iteration_name(iteration_name) + \
+            os.path.extsep + "xml"
         filename = os.path.join(self.paths["iterations"], filename)
         if os.path.exists(filename):
             msg = "Iteration already exists."
@@ -1505,7 +1507,7 @@ class Project(object):
         #=====================================================================
 
         iteration = self._get_iteration(iteration_name)
-        long_iteration_name = "ITERATION_%s" % iteration_name
+        long_iteration_name = self._get_long_iteration_name(iteration_name)
 
         window_directory = os.path.join(self.paths["windows"], event_name,
                                         long_iteration_name)
@@ -1660,7 +1662,7 @@ class Project(object):
         waveforms = self._get_waveform_cache_file(
             event_name, iteration.get_processing_tag()).get_values()
 
-        long_iteration_name = "ITERATION_%s" % iteration_name
+        long_iteration_name = self._get_long_iteration_name(iteration_name)
         synthetics_path = os.path.join(self.paths["synthetics"],
                                        event_name, long_iteration_name)
         synthetic_files = {os.path.basename(_i).replace("_", ""): _i
@@ -1828,6 +1830,15 @@ class Project(object):
                 continue
             all_files.extend(waveforms.files["waveform"])
         return all_files
+
+    def _get_long_iteration_name(self, short_iteration_name):
+        """
+        Helper function for creating a long iteration name.
+
+        Used for filenames and folder structure. Very simple and just used for
+        consistencies sake.
+        """
+        return "ITERATION_%s" % short_iteration_name
 
     def get_iteration_status(self, iteration):
         """
