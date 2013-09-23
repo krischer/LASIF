@@ -362,3 +362,20 @@ def test_open_tutorial(cli):
     with mock.patch("webbrowser.open") as patch:
         cli.run("lasif tutorial")
         patch.assert_called_once_with("http://krischer.github.io/LASIF/")
+
+
+def test_iteration_status_command(cli):
+    """
+    The iteration status command returns the current state of any iteration. It
+    returns the number of already preprocessed data files, how many synthetics
+    are available, the windows and adjoint sources.
+    """
+    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+    out = cli.run("lasif iteration_status 1").stdout
+    assert "Name: 1" in out
+    assert "0 out of 4 files are preprocessed" in out
+
+    cli.run("lasif preprocessing_data 1")
+    out = cli.run("lasif iteration_status 1").stdout
+    assert "4 out of 4 files are preprocessed" in out
+    assert "0 time windows selected for adjoint source calculation" in out
