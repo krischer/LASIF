@@ -703,6 +703,9 @@ def test_iteration_status(project):
     status = project.get_iteration_status("1")
     assert len(status["channels_not_yet_preprocessed"]) == 4
     assert status["stations_in_iteration_that_do_not_exist"] == []
+    # The project only has synthetics for two stations.
+    assert sorted(status["synthetic_data_missing"][event]) == ["KO.KULA",
+                                                               "KO.RSDY"]
 
     # Preprocess some files.
     project.preprocess_data("1", [event],
@@ -711,6 +714,9 @@ def test_iteration_status(project):
     status = project.get_iteration_status("1")
     assert status["channels_not_yet_preprocessed"] == []
     assert status["stations_in_iteration_that_do_not_exist"] == []
+    assert status["synthetic_data_missing"] == []
+    assert sorted(status["synthetic_data_missing"][event]) == ["KO.KULA",
+                                                               "KO.RSDY"]
 
     # Remove one of the waveform files. This has the effect that the iteration
     # contains a file that is not actually in existance. This should be
@@ -728,3 +734,6 @@ def test_iteration_status(project):
     status = project.get_iteration_status("1")
     assert status["channels_not_yet_preprocessed"] == []
     assert len(status["stations_in_iteration_that_do_not_exist"]) == 1
+    assert status["synthetic_data_missing"] == []
+    assert sorted(status["synthetic_data_missing"][event]) == ["KO.KULA",
+                                                               "KO.RSDY"]
