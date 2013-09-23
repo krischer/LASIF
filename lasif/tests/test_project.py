@@ -668,3 +668,41 @@ def test_is_event_station_raypath_within_boundaries(project):
         event, 38.92, 40.0)
     assert not project.is_event_station_raypath_within_boundaries(
         event, 38.92, 140.0)
+
+
+def test_iteration_status(project):
+    """
+    Tests the iteration status commands.
+    """
+    project.create_new_iteration("1", "ses3d_4_0")
+    event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+
+    # Currenty the project has 4 files, that are not preprocessed.
+    status = project.get_iteration_status("1")
+    assert len(status["channels_not_yet_preprocessed"]) == 4
+    assert status["stations_in_iteration_that_do_not_exist"] == []
+
+    # Preprocess some files.
+    project.preprocess_data("1", [event],
+                            waiting_time=0.0)
+
+    status = project.get_iteration_status("1")
+    assert status["channels_not_yet_preprocessed"] == []
+    assert status["stations_in_iteration_that_do_not_exist"] == []
+
+    # Remove one of the waveform files. This has the effect that the iteration
+    # contains a file that is not actually in existance. This should be
+    # detected.
+    proc_folder = os.path.join(
+        project.paths["data"], event,
+        project._get_iteration("1").get_processing_tag())
+    data_folder = os.path.join(project.paths["data"], event, "raw")
+
+    data_file = sorted(glob.glob(os.path.join(data_folder, "*")))[0]
+    proc_file = sorted(glob.glob(os.path.join(proc_folder, "*")))[0]
+    os.remove(data_file)
+    os.remove(proc_file)
+
+    status = project.get_iteration_status("1")
+    assert status["channels_not_yet_preprocessed"] == []
+    assert len(status["stations_in_iteration_that_do_not_exist"]) == 1
