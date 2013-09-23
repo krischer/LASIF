@@ -318,10 +318,17 @@ def pool_imap_unordered(function, iterable, processes):
     sending_queue = multiprocessing.Queue(processes)
     receiving_queue = multiprocessing.Queue()
 
+    collected_processes = []
+
     # Start the worker processes.
     for rpt in xrange(processes):
-        multiprocessing.Process(target=worker, args=(sending_queue,
-                                receiving_queue)).start()
+        collected_processes.append(
+            multiprocessing.Process(target=worker, args=(sending_queue,
+                                    receiving_queue)))
+
+    # Start all processes.
+    for proc in collected_processes:
+        proc.start()
 
     # Iterate over the iterable and communicate with the worker process.
     send_len = 0
@@ -355,6 +362,13 @@ def pool_imap_unordered(function, iterable, processes):
     # Terminate the worker processes but passing the poison pill.
     for rpt in xrange(processes):
         sending_queue.put(None)
+
+    time.sleep(0.1)
+    # Make sure all processes correctly shut down and nothing still lingers
+    # around.
+    for proc in collected_processes:
+        if proc.is_alive():
+            proc.terminate()
 
 
 def launch_processing(data_generator, waiting_time=4.0):
