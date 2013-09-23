@@ -894,27 +894,25 @@ class Project(object):
             show_progress=show_progress)
         return self._station_cache
 
-    def _get_waveform_cache_file(self, event_name, tag, show_progress=True):
+    def _get_waveform_cache_file(self, event_name, tag, waveform_type="data",
+                                 show_progress=True):
         """
         Helper function returning the waveform cache file for the data from a
         specific event and a certain tag.
         Example to return the cache for the original data for 'event_1':
-        _get_waveform_cache_file("event_1", "raw")
+        _get_waveform_cache_file("event_1", "raw", waveform_type="data")
 
-        The event_name "SYNTHETIC" is special and will trigger a search in the
-        synthetics folder. The tag in this case is the tag of the simulation,
-        usually the iteration name.
         """
+        if waveform_type not in ["data", "synthetics"]:
+            msg = "waveform_type must be either 'data' or 'synthetics'."
+            raise LASIFException(msg)
+
         from lasif.tools.waveform_cache import WaveformCache
 
-        if event_name != "SYNTHETIC":
-            waveform_db_file = os.path.join(
-                self.paths["data"], event_name, "%s_cache.sqlite" % tag)
-            data_path = os.path.join(self.paths["data"], event_name, tag)
-        else:
-            waveform_db_file = os.path.join(
-                self.paths["synthetics"], event_name, "%s_cache.sqlite" % tag)
-            data_path = os.path.join(self.paths["synthetics"], event_name, tag)
+        waveform_db_file = os.path.join(
+            self.paths[waveform_type], event_name, "%s_cache.sqlite" % tag)
+        data_path = os.path.join(self.paths[waveform_type], event_name, tag)
+
         if not os.path.exists(data_path):
             return False
         return WaveformCache(waveform_db_file, data_path, show_progress)
@@ -1861,6 +1859,7 @@ class Project(object):
         status = {}
         status["channels_not_yet_preprocessed"] = []
         status["stations_in_iteration_that_do_not_exist"] = []
+        status["missing_synthetic_files"] = {}
 
         # Now check which events and stations are supposed to be part of the
         # iteration and try to find them and their corresponding preprocessed
@@ -1873,7 +1872,6 @@ class Project(object):
             raw_waveforms = self._get_waveform_cache_file(event_name, "raw")
             proc_waveforms = self._get_waveform_cache_file(event_name,
                                                            proc_tag)
-
             # Extract the channels if some exist.
             if raw_waveforms:
                 # Extract the channels.
