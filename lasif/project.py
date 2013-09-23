@@ -1815,6 +1815,20 @@ class Project(object):
             return True
         return False
 
+    def _get_all_raw_waveform_files_for_iteration(self, iteration_name):
+        """
+        Helper method returning a list of all raw waveform files for one
+        iteration.
+        """
+        iteration = self._get_iteration(iteration_name)
+        all_files = []
+        for event_name in iteration.events.iterkeys():
+            waveforms = self._get_waveform_cache_file(event_name, "raw")
+            if not waveforms:
+                continue
+            all_files.extend(waveforms.files["waveform"])
+        return all_files
+
     def get_iteration_status(self, iteration):
         """
         Return a dictionary with information about the current status of an
