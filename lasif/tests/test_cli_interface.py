@@ -102,7 +102,7 @@ def test_unknown_command(cli):
     out = cli.run("lasif asdflkjaskldfj")
     assert out.stdout == ""
     assert out.stderr == ("lasif: 'asdflkjaskldfj' is not a LASIF command. "
-                          "See 'lasif --help'.")
+                          "See 'lasif --help'.\n")
 
 
 def test_fuzzy_command_matching(cli):
@@ -115,15 +115,17 @@ def test_fuzzy_command_matching(cli):
     assert out.stderr == (
         "lasif: 'infi' is not a LASIF command. See 'lasif --help'.\n\n"
         "Did you mean this?\n"
-        "\tinfo")
+        "\tinfo\n")
 
     out = cli.run("lasif plot_eventos")
     assert out.stdout == ""
     assert out.stderr == (
         "lasif: 'plot_eventos' is not a LASIF command. See 'lasif --help'.\n\n"
         "Did you mean one of these?\n"
+        "\tlist_events\n"
         "\tplot_event\n"
-        "\tplot_events\n")
+        "\tplot_events\n"
+        "\tplot_kernel\n")
 
 
 def test_project_init(cli):

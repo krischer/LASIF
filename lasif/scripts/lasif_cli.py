@@ -41,6 +41,7 @@ should scale fairly well and makes it trivial to add new methods.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import argparse
+import difflib
 import os
 import shutil
 import sys
@@ -898,9 +899,22 @@ def main():
             sys.exit(1)
         fct_name = further_args[0]
         further_args = ["--help"]
-    # Print help if given function is not known.
+
+    # Unknown function.
     elif fct_name not in fcts:
-        _print_generic_help(fcts)
+        sys.stderr.write("lasif: '{fct_name}' is not a LASIF command. See "
+                         "'lasif --help'.\n".format(fct_name=fct_name))
+        # Attempt to fuzzy match commands.
+        close_matches = sorted(difflib.get_close_matches(fct_name, fcts.keys(),
+                                                         n=4))
+        if len(close_matches) == 1:
+            sys.stderr.write("\nDid you mean this?\n\t{match}\n".format(
+                match=close_matches[0]))
+        elif close_matches:
+            sys.stderr.write(
+                "\nDid you mean one of these?\n\t{matches}\n".format(
+                    matches="\n\t".join(close_matches)))
+
         sys.exit(1)
 
     # Create a parser and pass it to the single function.
