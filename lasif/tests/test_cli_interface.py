@@ -22,6 +22,7 @@ mpl.use("agg")
 import numpy as np
 import mock
 import os
+import shutil
 
 from lasif.scripts import lasif_cli
 
@@ -436,7 +437,7 @@ def test_iteration_status_command(cli):
         "\tAll necessary files available.\n"
         "\t4 out of 4 files still require preprocessing.\n"
         "\tMissing synthetics for 1 event:\n"
-        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11\n")
+        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
 
     cli.run("lasif preprocess_data 1")
     out = cli.run("lasif iteration_status 1").stdout
@@ -445,4 +446,26 @@ def test_iteration_status_command(cli):
         "\tAll necessary files available.\n"
         "\tAll files are preprocessed.\n"
         "\tMissing synthetics for 1 event:\n"
-        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11\n")
+        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
+
+    # Copy the data for the first event to the second.
+    shutil.rmtree(os.path.join(
+        cli.project.paths["data"],
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
+    shutil.copytree(
+        os.path.join(cli.project.paths["data"],
+                     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
+        os.path.join(cli.project.paths["data"],
+                     "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
+    # The iteration has to be recreated.
+    os.remove(os.path.join(cli.project.paths["iterations"],
+                           "ITERATION_1.xml"))
+    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+    out = cli.run("lasif iteration_status 1").stdout
+    assert out == (
+        "Iteration Name: 1\n"
+        "\tAll necessary files available.\n"
+        "\tAll files are preprocessed.\n"
+        "\tMissing synthetics for 2 events:\n"
+        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n"
+        "\t\tGCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 (for 4 stations)\n")

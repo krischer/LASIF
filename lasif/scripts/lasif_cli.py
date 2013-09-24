@@ -796,7 +796,9 @@ def lasif_iteration_status(parser, args):
             "Missing synthetics for {count} event{p}:\n\t\t{events}".format(
                 count=len(s_stat),
                 p="s" if len(s_stat) != 1 else "",
-                events="\n\t\t".join(sorted(s_stat.keys())))
+                events="\n\t\t".join(sorted([
+                    "%s (for %i stations)" % (key, len(value))
+                    for key, value in s_stat.iteritems()])))
 
     print(
         "Iteration Name: {iteration_name}\n"
