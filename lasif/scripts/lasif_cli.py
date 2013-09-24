@@ -870,7 +870,7 @@ def _get_argument_parser(fct):
 
 def main():
     """
-    Main entry point for the script collection.
+    Main entry point for the LASIF command line interface.
 
     Essentially just dispatches the different commands to the corresponding
     functions. Also provides some convenience functionality like error catching
@@ -883,8 +883,9 @@ def main():
 
     # Parse args.
     args = sys.argv[1:]
-    # Print help if none are given.
-    if not args:
+
+    # Print the generic help/introduction.
+    if not args or args == ["help"] or args == ["--help"]:
         _print_generic_help(fcts)
         sys.exit(1)
 
@@ -894,14 +895,15 @@ def main():
     further_args = args[1:]
     # Map "lasif help CMD" to "lasif CMD --help"
     if fct_name == "help":
-        if not further_args:
-            _print_generic_help(fcts)
+        if further_args and further_args[0] in fcts:
+            fct_name = further_args[0]
+            further_args = ["--help"]
+        else:
+            sys.stderr.write("lasif: Invalid command. See 'lasif --help'.\n")
             sys.exit(1)
-        fct_name = further_args[0]
-        further_args = ["--help"]
 
     # Unknown function.
-    elif fct_name not in fcts:
+    if fct_name not in fcts:
         sys.stderr.write("lasif: '{fct_name}' is not a LASIF command. See "
                          "'lasif --help'.\n".format(fct_name=fct_name))
         # Attempt to fuzzy match commands.
@@ -920,6 +922,7 @@ def main():
     # Create a parser and pass it to the single function.
     parser = _get_argument_parser(fcts[fct_name])
 
+    # Now actually call the function.
     try:
         fcts[fct_name](parser, further_args)
     except LASIFCommandLineException as e:

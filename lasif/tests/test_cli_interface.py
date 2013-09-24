@@ -128,6 +128,15 @@ def test_fuzzy_command_matching(cli):
         "\tplot_kernel\n")
 
 
+def test_cli_parsing_corner_cases(cli):
+    """
+    Tests any funky corner cases related to the command line parsing.
+    """
+    out = cli.run("lasif help --help")
+    assert out.stdout == ""
+    assert out.stderr == "lasif: Invalid command. See 'lasif --help'.\n"
+
+
 def test_project_init(cli):
     """
     Tests the project initialization with the CLI interface.
