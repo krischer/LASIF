@@ -95,6 +95,25 @@ def test_command_tolerance(cli):
         patch.assert_called_once()
 
 
+def test_fuzzy_command_matching(cli):
+    """
+    If the user enters a slightly wrong subcommand, the user should be notified
+    of alternatives.
+    """
+    out = cli.run("lasif infi").stdout
+    assert out == (
+        "lasif: 'infi' is not a LASIF command. See 'lasif --help'.\n\n"
+        "Did you mean this?\n"
+        "\tinfo")
+
+    out = cli.run("lasif plot_eventos").stdout
+    assert out == (
+        "lasif: 'plot_eventos' is not a LASIF command. See 'lasif --help'.\n\n"
+        "Did you mean one of these?\n"
+        "\tplot_event\n"
+        "\tplot_events\n")
+
+
 def test_project_init(cli):
     """
     Tests the project initialization with the CLI interface.
