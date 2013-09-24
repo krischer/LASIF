@@ -17,8 +17,8 @@ def test_weights_and_relaxation_times():
     """
     Regression test for the weights and relaxation times.
     """
-    # The last two return values are the frequency dependent absorption and
-    # phase velocity. Useful for plotting but not here.
+    # The last two return values are the frequency dependent Q factor and
+    # the phase velocity. Useful for plotting but not here.
     weights, relaxation_times, _, _ = calculate_Q_model(
         Q=100.0,
         N=3,
