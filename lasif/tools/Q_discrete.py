@@ -25,7 +25,9 @@ import random
 
 # general setting
 
-Q = 100.0                             # target Q
+# target Q
+Q = 100.0
+
 
 # minimum frequency [Hz] for discrete-case optimisation
 f_min = 1.0 / 100.0
@@ -36,6 +38,7 @@ f_max = 1.0 / 10.0
 f_min_plot = 1.0/1000.0
 # maximum frequency in [Hz] for plotting
 f_max_plot = 1.0/1.0
+
 
 # discrete absorption-band model
 
@@ -115,15 +118,16 @@ A = 0.0
 B = 0.0
 
 for n in np.arange(N):
-    A = A+D_p[n]*w_plot**2*tau_p[n]**2/(1+w_plot**2*tau_p[n]**2)
-    B = B+D_p[n]*w_plot*tau_p[n]/(1+w_plot**2*tau_p[n]**2)
+    A = A + D_p[n] * w_plot ** 2 * tau_p[n] ** 2 / \
+        (1 + w_plot ** 2 * tau_p[n] ** 2)
+    B = B + D_p[n] * w_plot * tau_p[n] / (1 + w_plot ** 2 * tau_p[n] ** 2)
 
-A = 1+tau*A
-B = tau*B
+A = 1 + tau*A
+B = tau * B
 
-Q_discrete = A/B
+Q_discrete = A / B
 
-v_discrete = np.sqrt(2*(A**2+B**2)/(A+np.sqrt(A**2+B**2)))
+v_discrete = np.sqrt(2 * (A ** 2 + B ** 2) / (A + np.sqrt(A ** 2 + B ** 2)))
 
 # print weights and relaxation times
 
