@@ -78,6 +78,23 @@ def test_help_messages(cli):
         assert "optional arguments:" in help_string
 
 
+def test_command_tolerance(cli):
+    """
+    Tests that upper and lowercase subcommands are not distinguished.
+    """
+    with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
+        cli.run("lasif info")
+        patch.assert_called_once()
+
+    with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
+        cli.run("lasif INFO")
+        patch.assert_called_once()
+
+    with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
+        cli.run("lasif InFo")
+        patch.assert_called_once()
+
+
 def test_project_init(cli):
     """
     Tests the project initialization with the CLI interface.
