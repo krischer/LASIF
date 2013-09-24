@@ -886,7 +886,10 @@ def main():
     if not args:
         _print_generic_help(fcts)
         sys.exit(1)
-    fct_name = args[0]
+
+    # Use lowercase to increase tolerance.
+    fct_name = args[0].lower()
+
     further_args = args[1:]
     # Map "lasif help CMD" to "lasif CMD --help"
     if fct_name == "help":
