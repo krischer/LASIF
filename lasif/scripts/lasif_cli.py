@@ -788,14 +788,25 @@ def lasif_iteration_status(parser, args):
                                  proc_files=len(status[
                                      "channels_not_yet_preprocessed"]),
                                  file_count=file_count))
+    s_stat = status["synthetic_data_missing"]
+    if not s_stat:
+        synthetics_status = "All required synthetic files available."
+    else:
+        synthetics_status = \
+            "Missing synthetics for {count} event{p}:\n\t\t{events}".format(
+                count=len(s_stat),
+                p="s" if len(s_stat) != 1 else "",
+                events="\n\t\t".join(sorted(s_stat.keys())))
 
     print(
         "Iteration Name: {iteration_name}\n"
         "\t{file_status}\n"
-        "\t{processing_status}".format(
+        "\t{processing_status}\n"
+        "\t{synthetics_status}".format(
             iteration_name=iteration_name,
             file_status=file_status,
-            processing_status=processing_status))
+            processing_status=processing_status,
+            synthetics_status=synthetics_status))
 
 
 def lasif_tutorial(parser, args):

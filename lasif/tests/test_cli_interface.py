@@ -434,11 +434,15 @@ def test_iteration_status_command(cli):
     assert out == (
         "Iteration Name: 1\n"
         "\tAll necessary files available.\n"
-        "\t4 out of 4 files still require preprocessing.\n")
+        "\t4 out of 4 files still require preprocessing.\n"
+        "\tMissing synthetics for 1 event:\n"
+        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11\n")
 
     cli.run("lasif preprocess_data 1")
     out = cli.run("lasif iteration_status 1").stdout
     assert out == (
         "Iteration Name: 1\n"
         "\tAll necessary files available.\n"
-        "\tAll files are preprocessed.\n")
+        "\tAll files are preprocessed.\n"
+        "\tMissing synthetics for 1 event:\n"
+        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11\n")
