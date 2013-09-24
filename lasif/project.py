@@ -1894,12 +1894,15 @@ class Project(object):
             proc_waveforms = self._get_waveform_cache_file(event_name,
                                                            proc_tag)
             # Extract the channels if some exist.
+            raw_channels = {}
             if raw_waveforms:
                 # Extract the channels.
-                raw_channels = [_i["channel_id"] for _i in
-                                raw_waveforms.get_values()]
-            else:
-                raw_channels = []
+                temp = [_i["channel_id"] for _i in raw_waveforms.get_values()]
+                # Create a dictionary of all the channels sorted by station.
+                for channel in temp:
+                    station_name = ".".join(channel.split(".")[:2])
+                    raw_channels.setdefault(station_name, [])
+                    raw_channels[station_name].append(channel)
             # Extract the processed channels if some exist.
             if proc_waveforms:
                 proc_channels = [_i["channel_id"] for _i in
@@ -1916,9 +1919,13 @@ class Project(object):
                 # Stations with a weight of zero are not considered.
                 if station_info["station_weight"] == 0.0:
                     continue
+
                 # Get all raw channels that have the current station.
-                current_chans = [_i for _i in raw_channels if
-                                 ".".join(_i.split(".")[:2]) == station_name]
+                try:
+                    current_chans = raw_channels[station_name]
+                except KeyError:
+                    current_chans = []
+
                 # There should be at least one, otherwise the iteration xml
                 # file is wrong.
                 if not current_chans:
