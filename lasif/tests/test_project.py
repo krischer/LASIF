@@ -714,7 +714,6 @@ def test_iteration_status(project):
     status = project.get_iteration_status("1")
     assert status["channels_not_yet_preprocessed"] == []
     assert status["stations_in_iteration_that_do_not_exist"] == []
-    assert status["synthetic_data_missing"] == []
     assert sorted(status["synthetic_data_missing"][event]) == ["KO.KULA",
                                                                "KO.RSDY"]
 
@@ -734,6 +733,16 @@ def test_iteration_status(project):
     status = project.get_iteration_status("1")
     assert status["channels_not_yet_preprocessed"] == []
     assert len(status["stations_in_iteration_that_do_not_exist"]) == 1
-    assert status["synthetic_data_missing"] == []
     assert sorted(status["synthetic_data_missing"][event]) == ["KO.KULA",
                                                                "KO.RSDY"]
+
+    # Now remove all synthetics. This should have the result that all synthetics
+    # are missing.
+    for folder in os.listdir(project.paths["synthetics"]):
+        shutil.rmtree(os.path.join(project.paths["synthetics"], folder))
+    status = project.get_iteration_status("1")
+    assert status["channels_not_yet_preprocessed"] == []
+    assert len(status["stations_in_iteration_that_do_not_exist"]) == 1
+    # HL.ARG has been remove before.
+    assert sorted(status["synthetic_data_missing"][event]) == \
+        ["HT.SIGR", "KO.KULA", "KO.RSDY"]

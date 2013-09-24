@@ -1908,6 +1908,10 @@ class Project(object):
             else:
                 proc_channels = []
 
+            # Get the synthetics.
+            synthetics = self._get_synthetic_waveform_filenames(event_name,
+                                                                iteration_name)
+
             for station_name, station_info \
                     in event_info["stations"].iteritems():
                 # Stations with a weight of zero are not considered.
@@ -1927,4 +1931,12 @@ class Project(object):
                         continue
                     status["channels_not_yet_preprocessed"].append(
                         "Event '%s': '%s'" % (event_name, chan))
+
+                # Each station requires all three synthetic components. This is
+                # necessary for rotations.
+                if (station_name not in synthetics) or \
+                        (len(synthetics[station_name]) != 3):
+                    status["synthetic_data_missing"].setdefault(event_name, [])
+                    status["synthetic_data_missing"][event_name].append(
+                        station_name)
         return status
