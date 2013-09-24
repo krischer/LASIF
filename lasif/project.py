@@ -1669,7 +1669,6 @@ class Project(object):
         waveforms = self._get_waveform_cache_file(
             event_name, iteration.get_processing_tag()).get_values()
 
-        long_iteration_name = self._get_long_iteration_name(iteration_name)
         synthetic_files = self._get_synthetic_waveform_filenames(
             event_name, iteration_name)
 

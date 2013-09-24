@@ -736,8 +736,8 @@ def test_iteration_status(project):
     assert sorted(status["synthetic_data_missing"][event]) == ["KO.KULA",
                                                                "KO.RSDY"]
 
-    # Now remove all synthetics. This should have the result that all synthetics
-    # are missing.
+    # Now remove all synthetics. This should have the result that all
+    # synthetics are missing.
     for folder in os.listdir(project.paths["synthetics"]):
         shutil.rmtree(os.path.join(project.paths["synthetics"], folder))
     status = project.get_iteration_status("1")
