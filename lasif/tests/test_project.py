@@ -781,3 +781,24 @@ def test_get_debug_information_for_file(project):
         project.get_debug_information_for_file(os.path.join("DATA", "File_r"))
     assert "LASIF cannot gather any information from the file." == \
         excinfo.value.message
+
+    # Test a MiniSEED file.
+    info = project.get_debug_information_for_file(os.path.join(
+        project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "raw", "HL.ARG..BHZ.mseed"))
+    assert info == (
+        "The MSEED file contains 1 channel:\n"
+        "	HL.ARG..BHZ | 2010-03-24T14:06:31.024999Z - "
+        "2010-03-24T15:11:30.974999Z | Lat/Lng/Ele/Dep: --/--/--/--")
+
+    # Testing a SAC file.
+    sac_file = os.path.join(
+        project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "raw", "CA.CAVN..HHN.SAC_cut")
+    shutil.copy(os.path.join(DATA, "CA.CAVN..HHN.SAC_cut"), sac_file)
+    info = project.get_debug_information_for_file(sac_file)
+    assert info == (
+        "The SAC file contains 1 channel:\n"
+        "	CA.CAVN..HHN | 2008-02-20T18:28:02.997002Z - "
+        "2008-02-20T18:28:04.997002Z | Lat/Lng/Ele/Dep: "
+        "41.88/0.75/634.00/0.00")
