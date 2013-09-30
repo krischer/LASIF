@@ -38,7 +38,6 @@ def calculate_Q_model(Q, N, f_min, f_max, max_iterations=10000,
     tau = 2.0 / (np.pi * Q)
 
     # computations for discrete absorption-band model
-
     # compute initial relaxation times: logarithmically distributed relaxation
     # times
     tau_min = 1.0 / f_max
@@ -48,26 +47,26 @@ def calculate_Q_model(Q, N, f_min, f_max, max_iterations=10000,
 
     # compute initial weights
     D_p = 1.0 / tau_p
-    D_p = D_p / sum(D_p)
+    D_p /= sum(D_p)
 
     # compute initial sum that we later force to pi/2 over the frequency range
     # of interest
     S = 0.0
-
-    for n in np.arange(N):
-        S = S+D_p[n] * w * tau_p[n] / (1 + w ** 2 * tau_p[n] ** 2)
+    for n in xrange(N):
+        S += D_p[n] * w * tau_p[n] / (1 + w ** 2 * tau_p[n] ** 2)
 
     # compute initial misfit
     chi = sum((S - np.pi / 2.0) ** 2)
 
     # random search for optimal parameters
-    tau_p_test = np.array(np.arange(N), dtype=float)
-    D_p_test = np.array(np.arange(N), dtype=float)
+    tau_p_test = np.arange(N, dtype=float)
+    D_p_test = np.arange(N, dtype=float)
 
-    for it in np.arange(max_iterations):
-
+    for _i in xrange(max_iterations):
         # compute perturbed parameters
-        for k in np.arange(N):
+        # For some inexplicable reason this is faster then using
+        # np.random.random(N) and doing it all in one go.
+        for k in xrange(N):
             tau_p_test[k] = tau_p[k] * (1.0 + (0.5 - random.random()) *
                                         initial_temperature)
             D_p_test[k] = D_p[k] * (1.0 + (0.5 - random.random()) *
@@ -75,8 +74,8 @@ def calculate_Q_model(Q, N, f_min, f_max, max_iterations=10000,
 
         # compute new S
         S_test = 0.0
-        for k in np.arange(N):
-            S_test = S_test + D_p_test[k] * w * tau_p_test[k] / \
+        for k in xrange(N):
+            S_test += D_p_test[k] * w * tau_p_test[k] / \
                 (1 + w ** 2 * tau_p_test[k] ** 2)
 
         # compute new misfit and new temperature
@@ -93,7 +92,7 @@ def calculate_Q_model(Q, N, f_min, f_max, max_iterations=10000,
     A = 0.0
     B = 0.0
 
-    for n in np.arange(N):
+    for n in xrange(N):
         A = A + D_p[n] * w ** 2 * tau_p[n] ** 2 / \
             (1 + w ** 2 * tau_p[n] ** 2)
         B = B + D_p[n] * w * tau_p[n] / (1 + w ** 2 * tau_p[n] ** 2)

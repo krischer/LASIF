@@ -10,7 +10,6 @@ Simple tests for the constant Q model calculator.
     (http://www.gnu.org/copyleft/lesser.html)
 """
 from lasif.tools.Q_discrete import calculate_Q_model
-import numpy as np
 
 
 def test_weights_and_relaxation_times():
@@ -34,8 +33,10 @@ def test_weights_and_relaxation_times():
     assert len(weights) == 3
     assert len(relaxation_times) == 3
     # The big weights are usually similar enough.
-    np.testing.assert_array_almost_equal(
-        sorted(weights)[1:], [2.46112185, 2.51074556], 1)
+    s_weights = sorted(weights)[1:]
+    ref = [2.46112185, 2.51074556]
+    assert abs(s_weights[0] - ref[0]) < 1.0
+    assert abs(s_weights[1] - ref[1]) < 1.0
     # The relaxation times can differ quite a bit from realization to
     # realization. Thus they are not really tested.
     assert sum(relaxation_times) > 10.0
