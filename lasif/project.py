@@ -1805,6 +1805,63 @@ class Project(object):
         return TwoWayIter(self.domain["rotation_angle"],
                           self.domain["rotation_axis"])
 
+    def get_debug_information_for_file(self, filename):
+        """
+        Helper function returning a string with information LASIF knows about
+        the file.
+
+        Currently only works with waveform and station files.
+        """
+        from obspy import UTCDateTime
+
+        err_msg = "LASIF cannot gather any information from the file."
+        filename = os.path.abspath(filename)
+
+        # Data file.
+        if os.path.commonprefix([filename, self.paths["data"]]) == \
+                self.paths["data"]:
+            pass
+
+        # Station files.
+        elif os.path.commonprefix([filename, self.paths["stations"]]) == \
+                self.paths["stations"]:
+            # Get the station cache
+            details = self.station_cache.get_details(filename)
+            if not details:
+                raise LASIFException(err_msg)
+            if filename in self.station_cache.files["resp"]:
+                filetype = "RESP"
+            elif filename in self.station_cache.files["seed"]:
+                filetype = "SEED"
+            else:
+                # This really should not happen.
+                raise NotImplementedError
+            # Now assemble the final return string.
+            return (
+                "The {typ} file contains information about {c} channel{p}:\n"
+                "{channels}".format(
+                    typ=filetype, c=len(details),
+                    p="s" if len(details) != 1 else "",
+                    channels="\n".join([
+                        "\t{chan} | {start} - {end} | "
+                        "Lat/Lng/Ele/Dep: {lat}/{lng}/"
+                        "{ele}/{dep}".format(
+                            chan=_i["channel_id"],
+                            start=str(UTCDateTime(_i["start_date"])),
+                            end=str(UTCDateTime(_i["end_date"]))
+                            if _i["end_date"] else "--",
+                            lat="%.2f" % _i["latitude"]
+                            if _i["latitude"] is not None else "--",
+                            lng="%.2f" % _i["longitude"]
+                            if _i["longitude"] is not None else "--",
+                            ele="%.2f" % _i["elevation_in_m"]
+                            if _i["elevation_in_m"] is not None else "--",
+                            dep="%.2f" % _i["local_depth_in_m"]
+                            if _i["local_depth_in_m"] is not None else "--",
+                            ) for _i in details])))
+        else:
+            raise LASIFException(err_msg)
+
     def has_station_file(self, channel_id, time):
         """
         Simple function returning True or False, if the channel specified with
