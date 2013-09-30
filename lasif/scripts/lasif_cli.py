@@ -821,6 +821,37 @@ def lasif_tutorial(parser, args):
     webbrowser.open("http://krischer.github.io/LASIF/")
 
 
+def lasif_debug(parser, args):
+    """
+    Print information LASIF can gather from a list of files.
+    """
+    from lasif.project import LASIFException
+
+    parser.add_argument(
+        "files", help="filenames to print debug information about", nargs="+")
+    files = parser.parse_args(args).files
+    proj = _find_project_root(".")
+
+    for filename in files:
+        filename = os.path.relpath(filename)
+        if not os.path.exists(filename):
+            print("{red}File '{f}' does not exist.{reset}\n".format(
+                f=filename, red=colorama.Fore.RED,
+                reset=colorama.Style.RESET_ALL))
+            continue
+        print("{green}File '{f}':{reset}".format(
+            f=filename, green=colorama.Fore.GREEN,
+            reset=colorama.Style.RESET_ALL))
+
+        try:
+            info = proj.get_debug_information_for_file(filename)
+        except LASIFException as e:
+            info = "Error: %s" % e.message
+
+        print info
+        print ""
+
+
 def _get_cmd_description(fct):
     """
     Convenience function extracting the first line of a docstring.
