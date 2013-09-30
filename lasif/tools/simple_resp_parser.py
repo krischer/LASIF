@@ -31,7 +31,7 @@ def get_inventory(resp_file, remove_duplicates=False):
         This option the duplicates. Defaults to False.
     """
     channels = []
-    with open(resp_file, "rt") as open_file:
+    with open(resp_file, "rU") as open_file:
         current_channel = {}
         for line in open_file:
             line = line.strip().upper()
