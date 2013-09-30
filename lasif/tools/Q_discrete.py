@@ -17,11 +17,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def calculate_Q_model(Q, N, f_min, f_max, iterations=10000,
+def calculate_Q_model(N, f_min, f_max, iterations=10000,
                       initial_temperature=0.1, cooling_factor=0.9998):
     """
-    :type Q: float
-    :param Q: The target Q value.
     :type N: int
     :param N: The number of desired relaxation mechanisms.
     :type f_min: float
@@ -90,24 +88,18 @@ def calculate_Q_model(Q, N, f_min, f_max, iterations=10000,
     return D_p, tau_p
 
 
-def plot(D_p, tau_p, f_min, f_max, target_Q):
+def plot(D_p, tau_p, target_Q):
     """
     :type D_p: np.ndarray
     :param D_p: The calculated D_p.
     :type tau_p: np.ndarray
     :param tau_p: The calculated tau_p.
-    :type f_min: float
-    :param f_min: Minimum frequency for the discrete-case optimization in Hz.
-        Needed to plot the boundaries.
-    :type f_max: float
-    :param f_max: Maximum frequency for the discrete-case optimization in Hz.
-        Needed to plot the boundaries.
     :type target_Q: float
     :param target_Q: The target Q used for the optimization.
     """
     # Calculate the plotting boundaries.
-    f_min_plot = 10 ** (np.log10(f_min) - 1)
-    f_max_plot = 10 ** (np.log10(f_max) + 1)
+    f_min_plot = 10E-3
+    f_max_plot = 1
     f_plot = np.logspace(np.log10(f_min_plot), np.log10(f_max_plot), 100)
 
     # compute optimal Q model
@@ -115,7 +107,7 @@ def plot(D_p, tau_p, f_min, f_max, target_Q):
     B = 0.0
     N = len(D_p)
     # Make a sparse logarithmic frequency axis
-    f = np.logspace(np.log10(f_min), np.log10(f_max), 100)
+    f = np.logspace(np.log10(f_min_plot), np.log10(f_max_plot), 100)
     # Angular frequency.
     w = 2.0 * np.pi * f
     tau = 2.0 / (np.pi * target_Q)
@@ -134,8 +126,6 @@ def plot(D_p, tau_p, f_min, f_max, target_Q):
 
     # plot Q and phase velocity as function of frequency
     plt.subplot(121)
-    plt.semilogx([f_min, f_min], [0.9 / target_Q, 1.1 / target_Q], "r")
-    plt.semilogx([f_max, f_max], [0.9 / target_Q, 1.1 / target_Q], "r")
     plt.semilogx([f_min_plot, f_max_plot], [1.0 / target_Q, 1.0 / target_Q],
                  "b")
     plt.semilogx(f_plot, 1.0 / Q_discrete, "k", linewidth=2)
@@ -144,8 +134,6 @@ def plot(D_p, tau_p, f_min, f_max, target_Q):
     plt.title("absorption (1/Q)")
 
     plt.subplot(122)
-    plt.semilogx([f_min, f_min], [0.9, 1.1], "r")
-    plt.semilogx([f_max, f_max], [0.9, 1.1], "r")
     plt.semilogx(f_plot, v_discrete, "k", linewidth=2)
     plt.xlabel("frequency [Hz]")
     plt.ylabel("v")
