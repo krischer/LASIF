@@ -469,3 +469,28 @@ def test_iteration_status_command(cli):
         "\tMissing synthetics for 2 events:\n"
         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n"
         "\t\tGCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 (for 4 stations)\n")
+
+
+def test_debug_information(cli):
+    """
+    Tests the debugging information.
+    """
+    # Files not found.
+    out = cli.run("lasif debug DUMMY_1 DUMMY_2").stdout
+    assert "File 'DUMMY_1' does not exist." in out
+    assert "File 'DUMMY_2' does not exist." in out
+
+    # Mock the actual debug function. It is tested in test_project.py.
+    with mock.patch("lasif.project.Project.get_debug_information_for_file") \
+            as patch:
+        filename = os.path.join(
+            cli.project.paths["data"],
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "raw",
+            "HL.ARG..BHZ.mseed")
+        filename = os.path.relpath(filename, cli.project.paths["root"])
+        patch.return_value = "I CALLED THIS"
+        out = cli.run("lasif debug %s" % filename).stdout
+        patch.assert_called_once_with(filename)
+
+        assert filename in out
+        assert "I CALLED THIS" in out

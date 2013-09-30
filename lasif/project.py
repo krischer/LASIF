@@ -1869,7 +1869,7 @@ class Project(object):
                                 is not None else "--",
                                 ) for _i in details])))
             else:
-                msg = "The tag '%s' is not used by LASIF." % tag
+                msg = "The waveform tag '%s' is not used by LASIF." % tag
                 raise LASIFException(msg)
 
         # Station files.
