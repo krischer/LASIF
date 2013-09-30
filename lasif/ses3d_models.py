@@ -537,7 +537,7 @@ class RawSES3DModelHandler(object):
 
     def _read_boxfile(self):
         setup = {"subdomains": []}
-        with open(self.boxfile, "rt") as fh:
+        with open(self.boxfile, "rU") as fh:
             # The first 14 lines denote the header
             lines = fh.readlines()[14:]
             # Strip lines and remove empty lines.

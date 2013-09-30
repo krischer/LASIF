@@ -27,7 +27,7 @@ def read_event_list(filename):
         msg = "Can not find file %s." % filename
         raise Exception(msg)
     events = {}
-    with open(filename, "rt") as open_file:
+    with open(filename, "rU") as open_file:
         for line in open_file:
             line = line.strip()
             line = line.split()
