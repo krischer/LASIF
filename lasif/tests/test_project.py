@@ -25,7 +25,8 @@ import shutil
 
 from lasif.project import Project, LASIFException
 from lasif.tests.testing_helpers import project  # NOQA
-from lasif.tests.testing_helpers import images_are_identical, reset_matplotlib
+from lasif.tests.testing_helpers import images_are_identical, \
+    reset_matplotlib, DATA
 
 
 def setup_function(function):
@@ -746,3 +747,37 @@ def test_iteration_status(project):
     # HL.ARG has been remove before.
     assert sorted(status["synthetic_data_missing"][event]) == \
         ["HT.SIGR", "KO.KULA", "KO.RSDY"]
+
+
+def test_get_debug_information_for_file(project):
+    """
+    Test the get_debug_information_for_file() method.
+    """
+    # Test for SEED files
+    info = project.get_debug_information_for_file(os.path.join(
+        project.paths["dataless_seed"], "dataless.HL_ARG"))
+    assert info == (
+        "The SEED file contains information about 3 channels:\n"
+        "\tHL.ARG..BHE | 2003-03-04T00:00:00.000000Z - -- | Lat/Lng/Ele/Dep: "
+        "36.22/28.13/170.00/0.00\n"
+        "\tHL.ARG..BHN | 2003-03-04T00:00:00.000000Z - -- | Lat/Lng/Ele/Dep: "
+        "36.22/28.13/170.00/0.00\n"
+        "\tHL.ARG..BHZ | 2003-03-04T00:00:00.000000Z - -- | Lat/Lng/Ele/Dep: "
+        "36.22/28.13/170.00/0.00")
+
+    # Test a RESP file.
+    resp_file = os.path.join(project.paths["resp"], "RESP.AF.DODT..BHE")
+    shutil.copy(os.path.join(DATA, "RESP.AF.DODT..BHE"), resp_file)
+    # Manually reload the station cache.
+    del project._station_cache
+    info = project.get_debug_information_for_file(resp_file)
+    assert info == (
+        "The RESP file contains information about 1 channel:\n"
+        "\tAF.DODT..BHE | 2009-08-09T00:00:00.000000Z - -- | "
+        "Lat/Lng/Ele/Dep: --/--/--/--")
+
+    # Any other file should simply return an error.
+    with pytest.raises(LASIFException) as excinfo:
+        project.get_debug_information_for_file(os.path.join("DATA", "File_r"))
+    assert "LASIF cannot gather any information from the file." == \
+        excinfo.value.message
