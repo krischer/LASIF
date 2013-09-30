@@ -76,6 +76,11 @@ class WaveformCache(FileInfoCache):
                         if s_stats.stdp != -12345.0 else 0.0
 
             s = tr.stats
+
+            # Special case handling if the location is set to "--".
+            if s.location == "--":
+                s.location = ""
+
             waveforms.append([
                 s.network, s.station, s.location, s.channel, tr.id,
                 s.starttime.timestamp, s.endtime.timestamp, latitude,
