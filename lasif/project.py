@@ -1812,7 +1812,7 @@ class Project(object):
 
         Currently only works with waveform and station files.
         """
-        from obspy import UTCDateTime
+        from obspy import read, UTCDateTime
 
         err_msg = "LASIF cannot gather any information from the file."
         filename = os.path.abspath(filename)
@@ -1820,7 +1820,57 @@ class Project(object):
         # Data file.
         if os.path.commonprefix([filename, self.paths["data"]]) == \
                 self.paths["data"]:
-            pass
+            # Now split the path in event_name, tag, and filename. Any deeper
+            # paths should not be allowed.
+            rest, _ = os.path.split(os.path.relpath(filename,
+                                                    self.paths["data"]))
+            event_name, rest = os.path.split(rest)
+            rest, tag = os.path.split(rest)
+            # Now rest should not be existant anymore
+            if rest:
+                msg = "File is nested too deep in the data directory."
+                raise LASIFException(msg)
+            if tag.startswith("preprocessed_"):
+                return ("The waveform file is a preprocessed file. LASIF will "
+                        "not use it to extract any metainformation.")
+            elif tag == "raw":
+                # Get the corresponding waveform cache file.
+                waveforms = self._get_waveform_cache_file(event_name, "raw")
+                if not waveforms:
+                    msg = "LASIF could not read the waveform file."
+                    raise LASIFException(msg)
+                details = waveforms.get_details(filename)
+                if not details:
+                    msg = "LASIF could not read the waveform file."
+                    raise LASIFException(msg)
+                filetype = read(filename)[0].stats._format
+                # Now assemble the final return string.
+                return (
+                    "The {typ} file contains {c} channel{p}:\n"
+                    "{channels}".format(
+                        typ=filetype, c=len(details),
+                        p="s" if len(details) != 1 else "",
+                        channels="\n".join([
+                            "\t{chan} | {start} - {end} | "
+                            "Lat/Lng/Ele/Dep: {lat}/{lng}/"
+                            "{ele}/{dep}".format(
+                                chan=_i["channel_id"],
+                                start=str(UTCDateTime(
+                                    _i["starttime_timestamp"])),
+                                end=str(UTCDateTime(_i["endtime_timestamp"])),
+                                lat="%.2f" % _i["latitude"]
+                                if _i["latitude"] is not None else "--",
+                                lng="%.2f" % _i["longitude"]
+                                if _i["longitude"] is not None else "--",
+                                ele="%.2f" % _i["elevation_in_m"]
+                                if _i["elevation_in_m"] is not None else "--",
+                                dep="%.2f" % _i["local_depth_in_m"]
+                                if _i["local_depth_in_m"]
+                                is not None else "--",
+                                ) for _i in details])))
+            else:
+                msg = "The tag '%s' is not used by LASIF." % tag
+                raise LASIFException(msg)
 
         # Station files.
         elif os.path.commonprefix([filename, self.paths["stations"]]) == \
