@@ -381,7 +381,8 @@ class Project(object):
             self._seismic_events[event_name].filename = filename
         return self._seismic_events[event_name]
 
-    def create_new_iteration(self, iteration_name, solver_name):
+    def create_new_iteration(self, iteration_name, solver_name, min_period=8.0,
+                             max_period=100.0):
         """
         Creates a new iteration file.
         """
@@ -402,7 +403,8 @@ class Project(object):
                        for event in self.get_event_dict().keys()}
 
         xml_string = iteration_xml.create_iteration_xml_string(
-            iteration_name, solver_name, events_dict)
+            iteration_name, solver_name, events_dict, min_period=min_period,
+            max_period=max_period)
 
         with open(filename, "wt") as fh:
             fh.write(xml_string)

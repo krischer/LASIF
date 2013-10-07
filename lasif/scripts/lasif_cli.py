@@ -583,14 +583,24 @@ def lasif_create_new_iteration(parser, args):
     Create a new iteration.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("min_period", type=float,
+                        help="the minimum period of the iteration")
+    parser.add_argument("max_period", type=float,
+                        help="the maximum period of the iteration")
     parser.add_argument("solver_name", help="name of the solver",
                         choices=("SES3D_4_0",))
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
     solver_name = args.solver_name
+    min_period = args.min_period
+    max_period = args.max_period
+    if min_period >= max_period:
+        msg = "min_period needs to be smaller than max_period."
+        raise LASIFCommandLineException(msg)
 
     proj = _find_project_root(".")
-    proj.create_new_iteration(iteration_name, solver_name)
+    proj.create_new_iteration(iteration_name, solver_name, min_period,
+                              max_period)
 
 
 @command_group("Iteration Management")

@@ -196,7 +196,8 @@ class Iteration(object):
             station_count=len(set(all_stations)))
 
 
-def create_iteration_xml_string(iteration_name, solver_name, events):
+def create_iteration_xml_string(iteration_name, solver_name, events,
+                                min_period, max_period):
     """
     Creates a new iteration string.
 
@@ -206,12 +207,19 @@ def create_iteration_xml_string(iteration_name, solver_name, events):
     :param solver_name: The name of the solver to be used for this iteration.
     :param events: A dictionary. The key is the event name, and the value a
         list of station ids for this event.
+    :param min_period: The minimum period for the iteration.
+    :param max_period: The maximum period for the iteration.
     """
-    solver_doc = _get_default_solver_settings(solver_name)
+    solver_doc = _get_default_solver_settings(solver_name, min_period,
+                                              max_period)
     if solver_name.lower() == "ses3d_4_0":
         solver_name = "SES3D 4.0"
     else:
         raise NotImplementedError
+
+    if min_period >= max_period:
+        msg = "min_period needs to be smaller than max_period."
+        raise ValueError(msg)
 
     # Loop over all events.
     events_doc = []
@@ -232,8 +240,8 @@ def create_iteration_xml_string(iteration_name, solver_name, events):
         E.iteration_description(""),
         E.comment(""),
         E.data_preprocessing(
-            E.highpass_period("100.0"),
-            E.lowpass_period("8.0")),
+            E.highpass_period(str(max_period)),
+            E.lowpass_period(str(min_period))),
         E.rejection_criteria(
             E.minimum_trace_length_in_s("500.0"),
             E.signal_to_noise(
@@ -250,7 +258,7 @@ def create_iteration_xml_string(iteration_name, solver_name, events):
     return string_doc
 
 
-def _get_default_solver_settings(solver):
+def _get_default_solver_settings(solver, min_period, max_period):
     """
     Helper function returning etree representation of a solver's default
     settings.
@@ -264,8 +272,8 @@ def _get_default_solver_settings(solver):
         tau_p, w_p = Q_discrete.calculate_Q_model(
             N=3,
             # These are suitable for the default frequency range.
-            f_min=1.0 / 100.0,
-            f_max=1.0 / 8.0,
+            f_min=1.0 / max_period,
+            f_max=1.0 / min_period,
             iterations=10000,
             initial_temperature=0.1,
             cooling_factor=0.9998)
