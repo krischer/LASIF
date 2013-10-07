@@ -169,6 +169,9 @@ def plot(D_p, tau_p, f_min=None, f_max=None, show_plot=True):
         plt.subplot(121)
         plt.vlines(f_min, *plt.ylim(), color="0.5")
         plt.vlines(f_max, *plt.ylim(), color="0.5")
+        plt.subplot(122)
+        plt.vlines(f_min, *plt.ylim(), color="0.5")
+        plt.vlines(f_max, *plt.ylim(), color="0.5")
 
     if show_plot:
         plt.show()
