@@ -1961,11 +1961,15 @@ class Project(object):
         """
         iteration = self._get_iteration(iteration_name)
         all_files = []
-        for event_name in iteration.events.iterkeys():
+        for event_name, event in iteration.events.iteritems():
             waveforms = self._get_waveform_cache_file(event_name, "raw")
             if not waveforms:
                 continue
-            all_files.extend(waveforms.files["waveform"])
+            stations = event["stations"].keys()
+            all_files.extend(
+                [_i["filename"] for _i in waveforms.get_values()
+                 if (_i["network"] + "." + _i["station"]) in stations])
+
         return all_files
 
     def _get_long_iteration_name(self, short_iteration_name):
