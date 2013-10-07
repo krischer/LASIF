@@ -689,6 +689,26 @@ def lasif_preprocess_data(parser, args):
     proj.preprocess_data(iteration_name, events)
 
 
+@command_group("Iteration Management")
+def lasif_plot_q_model(parser, args):
+    """
+    Plots the Q model for a given iteration.
+    """
+    parser.add_argument("iteration_name", help="name of iteration")
+    args = parser.parse_args(args)
+    iteration_name = args.iteration_name
+
+    proj = _find_project_root(".")
+
+    # Check if the iteration name is valid.
+    iterations = proj.get_iteration_dict()
+    if iteration_name not in iterations:
+        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
+               "a list of all available iterations.") % iteration_name
+        raise LASIFCommandLineException(msg)
+    proj.plot_Q_model(iteration_name, show_plot=True)
+
+
 @command_group("Plotting")
 def lasif_plot_selected_windows(parser, args):
     """

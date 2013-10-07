@@ -357,6 +357,29 @@ class Project(object):
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=True, show_plot=show_plot, zoom=True)
 
+    def plot_Q_model(self, iteration_name, show_plot=True):
+        """
+        Plots the Q model for a given iteration. Will only work if the
+        iteration uses SES3D as its solver.
+        """
+        from lasif.tools.Q_discrete import plot
+
+        iteration = self._get_iteration(iteration_name)
+        if iteration.solver_settings["solver"].lower() != "ses3d 4.0":
+            msg = "Only works for SES3D 4.0"
+            raise LASIFException(msg)
+
+        proc_params = iteration.get_process_params()
+        f_min = proc_params["highpass"]
+        f_max = proc_params["lowpass"]
+
+        relax = iteration.solver_settings["solver_settings"][
+            "relaxation_parameter_list"]
+        tau_p = relax["tau"]
+        weights = relax["w"]
+
+        plot(tau_p, weights, f_min=f_min, f_max=f_max, show_plot=show_plot)
+
     def get_kernel_dir(self, iteration_name, event_name):
         return os.path.join(self.paths["kernels"], event_name, self.
                             _get_long_iteration_name(iteration_name))
