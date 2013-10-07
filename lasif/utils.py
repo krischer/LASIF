@@ -62,12 +62,15 @@ def recursive_dict(element):
         dict(map(recursive_dict, element)) or element.text
 
 
-def generate_ses3d_4_0_template():
+def generate_ses3d_4_0_template(tau_p, w_p):
     """
     Generates a template for SES3D input files.
 
     Returns the etree representation.
     """
+    if len(tau_p) != 3 or len(w_p) != 3:
+        msg = "SES3D currently only supports three superimposed linear solids."
+        raise ValueError(msg)
     doc = E.solver_settings(
         E.simulation_parameters(
             E.number_of_time_steps("500"),
@@ -87,12 +90,12 @@ def generate_ses3d_4_0_template():
             E.py_processors_in_phi_direction("1"),
             E.pz_processors_in_r_direction("1")),
         E.relaxation_parameter_list(
-            E.tau("1.7360", number="0"),
-            E.w("2.5133", number="0"),
-            E.tau("14.6211", number="1"),
-            E.w("2.4089", number="1"),
-            E.tau("13.7054", number="2"),
-            E.w("0.1005", number="2")))
+            E.tau(str(tau_p[0]), number="0"),
+            E.w(str(w_p[0]), number="0"),
+            E.tau(str(tau_p[1]), number="1"),
+            E.w(str(w_p[1]), number="1"),
+            E.tau(str(tau_p[2]), number="2"),
+            E.w(str(w_p[2]), number="2")))
 
     return doc
 

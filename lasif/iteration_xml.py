@@ -257,8 +257,20 @@ def _get_default_solver_settings(solver):
     """
     known_solvers = ["ses3d_4_0"]
     if solver.lower() == "ses3d_4_0":
+        from lasif.tools import Q_discrete
         from lasif.utils import generate_ses3d_4_0_template
-        return generate_ses3d_4_0_template()
+
+        # Generate the relaxation weights for SES3D.
+        tau_p, w_p = Q_discrete.calculate_Q_model(
+            N=3,
+            # These are suitable for the default frequency range.
+            f_min=1.0 / 100.0,
+            f_max=1.0 / 8.0,
+            iterations=10000,
+            initial_temperature=0.1,
+            cooling_factor=0.9998)
+
+        return generate_ses3d_4_0_template(tau_p, w_p)
     else:
         msg = "Solver '%s' not known. Known solvers: %s" % (
             solver, ",".join(known_solvers))
