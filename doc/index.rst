@@ -1039,6 +1039,51 @@ time series and a time frequency representation of the source time function.
     lasif.visualization.plot_tf(data, 0.13)
 
 
+Attenuation
+^^^^^^^^^^^
+
+SES3D models attenuation with a discrete superposition of a finite number of
+relaxation mechanisms. The goal is to achieve a constant Q model over the
+chosen frequency range. Upon creating an iteration, LASIF will run a non-linear
+optimization algorithm to find relaxation times and associated weights that
+will be nearly constant over the chosen frequency domain.
+
+At any point you can see the absorption-band model for a given iteration at a
+couple of exemplary Q values with
+
+
+.. code-block:: bash
+
+    $ lasif plot_Q_model 1
+
+
+The single argument is the name of the iteration.
+
+
+.. plot::
+
+    from lasif.tools import Q_discrete
+    weights = [2.56184936462, 2.50613220548, 0.0648624201145]
+    relaxation_times = [1.50088990947, 13.3322250004, 22.5140030575]
+    Q_discrete.plot(weights, relaxation_times, f_min=1.0 / 100.0,
+                    f_max=1.0 / 8.0, show_plot=True)
+
+
+The two vertical lines in each plot mark the frequency range as specified in
+the iteration XML file.
+
+It is also possible to directly generate the relaxation times and weights for
+any frequency band. To generate a Q model approximately constant in a period
+band from 10 seconds to 100 seconds use
+
+.. code-block:: bash
+
+    $ lasif calculate_constant_Q_model 10 100
+
+    Weights: 2.51476795756, 2.45723765861, 0.0554802992816
+    Relaxation Times: 2.51476795756, 2.45723765861, 0.0554802992816
+
+
 Data Preprocessing
 ^^^^^^^^^^^^^^^^^^
 
