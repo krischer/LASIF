@@ -848,13 +848,15 @@ Let's start by creating the XML file for the very first iteration with the
 
 .. code-block:: bash
 
-    $ lasif create_new_iteration 1 SES3D_4_0
+    $ lasif create_new_iteration 1 8.0 100.0 SES3D_4_0
 
 
-This command takes two arguements; the first being the iteration name. A simple
-number is sufficient in many cases. The second argument is the waveform solver
-to be used for this iteration. It currently only supports SES3D 4.0 but the
-infrastructure to add other solvers is already in place.
+This command takes four arguments; the first being the iteration name. A simple
+number is sufficient in many cases. The second and third denote the band limit
+of this iteration. In this example the band is limited between 8 and 100
+seconds. The fourth argument is the waveform solver to be used for this
+iteration. It currently only supports SES3D 4.0 but the infrastructure to add
+other solvers is already in place.
 
 You will see that this create a new file; *ITERATIONS/ITERATION_1.xml**. Each
 iteration will have its own file. To get a list of iterations, use
@@ -1035,6 +1037,51 @@ time series and a time frequency representation of the source time function.
 
     data = filtered_heaviside(4000, 0.13, 1.0 / 500.0, 1.0 / 60.0)
     lasif.visualization.plot_tf(data, 0.13)
+
+
+Attenuation
+^^^^^^^^^^^
+
+SES3D models attenuation with a discrete superposition of a finite number of
+relaxation mechanisms. The goal is to achieve a constant Q model over the
+chosen frequency range. Upon creating an iteration, LASIF will run a non-linear
+optimization algorithm to find relaxation times and associated weights that
+will be nearly constant over the chosen frequency domain.
+
+At any point you can see the absorption-band model for a given iteration at a
+couple of exemplary Q values with
+
+
+.. code-block:: bash
+
+    $ lasif plot_Q_model 1
+
+
+The single argument is the name of the iteration.
+
+
+.. plot::
+
+    from lasif.tools import Q_discrete
+    weights = [2.56184936462, 2.50613220548, 0.0648624201145]
+    relaxation_times = [1.50088990947, 13.3322250004, 22.5140030575]
+    Q_discrete.plot(weights, relaxation_times, f_min=1.0 / 100.0,
+                    f_max=1.0 / 8.0, show_plot=True)
+
+
+The two vertical lines in each plot mark the frequency range as specified in
+the iteration XML file.
+
+It is also possible to directly generate the relaxation times and weights for
+any frequency band. To generate a Q model approximately constant in a period
+band from 10 seconds to 100 seconds use
+
+.. code-block:: bash
+
+    $ lasif calculate_constant_Q_model 10 100
+
+    Weights: 2.51476795756, 2.45723765861, 0.0554802992816
+    Relaxation Times: 2.51476795756, 2.45723765861, 0.0554802992816
 
 
 Data Preprocessing

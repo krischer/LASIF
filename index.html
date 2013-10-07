@@ -76,6 +76,7 @@
 <li><a class="reference internal" href="#defining-a-new-iteration">Defining a New Iteration</a><ul>
 <li><a class="reference internal" href="#the-iteration-xml-files">The Iteration XML Files</a></li>
 <li><a class="reference internal" href="#source-time-functions">Source Time Functions</a></li>
+<li><a class="reference internal" href="#attenuation">Attenuation</a></li>
 <li><a class="reference internal" href="#data-preprocessing">Data Preprocessing</a></li>
 <li><a class="reference internal" href="#data-rejection">Data Rejection</a></li>
 </ul>
@@ -764,13 +765,15 @@ specified. Each iteration can have an arbitrary name. It is probably a good
 idea to give simple numeric names, like 1, 2, 3, ...</p>
 <p>Let&#8217;s start by creating the XML file for the very first iteration with the
 <strong>create_new_iteration</strong> command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration 1 SES3D_4_0
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration 1 8.0 100.0 SES3D_4_0
 </pre></div>
 </div>
-<p>This command takes two arguements; the first being the iteration name. A simple
-number is sufficient in many cases. The second argument is the waveform solver
-to be used for this iteration. It currently only supports SES3D 4.0 but the
-infrastructure to add other solvers is already in place.</p>
+<p>This command takes four arguments; the first being the iteration name. A simple
+number is sufficient in many cases. The second and third denote the band limit
+of this iteration. In this example the band is limited between 8 and 100
+seconds. The fourth argument is the waveform solver to be used for this
+iteration. It currently only supports SES3D 4.0 but the infrastructure to add
+other solvers is already in place.</p>
 <p>You will see that this create a new file; <em>ITERATIONS/ITERATION_1.xml*</em>. Each
 iteration will have its own file. To get a list of iterations, use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_iterations
@@ -925,6 +928,35 @@ time series and a time frequency representation of the source time function.</p>
 <p>(<a class="reference external" href=".//index-5.py">Source code</a>, <a class="reference external" href=".//index-5.png">png</a>, <a class="reference external" href=".//index-5.hires.png">hires.png</a>, <a class="reference external" href=".//index-5.pdf">pdf</a>)</p>
 <div class="figure">
 <img alt="_images/index-5.png" src="_images/index-5.png" />
+</div>
+</div>
+<div class="section" id="attenuation">
+<h3>Attenuation<a class="headerlink" href="#attenuation" title="Permalink to this headline">¶</a></h3>
+<p>SES3D models attenuation with a discrete superposition of a finite number of
+relaxation mechanisms. The goal is to achieve a constant Q model over the
+chosen frequency range. Upon creating an iteration, LASIF will run a non-linear
+optimization algorithm to find relaxation times and associated weights that
+will be nearly constant over the chosen frequency domain.</p>
+<p>At any point you can see the absorption-band model for a given iteration at a
+couple of exemplary Q values with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_Q_model 1
+</pre></div>
+</div>
+<p>The single argument is the name of the iteration.</p>
+<p>(<a class="reference external" href=".//index-6.py">Source code</a>, <a class="reference external" href=".//index-6.png">png</a>, <a class="reference external" href=".//index-6.hires.png">hires.png</a>, <a class="reference external" href=".//index-6.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/index-6.png" src="_images/index-6.png" />
+</div>
+<p>The two vertical lines in each plot mark the frequency range as specified in
+the iteration XML file.</p>
+<p>It is also possible to directly generate the relaxation times and weights for
+any frequency band. To generate a Q model approximately constant in a period
+band from 10 seconds to 100 seconds use</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif calculate_constant_Q_model 10 100
+
+Weights: 2.51476795756, 2.45723765861, 0.0554802992816
+Relaxation Times: 2.51476795756, 2.45723765861, 0.0554802992816
+</pre></div>
 </div>
 </div>
 <div class="section" id="data-preprocessing">
@@ -1272,7 +1304,7 @@ command again.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2013, Lion Krischer &amp; Andreas Fichtner.
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b2.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b3.Theme by <a href="http://github.com/vkvn">vkvn</a>
     </div>
   </body>
 </html>
