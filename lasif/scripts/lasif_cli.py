@@ -851,6 +851,29 @@ def lasif_tutorial(parser, args):
     webbrowser.open("http://krischer.github.io/LASIF/")
 
 
+def lasif_calculate_constant_q_model(parser, args):
+    """
+    Calculate a constant Q model useable by SES3D.
+    """
+    from lasif.tools import Q_discrete
+
+    parser.add_argument("min_period", type=float,
+                        help="minimum period for the constant frequency band")
+    parser.add_argument("max_period", type=float,
+                        help="maximum period for the constant frequency band")
+    args = parser.parse_args(args)
+
+    weights, relaxation_times, = Q_discrete.calculate_Q_model(
+        N=3,
+        f_min=1.0 / args.max_period,
+        f_max=1.0 / args.min_period,
+        iterations=10000,
+        initial_temperature=0.1,
+        cooling_factor=0.9998)
+    print "Weights: %s" % ", ".join([str(i) for i in weights])
+    print "Relaxation Times: %s" % ", ".join([str(i) for i in weights])
+
+
 def lasif_debug(parser, args):
     """
     Print information LASIF can gather from a list of files.
