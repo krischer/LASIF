@@ -15,6 +15,7 @@ tau is computed from the target Q via 1/Q=0.5*tau*pi
 """
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 
 
 def calculate_Q_model(N, f_min, f_max, iterations=10000,
@@ -63,10 +64,11 @@ def calculate_Q_model(N, f_min, f_max, iterations=10000,
 
     for _i in xrange(iterations):
         # compute perturbed parameters
-        tau_p_test[:] = tau_p * (1.0 + (0.5 - np.random.random()) *
-                                 initial_temperature)
-        D_p_test[:] = D_p * (1.0 + (0.5 - np.random.random()) *
-                             initial_temperature)
+        for k in xrange(N):
+            tau_p_test[k] = tau_p[k] * (1.0 + (0.5 - random.random()) *
+                                        initial_temperature)
+            D_p_test[k] = D_p[k] * (1.0 + (0.5 - random.random()) *
+                                    initial_temperature)
 
         # compute new S
         S_test = 0.0
@@ -88,55 +90,85 @@ def calculate_Q_model(N, f_min, f_max, iterations=10000,
     return D_p, tau_p
 
 
-def plot(D_p, tau_p, target_Q):
+def plot(D_p, tau_p, f_min=None, f_max=None, show_plot=True):
     """
     :type D_p: np.ndarray
     :param D_p: The calculated D_p.
     :type tau_p: np.ndarray
     :param tau_p: The calculated tau_p.
-    :type target_Q: float
-    :param target_Q: The target Q used for the optimization.
+    :type f_min: float, optional
+    :param f_min: The minimum frequency over which the optimization was
+        performed. If given it will be plotted.
+    :type f_max: float, optional
+    :param f_max: The maximum frequency over which the optimization was
+        performed. If given it will be plotted.
+    :type show_plot: bool, optional
+    :param show_plot: Determines if plt.plot() will be called upon plot
+        completion. Defaults to True.
     """
-    # Calculate the plotting boundaries.
-    f_min_plot = 10E-3
-    f_max_plot = 1
-    f_plot = np.logspace(np.log10(f_min_plot), np.log10(f_max_plot), 100)
+    # The Q values to be plotted.
+    Q_values = (100, 200, 300, 400)
+    # Colors for the corresponding plot.
+    Q_colors = ["#1B9E77", "#D95F02", "#7570B3", "#E7298A"]
 
-    # compute optimal Q model
-    A = 0.0
-    B = 0.0
-    N = len(D_p)
-    # Make a sparse logarithmic frequency axis
-    f = np.logspace(np.log10(f_min_plot), np.log10(f_max_plot), 100)
+    # Always plot from 10E-3 Hz to 1 Hz.
+    f_plot = np.logspace(-3, 0, 100)
+
     # Angular frequency.
-    w = 2.0 * np.pi * f
-    tau = 2.0 / (np.pi * target_Q)
+    w_plot = 2.0 * np.pi * f_plot
 
-    for n in xrange(N):
-        A = A + D_p[n] * w ** 2 * tau_p[n] ** 2 / \
-            (1 + w ** 2 * tau_p[n] ** 2)
-        B = B + D_p[n] * w * tau_p[n] / (1 + w ** 2 * tau_p[n] ** 2)
+    # Loop over all desired Q values.
+    for target_Q, color in zip(Q_values, Q_colors):
+        tau = 2.0 / (np.pi * target_Q)
 
-    A = 1 + tau * A
-    B = tau * B
+        # compute optimal Q model
+        A = 0.0
+        B = 0.0
+        N = len(D_p)
+        for n in xrange(N):
+            A = A + D_p[n] * w_plot ** 2 * tau_p[n] ** 2 / \
+                (1 + w_plot ** 2 * tau_p[n] ** 2)
+            B = B + D_p[n] * w_plot * tau_p[n] / \
+                (1 + w_plot ** 2 * tau_p[n] ** 2)
 
-    Q_discrete = A / B
-    v_discrete = np.sqrt(2 * (A ** 2 + B ** 2) /
-                         (A + np.sqrt(A ** 2 + B ** 2)))
+        A = 1 + tau * A
+        B = tau * B
 
-    # plot Q and phase velocity as function of frequency
+        Q_discrete = A / B
+        v_discrete = np.sqrt(2 * (A ** 2 + B ** 2) /
+                             (A + np.sqrt(A ** 2 + B ** 2)))
+
+        # plot Q and phase velocity as function of frequency
+        plt.subplot(121)
+        plt.semilogx(f_plot, Q_discrete, "k", linewidth=2, color=color)
+        plt.semilogx(f_plot, target_Q * np.ones(len(f_plot)), linewidth=1,
+                     linestyle="--", color=color, zorder=-1E6)
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("Q")
+        plt.title("Quality Factor")
+
+        plt.subplot(122)
+        plt.semilogx(f_plot, v_discrete, "k", linewidth=2, color=color,
+                     label="Q=%i" % target_Q)
+        plt.xlabel("Frequency [Hz]")
+        plt.ylabel("v")
+        plt.title("Phase Velocity")
+
+    # Adjust the limits of both plots.
     plt.subplot(121)
-    plt.semilogx([f_min_plot, f_max_plot], [1.0 / target_Q, 1.0 / target_Q],
-                 "b")
-    plt.semilogx(f_plot, 1.0 / Q_discrete, "k", linewidth=2)
-    plt.xlabel("frequency [Hz]")
-    plt.ylabel("1/Q")
-    plt.title("absorption (1/Q)")
+    Q_range = max(Q_values) - min(Q_values)
+    plt.ylim(min(Q_values) - Q_range / 5.0, max(Q_values) + Q_range / 5.0)
 
     plt.subplot(122)
-    plt.semilogx(f_plot, v_discrete, "k", linewidth=2)
-    plt.xlabel("frequency [Hz]")
-    plt.ylabel("v")
-    plt.title("phase velocity")
+    plt.ylim(0.9, 1.1)
+    plt.grid()
+    plt.legend()
 
-    plt.show()
+    # Plot the frequency limits if given.
+    if f_min and f_max:
+        plt.subplot(121)
+        plt.vlines(f_min, *plt.ylim(), color="0.5")
+        plt.vlines(f_max, *plt.ylim(), color="0.5")
+
+    if show_plot:
+        plt.show()
