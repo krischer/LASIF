@@ -848,13 +848,15 @@ Let's start by creating the XML file for the very first iteration with the
 
 .. code-block:: bash
 
-    $ lasif create_new_iteration 1 SES3D_4_0
+    $ lasif create_new_iteration 1 8.0 100.0 SES3D_4_0
 
 
-This command takes two arguements; the first being the iteration name. A simple
-number is sufficient in many cases. The second argument is the waveform solver
-to be used for this iteration. It currently only supports SES3D 4.0 but the
-infrastructure to add other solvers is already in place.
+This command takes four arguments; the first being the iteration name. A simple
+number is sufficient in many cases. The second and third denote the band limit
+of this iteration. In this example the band is limited between 8 and 100
+seconds. The fourth argument is the waveform solver to be used for this
+iteration. It currently only supports SES3D 4.0 but the infrastructure to add
+other solvers is already in place.
 
 You will see that this create a new file; *ITERATIONS/ITERATION_1.xml**. Each
 iteration will have its own file. To get a list of iterations, use
