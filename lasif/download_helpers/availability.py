@@ -1,4 +1,4 @@
-#!kusr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Simple functions to get the available stations in a certain time and spatial
@@ -36,7 +36,7 @@ def _get_arclink_availability(min_lat, max_lat, min_lng, max_lng, starttime,
         a dictionary, containing latitude and longitude.
 
     >>> print _get_arclink_availability(-10, 10, -10, 10, UTCDateTime() - 1E6,
-    ...     UTCDateTime())
+    ...     UTCDateTime()) # doctest:+SKIP
     {"NET.STA.LOC.CHAN": {"latitude": 0.0, "longitude": 0.0}, ...}
     """
     client = obspy.arclink.Client(user=arclink_user)
@@ -92,7 +92,7 @@ def _get_iris_availability(min_lat, max_lat, min_lng, max_lng, starttime,
         a dictionary, containing latitude and longitude.
 
     >>> print _get_iris_availability(-10, 10, -10, 10, UTCDateTime() - 1E6,
-    ...     UTCDateTime())
+    ...     UTCDateTime()) # doctest:+SKIP
     {"NET.STA.LOC.CHAN": {"latitude": 0.0, "longitude": 0.0}, ...}
     """
     available_channels = {}
@@ -219,7 +219,7 @@ def get_availability(min_lat, max_lat, min_lng, max_lng, starttime, endtime,
         a dictionary, containing latitude and longitude.
 
     >>> print _get_iris_availability(-10, 10, -10, 10, UTCDateTime() - 1E6,
-    ...     UTCDateTime())
+    ...     UTCDateTime()) # doctest:+SKIP
     {"NET.STA.LOC.CHAN": {"latitude": 0.0, "longitude": 0.0}, ...}
     """
     class IrisAvailabilityThread(threading.Thread):
