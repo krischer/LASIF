@@ -62,7 +62,7 @@ def recursive_dict(element):
         dict(map(recursive_dict, element)) or element.text
 
 
-def generate_ses3d_4_0_template(tau_p, w_p):
+def generate_ses3d_4_0_template(w_p, tau_p):
     """
     Generates a template for SES3D input files.
 

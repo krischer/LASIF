@@ -18,6 +18,7 @@ mpl.use("agg")
 
 import copy
 import glob
+import mock
 import obspy
 import os
 import pytest
@@ -747,6 +748,21 @@ def test_iteration_status(project):
     # HL.ARG has been remove before.
     assert sorted(status["synthetic_data_missing"][event]) == \
         ["HT.SIGR", "KO.KULA", "KO.RSDY"]
+
+
+def test_Q_model_plotting(project):
+    """
+    Tests the Q model plotting.
+    """
+    project.create_new_iteration("1", "ses3d_4_0", 11, 111)
+    with mock.patch("lasif.tools.Q_discrete.plot") as patch:
+        project.plot_Q_model("1")
+        patch.assert_called_once()
+        kwargs = patch.call_args[1]
+
+    assert round(kwargs["f_min"] - 1.0 / 111.0, 5) == 0
+    assert round(kwargs["f_max"] - 1.0 / 11.0, 5) == 0
+    assert kwargs["show_plot"] is True
 
 
 def test_get_debug_information_for_file(project):

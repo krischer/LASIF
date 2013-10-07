@@ -378,7 +378,8 @@ class Project(object):
         tau_p = relax["tau"]
         weights = relax["w"]
 
-        plot(tau_p, weights, f_min=f_min, f_max=f_max, show_plot=show_plot)
+        plot(D_p=weights, tau_p=tau_p, f_min=f_min, f_max=f_max,
+             show_plot=show_plot)
 
     def get_kernel_dir(self, iteration_name, event_name):
         return os.path.join(self.paths["kernels"], event_name, self.
