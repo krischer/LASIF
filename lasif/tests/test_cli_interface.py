@@ -264,7 +264,7 @@ def test_iteration_creation_and_stf_plotting(cli):
     """
     Tests the generation of an iteration and the supsequent STF plotting.
     """
-    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
     assert "1" in cli.project.get_iteration_dict().keys()
 
     with mock.patch("lasif.visualization.plot_tf") as patch:
@@ -356,7 +356,7 @@ def test_preprocessing_and_launch_misfit_gui(cli):
     together because the former is required by the later and takes a rather
     long time.
     """
-    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
 
     processing_tag = cli.project._get_iteration("1").get_processing_tag()
     preprocessing_data = os.path.join(
@@ -384,7 +384,7 @@ def test_iteration_info(cli):
     """
     Tests the 'lasif iteration_info' command.
     """
-    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
 
     out = cli.run("lasif iteration_info 1").stdout
     assert "LASIF Iteration" in out
@@ -430,7 +430,7 @@ def test_iteration_status_command(cli):
     returns the number of already preprocessed data files, how many synthetics
     are available, the windows and adjoint sources.
     """
-    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
     out = cli.run("lasif iteration_status 1").stdout
     assert out == (
         "Iteration Name: 1\n"
@@ -460,7 +460,7 @@ def test_iteration_status_command(cli):
     # The iteration has to be recreated.
     os.remove(os.path.join(cli.project.paths["iterations"],
                            "ITERATION_1.xml"))
-    cli.run("lasif create_new_iteration 1 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
     out = cli.run("lasif iteration_status 1").stdout
     assert out == (
         "Iteration Name: 1\n"

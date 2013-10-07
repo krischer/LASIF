@@ -344,7 +344,7 @@ def test_generating_new_iteration(project):
 
     # Using an invalid solver raises.
     with pytest.raises(LASIFException) as excinfo:
-        project.create_new_iteration("1", "unknown_solver")
+        project.create_new_iteration("1", "unknown_solver", 8, 100)
     msg = excinfo.value.message
     assert "not known" in msg
     assert "unknown_solver" in msg
@@ -353,12 +353,12 @@ def test_generating_new_iteration(project):
     assert os.listdir(project.paths["iterations"]) == []
 
     # Now actually create a new iteration.
-    project.create_new_iteration("1", "ses3d_4_0")
+    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
     assert os.listdir(project.paths["iterations"]) == ["ITERATION_1.xml"]
 
     # Creating an already existing iteration raises.
     with pytest.raises(LASIFException) as excinfo:
-        project.create_new_iteration("1", "ses3d_4_0")
+        project.create_new_iteration("1", "ses3d_4_0", 8, 100)
     assert excinfo.value.message.lower() == "iteration already exists."
 
 
@@ -367,8 +367,8 @@ def test_iteration_handling(project):
     Tests the managing of the iterations.
     """
     # First create two iterations.
-    project.create_new_iteration("1", "ses3d_4_0")
-    project.create_new_iteration("2", "ses3d_4_0")
+    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("2", "ses3d_4_0", 8, 100)
     assert sorted(os.listdir(project.paths["iterations"])) == \
         sorted(["ITERATION_1.xml", "ITERATION_2.xml"])
 
@@ -408,7 +408,7 @@ def test_preprocessing_runs(project):
     does the right thing but will at least assure the program flow works as
     expected.
     """
-    project.create_new_iteration("1", "ses3d_4_0")
+    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
     processing_tag = project._get_iteration("1").get_processing_tag()
     event_data_dir = os.path.join(
         project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
@@ -480,7 +480,7 @@ def test_input_file_invocation(project):
     generator module.
     """
     assert os.listdir(project.paths["output"]) == []
-    project.create_new_iteration("1", "ses3d_4_0")
+    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
 
     # Normal simulation.
     project.generate_input_files(
@@ -597,7 +597,7 @@ def test_data_synthetic_iterator(project, recwarn):
     Tests that the data synthetic iterator works as expected.
     """
     # It requires an existing iteration with processed data.
-    project.create_new_iteration("1", "ses3d_4_0")
+    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
     project.preprocess_data("1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
                             waiting_time=0.0)
     iterator = project.data_synthetic_iterator(
@@ -697,7 +697,7 @@ def test_iteration_status(project):
     """
     Tests the iteration status commands.
     """
-    project.create_new_iteration("1", "ses3d_4_0")
+    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
     event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
 
     # Currenty the project has 4 files, that are not preprocessed.
