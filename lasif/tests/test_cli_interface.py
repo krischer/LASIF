@@ -471,6 +471,21 @@ def test_iteration_status_command(cli):
         "\t\tGCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 (for 4 stations)\n")
 
 
+def test_Q_model_plotting(cli):
+    """
+    Tests the Q model plotting via mocking.
+    """
+    cli.run("lasif create_new_iteration 1 7.0 70.0 SES3D_4_0")
+    with mock.patch("lasif.tools.Q_discrete.plot") as patch:
+        cli.run("lasif plot_Q_model 1")
+        patch.assert_called_once()
+        kwargs = patch.call_args[1]
+
+    assert round(kwargs["f_min"] - 1.0 / 70.0, 5) == 0
+    assert round(kwargs["f_max"] - 1.0 / 7.0, 5) == 0
+    assert kwargs["show_plot"] is True
+
+
 def test_debug_information(cli):
     """
     Tests the debugging information.
