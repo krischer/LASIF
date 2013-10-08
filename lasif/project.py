@@ -190,9 +190,32 @@ class Project(object):
         ret_str += "\t\t%i synthetic waveform files\n" % \
             synthetic_data_file_count
 
-        ret_str += "\tTotal project size: %s" % sizeof_fmt(project_filesize)
+        ret_str += "\tTotal project size: %s\n\n" % \
+            sizeof_fmt(project_filesize)
 
-        return ret_str
+        # Add information about the domain.
+        domain = {}
+        domain.update(self.domain["bounds"])
+        domain["latitude_extend"] = \
+            domain["maximum_latitude"] - domain["minimum_latitude"]
+        domain["latitude_extend_in_km"] = domain["latitude_extend"] * 111.32
+        domain["longitude_extend"] = \
+            domain["maximum_longitude"] - domain["minimum_longitude"]
+        domain["longitude_extend_in_km"] = domain["longitude_extend"] * 111.32
+        domain["depth_extend_in_km"] = \
+            domain["maximum_depth_in_km"] - domain["minimum_depth_in_km"]
+        ret_str += (
+            u"\tLatitude: {minimum_latitude:.2f}° - {maximum_latitude:.2f}°"
+            u" (total of {latitude_extend:.2f}° "
+            u"≅ {latitude_extend_in_km} km)\n"
+            u"\tLongitude: {minimum_longitude:.2f}° - {maximum_longitude:.2f}°"
+            u" (total of {longitude_extend:.2f}° "
+            u"≅ {longitude_extend_in_km} km)\n"
+            u"\tDepth: {minimum_depth_in_km}km - {maximum_depth_in_km}km"
+            u" (total of {depth_extend_in_km}km)\n")\
+            .format(**domain)
+
+        return ret_str.encode("utf-8")
 
     def get_station_filename(self, network, station, location, channel,
                              file_format):
