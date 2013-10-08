@@ -790,6 +790,7 @@ def lasif_validate_data(parser, args):
     proj.validate_data(full_check=full_check)
 
 
+@command_group("Iteration Management")
 def lasif_iteration_status(parser, args):
     """
     Query the current status of an iteration.
