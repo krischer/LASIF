@@ -215,6 +215,15 @@ class Project(object):
             u" (total of {depth_extend_in_km}km)\n")\
             .format(**domain)
 
+        # Add information about rotation axis.
+        if self.domain["rotation_angle"]:
+            a = self.domain["rotation_axis"]
+            ret_str += \
+                u"\tDomain rotated around axis %.1f/%.1f/%.1f for %.2f°" \
+                % (a[0], a[1], a[2], self.domain["rotation_angle"])
+        else:
+            ret_str += "\tDomain is not rotated."
+
         return ret_str.encode("utf-8")
 
     def get_station_filename(self, network, station, location, channel,
