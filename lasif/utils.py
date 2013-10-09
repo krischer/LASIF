@@ -75,7 +75,7 @@ def generate_ses3d_4_0_template(w_p, tau_p):
         E.simulation_parameters(
             E.number_of_time_steps("500"),
             E.time_increment("0.75"),
-            E.is_dissipative("false")),
+            E.is_dissipative("true")),
         E.output_directory("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
         E.adjoint_output_parameters(
             E.sampling_rate_of_forward_field("10"),
