@@ -872,8 +872,10 @@ class Project(object):
             raise ValueError(msg)
         gen.config.is_dissipative = diss
 
-        gen.config.tau = solver["relaxation_parameter_list"]["tau"]
-        gen.config.w = solver["relaxation_parameter_list"]["w"]
+        gen.config.Q_model_relaxation_times = \
+            solver["relaxation_parameter_list"]["tau"]
+        gen.config.Q_model_weights_of_relaxation_mechanisms = \
+            solver["relaxation_parameter_list"]["w"]
 
         # Discretization
         disc = solver["computational_setup"]
