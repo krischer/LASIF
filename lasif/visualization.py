@@ -119,7 +119,7 @@ __pick_state = {
 }
 
 
-def pick_handler(event):
+def _pick_handler(event):
     """
     File global pick handler. Called for every pick event in the file.
     """
@@ -137,6 +137,16 @@ def pick_handler(event):
         zorder=10E9, fontsize="small")
     __pick_state["event_annotations"].append(annotation)
     plt.gcf().canvas.draw()
+
+
+def _set_global_pick_handler():
+    """
+    Sets the global pick handler if not yet set.
+    """
+    canvas = plt.gcf().canvas
+    if "pick_event" in canvas.callbacks.callbacks:
+        return
+    canvas.mpl_connect("pick_event", _pick_handler)
 
 
 def plot_events(events, map_object):
@@ -167,8 +177,7 @@ def plot_events(events, map_object):
 
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
-
-    plt.gcf().canvas.mpl_connect("pick_event", pick_handler)
+    _set_global_pick_handler()
 
 
 def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
