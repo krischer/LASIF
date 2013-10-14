@@ -149,7 +149,7 @@ def preprocess_file(file_info):
     #==========================================================================
     tr.detrend("demean")
     tr.detrend("linear")
-    tr.taper()
+    tr.taper(0.05, type="hann")
 
     #==========================================================================
     # Step 2: Decimation
@@ -216,7 +216,7 @@ def preprocess_file(file_info):
     #==========================================================================
     # Apply one more taper to avoid high frequency contributions from sudden
     # steps at the beginning/end if padded with zeros.
-    tr.taper()
+    tr.taper(0.05, type="hann")
     # Make sure that the data array is at least as long as the
     # synthetics array. Also add some buffer sample for the
     # spline interpolation to work in any case.

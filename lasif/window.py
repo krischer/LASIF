@@ -178,7 +178,7 @@ class Window(object):
             options[WINDOWS[self.window_type][option]["obspy_name"]] = value
 
         trace.trim(window_starttime, window_endtime)
-        trace.taper(self.window_type, **options)
+        trace.taper(0.05, type=self.window_type, **options)
         trace.trim(starttime, endtime, pad=True, fill_value=0.0)
 
 

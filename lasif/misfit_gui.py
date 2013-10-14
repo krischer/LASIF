@@ -629,14 +629,16 @@ class MisfitGUI:
         #- data
         data_trimmed = data.copy()
         data_trimmed.trim(starttime, endtime)
-        data_trimmed.taper(type='cosine', p=taper_percentage)
+        data_trimmed.taper(type='cosine',
+                           max_percentage=0.5 * taper_percentage)
         data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True,
                           fill_value=0.0)
 
         #- synthetics
         synth_trimmed = synth.copy()
         synth_trimmed.trim(starttime, endtime)
-        synth_trimmed.taper(type='cosine', p=taper_percentage)
+        synth_trimmed.taper(type='cosine',
+                            max_percentage=0.5 * taper_percentage)
         synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime,
                            pad=True, fill_value=0.0)
 
