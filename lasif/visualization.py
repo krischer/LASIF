@@ -125,6 +125,19 @@ def _pick_handler(event):
     """
     File global pick handler. Called for every pick event in the file.
     """
+    if hasattr(event.artist, "detailed_event_description"):
+        __pick_handler_event_annotation(event)
+    elif hasattr(event.artist, "_station_scatter"):
+        __pick_handler_station_scatter(event)
+    else:
+        return
+    plt.gcf().canvas.draw()
+
+
+def __pick_handler_event_annotation(event):
+    """
+    Pick handler for the event annotation.
+    """
     # Remove any potentially existing annotations.
     for i in __pick_state["event_annotations"]:
         i.remove()
@@ -132,12 +145,11 @@ def _pick_handler(event):
 
     if __pick_state["current_event_annotation_artist"] is event.artist:
         __pick_state["current_event_annotation_artist"] = None
-        plt.gcf().canvas.draw()
         return
 
     x, y = event.mouseevent.xdata, event.mouseevent.ydata
     annotation = plt.annotate(
-        event.artist.detailed_description,
+        event.artist.detailed_event_description,
         xy=(x, y), xytext=(0.98, 0.98), textcoords="figure fraction",
         horizontalalignment="right", verticalalignment="top",
         arrowprops=dict(arrowstyle="fancy", color="0.5",
@@ -145,7 +157,11 @@ def _pick_handler(event):
         zorder=10E9, fontsize="small")
     __pick_state["event_annotations"].append(annotation)
     __pick_state["current_event_annotation_artist"] = event.artist
-    plt.gcf().canvas.draw()
+
+
+def __pick_handler_station_scatter(event):
+    idx = event.ind[0]
+    print event.artist._station_scatter[idx]
 
 
 def _set_global_pick_handler():
@@ -176,7 +192,7 @@ def plot_events(events, map_object):
                      map_object.ymax - map_object.ymin)) * 0.020
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_picker(True)
-        b.detailed_description = (
+        b.detailed_event_description = (
             "Event %.1f %s\n"
             "Lat: %.1f, Lng: %.1f, Depth: %.1f km\n"
             "Time: %s\n"
@@ -343,17 +359,24 @@ def plot_stations_for_event(map_object, station_dict, event_info):
     :param station_dict: A dictionary whose values at least contain latitude
         and longitude keys.
     """
-    # Plot the stations with scatter.
-    lngs = [_i["longitude"] for _i in station_dict.itervalues()]
-    lats = [_i["latitude"] for _i in station_dict.itervalues()]
+    # Loop as dicts are unordered.
+    lngs = []
+    lats = []
+    station_names = []
+    for key, value in station_dict.iteritems():
+        lngs.append(value["longitude"])
+        lats.append(value["latitude"])
+        station_names.append(key)
+
     x, y = map_object(lngs, lats)
 
     stations = map_object.scatter(x, y, color="green", s=35, marker="v",
-                                  zorder=100, edgecolor="black")
+                                  zorder=100, edgecolor="black", picker=1.0)
     # Setting the picker overwrites the edgecolor attribute on certain
     # matplotlib and basemap versions. Fix it here.
     stations._edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]])
     stations._edgecolors_original = "black"
+    stations._station_scatter = station_names
 
     # Plot the ray paths.
     for sta_lng, sta_lat in izip(lngs, lats):
