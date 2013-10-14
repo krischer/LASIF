@@ -604,10 +604,41 @@ class Project(object):
             self.get_event(event)
         return self._seismic_events.values()
 
+    def plot_station(self, station_name, event_name, show_plot=True):
+        """
+        Plots data for a single station and event.
+        """
+        import obspy
+
+        all_events = self.get_event_dict()
+        if event_name not in all_events:
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+        stations = self.get_stations_for_event(event_name)
+
+        if station_name not in stations:
+            msg = "Station '%s' not available for the given event." \
+                % station_name
+            raise ValueError(msg)
+
+        waveforms = self._get_waveform_cache_file(event_name, "raw")
+        files = [_i["filename"] for _i in waveforms.get_values()
+                 if "%s.%s" % (_i["network"], _i["station"]) == station_name]
+
+        st = obspy.Stream()
+        for filename in files:
+            st += obspy.read(filename)
+        st.plot()
+
     def plot_event(self, event_name, show_plot=True):
         """
         Plots information about one event on the map.
         """
+        all_events = self.get_event_dict()
+        if event_name not in all_events:
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+
         from lasif import visualization
         import matplotlib.pyplot as plt
 
@@ -620,11 +651,6 @@ class Project(object):
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=False, show_plot=False, zoom=True)
-
-        all_events = self.get_event_dict()
-        if event_name not in all_events:
-            msg = "Event '%s' not found in project." % event_name
-            raise ValueError(msg)
 
         event = self.get_event(event_name)
         event_info = self.get_event_info(event_name)
