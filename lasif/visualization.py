@@ -352,6 +352,149 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     map_object.drawparallels(np.arange(-90, 90, 30))
 
 
+def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
+                          show_plot=True):
+    """
+    """
+    from matplotlib.widgets import CheckButtons
+    from obspy import read
+    import textwrap
+
+
+    fig = plt.figure(figsize=(14, 9))
+
+    z_axis = fig.add_axes([0.25, 0.65, 0.74, 0.3])
+    z_axis.set_xticklabels([])
+    n_axis = fig.add_axes([0.25, 0.35, 0.74, 0.3])
+    n_axis.set_xticklabels([])
+    e_axis = fig.add_axes([0.25, 0.05, 0.74, 0.3])
+
+    raw_check_axes = fig.add_axes([0.02, 0.85, 0.2, 0.1])
+    proc_check_axes = fig.add_axes([0.02, 0.6, 0.2, 0.2])
+    synth_check_axes = fig.add_axes([0.02, 0.05, 0.2, 0.5])
+
+    raw_check = CheckButtons(raw_check_axes, ["raw"], [False])
+    proc_check = CheckButtons(proc_check_axes, [
+        "\n".join(textwrap.wrap(_i, width=20))
+        for _i in processed_files.keys()],
+        [False] * len(processed_files))
+    synth_check = CheckButtons(synth_check_axes, synthetic_files.keys(),
+                               [False] * len(synthetic_files))
+
+    SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
+
+    def plot(plot_type, filename, save_at):
+        tr = read(filename)[0]
+        tr.data = np.require(tr.data, dtype="float32")
+        tr.data -= tr.data.min()
+        tr.data /= tr.data.max()
+        tr.data -= tr.data.mean()
+        tr.data /= np.abs(tr.data).max() * 1.1
+
+        component = tr.stats.channel[-1].upper()
+        if component in SYNTH_MAPPING:
+            component = SYNTH_MAPPING[component]
+
+        if plot_type == "synthetic" and component in ["X", "Z"]:
+            tr.data *= -1
+
+        if component == "N":
+            axis = n_axis
+        elif component == "E":
+            axis = e_axis
+        elif component == "Z":
+            axis = z_axis
+        else:
+            raise NotImplementedError
+
+        if plot_type == "synthetic":
+            start = event["origin_time"].timestamp
+            time_axis = np.linspace(
+                start, start + tr.stats.delta * (tr.stats.npts - 1),
+                tr.stats.npts)
+            zorder = 2
+            color = "red"
+        elif plot_type == "raw":
+            time_axis = np.linspace(
+                tr.stats.starttime.timestamp, tr.stats.endtime.timestamp,
+                tr.stats.npts)
+            zorder = 0
+            color = "0.8"
+        elif plot_type == "processed":
+            time_axis = np.linspace(
+                tr.stats.starttime.timestamp, tr.stats.endtime.timestamp,
+                tr.stats.npts)
+            zorder = 1
+            color = "0.2"
+        else:
+            msg = "Plot type '%s' not known" % plot_type
+            raise ValueError(msg)
+
+        save_at.append(axis.plot(time_axis, tr.data, color=color,
+                       zorder=zorder))
+        axis.set_ylim(-1.0, 1.0)
+
+    def _checked_raw(label):
+        checked(label, "raw")
+
+    def _checked_proc(label):
+        checked(label, "proc")
+
+    def _checked_synth(label):
+        checked(label, "synth")
+
+    PLOT_OBJECTS = {
+        "raw": None,
+        "synthetics": {},
+        "processed": {}
+    }
+
+    def checked(label, check_box):
+        if check_box == "raw":
+            if PLOT_OBJECTS["raw"] is not None:
+                for _i in PLOT_OBJECTS["raw"]:
+                    for _j in _i:
+                        _j.remove()
+                PLOT_OBJECTS["raw"] = None
+            else:
+                PLOT_OBJECTS["raw"] = []
+                for filename in raw_files:
+                    plot("raw", filename, PLOT_OBJECTS["raw"])
+        elif check_box == "synth":
+            if label in PLOT_OBJECTS["synthetics"]:
+                for _i in PLOT_OBJECTS["synthetics"][label]:
+                    for _j in _i:
+                        _j.remove()
+                del PLOT_OBJECTS["synthetics"][label]
+            else:
+                PLOT_OBJECTS["synthetics"][label] = []
+                for filename in synthetic_files[label]:
+                    plot("synthetic", filename,
+                         PLOT_OBJECTS["synthetics"][label])
+        elif check_box == "proc":
+            # Previously broken up.
+            label = label.replace("\n", "")
+            if label in PLOT_OBJECTS["processed"]:
+                for _i in PLOT_OBJECTS["processed"][label]:
+                    for _j in _i:
+                        _j.remove()
+                del PLOT_OBJECTS["processed"][label]
+            else:
+                PLOT_OBJECTS["processed"][label] = []
+                for filename in processed_files[label]:
+                    plot("processed", filename,
+                         PLOT_OBJECTS["processed"][label])
+
+        fig.canvas.draw()
+
+    raw_check.on_clicked(_checked_raw)
+    proc_check.on_clicked(_checked_proc)
+    synth_check.on_clicked(_checked_synth)
+
+    fig.canvas.draw()
+
+    plt.show()
+
 def plot_stations_for_event(map_object, station_dict, event_info):
     """
     Plots all stations for one event.

@@ -608,6 +608,7 @@ class Project(object):
         """
         Plots data for a single station and event.
         """
+        from lasif.visualization import plot_data_for_station
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
@@ -649,8 +650,11 @@ class Project(object):
                 continue
             all_files["synthetics"][iteration_name] = synthetic_files.values()
 
-        import pprint
-        pprint.pprint(all_files)
+        plot_data_for_station(raw_files=all_files["raw"],
+                              processed_files=all_files["processed"],
+                              synthetic_files=all_files["synthetics"],
+                              event=self.get_event_info(event_name),
+                              show_plot=show_plot)
 
     def plot_event(self, event_name, show_plot=True):
         """
