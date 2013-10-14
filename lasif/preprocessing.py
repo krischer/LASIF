@@ -140,8 +140,8 @@ def preprocess_file(file_info):
         return True
 
     # No nans or infinity values allowed.
-    if np.isfinite(tr.data).any():
-        log("File '%s' contains NaN. Skipped.") % file_info["data_path"]
+    if not np.isfinite(tr.data).all():
+        log("File '%s' contains NaN. Skipped." % file_info["data_path"])
         return True
 
     #==========================================================================
