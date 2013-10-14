@@ -112,25 +112,36 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
     return m
 
 
+# File global pick state handler. Used to handle the different pick events.
+__pick_state = {
+    # Any possible existing event_annotations.
+    "event_annotations": []
+}
+
+
+def pick_handler(event):
+    """
+    File global pick handler. Called for every pick event in the file.
+    """
+    # Remove any potentially existing annotations.
+    for i in __pick_state["event_annotations"]:
+        i.remove()
+    __pick_state["event_annotations"][:] = []
+    x, y = event.mouseevent.xdata, event.mouseevent.ydata
+    annotation = plt.annotate(
+        event.artist.detailed_description,
+        xy=(x, y), xytext=(0.98, 0.98), textcoords="figure fraction",
+        horizontalalignment="right", verticalalignment="top",
+        arrowprops=dict(arrowstyle="fancy", color="0.5",
+                        connectionstyle="arc3,rad=0.3"),
+        zorder=10E9, fontsize="small")
+    __pick_state["event_annotations"].append(annotation)
+    plt.gcf().canvas.draw()
+
+
 def plot_events(events, map_object):
     """
     """
-    def event_pick_handler(event, annotations=[]):
-        # Remove any potentially existing annotations.
-        for i in annotations:
-            i.remove()
-        annotations[:] = []
-        x, y = event.mouseevent.xdata, event.mouseevent.ydata
-        annotation = plt.annotate(
-            event.artist.detailed_description,
-            xy=(x, y), xytext=(0.98, 0.98), textcoords="figure fraction",
-            horizontalalignment="right", verticalalignment="top",
-            arrowprops=dict(arrowstyle="fancy", color="0.5",
-                            connectionstyle="arc3,rad=0.3"),
-            zorder=10E9, fontsize="small")
-        annotations.append(annotation)
-        plt.gcf().canvas.draw()
-
     for event in events:
         org = event.preferred_origin() or event.origins[0]
         mag = event.preferred_magnitude() or event.magnitudes[0]
@@ -157,7 +168,7 @@ def plot_events(events, map_object):
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
 
-    plt.gcf().canvas.mpl_connect("pick_event", event_pick_handler)
+    plt.gcf().canvas.mpl_connect("pick_event", pick_handler)
 
 
 def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
