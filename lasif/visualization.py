@@ -115,7 +115,9 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
 # File global pick state handler. Used to handle the different pick events.
 __pick_state = {
     # Any possible existing event_annotations.
-    "event_annotations": []
+    "event_annotations": [],
+    # The currently annotated event if any.
+    "current_event_annotation_artist": None
 }
 
 
@@ -127,6 +129,12 @@ def _pick_handler(event):
     for i in __pick_state["event_annotations"]:
         i.remove()
     __pick_state["event_annotations"][:] = []
+
+    if __pick_state["current_event_annotation_artist"] is event.artist:
+        __pick_state["current_event_annotation_artist"] = None
+        plt.gcf().canvas.draw()
+        return
+
     x, y = event.mouseevent.xdata, event.mouseevent.ydata
     annotation = plt.annotate(
         event.artist.detailed_description,
@@ -136,6 +144,7 @@ def _pick_handler(event):
                         connectionstyle="arc3,rad=0.3"),
         zorder=10E9, fontsize="small")
     __pick_state["event_annotations"].append(annotation)
+    __pick_state["current_event_annotation_artist"] = event.artist
     plt.gcf().canvas.draw()
 
 
