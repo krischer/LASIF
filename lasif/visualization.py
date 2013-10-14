@@ -318,8 +318,13 @@ def plot_stations_for_event(map_object, station_dict, event_info):
     lngs = [_i["longitude"] for _i in station_dict.itervalues()]
     lats = [_i["latitude"] for _i in station_dict.itervalues()]
     x, y = map_object(lngs, lats)
-    map_object.scatter(x, y, color="green", s=35, marker="v", zorder=100,
-                       edgecolor="black")
+
+    stations = map_object.scatter(x, y, color="green", s=35, marker="v",
+                                  zorder=100, edgecolor="black")
+    # Setting the picker overwrites the edgecolor attribute on certain
+    # matplotlib and basemap versions. Fix it here.
+    stations._edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]])
+    stations._edgecolors_original = "black"
 
     # Plot the ray paths.
     for sta_lng, sta_lat in izip(lngs, lats):
