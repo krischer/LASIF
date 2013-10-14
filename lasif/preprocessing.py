@@ -98,9 +98,12 @@ def preprocess_file(file_info):
     #==========================================================================
     fid_log = open(file_info["logfile_name"], 'a')
 
-    def log(msg):
+    def log(msg, warn=False):
         fid_log.write(msg + "\n")
-        warnings.warn(msg)
+        if warn:
+            warnings.warn(msg)
+        else:
+            sys.stdout.write(msg + "\n")
         sys.stdout.flush()
 
     #==========================================================================
@@ -122,7 +125,7 @@ def preprocess_file(file_info):
 
     if len(st) != 1:
         log("File '%s' has %i traces and not 1. Skip all but the first" % (
-            file_info["data_path"], len(st)))
+            file_info["data_path"], len(st)), warn=True)
     tr = st[0]
 
     # Trim with a short buffer in an attempt to avoid boundary effects.
@@ -136,12 +139,13 @@ def preprocess_file(file_info):
     # Non-zero length
     if not len(tr):
         log("No data contained in time window around the event. "
-            "Skipped.\n")
+            "Skipped.\n", warn=True)
         return True
 
     # No nans or infinity values allowed.
     if not np.isfinite(tr.data).all():
-        log("File '%s' contains NaN. Skipped." % file_info["data_path"])
+        log("File '%s' contains NaN. Skipped." % file_info["data_path"],
+            warn=True)
         return True
 
     #==========================================================================
@@ -181,7 +185,7 @@ def preprocess_file(file_info):
     #- check if the station file actually exists ==============================
     if not file_info["station_filename"]:
         log("* Could not find station file for the relevant time "
-            "window. Skipped,\n")
+            "window. Skipped,\n", warn=True)
         return True
 
     #- processing for seed files ==============================================
@@ -195,7 +199,8 @@ def preprocess_file(file_info):
         except ValueError:
             log(("File '%s' could not be corrected with the help of the "
                  "SEED file '%s'. Will be skipped.") %
-                (file_info["data_path"], file_info["station_filename"]))
+                (file_info["data_path"], file_info["station_filename"]),
+                warn=True)
             return True
 
     #- processing with seed files =============================================
@@ -206,7 +211,8 @@ def preprocess_file(file_info):
         except ValueError:
             log(("File '%s' could not be corrected with the help of the "
                  "RESP file '%s'. Will be skipped.") %
-                (file_info["data_path"], file_info["station_filename"]))
+                (file_info["data_path"], file_info["station_filename"]),
+                warn=True)
             return True
     else:
         raise NotImplementedError
