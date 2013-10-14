@@ -356,18 +356,24 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
                           show_plot=True):
     """
     """
+    import datetime
+    import matplotlib.dates
     from matplotlib.widgets import CheckButtons
     from obspy import read
     import textwrap
 
-
     fig = plt.figure(figsize=(14, 9))
 
-    z_axis = fig.add_axes([0.25, 0.65, 0.74, 0.3])
+    z_axis = fig.add_axes([0.25, 0.65, 0.70, 0.3])
+    n_axis = fig.add_axes([0.25, 0.35, 0.70, 0.3], sharex=z_axis,
+                          sharey=z_axis)
+    e_axis = fig.add_axes([0.25, 0.05, 0.70, 0.3], sharex=z_axis,
+                          sharey=z_axis)
     z_axis.set_xticklabels([])
-    n_axis = fig.add_axes([0.25, 0.35, 0.74, 0.3])
+    z_axis.set_yticklabels([])
+    e_axis.set_yticklabels([])
     n_axis.set_xticklabels([])
-    e_axis = fig.add_axes([0.25, 0.05, 0.74, 0.3])
+    n_axis.set_yticklabels([])
 
     raw_check_axes = fig.add_axes([0.02, 0.85, 0.2, 0.1])
     proc_check_axes = fig.add_axes([0.02, 0.6, 0.2, 0.2])
@@ -408,31 +414,49 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
             raise NotImplementedError
 
         if plot_type == "synthetic":
-            start = event["origin_time"].timestamp
-            time_axis = np.linspace(
-                start, start + tr.stats.delta * (tr.stats.npts - 1),
-                tr.stats.npts)
+            time_axis = matplotlib.dates.drange(
+                event["origin_time"].datetime,
+                (event["origin_time"] + tr.stats.delta * (tr.stats.npts))
+                .datetime,
+                datetime.timedelta(seconds=tr.stats.delta))
             zorder = 2
             color = "red"
         elif plot_type == "raw":
-            time_axis = np.linspace(
-                tr.stats.starttime.timestamp, tr.stats.endtime.timestamp,
-                tr.stats.npts)
+            time_axis = matplotlib.dates.drange(
+                tr.stats.starttime.datetime,
+                (tr.stats.endtime + tr.stats.delta).datetime,
+                datetime.timedelta(seconds=tr.stats.delta))
             zorder = 0
             color = "0.8"
         elif plot_type == "processed":
-            time_axis = np.linspace(
-                tr.stats.starttime.timestamp, tr.stats.endtime.timestamp,
-                tr.stats.npts)
+            time_axis = matplotlib.dates.drange(
+                tr.stats.starttime.datetime,
+                (tr.stats.endtime + tr.stats.delta).datetime,
+                datetime.timedelta(seconds=tr.stats.delta))
             zorder = 1
             color = "0.2"
         else:
             msg = "Plot type '%s' not known" % plot_type
             raise ValueError(msg)
 
-        save_at.append(axis.plot(time_axis, tr.data, color=color,
-                       zorder=zorder))
+        save_at.append(axis.plot_date(time_axis[:len(tr.data)], tr.data,
+                       color=color, zorder=zorder, marker="", linestyle="-"))
         axis.set_ylim(-1.0, 1.0)
+        axis.xaxis.set_major_formatter(
+            matplotlib.dates.DateFormatter("%H:%M:%S"))
+        z_axis.set_xticklabels([])
+        z_axis.set_yticklabels([])
+        e_axis.set_yticklabels([])
+        n_axis.set_xticklabels([])
+        n_axis.set_yticklabels([])
+
+        n_axis.grid(b=True)
+        e_axis.grid(b=True)
+        z_axis.grid(b=True)
+
+        n_axis.autoscale(enable=True)
+        e_axis.autoscale(enable=True)
+        z_axis.autoscale(enable=True)
 
     def _checked_raw(label):
         checked(label, "raw")
@@ -494,6 +518,7 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
     fig.canvas.draw()
 
     plt.show()
+
 
 def plot_stations_for_event(map_object, station_dict, event_info):
     """
