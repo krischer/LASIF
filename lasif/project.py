@@ -608,8 +608,6 @@ class Project(object):
         """
         Plots data for a single station and event.
         """
-        import obspy
-
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
@@ -621,14 +619,38 @@ class Project(object):
                 % station_name
             raise ValueError(msg)
 
-        waveforms = self._get_waveform_cache_file(event_name, "raw")
-        files = [_i["filename"] for _i in waveforms.get_values()
-                 if "%s.%s" % (_i["network"], _i["station"]) == station_name]
+        # Collect all files for the given event.
+        all_files = {
+            "raw": [],
+            "processed": {},
+            "synthetics": {}}
 
-        st = obspy.Stream()
-        for filename in files:
-            st += obspy.read(filename)
-        st.plot()
+        # Now loop over all raw and processed files and get the corresponding
+        # filenames.
+        data_dir = os.path.join(self.paths["data"], event_name)
+        for tag in os.listdir(data_dir):
+            if tag.endswith("_cache.sqlite"):
+                continue
+            waveforms = self._get_waveform_cache_file(event_name, tag)
+            files = [_i["filename"] for _i in waveforms.get_values() if
+                     "%s.%s" % (_i["network"], _i["station"]) == station_name]
+            if not files:
+                continue
+            if tag == "raw":
+                all_files["raw"].extend(files)
+            else:
+                all_files["processed"][tag] = files
+
+        iterations = self.get_iteration_dict().keys()
+        for iteration_name in iterations:
+            synthetic_files = self._get_synthetic_waveform_filenames(
+                event_name, iteration_name)[station_name]
+            if not synthetic_files:
+                continue
+            all_files["synthetics"][iteration_name] = synthetic_files.values()
+
+        import pprint
+        pprint.pprint(all_files)
 
     def plot_event(self, event_name, show_plot=True):
         """
