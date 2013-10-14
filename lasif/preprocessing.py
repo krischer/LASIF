@@ -93,21 +93,21 @@ def preprocess_file(file_info):
     current versions of ObsPy. It is probably a good idea to have serial I/O in
     any case, at least with a normal HDD. SSD might be a different issue.
     """
-
     #==========================================================================
     # Open logfile. Write basic info.
     #==========================================================================
-
     fid_log = open(file_info["logfile_name"], 'a')
-    fid_log.write('Processing ' + file_info["data_path"] + '\n')
+
+    def log(msg):
+        fid_log.write(msg + "\n")
+        warnings.warn(msg)
+        sys.stdout.flush()
 
     #==========================================================================
     # Read seismograms and gather basic information.
     #==========================================================================
-
-    sys.stdout.write("Processing file %i: %s\n" % (file_info["file_number"],
-                                                   file_info["data_path"]))
-    sys.stdout.flush()
+    log("Processing file %i: %s\n" % (file_info["file_number"],
+                                      file_info["data_path"]))
 
     starttime = file_info["origin_time"]
     endtime = starttime + file_info["dt"] * (file_info["npts"] - 1)
@@ -121,11 +121,8 @@ def preprocess_file(file_info):
     lock.release()
 
     if len(st) != 1:
-        fid_log.write("* File has more than one trace. "
-                      "Skip all but the first.\n")
-        msg = "File '%s' has %i traces and not 1. Will be skipped" % (
-            file_info["data_path"], len(st))
-        warnings.warn(msg)
+        log("File '%s' has %i traces and not 1. Skip all but the first" % (
+            file_info["data_path"], len(st)))
     tr = st[0]
 
     # Trim with a short buffer in an attempt to avoid boundary effects.
@@ -136,28 +133,15 @@ def preprocess_file(file_info):
     #==========================================================================
     # Some basic checks on the data.
     #==========================================================================
-
-    # non-zero length
-
-    if len(tr) == 0:
-        fid_log.write("* No data contained in time window around the event. "
-                      "Skipped.\n")
-        msg = ("No data contained in time window around the event.")
-        warnings.warn(msg)
+    # Non-zero length
+    if not len(tr):
+        log("No data contained in time window around the event. "
+            "Skipped.\n")
         return True
 
-    # infinity or nan
-
-    if True in np.isnan(tr.data):
-        fid_log.write("* File contains NaN. Skipped.\n")
-        msg = ("File '%s' contains NaN. Skipped.") % file_info["data_path"]
-        warnings.warn(msg)
-        return True
-
-    if True in np.isinf(tr.data):
-        fid_log.write("* File contains Inf. Skipped.\n")
-        msg = ("File '%s' contains inf. Skipped.") % file_info["data_path"]
-        warnings.warn(msg)
+    # No nans or infinity values allowed.
+    if np.isfinite(tr.data).any():
+        log("File '%s' contains NaN. Skipped.") % file_info["data_path"]
         return True
 
     #==========================================================================
@@ -196,11 +180,8 @@ def preprocess_file(file_info):
 
     #- check if the station file actually exists ==============================
     if not file_info["station_filename"]:
-        fid_log.write("* Could not find station file for the relevant time "
-                      "window. Skipped,\n")
-        msg = ("Could not find a station file in the relevant time window. "
-               "File will not be processed.")
-        warnings.warn(msg)
+        log("* Could not find station file for the relevant time "
+            "window. Skipped,\n")
         return True
 
     #- processing for seed files ==============================================
@@ -212,11 +193,9 @@ def preprocess_file(file_info):
         try:
             tr.simulate(paz_remove=paz)
         except ValueError:
-            fid_log.write("* Instrument correction failed. Skipped.\n")
-            msg = ("File '%s' could not be corrected with the help of the "
-                   "SEED file '%s'. Will be skipped.") % \
-                (file_info["data_path"], file_info["station_filename"])
-            warnings.warn(msg)
+            log(("File '%s' could not be corrected with the help of the "
+                 "SEED file '%s'. Will be skipped.") %
+                (file_info["data_path"], file_info["station_filename"]))
             return True
 
     #- processing with seed files =============================================
@@ -225,11 +204,9 @@ def preprocess_file(file_info):
             tr.simulate(seedresp={"filename": station_file, "units": "VEL",
                                   "date": tr.stats.starttime})
         except ValueError:
-            fid_log.write("* Instrument correction failed. Skipped.\n")
-            msg = ("File '%s' could not be corrected with the help of the "
-                   "RESP file '%s'. Will be skipped.") % \
-                (file_info["data_path"], file_info["station_filename"])
-            warnings.warn(msg)
+            log(("File '%s' could not be corrected with the help of the "
+                 "RESP file '%s'. Will be skipped.") %
+                (file_info["data_path"], file_info["station_filename"]))
             return True
     else:
         raise NotImplementedError
