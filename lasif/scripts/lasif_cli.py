@@ -696,9 +696,9 @@ def lasif_preprocess_data(parser, args):
 
     # Check if the event ids are valid.
     if events:
-        events = proj.get_event_dict().keys()
+        evs = proj.get_event_dict().keys()
         for event_name in events:
-            if event_name not in events:
+            if event_name not in evs:
                 msg = "Event '%s' not found." % event_name
                 raise LASIFCommandLineException(msg)
 
@@ -1042,7 +1042,6 @@ def main():
     except LASIFCommandLineException as e:
         print(colorama.Fore.YELLOW + ("Error: %s\n" % e.message) +
               colorama.Style.RESET_ALL)
-        fcts[fct_name](["--help"])
         sys.exit(1)
     except Exception as e:
         print(colorama.Fore.RED)

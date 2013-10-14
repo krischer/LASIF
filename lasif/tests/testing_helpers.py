@@ -83,6 +83,8 @@ def cli(project, request, capsys):
                 lasif_cli.main()
             except SystemExit:
                 pass
+        except Exception as exc:
+            raise exc
         finally:
             # Reset environment
             os.chdir(old_dir)

@@ -380,6 +380,40 @@ def test_preprocessing_and_launch_misfit_gui(cli):
         assert ad_m.__class__.__name__ == "AdjointSourceManager"
 
 
+def test_preprocessing_event_limiting_works(cli):
+    """
+    Asserts that the event parsing is correct.
+    """
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
+
+    # No event should result in None.
+    with mock.patch("lasif.project.Project.preprocess_data") as patch:
+        cli.run("lasif preprocess_data 1")
+    patch.assert_called_once()
+    patch.assert_called_once_with("1", None)
+
+    # One specified event should result in one event.
+    with mock.patch("lasif.project.Project.preprocess_data") as patch:
+        cli.run("lasif preprocess_data 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    patch.assert_called_once()
+    patch.assert_called_once_with(
+        "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"])
+
+    ## Multiple result in multiple.
+    with mock.patch("lasif.project.Project.preprocess_data") as patch:
+        cli.run("lasif preprocess_data 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
+    patch.assert_called_once()
+    patch.assert_called_once_with(
+        "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+              "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"])
+
+    out = cli.run("lasif preprocess_data 1 blub wub").stdout
+    assert "Event 'blub' not found." in out
+
+
 def test_iteration_info(cli):
     """
     Tests the 'lasif iteration_info' command.
