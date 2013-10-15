@@ -364,22 +364,26 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
 
     fig = plt.figure(figsize=(14, 9))
 
+
     z_axis = fig.add_axes([0.25, 0.65, 0.70, 0.3])
     n_axis = fig.add_axes([0.25, 0.35, 0.70, 0.3], sharex=z_axis,
                           sharey=z_axis)
     e_axis = fig.add_axes([0.25, 0.05, 0.70, 0.3], sharex=z_axis,
                           sharey=z_axis)
-    z_axis.set_xticklabels([])
-    z_axis.set_yticklabels([])
-    e_axis.set_yticklabels([])
-    n_axis.set_xticklabels([])
-    n_axis.set_yticklabels([])
+    axes = [z_axis, n_axis, e_axis]
+
+    for axis in axes:
+        plt.setp(axis.get_xticklabels(), visible=False)
+        plt.setp(axis.get_yticklabels(), visible=False)
+        axis.grid(b=True)
+        axis.autoscale(enable=True)
 
     raw_check_axes = fig.add_axes([0.02, 0.85, 0.2, 0.1])
     proc_check_axes = fig.add_axes([0.02, 0.6, 0.2, 0.2])
     synth_check_axes = fig.add_axes([0.02, 0.05, 0.2, 0.5])
 
-    raw_check = CheckButtons(raw_check_axes, ["raw"], [False])
+    # The raw data is always on. It also has to be drawn later on.
+    raw_check = CheckButtons(raw_check_axes, ["raw"], [True])
     proc_check = CheckButtons(proc_check_axes, [
         "\n".join(textwrap.wrap(_i, width=20))
         for _i in processed_files.keys()],
@@ -444,19 +448,19 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
         axis.set_ylim(-1.0, 1.0)
         axis.xaxis.set_major_formatter(
             matplotlib.dates.DateFormatter("%H:%M:%S"))
-        z_axis.set_xticklabels([])
-        z_axis.set_yticklabels([])
-        e_axis.set_yticklabels([])
-        n_axis.set_xticklabels([])
-        n_axis.set_yticklabels([])
 
-        n_axis.grid(b=True)
-        e_axis.grid(b=True)
-        z_axis.grid(b=True)
+        try:
+            plt.setp(axis.get_xticklabels(), visible=True)
+        except:
+            pass
+        if component == "E":
+            plt.setp(axis.get_yticklabels(), visible=True)
 
-        n_axis.autoscale(enable=True)
-        e_axis.autoscale(enable=True)
-        z_axis.autoscale(enable=True)
+    for label, axis in zip(("Z", "N", "E"), (z_axis, n_axis, e_axis)):
+        axis.text(0.98, 0.95, label,
+                  verticalalignment="top", horizontalalignment="right",
+                  bbox=dict(facecolor="white", alpha=0.5),
+                  transform=axis.transAxes)
 
     def _checked_raw(label):
         checked(label, "raw")
@@ -514,6 +518,9 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
     raw_check.on_clicked(_checked_raw)
     proc_check.on_clicked(_checked_proc)
     synth_check.on_clicked(_checked_synth)
+
+    # Always plot the raw data by default.
+    _checked_raw("raw")
 
     fig.canvas.draw()
 
