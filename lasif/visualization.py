@@ -397,7 +397,7 @@ def plot_data_for_station(station, raw_files, processed_files,
     proc_check_axes = fig.add_axes([0.01, 0.5, 0.28, 0.29])
 
     # The map axes
-    map_axes = fig.add_axes([0.01, 0.05, 0.28, 0.44])
+    map_axes = fig.add_axes([0.01, 0.05, 0.28, 0.40])
 
     # Fill the check box axes.
     raw_check = CheckButtons(raw_check_axes, ["raw"], [True])
