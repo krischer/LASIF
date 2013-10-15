@@ -655,7 +655,7 @@ class Project(object):
                               processed_files=all_files["processed"],
                               synthetic_files=all_files["synthetics"],
                               event=self.get_event_info(event_name),
-                              show_plot=show_plot)
+                              show_plot=show_plot, project=self)
 
     def plot_event(self, event_name, show_plot=True, force_quit=False):
         """

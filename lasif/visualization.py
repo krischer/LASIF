@@ -25,7 +25,8 @@ import rotations
 def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
                 boundary_buffer_in_degree=0.0, rotation_axis=[0.0, 0.0, 1.0],
                 rotation_angle_in_degree=0.0, show_plot=True,
-                plot_simulation_domain=False, zoom=False, resolution=None):
+                plot_simulation_domain=False, zoom=False, resolution=None,
+                ax=None):
     """
     """
     bounds = rotations.get_max_extention_of_domain(
@@ -46,7 +47,7 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         if resolution is None:
             resolution = "c"
         m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
-                    resolution=resolution)
+                    resolution=resolution, ax=ax)
     else:
         if resolution is None:
             resolution = "l"
@@ -357,7 +358,8 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
 
 
 def plot_data_for_station(station_name, raw_files, processed_files,
-                          synthetic_files, event, show_plot=True):
+                          synthetic_files, event, show_plot=True,
+                          project=None):
     """
     """
     import datetime
@@ -367,28 +369,53 @@ def plot_data_for_station(station_name, raw_files, processed_files,
     import textwrap
 
     fig = plt.figure(figsize=(14, 9))
-
     fig.canvas.set_window_title("Data for station %s" % station_name)
 
     # Add one axis for each component. Share all axes.
-    z_axis = fig.add_axes([0.25, 0.65, 0.70, 0.3])
-    n_axis = fig.add_axes([0.25, 0.35, 0.70, 0.3], sharex=z_axis,
+    z_axis = fig.add_axes([0.30, 0.65, 0.65, 0.3])
+    n_axis = fig.add_axes([0.30, 0.35, 0.65, 0.3], sharex=z_axis,
                           sharey=z_axis)
-    e_axis = fig.add_axes([0.25, 0.05, 0.70, 0.3], sharex=z_axis,
+    e_axis = fig.add_axes([0.30, 0.05, 0.65, 0.3], sharex=z_axis,
                           sharey=z_axis)
-    axes = [z_axis, n_axis, e_axis]
+    axis = [z_axis, n_axis, e_axis]
 
-    for axis in axes:
-        plt.setp(axis.get_xticklabels(), visible=False)
-        plt.setp(axis.get_yticklabels(), visible=False)
-        axis.grid(b=True)
-        axis.autoscale(enable=True)
+    # Set grid, autoscale and hide all tick labels (some will be made visible
+    # later one)
+    for axes in axis:
+        plt.setp(axes.get_xticklabels(), visible=False)
+        plt.setp(axes.get_yticklabels(), visible=False)
+        axes.grid(b=True)
+        axes.autoscale(enable=True)
 
-    raw_check_axes = fig.add_axes([0.02, 0.85, 0.2, 0.1])
-    proc_check_axes = fig.add_axes([0.02, 0.6, 0.2, 0.2])
-    synth_check_axes = fig.add_axes([0.02, 0.05, 0.2, 0.5])
+    # Axes for the data selection check boxes.
+    raw_check_axes = fig.add_axes([0.01, 0.8, 0.135, 0.15])
+    synth_check_axes = fig.add_axes([0.155, 0.8, 0.135, 0.15])
+    proc_check_axes = fig.add_axes([0.01, 0.5, 0.28, 0.29])
 
-    # The raw data is always on. It also has to be drawn later on.
+    # The map axes
+    map_axes = fig.add_axes([0.01, 0.05, 0.28, 0.44])
+
+    if project:
+        bounds = project.domain["bounds"]
+        map_object = plot_domain(
+            bounds["minimum_latitude"], bounds["maximum_latitude"],
+            bounds["minimum_longitude"], bounds["maximum_longitude"],
+            bounds["boundary_width_in_degree"],
+            rotation_axis=project.domain["rotation_axis"],
+            rotation_angle_in_degree=project.domain["rotation_angle"],
+            plot_simulation_domain=False, show_plot=False, zoom=True,
+            ax=map_axes)
+
+        #stations = self.get_stations_for_event(event_name)
+        #visualization.plot_stations_for_event(
+            #map_object=map, station_dict=stations, event_info=event_info,
+            #project=self)
+        # Plot the beachball for one event.
+        plot_events([project.get_event(event["event_name"])],
+                    map_object=map_object)
+        #visualization.plot_events(events, map_object=map)
+
+    # Fill the check box axes.
     raw_check = CheckButtons(raw_check_axes, ["raw"], [True])
     proc_check = CheckButtons(proc_check_axes, [
         "\n".join(textwrap.wrap(_i, width=20))
