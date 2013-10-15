@@ -494,6 +494,9 @@ def plot_data_for_station(station, raw_files, processed_files,
             except:
                 pass
 
+        if plot_type != "raw":
+            axis.set_xlim(time_axis[0], time_axis[-1])
+
     for label, axis in zip(("Z", "N", "E"), (z_axis, n_axis, e_axis)):
         axis.text(0.98, 0.95, label,
                   verticalalignment="top", horizontalalignment="right",
