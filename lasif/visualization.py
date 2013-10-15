@@ -356,8 +356,8 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     map_object.drawparallels(np.arange(-90, 90, 30))
 
 
-def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
-                          show_plot=True):
+def plot_data_for_station(station_name, raw_files, processed_files,
+                          synthetic_files, event, show_plot=True):
     """
     """
     import datetime
@@ -367,6 +367,8 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
     import textwrap
 
     fig = plt.figure(figsize=(14, 9))
+
+    fig.canvas.set_window_title("Data for station %s" % station_name)
 
     # Add one axis for each component. Share all axes.
     z_axis = fig.add_axes([0.25, 0.65, 0.70, 0.3])

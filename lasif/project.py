@@ -651,7 +651,7 @@ class Project(object):
                 continue
             all_files["synthetics"][iteration_name] = synthetic_files.values()
 
-        plot_data_for_station(raw_files=all_files["raw"],
+        plot_data_for_station(station_name, raw_files=all_files["raw"],
                               processed_files=all_files["processed"],
                               synthetic_files=all_files["synthetics"],
                               event=self.get_event_info(event_name),
