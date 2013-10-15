@@ -179,7 +179,7 @@ def _set_global_pick_handler():
     canvas.mpl_connect("pick_event", _pick_handler)
 
 
-def plot_events(events, map_object):
+def plot_events(events, map_object, beachball_size=0.02):
     """
     """
     for event in events:
@@ -194,7 +194,7 @@ def plot_events(events, map_object):
         focmec = [mt.m_rr, mt.m_tt, mt.m_pp, mt.m_rt, mt.m_rp, mt.m_tp]
         # Attempt to calculate the best beachball size.
         width = max((map_object.xmax - map_object.xmin,
-                     map_object.ymax - map_object.ymin)) * 0.020
+                     map_object.ymax - map_object.ymin)) * beachball_size
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_picker(True)
         b.detailed_event_description = (
@@ -357,7 +357,7 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     map_object.drawparallels(np.arange(-90, 90, 30))
 
 
-def plot_data_for_station(station_name, raw_files, processed_files,
+def plot_data_for_station(station, raw_files, processed_files,
                           synthetic_files, event, show_plot=True,
                           project=None):
     """
@@ -366,10 +366,11 @@ def plot_data_for_station(station_name, raw_files, processed_files,
     import matplotlib.dates
     from matplotlib.widgets import CheckButtons
     from obspy import read
+    from obspy.core.util.geodetics import calcVincentyInverse
     import textwrap
 
     fig = plt.figure(figsize=(14, 9))
-    fig.canvas.set_window_title("Data for station %s" % station_name)
+    fig.canvas.set_window_title("Data for station %s" % station["id"])
 
     # Add one axis for each component. Share all axes.
     z_axis = fig.add_axes([0.30, 0.65, 0.65, 0.3])
@@ -406,14 +407,19 @@ def plot_data_for_station(station_name, raw_files, processed_files,
             plot_simulation_domain=False, show_plot=False, zoom=True,
             ax=map_axes)
 
-        #stations = self.get_stations_for_event(event_name)
-        #visualization.plot_stations_for_event(
-            #map_object=map, station_dict=stations, event_info=event_info,
-            #project=self)
+        plot_stations_for_event(map_object=map_object,
+                                station_dict={station["id"]: station},
+                                event_info=event)
         # Plot the beachball for one event.
         plot_events([project.get_event(event["event_name"])],
-                    map_object=map_object)
-        #visualization.plot_events(events, map_object=map)
+                    map_object=map_object, beachball_size=0.05)
+        dist = calcVincentyInverse(
+            event["latitude"], event["longitude"], station["latitude"],
+            station["longitude"])[0] / 1000.0
+
+        map_axes.set_title("Epicentral distance: %.1f km | Mag: %.1f %s" %
+                           (dist, event["magnitude"], event["magnitude_type"]),
+                           fontsize=10)
 
     # Fill the check box axes.
     raw_check = CheckButtons(raw_check_axes, ["raw"], [True])
