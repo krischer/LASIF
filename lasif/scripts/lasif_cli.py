@@ -104,7 +104,7 @@ def lasif_plot_event(parser, args):
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
-    proj.plot_event(event_name)
+    proj.plot_event(event_name, force_quit=True)
 
 
 @command_group("Plotting")

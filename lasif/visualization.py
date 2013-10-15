@@ -161,7 +161,11 @@ def __pick_handler_event_annotation(event):
 
 def __pick_handler_station_scatter(event):
     idx = event.ind[0]
-    print event.artist._station_scatter[idx]
+    station_name = event.artist._station_scatter[idx]
+    if event.artist._project:
+        event.artist._project.plot_station(
+            station_name, event.artist._event_info["event_name"],
+            show_plot=True)
 
 
 def _set_global_pick_handler():
@@ -364,7 +368,7 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
 
     fig = plt.figure(figsize=(14, 9))
 
-
+    # Add one axis for each component. Share all axes.
     z_axis = fig.add_axes([0.25, 0.65, 0.70, 0.3])
     n_axis = fig.add_axes([0.25, 0.35, 0.70, 0.3], sharex=z_axis,
                           sharey=z_axis)
@@ -449,12 +453,11 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
         axis.xaxis.set_major_formatter(
             matplotlib.dates.DateFormatter("%H:%M:%S"))
 
-        try:
-            plt.setp(axis.get_xticklabels(), visible=True)
-        except:
-            pass
         if component == "E":
-            plt.setp(axis.get_yticklabels(), visible=True)
+            try:
+                plt.setp(axis.get_xticklabels(), visible=True)
+            except:
+                pass
 
     for label, axis in zip(("Z", "N", "E"), (z_axis, n_axis, e_axis)):
         axis.text(0.98, 0.95, label,
@@ -513,7 +516,10 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
                     plot("processed", filename,
                          PLOT_OBJECTS["processed"][label])
 
-        fig.canvas.draw()
+        try:
+            fig.canvas.draw()
+        except:
+            pass
 
     raw_check.on_clicked(_checked_raw)
     proc_check.on_clicked(_checked_proc)
@@ -522,12 +528,17 @@ def plot_data_for_station(raw_files, processed_files, synthetic_files, event,
     # Always plot the raw data by default.
     _checked_raw("raw")
 
-    fig.canvas.draw()
+    try:
+        fig.canvas.draw()
+    except:
+        pass
 
-    plt.show()
+    if show_plot is True:
+        plt.show()
 
 
-def plot_stations_for_event(map_object, station_dict, event_info):
+def plot_stations_for_event(map_object, station_dict, event_info,
+                            project=None):
     """
     Plots all stations for one event.
 
@@ -551,7 +562,11 @@ def plot_stations_for_event(map_object, station_dict, event_info):
     # matplotlib and basemap versions. Fix it here.
     stations._edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]])
     stations._edgecolors_original = "black"
+    # Add three additional information attributes that the pick callback has
+    # access to.
     stations._station_scatter = station_names
+    stations._project = project
+    stations._event_info = event_info
 
     # Plot the ray paths.
     for sta_lng, sta_lat in izip(lngs, lats):

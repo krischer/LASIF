@@ -19,6 +19,7 @@ import colorama
 import cPickle
 import glob
 import os
+import sys
 import warnings
 
 
@@ -656,7 +657,7 @@ class Project(object):
                               event=self.get_event_info(event_name),
                               show_plot=show_plot)
 
-    def plot_event(self, event_name, show_plot=True):
+    def plot_event(self, event_name, show_plot=True, force_quit=False):
         """
         Plots information about one event on the map.
         """
@@ -667,6 +668,10 @@ class Project(object):
 
         from lasif import visualization
         import matplotlib.pyplot as plt
+
+        if force_quit:
+            fig = plt.figure()
+            fig.canvas.mpl_connect("close_event", lambda x: sys.exit(0))
 
         # Plot the domain.
         bounds = self.domain["bounds"]
@@ -683,7 +688,8 @@ class Project(object):
 
         stations = self.get_stations_for_event(event_name)
         visualization.plot_stations_for_event(
-            map_object=map, station_dict=stations, event_info=event_info)
+            map_object=map, station_dict=stations, event_info=event_info,
+            project=self)
         # Plot the beachball for one event.
         visualization.plot_events([event], map_object=map)
 
@@ -803,6 +809,7 @@ class Project(object):
             mag.magnitude_type = "Mw"
 
         info = {
+            "event_name": event_name,
             "latitude": org.latitude,
             "longitude": org.longitude,
             "origin_time": org.time,
@@ -1150,8 +1157,6 @@ class Project(object):
               and the moment tensor values as well. This is rather fragile and
               mainly intended to detect values specified in wrong units.
         """
-        import sys
-
         # Shared formatting for all.
         ok_string = " %s[%sOK%s]%s" % (
             colorama.Style.BRIGHT, colorama.Style.NORMAL + colorama.Fore.GREEN,
