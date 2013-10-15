@@ -367,6 +367,7 @@ def test_preprocessing_and_launch_misfit_gui(cli):
     assert os.path.exists(preprocessing_data)
     assert len(os.listdir(preprocessing_data)) == 4
 
+    # Assert it is called with the correct parameters.
     with mock.patch("lasif.misfit_gui.MisfitGUI") as patch:
         cli.run("lasif launch_misfit_gui 1 "
                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
@@ -378,6 +379,12 @@ def test_preprocessing_and_launch_misfit_gui(cli):
         assert it.__class__.__name__ == "TwoWayIter"
         assert wm.__class__.__name__ == "MisfitWindowManager"
         assert ad_m.__class__.__name__ == "AdjointSourceManager"
+
+    # Assert it actually opens. Stop at the show() call.
+    with mock.patch("matplotlib.pyplot.show") as patch:
+        cli.run("lasif launch_misfit_gui 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        patch.assert_called_once()
 
 
 def test_preprocessing_event_limiting_works(cli):
