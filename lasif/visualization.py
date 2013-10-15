@@ -372,11 +372,14 @@ def plot_data_for_station(station, raw_files, processed_files,
     fig = plt.figure(figsize=(14, 9))
     fig.canvas.set_window_title("Data for station %s" % station["id"])
 
+    fig.text(0.5, 0.99, "Station %s" % station["id"],
+             verticalalignment="top", horizontalalignment="center")
+
     # Add one axis for each component. Share all axes.
-    z_axis = fig.add_axes([0.30, 0.65, 0.65, 0.3])
-    n_axis = fig.add_axes([0.30, 0.35, 0.65, 0.3], sharex=z_axis,
+    z_axis = fig.add_axes([0.30, 0.65, 0.68, 0.3])
+    n_axis = fig.add_axes([0.30, 0.35, 0.68, 0.3], sharex=z_axis,
                           sharey=z_axis)
-    e_axis = fig.add_axes([0.30, 0.05, 0.65, 0.3], sharex=z_axis,
+    e_axis = fig.add_axes([0.30, 0.05, 0.68, 0.3], sharex=z_axis,
                           sharey=z_axis)
     axis = [z_axis, n_axis, e_axis]
 
@@ -395,6 +398,28 @@ def plot_data_for_station(station, raw_files, processed_files,
 
     # The map axes
     map_axes = fig.add_axes([0.01, 0.05, 0.28, 0.44])
+
+    # Fill the check box axes.
+    raw_check = CheckButtons(raw_check_axes, ["raw"], [True])
+    proc_check = CheckButtons(proc_check_axes, [
+        "\n".join(textwrap.wrap(_i, width=20))
+        for _i in processed_files.keys()],
+        [False] * len(processed_files))
+    synth_check = CheckButtons(synth_check_axes, synthetic_files.keys(),
+                               [False] * len(synthetic_files))
+
+    for check in [raw_check, proc_check, synth_check]:
+        plt.setp(check.labels, fontsize=10)
+
+    raw_check_axes.text(
+        0.02, 0.99, "Raw Data", transform=raw_check_axes.transAxes,
+        verticalalignment="top", horizontalalignment="left", fontsize=10)
+    proc_check_axes.text(
+        0.02, 0.99, "Processed Data", transform=proc_check_axes.transAxes,
+        verticalalignment="top", horizontalalignment="left", fontsize=10)
+    synth_check_axes.text(
+        0.02, 0.99, "Synthetic Data", transform=synth_check_axes.transAxes,
+        verticalalignment="top", horizontalalignment="left", fontsize=10)
 
     if project:
         bounds = project.domain["bounds"]
@@ -420,15 +445,6 @@ def plot_data_for_station(station, raw_files, processed_files,
         map_axes.set_title("Epicentral distance: %.1f km | Mag: %.1f %s" %
                            (dist, event["magnitude"], event["magnitude_type"]),
                            fontsize=10)
-
-    # Fill the check box axes.
-    raw_check = CheckButtons(raw_check_axes, ["raw"], [True])
-    proc_check = CheckButtons(proc_check_axes, [
-        "\n".join(textwrap.wrap(_i, width=20))
-        for _i in processed_files.keys()],
-        [False] * len(processed_files))
-    synth_check = CheckButtons(synth_check_axes, synthetic_files.keys(),
-                               [False] * len(synthetic_files))
 
     SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
 
@@ -497,11 +513,12 @@ def plot_data_for_station(station, raw_files, processed_files,
         if plot_type != "raw":
             axis.set_xlim(time_axis[0], time_axis[-1])
 
-    for label, axis in zip(("Z", "N", "E"), (z_axis, n_axis, e_axis)):
+    for label, axis in zip(("Vertical", "North", "East"),
+                           (z_axis, n_axis, e_axis)):
         axis.text(0.98, 0.95, label,
                   verticalalignment="top", horizontalalignment="right",
-                  bbox=dict(facecolor="white", alpha=0.5),
-                  transform=axis.transAxes)
+                  bbox=dict(facecolor="white", alpha=0.5, pad=5),
+                  transform=axis.transAxes, fontsize=11)
 
     def _checked_raw(label):
         checked(label, "raw")
