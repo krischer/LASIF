@@ -90,7 +90,7 @@ def calculate_Q_model(N, f_min, f_max, iterations=10000,
     return D_p, tau_p
 
 
-def plot(D_p, tau_p, f_min=None, f_max=None, show_plot=True):
+def plot(D_p, tau_p, f_min=None, f_max=None):
     """
     :type D_p: np.ndarray
     :param D_p: The calculated D_p.
@@ -172,6 +172,3 @@ def plot(D_p, tau_p, f_min=None, f_max=None, show_plot=True):
         plt.subplot(122)
         plt.vlines(f_min, *plt.ylim(), color="0.5")
         plt.vlines(f_max, *plt.ylim(), color="0.5")
-
-    if show_plot:
-        plt.show()

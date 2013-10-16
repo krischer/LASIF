@@ -156,7 +156,7 @@ def test_domain_plotting(tmpdir):
     Very simple domain plotting test.
     """
     pr = Project(str(tmpdir), init_project="TestProject")
-    pr.plot_domain(show_plot=False)
+    pr.plot_domain()
 
     images_are_identical("simple_test_domain", str(tmpdir))
 
@@ -191,13 +191,13 @@ def test_event_plotting(project):
     The commands supports three types of plots: Beachballs on a map and depth
     and time distribution histograms.
     """
-    project.plot_events(plot_type="map", show_plot=False)
+    project.plot_events(plot_type="map")
     images_are_identical("two_events_plot_map", project.paths["root"])
 
-    project.plot_events(plot_type="depth", show_plot=False)
+    project.plot_events(plot_type="depth")
     images_are_identical("two_events_plot_depth", project.paths["root"])
 
-    project.plot_events(plot_type="time", show_plot=False)
+    project.plot_events(plot_type="time")
     images_are_identical("two_events_plot_time", project.paths["root"])
 
 
@@ -434,8 +434,7 @@ def test_single_event_plot(project):
     """
     Tests the plotting of a single event.
     """
-    project.plot_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-                       show_plot=False)
+    project.plot_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
     images_are_identical("single_event_plot", project.paths["root"])
 
 
@@ -443,7 +442,7 @@ def test_simple_raydensity(project):
     """
     Tests the plotting of a single event.
     """
-    project.plot_raydensity(show_plot=False, save_plot=False)
+    project.plot_raydensity(save_plot=False)
     # Use a low dpi to keep the test filesize in check.
     images_are_identical("simple_raydensity_plot", project.paths["root"],
                          dpi=25)
@@ -763,7 +762,6 @@ def test_Q_model_plotting(project):
 
     assert round(kwargs["f_min"] - 1.0 / 111.0, 5) == 0
     assert round(kwargs["f_max"] - 1.0 / 11.0, 5) == 0
-    assert kwargs["show_plot"] is True
 
 
 def test_get_debug_information_for_file(project):

@@ -527,7 +527,6 @@ def test_Q_model_plotting(cli):
 
     assert round(kwargs["f_min"] - 1.0 / 70.0, 5) == 0
     assert round(kwargs["f_max"] - 1.0 / 7.0, 5) == 0
-    assert kwargs["show_plot"] is True
 
 
 def test_Q_model_calculating(cli):

@@ -9,6 +9,9 @@ Simple tests for the constant Q model calculator.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
+import matplotlib as mpl
+mpl.use("agg")
+
 import numpy as np
 import random
 
@@ -44,10 +47,11 @@ def test_Q_model_plotting(tmpdir):
     Tests the plotting of the Q Model.
     """
     reset_matplotlib()
+
     tmpdir = str(tmpdir)
 
     weights = [2.50960201, 2.31899515, 0.19681762]
     relaxation_times = [1.73160984, 14.41562154, 16.70330157]
     Q_discrete.plot(weights, relaxation_times, f_min=1.0 / 100.0,
-                    f_max=1.0 / 10.0, show_plot=False)
+                    f_max=1.0 / 10.0)
     images_are_identical("discrete_Q_model", tmpdir)

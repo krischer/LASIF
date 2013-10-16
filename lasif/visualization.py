@@ -24,9 +24,8 @@ import rotations
 
 def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
                 boundary_buffer_in_degree=0.0, rotation_axis=[0.0, 0.0, 1.0],
-                rotation_angle_in_degree=0.0, show_plot=True,
-                plot_simulation_domain=False, zoom=False, resolution=None,
-                ax=None):
+                rotation_angle_in_degree=0.0, plot_simulation_domain=False,
+                zoom=False, resolution=None, ax=None):
     """
     """
     bounds = rotations.get_max_extention_of_domain(
@@ -107,9 +106,6 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
             m.plot(lngs, lats, color="red", lw=2, alpha=0.4)
         plt.legend()
 
-    if show_plot is True:
-        plt.show()
-
     return m
 
 
@@ -165,8 +161,7 @@ def __pick_handler_station_scatter(event):
     station_name = event.artist._station_scatter[idx]
     if event.artist._project:
         event.artist._project.plot_station(
-            station_name, event.artist._event_info["event_name"],
-            show_plot=True)
+            station_name, event.artist._event_info["event_name"])
 
 
 def _set_global_pick_handler():
@@ -358,8 +353,7 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
 
 
 def plot_data_for_station(station, raw_files, processed_files,
-                          synthetic_files, event, show_plot=True,
-                          project=None):
+                          synthetic_files, event, project=None):
     """
     """
     import datetime
@@ -413,13 +407,13 @@ def plot_data_for_station(station, raw_files, processed_files,
         plt.setp(check.labels, fontsize=10)
 
     raw_check_axes.text(
-        0.02, 0.99, "Raw Data", transform=raw_check_axes.transAxes,
+        0.02, 0.97, "Raw Data", transform=raw_check_axes.transAxes,
         verticalalignment="top", horizontalalignment="left", fontsize=10)
     proc_check_axes.text(
-        0.02, 0.99, "Processed Data", transform=proc_check_axes.transAxes,
+        0.02, 0.97, "Processed Data", transform=proc_check_axes.transAxes,
         verticalalignment="top", horizontalalignment="left", fontsize=10)
     synth_check_axes.text(
-        0.02, 0.99, "Synthetic Data", transform=synth_check_axes.transAxes,
+        0.02, 0.97, "Synthetic Data", transform=synth_check_axes.transAxes,
         verticalalignment="top", horizontalalignment="left", fontsize=10)
 
     if project:
@@ -430,8 +424,7 @@ def plot_data_for_station(station, raw_files, processed_files,
             bounds["boundary_width_in_degree"],
             rotation_axis=project.domain["rotation_axis"],
             rotation_angle_in_degree=project.domain["rotation_angle"],
-            plot_simulation_domain=False, show_plot=False, zoom=True,
-            ax=map_axes)
+            plot_simulation_domain=False, zoom=True, ax=map_axes)
 
         plot_stations_for_event(map_object=map_object,
                                 station_dict={station["id"]: station},
@@ -593,8 +586,9 @@ def plot_data_for_station(station, raw_files, processed_files,
     except:
         pass
 
-    if show_plot is True:
-        plt.show()
+    # One has call plt.show() to activate the main loop of the new figure.
+    # Otherwise events will not work.
+    plt.show()
 
 
 def plot_stations_for_event(map_object, station_dict, event_info,

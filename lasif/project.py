@@ -373,7 +373,7 @@ class Project(object):
             events[event_name] = event
         return events
 
-    def plot_domain(self, show_plot=True):
+    def plot_domain(self):
         """
         Plots the simulation domain and the actual physical domain.
 
@@ -388,9 +388,9 @@ class Project(object):
             bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=True, show_plot=show_plot, zoom=True)
+            plot_simulation_domain=True, zoom=True)
 
-    def plot_Q_model(self, iteration_name, show_plot=True):
+    def plot_Q_model(self, iteration_name):
         """
         Plots the Q model for a given iteration. Will only work if the
         iteration uses SES3D as its solver.
@@ -411,8 +411,7 @@ class Project(object):
         tau_p = relax["tau"]
         weights = relax["w"]
 
-        plot(D_p=weights, tau_p=tau_p, f_min=f_min, f_max=f_max,
-             show_plot=show_plot)
+        plot(D_p=weights, tau_p=tau_p, f_min=f_min, f_max=f_max)
 
     def get_kernel_dir(self, iteration_name, event_name):
         return os.path.join(self.paths["kernels"], event_name, self.
@@ -605,7 +604,7 @@ class Project(object):
             self.get_event(event)
         return self._seismic_events.values()
 
-    def plot_station(self, station_name, event_name, show_plot=True):
+    def plot_station(self, station_name, event_name):
         """
         Plots data for a single station and event.
         """
@@ -649,18 +648,19 @@ class Project(object):
         iterations = self.get_iteration_dict().keys()
         for iteration_name in iterations:
             synthetic_files = self._get_synthetic_waveform_filenames(
-                event_name, iteration_name)[station_name]
-            if not synthetic_files:
+                event_name, iteration_name)
+            if station_name not in synthetic_files:
                 continue
-            all_files["synthetics"][iteration_name] = synthetic_files.values()
+            all_files["synthetics"][iteration_name] = \
+                synthetic_files[station_name].values()
 
         plot_data_for_station(station, raw_files=all_files["raw"],
                               processed_files=all_files["processed"],
                               synthetic_files=all_files["synthetics"],
                               event=self.get_event_info(event_name),
-                              show_plot=show_plot, project=self)
+                              project=self)
 
-    def plot_event(self, event_name, show_plot=True, force_quit=False):
+    def plot_event(self, event_name, force_quit=False):
         """
         Plots information about one event on the map.
         """
@@ -684,7 +684,7 @@ class Project(object):
             bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=False, show_plot=False, zoom=True)
+            plot_simulation_domain=False, zoom=True)
 
         event = self.get_event(event_name)
         event_info = self.get_event_info(event_name)
@@ -696,10 +696,7 @@ class Project(object):
         # Plot the beachball for one event.
         visualization.plot_events([event], map_object=map)
 
-        if show_plot:
-            plt.show()
-
-    def plot_events(self, plot_type="map", show_plot=True):
+    def plot_events(self, plot_type="map"):
         """
         Plots the domain and beachballs for all events on the map.
 
@@ -709,7 +706,6 @@ class Project(object):
             * ``time`` - a time distribution histogram
         """
         from lasif import visualization
-        import matplotlib.pyplot as plt
 
         events = self.get_all_events()
 
@@ -721,7 +717,7 @@ class Project(object):
                 bounds["boundary_width_in_degree"],
                 rotation_axis=self.domain["rotation_axis"],
                 rotation_angle_in_degree=self.domain["rotation_angle"],
-                plot_simulation_domain=False, show_plot=False, zoom=True)
+                plot_simulation_domain=False, zoom=True)
             visualization.plot_events(events, map_object=map)
         elif plot_type == "depth":
             visualization.plot_event_histogram(events, "depth")
@@ -730,10 +726,8 @@ class Project(object):
         else:
             msg = "Unknown plot_type"
             raise LASIFException(msg)
-        if show_plot:
-            plt.show()
 
-    def plot_raydensity(self, show_plot=False, save_plot=True):
+    def plot_raydensity(self, save_plot=True):
         """
         Plots the raydensity.
         """
@@ -749,7 +743,7 @@ class Project(object):
             bounds["boundary_width_in_degree"],
             rotation_axis=self.domain["rotation_axis"],
             rotation_angle_in_degree=self.domain["rotation_angle"],
-            plot_simulation_domain=False, show_plot=False, zoom=True,
+            plot_simulation_domain=False, zoom=True,
             resolution="l")
 
         event_stations = []
@@ -768,9 +762,6 @@ class Project(object):
         visualization.plot_events(events, map_object=map_object)
 
         plt.tight_layout()
-
-        if show_plot:
-            plt.show()
 
         if save_plot:
             outfile = os.path.join(self.get_output_folder("raydensity_plot"),

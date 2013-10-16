@@ -89,10 +89,12 @@ def lasif_plot_domain(parser, args):
     """
     Plot the project's domain on a map.
     """
+    import matplotlib.pyplot as plt
     parser.parse_args(args)
 
     proj = _find_project_root(".")
     proj.plot_domain()
+    plt.show()
 
 
 @command_group("Plotting")
@@ -100,11 +102,13 @@ def lasif_plot_event(parser, args):
     """
     Plot a single event including stations on a map.
     """
+    import matplotlib.pyplot as plt
     parser.add_argument("event_name", help="name of the event to plot")
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
     proj.plot_event(event_name, force_quit=True)
+    plt.show()
 
 
 @command_group("Plotting")
@@ -114,6 +118,7 @@ def lasif_plot_station(parser, args):
 
     Useful for interactive data discovery.
     """
+    import matplotlib.pyplot as plt
     parser.add_argument("station_name", help="name of the station to plot")
     parser.add_argument("event_name", help="name of the event to plot")
     station_name = parser.parse_args(args).station_name
@@ -121,6 +126,7 @@ def lasif_plot_station(parser, args):
 
     proj = _find_project_root(".")
     proj.plot_station(station_name, event_name)
+    plt.show()
 
 
 @command_group("Plotting")
@@ -133,6 +139,7 @@ def lasif_plot_events(parser, args):
         * ``depth`` - a depth distribution histogram
         * ``time`` - a time distribution histogram
     """
+    import matplotlib.pyplot as plt
     parser.add_argument("--type", default="map", choices=["map", "depth",
                                                           "time"],
                         help="the type of plot. 'map': beachballs on a map, "
@@ -142,6 +149,7 @@ def lasif_plot_events(parser, args):
 
     proj = _find_project_root(".")
     proj.plot_events(plot_type)
+    plt.show()
 
 
 @command_group("Plotting")
@@ -478,16 +486,19 @@ def lasif_plot_stf(parser, args):
     """
     Plot the source time function for one iteration.
     """
+    import matplotlib.pyplot as plt
+    import lasif.visualization
+
     parser.add_argument("iteration_name", help="name of the iteration")
     iteration_name = parser.parse_args(args).iteration_name
 
-    import lasif.visualization
     proj = _find_project_root(".")
 
     iteration = proj._get_iteration(iteration_name)
     stf = iteration.get_source_time_function()
 
     lasif.visualization.plot_tf(stf["data"], stf["delta"])
+    plt.show()
 
 
 @command_group("Iteration Management")
@@ -710,6 +721,7 @@ def lasif_plot_q_model(parser, args):
     """
     Plots the Q model for a given iteration.
     """
+    import matplotlib.pyplot as plt
     parser.add_argument("iteration_name", help="name of iteration")
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
@@ -722,7 +734,8 @@ def lasif_plot_q_model(parser, args):
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
                "a list of all available iterations.") % iteration_name
         raise LASIFCommandLineException(msg)
-    proj.plot_Q_model(iteration_name, show_plot=True)
+    proj.plot_Q_model(iteration_name)
+    plt.show()
 
 
 @command_group("Plotting")
