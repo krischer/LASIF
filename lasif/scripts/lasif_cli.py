@@ -106,8 +106,11 @@ def lasif_plot_event(parser, args):
     parser.add_argument("event_name", help="name of the event to plot")
     event_name = parser.parse_args(args).event_name
 
+    fig = plt.figure()
+    fig.canvas.mpl_connect("close_event", lambda x: sys.exit(0))
+
     proj = _find_project_root(".")
-    proj.plot_event(event_name, force_quit=True)
+    proj.plot_event(event_name)
     plt.show()
 
 
@@ -146,6 +149,9 @@ def lasif_plot_events(parser, args):
                         "'depth': depth distribution histogram, "
                         "'time': time distribution histogram")
     plot_type = parser.parse_args(args).type
+
+    fig = plt.figure()
+    fig.canvas.mpl_connect("close_event", lambda x: sys.exit(0))
 
     proj = _find_project_root(".")
     proj.plot_events(plot_type)

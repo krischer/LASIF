@@ -135,25 +135,31 @@ def __pick_handler_event_annotation(event):
     """
     Pick handler for the event annotation.
     """
-    # Remove any potentially existing annotations.
-    for i in __pick_state["event_annotations"]:
-        i.remove()
-    __pick_state["event_annotations"][:] = []
+    if event.mouseevent.button == 1 and not event.mouseevent.dblclick:
+        # Remove any potentially existing annotations.
+        for i in __pick_state["event_annotations"]:
+            i.remove()
+        __pick_state["event_annotations"][:] = []
 
-    if __pick_state["current_event_annotation_artist"] is event.artist:
-        __pick_state["current_event_annotation_artist"] = None
-        return
+        if __pick_state["current_event_annotation_artist"] is event.artist:
+            __pick_state["current_event_annotation_artist"] = None
+            return
 
-    x, y = event.mouseevent.xdata, event.mouseevent.ydata
-    annotation = plt.annotate(
-        event.artist.detailed_event_description,
-        xy=(x, y), xytext=(0.98, 0.98), textcoords="figure fraction",
-        horizontalalignment="right", verticalalignment="top",
-        arrowprops=dict(arrowstyle="fancy", color="0.5",
-                        connectionstyle="arc3,rad=0.3"),
-        zorder=10E9, fontsize="small")
-    __pick_state["event_annotations"].append(annotation)
-    __pick_state["current_event_annotation_artist"] = event.artist
+        x, y = event.mouseevent.xdata, event.mouseevent.ydata
+        annotation = plt.annotate(
+            event.artist.detailed_event_description,
+            xy=(x, y), xytext=(0.98, 0.98), textcoords="figure fraction",
+            horizontalalignment="right", verticalalignment="top",
+            arrowprops=dict(arrowstyle="fancy", color="0.5",
+                            connectionstyle="arc3,rad=0.3"),
+            zorder=10E9, fontsize="small")
+        __pick_state["event_annotations"].append(annotation)
+        __pick_state["current_event_annotation_artist"] = event.artist
+    # If it is a double-click, plot the event in a new figure.
+    elif event.mouseevent.dblclick and event.artist._project:
+        plt.figure()
+        event.artist._project.plot_event(event.artist._event_name)
+        plt.show()
 
 
 def __pick_handler_station_scatter(event):
@@ -174,7 +180,7 @@ def _set_global_pick_handler():
     canvas.mpl_connect("pick_event", _pick_handler)
 
 
-def plot_events(events, map_object, beachball_size=0.02):
+def plot_events(events, map_object, beachball_size=0.02, project=None):
     """
     """
     for event in events:
@@ -192,6 +198,8 @@ def plot_events(events, map_object, beachball_size=0.02):
                      map_object.ymax - map_object.ymin)) * beachball_size
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_picker(True)
+        b._project = project
+        b._event_name = os.path.splitext(os.path.basename(event.filename))[0]
         b.detailed_event_description = (
             "Event %.1f %s\n"
             "Lat: %.1f, Lng: %.1f, Depth: %.1f km\n"

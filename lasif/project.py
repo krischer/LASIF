@@ -660,7 +660,7 @@ class Project(object):
                               event=self.get_event_info(event_name),
                               project=self)
 
-    def plot_event(self, event_name, force_quit=False):
+    def plot_event(self, event_name):
         """
         Plots information about one event on the map.
         """
@@ -670,11 +670,6 @@ class Project(object):
             raise ValueError(msg)
 
         from lasif import visualization
-        import matplotlib.pyplot as plt
-
-        if force_quit:
-            fig = plt.figure()
-            fig.canvas.mpl_connect("close_event", lambda x: sys.exit(0))
 
         # Plot the domain.
         bounds = self.domain["bounds"]
@@ -718,7 +713,7 @@ class Project(object):
                 rotation_axis=self.domain["rotation_axis"],
                 rotation_angle_in_degree=self.domain["rotation_angle"],
                 plot_simulation_domain=False, zoom=True)
-            visualization.plot_events(events, map_object=map)
+            visualization.plot_events(events, map_object=map, project=self)
         elif plot_type == "depth":
             visualization.plot_event_histogram(events, "depth")
         elif plot_type == "time":
