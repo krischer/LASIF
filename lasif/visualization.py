@@ -390,6 +390,7 @@ def plot_data_for_station(station, raw_files, processed_files,
         plt.setp(axes.get_yticklabels(), visible=False)
         axes.grid(b=True)
         axes.autoscale(enable=True)
+        axes.set_xlim(0.0, 12345.0)
 
     # Axes for the data selection check boxes.
     raw_check_axes = fig.add_axes([0.01, 0.8, 0.135, 0.15])
@@ -402,7 +403,7 @@ def plot_data_for_station(station, raw_files, processed_files,
     # Fill the check box axes.
     raw_check = CheckButtons(raw_check_axes, ["raw"], [True])
     proc_check = CheckButtons(proc_check_axes, [
-        "\n".join(textwrap.wrap(_i, width=20))
+        "\n".join(textwrap.wrap(_i, width=30))
         for _i in processed_files.keys()],
         [False] * len(processed_files))
     synth_check = CheckButtons(synth_check_axes, synthetic_files.keys(),
@@ -447,6 +448,12 @@ def plot_data_for_station(station, raw_files, processed_files,
                            fontsize=10)
 
     SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
+
+    PLOT_OBJECTS = {
+        "raw": None,
+        "synthetics": {},
+        "processed": {}
+    }
 
     def plot(plot_type, filename, save_at):
         tr = read(filename)[0]
@@ -512,6 +519,10 @@ def plot_data_for_station(station, raw_files, processed_files,
 
         if plot_type != "raw":
             axis.set_xlim(time_axis[0], time_axis[-1])
+        # Adjust the limit only if there are no synthetics and processed if
+        # plotting raw data.
+        elif not PLOT_OBJECTS["synthetics"] and not PLOT_OBJECTS["processed"]:
+            axis.set_xlim(time_axis[0], time_axis[-1])
 
     for label, axis in zip(("Vertical", "North", "East"),
                            (z_axis, n_axis, e_axis)):
@@ -528,12 +539,6 @@ def plot_data_for_station(station, raw_files, processed_files,
 
     def _checked_synth(label):
         checked(label, "synth")
-
-    PLOT_OBJECTS = {
-        "raw": None,
-        "synthetics": {},
-        "processed": {}
-    }
 
     def checked(label, check_box):
         if check_box == "raw":
