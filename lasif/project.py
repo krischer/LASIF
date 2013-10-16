@@ -1087,8 +1087,7 @@ class Project(object):
             chan_id = waveform["channel_id"]
             if chan_id not in available_channels:
                 continue
-            coordinates = self._get_coordinates_for_channel(
-                waveform, available_channels)
+            coordinates = self._get_coordinates_for_channel(waveform)
             if not coordinates:
                 msg = "No coordinates available for waveform file '%s'" % \
                     waveform["filename"]
@@ -1097,12 +1096,11 @@ class Project(object):
             stations[station] = {
                 "latitude": coordinates["latitude"],
                 "longitude": coordinates["longitude"],
-                "elevation": coordinates["elevation"],
-                "local_depth": coordinates["local_depth"]}
+                "elevation": coordinates["elevation_in_m"],
+                "local_depth": coordinates["local_depth_in_m"]}
         return stations
 
-    def _get_coordinates_for_channel(self, waveform_cache_entry,
-                                     channels_from_station_cache):
+    def _get_coordinates_for_channel(self, waveform_cache_entry):
         """
         Internal function used to grab station coordinates from the various
         sources.
@@ -1111,31 +1109,29 @@ class Project(object):
 
         :param waveform_cache_entry: The entry of the file in question from the
             waveform cache.
-        :param channels_from_station_cache: self.station_cache.get_channels()
 
         Returns a dictionary containing "latitude", "longitude", "elevation",
             "local_depth". Returns None if no coordinates could be found.
         """
         from lasif.tools.inventory_db import get_station_coordinates
         channel_id = waveform_cache_entry["channel_id"]
+        network_id, station_id = channel_id.split(".")[:2]
 
-        # Now check if the waveform has coordinates (in the case of SAC
-        # files).
-        if channel_id not in channels_from_station_cache:
-            return None
-        channel = channels_from_station_cache[channel_id][0]
+        try:
+            coordinates = self.station_cache.get_coordinates_for_station(
+                network_id, station_id)
+        except:
+            pass
+        else:
+            return coordinates
+
+        # In the
         if waveform_cache_entry["latitude"]:
             return {
                 "latitude": waveform_cache_entry["latitude"],
                 "longitude": waveform_cache_entry["longitude"],
-                "elevation": waveform_cache_entry["elevation_in_m"],
-                "local_depth": waveform_cache_entry["local_depth_in_m"]}
-        elif channel["latitude"]:
-            return {
-                "latitude": channel["latitude"],
-                "longitude": channel["longitude"],
-                "elevation": channel["elevation_in_m"],
-                "local_depth": channel["local_depth_in_m"]}
+                "elevation_in_m": waveform_cache_entry["elevation_in_m"],
+                "local_depth_in_m": waveform_cache_entry["local_depth_in_m"]}
         else:
             # Now check if the station_coordinates are available in the
             # inventory DB and use those.
@@ -1144,11 +1140,7 @@ class Project(object):
                 self.paths["cache"],
                 self.config["download_settings"]["arclink_username"])
             if coords:
-                return {
-                    "latitude": coords["latitude"],
-                    "longitude": coords["longitude"],
-                    "elevation": coords["elevation_in_m"],
-                    "local_depth": coords["local_depth_in_m"]}
+                return coords
             else:
                 return None
 
@@ -1295,7 +1287,6 @@ class Project(object):
         """
         print ("Confirming that station metainformation files exist for "
                "all waveforms "),
-        #channels_from_station_cache = self.station_cache.get_channels()
         all_good = True
         for event_name in self.get_event_dict().iterkeys():
             flush_point()
@@ -1303,9 +1294,6 @@ class Project(object):
                                                            show_progress=False)
             if not waveform_cache:
                 continue
-            #for channel in waveform_cache.get_values():
-                #coordinates = self._get_coordinates_for_channel(
-                    #channel, channels_from_station_cache)
 
         if all_good is True:
             print ok_string
