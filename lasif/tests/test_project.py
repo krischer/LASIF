@@ -854,6 +854,8 @@ def test_get_data_helper_function(project):
     assert files == {}
 
     # Check preprocessed files. At first, there are none.
+    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+
     tag = "preprocessed_hp_0.01000_lp_0.12500_npts_500_dt_0.750000"
     files = project._get_data(event_name, "HL.ARG", "processed", tag=tag)
     assert files == {}
