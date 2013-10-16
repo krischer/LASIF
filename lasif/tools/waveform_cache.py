@@ -10,6 +10,7 @@ Cache taking care of a single waveform directory.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import glob
+from itertools import izip
 import obspy
 import os
 import warnings
@@ -43,6 +44,34 @@ class WaveformCache(FileInfoCache):
 
         super(WaveformCache, self).__init__(cache_db_file=cache_db_file,
                                             show_progress=show_progress)
+
+    def get_files_for_station(self, network, station):
+        """
+        Returns a list of all files belonging to one station. If no station is
+        found it will return an empty list.
+
+        :type network: str
+        :param network: The network id.
+        :type station: str
+        :param station: The station id.
+        """
+        query = """
+        SELECT %s, filename
+        FROM files
+        INNER JOIN indices
+        ON files.id=indices.filepath_id
+        WHERE indices.network=? AND indices.station=?
+        """ % ", ".join(["indices.%s" % _i[0] for _i in self.index_values])
+
+        all_values = []
+        indices = [_i[0] for _i in self.index_values]
+
+        for _i in self.db_cursor.execute(query, (network, station)):
+            values = {key: value for (key, value) in izip(indices, _i)}
+            values["filename"] = _i[-1]
+            all_values.append(values)
+
+        return all_values
 
     def _find_files_waveform(self):
         return glob.glob(os.path.join(self.waveform_folder, "*"))
