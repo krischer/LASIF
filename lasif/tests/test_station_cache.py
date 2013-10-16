@@ -156,3 +156,8 @@ def test_station_cache(tmpdir):
     # Test the retrieval of only a single record by its filename.
     single_value = station_cache.get_details(all_values[0]["filename"])[0]
     assert single_value == all_values[0]
+
+    coordinates = \
+        station_cache.get_coordinates_for_station(network="IU", station="PAB")
+    assert coordinates == {"latitude": 39.5446, "longitude": -4.349899,
+                           "elevation_in_m": 950.0, "local_depth_in_m": 0.0}

@@ -12,6 +12,7 @@ Station Cache class.
 import glob
 from obspy.xseed import Parser
 import os
+import warnings
 
 from lasif.tools import simple_resp_parser
 from lasif.tools.file_info_cache import FileInfoCache
@@ -90,6 +91,33 @@ class StationCache(FileInfoCache):
             None, None, None, None] for _i in channels]
 
         return channels
+
+    def get_coordinates_for_station(self, network, station):
+        """
+        """
+        query = """
+        SELECT latitude, longitude, elevation_in_m, local_depth_in_m
+        FROM indices
+        WHERE channel_id LIKE ?
+        """
+        result = self.db_cursor.execute(
+            query, ("%s.%s.%%" % (network, station), )).fetchall()
+        if not result:
+            msg = "No coordinates found in station cache for %s.%s." % (
+                network, station)
+            raise ValueError(msg)
+        if len(set(result)) != 1:
+            msg = ("Several different coordinates found in station cache "
+                   "for %s.%s. The first one found will be chosen.") % (
+                network, station)
+            warnings.warn(msg)
+
+        result = result[0]
+        return {
+            "latitude": result[0],
+            "longitude": result[1],
+            "elevation_in_m": result[2],
+            "local_depth_in_m": result[3]}
 
     def get_channels(self):
         """
