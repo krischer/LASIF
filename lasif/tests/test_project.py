@@ -847,11 +847,7 @@ def test_get_data_helper_function(project):
     files = project._get_data(event_name, "HL.ARG", "raw")
     assert files == {
         "Z": os.path.join(project.paths["data"], event_name, "raw",
-                          "HL.ARG..BHZ.mseed"),
-        "N": os.path.join(project.paths["data"], event_name, "raw",
-                          "HL.ARG..BHN.mseed"),
-        "E": os.path.join(project.paths["data"], event_name, "raw",
-                          "HL.ARG..BHE.mseed")}
+                          "HL.ARG..BHZ.mseed")}
 
     # Can again potentially return nothing.
     files = project._get_data(event_name, "XX.ARG", "raw")
@@ -870,8 +866,4 @@ def test_get_data_helper_function(project):
     files = project._get_data(event_name, "HL.ARG", "processed", tag=tag)
     assert files == {
         "Z": os.path.join(project.paths["data"], event_name, tag,
-                          "HL.ARG..BHZ.mseed"),
-        "N": os.path.join(project.paths["data"], event_name, tag,
-                          "HL.ARG..BHN.mseed"),
-        "E": os.path.join(project.paths["data"], event_name, tag,
-                          "HL.ARG..BHE.mseed")}
+                          "HL.ARG..BHZ.mseed")}
