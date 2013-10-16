@@ -512,9 +512,19 @@ def test_data_validation(project, capsys):
     Attempt to test the data validation part in a simple manner.
     """
     def reset():
-        project._seismic_events.clear()
-        obspy.core.event.ResourceIdentifier\
-            ._ResourceIdentifier__resource_id_weak_dict.clear()
+        try:
+            project._Project__cache_seimic_events_info_dict.clear()
+        except:
+            pass
+        try:
+            project._Project__cache_seismic_event_objects.clear()
+        except:
+            pass
+        try:
+            obspy.core.event.ResourceIdentifier\
+                ._ResourceIdentifier__resource_id_weak_dict.clear()
+        except:
+            pass
 
     # The default output should be fully valid.
     project.validate_data()

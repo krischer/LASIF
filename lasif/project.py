@@ -429,19 +429,22 @@ class Project(object):
         """
         from obspy import readEvents
 
-        if not hasattr(self, "_seismic_events"):
-            self._seismic_events = {}
+        # Cash the events so they are only being read once.
+        if not hasattr(self, "_Project__cache_seismic_event_objects"):
+            self.__cache_seismic_event_objects = {}
+
         # Read the file if it does not exist.
-        if event_name not in self._seismic_events:
+        if event_name not in self.__cache_seismic_event_objects:
             filename = os.path.join(self.paths["events"], "%s%sxml" %
                                     (event_name, os.path.extsep))
             if not os.path.exists(filename):
                 return None
-            self._seismic_events[event_name] = readEvents(filename)[0]
+            self.__cache_seismic_event_objects[event_name] = \
+                readEvents(filename)[0]
             # Add the filename to the event object to later on be able to find
             # it.
-            self._seismic_events[event_name].filename = filename
-        return self._seismic_events[event_name]
+            self.__cache_seismic_event_objects[event_name].filename = filename
+        return self.__cache_seismic_event_objects[event_name]
 
     def create_new_iteration(self, iteration_name, solver_name, min_period=8.0,
                              max_period=100.0):
@@ -608,7 +611,7 @@ class Project(object):
         events = self.get_event_dict()
         for event in events.keys():
             self.get_event(event)
-        return self._seismic_events.values()
+        return self.__cache_seismic_event_objects.values()
 
     def plot_station(self, station_name, event_name):
         """
@@ -784,6 +787,16 @@ class Project(object):
                 * preprocessed_waveform_file_count
                 * synthetic_data_file_count
         """
+        # Cash the informations so they are only being read once.
+        if not hasattr(self, "_Project__cache_seimic_events_info_dict"):
+            self.___cache_seimic_events_info_dict = {}
+
+        # The tag is needed to store variants; once with filecounts, and once
+        # without.
+        tag = "%s--%s" % (event_name, get_filecount)
+        if tag in self.___cache_seimic_events_info_dict:
+            return self.___cache_seimic_events_info_dict[tag]
+
         from obspy.core.util import FlinnEngdahl
 
         all_events = self.get_event_dict()
@@ -829,6 +842,10 @@ class Project(object):
             info["raw_waveform_file_count"] = raw_data_count
             info["synthetic_waveform_file_count"] = synthetic_data_count
             info["preprocessed_waveform_file_count"] = processed_data_count
+
+        # Store in cache so it only has to be done once.
+        self.___cache_seimic_events_info_dict[tag] = info
+
         return info
 
     def generate_input_files(self, iteration_name, event_name,
@@ -1837,27 +1854,31 @@ class Project(object):
             raise ValueError(msg)
 
     def data_synthetic_iterator(self, event_name, iteration_name):
-
+        """
+        Return an iterator that returns processed data and synthetic files for
+        one event and iteration.
+        """
         import inspect
         from lasif import rotations
         from obspy import read, Stream
 
-        #======================================================================
         # Retrieve information on the event, iteration and waveforms
-        #======================================================================
-
         event_info = self.get_event_info(event_name)
         iteration = self._get_iteration(iteration_name)
-
+        # This are all stations in the current iteration.
         iteration_stations = iteration.events[event_name]["stations"].keys()
 
+        # List of all stations for the given event that are also specified in
+        # the iterations files.
         stations = {key: value for key, value in
                     self.get_stations_for_event(event_name).iteritems()
                     if key in iteration_stations}
 
+        # All available processed waveform files for the current iteration.
         waveforms = self._get_waveform_cache_file(
             event_name, iteration.get_processing_tag()).get_values()
 
+        # All synthetic files.
         synthetic_files = self._get_synthetic_waveform_filenames(
             event_name, iteration_name)
 
@@ -1873,12 +1894,13 @@ class Project(object):
                 self.current_index = -1
                 self.rot_angle = rot_angle
                 self.rot_axis = rot_axis
-                self.highpass_period = \
-                    iteration.data_preprocessing["highpass_period"]
-                self.lowpass_period = \
-                    iteration.data_preprocessing["lowpass_period"]
 
             def next(self):
+                """
+                Called to retrieve the next item.
+
+                Raises a StopIteration exception when the end has been reached.
+                """
                 self.current_index += 1
                 if self.current_index > (len(self.items) - 1):
                     self.current_index = len(self.items) - 1
@@ -1886,6 +1908,12 @@ class Project(object):
                 return self.get_value()
 
             def prev(self):
+                """
+                Called to retrieve the previous item.
+
+                Raises a StopIteration exception when the beginning has been
+                reached.
+                """
                 self.current_index -= 1
                 if self.current_index < 0:
                     self.current_index = 0
@@ -1896,7 +1924,9 @@ class Project(object):
                 return self
 
             def get_value(self):
-
+                """
+                Return the value for the currently set index.
+                """
                 station_id, coordinates = self.items[self.current_index]
                 data = Stream()
 
