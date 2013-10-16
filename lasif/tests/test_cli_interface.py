@@ -158,7 +158,7 @@ def test_plotting_functions(cli):
 
     with mock.patch("lasif.project.Project.plot_event") as patch:
         cli.run("lasif plot_event EVENT_NAME")
-        patch.assert_called_once_with("EVENT_NAME", force_quit=True)
+        patch.assert_called_once_with("EVENT_NAME")
 
     # Test the different variations of the plot_events function.
     with mock.patch("lasif.project.Project.plot_events") as patch:

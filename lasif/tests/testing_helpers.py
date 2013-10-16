@@ -9,12 +9,10 @@ Utility functionality for the LASIF test suite.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-import matplotlib as mpl
-mpl.use("agg")
-
 from collections import namedtuple
 import copy
 import inspect
+import matplotlib as mpl
 import matplotlib.pylab as plt
 from matplotlib.testing.compare import compare_images as mpl_compare_images
 import obspy
