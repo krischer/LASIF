@@ -389,7 +389,7 @@ the project.
     import lasif.visualization
     map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
         rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
-        show_plot=False, zoom=True)
+        zoom=True)
     # Create event.
     from obspy.core.event import *
     ev = Event()
@@ -737,7 +737,7 @@ including a very simple ray coverage plot with:
     import lasif.visualization
     map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
         rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
-        show_plot=False, zoom=True)
+        zoom=True)
     event_info = {'depth_in_km': 4.5, 'region': 'TURKEY', 'longitude': 40.14,
         'magnitude': 5.1, 'magnitude_type': 'Mwc', 'latitude': 38.82,
         'origin_time': UTCDateTime(2010, 3, 24, 14, 11, 31)}
@@ -1066,7 +1066,7 @@ The single argument is the name of the iteration.
     weights = [2.56184936462, 2.50613220548, 0.0648624201145]
     relaxation_times = [1.50088990947, 13.3322250004, 22.5140030575]
     Q_discrete.plot(weights, relaxation_times, f_min=1.0 / 100.0,
-                    f_max=1.0 / 8.0, show_plot=True)
+                    f_max=1.0 / 8.0)
 
 
 The two vertical lines in each plot mark the frequency range as specified in
