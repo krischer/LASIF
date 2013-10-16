@@ -817,3 +817,61 @@ def test_get_debug_information_for_file(project):
         "	CA.CAVN..HHN | 2008-02-20T18:28:02.997002Z - "
         "2008-02-20T18:28:04.997002Z | Lat/Lng/Ele/Dep: "
         "41.88/0.75/634.00/0.00")
+
+
+def test_get_data_helper_function(project):
+    """
+    Tests the _get_data() helper method.
+    """
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+
+    # Wrong data type raises.
+    with pytest.raises(ValueError):
+        project._get_data(event_name, "HL.ARG", "random", iteration="1")
+
+    # Get synthetics.
+    files = project._get_data(event_name, "HL.ARG", "synthetic", iteration="1")
+    assert files == {
+        "X": os.path.join(project.paths["synthetics"], event_name,
+                          "ITERATION_1", "HL.ARG__.___.x"),
+        "Y": os.path.join(project.paths["synthetics"], event_name,
+                          "ITERATION_1", "HL.ARG__.___.y"),
+        "Z": os.path.join(project.paths["synthetics"], event_name,
+                          "ITERATION_1", "HL.ARG__.___.z")}
+
+    # Can potentially return nothing.
+    files = project._get_data(event_name, "XX.ARG", "synthetic", iteration="1")
+    assert files == {}
+
+    # Get data files.
+    files = project._get_data(event_name, "HL.ARG", "raw")
+    assert files == {
+        "Z": os.path.join(project.paths["data"], event_name, "raw",
+                          "HL.ARG..BHZ.mseed"),
+        "N": os.path.join(project.paths["data"], event_name, "raw",
+                          "HL.ARG..BHN.mseed"),
+        "E": os.path.join(project.paths["data"], event_name, "raw",
+                          "HL.ARG..BHE.mseed")}
+
+    # Can again potentially return nothing.
+    files = project._get_data(event_name, "XX.ARG", "raw")
+    assert files == {}
+
+    # Check preprocessed files. At first, there are none.
+    tag = "preprocessed_hp_0.01000_lp_0.12500_npts_500_dt_0.750000"
+    files = project._get_data(event_name, "HL.ARG", "processed", tag=tag)
+    assert files == {}
+
+    # Now preprocess some.
+    project.preprocess_data("1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"],
+                            waiting_time=0.0)
+
+    # Now there should be some.
+    files = project._get_data(event_name, "HL.ARG", "processed", tag=tag)
+    assert files == {
+        "Z": os.path.join(project.paths["data"], event_name, tag,
+                          "HL.ARG..BHZ.mseed"),
+        "N": os.path.join(project.paths["data"], event_name, tag,
+                          "HL.ARG..BHN.mseed"),
+        "E": os.path.join(project.paths["data"], event_name, tag,
+                          "HL.ARG..BHE.mseed")}
