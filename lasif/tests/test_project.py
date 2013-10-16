@@ -32,7 +32,7 @@ from lasif.tests.testing_helpers import images_are_identical, \
 
 def setup_function(function):
     """
-    Make sure matplotlib behaves the same on every machine.
+    Reset matplotlib.
     """
     reset_matplotlib()
 
@@ -601,6 +601,7 @@ def test_data_synthetic_iterator(project, recwarn):
     project.create_new_iteration("1", "ses3d_4_0", 8, 100)
     project.preprocess_data("1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
                             waiting_time=0.0)
+
     iterator = project.data_synthetic_iterator(
         "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "1")
 

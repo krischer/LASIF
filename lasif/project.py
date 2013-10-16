@@ -1770,6 +1770,7 @@ class Project(object):
 
     def data_synthetic_iterator(self, event_name, iteration_name):
 
+        import inspect
         from lasif import rotations
         from obspy import read, Stream
 
@@ -1842,13 +1843,18 @@ class Project(object):
                 if not this_waveforms:
                     msg = "Could not retrieve data for station '%s'." % \
                         station_id
-                    warnings.warn(msg)
+                    # Always raise the warning!
+                    warnings.warn_explicit(
+                        msg, UserWarning, __file__,
+                        inspect.currentframe().f_back.f_lineno)
                     return None
 
                 # Now attempt to get the synthetics.
                 if station_id not in synthetic_files:
                     msg = "No synthetics found for station '%s'" % station_id
-                    warnings.warn(msg)
+                    warnings.warn_explicit(
+                        msg, UserWarning, __file__,
+                        inspect.currentframe().f_back.f_lineno)
                     return None
 
                 station_synthetics = synthetic_files[station_id]
@@ -1856,7 +1862,9 @@ class Project(object):
                 if len(station_synthetics) != 3:
                     msg = "Found %i not 3 synthetics for station '%s'." % (
                         len(station_synthetics), station_id)
-                    warnings.warn(msg)
+                    warnings.warn_explicit(
+                        msg, UserWarning, __file__,
+                        inspect.currentframe().f_back.f_lineno)
                     return None
 
                 synthetics = Stream()
