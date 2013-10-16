@@ -3,7 +3,7 @@ from obspy import UTCDateTime
 import lasif.visualization
 map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
     rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
-    show_plot=False, zoom=True)
+    zoom=True)
 event_info = {'depth_in_km': 4.5, 'region': 'TURKEY', 'longitude': 40.14,
     'magnitude': 5.1, 'magnitude_type': 'Mwc', 'latitude': 38.82,
     'origin_time': UTCDateTime(2010, 3, 24, 14, 11, 31)}

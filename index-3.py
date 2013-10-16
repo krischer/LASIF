@@ -1,7 +1,7 @@
 import lasif.visualization
 map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
     rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
-    show_plot=False, zoom=True)
+    zoom=True)
 # Create event.
 from obspy.core.event import *
 ev = Event()
