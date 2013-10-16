@@ -23,6 +23,12 @@ import sys
 import warnings
 
 
+# SES3D currently only identifies synthetics  via the filename. Use this
+# template to get the name of a certain file.
+SYNTHETIC_FILENAME_TEMPLATE = \
+    "{network:_<2}.{station:_<5}.{location:_<3}.{component}"
+
+
 class LASIFException(Exception):
     """
     Base LASIF specific exception.
@@ -1753,6 +1759,82 @@ class Project(object):
             fh.write("\n")
 
         print "Wrote %i adjoint sources to %s." % (_i, output_folder)
+
+    def _get_data(self, event_name, station_name, data_type, **kwargs):
+        """
+        Helper function returning a dictionary of suitable filenames.
+
+        Will return a dictionary with keys "N", "E", "Z" for raw and processed
+        data and a dictionary with "X", "Y", "Z" for synthetic data. The values
+        will be the corresponding filenames.
+
+        :type event_name: str
+        :param event_name: Only data for this event is accepted.
+        :type station_name: str
+        :param station_name: Only data for this station is accepted.
+        :type data_type: str
+        :param data_type: The type of data to retrieve. One of ["raw",
+            "processed", "synthetic"].
+        :type tag: str, optional
+        :param tag: The tag of the processed data when requesting processed
+            files.
+        :type iteration: str, optional
+        :param iteration: The iteration when requesting synthetic data.
+        """
+        network, station = station_name.split(".")
+
+        if data_type == "raw":
+            waveforms = self._get_waveform_cache_file(event_name, "raw")
+            if not waveforms:
+                return {}
+            waveforms = waveforms.get_files_for_station(network, station)
+
+            files = {}
+            for waveform in waveforms:
+                files[waveform["channel"][-1]] = waveform["filename"]
+
+            return files
+        elif data_type == "processed":
+            if not "tag" in kwargs:
+                msg = "tag must be given when requesting processed data"
+                raise ValueError(msg)
+            waveforms = self._get_waveform_cache_file(event_name,
+                                                      kwargs["tag"])
+
+            if not waveforms:
+                return {}
+            waveforms = waveforms.get_files_for_station(network, station)
+
+            files = {}
+            for waveform in waveforms:
+                files[waveform["channel"][-1]] = waveform["filename"]
+
+            return files
+        elif data_type == "synthetic":
+            if not "iteration" in kwargs:
+                msg = "iteration must be given when requesting synthetics"
+                raise ValueError(msg)
+            # First step is to get the folder.
+            folder_name = os.path.join(self.paths["synthetics"], event_name,
+                                       self._get_long_iteration_name(
+                                           kwargs["iteration"]))
+            if not os.path.exists(folder_name):
+                return []
+            files = {}
+
+            for component in ("X", "Y", "Z"):
+                filename = os.path.join(
+                    folder_name, SYNTHETIC_FILENAME_TEMPLATE.format(
+                        network=network, station=station, location="",
+                        component=component.lower()))
+                if not os.path.exists(filename):
+                    continue
+                files[component] = filename
+
+            return files
+        else:
+            msg = "data_type must be one of 'raw', 'processed', or 'synthetic'"
+            raise ValueError(msg)
 
     def data_synthetic_iterator(self, event_name, iteration_name):
 
