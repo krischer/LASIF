@@ -19,6 +19,7 @@ methods are called.
 import matplotlib as mpl
 mpl.use("agg")
 
+import matplotlib.pyplot as plt
 import numpy as np
 import mock
 import os
@@ -157,7 +158,7 @@ def test_plotting_functions(cli):
 
     with mock.patch("lasif.project.Project.plot_event") as patch:
         cli.run("lasif plot_event EVENT_NAME")
-        patch.assert_called_once_with("EVENT_NAME")
+        patch.assert_called_once_with("EVENT_NAME", force_quit=True)
 
     # Test the different variations of the plot_events function.
     with mock.patch("lasif.project.Project.plot_events") as patch:
@@ -385,6 +386,8 @@ def test_preprocessing_and_launch_misfit_gui(cli):
         cli.run("lasif launch_misfit_gui 1 "
                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
         patch.assert_called_once()
+    # Close the plot for future calls.
+    plt.close()
 
 
 def test_preprocessing_event_limiting_works(cli):
