@@ -17,6 +17,11 @@ import warnings
 from lasif.tools import simple_resp_parser
 from lasif.tools.file_info_cache import FileInfoCache
 
+# The tolerances to which station coordinates for different locations are
+# considered equal.
+TOL_DEGREES = 0.01
+TOL_METERS = 1000.0
+
 
 class StationCache(FileInfoCache):
     """
@@ -118,18 +123,39 @@ class StationCache(FileInfoCache):
         stations = {}
 
         for result in results:
-            stat_id = ".".join(result[0].split(".")[:2])
-            if stat_id in stations:
-                msg = ("Several different coordinates found in station cache "
-                       "for %s.%s. The first one found will be chosen.") % (
-                    network, station)
-                warnings.warn(msg)
-                continue
-            stations[stat_id] = {
+            network_id, station_id = result[0].split(".")[:2]
+            stat_id = ".".join((network_id, station_id))
+            this_station = {
                 "latitude": result[1],
                 "longitude": result[2],
                 "elevation_in_m": result[3],
                 "local_depth_in_m": result[4]}
+
+            if stat_id in stations:
+                if this_station == stations[stat_id]:
+                    continue
+                new_station = stations[stat_id]
+
+                # Check if they are equal to a certain tolerance.
+                if \
+                        abs(this_station["latitude"] -
+                            new_station["latitude"]) > TOL_DEGREES \
+                        or \
+                        abs(this_station["longitude"] -
+                            new_station["longitude"]) > TOL_DEGREES \
+                        or \
+                        abs(this_station["elevation_in_m"] -
+                            new_station["elevation_in_m"]) > TOL_METERS \
+                        or \
+                        abs(this_station["local_depth_in_m"] -
+                            new_station["local_depth_in_m"]) > TOL_METERS:
+                    msg = ("Several different coordinates set found in "
+                           "station cache for %s. The first one found will be "
+                           "chosen.") % stat_id
+                    warnings.warn(msg)
+                continue
+
+            stations[stat_id] = this_station
 
         self.__cache_station_coordinates = stations
         # Recurse once; this only accesses the cache.
