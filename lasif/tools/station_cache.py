@@ -95,33 +95,45 @@ class StationCache(FileInfoCache):
     def get_coordinates_for_station(self, network, station):
         """
         """
-        query = """
-        SELECT latitude, longitude, elevation_in_m, local_depth_in_m
-        FROM indices
-        WHERE channel_id LIKE ?
-        """
-        result = self.db_cursor.execute(
-            query, ("%s.%s.%%" % (network, station), )).fetchall()
-        if not result:
-            msg = "No coordinates found in station cache for %s.%s." % (
-                network, station)
-            raise ValueError(msg)
-        if len(set(result)) != 1:
-            msg = ("Several different coordinates found in station cache "
-                   "for %s.%s. The first one found will be chosen.") % (
-                network, station)
-            warnings.warn(msg)
-        result = result[0]
+        # Caching per instance. Otherwise this is very very slow.
+        stat_id = network + "." + station
+        if hasattr(self, "_StationCache__cache_station_coordinates"):
+            try:
+                coordinates = self.__cache_station_coordinates[stat_id]
+            except:
+                msg = "No coordinates found for whatever reason."
+                raise ValueError(msg)
+            else:
+                return coordinates
 
-        if None in result:
-            msg = "Station '%s.%s' exists, but no coordinates available." % (
-                network, station)
-            raise ValueError(msg)
-        return {
-            "latitude": result[0],
-            "longitude": result[1],
-            "elevation_in_m": result[2],
-            "local_depth_in_m": result[3]}
+        # Otherwise get all coordinates!
+        query = """
+        SELECT channel_id, latitude, longitude, elevation_in_m,
+            local_depth_in_m
+        FROM indices
+        WHERE latitude IS NOT NULL
+        """
+        results = self.db_cursor.execute(query).fetchall()
+
+        stations = {}
+
+        for result in results:
+            stat_id = ".".join(result[0].split(".")[:2])
+            if stat_id in stations:
+                msg = ("Several different coordinates found in station cache "
+                       "for %s.%s. The first one found will be chosen.") % (
+                    network, station)
+                warnings.warn(msg)
+                continue
+            stations[stat_id] = {
+                "latitude": result[1],
+                "longitude": result[2],
+                "elevation_in_m": result[3],
+                "local_depth_in_m": result[4]}
+
+        self.__cache_station_coordinates = stations
+        # Recurse once; this only accesses the cache.
+        return self.get_coordinates_for_station(network, station)
 
     def get_channels(self):
         """
