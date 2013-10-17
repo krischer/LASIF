@@ -111,8 +111,12 @@ class StationCache(FileInfoCache):
                    "for %s.%s. The first one found will be chosen.") % (
                 network, station)
             warnings.warn(msg)
-
         result = result[0]
+
+        if None in result:
+            msg = "Station '%s.%s' exists, but no coordinates available." % (
+                network, station)
+            raise ValueError(msg)
         return {
             "latitude": result[0],
             "longitude": result[1],
