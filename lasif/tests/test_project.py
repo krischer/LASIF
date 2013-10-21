@@ -969,3 +969,53 @@ def test_coordinate_retrieval(project):
         assert project._get_coordinates_for_waveform_file(
             filename, "raw", "KO", "KULA", event_name) == result
         patch.assert_called_once()
+
+
+def test_get_and_rotate_synthetics(project):
+    """
+    Tests the reading and autorotation of synthetics.
+    """
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+
+    # Currently no rotation is defined in the project and thus nothing should
+    # be rotated.
+    with mock.patch("lasif.rotations.rotate_data") as patch:
+        st = project._get_and_rotate_synthetics(
+            event_name, "HL.ARG", iteration_name="1")
+        assert patch.call_count == 0
+
+    assert len(st) == 3
+
+    assert st[0].id == "HL.ARG..E"
+    assert st[1].id == "HL.ARG..N"
+    assert st[2].id == "HL.ARG..Z"
+
+    origin_time = project.get_event_info(event_name)["origin_time"]
+    assert st[0].stats.starttime == origin_time
+    assert st[1].stats.starttime == origin_time
+    assert st[2].stats.starttime == origin_time
+
+    # Now set the rotation angle. This means that now the synthetics have to be
+    # rotated!
+    project.domain["rotation_angle"] = 90.0
+    with mock.patch("lasif.rotations.rotate_data") as patch:
+        patch.return_value = [tr.data for tr in st]
+        st = project._get_and_rotate_synthetics(
+            event_name, "HL.ARG", iteration_name="1")
+        assert patch.call_count == 1
+
+    # Actually execute it instead of using the mock.
+    st = project._get_and_rotate_synthetics(event_name, "HL.ARG",
+                                            iteration_name="1")
+
+    # The rest should remain the same.
+    assert len(st) == 3
+
+    assert st[0].id == "HL.ARG..E"
+    assert st[1].id == "HL.ARG..N"
+    assert st[2].id == "HL.ARG..Z"
+
+    origin_time = project.get_event_info(event_name)["origin_time"]
+    assert st[0].stats.starttime == origin_time
+    assert st[1].stats.starttime == origin_time
+    assert st[2].stats.starttime == origin_time

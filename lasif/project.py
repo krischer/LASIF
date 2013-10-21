@@ -1822,14 +1822,14 @@ class Project(object):
         The data will be rotated to N, Z, and E and have the correct starttime.
         """
         from obspy import read, Stream
-        #from lasif import rotations
+        from lasif import rotations
 
         # This maps the synthetic channels to ZNE.
         synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
 
         # Get all necessary filenames.
-        filenames = \
-            self._get_data(event_name, station_name, iteration=iteration_name)
+        filenames = self._get_data(event_name, station_name, "synthetic",
+                                   iteration=iteration_name)
 
         # Only three-channel synthetics can be read.
         if sorted(filenames.keys()) != ["X", "Y", "Z"]:
@@ -1838,36 +1838,49 @@ class Project(object):
                    "'%s'." % (event_name, station_name, iteration_name))
             raise ValueError(msg)
 
+        network_code, station_code = station_name.split(".")
+
         synthetics = Stream()
-        for filename in filenames:
-            st = read(filename)
+        for filename in filenames.itervalues():
+            tr = read(filename)[0]
+            # Assign network and station codes.
+            tr.stats.network = network_code
+            tr.stats.station = station_code
             # Flip South and downwards pointing data. We want North and Up.
-            if st[0].stats.channel in ["X", "Z"]:
-                st[0].data *= -1.0
-            st[0].stats.channel = \
-                synthetic_coordinates_mapping[st[0].stats.channel]
+            if tr.stats.channel in ["X", "Z"]:
+                tr.data *= -1.0
+            tr.stats.channel = \
+                synthetic_coordinates_mapping[tr.stats.channel]
             # Set the correct starttime.
-            st[0].stats.starttime = \
-                self.get_event_info[event_name]["origin_time"]
-            synthetics += st
+            tr.stats.starttime = \
+                self.get_event_info(event_name)["origin_time"]
+            synthetics += tr
 
-        # Perform the rotations if necessary.
+        synthetics.sort()
 
-        # Rotate the station coordinates to the simulation domain to see where
-        # it actually was recorded.
+        # Finished if no rotation is required.
+        if not self.domain["rotation_angle"]:
+            return synthetics
+
+        coordinates = self._get_coordinates_for_waveform_file(
+            filename, "synthetic", network_code, station_code, event_name)
 
         # First rotate the station back to see, where it was
         # recorded.
-        #lat, lng = rotations.rotate_lat_lon(
-            #coordinates["latitude"], coordinates["longitude"],
-            #self.rot_axis, -self.rot_angle)
-        ## Rotate the synthetics.
-        #n, e, z = rotations.rotate_data(
-            #n_s_trace.data, e_s_trace.data, z_s_trace.data, lat,
-            #lng, self.rot_axis, self.rot_angle)
-        #n_s_trace.data = n
-        #e_s_trace.data = e
-        #z_s_trace.data = z
+        lat, lng = rotations.rotate_lat_lon(
+            coordinates["latitude"], coordinates["longitude"],
+            self.domain["rotation_axis"], -self.domain["rotation_angle"])
+        # Rotate the synthetics.
+        n, e, z = rotations.rotate_data(
+            synthetics.select(component="N")[0].data,
+            synthetics.select(component="E")[0].data,
+            synthetics.select(component="Z")[0].data,
+            lat, lng,
+            self.domain["rotation_axis"],
+            self.domain["rotation_angle"])
+        synthetics.select(component="N")[0].data = n
+        synthetics.select(component="E")[0].data = e
+        synthetics.select(component="Z")[0].data = z
 
         return synthetics
 
