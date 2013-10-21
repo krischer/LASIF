@@ -373,13 +373,14 @@ def test_preprocessing_and_launch_misfit_gui(cli):
         cli.run("lasif launch_misfit_gui 1 "
                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
         patch.assert_called_once()
-        ev, it, proj, wm, ad_m = patch.call_args[0]
+        ev, tw, proj, wm, ad_m, it = patch.call_args[0]
         assert ev == cli.project.get_event(
             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
         assert proj.paths["root"] == cli.project.paths["root"]
-        assert it.__class__.__name__ == "TwoWayIter"
+        assert tw.__class__.__name__ == "TwoWayIter"
         assert wm.__class__.__name__ == "MisfitWindowManager"
         assert ad_m.__class__.__name__ == "AdjointSourceManager"
+        assert it.__class__.__name__ == "Iteration"
 
     # Assert it actually opens. Stop at the show() call.
     with mock.patch("matplotlib.pyplot.show") as patch:
