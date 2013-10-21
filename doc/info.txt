@@ -1,0 +1,7 @@
+Color Scheme for Plots:
+
+Green:           #468966     70, 137, 102
+Sand:            #FFF0A5    255, 240, 165
+Egg-like Color:  #FFB03B    255, 176,  59
+Orange:          #B64926    182,  73,  38
+Red:             #8E2800    142,  40,   0
