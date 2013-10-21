@@ -1026,7 +1026,7 @@ class Project(object):
         return self._station_cache
 
     def _get_waveform_cache_file(self, event_name, tag, waveform_type="data",
-                                 show_progress=True):
+                                 show_progress=True, use_cache=True):
         """
         Helper function returning the waveform cache file for the data from a
         specific event and a certain tag.
@@ -1034,6 +1034,15 @@ class Project(object):
         _get_waveform_cache_file("event_1", "raw", waveform_type="data")
 
         """
+        # If already loaded, simply load the cached one.
+        cache_tag = "%s.%s.%s.%s" % (event_name, tag, waveform_type,
+                                     show_progress)
+        if not hasattr(self, "_Project__cache_waveform_cache_objects"):
+            self.__cache_waveform_cache_objects = {}
+
+        if use_cache and cache_tag in self.__cache_waveform_cache_objects:
+            return self.__cache_waveform_cache_objects[cache_tag]
+
         if waveform_type not in ["data", "synthetics"]:
             msg = "waveform_type must be either 'data' or 'synthetics'."
             raise LASIFException(msg)
@@ -1046,7 +1055,11 @@ class Project(object):
 
         if not os.path.exists(data_path):
             return False
-        return WaveformCache(waveform_db_file, data_path, show_progress)
+
+        cache = WaveformCache(waveform_db_file, data_path, show_progress)
+        # Store in cache.
+        self.__cache_waveform_cache_objects[cache_tag] = cache
+        return cache
 
     def get_stations_for_event(self, event_name):
         """
@@ -1087,7 +1100,12 @@ class Project(object):
             chan_id = waveform["channel_id"]
             if chan_id not in available_channels:
                 continue
-            coordinates = self._get_coordinates_for_channel(waveform)
+            coordinates = self._get_coordinates_for_waveform_file(
+                waveform_filename=waveform["filename"],
+                waveform_type="raw",
+                network_id=waveform["network"],
+                station_id=waveform["station"],
+                event_name=event_name)
             if not coordinates:
                 msg = "No coordinates available for waveform file '%s'" % \
                     waveform["filename"]
@@ -1100,23 +1118,31 @@ class Project(object):
                 "local_depth": coordinates["local_depth_in_m"]}
         return stations
 
-    def _get_coordinates_for_channel(self, waveform_cache_entry):
+    def _get_coordinates_for_waveform_file(self, waveform_filename,
+                                           waveform_type, network_id,
+                                           station_id, event_name):
         """
         Internal function used to grab station coordinates from the various
         sources.
 
         Used to make sure the same functionality is used everywhere.
 
-        :param waveform_cache_entry: The entry of the file in question from the
-            waveform cache.
+        :param waveform_filename: The absolute filename of the waveform.
+        :param waveform_type: The type of waveform file. Could be deduced from
+            the pathname but probably not necessary as the information is
+            likely readily available in situations where this method is called.
+            One of "raw", "processed", and "synthetic"
+        :param network_id: The network id of the file. Same reasoning as for
+            the waveform_type.
+        :param station_id: The station id of the file. Same reasoning as for
+            the waveform_type.
+        :param event_name: The name of the event. Same reasoning as for the
+            waveform_type.
 
         Returns a dictionary containing "latitude", "longitude", "elevation",
             "local_depth". Returns None if no coordinates could be found.
         """
-        from lasif.tools.inventory_db import get_station_coordinates
-        channel_id = waveform_cache_entry["channel_id"]
-        network_id, station_id = channel_id.split(".")[:2]
-
+        # Attempt to first retrieve the coordinates from the station files.
         try:
             coordinates = self.station_cache.get_coordinates_for_station(
                 network_id, station_id)
@@ -1125,18 +1151,34 @@ class Project(object):
         else:
             return coordinates
 
-        # In the
-        if waveform_cache_entry["latitude"]:
+        # The next step is to check for coordinates in sac files. For raw data
+        # files, this is easy. For processed and synthetic data, the
+        # corresponding raw data files will be attempted to be retrieved.
+        cache = self._get_waveform_cache_file(event_name, "raw")
+
+        if waveform_type in ("synthetic", "processed"):
+            files = cache.get_files_for_station(network_id, station_id)
+            if not files:
+                waveform_cache_entry = None
+            else:
+                waveform_cache_entry = files[0]
+        else:
+            waveform_cache_entry = cache.get_details(waveform_filename)
+
+        if waveform_cache_entry and waveform_cache_entry["latitude"]:
             return {
                 "latitude": waveform_cache_entry["latitude"],
                 "longitude": waveform_cache_entry["longitude"],
                 "elevation_in_m": waveform_cache_entry["elevation_in_m"],
                 "local_depth_in_m": waveform_cache_entry["local_depth_in_m"]}
+
+        # Last but not least resort to the Inventory Database.
         else:
+            from lasif.tools.inventory_db import get_station_coordinates
             # Now check if the station_coordinates are available in the
             # inventory DB and use those.
             coords = get_station_coordinates(
-                self.paths["inv_db_file"], ".".join(channel_id.split(".")[:2]),
+                self.paths["inv_db_file"], ".".join((network_id, station_id)),
                 self.paths["cache"],
                 self.config["download_settings"]["arclink_username"])
             if coords:
@@ -1765,6 +1807,64 @@ class Project(object):
 
         print "Wrote %i adjoint sources to %s." % (_i, output_folder)
 
+    def _get_and_rotate_synthetics(self, event_name, station_name,
+                                   iteration_name):
+        """
+        Helper function returning a three-channel Stream object for the
+        requested synthetics.
+
+        The data will be rotated to N, Z, and E and have the correct starttime.
+        """
+        from obspy import read, Stream
+        #from lasif import rotations
+
+        # This maps the synthetic channels to ZNE.
+        synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
+
+        # Get all necessary filenames.
+        filenames = \
+            self._get_data(event_name, station_name, iteration=iteration_name)
+
+        # Only three-channel synthetics can be read.
+        if sorted(filenames.keys()) != ["X", "Y", "Z"]:
+            msg = ("Could not find all three required components for the "
+                   "synthetics for event '%s' at station '%s' for iteration "
+                   "'%s'." % (event_name, station_name, iteration_name))
+            raise ValueError(msg)
+
+        synthetics = Stream()
+        for filename in filenames:
+            st = read(filename)
+            # Flip South and downwards pointing data. We want North and Up.
+            if st[0].stats.channel in ["X", "Z"]:
+                st[0].data *= -1.0
+            st[0].stats.channel = \
+                synthetic_coordinates_mapping[st[0].stats.channel]
+            # Set the correct starttime.
+            st[0].stats.starttime = \
+                self.get_event_info[event_name]["origin_time"]
+            synthetics += st
+
+        # Perform the rotations if necessary.
+
+        # Rotate the station coordinates to the simulation domain to see where
+        # it actually was recorded.
+
+        # First rotate the station back to see, where it was
+        # recorded.
+        #lat, lng = rotations.rotate_lat_lon(
+            #coordinates["latitude"], coordinates["longitude"],
+            #self.rot_axis, -self.rot_angle)
+        ## Rotate the synthetics.
+        #n, e, z = rotations.rotate_data(
+            #n_s_trace.data, e_s_trace.data, z_s_trace.data, lat,
+            #lng, self.rot_axis, self.rot_angle)
+        #n_s_trace.data = n
+        #e_s_trace.data = e
+        #z_s_trace.data = z
+
+        return synthetics
+
     def _get_data(self, event_name, station_name, data_type, **kwargs):
         """
         Helper function returning a dictionary of suitable filenames.
@@ -1848,6 +1948,7 @@ class Project(object):
         """
         import inspect
         from lasif import rotations
+        import numpy as np
         from obspy import read, Stream
 
         # Retrieve information on the event, iteration and waveforms
@@ -1964,17 +2065,22 @@ class Project(object):
                     synth.stats.channel = SYNTH_MAPPING[synth.stats.channel]
                     synth.stats.starttime = event_info["origin_time"]
 
-                # Scale the data
                 try:
                     n_d_trace = data.select(component="N")[0]
+                    n_d_trace.data = np.require(n_d_trace.data,
+                                                dtype="float32")
                 except:
                     n_d_trace = None
                 try:
                     e_d_trace = data.select(component="E")[0]
+                    e_d_trace.data = np.require(e_d_trace.data,
+                                                dtype="float32")
                 except:
                     e_d_trace = None
                 try:
                     z_d_trace = data.select(component="Z")[0]
+                    z_d_trace.data = np.require(z_d_trace.data,
+                                                dtype="float32")
                 except Exception:
                     z_d_trace = None
                 n_s_trace = synthetics.select(component="N")[0]
@@ -2049,7 +2155,8 @@ class Project(object):
                         "not use it to extract any metainformation.")
             elif tag == "raw":
                 # Get the corresponding waveform cache file.
-                waveforms = self._get_waveform_cache_file(event_name, "raw")
+                waveforms = self._get_waveform_cache_file(event_name, "raw",
+                                                          use_cache=False)
                 if not waveforms:
                     msg = "LASIF could not read the waveform file."
                     raise LASIFException(msg)
@@ -2214,10 +2321,13 @@ class Project(object):
             # Events with a weight of 0 are not considered.
             if event_info["event_weight"] == 0.0:
                 continue
-            # Get the existing files.
-            raw_waveforms = self._get_waveform_cache_file(event_name, "raw")
-            proc_waveforms = self._get_waveform_cache_file(event_name,
-                                                           proc_tag)
+            # Get the existing files. This command can potentially be called
+            # multiple times per instance with updates in-between. Thus caching
+            # should be disabled.
+            raw_waveforms = self._get_waveform_cache_file(event_name, "raw",
+                                                          use_cache=False)
+            proc_waveforms = self._get_waveform_cache_file(
+                event_name, proc_tag, use_cache=False)
             # Extract the channels if some exist.
             raw_channels = {}
             if raw_waveforms:
