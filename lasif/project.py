@@ -1966,12 +1966,10 @@ class Project(object):
         one event and iteration.
         """
         import inspect
-        from lasif import rotations
         import numpy as np
         from obspy import read, Stream
 
         # Retrieve information on the event, iteration and waveforms
-        event_info = self.get_event_info(event_name)
         iteration = self._get_iteration(iteration_name)
         # This are all stations in the current iteration.
         iteration_stations = iteration.events[event_name]["stations"].keys()
@@ -1994,14 +1992,11 @@ class Project(object):
             msg = "Could not find suitable synthetic files."
             raise ValueError(msg)
 
-        SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
-
         class TwoWayIter(object):
-            def __init__(self, rot_angle=0.0, rot_axis=[0.0, 0.0, 1.0]):
+            def __init__(self, project):
                 self.items = stations.items()
                 self.current_index = -1
-                self.rot_angle = rot_angle
-                self.rot_axis = rot_axis
+                self.project = project
 
             def next(self):
                 """
@@ -2036,14 +2031,14 @@ class Project(object):
                 Return the value for the currently set index.
                 """
                 station_id, coordinates = self.items[self.current_index]
-                data = Stream()
 
+                # Get the processed data.
+                data = Stream()
                 # Now get the actual waveform files. Also find the
                 # corresponding station file and check the coordinates.
                 this_waveforms = {
                     _i["channel_id"]: _i for _i in waveforms
                     if _i["channel_id"].startswith(station_id + ".")}
-
                 for key, value in this_waveforms.iteritems():
                     data += read(value["filename"])[0]
                 if not this_waveforms:
@@ -2055,94 +2050,33 @@ class Project(object):
                         inspect.currentframe().f_back.f_lineno)
                     return None
 
-                # Now attempt to get the synthetics.
-                if station_id not in synthetic_files:
+                # Get the synthetics.
+                try:
+                    synthetics = self.project._get_and_rotate_synthetics(
+                        event_name, station_id, iteration_name)
+                except ValueError:
                     msg = "No synthetics found for station '%s'" % station_id
                     warnings.warn_explicit(
                         msg, UserWarning, __file__,
                         inspect.currentframe().f_back.f_lineno)
                     return None
 
-                station_synthetics = synthetic_files[station_id]
-
-                if len(station_synthetics) != 3:
-                    msg = "Found %i not 3 synthetics for station '%s'." % (
-                        len(station_synthetics), station_id)
-                    warnings.warn_explicit(
-                        msg, UserWarning, __file__,
-                        inspect.currentframe().f_back.f_lineno)
-                    return None
-
-                synthetics = Stream()
-
-                # Read all synthetics.
-                for filename in station_synthetics.itervalues():
-                    synthetics += read(filename)
-                for synth in synthetics:
-                    if synth.stats.channel in ["X", "Z"]:
-                        synth.data *= -1.0
-                    synth.stats.channel = SYNTH_MAPPING[synth.stats.channel]
-                    synth.stats.starttime = event_info["origin_time"]
-
-                try:
-                    n_d_trace = data.select(component="N")[0]
-                    n_d_trace.data = np.require(n_d_trace.data,
-                                                dtype="float32")
-                except:
-                    n_d_trace = None
-                try:
-                    e_d_trace = data.select(component="E")[0]
-                    e_d_trace.data = np.require(e_d_trace.data,
-                                                dtype="float32")
-                except:
-                    e_d_trace = None
-                try:
-                    z_d_trace = data.select(component="Z")[0]
-                    z_d_trace.data = np.require(z_d_trace.data,
-                                                dtype="float32")
-                except Exception:
-                    z_d_trace = None
-                n_s_trace = synthetics.select(component="N")[0]
-                e_s_trace = synthetics.select(component="E")[0]
-                z_s_trace = synthetics.select(component="Z")[0]
-
-                #- Rotate the synthetics if nessesary. ------------------------
-                if self.rot_angle:
-                    # First rotate the station back to see, where it was
-                    # recorded.
-                    lat, lng = rotations.rotate_lat_lon(
-                        coordinates["latitude"], coordinates["longitude"],
-                        self.rot_axis, -self.rot_angle)
-                    # Rotate the synthetics.
-                    n, e, z = rotations.rotate_data(
-                        n_s_trace.data, e_s_trace.data, z_s_trace.data, lat,
-                        lng, self.rot_axis, self.rot_angle)
-                    n_s_trace.data = n
-                    e_s_trace.data = e
-                    z_s_trace.data = z
-
-                #- Scale the data to the synthetics. --------------------------
-                if n_d_trace:
-                    scaling_factor = n_s_trace.data.ptp() / \
-                        n_d_trace.data.ptp()
-                    n_d_trace.stats.scaling_factor = scaling_factor
-                    n_d_trace.data *= scaling_factor
-                if e_d_trace:
-                    scaling_factor = e_s_trace.data.ptp() / \
-                        e_d_trace.data.ptp()
-                    e_d_trace.stats.scaling_factor = scaling_factor
-                    e_d_trace.data *= scaling_factor
-                if z_d_trace:
-                    scaling_factor = z_s_trace.data.ptp() / \
-                        z_d_trace.data.ptp()
-                    z_d_trace.stats.scaling_factor = scaling_factor
-                    z_d_trace.data *= scaling_factor
+                for data_tr in data:
+                    # Explicit conversion to floating points.
+                    data_tr.data = np.require(data_tr.data, dtype=np.float32)
+                    # Scale the data to the synthetics.
+                    synthetic_tr = synthetics.select(
+                        component=data_tr.stats.channel[-1])[0]
+                    scaling_factor = synthetic_tr.data.ptp() / \
+                        data_tr.data.ptp()
+                    # Store and apply the scaling.
+                    data_tr.stats.scaling_factor = scaling_factor
+                    data_tr.data *= scaling_factor
 
                 return {"data": data, "synthetics": synthetics,
                         "coordinates": coordinates}
 
-        return TwoWayIter(self.domain["rotation_angle"],
-                          self.domain["rotation_axis"])
+        return TwoWayIter(project=self)
 
     def get_debug_information_for_file(self, filename):
         """

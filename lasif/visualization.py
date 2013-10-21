@@ -361,7 +361,7 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
 
 
 def plot_data_for_station(station, raw_files, processed_files,
-                          synthetic_files, event, project=None):
+                          synthetic_files, event, project):
     """
     """
     import datetime
@@ -424,29 +424,28 @@ def plot_data_for_station(station, raw_files, processed_files,
         0.02, 0.97, "Synthetic Data", transform=synth_check_axes.transAxes,
         verticalalignment="top", horizontalalignment="left", fontsize=10)
 
-    if project:
-        bounds = project.domain["bounds"]
-        map_object = plot_domain(
-            bounds["minimum_latitude"], bounds["maximum_latitude"],
-            bounds["minimum_longitude"], bounds["maximum_longitude"],
-            bounds["boundary_width_in_degree"],
-            rotation_axis=project.domain["rotation_axis"],
-            rotation_angle_in_degree=project.domain["rotation_angle"],
-            plot_simulation_domain=False, zoom=True, ax=map_axes)
+    bounds = project.domain["bounds"]
+    map_object = plot_domain(
+        bounds["minimum_latitude"], bounds["maximum_latitude"],
+        bounds["minimum_longitude"], bounds["maximum_longitude"],
+        bounds["boundary_width_in_degree"],
+        rotation_axis=project.domain["rotation_axis"],
+        rotation_angle_in_degree=project.domain["rotation_angle"],
+        plot_simulation_domain=False, zoom=True, ax=map_axes)
 
-        plot_stations_for_event(map_object=map_object,
-                                station_dict={station["id"]: station},
-                                event_info=event)
-        # Plot the beachball for one event.
-        plot_events([project.get_event(event["event_name"])],
-                    map_object=map_object, beachball_size=0.05)
-        dist = calcVincentyInverse(
-            event["latitude"], event["longitude"], station["latitude"],
-            station["longitude"])[0] / 1000.0
+    plot_stations_for_event(map_object=map_object,
+                            station_dict={station["id"]: station},
+                            event_info=event)
+    # Plot the beachball for one event.
+    plot_events([project.get_event(event["event_name"])],
+                map_object=map_object, beachball_size=0.05)
+    dist = calcVincentyInverse(
+        event["latitude"], event["longitude"], station["latitude"],
+        station["longitude"])[0] / 1000.0
 
-        map_axes.set_title("Epicentral distance: %.1f km | Mag: %.1f %s" %
-                           (dist, event["magnitude"], event["magnitude_type"]),
-                           fontsize=10)
+    map_axes.set_title("Epicentral distance: %.1f km | Mag: %.1f %s" %
+                       (dist, event["magnitude"], event["magnitude_type"]),
+                       fontsize=10)
 
     SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
 

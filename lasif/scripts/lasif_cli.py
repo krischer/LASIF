@@ -607,7 +607,10 @@ def lasif_launch_misfit_gui(parser, args):
     adj_src_manager = AdjointSourceManager(ad_src_directory)
 
     event = proj.get_event(event_name)
-    MisfitGUI(event, iterator, proj, window_manager, adj_src_manager)
+    iteration = proj._get_iteration(iteration_name)
+
+    MisfitGUI(event, iterator, proj, window_manager, adj_src_manager,
+              iteration)
 
 
 @command_group("Iteration Management")

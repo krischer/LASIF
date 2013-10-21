@@ -67,7 +67,7 @@ KEYMAP = {
 
 class MisfitGUI:
     def __init__(self, event, seismogram_generator, project, window_manager,
-                 adjoint_source_manager):
+                 adjoint_source_manager, iteration):
         # gather basic information --------------------------------------------
 
         plt.figure(figsize=(22, 12))
@@ -76,6 +76,7 @@ class MisfitGUI:
         self.event_longitude = event.origins[0].longitude
         self.event_depth = event.origins[0].depth
         self.project = project
+        self.process_parameters = iteration.get_process_params()
 
         self.adjoint_source_manager = adjoint_source_manager
         self.seismogram_generator = seismogram_generator
@@ -144,7 +145,7 @@ class MisfitGUI:
             bounds["boundary_width_in_degree"],
             rotation_axis=self.project.domain["rotation_axis"],
             rotation_angle_in_degree=self.project.domain["rotation_angle"],
-            plot_simulation_domain=False, show_plot=False, zoom=True)
+            plot_simulation_domain=False, zoom=True)
         visualization.plot_events([self.event], map_object=self.map_obj)
 
         # All kinds of buttons [left, bottom, width, height]
@@ -202,8 +203,8 @@ class MisfitGUI:
                 self.event_longitude, self.event_depth / 1000.0,
                 self.data["coordinates"]["latitude"],
                 self.data["coordinates"]["longitude"],
-                self.seismogram_generator.lowpass_period,
-                self.seismogram_generator.highpass_period)
+                1.0 / self.process_parameters["lowpass"],
+                1.0 / self.process_parameters["highpass"])
 
             for idx_start, idx_end in windows:
                 window_start = self.time_axis[int(round(idx_start))]
@@ -624,7 +625,7 @@ class MisfitGUI:
         #- Decimal percentage of cosine taper (ranging from 0 to 1). Set to the
         # fraction of the minimum period to the window length.
         taper_percentage = np.min(
-            [1.0, self.seismogram_generator.lowpass_period / window_width])
+            [1.0, 1.0 / self. process_parameters["lowpass"] / window_width])
 
         #- data
         data_trimmed = data.copy()
@@ -667,8 +668,10 @@ class MisfitGUI:
 
         #- compute misfit and adjoint source
         adsrc = adsrc_tf_phase_misfit(
-            t, data_d, synth_d, self.seismogram_generator.lowpass_period,
-            self.seismogram_generator.highpass_period, axis=self.misfit_axis,
+            t, data_d, synth_d,
+            1.0 / self.process_parameters["lowpass"],
+            1.0 / self.process_parameters["highpass"],
+            axis=self.misfit_axis,
             colorbar_axis=self.colorbar_axis)
 
         #- plot misfit distribution -------------------------------------------
@@ -688,7 +691,3 @@ class MisfitGUI:
         if plot_only is not True:
             self.adjoint_source_manager.write_adjoint_src(
                 adsrc["adjoint_source"], trace.id, starttime, endtime)
-
-
-def launch(event, seismogram_generator, project):
-    MisfitGUI(event, seismogram_generator, project)

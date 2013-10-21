@@ -102,9 +102,6 @@ def plot(D_p, tau_p, f_min=None, f_max=None):
     :type f_max: float, optional
     :param f_max: The maximum frequency over which the optimization was
         performed. If given it will be plotted.
-    :type show_plot: bool, optional
-    :param show_plot: Determines if plt.plot() will be called upon plot
-        completion. Defaults to True.
     """
     # The Q values to be plotted.
     Q_values = (100, 200, 300, 400)
