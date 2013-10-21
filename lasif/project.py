@@ -1965,9 +1965,7 @@ class Project(object):
         Return an iterator that returns processed data and synthetic files for
         one event and iteration.
         """
-        import inspect
-        import numpy as np
-        from obspy import read, Stream
+        from lasif.tools.two_way_data_synthetics_iterator import TwoWayIter
 
         # Retrieve information on the event, iteration and waveforms
         iteration = self._get_iteration(iteration_name)
@@ -1975,13 +1973,15 @@ class Project(object):
         iteration_stations = iteration.events[event_name]["stations"].keys()
 
         # List of all stations for the given event that are also specified in
-        # the iterations files.
+        # the iterations files. This result in a dictionary with additional
+        # metadata per station.
         stations = {key: value for key, value in
                     self.get_stations_for_event(event_name).iteritems()
                     if key in iteration_stations}
 
-        # All available processed waveform files for the current iteration.
-        waveforms = self._get_waveform_cache_file(
+        # Get all processed waveforms including metadata for the current event
+        # and iteration.
+        processed_waveforms = self._get_waveform_cache_file(
             event_name, iteration.get_processing_tag()).get_values()
 
         # All synthetic files.
@@ -1992,91 +1992,11 @@ class Project(object):
             msg = "Could not find suitable synthetic files."
             raise ValueError(msg)
 
-        class TwoWayIter(object):
-            def __init__(self, project):
-                self.items = stations.items()
-                self.current_index = -1
-                self.project = project
-
-            def next(self):
-                """
-                Called to retrieve the next item.
-
-                Raises a StopIteration exception when the end has been reached.
-                """
-                self.current_index += 1
-                if self.current_index > (len(self.items) - 1):
-                    self.current_index = len(self.items) - 1
-                    raise StopIteration
-                return self.get_value()
-
-            def prev(self):
-                """
-                Called to retrieve the previous item.
-
-                Raises a StopIteration exception when the beginning has been
-                reached.
-                """
-                self.current_index -= 1
-                if self.current_index < 0:
-                    self.current_index = 0
-                    raise StopIteration
-                return self.get_value()
-
-            def __iter__(self):
-                return self
-
-            def get_value(self):
-                """
-                Return the value for the currently set index.
-                """
-                station_id, coordinates = self.items[self.current_index]
-
-                # Get the processed data.
-                data = Stream()
-                # Now get the actual waveform files. Also find the
-                # corresponding station file and check the coordinates.
-                this_waveforms = {
-                    _i["channel_id"]: _i for _i in waveforms
-                    if _i["channel_id"].startswith(station_id + ".")}
-                for key, value in this_waveforms.iteritems():
-                    data += read(value["filename"])[0]
-                if not this_waveforms:
-                    msg = "Could not retrieve data for station '%s'." % \
-                        station_id
-                    # Always raise the warning!
-                    warnings.warn_explicit(
-                        msg, UserWarning, __file__,
-                        inspect.currentframe().f_back.f_lineno)
-                    return None
-
-                # Get the synthetics.
-                try:
-                    synthetics = self.project._get_and_rotate_synthetics(
-                        event_name, station_id, iteration_name)
-                except ValueError:
-                    msg = "No synthetics found for station '%s'" % station_id
-                    warnings.warn_explicit(
-                        msg, UserWarning, __file__,
-                        inspect.currentframe().f_back.f_lineno)
-                    return None
-
-                for data_tr in data:
-                    # Explicit conversion to floating points.
-                    data_tr.data = np.require(data_tr.data, dtype=np.float32)
-                    # Scale the data to the synthetics.
-                    synthetic_tr = synthetics.select(
-                        component=data_tr.stats.channel[-1])[0]
-                    scaling_factor = synthetic_tr.data.ptp() / \
-                        data_tr.data.ptp()
-                    # Store and apply the scaling.
-                    data_tr.stats.scaling_factor = scaling_factor
-                    data_tr.data *= scaling_factor
-
-                return {"data": data, "synthetics": synthetics,
-                        "coordinates": coordinates}
-
-        return TwoWayIter(project=self)
+        return TwoWayIter(project=self,
+                          stations=stations,
+                          processed_waveforms=processed_waveforms,
+                          event_name=event_name,
+                          iteration_name=iteration_name)
 
     def get_debug_information_for_file(self, filename):
         """
