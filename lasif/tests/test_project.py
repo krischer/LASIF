@@ -879,3 +879,93 @@ def test_get_data_helper_function(project):
     assert files == {
         "Z": os.path.join(project.paths["data"], event_name, tag,
                           "HL.ARG..BHZ.mseed")}
+
+
+def test_coordinate_retrieval(project):
+    """
+    Tests the retrieval of coordinates.
+    """
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+
+    # Remove the station file for KO_KULA. This is necessary for some tests
+    # later on.
+    os.remove(os.path.join(project.paths["dataless_seed"],
+                           "dataless.KO_KULA"))
+
+    # The first two files have coordinates from SEED.
+    filename = os.path.join(project.paths["data"], event_name, "raw",
+                            "HL.ARG..BHZ.mseed")
+    assert project._get_coordinates_for_waveform_file(
+        filename, "raw", "HL", "ARG", event_name) == \
+        {"latitude": 36.216, "local_depth_in_m": 0.0, "elevation_in_m": 170.0,
+         "longitude": 28.126}
+    filename = os.path.join(project.paths["data"], event_name, "raw",
+                            "HT.SIGR..HHZ.mseed")
+    assert project._get_coordinates_for_waveform_file(
+        filename, "raw", "HT", "SIGR", event_name) == \
+        {"latitude": 39.2114, "local_depth_in_m": 0.0, "elevation_in_m": 93.0,
+         "longitude": 25.8553}
+
+    # This should also work for the synthetics! In that case the coordinates
+    # are also found from the SEED files.
+    filename = os.path.join(project.paths["synthetics"], event_name,
+                            "ITERATION_1", "HL.ARG__.___.x")
+    assert project._get_coordinates_for_waveform_file(
+        filename, "synthetic", "HL", "ARG", event_name) == \
+        {"latitude": 36.216, "local_depth_in_m": 0.0, "elevation_in_m": 170.0,
+         "longitude": 28.126}
+    filename = os.path.join(project.paths["synthetics"], event_name,
+                            "ITERATION_1", "HL.ARG__.___.z")
+    assert project._get_coordinates_for_waveform_file(
+        filename, "synthetic", "HL", "ARG", event_name) == \
+        {"latitude": 36.216, "local_depth_in_m": 0.0, "elevation_in_m": 170.0,
+         "longitude": 28.126}
+    filename = os.path.join(project.paths["synthetics"], event_name,
+                            "ITERATION_1", "HT.SIGR_.___.y")
+    assert project._get_coordinates_for_waveform_file(
+        filename, "synthetic", "HT", "SIGR", event_name) == \
+        {"latitude": 39.2114, "local_depth_in_m": 0.0, "elevation_in_m": 93.0,
+         "longitude": 25.8553}
+
+    # Also with processed data. We thus need to create a new iteration and
+    # create processed data.
+    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.preprocess_data("1", [event_name], waiting_time=0.0)
+    processing_tag = project._get_iteration("1").get_processing_tag()
+
+    filename = os.path.join(project.paths["data"], event_name, processing_tag,
+                            "HL.ARG..BHZ.mseed")
+    assert project._get_coordinates_for_waveform_file(
+        filename, "processed", "HL", "ARG", event_name) == \
+        {"latitude": 36.216, "local_depth_in_m": 0.0, "elevation_in_m": 170.0,
+         "longitude": 28.126}
+    filename = os.path.join(project.paths["data"], event_name, processing_tag,
+                            "HT.SIGR..HHZ.mseed")
+    assert project._get_coordinates_for_waveform_file(
+        filename, "processed", "HT", "SIGR", event_name) == \
+        {"latitude": 39.2114, "local_depth_in_m": 0.0, "elevation_in_m": 93.0,
+         "longitude": 25.8553}
+
+    # The file exists, but has no corresponding station file.
+    filename = os.path.join(project.paths["data"], event_name, "raw",
+                            "KO.KULA..BHZ.mseed")
+
+    # Now check what happens if not station coordinate file is available. It
+    # will first attempt retrieve files from the waveform cache which will only
+    # be filled if it is a SAC file.
+    result = {"latitude": 1, "local_depth_in_m": 2, "elevation_in_m": 3,
+              "longitude": 4}
+    with mock.patch("lasif.tools.waveform_cache.WaveformCache.get_details") \
+            as patch:
+        patch.return_value = [result]
+        assert project._get_coordinates_for_waveform_file(
+            filename, "raw", "KO", "KULA", event_name) == result
+        assert patch.called_once_with("KO", "KULA")
+
+    # Otherwise the inventory database will be called.
+    with mock.patch("lasif.tools.inventory_db.get_station_coordinates") \
+            as patch:
+        patch.return_value = result
+        assert project._get_coordinates_for_waveform_file(
+            filename, "raw", "KO", "KULA", event_name) == result
+        patch.assert_called_once()

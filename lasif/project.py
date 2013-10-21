@@ -1142,6 +1142,10 @@ class Project(object):
         Returns a dictionary containing "latitude", "longitude", "elevation",
             "local_depth". Returns None if no coordinates could be found.
         """
+        if not os.path.exists(waveform_filename):
+            msg = "Could not find the file '%s'" % waveform_filename
+            raise ValueError(msg)
+
         # Attempt to first retrieve the coordinates from the station files.
         try:
             coordinates = self.station_cache.get_coordinates_for_station(
@@ -1164,6 +1168,8 @@ class Project(object):
                 waveform_cache_entry = files[0]
         else:
             waveform_cache_entry = cache.get_details(waveform_filename)
+            if waveform_cache_entry:
+                waveform_cache_entry = waveform_cache_entry[0]
 
         if waveform_cache_entry and waveform_cache_entry["latitude"]:
             return {
