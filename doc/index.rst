@@ -6,7 +6,7 @@
 Welcome to LASIF's Documentation!
 ===================================
 
-.. image:: images/logo/lasif_logo.png
+.. image:: images/logo/lasif_logo.*
     :width: 80%
     :align: center
 

@@ -15,10 +15,10 @@ a spherical body, e.g. the Earth.
     equator. The y-axis therefore points at (latitude 0.0/longitue 90.0), e.g.
     somewhere close to Sumatra.
 
-    𝜃 (theta) is the colatitude, e.g. 90.0 - latitude and is the angle from
-    the z-axis.  𝜑 (phi) is the longitude and the angle from the x-axis
-    towards the y-axis, a.k.a the azimuth angle. These are also the generally
-    used spherical coordinates.
+    :math:`\\theta` (theta) is the colatitude, e.g. 90.0 - latitude and is the
+    angle from the z-axis. :math:`\phi` (phi) is the longitude and the angle
+    from the x-axis towards the y-axis, a.k.a the azimuth angle. These are also
+    the generally used spherical coordinates.
 
     All rotation axes have to be given as [x, y, z] in the just described
     coordinate system and all rotation angles have to given as degree. A
