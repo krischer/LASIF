@@ -6,8 +6,9 @@
 Welcome to LASIF's Documentation!
 ===================================
 
-.. image:: images/logo/lasif_logo.png
-    :width: 50%
+.. image:: images/logo/lasif_logo.*
+    :width: 80%
+    :align: center
 
 
 LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
@@ -38,6 +39,14 @@ every LASIF operation, the tool checks what data is available and uses it. To
 achieve reasonable performance it employs a transparent caching scheme able to
 quickly any changes the user makes to the data. Also important to keep in mind
 is that **LASIF will never delete any data**.
+
+Further Information
+===================
+
+The documentation is currently being restructures. For now additional
+information can be found here:
+
+* :doc:`how_lasif_finds_coordinates`
 
 
 TO DO: Things that are still missing
@@ -1474,3 +1483,4 @@ Further Documentation
 
     iris2quakeml
     rotations
+    how_lasif_finds_coordinates

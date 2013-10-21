@@ -24,6 +24,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="How LASIF Finds Coordinates" href="how_lasif_finds_coordinates.html" />
     <link rel="prev" title="lasif.scripts.iris2quakeml" href="iris2quakeml.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
 <link href="_static/solarized-dark.css" rel="stylesheet">
   </head>
@@ -38,6 +39,9 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="how_lasif_finds_coordinates.html" title="How LASIF Finds Coordinates"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="iris2quakeml.html" title="lasif.scripts.iris2quakeml"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">LASIF 0.0.1 documentation</a> &raquo;</li> 
@@ -48,6 +52,9 @@
   <h4>Previous topic</h4>
   <p class="topless"><a href="iris2quakeml.html"
                         title="previous chapter">lasif.scripts.iris2quakeml</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="how_lasif_finds_coordinates.html"
+                        title="next chapter">How LASIF Finds Coordinates</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/rotations.txt"
@@ -87,10 +94,10 @@ Earth. The z-axis points directly at the North Pole and the x-axis points
 at (latitude 0.0/longitude 0.0), e.g. the Greenwich meridian at the
 equator. The y-axis therefore points at (latitude 0.0/longitue 90.0), e.g.
 somewhere close to Sumatra.</p>
-<p>𝜃 (theta) is the colatitude, e.g. 90.0 - latitude and is the angle from
-the z-axis.  𝜑 (phi) is the longitude and the angle from the x-axis
-towards the y-axis, a.k.a the azimuth angle. These are also the generally
-used spherical coordinates.</p>
+<p><span class="math">\(\theta\)</span> (theta) is the colatitude, e.g. 90.0 - latitude and is the
+angle from the z-axis. <span class="math">\(\phi\)</span> (phi) is the longitude and the angle
+from the x-axis towards the y-axis, a.k.a the azimuth angle. These are also
+the generally used spherical coordinates.</p>
 <p>All rotation axes have to be given as [x, y, z] in the just described
 coordinate system and all rotation angles have to given as degree. A
 positive rotation will rotate clockwise when looking in the direction of
@@ -393,6 +400,9 @@ coordinates.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="how_lasif_finds_coordinates.html" title="How LASIF Finds Coordinates"
+             >next</a> |</li>
         <li class="right" >
           <a href="iris2quakeml.html" title="lasif.scripts.iris2quakeml"
              >previous</a> |</li>
