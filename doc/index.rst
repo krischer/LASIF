@@ -7,7 +7,8 @@ Welcome to LASIF's Documentation!
 ===================================
 
 .. image:: images/logo/lasif_logo.png
-    :width: 50%
+    :width: 80%
+    :align: center
 
 
 LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
