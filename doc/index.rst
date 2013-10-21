@@ -39,6 +39,14 @@ achieve reasonable performance it employs a transparent caching scheme able to
 quickly any changes the user makes to the data. Also important to keep in mind
 is that **LASIF will never delete any data**.
 
+Further Information
+===================
+
+The documentation is currently being restructures. For now additional
+information can be found here:
+
+* :doc:`how_lasif_finds_coordinates`
+
 
 TO DO: Things that are still missing
 ====================================
@@ -1474,3 +1482,4 @@ Further Documentation
 
     iris2quakeml
     rotations
+    how_lasif_finds_coordinates
