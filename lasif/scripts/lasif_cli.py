@@ -823,7 +823,7 @@ def lasif_validate_data(parser, args):
     parser.add_argument(
         "--station_file_availability",
         help="asserts that all waveform files have corresponding station "
-        "files.",
+        "files. Very slow.",
         action="store_true")
     parser.add_argument(
         "--raypaths", help="assert that all raypaths are within the "

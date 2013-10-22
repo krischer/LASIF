@@ -1392,13 +1392,19 @@ class Project(object):
 
         station_cache = self.station_cache
         all_good = True
+
+        # Loop over all events.
         for event_name in self.get_event_dict().iterkeys():
             flush_point()
+            # Get all waveform files for the current event.
             waveform_cache = self._get_waveform_cache_file(event_name, "raw",
                                                            show_progress=False)
+            # If there are none, skip.
             if not waveform_cache:
                 continue
+            # Now loop over all channels.
             for channel in waveform_cache.get_values():
+                # Check if a station file is in the station file cache.
                 station_file = station_cache.get_station_filename(
                     channel["channel_id"],
                     UTCDateTime(channel["starttime_timestamp"]))
@@ -1413,7 +1419,6 @@ class Project(object):
                     "Otherwise contact the developers...".format(
                         waveform_file=os.path.relpath(channel["filename"])))
                 all_good = False
-            break
         if all_good:
             print ok_string
         else:
