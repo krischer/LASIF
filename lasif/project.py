@@ -623,13 +623,9 @@ class Project(object):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
-        stations = self.get_stations_for_event(event_name)
-        if station_name not in stations:
-            msg = "Station '%s' not available for the given event." \
-                % station_name
-            raise ValueError(msg)
-
-        station = stations[station_name]
+        # Get information about the station.
+        station = self.get_stations_for_event(
+            event_name, station_id=station_name)
         station["id"] = station_name
 
         # Collect all files for the given event.
@@ -654,6 +650,7 @@ class Project(object):
             else:
                 all_files["processed"][tag] = files
 
+        # Get all synthetic files for the current iteration and event.
         iterations = self.get_iteration_dict().keys()
         for iteration_name in iterations:
             synthetic_files = self._get_synthetic_waveform_filenames(
@@ -663,6 +660,7 @@ class Project(object):
             all_files["synthetics"][iteration_name] = \
                 synthetic_files[station_name].values()
 
+        # Plot it.
         plot_data_for_station(station, raw_files=all_files["raw"],
                               processed_files=all_files["processed"],
                               synthetic_files=all_files["synthetics"],
@@ -1262,8 +1260,8 @@ class Project(object):
         self._validate_station_files_availability(ok_string, fail_string,
                                                   flush_point, add_report)
 
-        self._validate_coordinate_deduction(ok_string, fail_string,
-                                            flush_point, add_report)
+        #self._validate_coordinate_deduction(ok_string, fail_string,
+                                            #flush_point, add_report)
 
         if full_check is True:
             self._validate_raypaths_in_domain(ok_string, fail_string,
@@ -1344,29 +1342,29 @@ class Project(object):
                                           show_progress=False)
         print ok_string
 
-    def _validate_coordinate_deduction(self, ok_string, fail_string,
-                                       flush_point, add_report):
-        """
-        Function validating that coordinates for all stations can be found.
+    #def _validate_coordinate_deduction(self, ok_string, fail_string,
+                                       #flush_point, add_report):
+        #"""
+        #Function validating that coordinates for all stations can be found.
 
-        This is essentially only important for the combination of MiniSEED and
-        RESP files. Otherwise either a SAC file or other station files will
-        contain the coordinates.
-        """
-        print ("Confirming that station metainformation files exist for "
-               "all waveforms "),
-        all_good = True
-        for event_name in self.get_event_dict().iterkeys():
-            flush_point()
-            waveform_cache = self._get_waveform_cache_file(event_name, "raw",
-                                                           show_progress=False)
-            if not waveform_cache:
-                continue
+        #This is essentially only important for the combination of MiniSEED and
+        #RESP files. Otherwise either a SAC file or other station files will
+        #contain the coordinates.
+        #"""
+        #print ("Confirming that station metainformation files exist for "
+               #"all waveforms "),
+        #all_good = True
+        #for event_name in self.get_event_dict().iterkeys():
+            #flush_point()
+            #waveform_cache = self._get_waveform_cache_file(event_name, "raw",
+                                                       #show_progress=False)
+            #if not waveform_cache:
+                #continue
 
-        if all_good is True:
-            print ok_string
-        else:
-            print fail_string
+        #if all_good is True:
+            #print ok_string
+        #else:
+            #print fail_string
 
     def _validate_station_files_availability(self, ok_string, fail_string,
                                              flush_point, add_report):
@@ -1377,6 +1375,7 @@ class Project(object):
 
         print ("Confirming that station metainformation files exist for "
                "all waveforms "),
+
         station_cache = self.station_cache
         all_good = True
         for event_name in self.get_event_dict().iterkeys():
