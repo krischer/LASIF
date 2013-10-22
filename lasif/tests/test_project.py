@@ -1019,3 +1019,28 @@ def test_get_and_rotate_synthetics(project):
     assert st[0].stats.starttime == origin_time
     assert st[1].stats.starttime == origin_time
     assert st[2].stats.starttime == origin_time
+
+
+def test_get_stations_for_event(project):
+    """
+    Tests the get_stations_for_event method.
+    """
+    event_1 = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    event_2 = "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"
+
+    # Get all stations for event_1.
+    stations_1 = project.get_stations_for_event(event_1)
+    assert len(stations_1) == 4
+    assert sorted(stations_1.keys()) == sorted(["HL.ARG", "HT.SIGR", "KO.KULA",
+                                                "KO.RSDY"])
+    assert stations_1["HL.ARG"] == {"latitude": 36.216, "local_depth": 0.0,
+                                    "elevation": 170.0, "longitude": 28.126}
+
+    # event_2 has no stations.
+    stations_2 = project.get_stations_for_event(event_2)
+    assert len(stations_2) == 0
+
+    # Passing a station_id only returns the requested station.
+    station = project.get_stations_for_event(event_1, station_id="HL.ARG")
+    assert station == {"latitude": 36.216, "local_depth": 0.0,
+                       "elevation": 170.0, "longitude": 28.126}

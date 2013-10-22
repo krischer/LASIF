@@ -618,12 +618,12 @@ class Project(object):
         Plots data for a single station and event.
         """
         from lasif.visualization import plot_data_for_station
-        all_events = self.get_event_dict()
-        if event_name not in all_events:
+
+        if event_name not in self.get_event_dict():
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
-        stations = self.get_stations_for_event(event_name)
 
+        stations = self.get_stations_for_event(event_name)
         if station_name not in stations:
             msg = "Station '%s' not available for the given event." \
                 % station_name
@@ -1061,7 +1061,7 @@ class Project(object):
         self.__cache_waveform_cache_objects[cache_tag] = cache
         return cache
 
-    def get_stations_for_event(self, event_name):
+    def get_stations_for_event(self, event_name, station_id=None):
         """
         Returns a dictionary containing a little bit of information about all
         stations available for a given event.
@@ -1076,6 +1076,13 @@ class Project(object):
                      "local_depth": 13},
          "BW.ROTZ2": ...,
          ...}
+
+        :type event_name: str
+        :param event_name: The name of the event.
+        :type station_name: str, optional
+        :param station_name: The station id (NET.STA) of the station in
+            question. If given, only this station will be returned, otherwise
+            all will. Defaults to None.
         """
         all_events = self.get_event_dict()
         if event_name not in all_events:
@@ -1088,17 +1095,29 @@ class Project(object):
 
         waveforms = self._get_waveform_cache_file(event_name, "raw")
 
+        if station_id:
+            files = waveforms.get_files_for_station(*station_id.split("."))
+            if not files:
+                msg = "Station could not be found."
+                raise ValueError
+            coordinates = self._get_coordinates_for_waveform_file(
+                waveform_filename=files[0]["filename"],
+                waveform_type="raw",
+                network_id=files[0]["network"],
+                station_id=files[0]["station"],
+                event_name=event_name)
+            return {
+                "latitude": coordinates["latitude"],
+                "longitude": coordinates["longitude"],
+                "elevation": coordinates["elevation_in_m"],
+                "local_depth": coordinates["local_depth_in_m"]}
+
         # Query the station cache for a list of all channels.
-        available_channels = self.station_cache.get_channels()
         stations = {}
         for waveform in waveforms.get_values():
             station = "%s.%s" % (waveform["network"], waveform["station"])
             # Do not add if already exists.
             if station in stations:
-                continue
-            # Check if a corresponding station file exists, otherwise skip.
-            chan_id = waveform["channel_id"]
-            if chan_id not in available_channels:
                 continue
             coordinates = self._get_coordinates_for_waveform_file(
                 waveform_filename=waveform["filename"],
