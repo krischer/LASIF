@@ -592,6 +592,18 @@ In contrast to the two other station information formats the RESP filename also
 has to include the location and channel identifiers.
 
 
+.. note::
+
+    The automatic download routines included in LASIF are sometimes not able to
+    find stations files. IRIS as well as Orfeus have FTP servers with anonymous
+    access that potentially provide missing station files:
+
+    * ftp://www.orfeus-eu.org/pub/data/metadata
+    * http://www.iris.edu/pub/RESPONSES/
+
+    Just make sure to adhere to the naming scheme imposed by LASIF.
+
+
 Download Helpers
 ----------------
 
