@@ -454,12 +454,12 @@ def test_validate_data(cli):
     with mock.patch("lasif.project.Project.validate_data") as patch:
         cli.run("lasif validate_data")
         patch.assert_called_once_with(station_file_availability=False,
-                                      raypaths=False)
+                                      raypaths=False, waveforms=False)
 
     with mock.patch("lasif.project.Project.validate_data") as patch:
         cli.run("lasif validate_data --full")
         patch.assert_called_once_with(station_file_availability=True,
-                                      raypaths=True)
+                                      raypaths=True, waveforms=True)
 
 
 def test_open_tutorial(cli):

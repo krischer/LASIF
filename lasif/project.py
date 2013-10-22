@@ -1211,7 +1211,8 @@ class Project(object):
             else:
                 return None
 
-    def validate_data(self, station_file_availability=False, raypaths=False):
+    def validate_data(self, station_file_availability=False, raypaths=False,
+                      waveforms=False):
         """
         Validates all data of the current project.
 
@@ -1271,6 +1272,14 @@ class Project(object):
                                                       flush_point, add_report)
         else:
             print("%sSkipping station files availability check.%s" % (
+                colorama.Fore.YELLOW, colorama.Fore.RESET))
+
+        # Assert that all waveform files have a corresponding station file.
+        if waveforms:
+            self._validate_waveform_files(ok_string, fail_string, flush_point,
+                                          add_report)
+        else:
+            print("%sSkipping waveform file validation.%s" % (
                 colorama.Fore.YELLOW, colorama.Fore.RESET))
 
         #self._validate_coordinate_deduction(ok_string, fail_string,
@@ -1425,6 +1434,57 @@ class Project(object):
         else:
             print fail_string
 
+    def _validate_waveform_files(self, ok_string, fail_string, flush_point,
+                                 add_report):
+        """
+        Makes sure all waveform files are acceptable.
+
+        It checks that:
+
+        * each station only has data from one location for each event.
+        """
+        print "Checking all waveform files ",
+        import collections
+
+        all_good = True
+
+        # Loop over all events.
+        for event_name in self.get_event_dict().iterkeys():
+            flush_point()
+            # Get all waveform files for the current event.
+            waveform_cache = self._get_waveform_cache_file(event_name, "raw",
+                                                           show_progress=False)
+            channels = waveform_cache.get_values()
+
+            stations = collections.defaultdict(set)
+
+            for cha in channels:
+                stations["%s.%s" % (cha["network"], cha["station"])].add(
+                    cha["channel_id"][:-1])
+
+            # Loop and warn for duplicate ones.
+            for station_name, combinations in stations.iteritems():
+                if len(combinations) == 1:
+                    continue
+                all_good = False
+                # Otherwise get all files for the faulty station.
+                files = waveform_cache.get_files_for_station(
+                    *station_name.split("."))
+                files = [_i["filename"] for _i in files]
+                msg = ("The station '{station}' has more then one combination "
+                       "of location and channel type for event {event}. "
+                       "Please assure that only one combination is present. "
+                       "The offending files are: \n\t{files}").format(
+                    station=station_name,
+                    event=event_name,
+                    files="\n\t".join(["'%s'" % _i for _i in files]))
+                add_report(msg)
+
+        if all_good:
+            print ok_string
+        else:
+            print fail_string
+
     def _validate_event_files(self, ok_string, fail_string, flush_point,
                               add_report):
         """
@@ -1453,7 +1513,7 @@ class Project(object):
 
         event_files = self.get_event_dict().values()
 
-        print "Validating %i event files..." % len(event_files)
+        print "Validating %i event files ..." % len(event_files)
 
         # Start with the schema validation.
         print "\tValidating against QuakeML 1.2 schema ",
