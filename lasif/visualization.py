@@ -467,8 +467,8 @@ def plot_data_for_station(station, raw_files, processed_files,
         if component in SYNTH_MAPPING:
             component = SYNTH_MAPPING[component]
 
-        if plot_type == "synthetic" and component in ["X", "Z"]:
-            tr.data *= -1
+        #if plot_type == "synthetic" and component in ["X", "Z"]:
+            #tr.data *= -1
 
         if component == "N":
             axis = n_axis
