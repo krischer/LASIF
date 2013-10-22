@@ -1493,6 +1493,7 @@ Further Documentation
 .. toctree::
     :maxdepth: 2
 
+    project
     iris2quakeml
     rotations
     how_lasif_finds_coordinates

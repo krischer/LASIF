@@ -8,11 +8,9 @@ importing this file as fast as possible. Otherwise using the command line
 interface feels sluggish and slow. Import things only the functions they are
 needed.
 
-:copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+:copyright: Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 
-:license:
-    GNU General Public License, Version 3
+:license: GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import colorama
@@ -44,13 +42,13 @@ class Project(object):
         """
         Upon intialization, set the paths and read the config file.
 
-        :type project_root_path: String
+        :type project_root_path: str
         :param project_root_path: The root path of the project.
-        :type init_project: False or String
+        :type init_project: str
         :param init_project: Determines whether or not to initialize a new
             project, e.g. create the necessary folder structure. If a string is
             passed, the project will be given this name. Otherwise a default
-            name will be chosen.
+            name will be chosen. Defaults to False.
         """
         self._setup_paths(project_root_path)
         if init_project:
@@ -239,7 +237,7 @@ class Project(object):
         Function returning the filename a station file of a certain format
         should be written to. Only useful as a callback function.
 
-        :type file_format: String
+        :type file_format: str
         :param file_format: 'datalessSEED', 'StationXML', or 'RESP'
         """
         if file_format not in ["datalessSEED", "StationXML", "RESP"]:
@@ -776,14 +774,14 @@ class Project(object):
         Returns a dictionary with information about one, specific event.
 
         :param name: The event name.
-        :type get_filecount: bool, optional
+        :type get_filecount: bool
         :param get_filecount: Whether or not to count the files for a given
             event. If True, it will also return the number of files associated
-            with the event. Defaults to False.
+            with the event. Defaults to False. Optional.
             It will contain the additional keys:
-                * raw_waveform_file_count
-                * preprocessed_waveform_file_count
-                * synthetic_data_file_count
+            * raw_waveform_file_count
+            * preprocessed_waveform_file_count
+            * synthetic_data_file_count
         """
         # Cash the informations so they are only being read once.
         if not hasattr(self, "_Project__cache_seimic_events_info_dict"):
@@ -1070,17 +1068,20 @@ class Project(object):
         Will return an empty dictionary if nothing is found.
 
         Example return value:
-        {"BW.ROTZ": {"latitude": 10, "longitude": 11, "elevation_in_m": 12,
-                     "local_depth_in_m": 13},
-         "BW.ROTZ2": ...,
-         ...}
+
+        .. code-block:: python
+
+            {"BW.ROTZ": {"latitude": 10, "longitude": 11, "elevation_in_m": 12,
+                         "local_depth_in_m": 13},
+             "BW.ROTZ2": ...,
+             ...}
 
         :type event_name: str
         :param event_name: The name of the event.
-        :type station_name: str, optional
+        :type station_name: str
         :param station_name: The station id (NET.STA) of the station in
             question. If given, only this station will be returned, otherwise
-            all will. Defaults to None.
+            all will. Defaults to None. Optional
         """
         all_events = self.get_event_dict()
         if event_name not in all_events:
@@ -1677,9 +1678,9 @@ class Project(object):
         :param station_latitude: The station latitude.
         :type station_longitude: float
         :param station_longitude: The station longitude.
-        :type raypath_steps: int, optional
+        :type raypath_steps: int
         :param raypath_steps: The number of discrete points along the raypath
-            that will be checked.
+            that will be checked. Optional.
         """
         from lasif.utils import greatcircle_points, Point, point_in_domain
 
@@ -2130,7 +2131,7 @@ class Project(object):
                         "{ele}/{dep}".format(
                             chan=_i["channel_id"],
                             start=str(UTCDateTime(_i["start_date"])),
-                            end=str(UTCDateTime(_i["end_date"]))
+                           end=str(UTCDateTime(_i["end_date"]))
                             if _i["end_date"] else "--",
                             lat="%.2f" % _i["latitude"]
                             if _i["latitude"] is not None else "--",
