@@ -616,10 +616,10 @@ def test_data_synthetic_iterator(project, recwarn):
 
     # The example project only contains synthetics for two stations.
     expected = {
-        "HL.ARG..BHZ": {"latitude": 36.216, "local_depth": 0.0,
-                        "elevation": 170.0, "longitude": 28.126},
-        "HT.SIGR..HHZ": {"latitude": 39.2114, "local_depth": 0.0,
-                         "elevation": 93.0, "longitude": 25.8553}}
+        "HL.ARG..BHZ": {"latitude": 36.216, "local_depth_in_m": 0.0,
+                        "elevation_in_m": 170.0, "longitude": 28.126},
+        "HT.SIGR..HHZ": {"latitude": 39.2114, "local_depth_in_m": 0.0,
+                         "elevation_in_m": 93.0, "longitude": 25.8553}}
 
     found = []
     no_synthetics_found_count = 0
@@ -1033,8 +1033,9 @@ def test_get_stations_for_event(project):
     assert len(stations_1) == 4
     assert sorted(stations_1.keys()) == sorted(["HL.ARG", "HT.SIGR", "KO.KULA",
                                                 "KO.RSDY"])
-    assert stations_1["HL.ARG"] == {"latitude": 36.216, "local_depth": 0.0,
-                                    "elevation": 170.0, "longitude": 28.126}
+    assert stations_1["HL.ARG"] == {
+        "latitude": 36.216, "local_depth_in_m": 0.0, "elevation_in_m": 170.0,
+        "longitude": 28.126}
 
     # event_2 has no stations.
     stations_2 = project.get_stations_for_event(event_2)
@@ -1042,5 +1043,5 @@ def test_get_stations_for_event(project):
 
     # Passing a station_id only returns the requested station.
     station = project.get_stations_for_event(event_1, station_id="HL.ARG")
-    assert station == {"latitude": 36.216, "local_depth": 0.0,
-                       "elevation": 170.0, "longitude": 28.126}
+    assert station == {"latitude": 36.216, "local_depth_in_m": 0.0,
+                       "elevation_in_m": 170.0, "longitude": 28.126}

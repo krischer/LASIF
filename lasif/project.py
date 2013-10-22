@@ -882,8 +882,8 @@ class Project(object):
         stations = [{
             "id": key, "latitude": value["latitude"],
             "longitude": value["longitude"],
-            "elevation_in_m": value["elevation"],
-            "local_depth_in_m": value["local_depth"]} for key, value in
+            "elevation_in_m": value["elevation_in_m"],
+            "local_depth_in_m": value["local_depth_in_m"]} for key, value in
             stations.iteritems() if key in stations_for_event]
 
         #======================================================================
@@ -1072,8 +1072,8 @@ class Project(object):
         Will return an empty dictionary if nothing is found.
 
         Example return value:
-        {"BW.ROTZ": {"latitude": 10, "longitude": 11, "elevation": 12,
-                     "local_depth": 13},
+        {"BW.ROTZ": {"latitude": 10, "longitude": 11, "elevation_in_m": 12,
+                     "local_depth_in_m": 13},
          "BW.ROTZ2": ...,
          ...}
 
@@ -1109,8 +1109,8 @@ class Project(object):
             return {
                 "latitude": coordinates["latitude"],
                 "longitude": coordinates["longitude"],
-                "elevation": coordinates["elevation_in_m"],
-                "local_depth": coordinates["local_depth_in_m"]}
+                "elevation_in_m": coordinates["elevation_in_m"],
+                "local_depth_in_m": coordinates["local_depth_in_m"]}
 
         # Query the station cache for a list of all channels.
         stations = {}
@@ -1133,8 +1133,8 @@ class Project(object):
             stations[station] = {
                 "latitude": coordinates["latitude"],
                 "longitude": coordinates["longitude"],
-                "elevation": coordinates["elevation_in_m"],
-                "local_depth": coordinates["local_depth_in_m"]}
+                "elevation_in_m": coordinates["elevation_in_m"],
+                "local_depth_in_m": coordinates["local_depth_in_m"]}
         return stations
 
     def _get_coordinates_for_waveform_file(self, waveform_filename,
@@ -1158,8 +1158,9 @@ class Project(object):
         :param event_name: The name of the event. Same reasoning as for the
             waveform_type.
 
-        Returns a dictionary containing "latitude", "longitude", "elevation",
-            "local_depth". Returns None if no coordinates could be found.
+        Returns a dictionary containing "latitude", "longitude",
+        "elevation_in_m", "local_depth_in_m". Returns None if no coordinates
+        could be found.
         """
         if not os.path.exists(waveform_filename):
             msg = "Could not find the file '%s'" % waveform_filename
