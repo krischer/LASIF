@@ -1938,11 +1938,12 @@ class Project(object):
         :type data_type: str
         :param data_type: The type of data to retrieve. One of ["raw",
             "processed", "synthetic"].
-        :type tag: str, optional
+        :type tag: str
         :param tag: The tag of the processed data when requesting processed
-            files.
-        :type iteration: str, optional
+            files. Optional.
+        :type iteration: str
         :param iteration: The iteration when requesting synthetic data.
+            Optional.
         """
         network, station = station_name.split(".")
 
@@ -2131,7 +2132,7 @@ class Project(object):
                         "{ele}/{dep}".format(
                             chan=_i["channel_id"],
                             start=str(UTCDateTime(_i["start_date"])),
-                           end=str(UTCDateTime(_i["end_date"]))
+                            end=str(UTCDateTime(_i["end_date"]))
                             if _i["end_date"] else "--",
                             lat="%.2f" % _i["latitude"]
                             if _i["latitude"] is not None else "--",
