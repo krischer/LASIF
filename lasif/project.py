@@ -1210,7 +1210,7 @@ class Project(object):
             else:
                 return None
 
-    def validate_data(self, full_check=False):
+    def validate_data(self, station_file_availability=False, raypaths=False):
         """
         Validates all data of the current project.
 
@@ -1238,37 +1238,51 @@ class Project(object):
             colorama.Style.RESET_ALL)
 
         def flush_point():
+            """
+            Helper function just flushing a point to stdout to indicate
+            progress.
+            """
             sys.stdout.write(".")
             sys.stdout.flush()
 
+        # Collect all reports and error counts.
         reports = []
         total_error_count = [0]
 
         def add_report(message, error_count=1):
+            """
+            Helper method adding a new error message.
+            """
             reports.append(message)
             total_error_count[0] += error_count
 
-        # Update the caches.
         self._validate_event_files(ok_string, fail_string,
                                    flush_point, add_report)
+
+        # Update all caches so the rest can work faster.
         self._update_all_waveform_caches(ok_string, fail_string,
                                          flush_point, add_report)
-        print "Updating station cache ...",
-        self._update_station_cache(show_progress=False)
-        print ok_string
+        self._update_station_cache(show_progress=True)
 
-        self._validate_station_files_availability(ok_string, fail_string,
-                                                  flush_point, add_report)
+        # Assert that all waveform files have a corresponding station file.
+        if station_file_availability:
+            self._validate_station_files_availability(ok_string, fail_string,
+                                                      flush_point, add_report)
+        else:
+            print("%sSkipping station files availability check.%s" % (
+                colorama.Fore.YELLOW, colorama.Fore.RESET))
 
         #self._validate_coordinate_deduction(ok_string, fail_string,
                                             #flush_point, add_report)
 
-        if full_check is True:
+        if raypaths:
             self._validate_raypaths_in_domain(ok_string, fail_string,
                                               flush_point, add_report)
         else:
-            print "Skipping raypath check. Perform a full check for it."
+            print("%sSkipping raypath check.%s" % (
+                colorama.Fore.YELLOW, colorama.Fore.RESET))
 
+        # Depending on whether or not the tests passed, report it accordingly.
         if not reports:
             print("\n%sALL CHECKS PASSED%s\n"
                   "The data seems to be valid. If we missed something please "

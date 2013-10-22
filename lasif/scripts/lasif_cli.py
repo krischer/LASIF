@@ -820,12 +820,31 @@ def lasif_validate_data(parser, args):
           the moment tensor values as well. This is rather fragile and mainly
           intended to detect values specified in wrong units.
     """
-    parser.add_argument("--full", help="perform a full validation.",
+    parser.add_argument(
+        "--station_file_availability",
+        help="asserts that all waveform files have corresponding station "
+        "files.",
+        action="store_true")
+    parser.add_argument(
+        "--raypaths", help="assert that all raypaths are within the "
+        "set boundaries. Very slow.", action="store_true")
+
+    parser.add_argument("--full", help="run all validations.",
                         action="store_true")
-    full_check = parser.parse_args(args).full
+
+    args = parser.parse_args(args)
+    full_check = args.full
+    station_file_availability = args.station_file_availability
+    raypaths = args.raypaths
+
+    # If full check, check everything.
+    if full_check:
+        station_file_availability = True
+        raypaths = True
 
     proj = _find_project_root(".")
-    proj.validate_data(full_check=full_check)
+    proj.validate_data(station_file_availability=station_file_availability,
+                       raypaths=raypaths)
 
 
 @command_group("Iteration Management")
