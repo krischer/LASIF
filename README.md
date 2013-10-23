@@ -194,7 +194,7 @@ $ cd doc
 $ make html
 ```
 
-#### Terminologie
+#### Terminology
 
 In order to ease development, a consistent terminology should be used
 throughout the code base.
@@ -204,7 +204,7 @@ the separate components should be called:
 
 * **channel_id**: `NET.STA.LOC.CHA`
 * **station_id**: `NET.STA`
-* **network_code**: `NET`
-* **station_code**: `STA`
-* **location_code**: `LOC`
-* **channel_code**: `CHA`
+* **network_code** or **network**: `NET`
+* **station_code** or **station**: `STA`
+* **location_code** or **location**: `LOC`
+* **channel_code** or **channel**: `CHA`
