@@ -193,3 +193,18 @@ To actually build the documentation and save it in a subfolder:
 $ cd doc
 $ make html
 ```
+
+#### Terminologie
+
+In order to ease development, a consistent terminology should be used
+throughout the code base.
+
+Assume a channel with a SEED identifier being equal to `NET.STA.LOC.CHA`, then
+the separate components should be called:
+
+* **channel_id**: `NET.STA.LOC.CHA`
+* **station_id**: `NET.STA`
+* **network_code**: `NET`
+* **station_code**: `STA`
+* **location_code**: `LOC`
+* **channel_code**: `CHA`
