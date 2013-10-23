@@ -105,14 +105,6 @@ class EventPseudoDict(object):
         """
         return izip(self.iterkeys(), self.itervalues())
 
-    def get_filename(self, event_name):
-        """
-        Returns the filename of an event.
-
-        Useful on rare occasions and thus an exposed method.
-        """
-        return self.__event_files[event_name]
-
     def __getitem__(self, event_name):
         """
         Get information about one event.
@@ -123,6 +115,7 @@ class EventPseudoDict(object):
         :returns: A dictionary with information about the current event.
             Contains the following keys:
             * event_name
+            * filename
             * latitude
             * longitude
             * origin_time
@@ -153,7 +146,8 @@ class EventPseudoDict(object):
         from obspy.core.util import FlinnEngdahl
 
         # Get an ObsPy event object.
-        event = readEvents(self.__event_files[event_name])[0]
+        filename = self.__event_files[event_name]
+        event = readEvents(filename)[0]
 
         # Extract information.
         mag = event.preferred_magnitude() or event.magnitudes[0]
@@ -172,6 +166,7 @@ class EventPseudoDict(object):
 
         info = {
             "event_name": event_name,
+            "filename": filename,
             "latitude": org.latitude,
             "longitude": org.longitude,
             "origin_time": org.time,

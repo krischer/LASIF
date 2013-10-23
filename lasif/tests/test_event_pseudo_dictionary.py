@@ -44,7 +44,9 @@ EVENT_1_INFO = {
     "m_pp": -8.5e+16,
     "m_rt": 2.8e+16,
     "m_rp": -5.3e+16,
-    "m_tp": -2.17e+17}
+    "m_tp": -2.17e+17,
+    "filename": os.path.join(DATA, "ExampleProject", "EVENTS",
+                             EVENT_1_NAME + os.extsep + "xml")}
 EVENT_2_NAME = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
 EVENT_2_INFO = {
     "event_name": "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
@@ -60,7 +62,9 @@ EVENT_2_INFO = {
     "m_pp": 3.56e+16,
     "m_rt": 2.26e+16,
     "m_rp": -2.25e+16,
-    "m_tp": 1.92e+16}
+    "m_tp": 1.92e+16,
+    "filename": os.path.join(DATA, "ExampleProject", "EVENTS",
+                             EVENT_2_NAME + os.extsep + "xml")}
 
 
 def test_keys(event_pseudo_dict):
@@ -168,16 +172,3 @@ def test_events_are_only_read_once(event_pseudo_dict):
     # Check identity not equality.
     assert event_1 is temp_1
     assert event_2 is temp_2
-
-
-def test_get_filename(event_pseudo_dict):
-    """
-    Tests the get_filename() method.
-    """
-    assert event_pseudo_dict.get_filename(EVENT_1_NAME) == os.path.abspath(
-        os.path.join(DATA, "ExampleProject", "EVENTS",
-                     EVENT_1_NAME + os.extsep + "xml"))
-
-    assert event_pseudo_dict.get_filename(EVENT_2_NAME) == os.path.abspath(
-        os.path.join(DATA, "ExampleProject", "EVENTS",
-                     EVENT_2_NAME + os.extsep + "xml"))
