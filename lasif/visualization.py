@@ -164,10 +164,10 @@ def __pick_handler_event_annotation(event):
 
 def __pick_handler_station_scatter(event):
     idx = event.ind[0]
-    station_name = event.artist._station_scatter[idx]
+    station_id = event.artist._station_scatter[idx]
     if event.artist._project:
         event.artist._project.plot_station(
-            station_name, event.artist._event_info["event_name"])
+            station_id, event.artist._event_info["event_name"])
 
 
 def _set_global_pick_handler():
@@ -629,11 +629,11 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     # Loop as dicts are unordered.
     lngs = []
     lats = []
-    station_names = []
+    station_ids = []
     for key, value in station_dict.iteritems():
         lngs.append(value["longitude"])
         lats.append(value["latitude"])
-        station_names.append(key)
+        station_ids.append(key)
 
     x, y = map_object(lngs, lats)
 
@@ -645,7 +645,7 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     stations._edgecolors_original = "black"
     # Add three additional information attributes that the pick callback has
     # access to.
-    stations._station_scatter = station_names
+    stations._station_scatter = station_ids
     stations._project = project
     stations._event_info = event_info
 

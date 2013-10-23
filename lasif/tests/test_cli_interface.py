@@ -364,8 +364,8 @@ def test_preprocessing_and_launch_misfit_gui(cli):
                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
         patch.assert_called_once()
         ev, tw, proj, wm, ad_m, it = patch.call_args[0]
-        assert ev == cli.project.get_event(
-            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        assert ev == cli.project.events[
+            "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
         assert proj.paths["root"] == cli.project.paths["root"]
         assert tw.__class__.__name__ == "TwoWayIter"
         assert wm.__class__.__name__ == "MisfitWindowManager"

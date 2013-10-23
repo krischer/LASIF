@@ -572,7 +572,7 @@ class Project(object):
             ("\nDONE - Preprocessed %i files." % count) + \
             colorama.Style.RESET_ALL
 
-    def plot_station(self, station_name, event_name):
+    def plot_station(self, station_id, event_name):
         """
         Plots data for a single station and event.
         """
@@ -584,8 +584,8 @@ class Project(object):
 
         # Get information about the station.
         station = self.get_stations_for_event(
-            event_name, station_id=station_name)
-        station["id"] = station_name
+            event_name, station_id=station_id)
+        station["id"] = station_id
 
         # Collect all files for the given event.
         all_files = {
@@ -601,7 +601,7 @@ class Project(object):
                 continue
             waveforms = self._get_waveform_cache_file(event_name, tag)
             files = [_i["filename"] for _i in waveforms.get_values() if
-                     "%s.%s" % (_i["network"], _i["station"]) == station_name]
+                     "%s.%s" % (_i["network"], _i["station"]) == station_id]
             if not files:
                 continue
             if tag == "raw":
@@ -614,10 +614,10 @@ class Project(object):
         for iteration_name in iterations:
             synthetic_files = self._get_synthetic_waveform_filenames(
                 event_name, iteration_name)
-            if station_name not in synthetic_files:
+            if station_id not in synthetic_files:
                 continue
             all_files["synthetics"][iteration_name] = \
-                synthetic_files[station_name].values()
+                synthetic_files[station_id].values()
 
         # Plot it.
         plot_data_for_station(station, raw_files=all_files["raw"],
@@ -1001,8 +1001,8 @@ class Project(object):
 
         :type event_name: str
         :param event_name: The name of the event.
-        :type station_name: str
-        :param station_name: The station id (NET.STA) of the station in
+        :type station_id: str
+        :param station_id: The station id (NET.STA) of the station in
             question. If given, only this station will be returned, otherwise
             all will. Defaults to None. Optional
         """
@@ -1025,8 +1025,8 @@ class Project(object):
             coordinates = self._get_coordinates_for_waveform_file(
                 waveform_filename=files[0]["filename"],
                 waveform_type="raw",
-                network_id=files[0]["network"],
-                station_id=files[0]["station"],
+                network_code=files[0]["network"],
+                station_code=files[0]["station"],
                 event_name=event_name)
             return {
                 "latitude": coordinates["latitude"],
@@ -1044,8 +1044,8 @@ class Project(object):
             coordinates = self._get_coordinates_for_waveform_file(
                 waveform_filename=waveform["filename"],
                 waveform_type="raw",
-                network_id=waveform["network"],
-                station_id=waveform["station"],
+                network_code=waveform["network"],
+                station_code=waveform["station"],
                 event_name=event_name)
             if not coordinates:
                 msg = "No coordinates available for waveform file '%s'" % \
@@ -1060,8 +1060,8 @@ class Project(object):
         return stations
 
     def _get_coordinates_for_waveform_file(self, waveform_filename,
-                                           waveform_type, network_id,
-                                           station_id, event_name):
+                                           waveform_type, network_code,
+                                           station_code, event_name):
         """
         Internal function used to grab station coordinates from the various
         sources.
@@ -1073,9 +1073,9 @@ class Project(object):
             the pathname but probably not necessary as the information is
             likely readily available in situations where this method is called.
             One of "raw", "processed", and "synthetic"
-        :param network_id: The network id of the file. Same reasoning as for
+        :param network_code: The network id of the file. Same reasoning as for
             the waveform_type.
-        :param station_id: The station id of the file. Same reasoning as for
+        :param station_code: The station id of the file. Same reasoning as for
             the waveform_type.
         :param event_name: The name of the event. Same reasoning as for the
             waveform_type.
@@ -1091,7 +1091,7 @@ class Project(object):
         # Attempt to first retrieve the coordinates from the station files.
         try:
             coordinates = self.station_cache.get_coordinates_for_station(
-                network_id, station_id)
+                network_code, station_code)
         except:
             pass
         else:
@@ -1103,7 +1103,7 @@ class Project(object):
         cache = self._get_waveform_cache_file(event_name, "raw")
 
         if waveform_type in ("synthetic", "processed"):
-            files = cache.get_files_for_station(network_id, station_id)
+            files = cache.get_files_for_station(network_code, station_code)
             if not files:
                 waveform_cache_entry = None
             else:
@@ -1126,7 +1126,8 @@ class Project(object):
             # Now check if the station_coordinates are available in the
             # inventory DB and use those.
             coords = get_station_coordinates(
-                self.paths["inv_db_file"], ".".join((network_id, station_id)),
+                self.paths["inv_db_file"],
+                ".".join((network_code, station_code)),
                 self.paths["cache"],
                 self.config["download_settings"]["arclink_username"])
             if coords:
@@ -1249,8 +1250,7 @@ class Project(object):
             flush_point()
             for station_id, value in \
                     self.get_stations_for_event(event).iteritems():
-                network, station = station_id.split(".")
-                value["latitude"], value["longitude"]
+                network_code, station_code = station_id.split(".")
                 # Check if the whole path of the event-station pair is within
                 # the domain boundaries.
                 if self.is_event_station_raypath_within_boundaries(
@@ -1260,8 +1260,8 @@ class Project(object):
                 # Otherwise get all waveform files for that station.
                 waveform_files = [_i["filename"]
                                   for _i in waveform_files_for_event
-                                  if (_i["network"] == network) and
-                                  (_i["station"] == station)]
+                                  if (_i["network"] == network_code) and
+                                  (_i["station"] == station_code)]
                 if not waveform_files:
                     continue
                 all_good = False
@@ -1386,19 +1386,19 @@ class Project(object):
                     cha["channel_id"][:-1])
 
             # Loop and warn for duplicate ones.
-            for station_name, combinations in stations.iteritems():
+            for station_id, combinations in stations.iteritems():
                 if len(combinations) == 1:
                     continue
                 all_good = False
                 # Otherwise get all files for the faulty station.
                 files = waveform_cache.get_files_for_station(
-                    *station_name.split("."))
+                    *station_id.split("."))
                 files = sorted([_i["filename"] for _i in files])
                 msg = ("The station '{station}' has more then one combination "
                        "of location and channel type for event {event}. "
                        "Please assure that only one combination is present. "
                        "The offending files are: \n\t{files}").format(
-                    station=station_name,
+                    station=station_id,
                     event=event_name,
                     files="\n\t".join(["'%s'" % _i for _i in files]))
                 add_report(msg)
@@ -1722,18 +1722,18 @@ class Project(object):
         #- loop through all the stations of this event
         #======================================================================
 
-        for station_name, station in this_event["stations"].iteritems():
+        for station_id, station in this_event["stations"].iteritems():
 
             try:
-                this_station = all_stations[station_name]
+                this_station = all_stations[station_id]
             except KeyError:
                 continue
 
             station_weight = station["station_weight"]
-            windows = window_manager.get_windows_for_station(station_name)
+            windows = window_manager.get_windows_for_station(station_id)
 
             if not windows:
-                msg = "No adjoint sources for station '%s'." % station_name
+                msg = "No adjoint sources for station '%s'." % station_id
                 warnings.warn(msg)
                 continue
 
@@ -1831,7 +1831,7 @@ class Project(object):
 
         print "Wrote %i adjoint sources to %s." % (_i, output_folder)
 
-    def _get_and_rotate_synthetics(self, event_name, station_name,
+    def _get_and_rotate_synthetics(self, event_name, station_id,
                                    iteration_name):
         """
         Helper function returning a three-channel Stream object for the
@@ -1847,17 +1847,17 @@ class Project(object):
         synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
 
         # Get all necessary filenames.
-        filenames = self._get_data(event_name, station_name, "synthetic",
+        filenames = self._get_data(event_name, station_id, "synthetic",
                                    iteration=iteration_name)
 
         # Only three-channel synthetics can be read.
         if sorted(filenames.keys()) != ["X", "Y", "Z"]:
             msg = ("Could not find all three required components for the "
                    "synthetics for event '%s' at station '%s' for iteration "
-                   "'%s'." % (event_name, station_name, iteration_name))
+                   "'%s'." % (event_name, station_id, iteration_name))
             raise ValueError(msg)
 
-        network_code, station_code = station_name.split(".")
+        network_code, station_code = station_id.split(".")
 
         synthetics = Stream()
         for filename in filenames.itervalues():
@@ -1903,7 +1903,7 @@ class Project(object):
 
         return synthetics
 
-    def _get_data(self, event_name, station_name, data_type, **kwargs):
+    def _get_data(self, event_name, station_id, data_type, **kwargs):
         """
         Helper function returning a dictionary of suitable filenames.
 
@@ -1913,8 +1913,8 @@ class Project(object):
 
         :type event_name: str
         :param event_name: Only data for this event is accepted.
-        :type station_name: str
-        :param station_name: Only data for this station is accepted.
+        :type station_id: str
+        :param station_id: Only data for this station is accepted.
         :type data_type: str
         :param data_type: The type of data to retrieve. One of ["raw",
             "processed", "synthetic"].
@@ -1925,7 +1925,7 @@ class Project(object):
         :param iteration: The iteration when requesting synthetic data.
             Optional.
         """
-        network, station = station_name.split(".")
+        network, station = station_id.split(".")
 
         if data_type == "raw":
             waveforms = self._get_waveform_cache_file(event_name, "raw")
@@ -2178,9 +2178,9 @@ class Project(object):
             network, station, _, component = [
                 _i.replace("_", "")
                 for _i in os.path.basename(filename).split(".")]
-            station_name = "%s.%s" % (network, station)
-            stations.setdefault(station_name, {})
-            stations[station_name][component.upper()] = \
+            station_id = "%s.%s" % (network, station)
+            stations.setdefault(station_id, {})
+            stations[station_id][component.upper()] = \
                 os.path.abspath(filename)
         return stations
 
@@ -2219,9 +2219,9 @@ class Project(object):
                 temp = [_i["channel_id"] for _i in raw_waveforms.get_values()]
                 # Create a dictionary of all the channels sorted by station.
                 for channel in temp:
-                    station_name = ".".join(channel.split(".")[:2])
-                    raw_channels.setdefault(station_name, [])
-                    raw_channels[station_name].append(channel)
+                    station_id = ".".join(channel.split(".")[:2])
+                    raw_channels.setdefault(station_id, [])
+                    raw_channels[station_id].append(channel)
             # Extract the processed channels if some exist.
             if proc_waveforms:
                 proc_channels = [_i["channel_id"] for _i in
@@ -2233,7 +2233,7 @@ class Project(object):
             synthetics = self._get_synthetic_waveform_filenames(event_name,
                                                                 iteration_name)
 
-            for station_name, station_info \
+            for station_id, station_info \
                     in event_info["stations"].iteritems():
                 # Stations with a weight of zero are not considered.
                 if station_info["station_weight"] == 0.0:
@@ -2241,7 +2241,7 @@ class Project(object):
 
                 # Get all raw channels that have the current station.
                 try:
-                    current_chans = raw_channels[station_name]
+                    current_chans = raw_channels[station_id]
                 except KeyError:
                     current_chans = []
 
@@ -2249,7 +2249,7 @@ class Project(object):
                 # file is wrong.
                 if not current_chans:
                     status["stations_in_iteration_that_do_not_exist"].append(
-                        "Event '%s': '%s'" % (event_name, station_name))
+                        "Event '%s': '%s'" % (event_name, station_id))
                     continue
                 for chan in current_chans:
                     if chan in proc_channels:
@@ -2259,9 +2259,9 @@ class Project(object):
 
                 # Each station requires all three synthetic components. This is
                 # necessary for rotations.
-                if (station_name not in synthetics) or \
-                        (len(synthetics[station_name]) != 3):
+                if (station_id not in synthetics) or \
+                        (len(synthetics[station_id]) != 3):
                     status["synthetic_data_missing"].setdefault(event_name, [])
                     status["synthetic_data_missing"][event_name].append(
-                        station_name)
+                        station_id)
         return status

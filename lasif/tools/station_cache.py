@@ -101,10 +101,10 @@ class StationCache(FileInfoCache):
         """
         """
         # Caching per instance. Otherwise this is very very slow.
-        stat_id = network + "." + station
+        station_id = network + "." + station
         if hasattr(self, "_StationCache__cache_station_coordinates"):
             try:
-                coordinates = self.__cache_station_coordinates[stat_id]
+                coordinates = self.__cache_station_coordinates[station_id]
             except:
                 msg = "No coordinates found for whatever reason."
                 raise ValueError(msg)
@@ -123,18 +123,18 @@ class StationCache(FileInfoCache):
         stations = {}
 
         for result in results:
-            network_id, station_id = result[0].split(".")[:2]
-            stat_id = ".".join((network_id, station_id))
+            network_code, station_code = result[0].split(".")[:2]
+            station_id = ".".join((network_code, station_code))
             this_station = {
                 "latitude": result[1],
                 "longitude": result[2],
                 "elevation_in_m": result[3],
                 "local_depth_in_m": result[4]}
 
-            if stat_id in stations:
-                if this_station == stations[stat_id]:
+            if station_id in stations:
+                if this_station == stations[station_id]:
                     continue
-                new_station = stations[stat_id]
+                new_station = stations[station_id]
 
                 # Check if they are equal to a certain tolerance.
                 if \
@@ -151,11 +151,11 @@ class StationCache(FileInfoCache):
                             new_station["local_depth_in_m"]) > TOL_METERS:
                     msg = ("Several different coordinates set found in "
                            "station cache for %s. The first one found will be "
-                           "chosen.") % stat_id
+                           "chosen.") % station_id
                     warnings.warn(msg)
                 continue
 
-            stations[stat_id] = this_station
+            stations[station_id] = this_station
 
         self.__cache_station_coordinates = stations
         # Recurse once; this only accesses the cache.

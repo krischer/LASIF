@@ -122,13 +122,13 @@ def lasif_plot_station(parser, args):
     Useful for interactive data discovery.
     """
     import matplotlib.pyplot as plt
-    parser.add_argument("station_name", help="name of the station to plot")
+    parser.add_argument("station_id", help="name of the station to plot")
     parser.add_argument("event_name", help="name of the event to plot")
-    station_name = parser.parse_args(args).station_name
+    station_id = parser.parse_args(args).station_id
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
-    proj.plot_station(station_name, event_name)
+    proj.plot_station(station_id, event_name)
     plt.show()
 
 
