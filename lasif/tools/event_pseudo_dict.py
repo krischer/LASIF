@@ -52,13 +52,6 @@ class EventPseudoDict(object):
             return True
         return False
 
-    def has_key(self, event_name):
-        """
-        The Python documentation recommends to implement this method for
-        dictionary like objects.
-        """
-        return self.__contains__(event_name)
-
     def __len__(self):
         return len(self.__event_files)
 

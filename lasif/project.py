@@ -421,29 +421,6 @@ class Project(object):
         return os.path.join(self.paths["kernels"], event_name, self.
                             _get_long_iteration_name(iteration_name))
 
-    def get_event(self, event_name):
-        """
-        Helper function to avoid reading one event twice.
-        """
-        from obspy import readEvents
-
-        # Cash the events so they are only being read once.
-        if not hasattr(self, "_Project__cache_seismic_event_objects"):
-            self.__cache_seismic_event_objects = {}
-
-        # Read the file if it does not exist.
-        if event_name not in self.__cache_seismic_event_objects:
-            filename = os.path.join(self.paths["events"], "%s%sxml" %
-                                    (event_name, os.path.extsep))
-            if not os.path.exists(filename):
-                return None
-            self.__cache_seismic_event_objects[event_name] = \
-                readEvents(filename)[0]
-            # Add the filename to the event object to later on be able to find
-            # it.
-            self.__cache_seismic_event_objects[event_name].filename = filename
-        return self.__cache_seismic_event_objects[event_name]
-
     def create_new_iteration(self, iteration_name, solver_name, min_period=8.0,
                              max_period=100.0):
         """
@@ -602,15 +579,6 @@ class Project(object):
             ("\nDONE - Preprocessed %i files." % count) + \
             colorama.Style.RESET_ALL
 
-    def get_all_events(self):
-        """
-        Parses all events and returns a list of Event objects.
-        """
-        events = self.get_event_dict()
-        for event in events.keys():
-            self.get_event(event)
-        return self.__cache_seismic_event_objects.values()
-
     def plot_station(self, station_name, event_name):
         """
         Plots data for a single station and event.
@@ -686,13 +654,19 @@ class Project(object):
             rotation_angle_in_degree=self.domain["rotation_angle"],
             plot_simulation_domain=False, zoom=True)
 
+        # Get the event and extract information from it.
         event = self.get_event(event_name)
         event_info = self.get_event_info(event_name)
 
+        # Get a dictionary containing all stations that have data for the
+        # current event.
         stations = self.get_stations_for_event(event_name)
+
+        # Plot the stations. This will also plot raypaths.
         visualization.plot_stations_for_event(
             map_object=map, station_dict=stations, event_info=event_info,
             project=self)
+
         # Plot the beachball for one event.
         visualization.plot_events([event], map_object=map)
 
@@ -708,6 +682,7 @@ class Project(object):
         from lasif import visualization
 
         events = self.get_all_events()
+        # Get a list of all events.
 
         if plot_type == "map":
             bounds = self.domain["bounds"]
@@ -769,80 +744,41 @@ class Project(object):
             plt.savefig(outfile, dpi=200)
             print "Saved picture at %s" % outfile
 
-    def get_event_info(self, event_name, get_filecount=False):
+    def get_filecounts_for_event(self, event_name):
         """
-        Returns a dictionary with information about one, specific event.
+        Gets the number of files associated with the current event.
 
-        :param name: The event name.
-        :type get_filecount: bool
-        :param get_filecount: Whether or not to count the files for a given
-            event. If True, it will also return the number of files associated
-            with the event. Defaults to False. Optional.
-            It will contain the additional keys:
+        :type event_name: str
+        :param event_name: The name of the event.
+
+        :rtype: dict
+        :returns: A dictionary with the following self-explaining keys:
             * raw_waveform_file_count
+            * synthetic_waveform_file_count
             * preprocessed_waveform_file_count
-            * synthetic_data_file_count
         """
-        # Cash the informations so they are only being read once.
-        if not hasattr(self, "_Project__cache_seimic_events_info_dict"):
-            self.___cache_seimic_events_info_dict = {}
-
-        # The tag is needed to store variants; once with filecounts, and once
-        # without.
-        tag = "%s--%s" % (event_name, get_filecount)
-        if tag in self.___cache_seimic_events_info_dict:
-            return self.___cache_seimic_events_info_dict[tag]
-
-        from obspy.core.util import FlinnEngdahl
-
+        # Make sure the event exists.
         all_events = self.get_event_dict()
         if event_name not in all_events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
-        event = self.get_event(event_name)
-        mag = event.preferred_magnitude() or event.magnitudes[0]
-        org = event.preferred_origin() or event.origins[0]
 
-        if org.depth is None:
-            warnings.warn("Origin contains no depth. Will be assumed to be 0")
-            org.depth = 0.0
-
-        if mag.magnitude_type is None:
-            warnings.warn("Magnitude has no specified type. Will be assumed "
-                          "to be Mw")
-            mag.magnitude_type = "Mw"
-
-        info = {
-            "event_name": event_name,
-            "latitude": org.latitude,
-            "longitude": org.longitude,
-            "origin_time": org.time,
-            "depth_in_km": org.depth / 1000.0,
-            "magnitude": mag.mag,
-            "region": FlinnEngdahl().get_region(org.longitude, org.latitude),
-            "magnitude_type": mag.magnitude_type}
-
-        if get_filecount is True:
-            data_path = os.path.join(self.paths["data"], event_name)
-            synth_path = os.path.join(self.paths["synthetics"], event_name)
-            raw_data_count = 0
-            processed_data_count = 0
-            synthetic_data_count = 0
-            for dirpath, _, filenames in os.walk(data_path):
-                if dirpath.endswith("raw"):
-                    raw_data_count += len(filenames)
-                elif "preprocessed" in dirpath:
-                    processed_data_count += len(filenames)
-            for dirpath, _, filenames in os.walk(synth_path):
-                synthetic_data_count += len(filenames)
-            info["raw_waveform_file_count"] = raw_data_count
-            info["synthetic_waveform_file_count"] = synthetic_data_count
-            info["preprocessed_waveform_file_count"] = processed_data_count
-
-        # Store in cache so it only has to be done once.
-        self.___cache_seimic_events_info_dict[tag] = info
-
-        return info
+        data_path = os.path.join(self.paths["data"], event_name)
+        synth_path = os.path.join(self.paths["synthetics"], event_name)
+        raw_data_count = 0
+        processed_data_count = 0
+        synthetic_data_count = 0
+        for dirpath, _, filenames in os.walk(data_path):
+            if dirpath.endswith("raw"):
+                raw_data_count += len(filenames)
+            elif "preprocessed" in dirpath:
+                processed_data_count += len(filenames)
+        for dirpath, _, filenames in os.walk(synth_path):
+            synthetic_data_count += len(filenames)
+        return {
+            "raw_waveform_file_count": raw_data_count,
+            "synthetic_waveform_file_count": synthetic_data_count,
+            "preprocessed_waveform_file_count": processed_data_count}
 
     def generate_input_files(self, iteration_name, event_name,
                              simulation_type):
@@ -1094,6 +1030,7 @@ class Project(object):
 
         waveforms = self._get_waveform_cache_file(event_name, "raw")
 
+        # Single station.
         if station_id:
             files = waveforms.get_files_for_station(*station_id.split("."))
             if not files:
@@ -1918,7 +1855,8 @@ class Project(object):
         Helper function returning a three-channel Stream object for the
         requested synthetics.
 
-        The data will be rotated to N, Z, and E and have the correct starttime.
+        The data will be rotated to N, Z, and E and posses the correct
+        starttime.
         """
         from obspy import read, Stream
         from lasif import rotations

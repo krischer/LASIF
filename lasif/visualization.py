@@ -360,9 +360,32 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     map_object.drawparallels(np.arange(-90, 90, 30))
 
 
-def plot_data_for_station(station, raw_files, processed_files,
-                          synthetic_files, event, project):
+def plot_data_for_station(station, event_info, event, raw_files,
+                          processing_tags, iteration_names, event, project):
     """
+    :type station: dict
+    :param station: A dictionary containing the keys 'id', 'latitude',
+        'longitude', 'elevation_in_m', and 'local_depth_in_m' describing the
+        current station.
+    :type event_info: dict
+    :param event_info: A d
+    :type processing_tags: list
+    :param processing_tags: A list of processing tags available for the current
+        event and station.
+    :type iteration_names: list
+    :param iteration_name: A list of iteration names for which the current
+        event has synthetics.
+
+
+    What this function needs:
+
+        get_data_callback("raw")
+        get_data_callback("synthetic", iteration_name)
+        get_data_callback("processed", processing_tag)
+
+        {"raw": get_raw_stream_fct(),
+         "proc": get_proc_stream_fct(tag),
+         "synth": get_synth_stream_fct(it)}
     """
     import datetime
     import matplotlib.dates
@@ -371,9 +394,9 @@ def plot_data_for_station(station, raw_files, processed_files,
     from obspy.core.util.geodetics import calcVincentyInverse
     import textwrap
 
+    # Setup the figure, the window and plot title.
     fig = plt.figure(figsize=(14, 9))
     fig.canvas.set_window_title("Data for station %s" % station["id"])
-
     fig.text(0.5, 0.99, "Station %s" % station["id"],
              verticalalignment="top", horizontalalignment="center")
 
