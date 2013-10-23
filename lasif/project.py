@@ -655,7 +655,7 @@ class Project(object):
                        "will be chosen. Please run the data validation to "
                        "identify any problems.") % (event_name, station_id)
                 warnings.warn(msg)
-            channel = sorted(list(channel_set[0]))
+            channel = sorted(list(channel_set))[0]
             filenames = [_i["filename"] for _i in waveforms
                          if waveform["channel_id"].startswith(channel)]
             st = obspy.Stream()
@@ -707,8 +707,8 @@ class Project(object):
                 synthetics += tr
 
             # Only three-channel synthetics can be read.
-            if sorted([_i.stats.channel[-1] for _i in synthetics]) \
-                    != ["X", "Y", "Z"]:
+            if sorted([_i.stats.channel for _i in synthetics]) \
+                    != ["E", "N", "Z"]:
                 msg = ("Could not find all three required components for the "
                        "synthetics for event '%s' at station '%s' for "
                        "iteration '%s'." % (event_name, station_id,
@@ -2068,7 +2068,18 @@ class Project(object):
             msg = "Could not find suitable synthetic files."
             raise ValueError(msg)
 
-        return TwoWayIter(project=self,
+        def get_synthetics_callback(station_id):
+            return self.get_waveform_data(event_name, station_id,
+                                          data_type="synthetic",
+                                          iteration_name=iteration_name)
+
+        def get_data_callback(station_id):
+            return self.get_waveform_data(
+                event_name, station_id, data_type="processed",
+                tag=iteration.get_processing_tag())
+
+        return TwoWayIter(get_data_callback=get_data_callback,
+                          get_synthetics_callback=get_synthetics_callback,
                           stations=stations,
                           processed_waveforms=processed_waveforms,
                           event_name=event_name,

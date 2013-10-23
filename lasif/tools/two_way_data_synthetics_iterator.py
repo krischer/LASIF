@@ -12,8 +12,9 @@ Two way data synthetics iterator.
 """
 import inspect
 import numpy as np
-from obspy import read, Stream
 import warnings
+
+from lasif.project import LASIFException
 
 
 class TwoWayIter(object):
@@ -21,10 +22,13 @@ class TwoWayIter(object):
     A two way iterator returning a dictionary with processed data and
     synthetics.
     """
-    def __init__(self, project, stations, processed_waveforms, event_name,
-                 iteration_name):
+    def __init__(self, get_data_callback, get_synthetics_callback, stations,
+                 processed_waveforms, event_name, iteration_name):
         """
-        :param project: A LASIF Project instance.
+        :param get_data_callback: A function taking the station_id and
+            returning an ObsPy Stream object for the data.
+        :param get_synthetics_callback: A function taking the station_id and
+            returning an ObsPy Stream object for the synthetics.
         :param stations: A list of stations available for synthetic and
             processed data.
         :param processed_waveforms: A list of dictionaries containing
@@ -35,7 +39,8 @@ class TwoWayIter(object):
         """
         self.items = stations.items()
         self.current_index = -1
-        self.project = project
+        self.get_data_callback = get_data_callback
+        self.get_synthetics_callback = get_synthetics_callback
         self.waveforms = processed_waveforms
         self.event_name = event_name
         self.iteration_name = iteration_name
@@ -74,19 +79,11 @@ class TwoWayIter(object):
         """
         station_id, coordinates = self.items[self.current_index]
 
-        # Get the processed data.
-        data = Stream()
-        # Now get the actual waveform files. Also find the
-        # corresponding station file and check the coordinates.
-        this_waveforms = {
-            _i["channel_id"]: _i for _i in self.waveforms
-            if _i["channel_id"].startswith(station_id + ".")}
-        for key, value in this_waveforms.iteritems():
-            data += read(value["filename"])[0]
-        if not this_waveforms:
-            msg = "Could not retrieve data for station '%s'." % \
-                station_id
-            # Always raise the warning!
+        # Get the data.
+        try:
+            data = self.get_data_callback(station_id)
+        except LASIFException:
+            msg = "No data found for station '%s'" % station_id
             warnings.warn_explicit(
                 msg, UserWarning, __file__,
                 inspect.currentframe().f_back.f_lineno)
@@ -94,9 +91,8 @@ class TwoWayIter(object):
 
         # Get the synthetics.
         try:
-            synthetics = self.project._get_and_rotate_synthetics(
-                self.event_name, station_id, self.iteration_name)
-        except ValueError:
+            synthetics = self.get_synthetics_callback(station_id)
+        except LASIFException:
             msg = "No synthetics found for station '%s'" % station_id
             warnings.warn_explicit(
                 msg, UserWarning, __file__,
