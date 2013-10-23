@@ -63,7 +63,7 @@ class Project(object):
         # Easy event access.
         self.events = EventPseudoDict(self.paths["events"])
 
-        self.update_folder_structure()
+        self.__update_folder_structure()
         self._read_config_file()
 
     def _setup_paths(self, root_path):
@@ -105,7 +105,7 @@ class Project(object):
         self.paths["inv_db_file"] = \
             os.path.join(self.paths["cache"], "inventory_db.sqlite")
 
-    def update_folder_structure(self):
+    def __update_folder_structure(self):
         """
         Updates the folder structure of the project.
         """
@@ -924,11 +924,11 @@ class Project(object):
     @property
     def station_cache(self):
         """
-        Kind of like an instance wide StationCache singleton.
+        The station cache. Will only be initialized once.
         """
-        return self._update_station_cache(show_progress=True)
+        return self.__update_station_cache(show_progress=True)
 
-    def _update_station_cache(self, show_progress=True):
+    def __update_station_cache(self, show_progress=True):
         """
         Function actually updating the station cache.
 
@@ -1187,7 +1187,7 @@ class Project(object):
         # Update all caches so the rest can work faster.
         self._update_all_waveform_caches(ok_string, fail_string,
                                          flush_point, add_report)
-        self._update_station_cache(show_progress=True)
+        self.__update_station_cache(show_progress=True)
 
         # Assert that all waveform files have a corresponding station file.
         if station_file_availability:
