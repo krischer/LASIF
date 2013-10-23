@@ -357,37 +357,34 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     map_object.drawparallels(np.arange(-90, 90, 30))
 
 
-def plot_data_for_station(station, event_info, event, raw_files,
-                          processing_tags, iteration_names, project):
+def plot_data_for_station(station, available_data, event, get_data_callback,
+                          domain_bounds):
     """
+    Plots all data for a station in an interactive plot.
+
     :type station: dict
     :param station: A dictionary containing the keys 'id', 'latitude',
         'longitude', 'elevation_in_m', and 'local_depth_in_m' describing the
         current station.
-    :type event_info: dict
-    :param event_info: A d
-    :type processing_tags: list
-    :param processing_tags: A list of processing tags available for the current
-        event and station.
-    :type iteration_names: list
-    :param iteration_name: A list of iteration names for which the current
-        event has synthetics.
-
-
-    What this function needs:
+    :type available_data: dict
+    :param available_data: The available processed and synthetic data. The raw
+        data is always assumed to be available.
+    :type event: dict
+    :param event: A dictionary describing the current event.
+    :type get_data_callback: function
+    :param get_data_callback: Callback function returning an ObsPy Stream
+        object.
 
         get_data_callback("raw")
         get_data_callback("synthetic", iteration_name)
         get_data_callback("processed", processing_tag)
 
-        {"raw": get_raw_stream_fct(),
-         "proc": get_proc_stream_fct(tag),
-         "synth": get_synth_stream_fct(it)}
+    :type domain_bounds: dict
+    :param domain_bounds: The domain bounds.
     """
     import datetime
     import matplotlib.dates
     from matplotlib.widgets import CheckButtons
-    from obspy import read
     from obspy.core.util.geodetics import calcVincentyInverse
     import textwrap
 
@@ -426,10 +423,10 @@ def plot_data_for_station(station, event_info, event, raw_files,
     raw_check = CheckButtons(raw_check_axes, ["raw"], [True])
     proc_check = CheckButtons(proc_check_axes, [
         "\n".join(textwrap.wrap(_i, width=30))
-        for _i in processed_files.keys()],
-        [False] * len(processed_files))
-    synth_check = CheckButtons(synth_check_axes, synthetic_files.keys(),
-                               [False] * len(synthetic_files))
+        for _i in available_data["processed"]],
+        [False] * len(available_data["processed"]))
+    synth_check = CheckButtons(synth_check_axes, available_data["synthetic"],
+                               [False] * len(available_data["synthetic"]))
 
     for check in [raw_check, proc_check, synth_check]:
         plt.setp(check.labels, fontsize=10)
@@ -444,21 +441,20 @@ def plot_data_for_station(station, event_info, event, raw_files,
         0.02, 0.97, "Synthetic Data", transform=synth_check_axes.transAxes,
         verticalalignment="top", horizontalalignment="left", fontsize=10)
 
-    bounds = project.domain["bounds"]
+    bounds = domain_bounds["bounds"]
     map_object = plot_domain(
         bounds["minimum_latitude"], bounds["maximum_latitude"],
         bounds["minimum_longitude"], bounds["maximum_longitude"],
         bounds["boundary_width_in_degree"],
-        rotation_axis=project.domain["rotation_axis"],
-        rotation_angle_in_degree=project.domain["rotation_angle"],
+        rotation_axis=domain_bounds["rotation_axis"],
+        rotation_angle_in_degree=domain_bounds["rotation_angle"],
         plot_simulation_domain=False, zoom=True, ax=map_axes)
 
     plot_stations_for_event(map_object=map_object,
                             station_dict={station["id"]: station},
                             event_info=event)
     # Plot the beachball for one event.
-    plot_events([project.get_event(event["event_name"])],
-                map_object=map_object, beachball_size=0.05)
+    plot_events([event], map_object=map_object, beachball_size=0.05)
     dist = calcVincentyInverse(
         event["latitude"], event["longitude"], station["latitude"],
         station["longitude"])[0] / 1000.0
@@ -467,89 +463,99 @@ def plot_data_for_station(station, event_info, event, raw_files,
                        (dist, event["magnitude"], event["magnitude_type"]),
                        fontsize=10)
 
-    SYNTH_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
-
     PLOT_OBJECTS = {
         "raw": None,
         "synthetics": {},
         "processed": {}
     }
 
-    def plot(plot_type, filename, save_at):
-        tr = read(filename)[0]
-        tr.data = np.require(tr.data, dtype="float32")
-        tr.data -= tr.data.min()
-        tr.data /= tr.data.max()
-        tr.data -= tr.data.mean()
-        tr.data /= np.abs(tr.data).max() * 1.1
-
-        component = tr.stats.channel[-1].upper()
-        if component in SYNTH_MAPPING:
-            component = SYNTH_MAPPING[component]
-
-        #if plot_type == "synthetic" and component in ["X", "Z"]:
-            #tr.data *= -1
-
-        if component == "N":
-            axis = n_axis
-        elif component == "E":
-            axis = e_axis
-        elif component == "Z":
-            axis = z_axis
-        else:
-            raise NotImplementedError
-
-        if plot_type == "synthetic":
-            time_axis = matplotlib.dates.drange(
-                event["origin_time"].datetime,
-                (event["origin_time"] + tr.stats.delta * (tr.stats.npts))
-                .datetime,
-                datetime.timedelta(seconds=tr.stats.delta))
-            zorder = 2
-            color = "red"
-        elif plot_type == "raw":
-            time_axis = matplotlib.dates.drange(
-                tr.stats.starttime.datetime,
-                (tr.stats.endtime + tr.stats.delta).datetime,
-                datetime.timedelta(seconds=tr.stats.delta))
-            zorder = 0
-            color = "0.8"
+    def plot(plot_type, label=None):
+        if plot_type == "raw":
+            st = get_data_callback("raw")
+            PLOT_OBJECTS["raw"] = []
+            save_at = PLOT_OBJECTS["raw"]
+        elif plot_type == "synthetic":
+            st = get_data_callback("synthetic", label)
+            PLOT_OBJECTS["synthetics"][label] = []
+            save_at = PLOT_OBJECTS["synthetics"][label]
         elif plot_type == "processed":
-            time_axis = matplotlib.dates.drange(
-                tr.stats.starttime.datetime,
-                (tr.stats.endtime + tr.stats.delta).datetime,
-                datetime.timedelta(seconds=tr.stats.delta))
-            zorder = 1
-            color = "0.2"
-        else:
-            msg = "Plot type '%s' not known" % plot_type
-            raise ValueError(msg)
+            st = get_data_callback("processed", label)
+            PLOT_OBJECTS["processed"][label] = []
+            save_at = PLOT_OBJECTS["processed"][label]
 
-        save_at.append(axis.plot_date(time_axis[:len(tr.data)], tr.data,
-                       color=color, zorder=zorder, marker="", linestyle="-"))
-        axis.set_ylim(-1.0, 1.0)
-        axis.xaxis.set_major_formatter(
-            matplotlib.dates.DateFormatter("%H:%M:%S"))
+        # Loop over all traces.
+        for tr in st:
+            # Normalize data.
+            tr.data = np.require(tr.data, dtype="float32")
+            tr.data -= tr.data.min()
+            tr.data /= tr.data.max()
+            tr.data -= tr.data.mean()
+            tr.data /= np.abs(tr.data).max() * 1.1
 
-        if component == "E":
-            try:
-                plt.setp(axis.get_xticklabels(), visible=True)
-            except:
-                pass
+            # Figure out the correct axis.
+            component = tr.stats.channel[-1].upper()
+            if component == "N":
+                axis = n_axis
+            elif component == "E":
+                axis = e_axis
+            elif component == "Z":
+                axis = z_axis
+            else:
+                raise NotImplementedError
 
-        if plot_type != "raw":
-            axis.set_xlim(time_axis[0], time_axis[-1])
-        # Adjust the limit only if there are no synthetics and processed if
-        # plotting raw data.
-        elif not PLOT_OBJECTS["synthetics"] and not PLOT_OBJECTS["processed"]:
-            axis.set_xlim(time_axis[0], time_axis[-1])
+            if plot_type == "synthetic":
+                time_axis = matplotlib.dates.drange(
+                    event["origin_time"].datetime,
+                    (event["origin_time"] + tr.stats.delta * (tr.stats.npts))
+                    .datetime,
+                    datetime.timedelta(seconds=tr.stats.delta))
+                zorder = 2
+                color = "red"
+            elif plot_type == "raw":
+                time_axis = matplotlib.dates.drange(
+                    tr.stats.starttime.datetime,
+                    (tr.stats.endtime + tr.stats.delta).datetime,
+                    datetime.timedelta(seconds=tr.stats.delta))
+                zorder = 0
+                color = "0.8"
+            elif plot_type == "processed":
+                time_axis = matplotlib.dates.drange(
+                    tr.stats.starttime.datetime,
+                    (tr.stats.endtime + tr.stats.delta).datetime,
+                    datetime.timedelta(seconds=tr.stats.delta))
+                zorder = 1
+                color = "0.2"
+            else:
+                msg = "Plot type '%s' not known" % plot_type
+                raise ValueError(msg)
 
-    for label, axis in zip(("Vertical", "North", "East"),
-                           (z_axis, n_axis, e_axis)):
-        axis.text(0.98, 0.95, label,
-                  verticalalignment="top", horizontalalignment="right",
-                  bbox=dict(facecolor="white", alpha=0.5, pad=5),
-                  transform=axis.transAxes, fontsize=11)
+            save_at.append(axis.plot_date(time_axis[:len(tr.data)], tr.data,
+                           color=color, zorder=zorder, marker="",
+                           linestyle="-"))
+            axis.set_ylim(-1.0, 1.0)
+            axis.xaxis.set_major_formatter(
+                matplotlib.dates.DateFormatter("%H:%M:%S"))
+
+            if component == "E":
+                try:
+                    plt.setp(axis.get_xticklabels(), visible=True)
+                except:
+                    pass
+
+            if plot_type != "raw":
+                axis.set_xlim(time_axis[0], time_axis[-1])
+            # Adjust the limit only if there are no synthetics and processed if
+            # plotting raw data.
+            elif not PLOT_OBJECTS["synthetics"] and \
+                    not PLOT_OBJECTS["processed"]:
+                axis.set_xlim(time_axis[0], time_axis[-1])
+
+        for label, axis in zip(("Vertical", "North", "East"),
+                               (z_axis, n_axis, e_axis)):
+            axis.text(0.98, 0.95, label,
+                      verticalalignment="top", horizontalalignment="right",
+                      bbox=dict(facecolor="white", alpha=0.5, pad=5),
+                      transform=axis.transAxes, fontsize=11)
 
     def _checked_raw(label):
         checked(label, "raw")
@@ -569,8 +575,7 @@ def plot_data_for_station(station, event_info, event, raw_files,
                 PLOT_OBJECTS["raw"] = None
             else:
                 PLOT_OBJECTS["raw"] = []
-                for filename in raw_files:
-                    plot("raw", filename, PLOT_OBJECTS["raw"])
+                plot("raw")
         elif check_box == "synth":
             if label in PLOT_OBJECTS["synthetics"]:
                 for _i in PLOT_OBJECTS["synthetics"][label]:
@@ -579,9 +584,7 @@ def plot_data_for_station(station, event_info, event, raw_files,
                 del PLOT_OBJECTS["synthetics"][label]
             else:
                 PLOT_OBJECTS["synthetics"][label] = []
-                for filename in synthetic_files[label]:
-                    plot("synthetic", filename,
-                         PLOT_OBJECTS["synthetics"][label])
+                plot("synthetic", label=label)
         elif check_box == "proc":
             # Previously broken up.
             label = label.replace("\n", "")
@@ -592,9 +595,7 @@ def plot_data_for_station(station, event_info, event, raw_files,
                 del PLOT_OBJECTS["processed"][label]
             else:
                 PLOT_OBJECTS["processed"][label] = []
-                for filename in processed_files[label]:
-                    plot("processed", filename,
-                         PLOT_OBJECTS["processed"][label])
+                plot("processed", label=label)
 
         try:
             fig.canvas.draw()

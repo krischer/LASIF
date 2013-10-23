@@ -658,6 +658,30 @@ class Project(object):
             channel = sorted(list(channel_set))[0]
             filenames = [_i["filename"] for _i in waveforms
                          if waveform["channel_id"].startswith(channel)]
+
+            # If processed, one wants to get the processed files.
+            if data_type == "processed":
+                filenames = [os.path.join(self.paths["data"], tag,
+                                          os.path.basename(_i))
+                             for _i in filenames]
+
+
+                ################
+                # DEBUGGING START
+                import sys
+                __o_std__ = sys.stdout
+                sys.stdout = sys.__stdout__
+                from IPython.core.debugger import Tracer
+                Tracer(colors="Linux")()
+                sys.stdout = __o_std__
+                # DEBUGGING END
+                ################
+
+                filenames = [_i for _i in filenames if os.path.exists(_i)]
+                if not filenames:
+                    msg = ("Failed to find processed files. Did you "
+                           "preprocess the data?")
+                    raise LASIFException(msg)
             st = obspy.Stream()
             for filename in filenames:
                 st += obspy.read(filename)
@@ -808,7 +832,7 @@ class Project(object):
         """
         Plots data for a single station and event.
         """
-        #from lasif.visualization import plot_data_for_station
+        from lasif.visualization import plot_data_for_station
 
         if event_name not in self.events:
             msg = "Event '%s' not found in project." % event_name
@@ -819,12 +843,33 @@ class Project(object):
             event_name, station_id=station_id)
         station["id"] = station_id
 
+        available_data = self.discover_available_data(event_name, station_id)
+        if not available_data:
+            msg = ("No data available for the chosen event - station "
+                   "combination")
+            raise LASIFException(msg)
+
+        # Callback for dynamic data plotting.
+        def get_data_callback(data_type, tag_or_iteration=None):
+            if data_type == "raw":
+                return self.get_waveform_data(
+                    event_name, station_id, data_type="raw")
+            elif data_type == "processed":
+                return self.get_waveform_data(
+                    event_name, station_id, data_type="processed",
+                    tag=tag_or_iteration)
+            elif data_type == "synthetic":
+                return self.get_waveform_data(event_name, station_id,
+                                              data_type="synthetic",
+                                              iteration_name=tag_or_iteration)
+
         # Plot it.
-        #plot_data_for_station(station, raw_files=all_files["raw"],
-                              #processed_files=all_files["processed"],
-                              #synthetic_files=all_files["synthetics"],
-                              #event=self.events[event_name],
-                              #project=self)
+        plot_data_for_station(
+            station=station,
+            available_data=available_data,
+            event=self.events[event_name],
+            get_data_callback=get_data_callback,
+            domain_bounds=self.domain)
 
     def plot_event(self, event_name):
         """
