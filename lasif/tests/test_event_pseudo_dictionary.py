@@ -9,6 +9,7 @@ Test suite for the event pseudo dictionary.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import itertools
+import mock
 import obspy
 import os
 import pytest
@@ -149,3 +150,21 @@ def test_getitem(event_pseudo_dict):
 
     with pytest.raises(KeyError):
         event_pseudo_dict[1]
+
+
+def test_events_are_only_read_once(event_pseudo_dict):
+    """
+    Assert that an event is only read once.
+    """
+    event_1 = event_pseudo_dict[EVENT_1_NAME]
+    event_2 = event_pseudo_dict[EVENT_2_NAME]
+
+    # Assert the readEvents() function is not called again.
+    with mock.patch("obspy.core.event.readEvents") as patch:
+        temp_1 = event_pseudo_dict[EVENT_1_NAME]
+        temp_2 = event_pseudo_dict[EVENT_2_NAME]
+    assert patch.call_count == 0
+
+    # Check identity not equality.
+    assert event_1 is temp_1
+    assert event_2 is temp_2
