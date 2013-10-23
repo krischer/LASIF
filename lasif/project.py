@@ -38,7 +38,9 @@ class LASIFException(Exception):
 
 class Project(object):
     """
-    A class representing and managing a single LASIF project.
+    A class managing LASIF projects.
+
+    It represents the heart of LASIF.
     """
     def __init__(self, project_root_path, init_project=False):
         """
@@ -52,9 +54,9 @@ class Project(object):
             passed, the project will be given this name. Otherwise a default
             name will be chosen. Defaults to False.
         """
-        self._setup_paths(project_root_path)
+        self.__setup_paths(project_root_path)
         if init_project:
-            self._init_new_project(init_project)
+            self.__init_new_project(init_project)
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
                    "path or uninitialized project?")
@@ -66,7 +68,7 @@ class Project(object):
         self.__update_folder_structure()
         self._read_config_file()
 
-    def _setup_paths(self, root_path):
+    def __setup_paths(self, root_path):
         """
         Central place to define all paths.
         """
@@ -122,7 +124,7 @@ class Project(object):
                     continue
                 os.makedirs(event_folder)
 
-    def _init_new_project(self, project_name):
+    def __init_new_project(self, project_name):
         """
         Initializes a new project. This currently just means that it creates a
         default config file. The folder structure is checked and rebuilt every
@@ -577,12 +579,179 @@ class Project(object):
             ("\nDONE - Preprocessed %i files." % count) + \
             colorama.Style.RESET_ALL
 
+    def get_waveform_data(self, event_name, station_id, data_type, tag=None,
+                          iteration_name=None):
+        """
+        Get an ObsPy :class:`~obspy.core.stream.Stream` representing the
+        requested waveform data.
+
+        **This is the only interface that should ever be used to read waveform
+        data.** This assures a consistent handling of various issues.
+
+        Synthetic data will be properly rotated in case the project is defined
+        for a rotated domain.
+
+        :type event_name: str
+        :param event_name: The name of the event.
+        :type station_id: str
+        :param station_id: The id of the station in question.
+        :type data_type: str
+        :param data_type: The type of data to retrieve. Can be either `raw`,
+            `processed`, or `synthetic`.
+        :type tag: str
+        :param tag: If requesting `processed` data, the processing tag must be
+            given.
+        :type iteration_name: str
+        :param iteration_name: If requesting `synthetic` data, the iteration
+            name must be given.
+
+        :rtype: :class:`obspy.core.stream.Stream`
+        :return: An up to three-component Stream object containing the
+            requested data.
+        """
+        from lasif import rotations
+        import obspy
+
+        # Basic sanity checks.
+        if data_type not in ("raw", "processed", "synthetic"):
+            msg = "Invalid data_type."
+            raise ValueError(msg)
+        elif event_name not in self.events:
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+        elif data_type == "processed" and tag is None:
+            msg = "Tag must be given for requesting processed data."
+            raise ValueError(msg)
+        elif data_type == "synthetic" and iteration_name is None:
+            msg = "iteration_name must be given for requesting synthetic data."
+            raise ValueError(msg)
+
+        # Get some station information. This essentially assures the
+        # availability of the raw data.
+        try:
+            self.get_stations_for_event(event_name, station_id)
+        except:
+            msg = "No raw data found for event '%s' and station '%s'." % (
+                event_name, station_id)
+            raise LASIFException(msg)
+
+        network, station = station_id.split(".")
+
+        # Diverge to handle the different data types. Raw and processed can be
+        # handled almost the same.
+        if data_type in ("raw", "processed"):
+            waveforms = self._get_waveform_cache_file(event_name, "raw")
+            if not waveforms:
+                msg = "No suitable data found."
+                raise LASIFException(msg)
+            waveforms = waveforms.get_files_for_station(network, station)
+            # Make sure only one location and channel type component is used.
+            channel_set = set()
+            for waveform in waveforms:
+                channel_set.add(waveform["channel_id"][:-1])
+            if len(channel_set) != 1:
+                msg = ("More than one combination of location and channel type"
+                       " found for event '%s' and station '%s'. The first one "
+                       "will be chosen. Please run the data validation to "
+                       "identify any problems.") % (event_name, station_id)
+                warnings.warn(msg)
+            channel = sorted(list(channel_set[0]))
+            filenames = [_i["filename"] for _i in waveforms
+                         if waveform["channel_id"].startswith(channel)]
+            st = obspy.Stream()
+            for filename in filenames:
+                st += obspy.read(filename)
+            return st
+
+        # Synthetics are different.
+        elif data_type == "synthetic":
+            # First step is to get the folder.
+            folder_name = os.path.join(
+                self.paths["synthetics"], event_name,
+                self._get_long_iteration_name(iteration_name))
+            if not os.path.exists(folder_name):
+                msg = "Could not find suitable synthetics."
+                raise LASIFException(msg)
+
+            # Find all files.
+            files = []
+            for component in ("X", "Y", "Z"):
+                filename = os.path.join(
+                    folder_name, SYNTHETIC_FILENAME_TEMPLATE.format(
+                        network=network, station=station, location="",
+                        component=component.lower()))
+                if not os.path.exists(filename):
+                    continue
+                files.append(filename)
+            if not files:
+                msg = "Could not find suitable synthetics."
+                raise LASIFException(msg)
+
+            # This maps the synthetic channels to ZNE.
+            synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
+
+            synthetics = obspy.Stream()
+            for filename in files:
+                tr = obspy.read(filename)[0]
+                # Assign network and station codes.
+                tr.stats.network = network
+                tr.stats.station = station
+                # Flip South and downwards pointing data. We want North and Up.
+                if tr.stats.channel in ["X", "Z"]:
+                    tr.data *= -1.0
+                tr.stats.channel = \
+                    synthetic_coordinates_mapping[tr.stats.channel]
+                # Set the correct starttime.
+                tr.stats.starttime = \
+                    self.events[event_name]["origin_time"]
+                synthetics += tr
+
+            # Only three-channel synthetics can be read.
+            if sorted([_i.stats.channel[-1] for _i in synthetics]) \
+                    != ["X", "Y", "Z"]:
+                msg = ("Could not find all three required components for the "
+                       "synthetics for event '%s' at station '%s' for "
+                       "iteration '%s'." % (event_name, station_id,
+                                            iteration_name))
+                raise LASIFException(msg)
+
+            synthetics.sort()
+
+            # Finished if no rotation is required.
+            if not self.domain["rotation_angle"]:
+                return synthetics
+
+            coordinates = self._get_coordinates_for_waveform_file(
+                files[0], "synthetic", network, station, event_name)
+
+            # First rotate the station back to see, where it was
+            # recorded.
+            lat, lng = rotations.rotate_lat_lon(
+                coordinates["latitude"], coordinates["longitude"],
+                self.domain["rotation_axis"], -self.domain["rotation_angle"])
+            # Rotate the synthetics.
+            n, e, z = rotations.rotate_data(
+                synthetics.select(component="N")[0].data,
+                synthetics.select(component="E")[0].data,
+                synthetics.select(component="Z")[0].data,
+                lat, lng,
+                self.domain["rotation_axis"],
+                self.domain["rotation_angle"])
+            synthetics.select(component="N")[0].data = n
+            synthetics.select(component="E")[0].data = e
+            synthetics.select(component="Z")[0].data = z
+
+            return synthetics
+        # This should never be reached.
+        else:
+            raise Exception
+
     def discover_available_data(self, event_name, station_id):
         """
         Discovers the available data for one event at a certain station.
 
-        Will raise a LASIFException if no raw data is found for the given event
-        and station combination.
+        Will raise a :exc:`~lasif.project.LASIFException` if no raw data is
+        found for the given event and station combination.
 
         :type event_name: str
         :param event_name: The name of the event.
@@ -1866,155 +2035,6 @@ class Project(object):
             fh.write("\n")
 
         print "Wrote %i adjoint sources to %s." % (_i, output_folder)
-
-    def _get_and_rotate_synthetics(self, event_name, station_id,
-                                   iteration_name):
-        """
-        Helper function returning a three-channel Stream object for the
-        requested synthetics.
-
-        The data will be rotated to N, Z, and E and posses the correct
-        starttime.
-        """
-        from obspy import read, Stream
-        from lasif import rotations
-
-        # This maps the synthetic channels to ZNE.
-        synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
-
-        # Get all necessary filenames.
-        filenames = self._get_data(event_name, station_id, "synthetic",
-                                   iteration=iteration_name)
-
-        # Only three-channel synthetics can be read.
-        if sorted(filenames.keys()) != ["X", "Y", "Z"]:
-            msg = ("Could not find all three required components for the "
-                   "synthetics for event '%s' at station '%s' for iteration "
-                   "'%s'." % (event_name, station_id, iteration_name))
-            raise ValueError(msg)
-
-        network_code, station_code = station_id.split(".")
-
-        synthetics = Stream()
-        for filename in filenames.itervalues():
-            tr = read(filename)[0]
-            # Assign network and station codes.
-            tr.stats.network = network_code
-            tr.stats.station = station_code
-            # Flip South and downwards pointing data. We want North and Up.
-            if tr.stats.channel in ["X", "Z"]:
-                tr.data *= -1.0
-            tr.stats.channel = \
-                synthetic_coordinates_mapping[tr.stats.channel]
-            # Set the correct starttime.
-            tr.stats.starttime = \
-                self.events[event_name]["origin_time"]
-            synthetics += tr
-
-        synthetics.sort()
-
-        # Finished if no rotation is required.
-        if not self.domain["rotation_angle"]:
-            return synthetics
-
-        coordinates = self._get_coordinates_for_waveform_file(
-            filename, "synthetic", network_code, station_code, event_name)
-
-        # First rotate the station back to see, where it was
-        # recorded.
-        lat, lng = rotations.rotate_lat_lon(
-            coordinates["latitude"], coordinates["longitude"],
-            self.domain["rotation_axis"], -self.domain["rotation_angle"])
-        # Rotate the synthetics.
-        n, e, z = rotations.rotate_data(
-            synthetics.select(component="N")[0].data,
-            synthetics.select(component="E")[0].data,
-            synthetics.select(component="Z")[0].data,
-            lat, lng,
-            self.domain["rotation_axis"],
-            self.domain["rotation_angle"])
-        synthetics.select(component="N")[0].data = n
-        synthetics.select(component="E")[0].data = e
-        synthetics.select(component="Z")[0].data = z
-
-        return synthetics
-
-    def _get_data(self, event_name, station_id, data_type, **kwargs):
-        """
-        Helper function returning a dictionary of suitable filenames.
-
-        Will return a dictionary with keys "N", "E", "Z" for raw and processed
-        data and a dictionary with "X", "Y", "Z" for synthetic data. The values
-        will be the corresponding filenames.
-
-        :type event_name: str
-        :param event_name: Only data for this event is accepted.
-        :type station_id: str
-        :param station_id: Only data for this station is accepted.
-        :type data_type: str
-        :param data_type: The type of data to retrieve. One of ["raw",
-            "processed", "synthetic"].
-        :type tag: str
-        :param tag: The tag of the processed data when requesting processed
-            files. Optional.
-        :type iteration: str
-        :param iteration: The iteration when requesting synthetic data.
-            Optional.
-        """
-        network, station = station_id.split(".")
-
-        if data_type == "raw":
-            waveforms = self._get_waveform_cache_file(event_name, "raw")
-            if not waveforms:
-                return {}
-            waveforms = waveforms.get_files_for_station(network, station)
-
-            files = {}
-            for waveform in waveforms:
-                files[waveform["channel"][-1]] = waveform["filename"]
-
-            return files
-        elif data_type == "processed":
-            if not "tag" in kwargs:
-                msg = "tag must be given when requesting processed data"
-                raise ValueError(msg)
-            waveforms = self._get_waveform_cache_file(event_name,
-                                                      kwargs["tag"])
-
-            if not waveforms:
-                return {}
-            waveforms = waveforms.get_files_for_station(network, station)
-
-            files = {}
-            for waveform in waveforms:
-                files[waveform["channel"][-1]] = waveform["filename"]
-
-            return files
-        elif data_type == "synthetic":
-            if not "iteration" in kwargs:
-                msg = "iteration must be given when requesting synthetics"
-                raise ValueError(msg)
-            # First step is to get the folder.
-            folder_name = os.path.join(self.paths["synthetics"], event_name,
-                                       self._get_long_iteration_name(
-                                           kwargs["iteration"]))
-            if not os.path.exists(folder_name):
-                return []
-            files = {}
-
-            for component in ("X", "Y", "Z"):
-                filename = os.path.join(
-                    folder_name, SYNTHETIC_FILENAME_TEMPLATE.format(
-                        network=network, station=station, location="",
-                        component=component.lower()))
-                if not os.path.exists(filename):
-                    continue
-                files[component] = filename
-
-            return files
-        else:
-            msg = "data_type must be one of 'raw', 'processed', or 'synthetic'"
-            raise ValueError(msg)
 
     def data_synthetic_iterator(self, event_name, iteration_name):
         """
