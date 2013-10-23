@@ -1470,7 +1470,7 @@ class Project(object):
                 # Otherwise get all files for the faulty station.
                 files = waveform_cache.get_files_for_station(
                     *station_name.split("."))
-                files = [_i["filename"] for _i in files]
+                files = sorted([_i["filename"] for _i in files])
                 msg = ("The station '{station}' has more then one combination "
                        "of location and channel type for event {event}. "
                        "Please assure that only one combination is present. "
