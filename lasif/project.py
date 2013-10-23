@@ -607,19 +607,19 @@ class Project(object):
         except:
             msg = "No raw data found for event '%s' and station '%s'." % (
                 event_name, station_id)
-            return msg
+            raise LASIFException(msg)
 
         # Collect all tags and iteration names.
         all_files = {
             "processed": [],
-            "synthetics": []}
+            "synthetic": []}
 
         # Get the processed tags.
         data_dir = os.path.join(self.paths["data"], event_name)
         for tag in os.listdir(data_dir):
             # Only interested in preprocessed data.
             if not tag.startswith("preprocessed") or \
-                    tag.endwith("_cache.sqlite"):
+                    tag.endswith("_cache.sqlite"):
                 continue
             waveforms = self._get_waveform_cache_file(event_name, tag)
             if waveforms.get_files_for_station(*station_id.split(".")):
@@ -632,7 +632,7 @@ class Project(object):
                 event_name, iteration_name)
             if station_id not in synthetic_files:
                 continue
-            all_files["synthetics"].append(iteration_name)
+            all_files["synthetic"].append(iteration_name)
         return all_files
 
     def plot_station(self, station_id, event_name):
