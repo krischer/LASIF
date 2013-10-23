@@ -20,6 +20,8 @@ import os
 import sys
 import warnings
 
+from lasif.tools.event_pseudo_dict import EventPseudoDict
+
 
 # SES3D currently only identifies synthetics  via the filename. Use this
 # template to get the name of a certain file.
@@ -57,6 +59,10 @@ class Project(object):
             msg = ("Could not find the project's config file. Wrong project "
                    "path or uninitialized project?")
             raise LASIFException(msg)
+
+        # Easy event access.
+        self.events = EventPseudoDict(self.paths["events"])
+
         self.update_folder_structure()
         self._read_config_file()
 
@@ -107,7 +113,7 @@ class Project(object):
             if "file" in name or os.path.exists(path):
                 continue
             os.makedirs(path)
-        events = self.get_event_dict().keys()
+        events = self.events.keys()
         folders = [self.paths["data"], self.paths["synthetics"]]
         for folder in folders:
             for event in events:
@@ -187,7 +193,7 @@ class Project(object):
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         ret_str += "\tContent:\n"
-        ret_str += "\t\t%i events\n" % len(self.get_event_dict())
+        ret_str += "\t\t%i events\n" % len(self.events)
         ret_str += "\t\t%i station files\n" % station_file_count
         ret_str += "\t\t%i raw waveform files\n" % raw_data_file_count
         ret_str += "\t\t%i processed waveform files \n" % \
@@ -364,19 +370,6 @@ class Project(object):
         models = {os.path.basename(_i): _i for _i in models}
         return models
 
-    def get_event_dict(self):
-        """
-        Returns a dictonary with all events in the project, the keys are the
-        event names and the values the full paths to each event.
-        """
-        events = {}
-        for event in glob.iglob(os.path.join(self.paths["events"],
-                                             "*%sxml" % os.extsep)):
-            event = os.path.abspath(event)
-            event_name = os.path.splitext(os.path.basename(event))[0]
-            events[event_name] = event
-        return events
-
     def plot_domain(self):
         """
         Plots the simulation domain and the actual physical domain.
@@ -440,7 +433,7 @@ class Project(object):
         # Get a dictionary containing the event names as keys and a list of
         # stations per event as values.
         events_dict = {event: self.get_stations_for_event(event).keys()
-                       for event in self.get_event_dict().keys()}
+                       for event in self.events.iterkeys()}
 
         xml_string = iteration_xml.create_iteration_xml_string(
             iteration_name, solver_name, events_dict, min_period=min_period,
@@ -512,7 +505,7 @@ class Project(object):
                 # of events.
                 if (event_ids is None) or (event_name in event_ids):
 
-                    event_info = self.get_event_info(event_name)
+                    event_info = self.events[event_name]
 
                     # The folder where all preprocessed data for this event
                     # will go.
@@ -585,7 +578,7 @@ class Project(object):
         """
         from lasif.visualization import plot_data_for_station
 
-        if event_name not in self.get_event_dict():
+        if event_name not in self.events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
@@ -630,15 +623,14 @@ class Project(object):
         plot_data_for_station(station, raw_files=all_files["raw"],
                               processed_files=all_files["processed"],
                               synthetic_files=all_files["synthetics"],
-                              event=self.get_event_info(event_name),
+                              event=self.events[event_name],
                               project=self)
 
     def plot_event(self, event_name):
         """
         Plots information about one event on the map.
         """
-        all_events = self.get_event_dict()
-        if event_name not in all_events:
+        if event_name not in self.events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
@@ -655,8 +647,7 @@ class Project(object):
             plot_simulation_domain=False, zoom=True)
 
         # Get the event and extract information from it.
-        event = self.get_event(event_name)
-        event_info = self.get_event_info(event_name)
+        event_info = self.events[event_name]
 
         # Get a dictionary containing all stations that have data for the
         # current event.
@@ -668,7 +659,7 @@ class Project(object):
             project=self)
 
         # Plot the beachball for one event.
-        visualization.plot_events([event], map_object=map)
+        visualization.plot_events([event_info], map_object=map)
 
     def plot_events(self, plot_type="map"):
         """
@@ -681,8 +672,7 @@ class Project(object):
         """
         from lasif import visualization
 
-        events = self.get_all_events()
-        # Get a list of all events.
+        events = self.events.values()
 
         if plot_type == "map":
             bounds = self.domain["bounds"]
@@ -722,10 +712,9 @@ class Project(object):
             resolution="l")
 
         event_stations = []
-        for event_name in self.get_event_dict().keys():
-            event = self.get_event(event_name)
+        for event_name, event_info in self.events.iteritems():
             stations = self.get_stations_for_event(event_name)
-            event_stations.append((event, stations))
+            event_stations.append((event_info, stations))
 
         visualization.plot_raydensity(
             map_object, event_stations, bounds["minimum_latitude"],
@@ -733,8 +722,7 @@ class Project(object):
             bounds["maximum_longitude"], self.domain["rotation_axis"],
             self.domain["rotation_angle"])
 
-        events = self.get_all_events()
-        visualization.plot_events(events, map_object=map_object)
+        visualization.plot_events(self.events.values(), map_object=map_object)
 
         plt.tight_layout()
 
@@ -758,8 +746,7 @@ class Project(object):
             * preprocessed_waveform_file_count
         """
         # Make sure the event exists.
-        all_events = self.get_event_dict()
-        if event_name not in all_events:
+        if event_name not in self.events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
@@ -805,7 +792,7 @@ class Project(object):
             msg = "Event '%s' not part of iteration '%s'." % (
                 event_name, iteration_name)
             raise ValueError(msg)
-        event = self.get_event(event_name)
+        event = self.events[event_name]
         stations_for_event = iteration.events[event_name]["stations"].keys()
 
         # Get all stations and create a dictionary for the input file
@@ -838,7 +825,7 @@ class Project(object):
 
         # Add the event and the stations to the input file generator.
         gen = InputFileGenerator()
-        gen.add_events(event)
+        gen.add_events(event["filename"])
         gen.add_stations(stations)
 
         # event tag
@@ -1019,8 +1006,7 @@ class Project(object):
             question. If given, only this station will be returned, otherwise
             all will. Defaults to None. Optional
         """
-        all_events = self.get_event_dict()
-        if event_name not in all_events:
+        if event_name not in self.events:
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
@@ -1257,7 +1243,7 @@ class Project(object):
 
         all_good = True
 
-        for event in self.get_event_dict().iterkeys():
+        for event in self.events.iterkeys():
             waveform_files_for_event = \
                 self._get_waveform_cache_file(event, "raw").get_values()
             flush_point()
@@ -1297,7 +1283,7 @@ class Project(object):
         Update all waveform caches.
         """
         print "Updating all raw waveform caches ",
-        for event_name in self.get_event_dict().iterkeys():
+        for event_name in self.events.iterkeys():
             flush_point()
             self._get_waveform_cache_file(event_name, "raw",
                                           show_progress=False)
@@ -1315,7 +1301,7 @@ class Project(object):
         #print ("Confirming that station metainformation files exist for "
                #"all waveforms "),
         #all_good = True
-        #for event_name in self.get_event_dict().iterkeys():
+        #for event_name in self.events.iterkeys():
             #flush_point()
             #waveform_cache = self._get_waveform_cache_file(event_name, "raw",
                                                        #show_progress=False)
@@ -1341,7 +1327,7 @@ class Project(object):
         all_good = True
 
         # Loop over all events.
-        for event_name in self.get_event_dict().iterkeys():
+        for event_name in self.events.iterkeys():
             flush_point()
             # Get all waveform files for the current event.
             waveform_cache = self._get_waveform_cache_file(event_name, "raw",
@@ -1386,7 +1372,7 @@ class Project(object):
         all_good = True
 
         # Loop over all events.
-        for event_name in self.get_event_dict().iterkeys():
+        for event_name in self.events.iterkeys():
             flush_point()
             # Get all waveform files for the current event.
             waveform_cache = self._get_waveform_cache_file(event_name, "raw",
@@ -1448,14 +1434,13 @@ class Project(object):
         from lasif import utils
         from lxml import etree
 
-        event_files = self.get_event_dict().values()
-
-        print "Validating %i event files ..." % len(event_files)
+        print "Validating %i event files ..." % len(self.events)
 
         # Start with the schema validation.
         print "\tValidating against QuakeML 1.2 schema ",
         all_valid = True
-        for filename in event_files:
+        for event in self.events.itervalues():
+            filename = event["filename"]
             flush_point()
             if validate_quakeml(filename) is not True:
                 all_valid = False
@@ -1485,7 +1470,8 @@ class Project(object):
         # Now check for duplicate public IDs.
         print "\tChecking for duplicate public IDs ",
         ids = collections.defaultdict(list)
-        for filename in event_files:
+        for event in self.events.itervalues():
+            filename = event["filename"]
             flush_point()
             # Now walk all files and collect all public ids. Each should be
             # unique!
@@ -1517,7 +1503,8 @@ class Project(object):
         # Performing simple sanity checks.
         print "\tPerforming some basic sanity checks ",
         all_good = True
-        for filename in event_files:
+        for event in self.events.itervalues():
+            filename = event["filename"]
             flush_point()
             cat = readEvents(filename)
             filename = os.path.basename(filename)
@@ -1603,16 +1590,11 @@ class Project(object):
             print fail_string
 
         # Collect event times
-        event_infos = []
-        for filename in event_files:
-            event_info = self.get_event_info(os.path.splitext(
-                os.path.basename(filename))[0])
-            event_info["filename"] = os.path.basename(filename)
-            event_infos.append(event_info)
+        event_infos = self.events.values()
 
         # Now check the time distribution of events.
         print "\tChecking for duplicates and events too close in time %s" % \
-            (len(event_files) * "."),
+            (len(self.events) * "."),
         all_good = True
         # Sort the events by time.
         event_infos = sorted(event_infos, key=lambda x: x["origin_time"])
@@ -1641,7 +1623,7 @@ class Project(object):
 
         # Check that all events fall within the chosen boundaries.
         print "\tAssure all events are in chosen domain %s" % \
-            (len(event_files) * "."),
+            (len(self.events) * "."),
         all_good = True
         for event in event_infos:
             if utils.point_in_domain(
@@ -1682,7 +1664,7 @@ class Project(object):
         from lasif.utils import greatcircle_points, Point, point_in_domain
 
         # Get the event information.
-        ev = self.get_event_info(event_name)
+        ev = self.events[event_name]
         event_latitude = ev["latitude"]
         event_longitude = ev["longitude"]
 
@@ -1890,7 +1872,7 @@ class Project(object):
                 synthetic_coordinates_mapping[tr.stats.channel]
             # Set the correct starttime.
             tr.stats.starttime = \
-                self.get_event_info(event_name)["origin_time"]
+                self.events[event_name]["origin_time"]
             synthetics += tr
 
         synthetics.sort()
@@ -2150,15 +2132,6 @@ class Project(object):
         it's filename actually has a corresponding station file.
         """
         return self.station_cache.station_info_available(channel_id, time)
-
-    def is_event_in_project(self, event_name):
-        """
-        Convenience function. Returns true if the event is in the project,
-        False otherwise.
-        """
-        if event_name in self.get_event_dict().keys():
-            return True
-        return False
 
     def _get_all_raw_waveform_files_for_iteration(self, iteration_name):
         """

@@ -9,23 +9,23 @@ events.
 
 .. code-block::python
 
-    >>> from lasif.tools.event_pseudo_dict import EventPseudoDict
-    >>> events = EventPseudoDict("/path/to/folder/of/QuakeMLs")
+    >> from lasif.tools.event_pseudo_dict import EventPseudoDict
+    >> events = EventPseudoDict("/path/to/folder/of/QuakeMLs")
 
     # The .xml extension is stripped from all names.
-    >>> events.keys()
+    >> events.keys()
     ["event_name_1", "event_name_2"]
 
     # All events will only be read once requested. Repeated accessing will not
     # read the QuakeML file again but access a cached information dictionary.
-    >>> events["event_name_1"]
+    >> events["event_name_1"]
     {"latitude": 10.1, "longitude": 11.1,
      "origin_time": obspy.UTCDateTime(...), ...}
 
-    >>> "event_name_1" in events
+    >> "event_name_1" in events
     True
 
-    >>> len(events)
+    >> len(events)
     2
 
 

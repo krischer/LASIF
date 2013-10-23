@@ -184,29 +184,27 @@ def plot_events(events, map_object, beachball_size=0.02, project=None):
     """
     """
     for event in events:
-        org = event.preferred_origin() or event.origins[0]
-        mag = event.preferred_magnitude() or event.magnitudes[0]
-        fm = event.preferred_focal_mechanism() or event.focal_mechanisms[0]
-        mt = fm.moment_tensor.tensor
-
         # Add beachball plot.
-        x, y = map_object(org.longitude, org.latitude)
+        x, y = map_object(event["longitude"], event["latitude"])
 
-        focmec = [mt.m_rr, mt.m_tt, mt.m_pp, mt.m_rt, mt.m_rp, mt.m_tp]
+        focmec = [event["m_rr"], event["m_tt"], event["m_pp"], event["m_rt"],
+                  event["m_rp"], event["m_tp"]]
         # Attempt to calculate the best beachball size.
         width = max((map_object.xmax - map_object.xmin,
                      map_object.ymax - map_object.ymin)) * beachball_size
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_picker(True)
         b._project = project
-        b._event_name = os.path.splitext(os.path.basename(event.filename))[0]
+        b._event_name = os.path.splitext(
+            os.path.basename(event["filename"]))[0]
         b.detailed_event_description = (
             "Event %.1f %s\n"
             "Lat: %.1f, Lng: %.1f, Depth: %.1f km\n"
             "Time: %s\n"
             "%s"
-        ) % (mag.mag, mag.magnitude_type, org.latitude, org.longitude,
-             org.depth / 1000.0, org.time, os.path.basename(event.filename))
+        ) % (event["magnitude"], event["magnitude_type"], event["latitude"],
+             event["longitude"], event["depth_in_km"], event["origin_time"],
+             event["event_name"])
 
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
@@ -236,8 +234,7 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     # list is then distributed among all processors.
     station_event_list = []
     for event, stations in station_events:
-        org = event.preferred_origin() or event.origins[0]
-        e_point = Point(org.latitude, org.longitude)
+        e_point = Point(event["latitude"], event["longitude"])
         for station in stations.itervalues():
             station_event_list.append((e_point, Point(station["latitude"],
                                                       station["longitude"])))
@@ -361,7 +358,7 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
 
 
 def plot_data_for_station(station, event_info, event, raw_files,
-                          processing_tags, iteration_names, event, project):
+                          processing_tags, iteration_names, project):
     """
     :type station: dict
     :param station: A dictionary containing the keys 'id', 'latitude',
@@ -682,11 +679,10 @@ def plot_event_histogram(events, plot_type):
 
     values = []
     for event in events:
-        org = event.preferred_origin() or event.origins[0]
         if plot_type == "depth":
-            values.append(org.depth / 1000.0)
+            values.append(event["depth_in_km"])
         elif plot_type == "time":
-            values.append(date2num(org.time.datetime))
+            values.append(date2num(event["origin_time"].datetime))
 
     plt.hist(values, bins=250)
 

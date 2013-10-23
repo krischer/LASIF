@@ -28,6 +28,7 @@ from lasif.project import Project, LASIFException
 from lasif.tests.testing_helpers import project  # NOQA
 from lasif.tests.testing_helpers import images_are_identical, \
     reset_matplotlib, DATA
+from lasif.tools.event_pseudo_dict import EventPseudoDict
 
 
 def setup_function(function):
@@ -165,23 +166,13 @@ def test_event_handling(project):
     """
     Tests the event handling.
     """
-    # Get the event dictionary. This is a simple mapping between internal event
-    # name and QuakeML filename.
-    event_dict = project.get_event_dict()
-    assert len(event_dict) == 2
-    assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in event_dict
-    assert event_dict["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"].endswith(
-        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml")
-    assert event_dict["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"].endswith(
-        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml")
+    assert len(project.events) == 2
+    assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in project.events
 
-    # Test single and multiple event retrieval.
-    event_1 = project.get_event("GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
-    event_2 = project.get_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-    assert isinstance(event_1, obspy.core.event.Event)
-    assert isinstance(event_2, obspy.core.event.Event)
-    events = sorted([event_1, event_2])
-    assert events == sorted(project.get_all_events())
+    assert project.events["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"][
+        "filename"].endswith("GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml")
+    assert project.events["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"][
+        "filename"].endswith("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml")
 
 
 def test_event_plotting(project):
@@ -207,8 +198,7 @@ def test_event_info_retrieval(project):
 
     The dictionary is used to extract information about a single event.
     """
-    event_info = project.get_event_info(
-        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    event_info = project.events["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
     assert event_info["latitude"] == 38.82
     assert event_info["longitude"] == 40.14
     assert event_info["depth_in_km"] == 4.5
@@ -218,8 +208,7 @@ def test_event_info_retrieval(project):
     assert event_info["magnitude"] == 5.1
     assert event_info["magnitude_type"] == "Mwc"
 
-    event_info = project.get_event_info(
-        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
+    event_info = project.events["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"]
     assert event_info["latitude"] == 39.15
     assert event_info["longitude"] == 29.1
     assert event_info["depth_in_km"] == 7.0
@@ -234,31 +223,17 @@ def test_event_info_filecount_retrieval(project):
     """
     Checks the filecount retrieval with the event_info method.
     """
-    event_info = project.get_event_info(
-        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-        get_filecount=True)
+    event_info = project.get_filecounts_for_event(
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
     assert event_info["raw_waveform_file_count"] == 4
     assert event_info["preprocessed_waveform_file_count"] == 0
     assert event_info["synthetic_waveform_file_count"] == 6
 
-    event_info = project.get_event_info(
-        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15",
-        get_filecount=True)
+    event_info = project.get_filecounts_for_event(
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
     assert event_info["raw_waveform_file_count"] == 0
     assert event_info["preprocessed_waveform_file_count"] == 0
     assert event_info["synthetic_waveform_file_count"] == 0
-
-    # If called with the get_filecount flag, the keys should not exist.
-    event_info = project.get_event_info(
-        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-    assert "raw_waveform_file_count" not in event_info
-    assert "preprocessed_waveform_file_count" not in event_info
-    assert "synthetic_waveform_file_count" not in event_info
-    event_info = project.get_event_info(
-        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
-    assert "raw_waveform_file_count" not in event_info
-    assert "preprocessed_waveform_file_count" not in event_info
-    assert "synthetic_waveform_file_count" not in event_info
 
 
 def test_waveform_cache_usage(project):
@@ -513,11 +488,7 @@ def test_data_validation(project, capsys):
     """
     def reset():
         try:
-            project._Project__cache_seimic_events_info_dict.clear()
-        except:
-            pass
-        try:
-            project._Project__cache_seismic_event_objects.clear()
+            project.events = EventPseudoDict(project.paths["events"])
         except:
             pass
         try:
@@ -990,7 +961,7 @@ def test_get_and_rotate_synthetics(project):
     assert st[1].id == "HL.ARG..N"
     assert st[2].id == "HL.ARG..Z"
 
-    origin_time = project.get_event_info(event_name)["origin_time"]
+    origin_time = project.events[event_name]["origin_time"]
     assert st[0].stats.starttime == origin_time
     assert st[1].stats.starttime == origin_time
     assert st[2].stats.starttime == origin_time
@@ -1015,7 +986,7 @@ def test_get_and_rotate_synthetics(project):
     assert st[1].id == "HL.ARG..N"
     assert st[2].id == "HL.ARG..Z"
 
-    origin_time = project.get_event_info(event_name)["origin_time"]
+    origin_time = project.events[event_name]["origin_time"]
     assert st[0].stats.starttime == origin_time
     assert st[1].stats.starttime == origin_time
     assert st[2].stats.starttime == origin_time

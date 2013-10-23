@@ -203,15 +203,13 @@ def lasif_download_waveforms(parser, args):
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
-    if not proj.is_event_in_project(event_name):
+    if not event_name in proj.events:
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
 
     from lasif.download_helpers import downloader
 
-    event = proj.get_event(event_name)
-    origin = event.preferred_origin() or event.origins[0]
-    time = origin.time
+    time = proj.events[event_name]["origin_time"]
     starttime = time - proj.config["download_settings"]["seconds_before_event"]
     endtime = time + proj.config["download_settings"]["seconds_after_event"]
 
@@ -253,14 +251,14 @@ def lasif_download_stations(parser, args):
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
-    if not proj.is_event_in_project(event_name):
+    if not event_name in proj.events:
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
 
     from lasif.download_helpers import downloader
 
     # Fix the start- and endtime to ease download file grouping
-    event_info = proj.get_event_info(event_name)
+    event_info = proj.events[event_name]
     starttime = event_info["origin_time"] - \
         proj.config["download_settings"]["seconds_before_event"]
     endtime = event_info["origin_time"] + \
@@ -299,22 +297,22 @@ def lasif_list_events(parser, args):
 
     from lasif.tools.prettytable import PrettyTable
     proj = _find_project_root(".")
-    events = proj.get_event_dict()
-    print("%i event%s in project:" % (len(events), "s" if len(events) != 1
-          else ""))
+    print("%i event%s in project:" % (len(proj.events),
+          "s" if len(proj.events) != 1 else ""))
     tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag",
                        "# raw/preproc/synth"])
     tab.align["Event Name"] = "l"
-    for event in sorted(events.keys()):
-        ev = proj.get_event_info(event, get_filecount=True)
+    for event in sorted(proj.events.keys()):
+        ev = proj.events[event]
+        count = proj.get_filecounts_for_event(event)
         tab.add_row([
             event, "%6.1f / %6.1f / %3i / %3.1f" % (
                 ev["latitude"], ev["longitude"], int(ev["depth_in_km"]),
                 ev["magnitude"]),
             "%4i / %5i / %4i" % (
-                ev["raw_waveform_file_count"],
-                ev["preprocessed_waveform_file_count"],
-                ev["synthetic_waveform_file_count"])])
+                count["raw_waveform_file_count"],
+                count["preprocessed_waveform_file_count"],
+                count["synthetic_waveform_file_count"])])
     print tab
 
 
@@ -462,10 +460,11 @@ def lasif_event_info(parser, args):
     from lasif.utils import table_printer
 
     proj = _find_project_root(".")
-    try:
-        event_dict = proj.get_event_info(event_name)
-    except Exception as e:
-        raise LASIFCommandLineException(str(e))
+    if event_name not in proj.events:
+        msg = "Event '%s' not found in project." % event_name
+        raise LASIFCommandLineException(msg)
+
+    event_dict = proj.events[event_name]
 
     print "Earthquake with %.1f %s at %s" % (
         event_dict["magnitude"], event_dict["magnitude_type"],
@@ -586,7 +585,7 @@ def lasif_launch_misfit_gui(parser, args):
 
     proj = _find_project_root(".")
 
-    if not proj.is_event_in_project(event_name):
+    if not event_name in proj.events:
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
 
@@ -606,7 +605,7 @@ def lasif_launch_misfit_gui(parser, args):
                                          event_name)
     adj_src_manager = AdjointSourceManager(ad_src_directory)
 
-    event = proj.get_event(event_name)
+    event = proj.events[event_name]
     iteration = proj._get_iteration(iteration_name)
 
     MisfitGUI(event, iterator, proj, window_manager, adj_src_manager,
@@ -716,9 +715,8 @@ def lasif_preprocess_data(parser, args):
 
     # Check if the event ids are valid.
     if events:
-        evs = proj.get_event_dict().keys()
         for event_name in events:
-            if event_name not in evs:
+            if event_name not in proj.events:
                 msg = "Event '%s' not found." % event_name
                 raise LASIFCommandLineException(msg)
 
@@ -762,13 +760,12 @@ def lasif_plot_selected_windows(parser, args):
     from lasif.window_selection import select_windows, plot_windows
     proj = _find_project_root(".")
 
-    events = proj.get_event_dict()
-    if event_name not in events:
+    if event_name not in proj.events:
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
 
     iterator = proj.data_synthetic_iterator(event_name, iteration_name)
-    event_info = proj.get_event_info(event_name)
+    event_info = proj.events[event_name]
 
     iteration = proj._get_iteration(iteration_name)
     process_params = iteration.get_process_params()

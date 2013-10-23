@@ -72,9 +72,6 @@ class MisfitGUI:
 
         plt.figure(figsize=(22, 12))
         self.event = event
-        self.event_latitude = event.origins[0].latitude
-        self.event_longitude = event.origins[0].longitude
-        self.event_depth = event.origins[0].depth
         self.project = project
         self.process_parameters = iteration.get_process_params()
 
@@ -199,8 +196,8 @@ class MisfitGUI:
             synth_trace = synth_trace[0]
 
             windows = select_windows(
-                real_trace, synth_trace, self.event_latitude,
-                self.event_longitude, self.event_depth / 1000.0,
+                real_trace, synth_trace, self.event["latitude"],
+                self.event["longitude"], self.event["depth_in_km"],
                 self.data["coordinates"]["latitude"],
                 self.data["coordinates"]["longitude"],
                 1.0 / self.process_parameters["lowpass"],
@@ -423,10 +420,10 @@ class MisfitGUI:
 
     def plot_traveltimes(self):
         great_circle_distance = locations2degrees(
-            self.event_latitude, self.event_longitude,
+            self.event["latitude"], self.event["longitude"],
             self.data["coordinates"]["latitude"],
             self.data["coordinates"]["longitude"])
-        tts = getTravelTimes(great_circle_distance, self.event_depth / 1000.0,
+        tts = getTravelTimes(great_circle_distance, self.event["depth_in_km"],
                              model="ak135")
         for component in ["z", "n", "e"]:
             axis = getattr(self, "plot_axis_%s" % component)
@@ -454,7 +451,7 @@ class MisfitGUI:
         self.greatcircle = self.map_obj.drawgreatcircle(
             self.data["coordinates"]["longitude"],
             self.data["coordinates"]["latitude"],
-            self.event_longitude, self.event_latitude, linewidth=2,
+            self.event["longitude"], self.event["latitude"], linewidth=2,
             color='green', ax=self.map_axis)
 
         lng, lats = self.map_obj([self.data["coordinates"]["longitude"]],
