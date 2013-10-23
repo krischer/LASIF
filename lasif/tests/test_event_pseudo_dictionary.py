@@ -168,3 +168,16 @@ def test_events_are_only_read_once(event_pseudo_dict):
     # Check identity not equality.
     assert event_1 is temp_1
     assert event_2 is temp_2
+
+
+def test_get_filename(event_pseudo_dict):
+    """
+    Tests the get_filename() method.
+    """
+    assert event_pseudo_dict.get_filename(EVENT_1_NAME) == os.path.abspath(
+        os.path.join(DATA, "ExampleProject", "EVENTS",
+                     EVENT_1_NAME + os.extsep + "xml"))
+
+    assert event_pseudo_dict.get_filename(EVENT_2_NAME) == os.path.abspath(
+        os.path.join(DATA, "ExampleProject", "EVENTS",
+                     EVENT_2_NAME + os.extsep + "xml"))
