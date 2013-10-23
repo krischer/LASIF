@@ -661,22 +661,9 @@ class Project(object):
 
             # If processed, one wants to get the processed files.
             if data_type == "processed":
-                filenames = [os.path.join(self.paths["data"], tag,
+                filenames = [os.path.join(self.paths["data"], event_name, tag,
                                           os.path.basename(_i))
                              for _i in filenames]
-
-
-                ################
-                # DEBUGGING START
-                import sys
-                __o_std__ = sys.stdout
-                sys.stdout = sys.__stdout__
-                from IPython.core.debugger import Tracer
-                Tracer(colors="Linux")()
-                sys.stdout = __o_std__
-                # DEBUGGING END
-                ################
-
                 filenames = [_i for _i in filenames if os.path.exists(_i)]
                 if not filenames:
                     msg = ("Failed to find processed files. Did you "
