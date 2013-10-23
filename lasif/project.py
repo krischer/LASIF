@@ -432,8 +432,13 @@ class Project(object):
 
         # Get a dictionary containing the event names as keys and a list of
         # stations per event as values.
-        events_dict = {event: self.get_stations_for_event(event).keys()
-                       for event in self.events.iterkeys()}
+        events_dict = {}
+        for event in self.events.iterkeys():
+            try:
+                info = self.get_stations_for_event(event)
+            except LASIFException:
+                continue
+            events_dict[event] = info
 
         xml_string = iteration_xml.create_iteration_xml_string(
             iteration_name, solver_name, events_dict, min_period=min_period,
@@ -572,11 +577,69 @@ class Project(object):
             ("\nDONE - Preprocessed %i files." % count) + \
             colorama.Style.RESET_ALL
 
+    def discover_available_data(self, event_name, station_id):
+        """
+        Discovers the available data for one event at a certain station.
+
+        Will raise a LASIFException if no raw data is found for the given event
+        and station combination.
+
+        :type event_name: str
+        :param event_name: The name of the event.
+        :type station_id: str
+        :param station_id: The id of the station in question.
+
+        :rtype: dict
+        :returns: Return a dictionary with "processed" and "synthetic" keys.
+            Both values will be a list of strings. In the case of "processed"
+            it will be a list of all available preprocessing tags. In the case
+            of the synthetics it will be a list of all iterations for which
+            synthetics are available.
+        """
+        if event_name not in self.events:
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+
+        # Get some station information. This essentially assures the
+        # availability of the raw data.
+        try:
+            self.get_stations_for_event(event_name, station_id)
+        except:
+            msg = "No raw data found for event '%s' and station '%s'." % (
+                event_name, station_id)
+            return msg
+
+        # Collect all tags and iteration names.
+        all_files = {
+            "processed": [],
+            "synthetics": []}
+
+        # Get the processed tags.
+        data_dir = os.path.join(self.paths["data"], event_name)
+        for tag in os.listdir(data_dir):
+            # Only interested in preprocessed data.
+            if not tag.startswith("preprocessed") or \
+                    tag.endwith("_cache.sqlite"):
+                continue
+            waveforms = self._get_waveform_cache_file(event_name, tag)
+            if waveforms.get_files_for_station(*station_id.split(".")):
+                all_files["processed"].append(tag)
+
+        # Get all synthetic files for the current iteration and event.
+        iterations = self.get_iteration_dict().keys()
+        for iteration_name in iterations:
+            synthetic_files = self._get_synthetic_waveform_filenames(
+                event_name, iteration_name)
+            if station_id not in synthetic_files:
+                continue
+            all_files["synthetics"].append(iteration_name)
+        return all_files
+
     def plot_station(self, station_id, event_name):
         """
         Plots data for a single station and event.
         """
-        from lasif.visualization import plot_data_for_station
+        #from lasif.visualization import plot_data_for_station
 
         if event_name not in self.events:
             msg = "Event '%s' not found in project." % event_name
@@ -587,44 +650,12 @@ class Project(object):
             event_name, station_id=station_id)
         station["id"] = station_id
 
-        # Collect all files for the given event.
-        all_files = {
-            "raw": [],
-            "processed": {},
-            "synthetics": {}}
-
-        # Now loop over all raw and processed files and get the corresponding
-        # filenames.
-        data_dir = os.path.join(self.paths["data"], event_name)
-        for tag in os.listdir(data_dir):
-            if tag.endswith("_cache.sqlite"):
-                continue
-            waveforms = self._get_waveform_cache_file(event_name, tag)
-            files = [_i["filename"] for _i in waveforms.get_values() if
-                     "%s.%s" % (_i["network"], _i["station"]) == station_id]
-            if not files:
-                continue
-            if tag == "raw":
-                all_files["raw"].extend(files)
-            else:
-                all_files["processed"][tag] = files
-
-        # Get all synthetic files for the current iteration and event.
-        iterations = self.get_iteration_dict().keys()
-        for iteration_name in iterations:
-            synthetic_files = self._get_synthetic_waveform_filenames(
-                event_name, iteration_name)
-            if station_id not in synthetic_files:
-                continue
-            all_files["synthetics"][iteration_name] = \
-                synthetic_files[station_id].values()
-
         # Plot it.
-        plot_data_for_station(station, raw_files=all_files["raw"],
-                              processed_files=all_files["processed"],
-                              synthetic_files=all_files["synthetics"],
-                              event=self.events[event_name],
-                              project=self)
+        #plot_data_for_station(station, raw_files=all_files["raw"],
+                              #processed_files=all_files["processed"],
+                              #synthetic_files=all_files["synthetics"],
+                              #event=self.events[event_name],
+                              #project=self)
 
     def plot_event(self, event_name):
         """
@@ -713,7 +744,10 @@ class Project(object):
 
         event_stations = []
         for event_name, event_info in self.events.iteritems():
-            stations = self.get_stations_for_event(event_name)
+            try:
+                stations = self.get_stations_for_event(event_name)
+            except LASIFException:
+                stations = {}
             event_stations.append((event_info, stations))
 
         visualization.plot_raydensity(
@@ -1012,7 +1046,8 @@ class Project(object):
 
         data_path = os.path.join(self.paths["data"], event_name, "raw")
         if not os.path.exists(data_path):
-            return {}
+            msg = "No raw data found."
+            raise LASIFException(msg)
 
         waveforms = self._get_waveform_cache_file(event_name, "raw")
 
@@ -1020,8 +1055,9 @@ class Project(object):
         if station_id:
             files = waveforms.get_files_for_station(*station_id.split("."))
             if not files:
-                msg = "Station could not be found."
-                raise ValueError
+                msg = "Station '%s' could not be found for the given event." \
+                    % station_id
+                raise LASIFException(msg)
             coordinates = self._get_coordinates_for_waveform_file(
                 waveform_filename=files[0]["filename"],
                 waveform_type="raw",

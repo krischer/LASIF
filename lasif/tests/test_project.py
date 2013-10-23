@@ -356,13 +356,11 @@ def test_iteration_handling(project):
     iteration = project._get_iteration("1")
 
     # Assert that the aspects of the example project did get picked up by the
-    # iteration.
-    assert len(iteration.events) == 2
+    # iteration. Only one event will be available as the other is empty.
+    assert len(iteration.events) == 1
 
     assert len(iteration.events["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
                ["stations"]) == 4
-    assert len(iteration.events["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"]
-               ["stations"]) == 0
     assert iteration.iteration_name == "1"
     assert iteration.source_time_function == "Filtered Heaviside"
     assert iteration.data_preprocessing["lowpass_period"] == 8.0
@@ -1009,8 +1007,8 @@ def test_get_stations_for_event(project):
         "longitude": 28.126}
 
     # event_2 has no stations.
-    stations_2 = project.get_stations_for_event(event_2)
-    assert len(stations_2) == 0
+    with pytest.raises(LASIFException):
+        project.get_stations_for_event(event_2)
 
     # Passing a station_id only returns the requested station.
     station = project.get_stations_for_event(event_1, station_id="HL.ARG")

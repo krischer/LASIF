@@ -49,7 +49,7 @@ import traceback
 
 import colorama
 
-from lasif.project import Project
+from lasif.project import Project, LASIFException
 
 
 FCT_PREFIX = "lasif_"
@@ -474,7 +474,10 @@ def lasif_event_info(parser, args):
         event_dict["depth_in_km"])
     print "\t%s UTC" % str(event_dict["origin_time"])
 
-    stations = proj.get_stations_for_event(event_name)
+    try:
+        stations = proj.get_stations_for_event(event_name)
+    except LASIFException:
+        stations = {}
     print "\nStation and waveform information available at %i stations:\n" \
         % len(stations)
     header = ["id", "latitude", "longitude", "elevation_in_m", "local depth"]
