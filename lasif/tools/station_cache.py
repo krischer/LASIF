@@ -220,7 +220,10 @@ class StationCache(FileInfoCache):
         Checks if information for the requested channel_id and time is
         available.
         """
-        time = int(time.timestamp)
+        try:
+            time = int(time.timestamp)
+        except:
+            pass
         sql_query = """
         SELECT id FROM indices
         WHERE (channel_id = '%s') AND (start_date < %i) AND

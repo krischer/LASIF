@@ -116,12 +116,9 @@ def preprocess_file(file_info):
     endtime = starttime + file_info["dt"] * (file_info["npts"] - 1)
     duration = endtime - starttime
 
-    # The lock is necessary for MiniSEED files. This is a limitation of the
-    # current version of ObsPy and will hopefully be resolved soon!
-    # Do not remove it!
-    lock.acquire()
-    st = obspy.read(file_info["data_path"])
-    lock.release()
+    # The lock serialized I/O. Oftentimes faster.
+    with lock:
+        st = obspy.read(file_info["data_path"])
 
     if len(st) != 1:
         log("File '%s' has %i traces and not 1. Skip all but the first" % (
@@ -151,7 +148,6 @@ def preprocess_file(file_info):
     #==========================================================================
     # Step 1: Detrend and taper.
     #==========================================================================
-    tr.detrend("demean")
     tr.detrend("linear")
     tr.taper(0.05, type="hann")
 
@@ -259,12 +255,9 @@ def preprocess_file(file_info):
     if hasattr(tr.stats, "mseed"):
         tr.stats.mseed.encoding = "FLOAT32"
 
-    # The lock is necessary for MiniSEED files. This is a limitation of the
-    # current version of ObsPy and will hopefully be resolved soon!
-    # Do not remove it!
-    lock.acquire()
-    tr.write(file_info["processed_data_path"], format=tr.stats._format)
-    lock.release()
+    # The lock serialized I/O. Oftentimes faster.
+    with lock:
+        tr.write(file_info["processed_data_path"], format=tr.stats._format)
 
     fid_log.close()
 
@@ -323,16 +316,18 @@ def pool_imap_unordered(function, iterable, processes):
             time.sleep(0.1)
             try:
                 sending_queue.put((function, value, send_len + 1), True, 0.2)
-                send_len += 1
-                value = iterable.next()
             except QueueFull:
                 while True:
                     try:
                         result = receiving_queue.get(False)
-                        recv_len += 1
-                        yield result
                     except QueueEmpty:
                         break
+                    else:
+                        recv_len += 1
+                        yield result
+            else:
+                send_len += 1
+                value = iterable.next()
     except StopIteration:
         pass
 

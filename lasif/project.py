@@ -1259,6 +1259,14 @@ class Project(object):
                 msg = "Station '%s' could not be found for the given event." \
                     % station_id
                 raise LASIFException(msg)
+
+            # Assert that a station file exists for the current station.
+            # Otherwise the station does not exists for the current event.
+            if not self.station_cache.station_info_available(
+                    files[0]["channel_id"], files[0]["starttime_timestamp"]):
+                msg = "No station file found for the station."
+                raise LASIFException(msg)
+
             coordinates = self._get_coordinates_for_waveform_file(
                 waveform_filename=files[0]["filename"],
                 waveform_type="raw",
@@ -1278,6 +1286,13 @@ class Project(object):
             # Do not add if already exists.
             if station in stations:
                 continue
+
+            # Assert that a station file exists for the current station.
+            # Otherwise continue.
+            if not self.station_cache.station_info_available(
+                    waveform["channel_id"], waveform["starttime_timestamp"]):
+                continue
+
             coordinates = self._get_coordinates_for_waveform_file(
                 waveform_filename=waveform["filename"],
                 waveform_type="raw",
