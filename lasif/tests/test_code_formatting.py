@@ -11,6 +11,7 @@ and some other sanity checks as well.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import flake8
+import flake8.engine
 import flake8.main
 import inspect
 import os
@@ -25,17 +26,23 @@ def test_flake8():
     test_dir = os.path.dirname(os.path.abspath(inspect.getfile(
         inspect.currentframe())))
     lasif_dir = os.path.dirname(test_dir)
-    error_count = 0
-    file_count = 0
+    files = []
     for dirpath, _, filenames in os.walk(lasif_dir):
         filenames = [_i for _i in filenames if
                      os.path.splitext(_i)[-1] == os.path.extsep + "py"]
         if not filenames:
             continue
         for py_file in filenames:
-            file_count += 1
             full_path = os.path.join(dirpath, py_file)
-            if flake8.main.check_file(full_path):
-                error_count += 1
-    assert file_count > 10
-    assert not error_count
+            files.append(full_path)
+
+    # Get the style checker with the default style.
+    flake8_style = flake8.engine.get_style_guide(
+        parse_argv=False, config_file=flake8.main.DEFAULT_CONFIG)
+
+    report = flake8_style.check_files(files)
+
+    # Make sure at least 10 files are tested.
+    assert report.counters["files"] > 10
+    # And no errors occured.
+    assert report.get_count() == 0
