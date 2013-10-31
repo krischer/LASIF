@@ -572,12 +572,22 @@ class Project(object):
 
                         yield ret_dict
 
-        count = preprocessing.launch_processing(processing_data_generator(),
-                                                waiting_time=waiting_time)
+        file_count = preprocessing.launch_processing(
+            processing_data_generator(), waiting_time=waiting_time)
 
-        print colorama.Fore.GREEN + \
-            ("\nDONE - Preprocessed %i files." % count) + \
-            colorama.Style.RESET_ALL
+        print("\nFinished processing %i files." %
+              file_count["total_file_count"])
+        if file_count["failed_file_count"]:
+            print("\t%s%i files failed being processed.%s" %
+                  (colorama.Fore.RED, file_count["failed_file_count"],
+                   colorama.Fore.RESET))
+        if file_count["warning_file_count"]:
+            print("\t%s%i files raised warnings while being processed.%s" %
+                  (colorama.Fore.YELLOW, file_count["warning_file_count"],
+                   colorama.Fore.RESET))
+        print("\t%s%i files have been processed without errors or warnings%s" %
+              (colorama.Fore.GREEN, file_count["successful_file_count"],
+               colorama.Fore.RESET))
 
     def get_waveform_data(self, event_name, station_id, data_type, tag=None,
                           iteration_name=None):

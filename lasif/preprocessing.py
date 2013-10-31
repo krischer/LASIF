@@ -10,6 +10,7 @@ Functionality for data preprocessing.
     (http://www.gnu.org/copyleft/lesser.html)
 """
 import colorama
+import logging
 import multiprocessing
 import numpy as np
 import obspy
@@ -20,11 +21,10 @@ from scipy.interpolate import interp1d
 from scipy import signal
 import sys
 import time
+import traceback
 import warnings
 
-
-# File wide lock for reading/writing MiniSEED files.
-lock = multiprocessing.Lock()
+from lasif.project import LASIFException
 
 
 def zerophase_chebychev_lowpass_filter(trace, freqmax):
@@ -86,43 +86,21 @@ def preprocess_file(file_info):
             synthetics.
         * lowpass: The lowpass frequency of the source time function for the
             synthetics.
-        * file_number: The number of the file being processed. Useful for
-            progress messages.
-
-    Please remember to not touch the lock/mutexes, otherwise it will break with
-    current versions of ObsPy. It is probably a good idea to have serial I/O in
-    any case, at least with a normal HDD. SSD might be a different issue.
     """
-    #==========================================================================
-    # Open logfile. Write basic info.
-    #==========================================================================
-    fid_log = open(file_info["logfile_name"], 'a')
-
-    def log(msg, warn=False):
-        fid_log.write(msg + "\n")
-        if warn:
-            warnings.warn(msg)
-        else:
-            sys.stdout.write(msg + "\n")
-        sys.stdout.flush()
+    warning_messages = []
 
     #==========================================================================
     # Read seismograms and gather basic information.
     #==========================================================================
-    log("Processing file %i: %s\n" % (file_info["file_number"],
-                                      file_info["data_path"]))
-
     starttime = file_info["origin_time"]
     endtime = starttime + file_info["dt"] * (file_info["npts"] - 1)
     duration = endtime - starttime
 
-    # The lock serialized I/O. Oftentimes faster.
-    with lock:
-        st = obspy.read(file_info["data_path"])
+    st = obspy.read(file_info["data_path"])
 
     if len(st) != 1:
-        log("File '%s' has %i traces and not 1. Skip all but the first" % (
-            file_info["data_path"], len(st)), warn=True)
+        warning_messages.append("The file has %i traces and not 1. "
+                                "Skip all but the first" % len(st))
     tr = st[0]
 
     # Trim with a short buffer in an attempt to avoid boundary effects.
@@ -135,15 +113,13 @@ def preprocess_file(file_info):
     #==========================================================================
     # Non-zero length
     if not len(tr):
-        log("No data contained in time window around the event. "
-            "Skipped.\n", warn=True)
-        return True
+        msg = "No data found in time window around the event. File skipped."
+        raise LASIFException(msg)
 
     # No nans or infinity values allowed.
     if not np.isfinite(tr.data).all():
-        log("File '%s' contains NaN. Skipped." % file_info["data_path"],
-            warn=True)
-        return True
+        msg = "Data contains NaNs or Infs. File skipped"
+        raise LASIFException(msg)
 
     #==========================================================================
     # Step 1: Detrend and taper.
@@ -175,14 +151,12 @@ def preprocess_file(file_info):
     # Step 3: Instrument correction
     # Correct seismograms to velocity in m/s.
     #==========================================================================
-
     station_file = file_info["station_filename"]
 
     #- check if the station file actually exists ==============================
     if not file_info["station_filename"]:
-        log("* Could not find station file for the relevant time "
-            "window. Skipped,\n", warn=True)
-        return True
+        msg = "No station file found for the relevant time span. File skipped"
+        raise LASIFException(msg)
 
     #- processing for seed files ==============================================
     if "/SEED/" in station_file:
@@ -193,23 +167,21 @@ def preprocess_file(file_info):
         try:
             tr.simulate(paz_remove=paz)
         except ValueError:
-            log(("File '%s' could not be corrected with the help of the "
-                 "SEED file '%s'. Will be skipped.") %
-                (file_info["data_path"], file_info["station_filename"]),
-                warn=True)
-            return True
+            msg = ("File  could not be corrected with the help of the "
+                   "SEED file '%s'. Will be skipped.") \
+                % file_info["station_filename"],
+            raise LASIFException(msg)
 
-    #- processing with seed files =============================================
+    #- processing with RESP files =============================================
     elif "/RESP/" in station_file:
         try:
             tr.simulate(seedresp={"filename": station_file, "units": "VEL",
                                   "date": tr.stats.starttime})
         except ValueError:
-            log(("File '%s' could not be corrected with the help of the "
-                 "RESP file '%s'. Will be skipped.") %
-                (file_info["data_path"], file_info["station_filename"]),
-                warn=True)
-            return True
+            msg = ("File  could not be corrected with the help of the "
+                   "RESP file '%s'. Will be skipped.") \
+                % file_info["station_filename"],
+            raise LASIFException(msg)
     else:
         raise NotImplementedError
 
@@ -255,30 +227,49 @@ def preprocess_file(file_info):
     if hasattr(tr.stats, "mseed"):
         tr.stats.mseed.encoding = "FLOAT32"
 
-    # The lock serialized I/O. Oftentimes faster.
-    with lock:
-        tr.write(file_info["processed_data_path"], format=tr.stats._format)
+    tr.write(file_info["processed_data_path"], format=tr.stats._format)
 
-    fid_log.close()
-
-    return True
+    return {"warnings": warning_messages}
 
 
-def worker(receiving_queue, sending_queue):
+def worker(input_queue, output_queue):
     """
     Queue for each worker.
 
-    :param receiving_queue: The queue where the jobs are stored.
-    :param sending_queue: The quere where the results are stored.
+    :param output_queue: The queue where the jobs are stored.
+    :param input_queue: The quere where the results are stored.
     """
-    # Use None as the poison pill to stop the worker.
-    for func, args, counter in iter(receiving_queue.get, None):
-        args["file_number"] = counter
-        result = func(args)
-        sending_queue.put(result)
+    # Use "STOP" as the poison pill to stop the worker.
+    for func, args in iter(input_queue.get, "STOP"):
+
+        result = {
+            "exception": None,
+            "filename": args["data_path"],
+            "warnings": []
+        }
+
+        # Catch warnings to be able to log them.
+        with warnings.catch_warnings(record=True) as w:
+            # Function level try/except.
+            try:
+                res = func(args)
+            except:
+                exc_type, exc_class, tb = sys.exc_info()
+                # Make sure it can be pickled to be passed between processes.
+                tb = traceback.extract_tb(tb)
+                result["exception"] = (exc_type, exc_class, tb)
+            else:
+                result["warnings"] = res["warnings"]
+
+            if len(w):
+                for warning in w:
+                    result["warnings"].append(
+                        "%s: %s" % (str(warning.category), warning.message))
+
+        output_queue.put(result)
 
 
-def pool_imap_unordered(function, iterable, processes):
+def pool_imap_unordered(function, iterable, process_count):
     """
     Custom unordered map implementation. The advantage of this is that it, in
     contrast to the default Pool.map/imap implementations, does not consume the
@@ -291,62 +282,89 @@ def pool_imap_unordered(function, iterable, processes):
     :param processes: The number of processes to launch.
     """
     # Creating the queues for sending and receiving items from the iterable.
-    sending_queue = multiprocessing.Queue(processes)
-    receiving_queue = multiprocessing.Queue()
-
-    collected_processes = []
+    input_queue = multiprocessing.Queue()
+    output_queue = multiprocessing.Queue()
 
     # Start the worker processes.
-    for rpt in xrange(processes):
+    collected_processes = []
+    for _ in xrange(process_count):
         collected_processes.append(
-            multiprocessing.Process(target=worker, args=(sending_queue,
-                                    receiving_queue)))
+            multiprocessing.Process(target=worker, args=(input_queue,
+                                    output_queue)))
 
     # Start all processes.
     for proc in collected_processes:
         proc.start()
 
-    # Iterate over the iterable and communicate with the worker process.
+    # Count all sent and received tasks.
     send_len = 0
     recv_len = 0
 
     try:
         value = iterable.next()
+        send_len += 1
         while True:
+            # Artificial delay to give some times for the queues to play
+            # catch-up.
             time.sleep(0.1)
             try:
-                sending_queue.put((function, value, send_len + 1), True, 0.2)
+                input_queue.put_nowait((function, value))
             except QueueFull:
                 while True:
                     try:
-                        result = receiving_queue.get(False)
+                        result = output_queue.get_nowait(False)
+                        recv_len += 1
                     except QueueEmpty:
                         break
                     else:
-                        recv_len += 1
                         yield result
             else:
-                send_len += 1
                 value = iterable.next()
+                send_len += 1
     except StopIteration:
         pass
 
-    # Collect all remaining results.
+    # Collect all remaining results. Use a long timeout to catch the final
+    # files.
     while recv_len < send_len:
-        result = receiving_queue.get(True, 10.0)
-        recv_len += 1
+        # Artificial delay to give some times for the queues to play
+        # catch-up.
+        time.sleep(0.1)
+        try:
+            result = output_queue.get(True, 25.0)
+        except QueueEmpty:
+            result = {
+                "exception": None,
+                "filename": "Unknown",
+                "warnings": []
+            }
+            # Create an exception that can be passed to the parent process.
+            try:
+                msg = "Processing did not finish (deadlock?)"
+                raise LASIFException(msg)
+            except:
+                exc_type, exc_class, tb = sys.exc_info()
+                # Make sure it can be pickled to be passed between processes.
+                tb = traceback.extract_tb(tb)
+                result["exception"] = (exc_type, exc_class, tb)
+        finally:
+            recv_len += 1
         yield result
 
-    # Terminate the worker processes but passing the poison pill.
-    for rpt in xrange(processes):
-        sending_queue.put(None)
+    # Terminate the worker processes by passing the poison pill.
+    for _ in xrange(process_count):
+        input_queue.put("STOP")
 
     time.sleep(0.1)
-    # Make sure all processes correctly shut down and nothing still lingers
-    # around.
+
+    for proc in collected_processes:
+        proc.join()
+
+    # Force a shutdown if one or more processes got hung up somewhere.
     for proc in collected_processes:
         if proc.is_alive():
             proc.terminate()
+            proc.join()
 
 
 def launch_processing(data_generator, waiting_time=4.0):
@@ -358,9 +376,9 @@ def launch_processing(data_generator, waiting_time=4.0):
         been printed. Useful if the user should be given the chance to cancel
         the processing.
     """
-    # Use twice as many processes as cores. The whole operation does a lot of
-    # I/O thus more time is available for calculations.
-    processes = 2 * multiprocessing.cpu_count()
+    logging.basicConfig(level=logging.INFO)
+
+    processes = multiprocessing.cpu_count()
 
     print ("%sLaunching preprocessing using %i processes...%s\n"
            "This might take a while. Press Ctrl + C to cancel.\n") % (
@@ -369,8 +387,38 @@ def launch_processing(data_generator, waiting_time=4.0):
     # Give the user some time to read the message.
     time.sleep(waiting_time)
 
-    file_count = 0
-    for _ in pool_imap_unordered(preprocess_file, data_generator, processes):
-        file_count += 1
+    # Keep track of all files.
+    successful_file_count = 0
+    warning_file_count = 0
+    failed_file_count = 0
+    total_file_count = 0
 
-    return file_count
+    # Result is a dictionary with 3 keys:
+    #   * filename: The name of the current file.
+    #   * exception: None or an actual exception as returned by
+    #                sys.exc_info()
+    #   * warnings: Warnings as a list of strings.
+    for i, result in enumerate(pool_imap_unordered(
+            function=preprocess_file, iterable=data_generator,
+            process_count=processes)):
+        total_file_count += 1
+        print total_file_count
+        msg = "Processed file %i: '%s'" % (i, result["filename"])
+        if result["exception"] is not None:
+            logging.exception(msg)
+            logging.exception(result["exception"])
+            failed_file_count += 1
+        elif result["warnings"]:
+            logging.warning(msg)
+            for w in result["warnings"]:
+                logging.warning(w)
+            warning_file_count += 1
+        else:
+            logging.info(msg)
+            successful_file_count += 1
+
+    return {
+        "failed_file_count": failed_file_count,
+        "warning_file_count": warning_file_count,
+        "total_file_count": total_file_count,
+        "successful_file_count": successful_file_count}
