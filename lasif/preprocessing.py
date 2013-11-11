@@ -15,6 +15,7 @@ import multiprocessing
 import numpy as np
 import obspy
 from obspy.xseed import Parser
+import os
 from Queue import Full as QueueFull
 from Queue import Empty as QueueEmpty
 from scipy.interpolate import interp1d
@@ -25,6 +26,9 @@ import traceback
 import warnings
 
 from lasif.project import LASIFException
+
+# Lock used to synchronize I/O.
+lock = multiprocessing.Lock()
 
 
 def zerophase_chebychev_lowpass_filter(trace, freqmax):
@@ -96,7 +100,8 @@ def preprocess_file(file_info):
     endtime = starttime + file_info["dt"] * (file_info["npts"] - 1)
     duration = endtime - starttime
 
-    st = obspy.read(file_info["data_path"])
+    with lock:
+        st = obspy.read(file_info["data_path"])
 
     if len(st) != 1:
         warning_messages.append("The file has %i traces and not 1. "
@@ -227,7 +232,8 @@ def preprocess_file(file_info):
     if hasattr(tr.stats, "mseed"):
         tr.stats.mseed.encoding = "FLOAT32"
 
-    tr.write(file_info["processed_data_path"], format=tr.stats._format)
+    with lock:
+        tr.write(file_info["processed_data_path"], format=tr.stats._format)
 
     return {"warnings": warning_messages}
 
@@ -263,6 +269,13 @@ def worker(input_queue, output_queue):
 
             if len(w):
                 for warning in w:
+                    # Catch one specific (benign) warning. This will usually
+                    # come up when designing rather sharp IIR filters for low
+                    # frequencies. The results are still ok. If it fails, it
+                    # would be immediatly noticed.
+                    if "badly conditioned filter coefficients (numerator" in \
+                            str(warning.message).lower():
+                        continue
                     result["warnings"].append(
                         "%s: %s" % (str(warning.category), warning.message))
 
@@ -282,7 +295,7 @@ def pool_imap_unordered(function, iterable, process_count):
     :param processes: The number of processes to launch.
     """
     # Creating the queues for sending and receiving items from the iterable.
-    input_queue = multiprocessing.Queue()
+    input_queue = multiprocessing.Queue(int(process_count * 1.5))
     output_queue = multiprocessing.Queue()
 
     # Start the worker processes.
@@ -312,7 +325,7 @@ def pool_imap_unordered(function, iterable, process_count):
             except QueueFull:
                 while True:
                     try:
-                        result = output_queue.get_nowait(False)
+                        result = output_queue.get_nowait()
                         recv_len += 1
                     except QueueEmpty:
                         break
@@ -401,9 +414,10 @@ def launch_processing(data_generator, waiting_time=4.0):
     for i, result in enumerate(pool_imap_unordered(
             function=preprocess_file, iterable=data_generator,
             process_count=processes)):
+        warnings.simplefilter("always")
         total_file_count += 1
-        print total_file_count
-        msg = "Processed file %i: '%s'" % (i, result["filename"])
+        msg = "Processed file %i: '%s'" % (
+            i, os.path.relpath(result["filename"]))
         if result["exception"] is not None:
             logging.exception(msg)
             logging.exception(result["exception"])
