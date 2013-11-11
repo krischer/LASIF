@@ -10,66 +10,15 @@ Some convenience function to download waveform and station data.
     GNU General Public License, Version 3
     (http://www.gnu.org/licenses/gpl.html)
 """
-import colorama
-from datetime import datetime
-import logging
 import numpy as np
 import os
 import sys
 
 from lasif import rotations
 from lasif.download_helpers.availability import get_availability
+from lasif.tools.colored_logger import ColoredLogger
 import lasif.download_helpers.waveforms
 import lasif.download_helpers.stations
-
-
-class Logger(object):
-    """
-    Simple logging class printing to the screen in color as well as to a file.
-    """
-    def __init__(self, log_filename, debug=False):
-        FORMAT = "[%(asctime)-15s] %(levelname)s: %(message)s"
-        logging.basicConfig(filename=log_filename, level=logging.DEBUG,
-                            format=FORMAT)
-        self.logger = logging.getLogger("LASIF")
-        self.set_debug(debug)
-
-    def set_debug(self, value):
-        if value:
-            self._debug = True
-            self.logger.setLevel(logging.DEBUG)
-        else:
-            self._debug = False
-            self.logger.setLevel(logging.INFO)
-
-    def critical(self, msg):
-        print(colorama.Fore.WHITE + colorama.Back.RED +
-              self._format_message("CRITICAL", msg) + colorama.Style.RESET_ALL)
-        self.logger.critical(msg)
-
-    def error(self, msg):
-        print(colorama.Fore.RED + self._format_message("ERROR", msg) +
-              colorama.Style.RESET_ALL)
-        self.logger.error(msg)
-
-    def warning(self, msg):
-        print(colorama.Fore.YELLOW + self._format_message("WARNING", msg) +
-              colorama.Style.RESET_ALL)
-        self.logger.warning(msg)
-
-    def info(self, msg):
-        print(self._format_message("INFO", msg))
-        self.logger.info(msg)
-
-    def debug(self, msg):
-        if not self._debug:
-            return
-        print(colorama.Fore.BLUE + self._format_message("DEBUG", msg) +
-              colorama.Style.RESET_ALL)
-        self.logger.debug(msg)
-
-    def _format_message(self, prefix, msg):
-        return "[%s] %s: %s" % (datetime.now(), prefix, msg)
 
 
 def _get_maximum_bounds(min_lat, max_lat, min_lng, max_lng, rotation_axis,
@@ -133,7 +82,7 @@ def download_waveforms(
     spherical section domain.
     """
     # Init logger.
-    logger = Logger(log_filename=logfile, debug=True)
+    logger = ColoredLogger(log_filename=logfile, debug=True)
 
     # Log some basic information
     logger.info(70 * "=")
@@ -251,7 +200,7 @@ def download_stations(channels, resp_file_folder, station_xml_folder,
         the given file should be written to.
     """
     # Init logger.
-    logger = Logger(log_filename=logfile, debug=True)
+    logger = ColoredLogger(log_filename=logfile, debug=True)
 
     # Log some basic information
     logger.info(70 * "=")

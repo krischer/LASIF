@@ -10,7 +10,6 @@ Functionality for data preprocessing.
     (http://www.gnu.org/copyleft/lesser.html)
 """
 import colorama
-import logging
 import multiprocessing
 import numpy as np
 import obspy
@@ -26,6 +25,7 @@ import traceback
 import warnings
 
 from lasif.project import LASIFException
+from lasif.tools.colored_logger import ColoredLogger
 
 # Lock used to synchronize I/O.
 lock = multiprocessing.Lock()
@@ -380,7 +380,7 @@ def pool_imap_unordered(function, iterable, process_count):
             proc.join()
 
 
-def launch_processing(data_generator, waiting_time=4.0):
+def launch_processing(data_generator, log_filename=None, waiting_time=4.0):
     """
     Launch the parallel processing.
 
@@ -389,7 +389,7 @@ def launch_processing(data_generator, waiting_time=4.0):
         been printed. Useful if the user should be given the chance to cancel
         the processing.
     """
-    logging.basicConfig(level=logging.INFO)
+    logger = ColoredLogger(log_filename=log_filename)
 
     processes = multiprocessing.cpu_count()
 
@@ -418,17 +418,15 @@ def launch_processing(data_generator, waiting_time=4.0):
         total_file_count += 1
         msg = "Processed file %i: '%s'" % (
             i, os.path.relpath(result["filename"]))
+        logger.info(msg)
         if result["exception"] is not None:
-            logging.exception(msg)
-            logging.exception(result["exception"])
+            logger.exception(result["exception"])
             failed_file_count += 1
         elif result["warnings"]:
-            logging.warning(msg)
-            for w in result["warnings"]:
-                logging.warning(w)
+            for warning in result["warnings"]:
+                logger.warning(warning)
             warning_file_count += 1
         else:
-            logging.info(msg)
             successful_file_count += 1
 
     return {
