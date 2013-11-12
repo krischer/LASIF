@@ -9,7 +9,6 @@ Functionality for data preprocessing.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
-import colorama
 import multiprocessing
 import numpy as np
 import obspy
@@ -380,22 +379,30 @@ def pool_imap_unordered(function, iterable, process_count):
             proc.join()
 
 
-def launch_processing(data_generator, log_filename=None, waiting_time=4.0):
+def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
+                      process_params=None):
     """
     Launch the parallel processing.
 
     :param data_generator: A generator yielding file information as required.
+    :param log_filename: If given, a log will be written to that file.
     :param waiting_time: The time spent sleeping after the initial message has
         been printed. Useful if the user should be given the chance to cancel
         the processing.
+    :param process_params: If given, the processing parameters will be written
+        to the logfile.
     """
     logger = ColoredLogger(log_filename=log_filename)
 
     processes = multiprocessing.cpu_count()
 
-    print ("%sLaunching preprocessing using %i processes...%s\n"
-           "This might take a while. Press Ctrl + C to cancel.\n") % (
-        colorama.Fore.GREEN, processes, colorama.Style.RESET_ALL)
+    logger.info("Launching preprocessing using %i processes...\n"
+                "This might take a while. Press Ctrl + C to cancel.\n"
+                % processes)
+
+    if process_params:
+        import pprint
+        logger.info("Used parameters: \n%s" % pprint.pformat(process_params))
 
     # Give the user some time to read the message.
     time.sleep(waiting_time)
@@ -420,7 +427,7 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0):
             i, os.path.relpath(result["filename"]))
         logger.info(msg)
         if result["exception"] is not None:
-            logger.exception(result["exception"])
+            logger.exception(result["exception"][1])
             failed_file_count += 1
         elif result["warnings"]:
             for warning in result["warnings"]:

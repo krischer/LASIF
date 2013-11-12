@@ -572,8 +572,11 @@ class Project(object):
 
                         yield ret_dict
 
+        logfile = os.path.join(self.get_output_folder("data_preprocessing"),
+                               "log.txt")
         file_count = preprocessing.launch_processing(
-            processing_data_generator(), waiting_time=waiting_time)
+            processing_data_generator(), log_filename=logfile,
+            waiting_time=waiting_time, process_params=process_params)
 
         print("\nFinished processing %i files." %
               file_count["total_file_count"])
@@ -588,6 +591,8 @@ class Project(object):
         print("\t%s%i files have been processed without errors or warnings%s" %
               (colorama.Fore.GREEN, file_count["successful_file_count"],
                colorama.Fore.RESET))
+
+        print("Logfile written to '%s'." % os.path.relpath(logfile))
 
     def get_waveform_data(self, event_name, station_id, data_type, tag=None,
                           iteration_name=None):
