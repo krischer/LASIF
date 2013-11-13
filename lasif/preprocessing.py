@@ -9,13 +9,13 @@ Functionality for data preprocessing.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
-import multiprocessing
 import numpy as np
+from numpy.distutils import system_info
 import obspy
 from obspy.xseed import Parser
 import os
-from Queue import Full as QueueFull
-from Queue import Empty as QueueEmpty
+import platform
+import Queue
 from scipy.interpolate import interp1d
 from scipy import signal
 import sys
@@ -26,8 +26,40 @@ import warnings
 from lasif.project import LASIFException
 from lasif.tools.colored_logger import ColoredLogger
 
-# Lock used to synchronize I/O.
-lock = multiprocessing.Lock()
+
+# The veclib/accelerate framework on OSX is not compatible with
+# multiprocessing. Thus only one core will be used on those. The only
+# proper solution to this is to install numpy/scipy with OpenBLAS and not
+# the Accelerate framework.
+multiproc = True
+if platform.system().lower() == "darwin":
+    blas_info = system_info.blas_opt_info().get_info()
+    if "extra_link_args" in blas_info:
+        if "Accelerate" in str(blas_info["extra_link_args"]):
+            msg = ("The numpy installation on this computer is linked "
+                   "against the Accelerate/veclib framework of OSX. "
+                   "This is incompatible with multiprocessing and it "
+                   "appears that there are no intentions to fix it. "
+                   "For this reason only one process will be used for the "
+                   "processing. The only proper fix is to link numpy "
+                   "against OpenBLAS. Google helps.")
+            warnings.warn(msg)
+            multiproc = False
+
+if multiproc:
+    import multiprocessing
+    parallel_class = multiprocessing.Process
+    queue_class = multiprocessing.Queue
+    process_count = multiprocessing.cpu_count()
+    # Lock used to synchronize I/O.
+    lock = multiprocessing.Lock()
+else:
+    import threading
+    parallel_class = threading.Thread
+    queue_class = Queue.Queue
+    process_count = 1
+    # Lock used to synchronize I/O.
+    lock = threading.Lock()
 
 
 def zerophase_chebychev_lowpass_filter(trace, freqmax):
@@ -128,8 +160,11 @@ def preprocess_file(file_info):
     #==========================================================================
     # Step 1: Detrend and taper.
     #==========================================================================
+    sys.stdout.flush()
     tr.detrend("linear")
     tr.taper(0.05, type="hann")
+
+    sys.stdout.flush()
 
     #==========================================================================
     # Step 2: Decimation
@@ -281,7 +316,7 @@ def worker(input_queue, output_queue):
         output_queue.put(result)
 
 
-def pool_imap_unordered(function, iterable, process_count):
+def pool_imap_unordered(function, iterable):
     """
     Custom unordered map implementation. The advantage of this is that it, in
     contrast to the default Pool.map/imap implementations, does not consume the
@@ -293,48 +328,56 @@ def pool_imap_unordered(function, iterable, process_count):
     :param iterable: The iterable yielding items.
     :param processes: The number of processes to launch.
     """
-    # Creating the queues for sending and receiving items from the iterable.
-    input_queue = multiprocessing.Queue(int(process_count * 1.5))
-    output_queue = multiprocessing.Queue()
+    input_queue = queue_class()
+    output_queue = queue_class()
 
     # Start the worker processes.
-    collected_processes = []
+    collected_workers = []
     for _ in xrange(process_count):
-        collected_processes.append(
-            multiprocessing.Process(target=worker, args=(input_queue,
-                                    output_queue)))
+        collected_workers.append(
+            parallel_class(target=worker, args=(input_queue, output_queue)))
 
     # Start all processes.
-    for proc in collected_processes:
+    for proc in collected_workers:
         proc.start()
 
     # Count all sent and received tasks.
     send_len = 0
     recv_len = 0
 
-    try:
-        value = iterable.next()
-        send_len += 1
-        while True:
-            # Artificial delay to give some times for the queues to play
-            # catch-up.
-            time.sleep(0.1)
+    while True:
+        # Artificial delay to give some times for the queues to play catch-up.
+        time.sleep(0.1)
+
+        # First try to get as many ready results as possible.
+        try:
+            result = output_queue.get_nowait()
+            recv_len += 1
+        # If that fails create new jobs.
+        except Queue.Empty:
+            # Get new values until there are no left. Then break.
             try:
-                input_queue.put_nowait((function, value))
-            except QueueFull:
-                while True:
+                value = iterable.next()
+            except StopIteration:
+                break
+            while True:
+                try:
+                    # Create a new job with the value.
+                    input_queue.put((function, value), timeout=25)
+                    send_len += 1
+                except Queue.Full:
                     try:
-                        result = output_queue.get_nowait()
+                        result = output_queue.get(timeout=10)
                         recv_len += 1
-                    except QueueEmpty:
-                        break
+                    except Queue.Empty:
+                        continue
                     else:
                         yield result
-            else:
-                value = iterable.next()
-                send_len += 1
-    except StopIteration:
-        pass
+                else:
+                    break
+
+        else:
+            yield result
 
     # Collect all remaining results. Use a long timeout to catch the final
     # files.
@@ -344,7 +387,8 @@ def pool_imap_unordered(function, iterable, process_count):
         time.sleep(0.1)
         try:
             result = output_queue.get(True, 25.0)
-        except QueueEmpty:
+            sys.stdout.flush()
+        except Queue.Empty:
             result = {
                 "exception": None,
                 "filename": "Unknown",
@@ -369,13 +413,16 @@ def pool_imap_unordered(function, iterable, process_count):
 
     time.sleep(0.1)
 
-    for proc in collected_processes:
+    for proc in collected_workers:
         proc.join()
 
     # Force a shutdown if one or more processes got hung up somewhere.
-    for proc in collected_processes:
+    for proc in collected_workers:
         if proc.is_alive():
-            proc.terminate()
+            try:
+                proc.terminate()
+            except:
+                pass
             proc.join()
 
 
@@ -394,11 +441,9 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
     """
     logger = ColoredLogger(log_filename=log_filename)
 
-    processes = multiprocessing.cpu_count()
-
     logger.info("Launching preprocessing using %i processes...\n"
                 "This might take a while. Press Ctrl + C to cancel.\n"
-                % processes)
+                % process_count)
 
     if process_params:
         import pprint
@@ -419,8 +464,7 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
     #                sys.exc_info()
     #   * warnings: Warnings as a list of strings.
     for i, result in enumerate(pool_imap_unordered(
-            function=preprocess_file, iterable=data_generator,
-            process_count=processes)):
+            function=preprocess_file, iterable=data_generator)):
         warnings.simplefilter("always")
         total_file_count += 1
         msg = "Processed file %i: '%s'" % (
