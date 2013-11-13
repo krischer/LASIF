@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lasif.project &mdash; LASIF 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="lasif.scripts.iris2quakeml" href="iris2quakeml.html" />
+    <link rel="prev" title="Welcome to LASIF’s Documentation!" href="index.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+<link href="_static/solarized-dark.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="iris2quakeml.html" title="lasif.scripts.iris2quakeml"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to LASIF’s Documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">LASIF 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">lasif.project</a><ul>
+<li><a class="reference internal" href="#exceptions">Exceptions</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to LASIF&#8217;s Documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="iris2quakeml.html"
+                        title="next chapter">lasif.scripts.iris2quakeml</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/project.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-lasif.project">
+<span id="lasif-project"></span><h1>lasif.project<a class="headerlink" href="#module-lasif.project" title="Permalink to this headline">¶</a></h1>
+<p>Project management class.</p>
+<p>It is important to not import necessary things at the method level to make
+importing this file as fast as possible. Otherwise using the command line
+interface feels sluggish and slow. Import things only the functions they are
+needed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2013</td>
+</tr>
+<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="lasif.project.LASIFException">
+<em class="property">exception </em><tt class="descclassname">lasif.project.</tt><tt class="descname">LASIFException</tt><a class="reference internal" href="_modules/lasif/project.html#LASIFException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.LASIFException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base LASIF specific exception.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="lasif.project.Project">
+<em class="property">class </em><tt class="descclassname">lasif.project.</tt><tt class="descname">Project</tt><big>(</big><em>project_root_path</em>, <em>init_project=False</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class managing LASIF projects.</p>
+<p>It represents the heart of LASIF.</p>
+<dl class="method">
+<dt id="lasif.project.Project._Project__init_new_project">
+<tt class="descname">_Project__init_new_project</tt><big>(</big><em>project_name</em><big>)</big><a class="headerlink" href="#lasif.project.Project._Project__init_new_project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes a new project. This currently just means that it creates a
+default config file. The folder structure is checked and rebuilt every
+time the project is initialized anyways.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._Project__setup_paths">
+<tt class="descname">_Project__setup_paths</tt><big>(</big><em>root_path</em><big>)</big><a class="headerlink" href="#lasif.project.Project._Project__setup_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Central place to define all paths.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._Project__update_folder_structure">
+<tt class="descname">_Project__update_folder_structure</tt><big>(</big><big>)</big><a class="headerlink" href="#lasif.project.Project._Project__update_folder_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the folder structure of the project.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._Project__update_station_cache">
+<tt class="descname">_Project__update_station_cache</tt><big>(</big><em>show_progress=True</em><big>)</big><a class="headerlink" href="#lasif.project.Project._Project__update_station_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function actually updating the station cache.</p>
+<p>Separate function from the property so it can be accessed separately if
+the need arises.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._get_all_raw_waveform_files_for_iteration">
+<tt class="descname">_get_all_raw_waveform_files_for_iteration</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._get_all_raw_waveform_files_for_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._get_all_raw_waveform_files_for_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method returning a list of all raw waveform files for one
+iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._get_coordinates_for_waveform_file">
+<tt class="descname">_get_coordinates_for_waveform_file</tt><big>(</big><em>waveform_filename</em>, <em>waveform_type</em>, <em>network_code</em>, <em>station_code</em>, <em>event_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._get_coordinates_for_waveform_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._get_coordinates_for_waveform_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal function used to grab station coordinates from the various
+sources.</p>
+<p>Used to make sure the same functionality is used everywhere.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>waveform_filename</strong> &#8211; The absolute filename of the waveform.</li>
+<li><strong>waveform_type</strong> &#8211; The type of waveform file. Could be deduced from
+the pathname but probably not necessary as the information is
+likely readily available in situations where this method is called.
+One of &#8220;raw&#8221;, &#8220;processed&#8221;, and &#8220;synthetic&#8221;</li>
+<li><strong>network_code</strong> &#8211; The network id of the file. Same reasoning as for
+the waveform_type.</li>
+<li><strong>station_code</strong> &#8211; The station id of the file. Same reasoning as for
+the waveform_type.</li>
+<li><strong>event_name</strong> &#8211; The name of the event. Same reasoning as for the
+waveform_type.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns a dictionary containing &#8220;latitude&#8221;, &#8220;longitude&#8221;,
+&#8220;elevation_in_m&#8221;, &#8220;local_depth_in_m&#8221;. Returns None if no coordinates
+could be found.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._get_iteration">
+<tt class="descname">_get_iteration</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._get_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._get_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper method to read a certain iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._get_long_iteration_name">
+<tt class="descname">_get_long_iteration_name</tt><big>(</big><em>short_iteration_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._get_long_iteration_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._get_long_iteration_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for creating a long iteration name.</p>
+<p>Used for filenames and folder structure. Very simple and just used for
+consistencies sake.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._get_synthetic_waveform_filenames">
+<tt class="descname">_get_synthetic_waveform_filenames</tt><big>(</big><em>event_name</em>, <em>iteration_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._get_synthetic_waveform_filenames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._get_synthetic_waveform_filenames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function finding all stations for one simulation, e.g. one event
+and iteration combination.</p>
+<p>Currently only uses the filenames for distinction as the current SES3D
+version does not write that information in the file. Will have to be
+updated in due time as new solver are incorporated.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._get_waveform_cache_file">
+<tt class="descname">_get_waveform_cache_file</tt><big>(</big><em>event_name</em>, <em>tag</em>, <em>waveform_type='data'</em>, <em>show_progress=True</em>, <em>use_cache=True</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._get_waveform_cache_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._get_waveform_cache_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function returning the waveform cache file for the data from a
+specific event and a certain tag.
+Example to return the cache for the original data for &#8216;event_1&#8217;:
+_get_waveform_cache_file(&#8220;event_1&#8221;, &#8220;raw&#8221;, waveform_type=&#8221;data&#8221;)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._read_config_file">
+<tt class="descname">_read_config_file</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._read_config_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._read_config_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the config file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._update_all_waveform_caches">
+<tt class="descname">_update_all_waveform_caches</tt><big>(</big><em>ok_string</em>, <em>fail_string</em>, <em>flush_point</em>, <em>add_report</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._update_all_waveform_caches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._update_all_waveform_caches" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update all waveform caches.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._validate_event_files">
+<tt class="descname">_validate_event_files</tt><big>(</big><em>ok_string</em>, <em>fail_string</em>, <em>flush_point</em>, <em>add_report</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._validate_event_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._validate_event_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates all event files in the currently active project.</p>
+<dl class="docutils">
+<dt>The following tasks are performed:</dt>
+<dd><ul class="first last simple">
+<li>Validate against QuakeML 1.2 scheme.</li>
+<li>Check for duplicate ids amongst all QuakeML files.</li>
+<li>Make sure they contain at least one origin, magnitude and focal
+mechanism object.</li>
+<li>Some simply sanity checks so that the event depth is reasonable
+and the moment tensor values as well. This is rather fragile and
+mainly intended to detect values specified in wrong units.</li>
+<li>Events that are too close in time. Events that are less then one
+hour apart can in general not be used for adjoint tomography.
+This will naturally also detect duplicate events.</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._validate_raypaths_in_domain">
+<tt class="descname">_validate_raypaths_in_domain</tt><big>(</big><em>ok_string</em>, <em>fail_string</em>, <em>flush_point</em>, <em>add_report</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._validate_raypaths_in_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._validate_raypaths_in_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that all raypaths are within the specified domain boundaries.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._validate_station_files_availability">
+<tt class="descname">_validate_station_files_availability</tt><big>(</big><em>ok_string</em>, <em>fail_string</em>, <em>flush_point</em>, <em>add_report</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._validate_station_files_availability"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._validate_station_files_availability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that all waveform files have an associated station file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project._validate_waveform_files">
+<tt class="descname">_validate_waveform_files</tt><big>(</big><em>ok_string</em>, <em>fail_string</em>, <em>flush_point</em>, <em>add_report</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project._validate_waveform_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project._validate_waveform_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes sure all waveform files are acceptable.</p>
+<p>It checks that:</p>
+<ul class="simple">
+<li>each station only has data from one location for each event.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.create_new_iteration">
+<tt class="descname">create_new_iteration</tt><big>(</big><em>iteration_name</em>, <em>solver_name</em>, <em>min_period=8.0</em>, <em>max_period=100.0</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.create_new_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.create_new_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new iteration file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.data_synthetic_iterator">
+<tt class="descname">data_synthetic_iterator</tt><big>(</big><em>event_name</em>, <em>iteration_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.data_synthetic_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.data_synthetic_iterator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator that returns processed data and synthetic files for
+one event and iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.discover_available_data">
+<tt class="descname">discover_available_data</tt><big>(</big><em>event_name</em>, <em>station_id</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.discover_available_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.discover_available_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Discovers the available data for one event at a certain station.</p>
+<p>Will raise a <a class="reference internal" href="#lasif.project.LASIFException" title="lasif.project.LASIFException"><tt class="xref py py-exc docutils literal"><span class="pre">LASIFException</span></tt></a> if no raw data is
+found for the given event and station combination.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>event_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the event.</li>
+<li><strong>station_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The id of the station in question.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">dict</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Return a dictionary with &#8220;processed&#8221; and &#8220;synthetic&#8221; keys.
+Both values will be a list of strings. In the case of &#8220;processed&#8221;
+it will be a list of all available preprocessing tags. In the case
+of the synthetics it will be a list of all iterations for which
+synthetics are available.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.finalize_adjoint_sources">
+<tt class="descname">finalize_adjoint_sources</tt><big>(</big><em>iteration_name</em>, <em>event_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.finalize_adjoint_sources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.finalize_adjoint_sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finalizes the adjoint sources.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.generate_input_files">
+<tt class="descname">generate_input_files</tt><big>(</big><em>iteration_name</em>, <em>event_name</em>, <em>simulation_type</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.generate_input_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.generate_input_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the input files for one event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>iteration_name</strong> &#8211; The name of the iteration.</li>
+<li><strong>event_name</strong> &#8211; The name of the event for which to generate the
+input files.</li>
+<li><strong>simulation_type</strong> &#8211; The type of simulation to perform. Possible
+values are: &#8216;normal simulation&#8217;, &#8216;adjoint forward&#8217;, &#8216;adjoint
+reverse&#8217;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_debug_information_for_file">
+<tt class="descname">get_debug_information_for_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_debug_information_for_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_debug_information_for_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function returning a string with information LASIF knows about
+the file.</p>
+<p>Currently only works with waveform and station files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_filecounts_for_event">
+<tt class="descname">get_filecounts_for_event</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_filecounts_for_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_filecounts_for_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the number of files associated with the current event.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the event.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary with the following self-explaining keys:
+* raw_waveform_file_count
+* synthetic_waveform_file_count
+* preprocessed_waveform_file_count</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_iteration_dict">
+<tt class="descname">get_iteration_dict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_iteration_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_iteration_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictonary with all iterations in the project, the keys are
+the iteration names and the values the full paths to each iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_iteration_status">
+<tt class="descname">get_iteration_status</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_iteration_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_iteration_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dictionary with information about the current status of an
+iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_kernel_dir">
+<tt class="descname">get_kernel_dir</tt><big>(</big><em>iteration_name</em>, <em>event_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_kernel_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_kernel_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_model_dict">
+<tt class="descname">get_model_dict</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_model_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_model_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictonary with all models in the project, the keys are the
+model names and the values the full paths to each model.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_output_folder">
+<tt class="descname">get_output_folder</tt><big>(</big><em>tag</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_output_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_output_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a output folder in a unified way.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_station_filename">
+<tt class="descname">get_station_filename</tt><big>(</big><em>network</em>, <em>station</em>, <em>location</em>, <em>channel</em>, <em>file_format</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_station_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_station_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function returning the filename a station file of a certain format
+should be written to. Only useful as a callback function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_format</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; &#8216;datalessSEED&#8217;, &#8216;StationXML&#8217;, or &#8216;RESP&#8217;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_stations_for_event">
+<tt class="descname">get_stations_for_event</tt><big>(</big><em>event_name</em>, <em>station_id=None</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_stations_for_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_stations_for_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary containing a little bit of information about all
+stations available for a given event.</p>
+<p>An available station is defined as a station with an existing station
+file and an existing waveform file.</p>
+<p>Will return an empty dictionary if nothing is found.</p>
+<p>Example return value:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;BW.ROTZ&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+             <span class="s">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="mi">13</span><span class="p">},</span>
+ <span class="s">&quot;BW.ROTZ2&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+ <span class="o">...</span><span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>event_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the event.</li>
+<li><strong>station_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The station id (NET.STA) of the station in
+question. If given, only this station will be returned, otherwise
+all will. Defaults to None. Optional</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.get_waveform_data">
+<tt class="descname">get_waveform_data</tt><big>(</big><em>event_name</em>, <em>station_id</em>, <em>data_type</em>, <em>tag=None</em>, <em>iteration_name=None</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.get_waveform_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.get_waveform_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an ObsPy <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Stream</span></tt></a> representing the
+requested waveform data.</p>
+<p><strong>This is the only interface that should ever be used to read waveform
+data.</strong> This assures a consistent handling of various issues.</p>
+<p>Synthetic data will be properly rotated in case the project is defined
+for a rotated domain.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>event_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the event.</li>
+<li><strong>station_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The id of the station in question.</li>
+<li><strong>data_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The type of data to retrieve. Can be either <cite>raw</cite>,
+<cite>processed</cite>, or <cite>synthetic</cite>.</li>
+<li><strong>tag</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If requesting <cite>processed</cite> data, the processing tag must be
+given.</li>
+<li><strong>iteration_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If requesting <cite>synthetic</cite> data, the iteration
+name must be given.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.stream.Stream</span></tt></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An up to three-component Stream object containing the
+requested data.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.has_station_file">
+<tt class="descname">has_station_file</tt><big>(</big><em>channel_id</em>, <em>time</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.has_station_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.has_station_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple function returning True or False, if the channel specified with
+it&#8217;s filename actually has a corresponding station file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.is_event_station_raypath_within_boundaries">
+<tt class="descname">is_event_station_raypath_within_boundaries</tt><big>(</big><em>event_name</em>, <em>station_latitude</em>, <em>station_longitude</em>, <em>raypath_steps=25</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.is_event_station_raypath_within_boundaries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.is_event_station_raypath_within_boundaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the full station-event raypath is within the project&#8217;s domain
+boundaries.</p>
+<p>Returns True if this is the case, False if not.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>event_name</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; The project internal event name.</li>
+<li><strong>station_latitude</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The station latitude.</li>
+<li><strong>station_longitude</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The station longitude.</li>
+<li><strong>raypath_steps</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of discrete points along the raypath
+that will be checked. Optional.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.plot_Q_model">
+<tt class="descname">plot_Q_model</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.plot_Q_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.plot_Q_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the Q model for a given iteration. Will only work if the
+iteration uses SES3D as its solver.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.plot_domain">
+<tt class="descname">plot_domain</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.plot_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.plot_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the simulation domain and the actual physical domain.</p>
+<p>Wrapper around one of the visualization routines.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.plot_event">
+<tt class="descname">plot_event</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.plot_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.plot_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots information about one event on the map.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.plot_events">
+<tt class="descname">plot_events</tt><big>(</big><em>plot_type='map'</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.plot_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.plot_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the domain and beachballs for all events on the map.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>plot_type</strong> &#8211; Determines the type of plot created.
+* <tt class="docutils literal"><span class="pre">map</span></tt> (default) - a map view of the events
+* <tt class="docutils literal"><span class="pre">depth</span></tt> - a depth distribution histogram
+* <tt class="docutils literal"><span class="pre">time</span></tt> - a time distribution histogram</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.plot_raydensity">
+<tt class="descname">plot_raydensity</tt><big>(</big><em>save_plot=True</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.plot_raydensity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.plot_raydensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the raydensity.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.plot_station">
+<tt class="descname">plot_station</tt><big>(</big><em>station_id</em>, <em>event_name</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.plot_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.plot_station" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots data for a single station and event.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.preprocess_data">
+<tt class="descname">preprocess_data</tt><big>(</big><em>iteration_name</em>, <em>event_ids=None</em>, <em>waiting_time=4.0</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.preprocess_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.preprocess_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocesses all data for a given iteration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>waiting_time</strong> &#8211; The time spent sleeping after the initial message
+has been printed. Useful if the user should be given the chance to
+cancel the processing.</li>
+<li><strong>event_ids</strong> &#8211; event_ids is a list of events to process in this run.
+It will process all events if not given.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lasif.project.Project.station_cache">
+<tt class="descname">station_cache</tt><em class="property"> None</em><a class="reference internal" href="_modules/lasif/project.html#Project.station_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.station_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>The station cache. Will only be initialized once.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.project.Project.validate_data">
+<tt class="descname">validate_data</tt><big>(</big><em>station_file_availability=False</em>, <em>raypaths=False</em>, <em>waveforms=False</em><big>)</big><a class="reference internal" href="_modules/lasif/project.html#Project.validate_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.project.Project.validate_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates all data of the current project.</p>
+<p>This commands walks through all available data and checks it for
+validity.  It furthermore does some sanity checks to detect common
+problems. These should be fixed.</p>
+<dl class="docutils">
+<dt>Event files:</dt>
+<dd><ul class="first last simple">
+<li>Validate against QuakeML 1.2 scheme.</li>
+<li>Make sure they contain at least one origin, magnitude and focal
+mechanism object.</li>
+<li>Check for duplicate ids amongst all QuakeML files.</li>
+<li>Some simply sanity checks so that the event depth is reasonable
+and the moment tensor values as well. This is rather fragile and
+mainly intended to detect values specified in wrong units.</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="iris2quakeml.html" title="lasif.scripts.iris2quakeml"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to LASIF’s Documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">LASIF 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Lion Krischer &amp; Andreas Fichtner.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b3.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    </div>
+  </body>
+</html>

@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="LASIF 0.0.1 documentation" href="#" />
-    <link rel="next" title="lasif.scripts.iris2quakeml" href="iris2quakeml.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link rel="next" title="lasif.project" href="project.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
 <link href="_static/solarized-dark.css" rel="stylesheet">
   </head>
   <body>
@@ -38,7 +38,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="iris2quakeml.html" title="lasif.scripts.iris2quakeml"
+          <a href="project.html" title="lasif.project"
              accesskey="N">next</a> |</li>
         <li><a href="#">LASIF 0.0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -106,8 +106,8 @@
 </ul>
 
   <h4>Next topic</h4>
-  <p class="topless"><a href="iris2quakeml.html"
-                        title="next chapter">lasif.scripts.iris2quakeml</a></p>
+  <p class="topless"><a href="project.html"
+                        title="next chapter">lasif.project</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
@@ -598,6 +598,17 @@ name:</p>
 </div>
 <p>In contrast to the two other station information formats the RESP filename also
 has to include the location and channel identifiers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The automatic download routines included in LASIF are sometimes not able to
+find stations files. IRIS as well as Orfeus have FTP servers with anonymous
+access that potentially provide missing station files:</p>
+<ul class="simple">
+<li><a class="reference external" href="ftp://www.orfeus-eu.org/pub/data/metadata">ftp://www.orfeus-eu.org/pub/data/metadata</a></li>
+<li><a class="reference external" href="http://www.iris.edu/pub/RESPONSES/">http://www.iris.edu/pub/RESPONSES/</a></li>
+</ul>
+<p class="last">Just make sure to adhere to the naming scheme imposed by LASIF.</p>
+</div>
 </div>
 </div>
 <div class="section" id="download-helpers">
@@ -1285,6 +1296,11 @@ command again.</p>
 <h1>Further Documentation<a class="headerlink" href="#further-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="project.html">lasif.project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.html#exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.html#classes">Classes</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
@@ -1308,7 +1324,7 @@ command again.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="iris2quakeml.html" title="lasif.scripts.iris2quakeml"
+          <a href="project.html" title="lasif.project"
              >next</a> |</li>
         <li><a href="#">LASIF 0.0.1 documentation</a> &raquo;</li> 
       </ul>
