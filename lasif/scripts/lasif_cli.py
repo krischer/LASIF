@@ -499,7 +499,6 @@ def lasif_plot_wavefield(parser, args):
         handler.plot_depth_slice(component, float(depth))
 
 
-
 @command_group("Event Management")
 def lasif_event_info(parser, args):
     """
