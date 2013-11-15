@@ -758,15 +758,15 @@ class Project(object):
                 self.domain["rotation_axis"], -self.domain["rotation_angle"])
             # Rotate the synthetics.
             n, e, z = rotations.rotate_data(
-                synthetics.select(component="N")[0].data,
-                synthetics.select(component="E")[0].data,
-                synthetics.select(component="Z")[0].data,
+                synthetics.select(channel="N")[0].data,
+                synthetics.select(channel="E")[0].data,
+                synthetics.select(channel="Z")[0].data,
                 lat, lng,
                 self.domain["rotation_axis"],
                 self.domain["rotation_angle"])
-            synthetics.select(component="N")[0].data = n
-            synthetics.select(component="E")[0].data = e
-            synthetics.select(component="Z")[0].data = z
+            synthetics.select(channel="N")[0].data = n
+            synthetics.select(channel="E")[0].data = e
+            synthetics.select(channel="Z")[0].data = z
 
             return synthetics
         # This should never be reached.

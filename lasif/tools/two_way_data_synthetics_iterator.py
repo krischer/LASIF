@@ -104,7 +104,7 @@ class TwoWayIter(object):
             # Explicit conversion to floating points.
             data_tr.data = np.require(data_tr.data, dtype=np.float32)
             synthetic_tr = synthetics.select(
-                component=data_tr.stats.channel[-1])[0]
+                channel=data_tr.stats.channel[-1])[0]
             scaling_factor = synthetic_tr.data.ptp() / \
                 data_tr.data.ptp()
             # Store and apply the scaling.
