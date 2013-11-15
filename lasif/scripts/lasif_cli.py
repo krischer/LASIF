@@ -449,6 +449,57 @@ def lasif_plot_model(parser, args):
         handler.plot_depth_slice(component, float(depth))
 
 
+@command_group("Plotting")
+def lasif_plot_wavefield(parser, args):
+    """
+    Plots a SES3D wavefield.
+    """
+    from lasif import ses3d_models
+
+    proj = _find_project_root(".")
+
+    parser.add_argument("iteration_name", help="name_of_the_iteration")
+    parser.add_argument("event_name", help="name of the event")
+    args = parser.parse_args(args)
+
+    event_name = args.event_name
+    iteration_name = args.iteration_name
+    long_iteration_name = "ITERATION_%s" % iteration_name
+
+    wavefield_dir = os.path.join(proj.paths["wavefields"], event_name,
+                                 long_iteration_name)
+
+    if not os.path.exists(wavefield_dir) or not os.listdir(wavefield_dir):
+        msg = "No data available for event and iteration combination."
+        raise LASIFCommandLineException(msg)
+
+    handler = ses3d_models.RawSES3DModelHandler(
+        wavefield_dir, model_type="wavefield")
+    handler.rotation_axis = proj.domain["rotation_axis"]
+    handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
+
+    while True:
+        print handler
+        print ""
+
+        inp = raw_input("Enter 'COMPONENT TIMESTEP DEPTH' ('quit' to exit): ")
+        if inp.lower() == "quit":
+            break
+        try:
+            component, timestep, depth = inp.split()
+        except:
+            continue
+
+        component = component = "%s %s" % (component, timestep)
+
+        try:
+            handler.parse_component(component)
+        except:
+            continue
+        handler.plot_depth_slice(component, float(depth))
+
+
+
 @command_group("Event Management")
 def lasif_event_info(parser, args):
     """

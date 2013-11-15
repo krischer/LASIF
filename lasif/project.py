@@ -81,6 +81,7 @@ class Project(object):
         self.paths["cache"] = os.path.join(root_path, "CACHE")
         self.paths["logs"] = os.path.join(root_path, "LOGS")
         self.paths["models"] = os.path.join(root_path, "MODELS")
+        self.paths["wavefields"] = os.path.join(root_path, "WAVEFIELDS")
         self.paths["iterations"] = os.path.join(root_path, "ITERATIONS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
         self.paths["kernels"] = os.path.join(root_path, "KERNELS")

@@ -11,6 +11,7 @@ A set of classes dealing with SES3D 4.0 Models
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import collections
 import glob
 import math
 import os
@@ -82,14 +83,17 @@ class RawSES3DModelHandler(object):
         * Q0 - Q[XX]           -> Elastic parameters (one per CPU)
 
     A kernel directory is defined by containing:
+        * boxfile              -> File describing the discretization
         * grad_cp_[XX]_[XXXX]
         * grad_csh_[XX]_[XXXX]
         * grad_csv_[XX]_[XXXX]
         * grad_rho_[XX]_[XXXX]
 
-        In this case the boxfile will be determined by searching a list of
-        provided model directories for one that fits or by directly
-        specifying the path to it.
+    A wavefield directory contains the following files:
+        * boxfile              -> File describing the discretization
+        * vx_[xx]_[timestep]
+        * vy_[xx]_[timestep]
+        * vz_[xx]_[timestep]
     """
     def __init__(self, directory, model_type="earth_model"):
         """
@@ -101,11 +105,12 @@ class RawSES3DModelHandler(object):
             two are supported:
                 * earth_model - The standard SES3D model files (default)
                 * kernel - The kernels. Identifies by lots of grad_* files.
+                * wavefield - The raw wavefields.
         """
         self.directory = directory
         self.boxfile = os.path.join(self.directory, "boxfile")
         if not os.path.exists(self.boxfile):
-            msg = "boxfile not found in folder. Wrong directory?"
+            msg = "boxfile not found. Wrong directory?"
             raise ValueError(msg)
 
         # Read the boxfile.
@@ -113,6 +118,8 @@ class RawSES3DModelHandler(object):
 
         self.rotation_axis = None
         self.rotation_angle_in_degree = None
+
+        self.model_type = model_type
 
         if model_type == "earth_model":
             # Now check what different models are available in the directory.
@@ -149,6 +156,27 @@ class RawSES3DModelHandler(object):
                 files.sort(key=lambda x: int(re.findall(r"\d+$",
                                              (os.path.basename(x)))[0]))
                 self.components[component] = {"filenames": files}
+        elif model_type == "wavefield":
+            components = ["vz", "vx", "vy", "vz"]
+            self.available_derived_components = []
+            self.components = {}
+            self.parsed_components = {}
+            for component in components:
+                files = glob.glob(os.path.join(directory, "%s_*_*" %
+                                  component))
+                if not files:
+                    continue
+                timesteps = collections.defaultdict(list)
+                for filename in files:
+                    timestep = int(os.path.basename(filename).split("_")[-1])
+                    timesteps[timestep].append(filename)
+
+                for timestep, filenames in timesteps.iteritems():
+                    self.components["%s %s" % (component, timestep)] = \
+                        {"filenames": sorted(
+                            filenames,
+                            key=lambda x: int(
+                                os.path.basename(x).split("_")[1]))}
         elif model_type == "kernel":
             # Now check what different models are available in the directory.
             # This information is also used to infer the degree of the used
@@ -459,7 +487,14 @@ class RawSES3DModelHandler(object):
         m.drawcountries()
 
         x, y = m(lon, lat)
-        im = m.pcolormesh(x, y, data[::-1, :, depth_index], cmap=tomo_colormap)
+        depth_data = data[::-1, :, depth_index]
+        vmin, vmax = depth_data.min(), depth_data.max()
+        if self.model_type == "wavefield":
+            value = max([abs(vmin), abs(vmax)])
+            vmin = -value
+            vmax = value
+        im = m.pcolormesh(x, y, depth_data, cmap=tomo_colormap, vmin=vmin,
+                          vmax=vmax)
 
         # Add colorbar and potentially unit.
         cm = m.colorbar(im, "right", size="3%", pad='2%')
