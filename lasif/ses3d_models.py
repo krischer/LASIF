@@ -31,8 +31,8 @@ UNIT_DICT = {
     "vp": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
     "vsv": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
     "vsh": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
-    "rho": r"$\frac{\mathrm{kg}^3}{\mathrm{m}^3}$",
-    "rhoinv": r"$\frac{\mathrm{m}^3}{\mathrm{kg}^3}$",
+    "rho": r"$\frac{\mathrm{kg}}{\mathrm{m}^3}$",
+    "rhoinv": r"$\frac{\mathrm{m}^3}{\mathrm{kg}}$",
 }
 
 
@@ -326,7 +326,7 @@ class RawSES3DModelHandler(object):
         elif component == "rho":
             self._parse_component("rhoinv")
             rhoinv = self.parsed_components["rhoinv"]
-            self.parsed_components["rho"] = 1.0 / (1000.0 * rhoinv)
+            self.parsed_components["rho"] = 1.0 / rhoinv
 
     def _parse_component(self, component):
         """
@@ -489,10 +489,17 @@ class RawSES3DModelHandler(object):
         x, y = m(lon, lat)
         depth_data = data[::-1, :, depth_index]
         vmin, vmax = depth_data.min(), depth_data.max()
+
         if self.model_type == "wavefield":
             value = max([abs(vmin), abs(vmax)])
             vmin = -value
             vmax = value
+
+        if (vmax - vmin) < (0.005 * vmax):
+            value = vmin + ((vmax - vmin) / 2.0)
+            vmin -= 0.01 * abs(value)
+            vmax += 0.01 * abs(value)
+
         im = m.pcolormesh(x, y, depth_data, cmap=tomo_colormap, vmin=vmin,
                           vmax=vmax)
 
