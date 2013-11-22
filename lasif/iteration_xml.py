@@ -214,6 +214,10 @@ def create_iteration_xml_string(iteration_name, solver_name, events,
                                               max_period)
     if solver_name.lower() == "ses3d_4_0":
         solver_name = "SES3D 4.0"
+    elif solver_name.lower() == "ses3d_2_0":
+        solver_name = "SES3D 2.0"
+    elif solver_name.lower() == "specfem3d_cartesian":
+        solver_name = "SPECFEM3D CARTESIAN"
     else:
         raise NotImplementedError
 
@@ -263,7 +267,7 @@ def _get_default_solver_settings(solver, min_period, max_period):
     Helper function returning etree representation of a solver's default
     settings.
     """
-    known_solvers = ["ses3d_4_0"]
+    known_solvers = ["ses3d_4_0", "ses3d_2_0", "specfem3d_cartesian"]
     if solver.lower() == "ses3d_4_0":
         from lasif.tools import Q_discrete
         from lasif.utils import generate_ses3d_4_0_template
@@ -279,6 +283,12 @@ def _get_default_solver_settings(solver, min_period, max_period):
             cooling_factor=0.9998)
 
         return generate_ses3d_4_0_template(w_p, tau_p)
+    elif solver.lower() == "ses3d_2_0":
+        from lasif.utils import generate_ses3d_2_0_template
+        return generate_ses3d_2_0_template()
+    elif solver.lower() == "specfem3d_cartesian":
+        from lasif.utils import generate_specfem3d_cartesian_template
+        return generate_specfem3d_cartesian_template()
     else:
         msg = "Solver '%s' not known. Known solvers: %s" % (
             solver, ",".join(known_solvers))

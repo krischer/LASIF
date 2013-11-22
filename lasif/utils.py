@@ -64,7 +64,7 @@ def recursive_dict(element):
 
 def generate_ses3d_4_0_template(w_p, tau_p):
     """
-    Generates a template for SES3D input files.
+    Generates a template for SES3D 4.0 input files.
 
     Returns the etree representation.
     """
@@ -96,6 +96,51 @@ def generate_ses3d_4_0_template(w_p, tau_p):
             E.w(str(w_p[1]), number="1"),
             E.tau(str(tau_p[2]), number="2"),
             E.w(str(w_p[2]), number="2")))
+
+    return doc
+
+
+def generate_ses3d_2_0_template():
+    """
+    Generates a template for SES3D 2.0 input files.
+
+    Returns the etree representation.
+    """
+    doc = E.solver_settings(
+        E.simulation_parameters(
+            E.number_of_time_steps("500"),
+            E.time_increment("0.75"),
+            E.is_dissipative("true")),
+        E.output_directory("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
+        E.adjoint_output_parameters(
+            E.sampling_rate_of_forward_field("10"),
+            E.forward_field_output_directory(
+                "../OUTPUT/CHANGE_ME/ADJOINT/{{EVENT_NAME}}")),
+        E.computational_setup(
+            E.nx_global("15"),
+            E.ny_global("15"),
+            E.nz_global("10"),
+            E.lagrange_polynomial_degree("4"),
+            E.px_processors_in_theta_direction("1"),
+            E.py_processors_in_phi_direction("1"),
+            E.pz_processors_in_r_direction("1")))
+
+    return doc
+
+
+def generate_specfem3d_cartesian_template():
+    """
+    Generates a template for SPECFEM3D CARTESIAN input files.
+
+    Returns the etree representation.
+    """
+    doc = E.solver_settings(
+        E.simulation_parameters(
+            E.number_of_time_steps("500"),
+            E.time_increment("0.75")),
+        E.output_directory("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
+        E.computational_setup(
+            E.number_of_processors("128")))
 
     return doc
 

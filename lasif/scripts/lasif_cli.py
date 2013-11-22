@@ -676,7 +676,8 @@ def lasif_create_new_iteration(parser, args):
     parser.add_argument("max_period", type=float,
                         help="the maximum period of the iteration")
     parser.add_argument("solver_name", help="name of the solver",
-                        choices=("SES3D_4_0",))
+                        choices=("SES3D_4_0", "SES3D_2_0",
+                                 "SPECFEM3D_CARTESIAN"))
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
     solver_name = args.solver_name
