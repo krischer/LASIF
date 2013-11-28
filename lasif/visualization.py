@@ -662,14 +662,76 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     plt.gca().set_title(title, size="large")
 
 
-def plot_tf(data, delta):
+def plot_tf(data, delta, freqmin=None, freqmax=None):
     """
-    Plots a time frequency representation of any time series.
+    Plots a time frequency representation of any time series. Right now it is
+    basically limited to plotting source time functions.
     """
+    import collections
+
     npts = len(data)
 
-    plotTfr(data, dt=delta, fmin=1.0 / (npts * delta),
-            fmax=1.0 / (2.0 * delta))
+    fig = plotTfr(data, dt=delta, fmin=1.0 / (npts * delta),
+                  fmax=1.0 / (2.0 * delta), show=False)
+
+    x_axis = collections.defaultdict(list)
+    y_axis = collections.defaultdict(list)
+    for ax in fig.axes:
+        x_axis[ax.get_xlim()].append(ax)
+        y_axis[ax.get_ylim()].append(ax)
+
+    # Get those, that have two items.
+    x_axis = {key: value for key, value in x_axis.iteritems()
+              if len(value) == 2}
+    y_axis = {key: value for key, value in y_axis.iteritems()
+              if len(value) == 2}
+
+    fig.suptitle("Source Time Function")
+
+    if len(x_axis) != 1 or len(y_axis) != 1:
+        msg = "Could not plot frequency limits!"
+        print msg
+        plt.show()
+        return
+
+    # The axis that is in both collections will be the time frequency axis. The
+    # other one that shares the y axis the spectrum.
+    tf_axis = set(x_axis.values()[0]).intersection(
+        set(y_axis.values()[0])).pop()
+    spec_axis = [i for i in y_axis.values()[0] if i != tf_axis][0]
+    time_axis = [i for i in x_axis.values()[0] if i != tf_axis][0]
+
+    spec_axis.grid()
+    time_axis.grid()
+    tf_axis.grid()
+
+    spec_axis.xaxis.tick_top()
+    spec_axis.set_ylabel("Frequency [Hz]")
+
+    time_axis.set_xlabel("Time [s]")
+    time_axis.set_ylabel("Velocity [m/s]")
+
+    if freqmin is not None and freqmax is not None:
+        xmin, xmax = tf_axis.get_xlim()
+        tf_axis.hlines(freqmin, xmin, xmax, color="green", lw=2)
+        tf_axis.hlines(freqmax, xmin, xmax, color="red", lw=2)
+
+        tf_axis.text(xmax - (0.02 * (xmax - xmin)),
+                     freqmin,
+                     "%.1f s" % (1.0 / freqmin),
+                     color="green",
+                     horizontalalignment="right", verticalalignment="top")
+        tf_axis.text(xmax - (0.02 * (xmax - xmin)),
+                     freqmax,
+                     "%.1f s" % (1.0 / freqmax),
+                     color="red",
+                     horizontalalignment="right", verticalalignment="bottom")
+
+        xmin, xmax = spec_axis.get_xlim()
+        spec_axis.hlines(freqmin, xmin, xmax, color="green", lw=2)
+        spec_axis.hlines(freqmax, xmin, xmax, color="red", lw=2)
+
+    plt.show()
 
 
 def plot_event_histogram(events, plot_type):
