@@ -12,6 +12,9 @@ Functionality to deal with Iteration XML files.
 from lxml import etree
 from lxml.builder import E
 import os
+from scipy.signal.filter_design import BadCoefficients \
+    as BadCoefficientsWarning
+import warnings
 
 from lasif.project import LASIFException
 
@@ -96,13 +99,23 @@ class Iteration(object):
 
         ret_dict = {"delta": delta}
 
-        if stf == "filtered heaviside":
-            from lasif.source_time_functions import filtered_heaviside
-            ret_dict["data"] = \
-                filtered_heaviside(npts, delta, freqmin, freqmax)
-        else:
-            msg = "Should not happen. Contact the developers or fix it."
-            raise Exception(msg)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            if stf == "filtered heaviside":
+                from lasif.source_time_functions import filtered_heaviside
+                ret_dict["data"] = \
+                    filtered_heaviside(npts, delta, freqmin, freqmax)
+            else:
+                msg = "Should not happen. Contact the developers or fix it."
+                raise Exception(msg)
+
+            for warning in w:
+                if warning.category == BadCoefficientsWarning:
+                    msg = ("The filter for creating the source time function "
+                           "is potentially unstable! Please change its "
+                           "settings!")
+                    raise LASIFException(msg)
 
         return ret_dict
 
