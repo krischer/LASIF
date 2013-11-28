@@ -7,9 +7,9 @@ env:
   global:
     secure: GStdSQ10ql5pKTEH0HGpZsZjlQnX2CgRAccZ0Pr4aTk7KbaCpZyAJQXdBTSaM1qzZo5QFn5tmIwBXljI4nncdwhAMM5NIKSTZwY+wmpCrLvRI0WrJarfGuK8lwV4NrPWkfCd8qfKx/6MERgrCvCUviXLFZf3YamB5o8icuur7jo=
 before_install:
-  - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-suds python-lxml python-sqlalchemy libgeos-3.2.2 libgeos-dev
+  - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-suds python-lxml python-sqlalchemy libgeos-3.2.2 libgeos-dev python-matplotlib python-mpltoolkits.basemap python-mpltoolkits.basemap-data
   # Install matplotlib with pip to get a recent version.
-  - pip install --use-mirrors matplotlib
+  #- pip install --use-mirrors matplotlib
   #- wget http://sourceforge.net/projects/matplotlib/files/matplotlib-toolkits/basemap-1.0.7/basemap-1.0.7.tar.gz/download -O basemap-1.0.7.tar.gz
   #- tar -xzf basemap-1.0.7.tar.gz
   #- cd basemap-1.0.7
@@ -17,7 +17,7 @@ before_install:
   #- python setup.py install
   #- rm -rf basemap-1.0.7
   #- cd ..
-  - pip install --use-mirrors basemap
+  #- pip install --use-mirrors basemap
   - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
   - pip install --use-mirrors geographiclib
   - pip install --use-mirrors requests
