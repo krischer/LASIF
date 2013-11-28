@@ -24,12 +24,21 @@ def filtered_heaviside(npts, delta, freqmin, freqmax):
     :param freqmin: The minimum desired frequency.
     :param freqmax:  The maximum desired frequency.
     """
-    trace = obspy.Trace(data=np.ones(npts))
+    trace = obspy.Trace(data=np.zeros(npts * 3))
+    trace.data[npts:] = 1.0
     trace.stats.delta = delta
-    # The number of corners have been empirically determined to yield a nice
-    # source time function. The lowpass is much sharper to ensure that no
-    # energy leaks above the maximum frequency.
-    trace.filter("lowpass", freq=freqmax, corners=5)
-    trace.filter("highpass", freq=freqmin, corners=2)
 
-    return trace.data
+    # Filter twice to get a sharper filter with less numerical errors. This has
+    # the disadvantage of shifting the data in time so the same has to be done
+    # to the synthetics.
+    trace.filter("lowpass", freq=freqmax, corners=4)
+    trace.taper(0.05, type="hann")
+    trace.filter("highpass", freq=freqmin, corners=2)
+    trace.taper(0.05, type="hann")
+
+    trace.filter("lowpass", freq=freqmax, corners=4)
+    trace.taper(0.05, type="hann")
+    trace.filter("highpass", freq=freqmin, corners=2)
+    trace.taper(0.05, type="hann")
+
+    return trace.data[npts: npts * 2]
