@@ -544,8 +544,9 @@ def lasif_plot_stf(parser, args):
     """
     Plot the source time function for one iteration.
     """
-    import matplotlib.pyplot as plt
     import lasif.visualization
+    import matplotlib.pyplot as plt
+    import warnings
 
     parser.add_argument("iteration_name", help="name of the iteration")
     iteration_name = parser.parse_args(args).iteration_name
@@ -555,8 +556,11 @@ def lasif_plot_stf(parser, args):
     iteration = proj._get_iteration(iteration_name)
     stf = iteration.get_source_time_function()
 
-    lasif.visualization.plot_tf(stf["data"], stf["delta"])
-    plt.show()
+    # Ignore lots of potential warnings with some plotting functionality.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        lasif.visualization.plot_tf(stf["data"], stf["delta"])
+        plt.show()
 
 
 @command_group("Iteration Management")
