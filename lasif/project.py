@@ -981,7 +981,7 @@ class Project(object):
         if save_plot:
             outfile = os.path.join(self.get_output_folder("raydensity_plot"),
                                    "raydensity.png")
-            plt.savefig(outfile, dpi=200)
+            plt.savefig(outfile, dpi=200, transparent=True)
             print "Saved picture at %s" % outfile
 
     def get_filecounts_for_event(self, event_name):
