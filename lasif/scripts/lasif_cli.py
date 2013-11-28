@@ -554,12 +554,17 @@ def lasif_plot_stf(parser, args):
     proj = _find_project_root(".")
 
     iteration = proj._get_iteration(iteration_name)
+    pp = iteration.get_process_params()
+    freqmin = pp["highpass"]
+    freqmax = pp["lowpass"]
+
     stf = iteration.get_source_time_function()
 
     # Ignore lots of potential warnings with some plotting functionality.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        lasif.visualization.plot_tf(stf["data"], stf["delta"])
+        lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
+                                    freqmax=freqmax)
         plt.show()
 
 
