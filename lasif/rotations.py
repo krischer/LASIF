@@ -204,10 +204,10 @@ def xyz_to_lat_lon_radius(*args):
     Converts x, y, and z to latitude, longitude and radius.
 
     >>> xyz_to_lat_lon_radius(1.0, 0.0, 0.0)
-    (-0, 0.0, 1.0)
+    (-0.0, 0.0, 1.0)
 
     >>> xyz_to_lat_lon_radius([1.0, 0.0, 0.0])
-    (-0, 0.0, 1.0)
+    (-0.0, 0.0, 1.0)
 
     >>> xyz_to_lat_lon_radius(0.0, 0.0, -2.0)
     (-90.0, 0.0, 2.0)
