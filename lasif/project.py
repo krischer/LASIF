@@ -725,7 +725,7 @@ class Project(object):
                 tr.stats.network = network
                 tr.stats.station = station
                 # Flip South and downwards pointing data. We want North and Up.
-                if tr.stats.channel in ["X", "Z"]:
+                if tr.stats.channel in ["X"]:
                     tr.data *= -1.0
                 tr.stats.channel = \
                     synthetic_coordinates_mapping[tr.stats.channel]
