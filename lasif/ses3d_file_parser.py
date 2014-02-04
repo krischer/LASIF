@@ -14,7 +14,6 @@ points in the setup.py.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
-from obspy.core import AttribDict, Trace, Stream
 from StringIO import StringIO
 import warnings
 
@@ -76,6 +75,9 @@ def read_SES3D(file_or_file_object, *args, **kwargs):
     and the channel will be set to either 'X' (south component), 'Y' (east
     component), or 'Z' (vertical component).
     """
+    # Import here to avoid circular imports.
+    from obspy.core import AttribDict, Trace, Stream
+
     # Make sure that it is a file like object.
     if not hasattr(file_or_file_object, "read"):
         with open(file_or_file_object, "rb") as open_file:
