@@ -100,9 +100,7 @@
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#further-documentation">Further Documentation</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#further-documentation">Further Documentation</a></li>
 </ul>
 
   <h4>Next topic</h4>
@@ -272,7 +270,7 @@ following the project will be called <strong>TutorialAnatolia</strong>.</p>
 </div>
 <p>This will create the following directory structure. It will be explained in
 more detail later on:</p>
-<div class="highlight-python"><pre>TutorialAnatolia
+<div class="highlight-python"><div class="highlight"><pre>TutorialAnatolia
 |-- ADJOINT_SOURCES_AND_WINDOWS
 |-- CACHE
 |-- config.xml
@@ -286,7 +284,8 @@ more detail later on:</p>
 |   |-- RESP
 |   |-- SEED
 |   |-- StationXML
-|-- SYNTHETICS</pre>
+|-- SYNTHETICS
+</pre></div>
 </div>
 <p>The configuration for each project is defined in the <strong>config.xml</strong> file. It is
 a simple, self-explanatory XML format. After the project has been initialized
@@ -511,7 +510,7 @@ single event will be stored in a subfolder of the <em>DATA</em> folder with the
 <p>These folder are automatically created and updated each time a lasif command is
 executed. If you followed the tutorial, your directory structure should
 resemble the following:</p>
-<div class="highlight-python"><pre>TutorialAnatolia
+<div class="highlight-python"><div class="highlight"><pre>TutorialAnatolia
 |── ADJOINT_SOURCES_AND_WINDOWS
 |   |── ADJOINT_SOURCES
 |   |── WINDOWS
@@ -533,7 +532,8 @@ resemble the following:</p>
 |   |── StationXML
 |── SYNTHETICS
     |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-    |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15</pre>
+    |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+</pre></div>
 </div>
 <p>All data in the <em>DATA</em> subfolder has to be processed or unprocessed actual
 data. The data is further structured by assigning a tag to every data set. A
@@ -546,7 +546,7 @@ covered in more detail later on). The same is true for synthetic waveform data,
 except that in that case, the data resides in the <em>SYNTHETICS</em> folder and the
 tags have to coincide with the iteration names. More on this later on.</p>
 <p>After a while, the structure might look like this:</p>
-<div class="highlight-python"><pre>TutorialAnatolia
+<div class="highlight-python"><div class="highlight"><pre>TutorialAnatolia
 |-- DATA
     |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
         |-- raw
@@ -558,7 +558,8 @@ tags have to coincide with the iteration names. More on this later on.</p>
         |-- inversion_2
         |...
     |...
-|...</pre>
+|...
+</pre></div>
 </div>
 <p><strong>The user is responsible</strong> for adhering to that structure. Otherwise other
 parts of LASIF cannot operate properly. Many commands shipping with LASIF ease
@@ -577,7 +578,8 @@ have channels of one station in each dataless SEED and StationXML file.</p>
 <p><strong>dataless SEED</strong></p>
 <p>All dataless SEED files are expected to be in the <em>STATIONS/SEED</em> directory and
 be named after the following scheme:</p>
-<div class="highlight-python"><pre>dataless.NETWORK_STATION[.X]</pre>
+<div class="highlight-python"><div class="highlight"><pre>dataless.NETWORK_STATION[.X]
+</pre></div>
 </div>
 <p><em>NETWORK</em>, and <em>STATION</em> should be replaced with the corresponding network and
 stations codes. It is possible that multiple files are needed for each station
@@ -587,14 +589,16 @@ the correct file in case they need to be accessed.</p>
 <p><strong>StationXML</strong></p>
 <p>All StationXML files are expected to be placed in the <em>STATIONS/StationXML</em>
 folder and following the scheme:</p>
-<div class="highlight-python"><pre>station.NETWORK_STATION[.X].xml</pre>
+<div class="highlight-python"><div class="highlight"><pre>station.NETWORK_STATION[.X].xml
+</pre></div>
 </div>
 <p>The logic for for the different parts is the same as for the dataless SEED
 files described in the previous paragraph.</p>
 <p><strong>RESP Files</strong></p>
 <p>All RESP files are to be put in the <em>STATIONS/RESP</em> folder with the following
 name:</p>
-<div class="highlight-python"><pre>RESP.NETWORK.STATION.LOCATION.CHANNEL[.X]</pre>
+<div class="highlight-python"><div class="highlight"><pre>RESP.NETWORK.STATION.LOCATION.CHANNEL[.X]
+</pre></div>
 </div>
 <p>In contrast to the two other station information formats the RESP filename also
 has to include the location and channel identifiers.</p>
@@ -992,7 +996,8 @@ the data is available at the same points in time as the synthetics. The goal of
 the preprocessing within LASIF is to create data that is directly comparable to
 simulated data without any more processing.</p>
 <p>The applied processing is identified via the folder name:</p>
-<div class="highlight-python"><pre>preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000</pre>
+<div class="highlight-python"><div class="highlight"><pre>preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
+</pre></div>
 </div>
 <p>or (in Python terms):</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
@@ -1331,7 +1336,7 @@ command again.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2013, Lion Krischer &amp; Andreas Fichtner.
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2b3.Theme by <a href="http://github.com/vkvn">vkvn</a>
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
     </div>
   </body>
 </html>
