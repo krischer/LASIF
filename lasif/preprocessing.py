@@ -10,7 +10,6 @@ Functionality for data preprocessing.
     (http://www.gnu.org/copyleft/lesser.html)
 """
 import numpy as np
-from numpy.distutils import system_info
 import obspy
 from obspy.xseed import Parser
 import os
@@ -33,18 +32,19 @@ from lasif.tools.colored_logger import ColoredLogger
 # the Accelerate framework.
 multiproc = True
 if platform.system().lower() == "darwin":
-    blas_info = system_info.blas_opt_info().get_info()
-    if "extra_link_args" in blas_info:
-        if "Accelerate" in str(blas_info["extra_link_args"]):
-            msg = ("The numpy installation on this computer is linked "
-                   "against the Accelerate/veclib framework of OSX. "
-                   "This is incompatible with multiprocessing and it "
-                   "appears that there are no intentions to fix it. "
-                   "For this reason only one process will be used for the "
-                   "processing. The only proper fix is to link numpy "
-                   "against OpenBLAS. Google helps.")
-            warnings.warn(msg)
-            multiproc = False
+    config_info = str([value for key, value in
+                       np.__config__.__dict__.iteritems()
+                       if key.endswith("_info")]).lower()
+    if "accelerate" in config_info or "veclib" in config_info:
+        msg = ("The numpy installation on this computer is linked "
+               "against the Accelerate/veclib framework of OSX. "
+               "This is incompatible with multiprocessing and it "
+               "appears that there are no intentions to fix it. "
+               "For this reason only one process will be used for the "
+               "processing. The only proper fix is to link numpy "
+               "against OpenBLAS. Google helps.")
+        warnings.warn(msg)
+        multiproc = False
 
 if multiproc:
     import multiprocessing
