@@ -61,6 +61,7 @@ in order to enjoy all features of **LASIF**:
 * progressbar
 * geographiclib
 * colorama
+* joblib
 
 The later four can simply be installed via pip:
 
@@ -69,6 +70,7 @@ $ pip install requests
 $ pip install progressbar
 $ pip install geographiclib
 $ pip install colorama
+$ pip install joblib
 ```
 
 ObsPy and basemap are slightly more complicated to install. Please refer to the
