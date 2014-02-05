@@ -60,7 +60,7 @@ setup_config = dict(
         "numpy",
         "colorama",
         "matplotlib",
-        "joblib",
+        "pp",
         "lxml"],
     extras_require={
         "tests": ["nose", "pytest", "flake8", "mock"]},
