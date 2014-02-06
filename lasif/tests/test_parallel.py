@@ -112,3 +112,27 @@ def test_parallel_map():
     assert results[2].warnings == []
     assert results[2].exception is None
     assert results[2].traceback is None
+
+
+def __random_fct_2(*args):
+    """
+    Helper function as functions need to be importable for multiprocessing to
+    work.
+    """
+    import obspy
+    st = obspy.read()
+    st += st.copy()
+    # This triggers a call to numpy.linalg and thus a BLAS routine.
+    st.detrend("linear")
+
+
+def test_BLAS():
+    """
+    Simple test asserting that it works with BLAS which is problematic for a
+    number of reasons.
+
+    If this test returns it gives some confidence that the machine is able to
+    run the type of parallel processing implemented in LASIF.
+    """
+    results = parallel_map(__random_fct_2, [{}] * 4, n_jobs=2)
+    assert len(results) == 4
