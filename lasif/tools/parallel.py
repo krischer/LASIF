@@ -3,12 +3,21 @@
 """
 Helpers for embarrassingly parallel calculations.
 
+**Important**! Any users of NumPy linked against OpenBLAS must include these
+two lines before importing NumPy! Or just import this module first!
+
+>>> import os  # doctest: +SKIP
+>>> os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014
 :license:
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
+import os
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
 import collections
 import functools
 import inspect
@@ -40,13 +49,15 @@ def function_info(f):
 
     It returns a FunctionInfo named tuple with the following fields:
 
-    * ``func_args``: Dictionary containing all the functions arguments and values.
+    * ``func_args``: Dictionary containing all the functions arguments and
+      values.
     * ``result``: The return value of the function. Will be None if an exception
       has been raised.
     * ``warnings``: A list with all warnings the function raised.
     * ``exception``: The exception the function raised. Will be None, if no
       exception has been raised.
-    * ``traceback``: The full traceback in case an exception occured as a string.
+    * ``traceback``: The full traceback in case an exception occured as a
+      string.
       A traceback object is not serializable thus a string is used.
 
 
@@ -124,6 +135,27 @@ def parallel_map(func, iterable, n_jobs=-1, verbose=1,
     Framework is detected. And it also wraps all functions with the
     function_info decorator in order to get a more meaningful output.
 
+    To use, first import ``parallel_map``, then define a function and feed it
+    with a list of dictionaries, each dictionary containing one set of
+    arguments. It will return a list FunctionInfo objects containing information
+    about the execution of the function on each of the inputs.
+
+    >>> from lasif.tools.parallel import parallel_map #doctest: +SKIP
+    >>> def square(a): #doctest: +SKIP
+    ...     return a ** 2
+    >>> for result in parallel_map(square, [{"a": i} for i in xrange(3)]): \
+        #doctest: +SKIP
+    ...     print result
+    FunctionInfo(func_args={'a': 0}, result=0, warnings=[], exception=None,
+                 traceback=None)
+    FunctionInfo(func_args={'a': 1}, result=1, warnings=[], exception=None,
+                 traceback=None)
+    FunctionInfo(func_args={'a': 2}, result=4, warnings=[], exception=None,
+                 traceback=None)
+
+    :param func: The function to execute in parallel.
+    :param iterable: Iterator yielding the parameters. The function will be
+        called once for each set of arguments.
     :type n_jobs: int
     :param n_jobs: The number of jobs to use for the computation. If -1 all CPUs
         are used. If 1 is given, no parallel computing code is used at all,
@@ -156,8 +188,7 @@ def parallel_map(func, iterable, n_jobs=-1, verbose=1,
         backend = "threading"
         n_jobs = 1
 
-
     return joblib.Parallel(n_jobs=n_jobs, verbose=verbose,
                            pre_dispatch=pre_dispatch, backend=backend,
-                           )(joblib.delayed(
-        __execute_wrapped_function)(func, i) for i in iterable)
+                           )(joblib.delayed(__execute_wrapped_function)(
+                             func, i) for i in iterable)
