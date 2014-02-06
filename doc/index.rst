@@ -44,7 +44,10 @@ Documentation
     developers_information
 
     tutorial
-    project
-    iris2quakeml
-    rotations
     how_lasif_finds_coordinates
+
+    project
+    rotations
+    iris2quakeml
+    tools
+    tools.parallel

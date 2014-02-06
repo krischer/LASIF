@@ -18,14 +18,14 @@ Dependencies
 * progressbar
 * geographiclib
 * colorama
-* pp
+* joblib
 
 The later five should prove no trouble installing via pip. They will also be
 automatically installed when running **LASIF**'s setup script.
 
 .. code-block:: bash
 
-    $ pip install requests progressbar geographiclib colorama pp
+    $ pip install requests progressbar geographiclib colorama joblib
 
 ObsPy and basemap are slightly more complicated to install. Please refer to the
 projects websites for more detailed instructions.
