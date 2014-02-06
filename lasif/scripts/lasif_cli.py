@@ -40,9 +40,11 @@ should scale fairly well and makes it trivial to add new methods.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import os
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
 import argparse
 import difflib
-import os
 import shutil
 import sys
 import traceback
