@@ -9,7 +9,7 @@ Test suite for the parallel helper methods.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
-from lasif.tools.parallel import function_info
+from lasif.tools.parallel import function_info, parallel_map
 import warnings
 
 
@@ -61,3 +61,54 @@ def test_function_info_decorator():
     assert info.warnings[1].category is UserWarning
     assert str(info.warnings[0].message) == "First Warning"
     assert str(info.warnings[1].message) == "Second Warning"
+
+
+def __random_fct(a, b, c=0):
+    """
+    Helper function as functions need to be importable for multiprocessing to
+    work.
+    """
+    if c == 1:
+        import warnings
+        warnings.warn("First Warning", SyntaxWarning)
+        warnings.warn("Second Warning", UserWarning)
+    return a / b
+
+
+def test_parallel_map():
+    """
+    Test the parallel mapping method.
+    """
+    def input_generator():
+        yield {"a": 2, "b": 1}  # results in 2
+        yield {"a": 4, "b": 0}  # results in None, an exception and a traceback.
+        yield {"a": 1, "b": 1, "c": 1}  # results in 1 and two warnings.
+        raise StopIteration
+
+    results = parallel_map(__random_fct, input_generator())
+
+    # Sort them with the expected result to be able to compare them. The order
+    # is not guaranteed when using multiple processes.
+    results.sort(key=lambda x: x.result)
+
+    assert results[0].result is None
+    assert results[0].func_args == {"a": 4, "b": 0, "c": 0}
+    assert results[0].warnings == []
+    assert type(results[0].exception) is ZeroDivisionError
+    assert "ZeroDivisionError" in results[0].traceback
+
+    assert results[1].result == 1
+    assert results[1].func_args == {"a": 1, "b": 1, "c": 1}
+    assert results[1].exception is None
+    assert results[1].traceback is None
+    assert len(results[1].warnings) == 2
+    assert results[1].warnings[0].category is SyntaxWarning
+    assert results[1].warnings[1].category is UserWarning
+    assert str(results[1].warnings[0].message) == "First Warning"
+    assert str(results[1].warnings[1].message) == "Second Warning"
+
+    assert results[2].result == 2
+    assert results[2].func_args == {"a": 2, "b": 1, "c": 0}
+    assert results[2].warnings == []
+    assert results[2].exception is None
+    assert results[2].traceback is None

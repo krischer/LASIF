@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Helpers for embarissingly parallel calculations.
+Helpers for embarrassingly parallel calculations.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014
@@ -10,32 +10,67 @@ Helpers for embarissingly parallel calculations.
     (http://www.gnu.org/copyleft/lesser.html)
 """
 import collections
-import pp
+import functools
+import inspect
+import joblib
+import numpy as np
+import sys
+import traceback
+import warnings
 
-# Use multiprocessing only to derive the number of available processors.
-from multiprocessing import cpu_count
-cpu_count = cpu_count()
 
-
-FunctionInfo = collections.namedtuple(
+class FunctionInfo(collections.namedtuple(
     "FunctionInfo", ["func_args", "result", "warnings", "exception",
-                     "traceback"])
+                     "traceback"])):
+    """
+    Namedtuple used to collect information about a function execution.
+
+    It has the following fields: ``func_args``, ``result``, ``warnings``,
+    ``exception``, and ``traceback``.
+    """
+    pass
 
 
 def function_info(f):
     """
-    Decorator returning information about the function.
+    Decorator collecting information during the execution of a function.
 
-    :param function:
-    :param arguments:
-    :return:
+    This is useful for collecting information about a function runnning on a
+    number of processes/machines.
+
+    It returns a FunctionInfo named tuple with the following fields:
+
+    * ``func_args``: Dictionary containing all the functions arguments and values.
+    * ``result``: The return value of the function. Will be None if an exception
+      has been raised.
+    * ``warnings``: A list with all warnings the function raised.
+    * ``exception``: The exception the function raised. Will be None, if no
+      exception has been raised.
+    * ``traceback``: The full traceback in case an exception occured as a string.
+      A traceback object is not serializable thus a string is used.
+
+
+    >>> @function_info
+    ... def test(a, b=2):
+    ...     return a / b
+    >>> info = test(4, 1)
+    >>> info.func_args
+    {'a': 4, 'b': 1}
+    >>> info.result
+    4
+
+    ``warnings`` is empty if no warning has been raised. Otherwise it will
+    collect all warnings.
+
+    >>> info.warnings
+    []
+
+    ``exception`` and ``traceback`` are ``None`` if the function completed
+    successfully.
+
+    >>> info.exception
+    >>> info.traceback
     """
-    import functools
-    import inspect
-    import sys
-    import traceback
-    import warnings
-
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         with warnings.catch_warnings(record=True) as w:
@@ -69,72 +104,60 @@ def function_info(f):
     return wrapper
 
 
-def parallel(function, iterable):
+def __execute_wrapped_function(func, parameters):
     """
-    Custom unordered map implementation using pp's processes.
+    Helper function to execute the same function but wrapper with the
+    function_info decorator.
 
-    This enables arbitrarily long queues.
-
-    :param function: The function to run for each item.
-    :param iterable: The iterable yielding items.
-    :param processes: The number of processes to launch.
+    This is necessary as a function needs to be importable, otherwise pickle
+    does not work with it.
     """
+    return function_info(func)(**parameters)
 
-    def yield_job(job):
-        _catch_output = StringIO()
-        old_stdout = sys.stdout
-        sys.stdout = _catch_output
 
-        job_warnings = job()
+def parallel_map(func, iterable, n_jobs=-1, verbose=1,
+                 pre_dispatch="1.5*n_jobs"):
+    """
+    Thin wrapper around joblib.Parallel.
 
-        sys.stdout = old_stdout
-        _catch_output.tell()
-        exception = _catch_output.read()
+    For one it takes care to use the threading backend if OSX's Accelerate
+    Framework is detected. And it also wraps all functions with the
+    function_info decorator in order to get a more meaningful output.
 
-        if not exception:
-            exception = None
+    :type n_jobs: int
+    :param n_jobs: The number of jobs to use for the computation. If -1 all CPUs
+        are used. If 1 is given, no parallel computing code is used at all,
+        which is useful for debugging. For n_jobs below -1,
+        (n_cpus + 1 + n_jobs) are used.
+        Thus for n_jobs = -2, all CPUs but one are used.
+        Same parameter as in joblib.Parallel.
+    :type verbose: int
+    :param verbose: The verbosity level: if non zero, progress messages are
+        printed. Above 50, the output is sent to stdout. The frequency of the
+        messages increases with the verbosity level. If it more than 10, all
+        iterations are reported.  Defaults to 1.
+        Same parameter as in joblib.Parallel.
+    :param pre_dispatch: The amount of jobs to be pre-dispatched. Default is
+        ``1.5*n_jobs``.
+        Same parameter as in joblib.Parallel.
+    """
+    backend = "multiprocessing"
 
-        return {
-            "result": job_result,
-            "arguments": job_arguments,
-            "exception": job_exception,
-            "warnings": job_warnings
-        }
+    config_info = str([value for key, value in
+                       np.__config__.__dict__.iteritems()
+                       if key.endswith("_info")]).lower()
 
-    job_server = pp.Server()
-    num_jobs = job_server.get_ncpus()
-    active_jobs = []
+    if "accelerate" in config_info or "veclib" in config_info:
+        msg = ("NumPy linked against 'Accelerate.framework'. Multiprocessing "
+               "will be disabled. See "
+               "https://github.com/obspy/obspy/wiki/Notes-on-Parallel-"
+               "Processing-with-Python-and-ObsPy for more information.")
+        warnings.warn(msg)
+        backend = "threading"
+        n_jobs = 1
 
-    while True:
-        # Give some time.
-        time.sleep(0.1)
 
-        try:
-            value = iterable.next()
-        except StopIteration:
-            break
-
-        # Collect any finished jobs.
-        for job in active_jobs[:]:
-            if job.finished is True:
-                yield yield_job(job)
-                active_jobs.remove(job)
-
-        # Start new jobs. Buffer a certain number of jobs.
-        jobs_left = True
-        while len(active_jobs) < int(num_jobs * 1.5):
-            # Get new values until there are no left. Then break.
-            try:
-                value = iterable.next()
-            except StopIteration:
-                jobs_left = False
-                break
-            new_job = job_server.submit(function, (value, ))
-            new_job.filename = value["data_path"]
-            active_jobs.append(new_job)
-
-        # End job submission and collect remaining jobs.
-        if jobs_left is False:
-            for job in active_jobs:
-                yield yield_job(job)
-            break
+    return joblib.Parallel(n_jobs=n_jobs, verbose=verbose,
+                           pre_dispatch=pre_dispatch, backend=backend,
+                           )(joblib.delayed(
+        __execute_wrapped_function)(func, i) for i in iterable)
