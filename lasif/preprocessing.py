@@ -54,8 +54,8 @@ def preprocess_file(file_info):
 
     def zerophase_chebychev_lowpass_filter(trace, freqmax):
         """
-        Custom Chebychev type two zerophase lowpass filter useful for decimation
-        filtering.
+        Custom Chebychev type two zerophase lowpass filter useful for
+        decimation filtering.
 
         This filter is stable up to a reduction in frequency with a factor of
         10. If more reduction is desired, simply decimate in steps.
@@ -97,7 +97,7 @@ def preprocess_file(file_info):
     if len(st) != 1:
         warnings.warn("The file '%s' has %i traces and not 1. "
                       "Skip all but the first" % (
-                      file_info["data_path"], len(st)))
+                          file_info["data_path"], len(st)))
     tr = st[0]
 
     # Trim with a short buffer in an attempt to avoid boundary effects.
