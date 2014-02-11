@@ -9,7 +9,6 @@ Functionality for data preprocessing.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
-import sys
 import time
 import warnings
 
@@ -121,11 +120,8 @@ def preprocess_file(file_info):
     #==========================================================================
     # Step 1: Detrend and taper.
     #==========================================================================
-    sys.stdout.flush()
     tr.detrend("linear")
     tr.taper(0.05, type="hann")
-
-    sys.stdout.flush()
 
     #==========================================================================
     # Step 2: Decimation
