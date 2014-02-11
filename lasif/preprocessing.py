@@ -72,6 +72,8 @@ def preprocess_file(file_info):
         ws = freqmax / (trace.stats.sampling_rate * 0.5)  # stop band frequency
         wp = ws  # pass band frequency
 
+        order, wn = signal.cheb2ord(wp, ws, rp, rs, analog=0)
+
         while True:
             if order <= 12:
                 break
@@ -93,9 +95,9 @@ def preprocess_file(file_info):
     st = obspy.read(file_info["data_path"])
 
     if len(st) != 1:
-        warnings.warn("The file has %i traces and not 1. "
+        warnings.warn("The file '%s' has %i traces and not 1. "
                       "Skip all but the first" % (
-                      len(st), file_info["data_path"]))
+                      file_info["data_path"], len(st)))
     tr = st[0]
 
     # Trim with a short buffer in an attempt to avoid boundary effects.
