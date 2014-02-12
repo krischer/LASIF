@@ -10,6 +10,7 @@ Test cases for the iteration xml file handling.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import inspect
+from lxml import etree
 import os
 
 from lasif.iteration_xml import Iteration
@@ -21,6 +22,9 @@ data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
 
 
 def test_reading_iteration_xml():
+    """
+    Tests the reading of an IterationXML file to the internal representation.
+    """
     iteration = Iteration(os.path.join(data_dir, "iteration_example.xml"))
     assert iteration.iteration_name == "IterationName"
     assert iteration.description == "Some description"
@@ -69,3 +73,21 @@ def test_reading_iteration_xml():
         set([1.0])
     assert set([_i["time_correction_in_s"] for _i in stations.values()]) == \
         set([0.0])
+
+
+def test_reading_and_writing(tmpdir):
+    """
+    Tests that reading and writing a file via IterationXML does not alter it.
+    This effectively tests the Iteration XML writing.
+    """
+    filename = os.path.join(data_dir, "iteration_example.xml")
+    new_filename = os.path.join(str(tmpdir), "iteration.xml")
+
+    iteration = Iteration(filename)
+    iteration.write(new_filename)
+
+    # Compare the lxml etree's to avoid any difference in formatting and
+    # what not.
+    tree_old = etree.parse(filename)
+    tree_new = etree.parse(new_filename)
+    assert tree_old == tree_new
