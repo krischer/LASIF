@@ -17,7 +17,7 @@ def test_function_info_decorator():
     """
     Test suite for the function info wrapper.
     """
-    @function_info
+    @function_info()
     def test_function(a, b=2):
         return a / b
 
@@ -45,7 +45,7 @@ def test_function_info_decorator():
     assert type(info.exception) is ZeroDivisionError
     assert "ZeroDivisionError" in info.traceback
 
-    @function_info
+    @function_info()
     def function_triggering_some_warnings():
         warnings.warn("First Warning", SyntaxWarning)
         warnings.warn("Second Warning", UserWarning)

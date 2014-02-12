@@ -40,7 +40,7 @@ class FunctionInfo(collections.namedtuple(
     pass
 
 
-def function_info(f):
+def function_info(traceback_limit=3):
     """
     Decorator collecting information during the execution of a function.
 
@@ -61,7 +61,7 @@ def function_info(f):
       A traceback object is not serializable thus a string is used.
 
 
-    >>> @function_info
+    >>> @function_info()
     ... def test(a, b=2):
     ...     return a / b
     >>> info = test(4, 1)
@@ -82,40 +82,40 @@ def function_info(f):
     >>> info.exception
     >>> info.traceback
     """
-    traceback_limit = 3
+    def _function_info(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                result = None
+                exception = None
+                tb = None
+                func_args = inspect.getcallargs(f, *args, **kwargs)
+                try:
+                    result = f(*args, **kwargs)
+                except Exception as e:
+                    # With help from http://stackoverflow.com/a/14528175.
+                    exc_info = sys.exc_info()
+                    stack = traceback.extract_stack(limit=traceback_limit)
+                    tb = traceback.extract_tb(exc_info[2])
+                    full_tb = stack[:-1] + tb
+                    exc_line = traceback.format_exception_only(*exc_info[:2])
+                    tb = "Traceback (%i levels - most recent call last):\n" % \
+                        traceback_limit
+                    tb += "".join(traceback.format_list(full_tb))
+                    tb += "\n"
+                    tb += "".join(exc_line)
+                    exception = e
 
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            result = None
-            exception = None
-            tb = None
-            func_args = inspect.getcallargs(f, *args, **kwargs)
-            try:
-                result = f(*args, **kwargs)
-            except Exception as e:
-                # With help from http://stackoverflow.com/a/14528175.
-                exc_info = sys.exc_info()
-                stack = traceback.extract_stack(limit=traceback_limit)
-                tb = traceback.extract_tb(exc_info[2])
-                full_tb = stack[:-1] + tb
-                exc_line = traceback.format_exception_only(*exc_info[:2])
-                tb = "Traceback (%i levels - most recent call last):\n" % \
-                    traceback_limit
-                tb += "".join(traceback.format_list(full_tb))
-                tb += "\n"
-                tb += "".join(exc_line)
-                exception = e
+            return FunctionInfo(
+                func_args=func_args,
+                result=result,
+                exception=exception,
+                warnings=w,
+                traceback=tb)
 
-        return FunctionInfo(
-            func_args=func_args,
-            result=result,
-            exception=exception,
-            warnings=w,
-            traceback=tb)
-
-    return wrapper
+        return wrapper
+    return _function_info
 
 
 def __execute_wrapped_function(func, parameters):
@@ -126,7 +126,7 @@ def __execute_wrapped_function(func, parameters):
     This is necessary as a function needs to be importable, otherwise pickle
     does not work with it.
     """
-    return function_info(func)(**parameters)
+    return function_info()(func)(**parameters)
 
 
 def parallel_map(func, iterable, n_jobs=-1, verbose=1,
