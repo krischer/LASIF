@@ -59,5 +59,21 @@ The py.test command accepts a large number of additional parameters, e.g.
     # Execute only tests whose name contains the string 'some_string'.
     $ py.test -k some_string
 
+
+If your machine has multiple cores, the processing can also be sped up
+quite a bit by using `pytest-xdist` which can be installed via pip.
+
+.. code-block:: bash
+
+    $ pip install pytest-xdist
+
+It enables to distribute the test across cores. To run on, for example, eight
+cores, use
+
+.. code-block:: bash
+
+    $ py.test -n 8
+
+
 For more information please read the
 `pytest documentation <http://pytest.org/>`_.
