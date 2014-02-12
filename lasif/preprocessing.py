@@ -241,10 +241,6 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
     logger.info("Launching preprocessing using all processes...\n"
                 "This might take a while. Press Ctrl + C to cancel.\n")
 
-    if process_params:
-        import pprint
-        logger.info("Used parameters: \n%s" % pprint.pformat(process_params))
-
     # Give the user some time to read the message.
     time.sleep(waiting_time)
 

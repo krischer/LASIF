@@ -189,7 +189,7 @@ class MisfitGUI:
 
         for component in ["Z", "N", "E"]:
             real_trace = self.data["data"].select(component=component)
-            synth_trace = self.data["synthetics"].select(component=component)
+            synth_trace = self.data["synthetics"].select(channel=component)
             if not real_trace or not synth_trace:
                 continue
             real_trace = real_trace[0]
@@ -284,7 +284,7 @@ class MisfitGUI:
         # loop through components and check if they are flipped --------------
         for comp in {"N", "E", "Z"}:
             # transcribe traces
-            synth = self.data["synthetics"].select(component=comp)[0].data
+            synth = self.data["synthetics"].select(channel=comp)[0].data
             try:
                 data = self.data["data"].select(component=comp)[0].data
             except IndexError:
@@ -378,7 +378,7 @@ class MisfitGUI:
 
         def plot_trace(axis, component):
             real_trace = self.data["data"].select(component=component)
-            synth_trace = self.data["synthetics"].select(component=component)
+            synth_trace = self.data["synthetics"].select(channel=component)
             if real_trace:
                 axis.plot(self.time_axis, real_trace[0].data, color="black")
             if synth_trace:
@@ -597,7 +597,7 @@ class MisfitGUI:
 
         data = self.data["data"].select(component=axis.seismic_component)[0]
         synth = self.data["synthetics"].select(
-            component=axis.seismic_component)[0]
+            channel=axis.seismic_component)[0]
 
         if not data:
             plt.draw()
