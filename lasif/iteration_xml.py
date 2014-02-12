@@ -50,6 +50,18 @@ class Iteration(object):
         self.data_preprocessing["lowpass_period"] = \
             float(self._get(prep, "lowpass_period"))
 
+        self.rejection_criteria = {}
+        crits = root.find("rejection_criteria")
+        self.rejection_criteria["minimum_trace_length_in_s"] = \
+            float(self._get(crits, "minimum_trace_length_in_s"))
+        s_n = crits.find("signal_to_noise")
+        temp = {}
+        temp["test_interval_from_origin_in_s"] = \
+            float(self._get(s_n, "test_interval_from_origin_in_s"))
+        temp["max_amplitude_ratio"] = \
+            float(self._get(s_n, "max_amplitude_ratio"))
+        self.rejection_criteria["signal_to_noise"] = temp
+
         self.solver_settings = \
             self._recursive_dict(root.find("solver_parameters"))[1]
 
