@@ -523,8 +523,9 @@ def test_data_validation(project, capsys):
     # Now duplicate an id.
     with open(filename, "wt") as fh:
         fh.write(original_contents.replace(
-            "smi:local/76499e98-9ac4-4de1-844b-4042d0e80915",
-            "smi:service.iris.edu/fdsnws/event/1/query?eventid=2847365"))
+            "smi:service.iris.edu/fdsnws/event/1/query?eventid=2847365",
+            "smi:www.iris.edu/spudservice/momenttensor/gcmtid/"
+            "C201003241411A#reforigin"))
     project.validate_data()
     out = capsys.readouterr()[0]
     line = [_i.strip() for _i in out.split("\n")
