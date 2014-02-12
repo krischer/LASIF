@@ -145,8 +145,22 @@ class Iteration(object):
             tau = [float(_i.text) for _i in element.findall("tau")]
             w = [float(_i.text) for _i in element.findall("w")]
             return "relaxation_parameter_list", {"tau": tau, "w": w}
+        text = element.text
+        try:
+            text = int(text)
+        except:
+            pass
+        try:
+            text = float(text)
+        except:
+            pass
+        if isinstance(text, basestring):
+            if text.lower() == "false":
+                text = False
+            elif text.lower() == "true":
+                text = True
         return element.tag, \
-            dict(map(self._recursive_dict, element)) or element.text
+            dict(map(self._recursive_dict, element)) or text
 
     def get_process_params(self):
         """
