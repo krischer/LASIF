@@ -1777,7 +1777,8 @@ class Project(object):
             # unique!
             with open(filename, "rt") as fh:
                 for event, elem in etree.iterparse(fh, events=("start",)):
-                    if "publicID" not in elem.keys():
+                    if "publicID" not in elem.keys() or \
+                            elem.tag.endswith("eventParameters"):
                         continue
                     ids[elem.get("publicID")].append(filename)
         ids = {key: list(set(value)) for (key, value) in ids.iteritems()
