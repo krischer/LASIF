@@ -82,6 +82,7 @@ def function_info(f):
     >>> info.exception
     >>> info.traceback
     """
+    traceback_limit = 3
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         with warnings.catch_warnings(record=True) as w:
@@ -95,11 +96,12 @@ def function_info(f):
             except Exception as e:
                 # With help from http://stackoverflow.com/a/14528175.
                 exc_info = sys.exc_info()
-                stack = traceback.extract_stack()
+                stack = traceback.extract_stack(limit=traceback_limit)
                 tb = traceback.extract_tb(exc_info[2])
                 full_tb = stack[:-1] + tb
                 exc_line = traceback.format_exception_only(*exc_info[:2])
-                tb = "Traceback (most recent call last):\n"
+                tb = "Traceback (%i levels - most recent call last):\n" % \
+                    traceback_limit
                 tb += "".join(traceback.format_list(full_tb))
                 tb += "\n"
                 tb += "".join(exc_line)
