@@ -727,7 +727,8 @@ def lasif_create_successive_iteration(parser, args):
     iterations = proj.get_iteration_dict()
     if existing_iteration_name not in iterations:
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % iteration_name
+               "a list of all available iterations.") % \
+            existing_iteration_name
         raise LASIFCommandLineException(msg)
     existing_iteration = Iteration(iterations[existing_iteration_name])
 
@@ -735,8 +736,6 @@ def lasif_create_successive_iteration(parser, args):
     existing_iteration.comments = []
     existing_iteration.iteration_name = new_iteration_name
     print existing_iteration
-
-    from IPython.core.debugger import Tracer; Tracer()()
 
 
 @command_group("Iteration Management")

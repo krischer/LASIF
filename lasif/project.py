@@ -1110,14 +1110,6 @@ class Project(object):
 
             # Visco-elastic dissipation
             diss = solver["simulation_parameters"]["is_dissipative"]
-            if diss.lower() == "false":
-                diss = False
-            elif diss.lower() == "true":
-                diss = True
-            else:
-                msg = ("is_dissipative value of '%s' unknown. "
-                       "Choose true or false.") % diss
-                raise ValueError(msg)
             gen.config.is_dissipative = diss
 
             # Only SES3D 4.0 has the relaxation parameters.
