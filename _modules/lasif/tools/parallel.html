@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.tools.parallel &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:'../../../',
+        VERSION:'0.0.1',
+        COLLAPSE_INDEX:false,
+        FILE_SUFFIX:'.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../../index.html" class="icon icon-home"> LASIF</a>
+        <form class="wy-form" action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search docs" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-lasif">Installing LASIF</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../testing.html#requirements-and-rational">Requirements and Rational</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../testing.html#running-the-tests">Running the Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developers_information.html">Developer Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../developers_information.html#building-the-documentation">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../developers_information.html#terminology">Terminology</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">LASIF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html#further-information">Further Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html#supported-data-formats">Supported Data Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html#tutorial">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#creating-a-new-project">Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#adding-seismic-events">Adding Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#adding-waveform-data">Adding Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#station-data">Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#download-helpers">Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#inspecting-the-data">Inspecting the Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#interlude-validating-the-data">Interlude: Validating the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#defining-a-new-iteration">Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#generating-ses3d-input-files">Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#organizing-the-models">Organizing the Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#synthetics">Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project.html">lasif.project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../project.html#exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../project.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools.html">lasif.tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools.parallel.html">lasif.tools.parallel</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top">
+        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
+        <a href="/">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <ul class="wy-breadcrumbs">
+  <li><a href="../../../index.html">Docs</a> &raquo;</li>
+  <li><a href="">lasif.tools.parallel</a></li>
+  
+</ul>
+<hr/>
+
+          
+  <h1>Source code for lasif.tools.parallel</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Helpers for embarrassingly parallel calculations.</span>
+
+<span class="sd">**Important**! Any users of NumPy linked against OpenBLAS must include these</span>
+<span class="sd">two lines before importing NumPy! Or just import this module first!</span>
+
+<span class="sd">&gt;&gt;&gt; import os  # doctest: +SKIP</span>
+<span class="sd">&gt;&gt;&gt; os.environ[&quot;OPENBLAS_NUM_THREADS&quot;] = &quot;1&quot;</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU Lesser General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/lesser.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;1&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">joblib</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+
+<div class="viewcode-block" id="FunctionInfo"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel.FunctionInfo">[docs]</a><span class="k">class</span> <span class="nc">FunctionInfo</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span>
+    <span class="s">&quot;FunctionInfo&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;func_args&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="p">,</span> <span class="s">&quot;warnings&quot;</span><span class="p">,</span> <span class="s">&quot;exception&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;traceback&quot;</span><span class="p">])):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Namedtuple used to collect information about a function execution.</span>
+
+<span class="sd">    It has the following fields: ``func_args``, ``result``, ``warnings``,</span>
+<span class="sd">    ``exception``, and ``traceback``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="function_info"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel.function_info">[docs]</a><span class="k">def</span> <span class="nf">function_info</span><span class="p">(</span><span class="n">traceback_limit</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decorator collecting information during the execution of a function.</span>
+
+<span class="sd">    This is useful for collecting information about a function runnning on a</span>
+<span class="sd">    number of processes/machines.</span>
+
+<span class="sd">    It returns a FunctionInfo named tuple with the following fields:</span>
+
+<span class="sd">    * ``func_args``: Dictionary containing all the functions arguments and</span>
+<span class="sd">      values.</span>
+<span class="sd">    * ``result``: The return value of the function. Will be None if an</span>
+<span class="sd">      exception has been raised.</span>
+<span class="sd">    * ``warnings``: A list with all warnings the function raised.</span>
+<span class="sd">    * ``exception``: The exception the function raised. Will be None, if no</span>
+<span class="sd">      exception has been raised.</span>
+<span class="sd">    * ``traceback``: The full traceback in case an exception occured as a</span>
+<span class="sd">      string.</span>
+<span class="sd">      A traceback object is not serializable thus a string is used.</span>
+
+
+<span class="sd">    &gt;&gt;&gt; @function_info()</span>
+<span class="sd">    ... def test(a, b=2):</span>
+<span class="sd">    ...     return a / b</span>
+<span class="sd">    &gt;&gt;&gt; info = test(4, 1)</span>
+<span class="sd">    &gt;&gt;&gt; info.func_args</span>
+<span class="sd">    {&#39;a&#39;: 4, &#39;b&#39;: 1}</span>
+<span class="sd">    &gt;&gt;&gt; info.result</span>
+<span class="sd">    4</span>
+
+<span class="sd">    ``warnings`` is empty if no warning has been raised. Otherwise it will</span>
+<span class="sd">    collect all warnings.</span>
+
+<span class="sd">    &gt;&gt;&gt; info.warnings</span>
+<span class="sd">    []</span>
+
+<span class="sd">    ``exception`` and ``traceback`` are ``None`` if the function completed</span>
+<span class="sd">    successfully.</span>
+
+<span class="sd">    &gt;&gt;&gt; info.exception</span>
+<span class="sd">    &gt;&gt;&gt; info.traceback</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_function_info</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">&quot;always&quot;</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">exception</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">tb</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">func_args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getcallargs</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="c"># With help from http://stackoverflow.com/a/14528175.</span>
+                    <span class="n">exc_info</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+                    <span class="n">stack</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_stack</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">traceback_limit</span><span class="p">)</span>
+                    <span class="n">tb</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_tb</span><span class="p">(</span><span class="n">exc_info</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">full_tb</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">tb</span>
+                    <span class="n">exc_line</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exception_only</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">tb</span> <span class="o">=</span> <span class="s">&quot;Traceback (</span><span class="si">%i</span><span class="s"> levels - most recent call last):</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> \
+                        <span class="n">traceback_limit</span>
+                    <span class="n">tb</span> <span class="o">+=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_list</span><span class="p">(</span><span class="n">full_tb</span><span class="p">))</span>
+                    <span class="n">tb</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+                    <span class="n">tb</span> <span class="o">+=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exc_line</span><span class="p">)</span>
+                    <span class="n">exception</span> <span class="o">=</span> <span class="n">e</span>
+
+            <span class="k">return</span> <span class="n">FunctionInfo</span><span class="p">(</span>
+                <span class="n">func_args</span><span class="o">=</span><span class="n">func_args</span><span class="p">,</span>
+                <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span>
+                <span class="n">exception</span><span class="o">=</span><span class="n">exception</span><span class="p">,</span>
+                <span class="n">warnings</span><span class="o">=</span><span class="n">w</span><span class="p">,</span>
+                <span class="n">traceback</span><span class="o">=</span><span class="n">tb</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">return</span> <span class="n">_function_info</span>
+
+</div>
+<span class="k">def</span> <span class="nf">__execute_wrapped_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to execute the same function but wrapper with the</span>
+<span class="sd">    function_info decorator.</span>
+
+<span class="sd">    This is necessary as a function needs to be importable, otherwise pickle</span>
+<span class="sd">    does not work with it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">function_info</span><span class="p">()(</span><span class="n">func</span><span class="p">)(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="parallel_map"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel.parallel_map">[docs]</a><span class="k">def</span> <span class="nf">parallel_map</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">iterable</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">pre_dispatch</span><span class="o">=</span><span class="s">&quot;1.5*n_jobs&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Thin wrapper around joblib.Parallel.</span>
+
+<span class="sd">    For one it takes care to use the threading backend if OSX&#39;s Accelerate</span>
+<span class="sd">    Framework is detected. And it also wraps all functions with the</span>
+<span class="sd">    function_info decorator in order to get a more meaningful output.</span>
+
+<span class="sd">    To use, first import ``parallel_map``, then define a function and feed it</span>
+<span class="sd">    with a list of dictionaries, each dictionary containing one set of</span>
+<span class="sd">    arguments. It will return a list FunctionInfo objects containing</span>
+<span class="sd">    information about the execution of the function on each of the inputs.</span>
+
+<span class="sd">    &gt;&gt;&gt; from lasif.tools.parallel import parallel_map #doctest: +SKIP</span>
+<span class="sd">    &gt;&gt;&gt; def square(a): #doctest: +SKIP</span>
+<span class="sd">    ...     return a ** 2</span>
+<span class="sd">    &gt;&gt;&gt; for result in parallel_map(square, [{&quot;a&quot;: i} for i in xrange(3)]): \</span>
+<span class="sd">        #doctest: +SKIP</span>
+<span class="sd">    ...     print result</span>
+<span class="sd">    FunctionInfo(func_args={&#39;a&#39;: 0}, result=0, warnings=[], exception=None,</span>
+<span class="sd">                 traceback=None)</span>
+<span class="sd">    FunctionInfo(func_args={&#39;a&#39;: 1}, result=1, warnings=[], exception=None,</span>
+<span class="sd">                 traceback=None)</span>
+<span class="sd">    FunctionInfo(func_args={&#39;a&#39;: 2}, result=4, warnings=[], exception=None,</span>
+<span class="sd">                 traceback=None)</span>
+
+<span class="sd">    :param func: The function to execute in parallel.</span>
+<span class="sd">    :param iterable: Iterator yielding the parameters. The function will be</span>
+<span class="sd">        called once for each set of arguments.</span>
+<span class="sd">    :type n_jobs: int</span>
+<span class="sd">    :param n_jobs: The number of jobs to use for the computation. If -1 all</span>
+<span class="sd">        CPUs are used. If 1 is given, no parallel computing code is used at</span>
+<span class="sd">        all, which is useful for debugging. For n_jobs below -1,</span>
+<span class="sd">        (n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all CPUs but one</span>
+<span class="sd">        are used. Same parameter as in joblib.Parallel.</span>
+<span class="sd">    :type verbose: int</span>
+<span class="sd">    :param verbose: The verbosity level: if non zero, progress messages are</span>
+<span class="sd">        printed. Above 50, the output is sent to stdout. The frequency of the</span>
+<span class="sd">        messages increases with the verbosity level. If it more than 10, all</span>
+<span class="sd">        iterations are reported.  Defaults to 1.</span>
+<span class="sd">        Same parameter as in joblib.Parallel.</span>
+<span class="sd">    :param pre_dispatch: The amount of jobs to be pre-dispatched. Default is</span>
+<span class="sd">        ``1.5*n_jobs``.</span>
+<span class="sd">        Same parameter as in joblib.Parallel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="s">&quot;multiprocessing&quot;</span>
+
+    <span class="n">config_info</span> <span class="o">=</span> <span class="nb">str</span><span class="p">([</span><span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span>
+                       <span class="n">np</span><span class="o">.</span><span class="n">__config__</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
+                       <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;_info&quot;</span><span class="p">)])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="s">&quot;accelerate&quot;</span> <span class="ow">in</span> <span class="n">config_info</span> <span class="ow">or</span> <span class="s">&quot;veclib&quot;</span> <span class="ow">in</span> <span class="n">config_info</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;NumPy linked against &#39;Accelerate.framework&#39;. Multiprocessing &quot;</span>
+               <span class="s">&quot;will be disabled. See &quot;</span>
+               <span class="s">&quot;https://github.com/obspy/obspy/wiki/Notes-on-Parallel-&quot;</span>
+               <span class="s">&quot;Processing-with-Python-and-ObsPy for more information.&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="s">&quot;threading&quot;</span>
+        <span class="n">n_jobs</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">joblib</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                           <span class="n">pre_dispatch</span><span class="o">=</span><span class="n">pre_dispatch</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+                           <span class="p">)(</span><span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">__execute_wrapped_function</span><span class="p">)(</span>
+                             <span class="n">func</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">)</span></div>
+</pre></div>
+
+          <footer>
+  
+
+  <hr/>
+
+  <p>
+      &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+  </p>
+
+  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+</body>
+</html>

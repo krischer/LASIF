@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>How LASIF Finds Coordinates &mdash; LASIF 0.0.1 documentation</title>
+  <title>Developer Information &mdash; LASIF 0.0.1 documentation</title>
   
 
   
@@ -45,8 +45,8 @@
 
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="lasif.project" href="project.html"/>
-        <link rel="prev" title="LASIF" href="tutorial.html"/> 
+        <link rel="next" title="LASIF" href="tutorial.html"/>
+        <link rel="prev" title="Testing" href="testing.html"/> 
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
@@ -81,9 +81,9 @@
 <li class="toctree-l2"><a class="reference internal" href="testing.html#running-the-tests">Running the Tests</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="developers_information.html">Developer Information</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developers_information.html#building-the-documentation">Building the Documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_information.html#terminology">Terminology</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Developer Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#building-the-documentation">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#terminology">Terminology</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">LASIF</a></li>
@@ -109,7 +109,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">How LASIF Finds Coordinates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project.html">lasif.project</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="project.html#exceptions">Exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project.html#classes">Classes</a></li>
@@ -140,58 +140,67 @@
         <div class="rst-content">
           <ul class="wy-breadcrumbs">
   <li><a href="index.html">Docs</a> &raquo;</li>
-  <li><a href="">How LASIF Finds Coordinates</a></li>
+  <li><a href="">Developer Information</a></li>
   
 </ul>
 <hr/>
 
           
-  <div class="section" id="how-lasif-finds-coordinates">
-<h1>How LASIF Finds Coordinates<a class="headerlink" href="#how-lasif-finds-coordinates" title="Permalink to this headline">¶</a></h1>
-<p>LASIF needs to know the physical coordinates of data recordings, derived
-processed data, and of all synthetics waveforms. Due to the large variety of
-supported formats and the possibility to freely mix formats as desired this is
-not a straightforward task. The SAC/RESP combination in wide use is a
-particular problem as it does not seperate station and waveform metadata. In
-general LASIF is only interested in station coordinates and not single
-instrument coordinates and treats the coordinates of instruments from one
-station to be equal within a certain tolerance. This is explained and justified
-in more detail further down the page.</p>
-<p>A single strategy is employed to find the coordinates of any data recording:</p>
-<ol class="arabic simple">
-<li>Use the network and station code of the waveform file and see if any SEED or
-StationXML file has coordinates for this station. If coordinates are found,
-use them - if not keep searching. Notably RESP files do not contain
-coordinates and this step will not work for them.</li>
-<li>Attempt to extract the coordinates from the actual waveform file. This only
-works for SAC files. If the file in question is a processed or synthetic
-data file, the original raw data recording will be located and used. If
-coordinates are found that way, they will be returned.</li>
-<li>If all else fails, a webrequest will be dispatched to ArcLink and IRIS in an
-attempt to get the coordinates or the user will have to manually enter the
-coordinates. There is currently no pretty interface to manually enter the
-coordinates so please contact the developers if that is something you need.</li>
-<li>A warning will be raised if all these steps failed and the user is expected
-to either remove the data in question or manually enter the coordinates.</li>
-</ol>
-<p>The following image illustrates the procedure:</p>
-<a class="reference internal image-reference" href="_images/how_lasif_finds_coordinates.png"><img alt="_images/how_lasif_finds_coordinates.png" src="_images/how_lasif_finds_coordinates.png" style="width: 100%;" /></a>
-<p>Oftentimes one single seismic station contains several instruments. According
-to the SEED standard, these instruments are differentiated by different
-location strings. These can have slightly different coordinates, e.g. one
-instrument in a borehole, one at ground level.</p>
-<p>LASIF is usually only interested in the coordinates of a station. To derive it,
-it checks the coordinates of all the station&#8217;s instruments and asserts they are
-equal to a certain tolerance. If not, it picks the first coordinate set it
-finds and raises a warning.</p>
-<p>The tolerance is equal to either 0.01 degree (for lat/lng) or 1000 meters (for
-elevation and local depth).</p>
-<p>This approach is justified when using LASIF for continental and global scale
-inversions. If your application has different demands, please contact the
-developers so a suitable solution can be found.</p>
-<p>Keep in mind that this will trigger on stations that moved with time. This
-should be only a very small subset and thus corresponding stations should be
-removed.</p>
+  <div class="section" id="developer-information">
+<h1>Developer Information<a class="headerlink" href="#developer-information" title="Permalink to this headline">¶</a></h1>
+<p>The following rules should be followed when developing for <strong>LASIF</strong>:</p>
+<ul>
+<li><p class="first"><strong>LASIF</strong> is written entirely in Python.</p>
+</li>
+<li><p class="first">C/Fortran code with proper bindings can be used to improve performance where
+necessary. Cython is also an accepted alternative.</p>
+</li>
+<li><p class="first"><a class="reference external" href="http://lukeplant.me.uk/blog/posts/docs-or-it-doesnt-exist/">Document</a> the
+code.</p>
+</li>
+<li><p class="first">Adhere to <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/#comments">PEP8</a>.</p>
+</li>
+<li><p class="first">All contributed code must be contributed under the GPLv3.</p>
+</li>
+<li><p class="first">Write tests where reasonable.</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>LASIF</strong> utilizes <a class="reference external" href="https://travis-ci.org/krischer/LASIF">Travis CI</a>
+for continuous integration testing. This means that every commit will be
+automatically tested and the responsible developer will receive an email
+in case her/his commit breaks <strong>LASIF</strong>.</li>
+<li>The tests also verify the PEP8 conformance of the entire code base.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="section" id="building-the-documentation">
+<h2>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p><cite>sphinx</cite> is used to build the documentation so it needs to be installed.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install sphinx
+</pre></div>
+</div>
+<p>To actually build the documentation (in this case in the HTML format), run</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>doc
+<span class="nv">$ </span>make html
+</pre></div>
+</div>
+</div>
+<div class="section" id="terminology">
+<h2>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h2>
+<p>In order to ease development, a consistent terminology should be used
+throughout the code base.</p>
+<p>Assume a channel with a SEED identifier being equal to <cite>NET.STA.LOC.CHA</cite>, then
+the separate components should be called:</p>
+<ul class="simple">
+<li><strong>channel_id</strong>: <cite>NET.STA.LOC.CHA</cite></li>
+<li><strong>station_id</strong>: <cite>NET.STA</cite></li>
+<li><strong>network_code</strong> or <strong>network</strong>: <cite>NET</cite></li>
+<li><strong>station_code</strong> or <strong>station</strong>: <cite>STA</cite></li>
+<li><strong>location_code</strong> or <strong>location</strong>: <cite>LOC</cite></li>
+<li><strong>channel_code</strong> or <strong>channel</strong>: <cite>CHA</cite></li>
+</ul>
+</div>
 </div>
 
 
@@ -199,10 +208,10 @@ removed.</p>
   
     <div class="rst-footer-buttons">
       
-        <a href="project.html" class="btn btn-neutral float-right" title="lasif.project"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="LASIF"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="tutorial.html" class="btn btn-neutral" title="LASIF"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="testing.html" class="btn btn-neutral" title="Testing"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   

@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>How LASIF Finds Coordinates &mdash; LASIF 0.0.1 documentation</title>
+  <title>Testing &mdash; LASIF 0.0.1 documentation</title>
   
 
   
@@ -45,8 +45,8 @@
 
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="lasif.project" href="project.html"/>
-        <link rel="prev" title="LASIF" href="tutorial.html"/> 
+        <link rel="next" title="Developer Information" href="developers_information.html"/>
+        <link rel="prev" title="Installation" href="installation.html"/> 
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
@@ -76,9 +76,9 @@
 <li class="toctree-l2"><a class="reference internal" href="installation.html#installing-lasif">Installing LASIF</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#requirements-and-rational">Requirements and Rational</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#running-the-tests">Running the Tests</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements-and-rational">Requirements and Rational</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-tests">Running the Tests</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="developers_information.html">Developer Information</a><ul>
@@ -109,7 +109,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">How LASIF Finds Coordinates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project.html">lasif.project</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="project.html#exceptions">Exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project.html#classes">Classes</a></li>
@@ -140,58 +140,71 @@
         <div class="rst-content">
           <ul class="wy-breadcrumbs">
   <li><a href="index.html">Docs</a> &raquo;</li>
-  <li><a href="">How LASIF Finds Coordinates</a></li>
+  <li><a href="">Testing</a></li>
   
 </ul>
 <hr/>
 
           
-  <div class="section" id="how-lasif-finds-coordinates">
-<h1>How LASIF Finds Coordinates<a class="headerlink" href="#how-lasif-finds-coordinates" title="Permalink to this headline">¶</a></h1>
-<p>LASIF needs to know the physical coordinates of data recordings, derived
-processed data, and of all synthetics waveforms. Due to the large variety of
-supported formats and the possibility to freely mix formats as desired this is
-not a straightforward task. The SAC/RESP combination in wide use is a
-particular problem as it does not seperate station and waveform metadata. In
-general LASIF is only interested in station coordinates and not single
-instrument coordinates and treats the coordinates of instruments from one
-station to be equal within a certain tolerance. This is explained and justified
-in more detail further down the page.</p>
-<p>A single strategy is employed to find the coordinates of any data recording:</p>
-<ol class="arabic simple">
-<li>Use the network and station code of the waveform file and see if any SEED or
-StationXML file has coordinates for this station. If coordinates are found,
-use them - if not keep searching. Notably RESP files do not contain
-coordinates and this step will not work for them.</li>
-<li>Attempt to extract the coordinates from the actual waveform file. This only
-works for SAC files. If the file in question is a processed or synthetic
-data file, the original raw data recording will be located and used. If
-coordinates are found that way, they will be returned.</li>
-<li>If all else fails, a webrequest will be dispatched to ArcLink and IRIS in an
-attempt to get the coordinates or the user will have to manually enter the
-coordinates. There is currently no pretty interface to manually enter the
-coordinates so please contact the developers if that is something you need.</li>
-<li>A warning will be raised if all these steps failed and the user is expected
-to either remove the data in question or manually enter the coordinates.</li>
-</ol>
-<p>The following image illustrates the procedure:</p>
-<a class="reference internal image-reference" href="_images/how_lasif_finds_coordinates.png"><img alt="_images/how_lasif_finds_coordinates.png" src="_images/how_lasif_finds_coordinates.png" style="width: 100%;" /></a>
-<p>Oftentimes one single seismic station contains several instruments. According
-to the SEED standard, these instruments are differentiated by different
-location strings. These can have slightly different coordinates, e.g. one
-instrument in a borehole, one at ground level.</p>
-<p>LASIF is usually only interested in the coordinates of a station. To derive it,
-it checks the coordinates of all the station&#8217;s instruments and asserts they are
-equal to a certain tolerance. If not, it picks the first coordinate set it
-finds and raises a warning.</p>
-<p>The tolerance is equal to either 0.01 degree (for lat/lng) or 1000 meters (for
-elevation and local depth).</p>
-<p>This approach is justified when using LASIF for continental and global scale
-inversions. If your application has different demands, please contact the
-developers so a suitable solution can be found.</p>
-<p>Keep in mind that this will trigger on stations that moved with time. This
-should be only a very small subset and thus corresponding stations should be
-removed.</p>
+  <div class="section" id="testing">
+<h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="requirements-and-rational">
+<h2>Requirements and Rational<a class="headerlink" href="#requirements-and-rational" title="Permalink to this headline">¶</a></h2>
+<p><strong>LASIF</strong> evolved into a fairly complex piece of code and extensive testing is
+required to assure that it works as expected.</p>
+<p>To run the tests, you need to install four additional modules:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install pytest mock nose flake8
+</pre></div>
+</div>
+<p>The <a class="reference external" href="http://pytest.org">pytest</a> module is an alternative testing framework
+for Python offering powerful test discovery features and a no-boilerplate
+approach to syntax. It furthermore provides a nice functional approach to
+writing tests for complex environments facilitating proper tests for <strong>LASIF</strong>.</p>
+<p>Many operations in <strong>LASIF</strong> are computationally expensive or have side effects
+like requiring online access making them not particularly well suited to being
+testing. In order to verify some of the complex interactions within <strong>LASIF</strong>
+dummy objects are used. These are provided by the
+<a class="reference external" href="http://www.voidspace.org.uk/python/mock/">mock</a> package.</p>
+<p><strong>LASIF</strong> contains some graphical functionality outputting maps and other
+plots.  matplotlib&#8217;s testing facilities are reused in <strong>LASIF</strong> which in turn
+require the <a class="reference external" href="http://nose.readthedocs.org/en/latest/">nose</a> testing framework
+to be installed.</p>
+<p>The <a class="reference external" href="http://flake8.readthedocs.org/en/2.0/">flake8</a> package is used to make
+sure that <strong>LASIF</strong>&#8216;s code base adhere to the
+<a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a> standard.</p>
+</div>
+<div class="section" id="running-the-tests">
+<h2>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h2>
+<p>To run the tests, cd somewhere into the <strong>LASIF</strong> code base and type</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>py.test
+</pre></div>
+</div>
+<p>This will recursively find and execute all tests below the current working
+directory.</p>
+<p>The py.test command accepts a large number of additional parameters, e.g.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Execute only tests within test_project.py.</span>
+<span class="nv">$ </span>py.test test_project.py
+
+<span class="c"># Print stdout and stderr and do not capture it.</span>
+<span class="nv">$ </span>py.test -s
+
+<span class="c"># Execute only tests whose name contains the string &#39;some_string&#39;.</span>
+<span class="nv">$ </span>py.test -k some_string
+</pre></div>
+</div>
+<p>If your machine has multiple cores, the processing can also be sped up
+quite a bit by using <cite>pytest-xdist</cite> which can be installed via pip.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install pytest-xdist
+</pre></div>
+</div>
+<p>It enables to distribute the test across cores. To run on, for example, eight
+cores, use</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>py.test -n 8
+</pre></div>
+</div>
+<p>For more information please read the
+<a class="reference external" href="http://pytest.org/">pytest documentation</a>.</p>
+</div>
 </div>
 
 
@@ -199,10 +212,10 @@ removed.</p>
   
     <div class="rst-footer-buttons">
       
-        <a href="project.html" class="btn btn-neutral float-right" title="lasif.project"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="developers_information.html" class="btn btn-neutral float-right" title="Developer Information"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="tutorial.html" class="btn btn-neutral" title="LASIF"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="installation.html" class="btn btn-neutral" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   

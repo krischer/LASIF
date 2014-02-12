@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>How LASIF Finds Coordinates &mdash; LASIF 0.0.1 documentation</title>
+  <title>Installation &mdash; LASIF 0.0.1 documentation</title>
   
 
   
@@ -45,8 +45,8 @@
 
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="lasif.project" href="project.html"/>
-        <link rel="prev" title="LASIF" href="tutorial.html"/> 
+        <link rel="next" title="Testing" href="testing.html"/>
+        <link rel="prev" title="Welcome to LASIF" href="index.html"/> 
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
@@ -71,9 +71,9 @@
         
         
             <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-lasif">Installing LASIF</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-lasif">Installing LASIF</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a><ul>
@@ -109,7 +109,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">How LASIF Finds Coordinates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project.html">lasif.project</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="project.html#exceptions">Exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="project.html#classes">Classes</a></li>
@@ -140,58 +140,57 @@
         <div class="rst-content">
           <ul class="wy-breadcrumbs">
   <li><a href="index.html">Docs</a> &raquo;</li>
-  <li><a href="">How LASIF Finds Coordinates</a></li>
+  <li><a href="">Installation</a></li>
   
 </ul>
 <hr/>
 
           
-  <div class="section" id="how-lasif-finds-coordinates">
-<h1>How LASIF Finds Coordinates<a class="headerlink" href="#how-lasif-finds-coordinates" title="Permalink to this headline">¶</a></h1>
-<p>LASIF needs to know the physical coordinates of data recordings, derived
-processed data, and of all synthetics waveforms. Due to the large variety of
-supported formats and the possibility to freely mix formats as desired this is
-not a straightforward task. The SAC/RESP combination in wide use is a
-particular problem as it does not seperate station and waveform metadata. In
-general LASIF is only interested in station coordinates and not single
-instrument coordinates and treats the coordinates of instruments from one
-station to be equal within a certain tolerance. This is explained and justified
-in more detail further down the page.</p>
-<p>A single strategy is employed to find the coordinates of any data recording:</p>
-<ol class="arabic simple">
-<li>Use the network and station code of the waveform file and see if any SEED or
-StationXML file has coordinates for this station. If coordinates are found,
-use them - if not keep searching. Notably RESP files do not contain
-coordinates and this step will not work for them.</li>
-<li>Attempt to extract the coordinates from the actual waveform file. This only
-works for SAC files. If the file in question is a processed or synthetic
-data file, the original raw data recording will be located and used. If
-coordinates are found that way, they will be returned.</li>
-<li>If all else fails, a webrequest will be dispatched to ArcLink and IRIS in an
-attempt to get the coordinates or the user will have to manually enter the
-coordinates. There is currently no pretty interface to manually enter the
-coordinates so please contact the developers if that is something you need.</li>
-<li>A warning will be raised if all these steps failed and the user is expected
-to either remove the data in question or manually enter the coordinates.</li>
-</ol>
-<p>The following image illustrates the procedure:</p>
-<a class="reference internal image-reference" href="_images/how_lasif_finds_coordinates.png"><img alt="_images/how_lasif_finds_coordinates.png" src="_images/how_lasif_finds_coordinates.png" style="width: 100%;" /></a>
-<p>Oftentimes one single seismic station contains several instruments. According
-to the SEED standard, these instruments are differentiated by different
-location strings. These can have slightly different coordinates, e.g. one
-instrument in a borehole, one at ground level.</p>
-<p>LASIF is usually only interested in the coordinates of a station. To derive it,
-it checks the coordinates of all the station&#8217;s instruments and asserts they are
-equal to a certain tolerance. If not, it picks the first coordinate set it
-finds and raises a warning.</p>
-<p>The tolerance is equal to either 0.01 degree (for lat/lng) or 1000 meters (for
-elevation and local depth).</p>
-<p>This approach is justified when using LASIF for continental and global scale
-inversions. If your application has different demands, please contact the
-developers so a suitable solution can be found.</p>
-<p>Keep in mind that this will trigger on stations that moved with time. This
-should be only a very small subset and thus corresponding stations should be
-removed.</p>
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p><strong>LASIF</strong> is written for Python 2.7.x, support for Python 3 will follow soon. A
+working Python installation with the most common scientific libraries installed
+will be assumed for the following instructions.</p>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p><strong>LASIF</strong> depends on a number of third-party libraries.</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.obspy.org/">ObsPy</a> (in a recent repository version - the version will be fixed at a certain point in the future)</li>
+<li>The <a class="reference external" href="http://matplotlib.org/basemap/">matplotlib basemap toolkit</a></li>
+<li><a class="reference external" href="http://github.com/krischer/wfs_input_generator">wfs_input_generator</a></li>
+<li>requests</li>
+<li>progressbar</li>
+<li>geographiclib</li>
+<li>colorama</li>
+<li>joblib</li>
+</ul>
+<p>The later five should prove no trouble installing via pip. They will also be
+automatically installed when running <strong>LASIF</strong>&#8216;s setup script.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install requests progressbar geographiclib colorama joblib
+</pre></div>
+</div>
+<p>ObsPy and basemap are slightly more complicated to install. Please refer to the
+projects websites for more detailed instructions.</p>
+<p>Both, the <em>wfs_input_generator</em> module and <strong>LASIF</strong> are in active development
+and thus should be installed as a develop installation so they can be easily
+upgraded via git:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/krischer/wfs_input_generator.git
+<span class="nv">$ </span><span class="nb">cd </span>wfs_input_generator
+<span class="nv">$ </span>pip install -v -e .
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-lasif">
+<h2>Installing LASIF<a class="headerlink" href="#installing-lasif" title="Permalink to this headline">¶</a></h2>
+<p>The actual <strong>LASIF</strong> module can then be installed with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/krischer/LASIF.git
+<span class="nv">$ </span><span class="nb">cd </span>LASIF
+<span class="nv">$ </span>pip install -v -e .
+</pre></div>
+</div>
+<p>After the installation one should run the tests to ensure everything is
+installed correctly and works as intended on your machine.</p>
+</div>
 </div>
 
 
@@ -199,10 +198,10 @@ removed.</p>
   
     <div class="rst-footer-buttons">
       
-        <a href="project.html" class="btn btn-neutral float-right" title="lasif.project"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="testing.html" class="btn btn-neutral float-right" title="Testing"/>Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="tutorial.html" class="btn btn-neutral" title="LASIF"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="Welcome to LASIF"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   

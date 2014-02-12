@@ -1,86 +1,151 @@
+
+
 <!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.scripts.iris2quakeml &mdash; LASIF 0.0.1 documentation</title>
+  
 
+  
+  
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>lasif.scripts.iris2quakeml &mdash; LASIF 0.0.1 documentation</title>
-    
-    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
+        URL_ROOT:'./',
+        VERSION:'0.0.1',
+        COLLAPSE_INDEX:false,
+        FILE_SUFFIX:'.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html" />
-    <link rel="next" title="lasif.rotations" href="rotations.html" />
-    <link rel="prev" title="lasif.project" href="project.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
-<link href="_static/solarized-dark.css" rel="stylesheet">
-  </head>
-  <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="rotations.html" title="lasif.rotations"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="project.html" title="lasif.project"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">LASIF 0.0.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="project.html"
-                        title="previous chapter">lasif.project</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="rotations.html"
-                        title="next chapter">lasif.rotations</a></p>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/iris2quakeml.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="lasif.tools" href="tools.html"/>
+        <link rel="prev" title="lasif.rotations" href="rotations.html"/> 
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="icon icon-home"> LASIF</a>
+        <form class="wy-form" action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search docs" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
       </div>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body">
-            
+      <div class="wy-menu wy-menu-vertical" data-spy="affix">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-lasif">Installing LASIF</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#requirements-and-rational">Requirements and Rational</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#running-the-tests">Running the Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developers_information.html">Developer Information</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developers_information.html#building-the-documentation">Building the Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers_information.html#terminology">Terminology</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">LASIF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html#further-information">Further Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html#supported-data-formats">Supported Data Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html#tutorial">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#creating-a-new-project">Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-seismic-events">Adding Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-waveform-data">Adding Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#station-data">Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#download-helpers">Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#inspecting-the-data">Inspecting the Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#interlude-validating-the-data">Interlude: Validating the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#defining-a-new-iteration">Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#generating-ses3d-input-files">Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#organizing-the-models">Organizing the Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#synthetics">Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project.html">lasif.project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.html#exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="project.html#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">lasif.tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top">
+        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
+        <a href="/">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <ul class="wy-breadcrumbs">
+  <li><a href="index.html">Docs</a> &raquo;</li>
+  <li><a href="">lasif.scripts.iris2quakeml</a></li>
+  
+</ul>
+<hr/>
+
+          
   <div class="section" id="module-lasif.scripts.iris2quakeml">
 <span id="lasif-scripts-iris2quakeml"></span><h1>lasif.scripts.iris2quakeml<a class="headerlink" href="#module-lasif.scripts.iris2quakeml" title="Permalink to this headline">¶</a></h1>
 <p>Download and fix the QuakeML files provided by the IRIS SPUD momenttensor
@@ -119,32 +184,33 @@ Written file GCMT_event_NEAR_EAST_COAST_OF_HONSHU,_JAPAN_Mag_5.5_2013-1-8-7-51.x
 </div>
 
 
-          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons">
+      
+        <a href="tools.html" class="btn btn-neutral float-right" title="lasif.tools"/>Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="rotations.html" class="btn btn-neutral" title="lasif.rotations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <p>
+      &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+  </p>
+
+  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+</footer>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="rotations.html" title="lasif.rotations"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="project.html" title="lasif.project"
-             >previous</a> |</li>
-        <li><a href="index.html">LASIF 0.0.1 documentation</a> &raquo;</li> 
-      </ul>
-    </div>
-    <div class="footer">
-        &copy; Copyright 2013, Lion Krischer &amp; Andreas Fichtner.
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.1.Theme by <a href="http://github.com/vkvn">vkvn</a>
-    </div>
-  </body>
+
+    </section>
+
+  </div>
+  
+
+</body>
 </html>
