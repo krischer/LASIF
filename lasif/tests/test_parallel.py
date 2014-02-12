@@ -63,6 +63,39 @@ def test_function_info_decorator():
     assert str(info.warnings[1].message) == "Second Warning"
 
 
+def test_traceback_limiting_for_function_info_decorator():
+    """
+    Tests that the traceback depth limiting works for the function info
+    decorator.
+    """
+    # Defaults to three.
+    @function_info()
+    def test_function(a):
+        return 1 / a
+
+    info = test_function(0)
+    tb_default_length = len(info.traceback)
+    assert tb_default_length > 0
+
+    # Test for a limit of 2.
+    @function_info(traceback_limit=2)
+    def test_function(a):
+        return 1 / a
+
+    info = test_function(0)
+    tb_length_limit_2 = len(info.traceback)
+    assert tb_length_limit_2 < tb_default_length
+
+    # Test for a limit of 1
+    @function_info(traceback_limit=1)
+    def test_function(a):
+        return 1 / a
+
+    info = test_function(0)
+    tb_length_limit_1 = len(info.traceback)
+    assert tb_length_limit_1 < tb_length_limit_2
+
+
 def __random_fct(a, b, c=0):
     """
     Helper function as functions need to be importable for multiprocessing to
