@@ -270,8 +270,6 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
         else:
             successful_file_count += 1
 
-
-
     return {
         "failed_file_count": failed_file_count,
         "warning_file_count": warning_file_count,

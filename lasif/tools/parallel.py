@@ -51,8 +51,8 @@ def function_info(f):
 
     * ``func_args``: Dictionary containing all the functions arguments and
       values.
-    * ``result``: The return value of the function. Will be None if an exception
-      has been raised.
+    * ``result``: The return value of the function. Will be None if an
+      exception has been raised.
     * ``warnings``: A list with all warnings the function raised.
     * ``exception``: The exception the function raised. Will be None, if no
       exception has been raised.
@@ -83,6 +83,7 @@ def function_info(f):
     >>> info.traceback
     """
     traceback_limit = 3
+
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         with warnings.catch_warnings(record=True) as w:
@@ -139,8 +140,8 @@ def parallel_map(func, iterable, n_jobs=-1, verbose=1,
 
     To use, first import ``parallel_map``, then define a function and feed it
     with a list of dictionaries, each dictionary containing one set of
-    arguments. It will return a list FunctionInfo objects containing information
-    about the execution of the function on each of the inputs.
+    arguments. It will return a list FunctionInfo objects containing
+    information about the execution of the function on each of the inputs.
 
     >>> from lasif.tools.parallel import parallel_map #doctest: +SKIP
     >>> def square(a): #doctest: +SKIP
@@ -159,12 +160,11 @@ def parallel_map(func, iterable, n_jobs=-1, verbose=1,
     :param iterable: Iterator yielding the parameters. The function will be
         called once for each set of arguments.
     :type n_jobs: int
-    :param n_jobs: The number of jobs to use for the computation. If -1 all CPUs
-        are used. If 1 is given, no parallel computing code is used at all,
-        which is useful for debugging. For n_jobs below -1,
-        (n_cpus + 1 + n_jobs) are used.
-        Thus for n_jobs = -2, all CPUs but one are used.
-        Same parameter as in joblib.Parallel.
+    :param n_jobs: The number of jobs to use for the computation. If -1 all
+        CPUs are used. If 1 is given, no parallel computing code is used at
+        all, which is useful for debugging. For n_jobs below -1,
+        (n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all CPUs but one
+        are used. Same parameter as in joblib.Parallel.
     :type verbose: int
     :param verbose: The verbosity level: if non zero, progress messages are
         printed. Above 50, the output is sent to stdout. The frequency of the
