@@ -71,8 +71,6 @@ def preprocess_file(file_info):
         ws = freqmax / (trace.stats.sampling_rate * 0.5)  # stop band frequency
         wp = ws  # pass band frequency
 
-        order, wn = signal.cheb2ord(wp, ws, rp, rs, analog=0)
-
         while True:
             if order <= 12:
                 break
@@ -251,7 +249,8 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
     time.sleep(waiting_time)
 
     results = parallel_map(preprocess_file,
-                           ({"file_info": i} for i in data_generator))
+                           ({"file_info": i} for i in data_generator),
+                           verbose=100000)
 
     # Keep track of all files.
     successful_file_count = 0
@@ -261,12 +260,17 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
 
     for result in results:
         if result.exception is not None:
-            total_file_count += 1
-            continue
+            filename = result.func_args["file_info"]["data_path"]
+            msg = "Exception processing file '%s'. %s\n%s" % (
+                filename, result.exception, result.traceback)
+            logger.error(msg)
+            failed_file_count += 1
         elif result.warnings:
             warning_file_count += 1
         else:
             successful_file_count += 1
+
+
 
     return {
         "failed_file_count": failed_file_count,
