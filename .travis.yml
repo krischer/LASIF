@@ -27,6 +27,7 @@ before_install:
   - pip install --use-mirrors sphinx
   - pip install --use-mirrors future
   - pip install --use-mirrors "joblib>=0.8.0a3"
+  - pip install --use-mirrors sphinx_rtd_theme
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 script:
