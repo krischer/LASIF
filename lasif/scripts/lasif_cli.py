@@ -704,6 +704,42 @@ def lasif_create_new_iteration(parser, args):
 
 
 @command_group("Iteration Management")
+def lasif_create_successive_iteration(parser, args):
+    """
+    Create an iteration based on an existing one.
+
+    It will take all settings in one iteration and transfers them to another
+    iteration. Any comments will be deleted.
+    """
+    parser.add_argument("existing_iteration",
+                        help="name of the existing iteration")
+    parser.add_argument("new_iteration", help="name of the new iteration")
+    args = parser.parse_args(args)
+    existing_iteration_name = args.existing_iteration
+    new_iteration_name = args.new_iteration
+
+    proj = _find_project_root(".")
+
+    # Get the old iteration
+    from lasif.iteration_xml import Iteration
+
+    proj = _find_project_root(".")
+    iterations = proj.get_iteration_dict()
+    if existing_iteration_name not in iterations:
+        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
+               "a list of all available iterations.") % iteration_name
+        raise LASIFCommandLineException(msg)
+    existing_iteration = Iteration(iterations[existing_iteration_name])
+
+    # Clone the old iteration, delete any comments and change the name.
+    existing_iteration.comments = []
+    existing_iteration.iteration_name = new_iteration_name
+    print existing_iteration
+
+    from IPython.core.debugger import Tracer; Tracer()()
+
+
+@command_group("Iteration Management")
 def lasif_list_iterations(parser, args):
     """
     Print a list of all iterations in the project.
