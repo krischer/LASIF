@@ -250,7 +250,7 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
 
     results = parallel_map(preprocess_file,
                            ({"file_info": i} for i in data_generator),
-                           verbose=100000)
+                           verbose=1, pre_dispatch="all")
 
     # Keep track of all files.
     successful_file_count = 0
