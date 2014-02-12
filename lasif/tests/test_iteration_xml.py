@@ -37,3 +37,35 @@ def test_reading_iteration_xml():
             "max_amplitude_ratio": 100.0
         }
     }
+
+    # Test some settings. The rest should work just fine as this is parsed
+    # by useing a recursive dictionary.
+    solver_params = iteration.solver_settings
+    assert solver_params["solver"] == "SES3D 4.0"
+    solver_settings = solver_params["solver_settings"]
+    assert solver_settings["simulation_parameters"] == {
+        "number_of_time_steps": 4000,
+        "time_increment": 0.13,
+        "is_dissipative": True
+    }
+
+    # Assert the events and stations up to a certain extend.
+    assert len(iteration.events) == 2
+
+    assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in iteration.events
+    assert "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11" in iteration.events
+
+    event_1 = iteration.events["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"]
+    assert event_1["event_weight"] == 1.0
+    assert event_1["time_correction_in_s"] == 0.0
+    stations = event_1["stations"]
+    assert len(stations) == 8
+
+    assert sorted(stations.keys()) == \
+        sorted(["HL.ARG", "IU.ANTO", "GE.ISP", "HL.RDO", "HT.SIGR",
+                "GE.SANT", "HT.ALN", "HL.SANT"])
+
+    assert set([_i["station_weight"] for _i in stations.values()]) == \
+        set([1.0])
+    assert set([_i["time_correction_in_s"] for _i in stations.values()]) == \
+        set([0.0])
