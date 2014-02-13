@@ -9,6 +9,7 @@ Functionality to deal with Iteration XML files.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from collections import OrderedDict
 from lxml import etree
 from lxml.builder import E
 import os
@@ -65,14 +66,14 @@ class Iteration(object):
         self.solver_settings = \
             _recursive_dict(root.find("solver_parameters"))[1]
 
-        self.events = {}
+        self.events = OrderedDict()
         for event in root.findall("event"):
             event_name = self._get(event, "event_name")
             self.events[event_name] = {
                 "event_weight": float(self._get(event, "event_weight")),
                 "time_correction_in_s": float(
                     self._get(event, "time_correction_in_s")),
-                "stations": {}}
+                "stations": OrderedDict()}
             for station in event.findall("station"):
                 station_id = self._get(station, "station_id")
                 comments = [_i.text
@@ -267,7 +268,6 @@ def _recursive_dict(element):
     """
     Helper function to create a dictionary from an etree element.
     """
-    from collections import OrderedDict
     if element.tag == "relaxation_parameter_list":
         tau = [float(_i.text) for _i in element.findall("tau")]
         w = [float(_i.text) for _i in element.findall("w")]
