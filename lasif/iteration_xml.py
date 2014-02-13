@@ -219,15 +219,13 @@ class Iteration(object):
 
         :param filename: The path that will be written to.
         """
-        from lxml.builder import E
-
         solver_settings = _recursive_etree(
             self.solver_settings["solver_settings"])
 
         contents = []
         contents.extend([
             E.iteration_name(self.iteration_name),
-            E.iteration_description(),
+            E.iteration_description(self.description),
         ])
         contents.extend([E.comment(_i) for _i in self.comments])
         contents.extend([
@@ -256,12 +254,28 @@ class Iteration(object):
             E.solver_parameters(
                 E.solver(self.solver_settings["solver"]),
                 E.solver_settings(*solver_settings)
-            )
+            ),
         ])
 
-        doc = E.iteration(*contents)
+        # Add all events.
+        for key, value in self.events.iteritems():
+            event = E.event(
+                E.event_name(key),
+                E.event_weight(str(value["event_weight"])),
+                E.time_correction_in_s(str(value["time_correction_in_s"]))
+            )
+            for station_id, station_value in value["stations"].iteritems():
+                event.append(E.station(
+                    E.station_id(station_id),
+                    E.station_weight(str(station_value["station_weight"])),
+                    E.time_correction_in_s(str(
+                        station_value["time_correction_in_s"]))
+                ))
+            contents.append(event)
 
-        print etree.tostring(doc, pretty_print=True)
+        doc = E.iteration(*contents)
+        doc.getroottree().write(filename, xml_declaration=True,
+                                encoding="UTF-8")
 
 
 def _recursive_dict(element):
@@ -276,11 +290,10 @@ def _recursive_dict(element):
     try:
         text = int(text)
     except:
-        pass
-    try:
-        text = float(text)
-    except:
-        pass
+        try:
+            text = float(text)
+        except:
+            pass
     if isinstance(text, basestring):
         if text.lower() == "false":
             text = False
@@ -315,6 +328,10 @@ def _recursive_etree(dictionary):
         if isinstance(value, OrderedDict):
             contents.append(getattr(E, key)(*_recursive_etree(value)))
             continue
+        if value is True:
+            value = "true"
+        elif value is False:
+            value = "false"
         contents.append(getattr(E, key)(str(value)))
     return contents
 

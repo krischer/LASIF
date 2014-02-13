@@ -53,6 +53,10 @@ def test_reading_iteration_xml():
         "is_dissipative": True
     }
 
+    # Small type check.
+    assert isinstance(
+        solver_settings["simulation_parameters"]["number_of_time_steps"], int)
+
     # Assert the events and stations up to a certain extend.
     assert len(iteration.events) == 2
 
@@ -86,10 +90,10 @@ def test_reading_and_writing(tmpdir):
     iteration = Iteration(filename)
     iteration.write(new_filename)
 
-    assert True == False
-
     # Compare the lxml etree's to avoid any difference in formatting and
     # what not.
-    tree_old = etree.parse(filename)
-    tree_new = etree.parse(new_filename)
+    tree_old = etree.tounicode(etree.parse(filename), pretty_print=True)
+    tree_new = etree.tounicode(etree.parse(new_filename), pretty_print=True)
+
+    # pytest takes care of meaningful string differences.
     assert tree_old == tree_new
