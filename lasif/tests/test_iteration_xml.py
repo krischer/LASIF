@@ -78,6 +78,19 @@ def test_reading_iteration_xml():
     assert set([_i["time_correction_in_s"] for _i in stations.values()]) == \
         set([0.0])
 
+    # Test reading of comments for single events and stations.
+    event_with_comments = iteration.events[
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
+
+    assert event_with_comments["comments"] == [
+        "This is some event, I tell you.",
+        "Another comment just to test that multiple ones work."]
+
+    station_with_comments = event_with_comments.stations["GE.APE"]
+    assert station_with_comments["comments"] == [
+        "Stations can also have comments!",
+        "Who would have known?"]
+
 
 def test_reading_and_writing(tmpdir):
     """
