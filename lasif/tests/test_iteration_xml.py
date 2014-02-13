@@ -86,7 +86,7 @@ def test_reading_iteration_xml():
         "This is some event, I tell you.",
         "Another comment just to test that multiple ones work."]
 
-    station_with_comments = event_with_comments.stations["GE.APE"]
+    station_with_comments = event_with_comments["stations"]["GE.APE"]
     assert station_with_comments["comments"] == [
         "Stations can also have comments!",
         "Who would have known?"]

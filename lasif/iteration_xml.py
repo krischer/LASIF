@@ -69,11 +69,13 @@ class Iteration(object):
         self.events = OrderedDict()
         for event in root.findall("event"):
             event_name = self._get(event, "event_name")
+            comments = [_i.text for _i in event.findall("comment") if _i.text]
             self.events[event_name] = {
                 "event_weight": float(self._get(event, "event_weight")),
                 "time_correction_in_s": float(
                     self._get(event, "time_correction_in_s")),
-                "stations": OrderedDict()}
+                "stations": OrderedDict(),
+                "comments": comments}
             for station in event.findall("station"):
                 station_id = self._get(station, "station_id")
                 comments = [_i.text
@@ -262,14 +264,17 @@ class Iteration(object):
             event = E.event(
                 E.event_name(key),
                 E.event_weight(str(value["event_weight"])),
-                E.time_correction_in_s(str(value["time_correction_in_s"]))
+                E.time_correction_in_s(str(value["time_correction_in_s"])),
+                *[E.comment(_i) for _i in value["comments"] if _i]
             )
             for station_id, station_value in value["stations"].iteritems():
                 event.append(E.station(
                     E.station_id(station_id),
                     E.station_weight(str(station_value["station_weight"])),
                     E.time_correction_in_s(str(
-                        station_value["time_correction_in_s"]))
+                        station_value["time_correction_in_s"])),
+                    *[E.comment(_i)
+                      for _i in station_value["comments"] if _i]
                 ))
             contents.append(event)
 
