@@ -86,6 +86,8 @@ def test_reading_and_writing(tmpdir):
     iteration = Iteration(filename)
     iteration.write(new_filename)
 
+    assert True == False
+
     # Compare the lxml etree's to avoid any difference in formatting and
     # what not.
     tree_old = etree.parse(filename)

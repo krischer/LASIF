@@ -63,7 +63,7 @@ class Iteration(object):
         self.rejection_criteria["signal_to_noise"] = temp
 
         self.solver_settings = \
-            self._recursive_dict(root.find("solver_parameters"))[1]
+            _recursive_dict(root.find("solver_parameters"))[1]
 
         self.events = {}
         for event in root.findall("event"):
@@ -140,28 +140,6 @@ class Iteration(object):
             return item.text
         return None
 
-    def _recursive_dict(self, element):
-        if element.tag == "relaxation_parameter_list":
-            tau = [float(_i.text) for _i in element.findall("tau")]
-            w = [float(_i.text) for _i in element.findall("w")]
-            return "relaxation_parameter_list", {"tau": tau, "w": w}
-        text = element.text
-        try:
-            text = int(text)
-        except:
-            pass
-        try:
-            text = float(text)
-        except:
-            pass
-        if isinstance(text, basestring):
-            if text.lower() == "false":
-                text = False
-            elif text.lower() == "true":
-                text = True
-        return element.tag, \
-            dict(map(self._recursive_dict, element)) or text
-
     def get_process_params(self):
         """
         Small helper function retrieving the most important iteration
@@ -190,8 +168,8 @@ class Iteration(object):
         # Generate a preprocessing tag. This will identify the used
         # preprocessing so that duplicates can be avoided.
         processing_tag = ("preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_"
-                          "npts_{npts}_dt_{dt:5f}").format(
-            **self.get_process_params())
+                          "npts_{npts}_dt_{dt:5f}")\
+            .format(**self.get_process_params())
         return processing_tag
 
     def __str__(self):
@@ -233,6 +211,112 @@ class Iteration(object):
             event_count=len(self.events),
             pair_count=len(all_stations),
             station_count=len(set(all_stations)))
+
+    def write(self, filename):
+        """
+        Serialized the Iteration structure once again.
+
+        :param filename: The path that will be written to.
+        """
+        from lxml.builder import E
+
+        solver_settings = _recursive_etree(
+            self.solver_settings["solver_settings"])
+
+        contents = []
+        contents.extend([
+            E.iteration_name(self.iteration_name),
+            E.iteration_description(),
+        ])
+        contents.extend([E.comment(_i) for _i in self.comments])
+        contents.extend([
+            E.data_preprocessing(
+                E.highpass_period(
+                    str(self.data_preprocessing["highpass_period"])),
+                E.lowpass_period(
+                    str(self.data_preprocessing["lowpass_period"]))
+            ),
+            E.rejection_criteria(
+                E.minimum_trace_length_in_s(str(
+                    self.rejection_criteria["minimum_trace_length_in_s"]
+                )),
+                E.signal_to_noise(
+                    E.test_interval_from_origin_in_s(str(
+                        self.rejection_criteria["signal_to_noise"][
+                            "test_interval_from_origin_in_s"]
+                    )),
+                    E.max_amplitude_ratio(str(
+                        self.rejection_criteria["signal_to_noise"][
+                            "max_amplitude_ratio"]
+                    ))
+                )
+            ),
+            E.source_time_function(self.source_time_function),
+            E.solver_parameters(
+                E.solver(self.solver_settings["solver"]),
+                E.solver_settings(*solver_settings)
+            )
+        ])
+
+        doc = E.iteration(*contents)
+
+        print etree.tostring(doc, pretty_print=True)
+
+
+def _recursive_dict(element):
+    """
+    Helper function to create a dictionary from an etree element.
+    """
+    from collections import OrderedDict
+    if element.tag == "relaxation_parameter_list":
+        tau = [float(_i.text) for _i in element.findall("tau")]
+        w = [float(_i.text) for _i in element.findall("w")]
+        return "relaxation_parameter_list", {"tau": tau, "w": w}
+    text = element.text
+    try:
+        text = int(text)
+    except:
+        pass
+    try:
+        text = float(text)
+    except:
+        pass
+    if isinstance(text, basestring):
+        if text.lower() == "false":
+            text = False
+        elif text.lower() == "true":
+            text = True
+    return element.tag, \
+        OrderedDict(map(_recursive_dict, element)) or text
+
+
+def _recursive_etree(dictionary):
+    """
+    Helper function to create a list of etree elements from a dict.
+    """
+    from collections import OrderedDict
+    import itertools
+
+    contents = []
+    for key, value in dictionary.iteritems():
+        if key == "relaxation_parameter_list":
+            # Wild iterator to arrive at the desired etree. If somebody else
+            # ever reads this just look at the output and do it some other
+            # way...
+            contents.append(E.relaxation_parameter_list(
+                *[getattr(E, i[0])(str(i[1][1]), number=str(i[1][0]))
+                  for i in itertools.chain(*itertools.izip(
+                      itertools.izip_longest(
+                          [], enumerate(value["tau"]),  fillvalue="tau"),
+                      itertools.izip_longest(
+                          [], enumerate(value["w"]),  fillvalue="w")))]
+            ))
+            continue
+        if isinstance(value, OrderedDict):
+            contents.append(getattr(E, key)(*_recursive_etree(value)))
+            continue
+        contents.append(getattr(E, key)(str(value)))
+    return contents
 
 
 def create_iteration_xml_string(iteration_name, solver_name, events,
