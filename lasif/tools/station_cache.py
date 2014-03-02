@@ -63,7 +63,8 @@ class StationCache(FileInfoCache):
             resp_files.append(filename)
         return resp_files
 
-    def _extract_index_values_seed(self, filename):
+    @staticmethod
+    def _extract_index_values_seed(filename):
         """
         Reads SEED files and extracts some keys per channel.
         """
@@ -82,7 +83,8 @@ class StationCache(FileInfoCache):
 
         return channels
 
-    def _extract_index_values_resp(self, filename):
+    @staticmethod
+    def _extract_index_values_resp(filename):
         try:
             channels = simple_resp_parser.get_inventory(filename,
                                                         remove_duplicates=True)

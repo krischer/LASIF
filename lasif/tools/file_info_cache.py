@@ -85,6 +85,14 @@ class FileInfoCache(object):
     def __init__(self, cache_db_file, show_progress=True):
         self.cache_db_file = cache_db_file
         self.show_progress = show_progress
+
+        # Will be filled in _init_database() method.
+        self.db_cursor = None
+        self.db_conn = None
+
+        # Will be filled once database has been updated.
+        self.files = {}
+
         self._init_database()
         self.update()
 
@@ -130,7 +138,7 @@ class FileInfoCache(object):
             raise ValueError(msg)
 
         # Create the tables.
-        SQL_CREATE_FILES_TABLE = """
+        sql_create_files_table = """
             CREATE TABLE IF NOT EXISTS files (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 filename TEXT,
@@ -138,9 +146,9 @@ class FileInfoCache(object):
                 crc32_hash INTEGER
             );
         """
-        self.db_cursor.execute(SQL_CREATE_FILES_TABLE)
+        self.db_cursor.execute(sql_create_files_table)
 
-        SQL_CREATE_INDEX_TABLE = """
+        sql_create_index_table = """
             CREATE TABLE IF NOT EXISTS indices (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 %s,
@@ -149,7 +157,7 @@ class FileInfoCache(object):
             );
         """ % ",\n".join(["%s %s" % _i for _i in self.index_values])
 
-        self.db_cursor.execute(SQL_CREATE_INDEX_TABLE)
+        self.db_cursor.execute(sql_create_index_table)
         self.db_conn.commit()
 
     def _get_all_files(self):
@@ -254,6 +262,8 @@ class FileInfoCache(object):
     def get_details(self, filename):
         """
         Get the indexed information about one file.
+
+        :param filename: The filename for which to request information.
         """
         filename = os.path.abspath(filename)
 
