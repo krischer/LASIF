@@ -45,6 +45,8 @@ class StationCache(FileInfoCache):
         self.seed_folder = seed_folder
         self.resp_folder = resp_folder
 
+        self.__cache_station_coordinates = {}
+
         super(StationCache, self).__init__(cache_db_file=cache_db_file,
                                            show_progress=show_progress)
 
@@ -101,10 +103,17 @@ class StationCache(FileInfoCache):
 
     def get_coordinates_for_station(self, network, station):
         """
+        Returns the coordinates for any station from the cache.
+
+        :param network: Network code.
+        :param station: Station code.
         """
         # Caching per instance. Otherwise this is very very slow.
         station_id = network + "." + station
-        if hasattr(self, "_StationCache__cache_station_coordinates"):
+
+        # Check if something has been written to the instance variable. If
+        # yes, assume all available stations have been written to it.
+        if self.__cache_station_coordinates:
             try:
                 coordinates = self.__cache_station_coordinates[station_id]
             except:
@@ -202,6 +211,9 @@ class StationCache(FileInfoCache):
     def get_station_filename(self, channel_id, time):
         """
         Returns the filename for the requested channel and time.
+
+        :param channel_id: The channel id.
+        :param time: The time as a timestamp.
         """
         time = int(time.timestamp)
         sql_query = """
@@ -221,6 +233,9 @@ class StationCache(FileInfoCache):
         """
         Checks if information for the requested channel_id and time is
         available.
+
+        :param channel_id: The channel id.
+        :param time: The time as a timestamp.
         """
         try:
             time = int(time.timestamp)

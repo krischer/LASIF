@@ -122,9 +122,10 @@ class FileInfoCache(object):
         self.db_cursor = self.db_conn.cursor()
         # Enable foreign key support.
         self.db_cursor.execute("PRAGMA foreign_keys = ON;")
-        # Turn of sychronous writing. Much much faster inserts at the price of
-        # risking corruption at power failure. Worth the risk as the databases
-        # are just created from the data and can be recreated at any time.
+        # Turn off synchronous writing. Much much faster inserts at the price
+        # of risking corruption at power failure. Worth the risk as the
+        # databases are just created from the data and can be recreated at any
+        # time.
         self.db_cursor.execute("PRAGMA synchronous = OFF;")
         self.db_conn.commit()
         # Make sure that foreign key support has been turned on.
@@ -323,7 +324,7 @@ class FileInfoCache(object):
         if not indices:
             return
 
-        # Append the filepath id to every index.
+        # Append the file's path id to every index.
         for index in indices:
             index.append(filepath_id)
 
