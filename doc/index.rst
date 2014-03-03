@@ -6,7 +6,7 @@ Welcome to LASIF
     :align: center
 
 
-LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
+LASIF (**LA**\ rge-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
 data-driven end-to-end workflow tool to perform adjoint full seismic waveform
 inversions.
 
@@ -39,15 +39,10 @@ Documentation
 .. toctree::
     :maxdepth: 2
 
-    installation
-    testing
-    developers_information
+    prerequisites
 
+    introduction
     tutorial
-    how_lasif_finds_coordinates
 
-    project
-    rotations
-    iris2quakeml
-    tools
-    tools.parallel
+    api_doc
+
