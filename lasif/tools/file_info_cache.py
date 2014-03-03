@@ -98,7 +98,10 @@ class FileInfoCache(object):
 
     def __del__(self):
         if self.db_conn:
-            self.db_conn.close()
+            try:
+                self.db_conn.close()
+            except sqlite3.Error:
+                pass
 
     def _init_database(self):
         """
@@ -112,7 +115,7 @@ class FileInfoCache(object):
         if os.path.exists(self.cache_db_file):
             try:
                 self.db_conn = sqlite3.connect(self.cache_db_file)
-            except sqlite3.OperationalError:
+            except sqlite3.Error:
                 os.remove(self.cache_db_file)
                 self.db_conn = sqlite3.connect(self.cache_db_file)
         else:
@@ -120,6 +123,7 @@ class FileInfoCache(object):
         self.db_cursor = self.db_conn.cursor()
         # Enable foreign key support.
         self.db_cursor.execute("PRAGMA foreign_keys = ON;")
+
         # Turn off synchronous writing. Much much faster inserts at the price
         # of risking corruption at power failure. Worth the risk as the
         # databases are just created from the data and can be recreated at any
@@ -128,7 +132,10 @@ class FileInfoCache(object):
         self.db_conn.commit()
         # Make sure that foreign key support has been turned on.
         if self.db_cursor.execute("PRAGMA foreign_keys;").fetchone()[0] != 1:
-            self.db_conn.close()
+            try:
+                self.db_conn.close()
+            except sqlite3.Error:
+                pass
             msg = ("Could not enable foreign key support for SQLite. Please "
                    "contact the LASIF developers.")
             raise ValueError(msg)

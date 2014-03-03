@@ -12,6 +12,7 @@ Station Cache class.
 import glob
 from obspy.xseed import Parser
 import os
+import sqlite3
 import warnings
 
 from lasif.tools import simple_resp_parser
@@ -226,7 +227,7 @@ class StationCache(FileInfoCache):
         """ % (channel_id, time, time)
         try:
             return self.db_cursor.execute(sql_query).fetchone()[0]
-        except:
+        except sqlite3.Error:
             return None
 
     def station_info_available(self, channel_id, time):
@@ -239,8 +240,8 @@ class StationCache(FileInfoCache):
         """
         try:
             time = int(time.timestamp)
-        except:
-            pass
+        except AttributeError:
+            time = int(time)
         sql_query = """
         SELECT id FROM indices
         WHERE (channel_id = '%s') AND (start_date < %i) AND
