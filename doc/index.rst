@@ -44,5 +44,6 @@ Documentation
     introduction
     tutorial
 
+    cli
     api_doc
 

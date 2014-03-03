@@ -20,6 +20,7 @@ import sphinx_rtd_theme
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, "..")
+sys.path.insert(0, ".")
 
 # -- General configuration ---------------------------------------------------
 
@@ -30,7 +31,8 @@ sys.path.insert(0, "..")
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx',
               'sphinx.ext.todo', 'sphinx.ext.pngmath', 'sphinx.ext.mathjax',
-              'sphinx.ext.viewcode', 'matplotlib.sphinxext.plot_directive']
+              'sphinx.ext.viewcode', 'matplotlib.sphinxext.plot_directive',
+              'lasif_cli_sphinx_ext']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

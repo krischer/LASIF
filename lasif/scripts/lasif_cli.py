@@ -456,13 +456,13 @@ def lasif_plot_wavefield(parser, args):
     """
     Plots a SES3D wavefield.
     """
-    from lasif import ses3d_models
-
-    proj = _find_project_root(".")
-
     parser.add_argument("iteration_name", help="name_of_the_iteration")
     parser.add_argument("event_name", help="name of the event")
     args = parser.parse_args(args)
+
+    from lasif import ses3d_models
+
+    proj = _find_project_root(".")
 
     event_name = args.event_name
     iteration_name = args.iteration_name
@@ -1125,6 +1125,17 @@ def _get_argument_parser(fct):
     return parser
 
 
+def _get_functions():
+    """
+    Get a list of all CLI functions defined in this file.
+    """
+    # Get all functions in this script starting with "lasif_".
+    fcts = {fct_name[len(FCT_PREFIX):]: fct for (fct_name, fct) in
+            globals().iteritems()
+            if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")}
+    return fcts
+
+
 def main():
     """
     Main entry point for the LASIF command line interface.
@@ -1133,11 +1144,7 @@ def main():
     functions. Also provides some convenience functionality like error catching
     and printing the help.
     """
-    # Get all functions in this script starting with "lasif_".
-    fcts = {fct_name[len(FCT_PREFIX):]: fct for (fct_name, fct) in
-            globals().iteritems()
-            if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")}
-
+    fcts = _get_functions()
     # Parse args.
     args = sys.argv[1:]
 
