@@ -97,10 +97,8 @@ class FileInfoCache(object):
         self.update()
 
     def __del__(self):
-        try:
+        if self.db_conn:
             self.db_conn.close()
-        except:
-            pass
 
     def _init_database(self):
         """
@@ -114,7 +112,7 @@ class FileInfoCache(object):
         if os.path.exists(self.cache_db_file):
             try:
                 self.db_conn = sqlite3.connect(self.cache_db_file)
-            except:
+            except sqlite3.OperationalError:
                 os.remove(self.cache_db_file)
                 self.db_conn = sqlite3.connect(self.cache_db_file)
         else:
@@ -130,10 +128,7 @@ class FileInfoCache(object):
         self.db_conn.commit()
         # Make sure that foreign key support has been turned on.
         if self.db_cursor.execute("PRAGMA foreign_keys;").fetchone()[0] != 1:
-            try:
-                self.db_conn.close()
-            except:
-                pass
+            self.db_conn.close()
             msg = ("Could not enable foreign key support for SQLite. Please "
                    "contact the LASIF developers.")
             raise ValueError(msg)
