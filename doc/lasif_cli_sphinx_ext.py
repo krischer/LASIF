@@ -19,30 +19,56 @@ from lasif.scripts import lasif_cli
 
 def scan_programs(parser, command=[]):
     """
-    Straight copy from the sphinx-contrib autoprogram directive.
+    Based on sphinx-contrib autoprogram directive.
 
-    All credit goes to Hong Minhee. Thanks a lot.
+    A lot of credit goes to Hong Minhee. Thanks a lot.
     """
-    options = []
-    for arg in parser._actions:
-        if not (arg.option_strings or
-                isinstance(arg, argparse._SubParsersAction)):
-            name = (arg.metavar or arg.dest).lower()
-            desc = (arg.help or '') % {'default': arg.default}
-            options.append(([name], desc))
+    # Positional arguments
+    positional_arguments = []
     for arg in parser._actions:
         if arg.option_strings:
-            metavar = (arg.metavar or arg.dest).lower()
-            names = ['{0} <{1}>'.format(option_string, metavar)
-                     for option_string in arg.option_strings]
-            desc = (arg.help or '') % {'default': arg.default}
-            options.append((names, desc))
-    yield command, options, parser.description or ''
-    if parser._subparsers:
-        for cmd, sub in parser._subparsers._actions[-1].choices.items():
-            if isinstance(sub, argparse.ArgumentParser):
-                for program in scan_programs(sub, command + [cmd]):
-                    yield program
+            continue
+        name = (arg.metavar or arg.dest).lower()
+        if arg.choices:
+            choices = list(arg.choices)
+            # Not sure if this can actually happen with positional arguments.
+            # I guess not...
+            if arg.default:
+                new_choices = []
+                for choice in choices:
+                    if choice == arg.default:
+                        choice += " (Default)"
+                    new_choices.append(choice)
+                choices=new_choices
+            name += " {%s}" % ", ".join(choices)
+        desc = (arg.help or '') % {'default': arg.default}
+        positional_arguments.append(([name], desc))
+
+    # Optional arguments
+    optional_arguments = []
+    for arg in parser._actions:
+        if not arg.option_strings:
+            continue
+        additional_info = ""
+        if arg.choices:
+            choices = list(arg.choices)
+            # Not sure if this can actually happen with positional arguments.
+            # I guess not...
+            if arg.default:
+                new_choices = []
+                for choice in choices:
+                    if choice == arg.default:
+                        choice += " (Default)"
+                    new_choices.append(choice)
+                choices=new_choices
+            additional_info += " {%s}" % ", ".join(choices)
+            # from IPython.core.debugger import Tracer; Tracer(colors="linux")()
+        names = ['{0}{1}'.format(option_string, additional_info)
+                 for option_string in arg.option_strings]
+        desc = (arg.help or '') % {'default': arg.default}
+        optional_arguments.append((names, desc))
+    yield command, positional_arguments, optional_arguments, \
+        parser.description or '', parser.format_usage()
 
 
 class LasifCLIDirective(Directive):
@@ -97,14 +123,10 @@ class LasifCLIDirective(Directive):
                 except TempException:
                     pass
 
-                #node = nodes.section()
-                #node.document = self.state.document
-                #result = ViewList()
-
                 for i in scan_programs(parser):
                     cmd_name = "lasif %s" % fct_name
 
-                    _, options, desc = i
+                    _, positional_args, optional_args, desc, usage = i
 
                     title = cmd_name
                     result.append("", "<lasif_cli_list>")
@@ -115,15 +137,43 @@ class LasifCLIDirective(Directive):
                     result.append("^" * len(title), "<lasif_cli_list>")
 
                     result.append("", "<lasif_cli_list>")
+                    result.append(" .. code-block:: none", "<lasif_cli_list>")
+                    result.append("", "<lasif_cli_list>")
+                    result.append("    " + "\n    ".join(usage.splitlines()),
+                                  "<lasif_cli_list>")
+                    result.append("", "<lasif_cli_list>")
+
                     result.append(desc, "<lasif_cli_list>")
                     result.append("", "<lasif_cli_list>")
-                    for option_strings, help_ in options:
+
+                    if positional_args:
+                        subtitle = "Positional Arguments"
+                        result.append("**" + subtitle + "**",
+                                      "<lasif_cli_list>")
+                        result.append("", "<lasif_cli_list>")
+
+                    for option_strings, help_ in positional_args:
                         result.append(".. cmdoption:: {0}".format(
                             ", ".join(option_strings)), "<lasif_cli_list>")
                         result.append("", "<lasif_cli_list>")
                         result.append("   " + help_.replace("\n", "   \n"),
                                       "<lasif_cli_list>")
                         result.append("", "<lasif_cli_list>")
+
+                    if optional_args:
+                        subtitle = "Optional Arguments"
+                        result.append("**" + subtitle + "**",
+                                      "<lasif_cli_list>")
+                        result.append("", "<lasif_cli_list>")
+
+                    for option_strings, help_ in optional_args:
+                        result.append(".. cmdoption:: {0}".format(
+                            ", ".join(option_strings)), "<lasif_cli_list>")
+                        result.append("", "<lasif_cli_list>")
+                        result.append("   " + help_.replace("\n", "   \n"),
+                                      "<lasif_cli_list>")
+                        result.append("", "<lasif_cli_list>")
+
             self.state.nested_parse(result, 0, node, match_titles=1)
 
             all_nodes.extend(node.children)

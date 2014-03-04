@@ -38,7 +38,8 @@ while optional arguments can be passed if needed.
     of the project.
 
 
-In the following all subcommands will be documented in detail. The commands
+In the following all subcommands are documented in detail. The commands
 are grouped by functionality.
+
 
 .. include_lasif_cli_commands::
