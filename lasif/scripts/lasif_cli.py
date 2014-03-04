@@ -177,9 +177,10 @@ def lasif_plot_events(parser, args):
     import matplotlib.pyplot as plt
     parser.add_argument("--type", default="map", choices=["map", "depth",
                                                           "time"],
-                        help="the type of plot. 'map': beachballs on a map, "
-                        "'depth': depth distribution histogram, "
-                        "'time': time distribution histogram")
+                        help="the type of plot. "
+                        "``map``: beachballs on a map, "
+                        "``depth``: depth distribution histogram, "
+                        "``time``: time distribution histogram")
     plot_type = parser.parse_args(args).type
 
     fig = plt.figure()

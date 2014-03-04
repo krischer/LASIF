@@ -25,9 +25,11 @@ To access the subcommand specific help append :code:`--help` to the command.
     $ lasif init_project --help
 
 
+
 Each command can have a number of positional arguments and some optional
 arguments. Positional arguments have to be given in the specified order
 while optional arguments can be passed if needed.
+
 
 .. note::
 

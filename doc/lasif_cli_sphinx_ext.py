@@ -12,12 +12,14 @@ Custom sphinx directive to document LASIF's CLI interface.
 import argparse
 from docutils import nodes
 from docutils.statemachine import ViewList
+import itertools
 from sphinx.util.compat import Directive
+import textwrap
 
 from lasif.scripts import lasif_cli
 
 
-def scan_programs(parser, command=[]):
+def scan_programs(parser):
     """
     Based on sphinx-contrib autoprogram directive.
 
@@ -67,7 +69,7 @@ def scan_programs(parser, command=[]):
                  for option_string in arg.option_strings]
         desc = (arg.help or '') % {'default': arg.default}
         optional_arguments.append((names, desc))
-    yield command, positional_arguments, optional_arguments, \
+    yield positional_arguments, optional_arguments, \
         parser.description or '', parser.format_usage()
 
 
@@ -94,12 +96,22 @@ class LasifCLIDirective(Directive):
 
             title = group_name + " Functions"
 
+            result.append("", "<lasif_cli_list>")
+            result.append("------------------", "<lasif_cli_list>")
+            result.append("", "<lasif_cli_list>")
             result.append(title, "<lasif_cli_list>")
             result.append("-" * len(title), "<lasif_cli_list>")
+            result.append("", "<lasif_cli_list>")
+
 
             if group_name in lasif_cli.COMMAND_GROUP_DOCS:
-                result.append(lasif_cli.COMMAND_GROUP_DOCS[group_name],
-                               "<lasif_cli_list>")
+                result.append(".. admonition:: %s" % group_name,
+                              "<lasif_cli_list>")
+                result.append("", "<lasif_cli_list>")
+                for line in lasif_cli.COMMAND_GROUP_DOCS[group_name]\
+                        .splitlines():
+                    result.append("    " + line,
+                                  "<lasif_cli_list>")
 
             #self.state.nested_parse(result, 0, node, match_titles=1)
             #all_nodes.extend(node.children)
@@ -126,7 +138,7 @@ class LasifCLIDirective(Directive):
                 for i in scan_programs(parser):
                     cmd_name = "lasif %s" % fct_name
 
-                    _, positional_args, optional_args, desc, usage = i
+                    positional_args, optional_args, desc, usage = i
 
                     title = cmd_name
                     result.append("", "<lasif_cli_list>")
@@ -143,36 +155,71 @@ class LasifCLIDirective(Directive):
                                   "<lasif_cli_list>")
                     result.append("", "<lasif_cli_list>")
 
-                    result.append(desc, "<lasif_cli_list>")
+                    for line in textwrap.dedent(fct.__doc__).splitlines():
+                        result.append(line, "<lasif_cli_list>")
                     result.append("", "<lasif_cli_list>")
 
+                    # Collect arguments in table and render it.
+                    table = []
+
                     if positional_args:
-                        subtitle = "Positional Arguments"
-                        result.append("**" + subtitle + "**",
-                                      "<lasif_cli_list>")
-                        result.append("", "<lasif_cli_list>")
+                        table.append(("**Positional Arguments**",))
 
                     for option_strings, help_ in positional_args:
-                        result.append(".. cmdoption:: {0}".format(
-                            ", ".join(option_strings)), "<lasif_cli_list>")
-                        result.append("", "<lasif_cli_list>")
-                        result.append("   " + help_.replace("\n", "   \n"),
-                                      "<lasif_cli_list>")
-                        result.append("", "<lasif_cli_list>")
+                        for i, j in itertools.izip_longest(
+                                (", ".join(["``%s``" % _i
+                                            for _i in option_strings]),),
+                                textwrap.wrap(help_, 50),
+                                fillvalue=""):
+                            table.append((i, j))
 
                     if optional_args:
-                        subtitle = "Optional Arguments"
-                        result.append("**" + subtitle + "**",
-                                      "<lasif_cli_list>")
-                        result.append("", "<lasif_cli_list>")
+                        table.append(("**Optional Arguments**",))
 
                     for option_strings, help_ in optional_args:
-                        result.append(".. cmdoption:: {0}".format(
-                            ", ".join(option_strings)), "<lasif_cli_list>")
-                        result.append("", "<lasif_cli_list>")
-                        result.append("   " + help_.replace("\n", "   \n"),
-                                      "<lasif_cli_list>")
-                        result.append("", "<lasif_cli_list>")
+                        for i, j in itertools.izip_longest(
+                                (", ".join(["``%s``" % _i
+                                            for _i in option_strings]),),
+                                 textwrap.wrap(help_, 20),
+                                 fillvalue=""):
+                            table.append((i, j))
+
+                    # Render table.
+                    padding = 1
+                    max_length = max(len(_i) for _i in table)
+                    rows = []
+                    for i in range(max_length):
+                        max_i = 0
+                        for row in table:
+                            if len(row) < max_length:
+                                continue
+                            max_i = max(max_i, len(row[i]) + 2 * padding)
+                        rows.append(max_i)
+
+                    separator = "+" + "+".join("-" * _i for _i in rows) + "+"
+                    final_table = [separator, ]
+
+                    for row in table:
+                        if len(row) == 1:
+                            final_table.append(
+                                "|%-{0}s|".format(sum(rows) + len(rows) - 1) %
+                                (" " * padding + row[0]))
+                        elif len(row) == max_length:
+                            # Super special case handling for LASIF!
+                            if row[0] == "":
+                                final_table.pop(-1)
+                            final_table.append("|" +
+                                "|".join(
+                                    "%-{0}s".format(length) %
+                                    (" " * padding + _i)
+                                    for _i, length in zip(row, rows)
+                                ) + "|")
+                        else:
+                            warnings.warn("Table cannot be rendered!")
+                        final_table.append(separator)
+
+                    for line in final_table:
+                        result.append(line, "<lasif_cli_list>")
 
             self.state.nested_parse(result, 0, node, match_titles=1)
 
