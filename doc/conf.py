@@ -32,7 +32,7 @@ sys.path.insert(0, ".")
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx',
               'sphinx.ext.todo', 'sphinx.ext.pngmath', 'sphinx.ext.mathjax',
               'sphinx.ext.viewcode', 'matplotlib.sphinxext.plot_directive',
-              'lasif_cli_sphinx_ext']
+              'lasif_cli_sphinx_ext', 'autorun']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

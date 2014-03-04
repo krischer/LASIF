@@ -57,6 +57,36 @@ from lasif.project import Project, LASIFException
 FCT_PREFIX = "lasif_"
 
 
+# Documentation for the subcommand groups. This will appear in the CLI
+# documentation.
+COMMAND_GROUP_DOCS = {
+    "Data Acquisition": (
+        "These functions are used to acquire and archive different types of "
+        "data usually from webservices."
+    ),
+    "Event Management": (
+        "Function helping in organzing the earthquakes inside a LASIF "
+        "project."
+    ),
+    "Iteration Management": (
+        "Functions dealing with one or more iterations inside a LASIF "
+        "project."
+    ),
+    "Misc": (
+        "All functions that do not fit in one of the other categories."
+    ),
+    "Misc": (
+        "All functions that do not fit in one of the other categories."
+    ),
+    "Plotting": (
+        "Functions producing pictures."
+    ),
+    "Project Management": (
+        "Functions dealing with LASIF projects as a whole."
+    )
+}
+
+
 def command_group(group_name):
     """
     Decorator to be able to logically group commands.
@@ -1079,8 +1109,9 @@ def _print_generic_help(fcts):
     """
     Small helper function printing a generic help message.
     """
-    print(80 * "#" + "\n")
-    header = ("{default_style}LASIF - LArge Scale {inverted_style}Inversion"
+    print(80 * "#")
+    header = ("{default_style}LASIF - Large Scale Seismic "
+              "{inverted_style}Inversion"
               "{default_style} Framework{reset_style}".format(
                   default_style=colorama.Style.BRIGHT + colorama.Fore.WHITE +
                   colorama.Back.BLACK,
@@ -1088,9 +1119,9 @@ def _print_generic_help(fcts):
                   colorama.Back.WHITE,
                   reset_style=colorama.Style.RESET_ALL))
     print "\t" + header
-    print "\n\thttp://krischer.github.io/LASIF"
-    print("\n" + 80 * "#")
-    print("\n\n{cmd}usage: lasif [--help] COMMAND [ARGS]{reset}\n\n".format(
+    print "\thttp://krischer.github.io/LASIF"
+    print(80 * "#")
+    print("\n{cmd}usage: lasif [--help] COMMAND [ARGS]{reset}\n".format(
         cmd=colorama.Style.BRIGHT + colorama.Fore.RED,
         reset=colorama.Style.RESET_ALL))
 

@@ -1,41 +1,44 @@
 CLI Interface
 =============
 
-LASIF ships with a command line interface, consisting of a single command:
-**lasif**.
+The recommended way to interact with **LASIF** projects is to use the
+command line interface. It consists of a number of subcommands grouped below
+the main :code:`lasif` command. The general usage is quickly explained in this
+paragraph whilst the remainder of this sections explains all subcommands in
+greater detail.
 
-Assuming the installation was successful, the following command will print a
-short overview of all commands available within LASIF:
 
-.. code-block:: bash
+The general help can be accessed with the :code:`lasif help` command.
 
-    $ lasif --help
 
-    Usage: lasif FUNCTION PARAMETERS
+.. runblock:: console
+    :max_lines: 10
 
-    Available functions:
-        add_spud_event
-        create_new_iteration
-        ...
+    $ lasif help
 
-To learn more about a specific command, append *--help* to it:
 
-.. code-block:: bash
+To access the subcommand specific help append :code:`--help` to the command.
+
+
+.. runblock:: console
 
     $ lasif init_project --help
 
-    Usage: lasif init_project FOLDER_PATH
 
-        Creates a new LASIF project at FOLDER_PATH. FOLDER_PATH must not exist
-        yet and will be created.
-
+Each command can have a number of positional arguments and some optional
+arguments. Positional arguments have to be given in the specified order
+while optional arguments can be passed if needed.
 
 .. note::
 
     All **lasif** commands work and use the correct project as long as they are
-    executed somewhere inside a project's folder structure. It will recursively
-    search the parent directories until it finds a *config.xml* file. This will
-    then be assumed to be the root folder of the project.
+    executed somewhere **inside a project's folder structure**. It will
+    recursively search the parent directories until it finds a
+    :code:`config.xml` file. This will then be assumed to be the root folder
+    of the project.
 
+
+In the following all subcommands will be documented in detail. The commands
+are grouped by functionality.
 
 .. include_lasif_cli_commands::

@@ -47,7 +47,6 @@ def scan_programs(parser, command=[]):
 
 class LasifCLIDirective(Directive):
     def run(self):
-
         fcts = lasif_cli._get_functions()
 
         # Group the functions. Functions with no group will be placed in the
@@ -67,8 +66,14 @@ class LasifCLIDirective(Directive):
             node.document = self.state.document
             result = ViewList()
 
-            result.append(group_name, "<lasif_cli_list>")
-            result.append("-" * len(group_name), "<lasif_cli_list>")
+            title = group_name + " Functions"
+
+            result.append(title, "<lasif_cli_list>")
+            result.append("-" * len(title), "<lasif_cli_list>")
+
+            if group_name in lasif_cli.COMMAND_GROUP_DOCS:
+                result.append(lasif_cli.COMMAND_GROUP_DOCS[group_name],
+                               "<lasif_cli_list>")
 
             #self.state.nested_parse(result, 0, node, match_titles=1)
             #all_nodes.extend(node.children)
