@@ -14,9 +14,9 @@ import obspy
 import obspy.arclink
 import os
 import re
-import requests
 import sqlite3
 import time
+import urllib2
 
 
 CREATE_DB_SQL = """
@@ -107,13 +107,14 @@ def get_station_coordinates(db_file, station_id, cache_folder, arclink_user):
     print msg,
     # Otherwise try to download the necessary information.
     network, station = station_id.split(".")
+    req = None
     for _i in xrange(10):
         try:
-            req = requests.get(URL.format(network=network, station=station))
+            req = urllib2.urlopen(URL.format(network=network, station=station))
             break
         except:
             time.sleep(0.1)
-    if str(req.status_code)[0] != "2":
+    if req is None or str(req.code)[0] != "2":
         # Now also attempt to download via ArcLink.
         pickled_inventory = os.path.join(cache_folder, "arclink_inv.pickle")
         # Download all 30 days...
@@ -151,9 +152,10 @@ def get_station_coordinates(db_file, station_id, cache_folder, arclink_user):
                 "local_depth_in_m": depth}
 
     # Now simply find the coordinates.
-    lat = float(re.findall("<Latitude>(.*)</Latitude>", req.text)[0])
-    lng = float(re.findall("<Longitude>(.*)</Longitude>", req.text)[0])
-    ele = float(re.findall("<Elevation>(.*)</Elevation>", req.text)[0])
+    request_text = req.read()
+    lat = float(re.findall("<Latitude>(.*)</Latitude>", request_text)[0])
+    lng = float(re.findall("<Longitude>(.*)</Longitude>", request_text)[0])
+    ele = float(re.findall("<Elevation>(.*)</Elevation>", request_text)[0])
 
     inv_db.put_station_coordinates(station_id, lat, lng, ele, None)
     print "Success."

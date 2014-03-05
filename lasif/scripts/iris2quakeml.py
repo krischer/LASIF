@@ -26,7 +26,6 @@ downloaded and stored as a QuakeML 1.2 file in the current folder.
 
 Requirements:
     * `ObsPy <http://obspy.org>`_ >= 0.8.3
-    * `Requests <http://python-requests.org>`_
 
 
 :copyright:
@@ -40,8 +39,8 @@ import HTMLParser
 from obspy import readEvents
 from obspy.core.util.geodetics import FlinnEngdahl
 import os
-import requests
 from StringIO import StringIO
+import urllib2
 
 
 def iris2quakeml(url, output_folder=None):
@@ -52,15 +51,18 @@ def iris2quakeml(url, output_folder=None):
         else:
             url += "/quakeml"
     print "Downloading %s..." % url
-    r = requests.get(url)
-    if r.status_code != 200:
+
+    r = urllib2.urlopen(url)
+    if r.code != 200:
+        r.close()
         msg = "Error Downloading file!"
         raise Exception(msg)
 
     # For some reason the quakeml file is escaped HTML.
     h = HTMLParser.HTMLParser()
 
-    data = h.unescape(r.content)
+    data = h.unescape(r.read())
+    r.close()
 
     data = StringIO(data)
 

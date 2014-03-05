@@ -20,7 +20,6 @@ before_install:
   #- pip install --use-mirrors basemap
   - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
   - pip install --use-mirrors geographiclib
-  - pip install --use-mirrors requests
   - pip install --use-mirrors progressbar
   - pip install --use-mirrors flake8
   - pip install --use-mirrors colorama

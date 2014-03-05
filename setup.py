@@ -55,7 +55,6 @@ setup_config = dict(
     install_requires=[
         "obspy",
         "progressbar",
-        "requests",
         "geographiclib",
         "numpy",
         "colorama",

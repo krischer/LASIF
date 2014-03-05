@@ -2,7 +2,7 @@ Installation, Testing & DevInfo
 ===============================
 
 Installation
-------------
+e-----------
 
 **LASIF** is written for Python 2.7.x, support for Python 3 will follow soon. A
 working Python installation with the most common scientific libraries installed
@@ -17,18 +17,17 @@ Dependencies
 * `ObsPy <http://www.obspy.org/>`_ (in a recent repository version - the version will be fixed at a certain point in the future)
 * The `matplotlib basemap toolkit <http://matplotlib.org/basemap/>`_
 * `wfs_input_generator <http://github.com/krischer/wfs_input_generator>`_
-* requests
 * progressbar
 * geographiclib
 * colorama
 * joblib
 
-The later five should prove no trouble installing via pip. They will also be
+The later four should prove no trouble installing via pip. They will also be
 automatically installed when running **LASIF**'s setup script.
 
 .. code-block:: bash
 
-    $ pip install requests progressbar geographiclib colorama joblib
+    $ pip install progressbar geographiclib colorama joblib
 
 ObsPy and basemap are slightly more complicated to install. Please refer to the
 projects websites for more detailed instructions.
