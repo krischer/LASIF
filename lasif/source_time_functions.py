@@ -9,8 +9,8 @@ File containing different source time functions.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-import obspy
 import numpy as np
+import obspy.signal.filter
 
 
 def filtered_heaviside(npts, delta, freqmin, freqmax):
@@ -24,21 +24,12 @@ def filtered_heaviside(npts, delta, freqmin, freqmax):
     :param freqmin: The minimum desired frequency.
     :param freqmax:  The maximum desired frequency.
     """
-    trace = obspy.Trace(data=np.zeros(npts * 3))
-    trace.data[npts:] = 1.0
-    trace.stats.delta = delta
+    heaviside = np.ones(npts)
 
-    # Filter twice to get a sharper filter with less numerical errors. This has
-    # the disadvantage of shifting the data in time so the same has to be done
-    # to the synthetics.
-    trace.filter("lowpass", freq=freqmax, corners=4)
-    trace.taper(0.05, type="hann")
-    trace.filter("highpass", freq=freqmin, corners=2)
-    trace.taper(0.05, type="hann")
+    # Apply ObsPy filters.
+    heaviside = obspy.signal.filter.highpass(heaviside, freqmin, 1.0 / delta,
+                                             3, zerophase=False)
+    heaviside = obspy.signal.filter.lowpass(heaviside, freqmax, 1.0 / delta,
+                                            5, zerophase=False)
 
-    trace.filter("lowpass", freq=freqmax, corners=4)
-    trace.taper(0.05, type="hann")
-    trace.filter("highpass", freq=freqmin, corners=2)
-    trace.taper(0.05, type="hann")
-
-    return trace.data[npts: npts * 2]
+    return heaviside
