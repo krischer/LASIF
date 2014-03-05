@@ -2,7 +2,7 @@ Installation, Testing & DevInfo
 ===============================
 
 Installation
-e-----------
+------------
 
 **LASIF** is written for Python 2.7.x, support for Python 3 will follow soon. A
 working Python installation with the most common scientific libraries installed

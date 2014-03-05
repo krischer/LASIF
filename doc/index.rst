@@ -33,10 +33,8 @@ enables reproducibility and an efficient collaboration on and exchange of
 tomographic images.
 
 
-Documentation
-=============
-
 .. toctree::
+    :hidden:
     :maxdepth: 2
 
     prerequisites
