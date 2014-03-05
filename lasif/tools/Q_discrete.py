@@ -169,3 +169,4 @@ def plot(D_p, tau_p, f_min=None, f_max=None):
         plt.subplot(122)
         plt.vlines(f_min, *plt.ylim(), color="0.5")
         plt.vlines(f_max, *plt.ylim(), color="0.5")
+    plt.gcf().patch.set_alpha(0.0)

@@ -106,6 +106,7 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
             m.plot(lngs, lats, color="red", lw=2, alpha=0.4)
         plt.legend()
 
+    plt.gcf().patch.set_alpha(0.0)
     return m
 
 
@@ -159,6 +160,7 @@ def __pick_handler_event_annotation(event):
     elif event.mouseevent.dblclick and event.artist._project:
         plt.figure()
         event.artist._project.plot_event(event.artist._event_name)
+        plt.gcf().patch.set_alpha(0.0)
         plt.show()
 
 
@@ -616,6 +618,7 @@ def plot_data_for_station(station, available_data, event, get_data_callback,
 
     # One has call plt.show() to activate the main loop of the new figure.
     # Otherwise events will not work.
+    plt.gcf().patch.set_alpha(0.0)
     plt.show()
 
 
@@ -691,6 +694,7 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
     if len(x_axis) != 1 or len(y_axis) != 1:
         msg = "Could not plot frequency limits!"
         print msg
+        plt.gcf().patch.set_alpha(0.0)
         plt.show()
         return
 
@@ -731,6 +735,7 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
         spec_axis.hlines(freqmin, xmin, xmax, color="green", lw=2)
         spec_axis.hlines(freqmax, xmin, xmax, color="red", lw=2)
 
+    plt.gcf().patch.set_alpha(0.0)
     plt.show()
 
 
