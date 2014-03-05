@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation, Testing &amp; DevInfo &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="Introduction" href="introduction.html"/>
+        <link rel="prev" title="Welcome to LASIF" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#creating-a-new-project">Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-seismic-events">Adding Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-waveform-data">Adding Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#station-data">Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#download-helpers">Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#inspecting-the-data">Inspecting the Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#interlude-validating-the-data">Interlude: Validating the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#defining-a-new-iteration">Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#generating-ses3d-input-files">Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#organizing-the-models">Organizing the Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#synthetics">Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Installation, Testing &amp; DevInfo</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/prerequisites.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="installation-testing-devinfo">
+<h1>Installation, Testing &amp; DevInfo<a class="headerlink" href="#installation-testing-devinfo" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p><strong>LASIF</strong> is written for Python 2.7.x, support for Python 3 will follow soon. A
+working Python installation with the most common scientific libraries installed
+will be assumed for the following instructions.</p>
+<div class="section" id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<p><strong>LASIF</strong> depends on a number of third-party libraries.</p>
+<ul class="simple">
+<li><a class="reference external" href="http://www.obspy.org/">ObsPy</a> (in a recent repository version - the version will be fixed at a certain point in the future)</li>
+<li>The <a class="reference external" href="http://matplotlib.org/basemap/">matplotlib basemap toolkit</a></li>
+<li><a class="reference external" href="http://github.com/krischer/wfs_input_generator">wfs_input_generator</a></li>
+<li>progressbar</li>
+<li>geographiclib</li>
+<li>colorama</li>
+<li>joblib</li>
+</ul>
+<p>The later four should prove no trouble installing via pip. They will also be
+automatically installed when running <strong>LASIF</strong>&#8216;s setup script.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install progressbar geographiclib colorama joblib
+</pre></div>
+</div>
+<p>ObsPy and basemap are slightly more complicated to install. Please refer to the
+projects websites for more detailed instructions.</p>
+<p>Both, the <em>wfs_input_generator</em> module and <strong>LASIF</strong> are in active development
+and thus should be installed as a develop installation so they can be easily
+upgraded via git:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/krischer/wfs_input_generator.git
+<span class="nv">$ </span><span class="nb">cd </span>wfs_input_generator
+<span class="nv">$ </span>pip install -v -e .
+</pre></div>
+</div>
+</div>
+<div class="section" id="installing-lasif">
+<h3>Installing LASIF<a class="headerlink" href="#installing-lasif" title="Permalink to this headline">¶</a></h3>
+<p>The actual <strong>LASIF</strong> module can then be installed with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/krischer/LASIF.git
+<span class="nv">$ </span><span class="nb">cd </span>LASIF
+<span class="nv">$ </span>pip install -v -e .
+</pre></div>
+</div>
+<p>After the installation one should run the tests to ensure everything is
+installed correctly and works as intended on your machine.</p>
+</div>
+<div class="section" id="parallel-processing-in-lasif">
+<h3>Parallel Processing in LASIF<a class="headerlink" href="#parallel-processing-in-lasif" title="Permalink to this headline">¶</a></h3>
+<p>LASIF is parallel in parts to speed up some computations. This unfortunately
+is troublesome with Python and NumPy due to incompatbilities with the
+employed linear algebra packages and forked processes. LASIF should be smart
+enough to protect you from any failures but this potentially means that it
+will only be able to use a single processor.</p>
+<p>If you experience this, read these <a class="reference external" href="https://github.com/obspy/obspy/wiki/Notes-on-Parallel-Processing-with-Python-and-ObsPy">notes on parallel processing with Python
+and ObsPy</a> for some more details and information on how to
+fix it.</p>
+</div>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="requirements-and-rational">
+<h3>Requirements and Rational<a class="headerlink" href="#requirements-and-rational" title="Permalink to this headline">¶</a></h3>
+<p><strong>LASIF</strong> evolved into a fairly complex piece of code and extensive testing is
+required to assure that it works as expected.</p>
+<p>To run the tests, you need to install four additional modules:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install pytest mock nose flake8
+</pre></div>
+</div>
+<p>The <a class="reference external" href="http://pytest.org">pytest</a> module is an alternative testing framework
+for Python offering powerful test discovery features and a no-boilerplate
+approach to syntax. It furthermore provides a nice functional approach to
+writing tests for complex environments facilitating proper tests for <strong>LASIF</strong>.</p>
+<p>Many operations in <strong>LASIF</strong> are computationally expensive or have side effects
+like requiring online access making them not particularly well suited to being
+testing. In order to verify some of the complex interactions within <strong>LASIF</strong>
+dummy objects are used. These are provided by the
+<a class="reference external" href="http://www.voidspace.org.uk/python/mock/">mock</a> package.</p>
+<p><strong>LASIF</strong> contains some graphical functionality outputting maps and other
+plots.  matplotlib&#8217;s testing facilities are reused in <strong>LASIF</strong> which in turn
+require the <a class="reference external" href="http://nose.readthedocs.org/en/latest/">nose</a> testing framework
+to be installed.</p>
+<p>The <a class="reference external" href="http://flake8.readthedocs.org/en/2.0/">flake8</a> package is used to make
+sure that <strong>LASIF</strong>&#8216;s code base adhere to the
+<a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a> standard.</p>
+</div>
+<div class="section" id="running-the-tests">
+<h3>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h3>
+<p>To run the tests, cd somewhere into the <strong>LASIF</strong> code base and type</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>py.test
+</pre></div>
+</div>
+<p>This will recursively find and execute all tests below the current working
+directory.</p>
+<p>The py.test command accepts a large number of additional parameters, e.g.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Execute only tests within test_project.py.</span>
+<span class="nv">$ </span>py.test test_project.py
+
+<span class="c"># Print stdout and stderr and do not capture it.</span>
+<span class="nv">$ </span>py.test -s
+
+<span class="c"># Execute only tests whose name contains the string &#39;some_string&#39;.</span>
+<span class="nv">$ </span>py.test -k some_string
+</pre></div>
+</div>
+<p>If your machine has multiple cores, the processing can also be sped up
+quite a bit by using <cite>pytest-xdist</cite> which can be installed via pip.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install pytest-xdist
+</pre></div>
+</div>
+<p>It enables to distribute the test across cores. To run on, for example, eight
+cores, use</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>py.test -n 8
+</pre></div>
+</div>
+<p>For more information please read the
+<a class="reference external" href="http://pytest.org/">pytest documentation</a>.</p>
+</div>
+</div>
+<div class="section" id="developer-information">
+<h2>Developer Information<a class="headerlink" href="#developer-information" title="Permalink to this headline">¶</a></h2>
+<p>The following rules should be followed when developing for <strong>LASIF</strong>:</p>
+<ul>
+<li><p class="first"><strong>LASIF</strong> is written entirely in Python.</p>
+</li>
+<li><p class="first">C/Fortran code with proper bindings can be used to improve performance where
+necessary. Cython is also an accepted alternative.</p>
+</li>
+<li><p class="first"><a class="reference external" href="http://lukeplant.me.uk/blog/posts/docs-or-it-doesnt-exist/">Document</a> the
+code.</p>
+</li>
+<li><p class="first">Adhere to <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a>.</p>
+</li>
+<li><p class="first">All contributed code must be contributed under the GPLv3.</p>
+</li>
+<li><p class="first">Write tests where reasonable.</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>LASIF</strong> utilizes <a class="reference external" href="https://travis-ci.org/krischer/LASIF">Travis CI</a>
+for continuous integration testing. This means that every commit will be
+automatically tested and the responsible developer will receive an email
+in case her/his commit breaks <strong>LASIF</strong>.</li>
+<li>The tests also verify the PEP8 conformance of the entire code base.</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="section" id="building-the-documentation">
+<h3>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h3>
+<p><cite>sphinx</cite> is used to build the documentation so it needs to be installed.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install sphinx
+</pre></div>
+</div>
+<p>To actually build the documentation (in this case in the HTML format), run</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>doc
+<span class="nv">$ </span>make html
+</pre></div>
+</div>
+</div>
+<div class="section" id="terminology">
+<h3>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h3>
+<p>In order to ease development, a consistent terminology should be used
+throughout the code base.</p>
+<p>Assume a channel with a SEED identifier being equal to <cite>NET.STA.LOC.CHA</cite>, then
+the separate components should be called:</p>
+<ul class="simple">
+<li><strong>channel_id</strong>: <cite>NET.STA.LOC.CHA</cite></li>
+<li><strong>station_id</strong>: <cite>NET.STA</cite></li>
+<li><strong>network_code</strong> or <strong>network</strong>: <cite>NET</cite></li>
+<li><strong>station_code</strong> or <strong>station</strong>: <cite>STA</cite></li>
+<li><strong>location_code</strong> or <strong>location</strong>: <cite>LOC</cite></li>
+<li><strong>channel_code</strong> or <strong>channel</strong>: <cite>CHA</cite></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to LASIF"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

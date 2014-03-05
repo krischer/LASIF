@@ -1,0 +1,1301 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command Line Interface &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="API Documentation" href="api_doc.html"/>
+        <link rel="prev" title="How LASIF Finds Coordinates" href="how_lasif_finds_coordinates.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#creating-a-new-project">Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-seismic-events">Adding Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-waveform-data">Adding Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#station-data">Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#download-helpers">Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#inspecting-the-data">Inspecting the Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#interlude-validating-the-data">Interlude: Validating the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#defining-a-new-iteration">Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#generating-ses3d-input-files">Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#organizing-the-models">Organizing the Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#synthetics">Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Command Line Interface</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/cli.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="command-line-interface">
+<h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
+<p>The recommended way to interact with <strong>LASIF</strong> projects is to use the
+command line interface. It consists of a number of subcommands grouped below
+the main <tt class="code docutils literal"><span class="pre">lasif</span></tt> command. The general usage is quickly explained in this
+paragraph whilst the remainder of this sections explains all subcommands in
+greater detail.</p>
+<p>The general help can be accessed with the <tt class="code docutils literal"><span class="pre">lasif</span> <span class="pre">help</span></tt> command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif <span class="nb">help</span>
+<span class="c">################################################################################</span>
+	LASIF - Large Scale Seismic Inversion Framework
+	http://krischer.github.io/LASIF
+<span class="c">################################################################################</span>
+
+usage: lasif <span class="o">[</span>--help<span class="o">]</span> COMMAND <span class="o">[</span>ARGS<span class="o">]</span>
+
+<span class="o">========</span> Data Acquisition Functions
+                    add_spud_event: Add an event from the IRIS SPUD webservice to the project.
+                 download_stations: Download station files <span class="k">for </span>one event.
+...
+</pre></div>
+</div>
+<p>To access the subcommand specific help append <tt class="code docutils literal"><span class="pre">--help</span></tt> to the command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project --help
+usage: lasif init_project <span class="o">[</span>-h<span class="o">]</span> folder_path
+
+Create a new project.
+
+positional arguments:
+  folder_path  where to create the project
+
+optional arguments:
+  -h, --help   show this <span class="nb">help </span>message and <span class="nb">exit</span>
+</pre></div>
+</div>
+<p>Each command can have a number of positional arguments and some optional
+arguments. Positional arguments have to be given in the specified order
+while optional arguments can be passed if needed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All <strong>lasif</strong> commands work and use the correct project as long as they are
+executed somewhere <strong>inside a project&#8217;s folder structure</strong>. It will
+recursively search the parent directories until it finds a
+<tt class="code docutils literal"><span class="pre">config.xml</span></tt> file. This will then be assumed to be the root folder
+of the project.</p>
+</div>
+<p>In the following all subcommands are documented in detail. The commands
+are grouped by functionality.</p>
+<hr class="docutils" />
+<div class="section" id="data-acquisition-functions">
+<h2>Data Acquisition Functions<a class="headerlink" href="#data-acquisition-functions" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-data-acquisition admonition">
+<p class="first admonition-title">Data Acquisition</p>
+<p class="last">These functions are used to acquire and archive different types of data usually from webservices.</p>
+</div>
+<div class="section" id="lasif-download-stations">
+<h3>lasif download_stations<a class="headerlink" href="#lasif-download-stations" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif download_stations [-h] event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Download station files for one event.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-download-waveforms">
+<h3>lasif download_waveforms<a class="headerlink" href="#lasif-download-waveforms" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif download_waveforms [-h] event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Download waveforms for one event.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-add-spud-event">
+<h3>lasif add_spud_event<a class="headerlink" href="#lasif-add-spud-event" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif add_spud_event [-h] url
+</pre></div>
+</div>
+</div></blockquote>
+<p>Add an event from the IRIS SPUD webservice to the project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
+<td>any SPUD momenttensor URL</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="event-management-functions">
+<h2>Event Management Functions<a class="headerlink" href="#event-management-functions" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-event-management admonition">
+<p class="first admonition-title">Event Management</p>
+<p class="last">Function helping in organzing the earthquakes inside a LASIF project.</p>
+</div>
+<div class="section" id="lasif-event-info">
+<h3>lasif event_info<a class="headerlink" href="#lasif-event-info" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif event_info [-h] event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print information about a single event.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-list-events">
+<h3>lasif list_events<a class="headerlink" href="#lasif-list-events" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_events [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print a list of all events in the project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="iteration-management-functions">
+<h2>Iteration Management Functions<a class="headerlink" href="#iteration-management-functions" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-iteration-management admonition">
+<p class="first admonition-title">Iteration Management</p>
+<p class="last">Functions dealing with one or more iterations inside a LASIF project.</p>
+</div>
+<div class="section" id="lasif-generate-input-files">
+<h3>lasif generate_input_files<a class="headerlink" href="#lasif-generate-input-files" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif generate_input_files [-h]
+                                      [--simulation_type {normal_simulation,adjoint_forward,adjoint_reverse}]
+                                      iteration_name event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Generate the input files for the waveform solver.</p>
+<dl class="docutils">
+<dt>TYPE denotes the type of simulation to run. Available types are</dt>
+<dd><ul class="first last simple">
+<li>&#8220;normal_simulation&#8221;</li>
+<li>&#8220;adjoint_forward&#8221;</li>
+<li>&#8220;adjoint_reverse&#8221;</li>
+</ul>
+</dd>
+</dl>
+<table border="1" class="docutils">
+<colgroup>
+<col width="79%" />
+<col width="21%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--simulation_type</span> <span class="pre">{normal_simulation</span> <span class="pre">(Default),</span> <span class="pre">adjoint_forward,</span> <span class="pre">adjoint_reverse}</span></tt></td>
+<td>type of simulation
+to run</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-finalize-adjoint-sources">
+<h3>lasif finalize_adjoint_sources<a class="headerlink" href="#lasif-finalize-adjoint-sources" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif finalize_adjoint_sources [-h] iteration_name event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Finalize the adjoint sources.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-iteration-status">
+<h3>lasif iteration_status<a class="headerlink" href="#lasif-iteration-status" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif iteration_status [-h] iteration_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Query the current status of an iteration.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-create-successive-iteration">
+<h3>lasif create_successive_iteration<a class="headerlink" href="#lasif-create-successive-iteration" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_successive_iteration [-h] existing_iteration new_iteration
+</pre></div>
+</div>
+</div></blockquote>
+<p>Create an iteration based on an existing one.</p>
+<p>It will take all settings in one iteration and transfers them to another
+iteration. Any comments will be deleted.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">existing_iteration</span></tt></td>
+<td>name of the existing iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">new_iteration</span></tt></td>
+<td>name of the new iteration</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-preprocess-data">
+<h3>lasif preprocess_data<a class="headerlink" href="#lasif-preprocess-data" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif preprocess_data [-h] iteration_name [events [events ...]]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Launch data preprocessing.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">events</span></tt></td>
+<td>One or more events. If none given, all will be
+done.</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-list-iterations">
+<h3>lasif list_iterations<a class="headerlink" href="#lasif-list-iterations" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_iterations [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print a list of all iterations in the project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-create-new-iteration">
+<h3>lasif create_new_iteration<a class="headerlink" href="#lasif-create-new-iteration" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_new_iteration [-h]
+                                      iteration_name min_period max_period
+                                      {SES3D_4_0,SES3D_2_0,SPECFEM3D_CARTESIAN}
+</pre></div>
+</div>
+</div></blockquote>
+<p>Create a new iteration.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="62%" />
+<col width="38%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min_period</span></tt></td>
+<td>the minimum period of the iteration</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">max_period</span></tt></td>
+<td>the maximum period of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">solver_name</span> <span class="pre">{SES3D_4_0,</span> <span class="pre">SES3D_2_0,</span> <span class="pre">SPECFEM3D_CARTESIAN}</span></tt></td>
+<td>name of the solver</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-q-model">
+<h3>lasif plot_q_model<a class="headerlink" href="#lasif-plot-q-model" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_q_model [-h] iteration_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plots the Q model for a given iteration.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of iteration</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-iteration-info">
+<h3>lasif iteration_info<a class="headerlink" href="#lasif-iteration-info" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif iteration_info [-h] iteration_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print information about a single iteration.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-launch-misfit-gui">
+<h3>lasif launch_misfit_gui<a class="headerlink" href="#lasif-launch-misfit-gui" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif launch_misfit_gui [-h] iteration_name event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Launch the misfit GUI.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="misc-functions">
+<h2>Misc Functions<a class="headerlink" href="#misc-functions" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-misc admonition">
+<p class="first admonition-title">Misc</p>
+<p class="last">All functions that do not fit in one of the other categories.</p>
+</div>
+<div class="section" id="lasif-debug">
+<h3>lasif debug<a class="headerlink" href="#lasif-debug" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif debug [-h] files [files ...]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print information LASIF can gather from a list of files.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="31%" />
+<col width="69%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">files</span></tt></td>
+<td>filenames to print debug information about</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-tutorial">
+<h3>lasif tutorial<a class="headerlink" href="#lasif-tutorial" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif tutorial [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Open the tutorial in a webbrowser.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-calculate-constant-q-model">
+<h3>lasif calculate_constant_q_model<a class="headerlink" href="#lasif-calculate-constant-q-model" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif calculate_constant_q_model [-h] min_period max_period
+</pre></div>
+</div>
+</div></blockquote>
+<p>Calculate a constant Q model useable by SES3D.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">min_period</span></tt></td>
+<td>minimum period for the constant frequency band</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">max_period</span></tt></td>
+<td>maximum period for the constant frequency band</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="plotting-functions">
+<h2>Plotting Functions<a class="headerlink" href="#plotting-functions" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-plotting admonition">
+<p class="first admonition-title">Plotting</p>
+<p class="last">Functions producing pictures.</p>
+</div>
+<div class="section" id="lasif-plot-events">
+<h3>lasif plot_events<a class="headerlink" href="#lasif-plot-events" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_events [-h] [--type {map,depth,time}]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plot all events.</p>
+<dl class="docutils">
+<dt>type can be one of:</dt>
+<dd><ul class="first last simple">
+<li><tt class="docutils literal"><span class="pre">map</span></tt> (default) - a map view of the events</li>
+<li><tt class="docutils literal"><span class="pre">depth</span></tt> - a depth distribution histogram</li>
+<li><tt class="docutils literal"><span class="pre">time</span></tt> - a time distribution histogram</li>
+</ul>
+</dd>
+</dl>
+<table border="1" class="docutils">
+<colgroup>
+<col width="65%" />
+<col width="35%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--type</span> <span class="pre">{map</span> <span class="pre">(Default),</span> <span class="pre">depth,</span> <span class="pre">time}</span></tt></td>
+<td>the type of plot.
+<tt class="docutils literal"><span class="pre">map</span></tt>: beachballs
+on a map, <tt class="docutils literal"><span class="pre">depth</span></tt>:
+depth distribution
+histogram, <tt class="docutils literal"><span class="pre">time</span></tt>:
+time distribution
+histogram</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-event">
+<h3>lasif plot_event<a class="headerlink" href="#lasif-plot-event" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_event [-h] event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plot a single event including stations on a map.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event to plot</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-model">
+<h3>lasif plot_model<a class="headerlink" href="#lasif-plot-model" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_model [-h] model_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plot a SES3D model.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">model_name</span></tt></td>
+<td>name of the model</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-wavefield">
+<h3>lasif plot_wavefield<a class="headerlink" href="#lasif-plot-wavefield" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_wavefield [-h] iteration_name event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plots a SES3D wavefield.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name_of_the_iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-station">
+<h3>lasif plot_station<a class="headerlink" href="#lasif-plot-station" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_station [-h] station_id event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plots data for a single station and event.</p>
+<p>Useful for interactive data discovery.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">station_id</span></tt></td>
+<td>name of the station to plot</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event to plot</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-raydensity">
+<h3>lasif plot_raydensity<a class="headerlink" href="#lasif-plot-raydensity" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_raydensity [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plot a binned raycoverage plot for all events.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-selected-windows">
+<h3>lasif plot_selected_windows<a class="headerlink" href="#lasif-plot-selected-windows" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_selected_windows [-h] iteration_name event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plot the selected windows.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-stf">
+<h3>lasif plot_stf<a class="headerlink" href="#lasif-plot-stf" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_stf [-h] iteration_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plot the source time function for one iteration.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-kernel">
+<h3>lasif plot_kernel<a class="headerlink" href="#lasif-plot-kernel" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_kernel [-h] iteration_name event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Work in progress.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-plot-domain">
+<h3>lasif plot_domain<a class="headerlink" href="#lasif-plot-domain" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_domain [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Plot the project&#8217;s domain on a map.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section" id="project-management-functions">
+<h2>Project Management Functions<a class="headerlink" href="#project-management-functions" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-project-management admonition">
+<p class="first admonition-title">Project Management</p>
+<p class="last">Functions dealing with LASIF projects as a whole.</p>
+</div>
+<div class="section" id="lasif-init-project">
+<h3>lasif init_project<a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif init_project [-h] folder_path
+</pre></div>
+</div>
+</div></blockquote>
+<p>Create a new project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">folder_path</span></tt></td>
+<td>where to create the project</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-info">
+<h3>lasif info<a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif info [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print a summary of the project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-list-models">
+<h3>lasif list_models<a class="headerlink" href="#lasif-list-models" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_models [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print a list of all models in the project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-validate-data">
+<h3>lasif validate_data<a class="headerlink" href="#lasif-validate-data" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif validate_data [-h] [--station_file_availability] [--raypaths]
+                               [--waveforms] [--full]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Validate the data currently in the project.</p>
+<p>This commands walks through all available data and checks it for validity.
+It furthermore does some sanity checks to detect common problems. These
+should be fixed.</p>
+<p>By default is only checks some things. A full check is recommended but
+potentially takes a very long time.</p>
+<p>Things the command does:</p>
+<dl class="docutils">
+<dt>Event files:</dt>
+<dd><ul class="first last simple">
+<li>Validate against QuakeML 1.2 scheme.</li>
+<li>Make sure they contain at least one origin, magnitude and focal
+mechanism object.</li>
+<li>Check for duplicate ids amongst all QuakeML files.</li>
+<li>Some simply sanity checks so that the event depth is reasonable and
+the moment tensor values as well. This is rather fragile and mainly
+intended to detect values specified in wrong units.</li>
+</ul>
+</dd>
+</dl>
+<table border="1" class="docutils">
+<colgroup>
+<col width="60%" />
+<col width="40%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--station_file_availability</span></tt></td>
+<td>asserts that all
+waveform files have
+corresponding
+station files. Very
+slow.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--raypaths</span></tt></td>
+<td>assert that all
+raypaths are within
+the set boundaries.
+Very slow.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--waveforms</span></tt></td>
+<td>asserts that
+waveforms for one
+event have only a
+single location and
+channel type. Fast.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--full</span></tt></td>
+<td>run all validations.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-remove-empty-coordinate-entries">
+<h3>lasif remove_empty_coordinate_entries<a class="headerlink" href="#lasif-remove-empty-coordinate-entries" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif remove_empty_coordinate_entries [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Remove all empty coordinate entries in the inventory cache.</p>
+<p>This is useful if you want to try to download coordinates again.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api_doc.html" class="btn btn-neutral float-right" title="API Documentation"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="how_lasif_finds_coordinates.html" class="btn btn-neutral" title="How LASIF Finds Coordinates"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

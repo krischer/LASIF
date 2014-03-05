@@ -18,21 +18,6 @@
 
   
   
-
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:'./',
-        VERSION:'0.0.1',
-        COLLAPSE_INDEX:false,
-        FILE_SUFFIX:'.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
     
 
   
@@ -40,7 +25,6 @@
   
   
     <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-    <script type="text/javascript" src="_static/js/theme.js"></script>
   
 
   
@@ -49,52 +33,46 @@
 
 
 
-  <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
 
 </head>
 
-<body class="wy-body-for-nav">
+<body class="wy-body-for-nav" role="document">
 
   <div class="wy-grid-for-nav">
 
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="icon icon-home"> LASIF</a>
-        <form class="wy-form" action="search.html" method="get">
-  <input type="text" name="q" placeholder="Search docs" />
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
+        <a href="index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
       </div>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix">
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
             <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-lasif">Installing LASIF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#developer-information">Developer Information</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#requirements-and-rational">Requirements and Rational</a></li>
-<li class="toctree-l2"><a class="reference internal" href="testing.html#running-the-tests">Running the Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-notes">Further Notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="developers_information.html">Developer Information</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="developers_information.html#building-the-documentation">Building the Documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers_information.html#terminology">Terminology</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">LASIF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html#further-information">Further Information</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html#supported-data-formats">Supported Data Formats</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorial.html#further-notes">Further Notes</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html#tutorial">Tutorial</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#command-line-interface">Command Line Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#creating-a-new-project">Creating a New Project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-seismic-events">Adding Seismic Events</a></li>
@@ -110,16 +88,23 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project.html">lasif.project</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="project.html#exceptions">Exceptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="project.html#classes">Classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#project-management-functions">Project Management Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.html">lasif.tools</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
+</ul>
+</li>
 </ul>
 
         
@@ -130,23 +115,28 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
 
       
-      <nav class="wy-nav-top">
-        <i data-toggle="wy-nav-top" class="icon icon-reorder"></i>
-        <a href="/">LASIF</a>
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">LASIF</a>
       </nav>
 
 
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <ul class="wy-breadcrumbs">
-  <li><a href="index.html">Docs</a> &raquo;</li>
-  <li><a href=""></a></li>
-  
-</ul>
-<hr/>
-
-          
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li></li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
 
    <h1>Python Module Index</h1>
 
@@ -192,16 +182,19 @@
    </table>
 
 
+          </div>
           <footer>
   
 
   <hr/>
 
-  <p>
-      &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
-  </p>
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
 
-  <a href="https://www.github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="http://readthedocs.org">Read the Docs</a>
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
 </footer>
         </div>
       </div>
@@ -210,6 +203,39 @@
 
   </div>
   
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
 
 </body>
 </html>

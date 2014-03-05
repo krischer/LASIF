@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>lasif.tools &mdash; LASIF 0.0.1 documentation</title>
+  <title>Introduction &mdash; LASIF 0.0.1 documentation</title>
   
 
   
@@ -29,9 +29,8 @@
 
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
-        <link rel="up" title="API Documentation" href="api_doc.html"/>
-        <link rel="next" title="lasif.tools.parallel" href="tools.parallel.html"/>
-        <link rel="prev" title="lasif.scripts.iris2quakeml" href="iris2quakeml.html"/> 
+        <link rel="next" title="Tutorial" href="tutorial.html"/>
+        <link rel="prev" title="Installation, Testing &amp; DevInfo" href="prerequisites.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -65,11 +64,11 @@
 <li class="toctree-l2"><a class="reference internal" href="prerequisites.html#developer-information">Developer Information</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-information">Further Information</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#supported-data-formats">Supported Data Formats</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-notes">Further Notes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#further-notes">Further Notes</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
@@ -97,11 +96,11 @@
 <li class="toctree-l2"><a class="reference internal" href="cli.html#project-management-functions">Project Management Functions</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="api_doc.html">API Documentation</a><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
 </ul>
 </li>
@@ -128,12 +127,10 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-          <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
-      
-    <li>lasif.tools</li>
+    <li>Introduction</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/tools.txt" rel="nofollow"> View page source</a>
+          <a href="_sources/introduction.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -141,8 +138,91 @@
 </div>
           <div role="main">
             
-  <div class="section" id="module-lasif.tools">
-<span id="lasif-tools"></span><h1>lasif.tools<a class="headerlink" href="#module-lasif.tools" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<a class="reference internal image-reference" href="_images/lasif_logo.svg"><div align="center" class="align-center"><img src="_images/lasif_logo.svg" width="80%" /></div>
+</a>
+<p>LASIF (<strong>L</strong>arg-scale <strong>S</strong>eismic <strong>I</strong>nversion <strong>F</strong>ramework) is a
+<strong>data-driven workflow tool</strong> to perform full waveform inversions.  It is
+opinionated and strict meaning that it enforces a certain data and directory
+structure. The upside is that it only requires a very minimal amount of
+configuration and maintenance. It attempts to gather all necessary information
+from the data itself so there is no need to keep index or content files.</p>
+<p>All parts of LASIF also work completely on their own; see the class and
+function documentation at the end of this document. Furthermore LASIF offers a
+project based inversion workflow management system which is introduced in the
+following tutorial.</p>
+<p>LASIF works with the notion of so called inversion projects. A project is
+defined as a series of iterations working on the same physical domain. Where
+possible and useful, LASIF will use XML files to store information. The
+reasoning behind this is twofold. It is easily machine and human readable. It
+furthermore also serves as a preparatory step towards a fully database driven
+full waveform inversion workflow as all necessary information is already stored
+in an easily indexable data format.</p>
+<p>LASIF is data-driven meaning that it attempts to gather all necessary
+information from the available data. The big advantage of this approach is that
+the users can use any tool they want to access and work with the data as long
+as they adhere to the directory structure imposed by LASIF. At the start of
+every LASIF operation, the tool checks what data is available and uses it. To
+achieve reasonable performance it employs a transparent caching scheme able to
+quickly any changes the user makes to the data. Also important to keep in mind
+is that <strong>LASIF will never delete any data</strong>.</p>
+<div class="section" id="further-information">
+<h2>Further Information<a class="headerlink" href="#further-information" title="Permalink to this headline">¶</a></h2>
+<p>The documentation is currently being restructures. For now additional
+information can be found here:</p>
+<ul class="simple">
+<li><a class="reference internal" href="how_lasif_finds_coordinates.html"><em>How LASIF Finds Coordinates</em></a></li>
+</ul>
+</div>
+<div class="section" id="to-do-things-that-are-still-missing">
+<h2>TO DO: Things that are still missing<a class="headerlink" href="#to-do-things-that-are-still-missing" title="Permalink to this headline">¶</a></h2>
+<p>This is mainly useful for the developers.</p>
+<ul class="simple">
+<li>Applying the time corrections for events and stations</li>
+<li>Settings for the time frequency misfit</li>
+<li>A clean way to integrate other misfits</li>
+<li>Data rejection criteria implementation</li>
+<li>Log more things for better provenance</li>
+</ul>
+</div>
+<div class="section" id="supported-data-formats">
+<h2>Supported Data Formats<a class="headerlink" href="#supported-data-formats" title="Permalink to this headline">¶</a></h2>
+<p>This is a short list of supported data formats and other software.</p>
+<ul class="simple">
+<li><strong>Waveform Data:</strong> All file formats supported by ObsPy.</li>
+<li><strong>Synthetics:</strong> All file formats supported by ObsPy and the output files of
+SES3D 4.0.</li>
+<li><strong>Event Metadata:</strong> QuakeML 1.2</li>
+<li><strong>Station Metadata:</strong> dataless SEED, RESP and (hopefully) soon FDSN
+StationXML.  Once implemented, StationXML will be the recommended and most
+future proof format.</li>
+<li><strong>Earth Models:</strong> Currently the raw SES3D model format is supported.</li>
+<li><strong>Waveform Solvers:</strong> SES3D 4.0, support for SpecFEM Cartesian and/or Globe
+will be added soon.</li>
+</ul>
+</div>
+<div class="section" id="further-notes">
+<h2>Further Notes<a class="headerlink" href="#further-notes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="quakeml-files">
+<h3>QuakeML files<a class="headerlink" href="#quakeml-files" title="Permalink to this headline">¶</a></h3>
+<p>LASIF is designed to work with valid QuakeML 1.2 event files. Please assure
+that the files you use actually are just that. If possible try to only use
+QuakeML files with one origin and one focal mechanism, otherwise LASIF will
+choose the preferred origin and/or focal mechanism (or the first of each, if no
+preferred one is specified). <strong>The origin time specified in the QuakeML file
+will be the reference time for each event!</strong> Times specified in SAC files will
+be ignored.</p>
+<p>This also means that the raw data files have to have the correct time
+information.</p>
+</div>
+<div class="section" id="synthetic-data-files">
+<h3>Synthetic Data Files<a class="headerlink" href="#synthetic-data-files" title="Permalink to this headline">¶</a></h3>
+<p>The very first sample of each synthetic waveform will be assumed to coincide
+with the event time. If this is not a reasonable assumption, please contact the
+LASIF developers.</p>
+</div>
+</div>
 </div>
 
 
@@ -151,10 +231,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tools.parallel.html" class="btn btn-neutral float-right" title="lasif.tools.parallel"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorial"/>Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="iris2quakeml.html" class="btn btn-neutral" title="lasif.scripts.iris2quakeml"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="prerequisites.html" class="btn btn-neutral" title="Installation, Testing &amp; DevInfo"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
