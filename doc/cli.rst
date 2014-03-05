@@ -1,5 +1,5 @@
-CLI Interface
-=============
+Command Line Interface
+======================
 
 The recommended way to interact with **LASIF** projects is to use the
 command line interface. It consists of a number of subcommands grouped below

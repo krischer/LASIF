@@ -5,108 +5,149 @@ This tutorial will teach you how to perform an iterative full waveform
 inversion with LASIF and SES3D on a simple toy example.
 
 
+.. caution::
+
+    This tutorial is written by hand and thus might not always be completely
+    up to date. If for example there are slight necessary deviations to the
+    arguments of a command please refer to the command's documentation.
+
+    The rest of LASIF's documentation is generated from the actual code and
+    thus is guaranteed to accurately reflect the code base.
+
+
 Command Line Interface
 ----------------------
 
-Familiarize yourself with the CLI interface.
-
+LASIF is best controlled with its command line interface. Please read at
+least the introduction to the :doc:`cli` before proceeding.
 
 
 Creating a New Project
 ----------------------
 The necessary first step, whether for starting a new inversion or migrating an
-already existing inversion to LASIF, is to create a new project. In the
-following the project will be called **TutorialAnatolia**.
+already existing inversion to LASIF, is to create a new project with the
+:code:`lasif init_project` command. In this  tutorial we will work with a
+project called **Tutorial**. The :code:`lasif init_project` command will
+create a  new folder in whichever directory the command is executed in.
 
 .. code-block:: bash
 
-    $ lasif init_project TutorialAnatolia
+    $ lasif init_project Tutorial
 
-This will create the following directory structure. It will be explained in
-more detail later on::
+    Initialized project in:
+        /Users/lion/workspace/temp/LASIF_Tutorial/Tutorial
 
-    TutorialAnatolia
-    |-- ADJOINT_SOURCES_AND_WINDOWS
-    |-- CACHE
-    |-- config.xml
-    |-- DATA
-    |-- EVENTS
-    |-- ITERATIONS
-    |-- LOGS
-    |-- MODELS
-    |-- OUTPUT
-    |-- STATIONS
-    |   |-- RESP
-    |   |-- SEED
-    |   |-- StationXML
-    |-- SYNTHETICS
+This will create the following directory structure. A **LASIF** project is
+defined by the files it contains. All information it requires will be
+assembled from the available data. In the course of this tutorial you will
+learn what piece of data belongs where.
+
+.. code-block:: none
+
+    Tutorial
+    ├── ADJOINT_SOURCES_AND_WINDOWS
+    │   ├── ADJOINT_SOURCES
+    │   └── WINDOWS
+    ├── CACHE
+    ├── DATA
+    ├── EVENTS
+    ├── ITERATIONS
+    ├── KERNELS
+    ├── LOGS
+    ├── MODELS
+    ├── OUTPUT
+    ├── STATIONS
+    │   ├── RESP
+    │   ├── SEED
+    │   └── StationXML
+    ├── SYNTHETICS
+    ├── WAVEFIELDS
+    └── config.xml
 
 
-The configuration for each project is defined in the **config.xml** file. It is
-a simple, self-explanatory XML format. After the project has been initialized
-it will look akin to the following:
+Each project stores its configuration values in the **config.xml** file; the
+location of this file also determines the root folder of the project. It is
+a simple, self-explanatory XML format. Immediately after the project has been
+initialized it looks akin to the following:
 
 .. code-block:: xml
 
-    <?xml version="1.0" encoding="utf-8"?>
+    <?xml version='1.0' encoding='UTF-8'?>
     <lasif_project>
-        <name>TutorialAnatolia</name>
-        <description></description>
-        <download_settings>
-            <arclink_username></arclink_username>
-            <seconds_before_event>300</seconds_before_event>
-            <seconds_after_event>3600</seconds_after_event>
-        </download_settings>
-        <domain>
-          <domain_bounds>
-            <minimum_longitude>-20.0</minimum_longitude>
-            <maximum_longitude>20.0</maximum_longitude>
-            <minimum_latitude>-20.0</minimum_latitude>
-            <maximum_latitude>20.0</maximum_latitude>
-            <minimum_depth_in_km>0.0</minimum_depth_in_km>
-            <maximum_depth_in_km>200.0</maximum_depth_in_km>
-            <boundary_width_in_degree>3.0</boundary_width_in_degree>
-          </domain_bounds>
-          <domain_rotation>
-            <rotation_axis_x>1.0</rotation_axis_x>
-            <rotation_axis_y>1.0</rotation_axis_y>
-            <rotation_axis_z>1.0</rotation_axis_z>
-            <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>
-          </domain_rotation>
-        </domain>
+      <name>Tutorial</name>
+      <description></description>
+      <download_settings>
+        <arclink_username></arclink_username>
+        <seconds_before_event>300</seconds_before_event>
+        <seconds_after_event>3600</seconds_after_event>
+      </download_settings>
+      <domain>
+        <domain_bounds>
+          <minimum_longitude>-20</minimum_longitude>
+          <maximum_longitude>20</maximum_longitude>
+          <minimum_latitude>-20</minimum_latitude>
+          <maximum_latitude>20</maximum_latitude>
+          <minimum_depth_in_km>0.0</minimum_depth_in_km>
+          <maximum_depth_in_km>200.0</maximum_depth_in_km>
+          <boundary_width_in_degree>3.0</boundary_width_in_degree>
+        </domain_bounds>
+        <domain_rotation>
+          <rotation_axis_x>1.0</rotation_axis_x>
+          <rotation_axis_y>1.0</rotation_axis_y>
+          <rotation_axis_z>1.0</rotation_axis_z>
+          <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>
+        </domain_rotation>
+      </domain>
     </lasif_project>
 
-It should be fairly self-explanatory.
 
-* *name* denotes a short description of the project. Usually the same as the
-  folder name.
-* *description* can be any further useful information about the project. This
+* ``name`` is the project's name.
+* ``description`` can be any further useful information about the project. This
   is not used by LASIF but potentially useful for yourself.
-* The *arclink_username* tag should be your email. It will be send with all
+* The ``arclink_username`` tag should be your email. It will be send with all
   requests to the ArcLink network. They ask for it in case they have to contact
   you for whatever reason. Please provide a real email address. Must not be
   empty.
-* *seconds_before_event*: Used by the waveform download scripts. It will
+* ``seconds_before_event``: Used by the waveform download scripts. It will
   attempt to download this many seconds for every waveform before the origin of
   the associated event.
-* *seconds_after_event*: Used by the waveform download scripts. It will attempt
-  to download this many seconds for every waveform after the origin of the
-  associated event. Adapt this to the size of your inversion domain.
-* The *domain* settings will be explained in more detail in the following
+* ``seconds_after_event``: Used by the waveform download scripts. It will
+  attempt to download this many seconds for every waveform after the origin of
+  the associated event. Adapt this to the size of your inversion domain.
+* The ``domain`` settings will be explained in more detail in the following
   paragraphs.
-* The *boundary_width_in_degree* tag is use to be able to take care of the
+* The ``boundary_width_in_degree`` tag is use to be able to take care of the
   boundary conditions, e.g. data will be downloaded within
-  *boundary_width_in_degree* distance to the domain border.
+  ``boundary_width_in_degree`` distance to the domain border.
 
-The file, amongst other settings, defines the physical domain for the
-inversion. Please set it to the following (same as in the SES3D Tutorial):
+The nature of SES3D's coordinate system has the effect that simulation is most
+efficient in equatorial regions. Furthermore a domain can only be  specified by
+minimum and maximum extends as it works with spherical sections.
+Thus it is  oftentimes  advantageous to rotate the frame of reference so that
+the simulation happens close to the equator. LASIF first defines the simulation
+domain; the actual simulation happens here. Optional rotation parameters define
+the physical location of the domain. The coordinate system for the rotation
+parameters is described in :py:mod:`lasif.rotations`.  You will have to edit
+the ``config.xml`` file to adjust it to your region of interest.
 
-* Latitude: **34.1° - 42.9°**
-* Longitude: **23.1° - 42.9°**
-* Depth: **0 km - 471 km**
-* Boundary width in degree: **1.46°**
+LASIF handles all rotations necessary so the user never needs to worry about
+these. Just keep in mind to always keep any data (real waveforms, station
+metadata and events) in coordinates that correspond to the physical domain and
+all synthetic waveforms in coordinates that correspond to the simulation
+domain.
 
-In generally one should only work with data not affected by the boundary
+For this tutorial we are going to work in a rotated domain across Europe.
+Please change the ``config.xml`` file to reflect the following domain
+settings.
+
+* Latitude: ``-20.0° - 20.0°``
+* Longitude: ``-20.0° - 20.0°``
+* Depth: ``0 km - 471 km``
+* Boundary width in degree: ``3.00°``
+* Rotation axis: ``1.0, 1.0, 0.2``
+* Rotation angle: ``-65.0°``
+
+In general one should only work with data not affected by the boundary
 conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
 It is not advisable to use data that traverses these layers. The default
 setting of SES3D is to use two boundary layers. In this example this amounts to
@@ -127,33 +168,10 @@ defined boundary width.
 .. plot::
 
     import lasif.visualization
-    lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
-        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
+    lasif.visualization.plot_domain(-20.0, 20.0, -20.0, 20.0, 3.0,
+        rotation_axis=[1.0, 1.0, 0.2], rotation_angle_in_degree=-65.0,
         plot_simulation_domain=True, zoom=True)
 
-
-The nature of SES3D's coordinate system has the effect that simulation is most
-efficient in equatorial regions. Thus it is oftentimes advantageous to rotate
-the frame of reference so that the simulation happens close to the equator.
-LASIF first defines the simulation domain; the actual simulation happens here.
-Optional rotation parameters define the physical location of the domain. The
-coordinate system for the rotation parameters is described in
-:py:mod:`lasif.rotations`.  You will have to edit the file to adjust it to your
-region of interest. The rotation functionality is not used in this Tutorial's
-example; in case it is used, simulation and physical domain would differ.
-LASIF handles all rotations necessary so the user never needs to worry about
-these. Just keep in mind to always keep any data (real waveforms, station
-metadata and events) in coordinates that correspond to the physical domain and
-all synthetic waveforms in coordinates that correspond to the simulation
-domain. If the domain is rotated, the **plot_domain** command will plot both,
-the physical and the simulation domain:
-
-.. plot::
-
-    import lasif.visualization
-    lasif.visualization.plot_domain(-20, +20, -20, +20, 3.0,
-        rotation_axis=[1.0, 1.0, 1.0], rotation_angle_in_degree=-45.0,
-        plot_simulation_domain=True)
 
 .. note::
 
@@ -161,9 +179,6 @@ the physical and the simulation domain:
     for the dimensions and location of the chosen domain. If that is not the
     case please file an issue on the project's Github page.
 
-The small size of the domain does not warrant downloading an hour worth of data
-for every event. Half an hour or event less is more then sufficient. After all
-the discussed changes the **config.xml** file should be similar to this one:
 
 .. code-block:: xml
 

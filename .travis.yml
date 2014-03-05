@@ -24,9 +24,11 @@ before_install:
   - pip install --use-mirrors flake8
   - pip install --use-mirrors colorama
   - pip install --use-mirrors sphinx
-  - pip install --use-mirrors future
+  # The current version has some issues. The master more or less resolves  them...
+  - pip install --use-mirrors https://github.com/PythonCharmers/python-future/archive/master.zip
   - pip install --use-mirrors "joblib>=0.8.0a3"
-  - pip install --use-mirrors sphinx_rtd_theme
+  # The theme from the repository it also more up to date.
+  - pip install --use-mirrors https://github.com/snide/sphinx_rtd_theme/archive/master.zip
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 script:
