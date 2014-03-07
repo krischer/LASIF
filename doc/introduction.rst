@@ -35,6 +35,31 @@ achieve reasonable performance it employs a transparent caching scheme able to
 quickly any changes the user makes to the data. Also important to keep in mind
 is that **LASIF will never delete any data**.
 
+The aim of the **LASIF** project is to facilitate the execution of mid-to
+large-scale full seismic waveform inversion using adjoint techniques. A
+simplified representation of the general workflow is presented here.
+
+.. image:: images/simplified_adjoint_workflow.*
+    :width: 80%
+    :align: center
+
+
+One of the biggest problems is the meaningful organization of the different
+types of data which are mostly in non-trivial relations to each other.
+
+
+.. image:: images/LASIF_data_zoo.*
+    :width: 80%
+    :align: center
+
+
+**LASIF** attempts to tackle these issues by employing a number of modules
+tied together by a common project.
+
+.. image:: images/LASIF_Overview.*
+    :width: 80%
+    :align: center
+
 Further Information
 -------------------
 
