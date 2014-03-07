@@ -19,6 +19,7 @@ import re
 import warnings
 
 from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.patheffects as PathEffects
 import matplotlib.pylab as plt
 from mpl_toolkits.basemap import Basemap
 import numpy as np
@@ -510,6 +511,20 @@ class RawSES3DModelHandler(object):
 
         plt.suptitle("Depth slice of %s at %i km" % (
             component, int(round(actual_depth))), size="large")
+
+        border = rotations.get_border_latlng_list(
+            rotations.colat2lat(self.setup["physical_boundaries_x"][0]),
+            rotations.colat2lat(self.setup["physical_boundaries_x"][1]),
+            self.setup["physical_boundaries_y"][0],
+            self.setup["physical_boundaries_y"][1],
+            rotation_axis=self.rotation_axis,
+            rotation_angle_in_degree=self.rotation_angle_in_degree)
+        border = np.array(border)
+        lats = border[:, 0]
+        lngs = border[:, 1]
+        lngs, lats = m(lngs, lats)
+        m.plot(lngs, lats, color="black", lw=2, path_effects=[
+            PathEffects.withStroke(linewidth=4, foreground="white")])
 
         def _on_button_press(event):
             if event.button != 1 or not event.inaxes:
