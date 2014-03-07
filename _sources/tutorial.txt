@@ -117,7 +117,7 @@ initialized it looks akin to the following:
 * The ``domain`` settings will be explained in more detail in the following
   paragraphs.
 * The ``boundary_width_in_degree`` tag is use to be able to take care of the
-  boundary conditions, e.g. data will be downloaded within
+  boundary conditions, e.g. no data will be downloaded within
   ``boundary_width_in_degree`` distance to the domain border.
 
 The nature of SES3D's coordinate system has the effect that simulation is most
@@ -142,7 +142,7 @@ settings.
 
 * Latitude: ``-20.0° - 20.0°``
 * Longitude: ``-20.0° - 20.0°``
-* Depth: ``0 km - 471 km``
+* Depth: ``0 km - 1000 km``
 * Boundary width in degree: ``3.00°``
 * Rotation axis: ``1.0, 1.0, 0.2``
 * Rotation angle: ``-65.0°``
@@ -179,76 +179,87 @@ defined boundary width.
     for the dimensions and location of the chosen domain. If that is not the
     case please file an issue on the project's Github page.
 
+Assuming you carefully followed this part the ``config.xml`` file should
+look like this.
 
 .. code-block:: xml
 
     <?xml version='1.0' encoding='UTF-8'?>
     <lasif_project>
-      <name>TutorialAnatolia</name>
-      <description>Tutorial Inversion</description>
+      <name>Tutorial</name>
+      <description></description>
       <download_settings>
-        <arclink_username>your@email.com</arclink_username>
+        <arclink_username></arclink_username>
         <seconds_before_event>300</seconds_before_event>
-        <seconds_after_event>1800</seconds_after_event>
+        <seconds_after_event>3600</seconds_after_event>
       </download_settings>
       <domain>
         <domain_bounds>
-          <minimum_longitude>23.1</minimum_longitude>
-          <maximum_longitude>42.9</maximum_longitude>
-          <minimum_latitude>34.1</minimum_latitude>
-          <maximum_latitude>42.9</maximum_latitude>
+          <minimum_longitude>-20</minimum_longitude>
+          <maximum_longitude>20</maximum_longitude>
+          <minimum_latitude>-20</minimum_latitude>
+          <maximum_latitude>20</maximum_latitude>
           <minimum_depth_in_km>0.0</minimum_depth_in_km>
-          <maximum_depth_in_km>471.0</maximum_depth_in_km>
-          <boundary_width_in_degree>1.46</boundary_width_in_degree>
+          <maximum_depth_in_km>1000.0</maximum_depth_in_km>
+          <boundary_width_in_degree>3.0</boundary_width_in_degree>
         </domain_bounds>
         <domain_rotation>
-          <rotation_axis_x>0.0</rotation_axis_x>
-          <rotation_axis_y>0.0</rotation_axis_y>
-          <rotation_axis_z>1.0</rotation_axis_z>
-          <rotation_angle_in_degree>0.0</rotation_angle_in_degree>
+          <rotation_axis_x>1.0</rotation_axis_x>
+          <rotation_axis_y>1.0</rotation_axis_y>
+          <rotation_axis_z>0.2</rotation_axis_z>
+          <rotation_angle_in_degree>-65.0</rotation_angle_in_degree>
         </domain_rotation>
       </domain>
     </lasif_project>
 
-This concludes the intial setup part of the inversion.
 
 
 Adding Seismic Events
 ---------------------
-Once the domain has been adjusted to your needs, you need to tell LASIF which
-events you want to use for the inversion. This works by simply placing a valid
-QuakeML 1.2 file at the correct location.
+Once the domain has been adjusted to your needs, you need to tell **LASIF**
+which events you want to use for the inversion. This works by simply placing a
+valid QuakeML 1.2 file at the correct location.
 
-All events have to be stored in the *EVENTS* subfolder of the project. They
+All events have to be stored in the ``EVENTS`` subfolder of the project. They
 have to be QuakeML 1.2 files with full moment tensor information.
 
 LASIF provides some convenience methods for this purpose. One can leverage the
-IRIS SPUD service (http://www.iris.edu/spud/momenttensor) to get GlobalCMT
-events.  Simply search for an event and copy the url. The **iris2quakeml**
-script will then grab the QuakeML from the url and store an XML file in the
-correct folder.
+`IRIS SPUD service <http://www.iris.edu/spud/momenttensor>`_ to get GlobalCMT
+events.  Simply search for an event on their webpage and copy the event url.
+The ``lasif add_spud_event`` command will then grab the QuakeML from the url
+and store an XML file in the correct folder.
 
-See :doc:`iris2quakeml` for more information. The LASIF command lines tools
-contain a convenience wrapper around it that also makes sure that the events
-ends up in the correct folder and gives them a reasonable filename that should
-ease event identification.
 
 .. code-block:: bash
 
-    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/735711
-    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/988455
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/834535
 
 
-These two commands should create two QuakeML files. To which events are
-currently defined in the project use the **list_events** command.
+These commands will download two event files and store them in the
+``EVENTS`` subfolder.
+
+.. code-block:: bash
+
+    $ ls EVENTS
+
+    GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+    GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40.xml
+
+A more convenient way to see which events are currently defined in the
+project is the ``lasif list_events`` command.
 
 .. code-block:: bash
 
     $ lasif list_events
 
     2 events in project:
-        GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
-        GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    +--------------------------------------------------------------+-----------------------------+---------------------+
+    | Event Name                                                   |    Lat/Lng/Depth(km)/Mag    | # raw/preproc/synth |
+    +--------------------------------------------------------------+-----------------------------+---------------------+
+    | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2 |   43.3 /   20.8 /   9 / 5.9 |    0 /     0 /    0 |
+    | GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40                  |   43.3 /   -0.3 /  10 / 5.1 |    0 /     0 /    0 |
+    +--------------------------------------------------------------+-----------------------------+---------------------+
 
 You will notice that events are identified via their filename minus the
 extension. This is an easy and flexible solution enabling you to tag the events
@@ -259,8 +270,8 @@ filename. So please give them a good and reasonable filename. If you really
 feel that event renaming is a necessary feature please file an issue on Github
 so that the authors can add a proper event renaming function.
 
-The **plot_events** command will return a map with all events currently part of
-the project.
+The ``lasif plot_events`` command will show a map with all events currently
+part of the project.
 
 .. code-block:: bash
 
@@ -270,59 +281,55 @@ the project.
 
     import lasif.visualization
     from obspy import UTCDateTime
-    map = lasif.visualization.plot_domain(34.1, 42.9, 23.1, 42.9, 1.46,
-        rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
-        zoom=True)
-    # Create event.
+    bmap = lasif.visualization.plot_domain(-20.0, 20.0, -20.0, 20.0, 3.0,
+        rotation_axis=[1.0, 1.0, 0.2], rotation_angle_in_degree=-65.0,
+        plot_simulation_domain=False, zoom=True)
     events = [{
-        "filename": "example_1.xml",
-        "event_name": "1",
-        "latitude": 39.15,
-        "longitude": 29.1,
-        "depth_in_km": 10,
-        "origin_time": UTCDateTime(2012, 1, 1),
-        "m_rr": -8.07e+17,
-        "m_tt": 8.92e+17,
-        "m_pp": -8.5e+16,
-        "m_rt": 2.8e+16,
-        "m_rp": -5.3e+16,
-        "m_tp": -2.17e+17,
-        "magnitude": 5.1,
-        "magnitude_type": "Mw"
+        'depth_in_km': 10.0,
+        'event_name': 'GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40',
+        'filename': 'GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40.xml',
+        'latitude': 43.26,
+        'longitude': -0.34,
+        'm_pp': -7730000000000000.0,
+        'm_rp': -2.617e+16,
+        'm_rr': -3.713e+16,
+        'm_rt': 3.348e+16,
+        'm_tp': -2.662e+16,
+        'm_tt': 4.487e+16,
+        'magnitude': 5.1,
+        'magnitude_type': 'Mwc',
+        'origin_time': UTCDateTime(1980, 2, 29, 20, 40, 48, 500000),
+        'region': u'PYRENEES'
     }, {
-        "filename": "example_2.xml",
-        "event_name": "2",
-        "latitude": 38.82,
-        "longitude": 40.14,
-        "depth_in_km": 10,
-        "origin_time": UTCDateTime(2013, 1, 1),
-        "m_rr": 5.47e+15,
-        "m_tt": -4.11e+16,
-        "m_pp": 3.56e+16,
-        "m_rt": 2.26e+16,
-        "m_rp": -2.25e+16,
-        "m_tp": 1.92e+16,
-        "magnitude": 5.1,
-        "magnitude_type": "Mw"}]
-    lasif.visualization.plot_events(events, map)
+        'depth_in_km': 9.0,
+        'event_name': 'GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2',
+        'filename': 'GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml',
+        'latitude': 43.29,
+        'longitude': 20.84,
+        'm_pp': -4.449e+17,
+        'm_rp': -5.705e+17,
+        'm_rr': -1.864e+17,
+        'm_rt': 2.52e+16,
+        'm_tp': 4.049e+17,
+        'm_tt': 6.313e+17,
+        'magnitude': 5.9,
+        'magnitude_type': 'Mwc',
+        'origin_time': UTCDateTime(1980, 5, 18, 20, 2, 57, 500000),
+        'region': u'NORTHWESTERN BALKAN REGION'}]
+    lasif.visualization.plot_events(events, bmap)
 
 
-The **event_info** command is your friend if you desire more information about
-a certain event:
+The ``lasif event_info`` command is your friend if you desire more  information
+about a certain event:
 
 .. code-block:: bash
 
-    $ lasif event_info GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    $ lasif event_info GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40
 
-    Earthquake with 5.1 Mwc at TURKEY
-        Latitude: 38.820, Longitude: 40.140, Depth: 4.5 km
-        2010-03-24T14:11:31.000000Z UTC
-
-    Station and waveform information available at 0 stations:
-
-    ===========================================================================
-                 id       latitude      longitude      elevation    local depth
-    ===========================================================================
+    Earthquake with 5.1 Mwc at PYRENEES
+        Latitude: 43.260, Longitude: -0.340, Depth: 10.0 km
+        1980-02-29T20:40:48.500000Z UTC
+    ...
 
 The information given with this command will be the one LASIF uses. This is
 useful if the event has more then one origin and you want to know which one

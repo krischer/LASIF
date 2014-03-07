@@ -167,6 +167,18 @@ every LASIF operation, the tool checks what data is available and uses it. To
 achieve reasonable performance it employs a transparent caching scheme able to
 quickly any changes the user makes to the data. Also important to keep in mind
 is that <strong>LASIF will never delete any data</strong>.</p>
+<p>The aim of the <strong>LASIF</strong> project is to facilitate the execution of mid-to
+large-scale full seismic waveform inversion using adjoint techniques. A
+simplified representation of the general workflow is presented here.</p>
+<a class="reference internal image-reference" href="_images/simplified_adjoint_workflow.png"><img alt="_images/simplified_adjoint_workflow.png" class="align-center" src="_images/simplified_adjoint_workflow.png" style="width: 80%;" /></a>
+<p>One of the biggest problems is the meaningful organization of the different
+types of data which are mostly in non-trivial relations to each other.</p>
+<a class="reference internal image-reference" href="_images/LASIF_data_zoo.svg"><div align="center" class="align-center"><img src="_images/LASIF_data_zoo.svg" width="80%" /></div>
+</a>
+<p><strong>LASIF</strong> attempts to tackle these issues by employing a number of modules
+tied together by a common project.</p>
+<a class="reference internal image-reference" href="_images/LASIF_Overview.svg"><div align="center" class="align-center"><img src="_images/LASIF_Overview.svg" width="80%" /></div>
+</a>
 <div class="section" id="further-information">
 <h2>Further Information<a class="headerlink" href="#further-information" title="Permalink to this headline">¶</a></h2>
 <p>The documentation is currently being restructures. For now additional
