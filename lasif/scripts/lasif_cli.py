@@ -431,8 +431,9 @@ def lasif_plot_kernel(parser, args):
         print handler
         print ""
 
-        inp = raw_input("Enter 'COMPONENT DEPTH' ('quit' to exit): ")
-        if inp.lower() == "quit":
+        inp = raw_input("Enter 'COMPONENT DEPTH' "
+                        "('quit/exit' to exit): ").strip()
+        if inp.lower() in ["quit", "q", "exit", "leave"]:
             break
         try:
             component, depth = inp.split()
@@ -467,8 +468,9 @@ def lasif_plot_model(parser, args):
         print handler
         print ""
 
-        inp = raw_input("Enter 'COMPONENT DEPTH' ('quit' to exit): ")
-        if inp.lower() == "quit":
+        inp = raw_input("Enter 'COMPONENT DEPTH' "
+                        "('quit/exit' to exit): ").strip()
+        if inp.lower() in ["quit", "q", "exit", "leave"]:
             break
         try:
             component, depth = inp.split()
@@ -515,8 +517,9 @@ def lasif_plot_wavefield(parser, args):
         print handler
         print ""
 
-        inp = raw_input("Enter 'COMPONENT TIMESTEP DEPTH' ('quit' to exit): ")
-        if inp.lower() == "quit":
+        inp = raw_input("Enter 'COMPONENT DEPTH' "
+                        "('quit/exit' to exit): ").strip()
+        if inp.lower() in ["quit", "q", "exit", "leave"]:
             break
         try:
             component, timestep, depth = inp.split()
@@ -594,11 +597,10 @@ def lasif_plot_stf(parser, args):
     stf = iteration.get_source_time_function()
 
     # Ignore lots of potential warnings with some plotting functionality.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
-                                    freqmax=freqmax)
-        plt.show()
+    # with warnings.catch_warnings():
+    #     warnings.simplefilter("ignore")
+    lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
+                                freqmax=freqmax)
 
 
 @command_group("Iteration Management")
