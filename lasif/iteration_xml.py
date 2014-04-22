@@ -357,8 +357,8 @@ def create_iteration_xml_string(iteration_name, solver_name, events,
     """
     solver_doc = _get_default_solver_settings(solver_name, min_period,
                                               max_period)
-    if solver_name.lower() == "ses3d_4_0":
-        solver_name = "SES3D 4.0"
+    if solver_name.lower() == "ses3d_4_1":
+        solver_name = "SES3D 4.1"
     elif solver_name.lower() == "ses3d_2_0":
         solver_name = "SES3D 2.0"
     elif solver_name.lower() == "specfem3d_cartesian":
@@ -412,10 +412,10 @@ def _get_default_solver_settings(solver, min_period, max_period):
     Helper function returning etree representation of a solver's default
     settings.
     """
-    known_solvers = ["ses3d_4_0", "ses3d_2_0", "specfem3d_cartesian"]
-    if solver.lower() == "ses3d_4_0":
+    known_solvers = ["ses3d_4_1", "ses3d_2_0", "specfem3d_cartesian"]
+    if solver.lower() == "ses3d_4_1":
         from lasif.tools import Q_discrete
-        from lasif.utils import generate_ses3d_4_0_template
+        from lasif.utils import generate_ses3d_4_1_template
 
         # Generate the relaxation weights for SES3D.
         w_p, tau_p = Q_discrete.calculate_Q_model(
@@ -427,7 +427,7 @@ def _get_default_solver_settings(solver, min_period, max_period):
             initial_temperature=0.1,
             cooling_factor=0.9998)
 
-        return generate_ses3d_4_0_template(w_p, tau_p)
+        return generate_ses3d_4_1_template(w_p, tau_p)
     elif solver.lower() == "ses3d_2_0":
         from lasif.utils import generate_ses3d_2_0_template
         return generate_ses3d_2_0_template()

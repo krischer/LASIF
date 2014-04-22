@@ -45,7 +45,7 @@ def test_reading_iteration_xml():
     # Test some settings. The rest should work just fine as this is parsed
     # by useing a recursive dictionary.
     solver_params = iteration.solver_settings
-    assert solver_params["solver"] == "SES3D 4.0"
+    assert solver_params["solver"] == "SES3D 4.1"
     solver_settings = solver_params["solver_settings"]
     assert solver_settings["simulation_parameters"] == {
         "number_of_time_steps": 4000,

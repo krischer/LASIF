@@ -398,8 +398,8 @@ class Project(object):
         from lasif.tools.Q_discrete import plot
 
         iteration = self._get_iteration(iteration_name)
-        if iteration.solver_settings["solver"].lower() != "ses3d 4.0":
-            msg = "Only works for SES3D 4.0"
+        if iteration.solver_settings["solver"].lower() != "ses3d 4.1":
+            msg = "Only works for SES3D 4.1"
             raise LASIFException(msg)
 
         proc_params = iteration.get_process_params()
@@ -1063,11 +1063,11 @@ class Project(object):
 
         solver = iteration.solver_settings
 
-        # Currently only SES3D 4.0 is supported
+        # Currently only SES3D 4.1 is supported
         solver_format = solver["solver"].lower()
-        if solver_format not in ["ses3d 4.0", "ses3d 2.0",
+        if solver_format not in ["ses3d 4.1", "ses3d 2.0",
                                  "specfem3d cartesian"]:
-            msg = ("Currently only SES3D 4.0, SES3D 2.0, and SPECFEM3D "
+            msg = ("Currently only SES3D 4.1, SES3D 2.0, and SPECFEM3D "
                    "CARTESIAN are supported.")
             raise ValueError(msg)
         solver_format = solver_format.replace(' ', '_')
@@ -1085,7 +1085,7 @@ class Project(object):
         gen.add_events(event["filename"])
         gen.add_stations(stations)
 
-        if solver_format in ["ses3d_4_0", "ses3d_2_0"]:
+        if solver_format in ["ses3d_4_1", "ses3d_2_0"]:
             # event tag
             gen.config.event_tag = event_name
 
@@ -1112,8 +1112,8 @@ class Project(object):
             diss = solver["simulation_parameters"]["is_dissipative"]
             gen.config.is_dissipative = diss
 
-            # Only SES3D 4.0 has the relaxation parameters.
-            if solver_format == "ses3d_4_0":
+            # Only SES3D 4.1 has the relaxation parameters.
+            if solver_format == "ses3d_4_1":
                 gen.config.Q_model_relaxation_times = \
                     solver["relaxation_parameter_list"]["tau"]
                 gen.config.Q_model_weights_of_relaxation_mechanisms = \

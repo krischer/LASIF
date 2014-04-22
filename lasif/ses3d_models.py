@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-A set of classes dealing with SES3D 4.0 Models
+A set of classes dealing with SES3D 4.1 Models
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de),

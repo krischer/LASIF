@@ -329,12 +329,12 @@ def test_generating_new_iteration(project):
     assert os.listdir(project.paths["iterations"]) == []
 
     # Now actually create a new iteration.
-    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     assert os.listdir(project.paths["iterations"]) == ["ITERATION_1.xml"]
 
     # Creating an already existing iteration raises.
     with pytest.raises(LASIFException) as excinfo:
-        project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+        project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     assert excinfo.value.message.lower() == "iteration already exists."
 
 
@@ -343,8 +343,8 @@ def test_iteration_handling(project):
     Tests the managing of the iterations.
     """
     # First create two iterations.
-    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
-    project.create_new_iteration("2", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("1", "ses3d_4_1", 8, 100)
+    project.create_new_iteration("2", "ses3d_4_1", 8, 100)
     assert sorted(os.listdir(project.paths["iterations"])) == \
         sorted(["ITERATION_1.xml", "ITERATION_2.xml"])
 
@@ -382,7 +382,7 @@ def test_preprocessing_runs(project):
     does the right thing but will at least assure the program flow works as
     expected.
     """
-    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     processing_tag = project._get_iteration("1").get_processing_tag()
     event_data_dir = os.path.join(
         project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
@@ -453,7 +453,7 @@ def test_input_file_invocation(project):
     generator module.
     """
     assert os.listdir(project.paths["output"]) == []
-    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("1", "ses3d_4_1", 8, 100)
 
     # Normal simulation.
     project.generate_input_files(
@@ -577,7 +577,7 @@ def test_data_synthetic_iterator(project, recwarn):
     Tests that the data synthetic iterator works as expected.
     """
     # It requires an existing iteration with processed data.
-    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     project.preprocess_data("1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
                             waiting_time=0.0)
 
@@ -678,7 +678,7 @@ def test_iteration_status(project):
     """
     Tests the iteration status commands.
     """
-    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
 
     # Currenty the project has 4 files, that are not preprocessed.
@@ -734,7 +734,7 @@ def test_Q_model_plotting(project):
     """
     Tests the Q model plotting.
     """
-    project.create_new_iteration("1", "ses3d_4_0", 11, 111)
+    project.create_new_iteration("1", "ses3d_4_1", 11, 111)
     with mock.patch("lasif.tools.Q_discrete.plot") as patch:
         project.plot_Q_model("1")
         patch.assert_called_once()
@@ -849,7 +849,7 @@ def test_coordinate_retrieval(project):
 
     # Also with processed data. We thus need to create a new iteration and
     # create processed data.
-    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     project.preprocess_data("1", [event_name], waiting_time=0.0)
     processing_tag = project._get_iteration("1").get_processing_tag()
 
@@ -978,12 +978,12 @@ def test_discover_available_data(project):
         {"processed": [], "synthetic": []}
 
     # Create a new iteration. At this point it should contain some synthetics.
-    project.create_new_iteration("1", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     assert project.discover_available_data(event, "HL.ARG") == \
         {"processed": [], "synthetic": ["1"]}
 
     # A new iteration without data does not add anything.
-    project.create_new_iteration("2", "ses3d_4_0", 8, 100)
+    project.create_new_iteration("2", "ses3d_4_1", 8, 100)
     assert project.discover_available_data(event, "HL.ARG") == \
         {"processed": [], "synthetic": ["1"]}
 

@@ -18,7 +18,7 @@
   </rejection_criteria>
   <source_time_function>Filtered Heaviside</source_time_function>
   <solver_parameters>
-    <solver>SES3D 4.0</solver>
+    <solver>SES3D 4.1</solver>
     <solver_settings>
       <simulation_parameters>
         <number_of_time_steps>4000</number_of_time_steps>

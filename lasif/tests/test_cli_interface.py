@@ -255,7 +255,7 @@ def test_iteration_creation_and_stf_plotting(cli):
     """
     Tests the generation of an iteration and the supsequent STF plotting.
     """
-    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
     assert "1" in cli.project.get_iteration_dict().keys()
 
     with mock.patch("lasif.visualization.plot_tf") as patch:
@@ -347,7 +347,7 @@ def test_preprocessing_and_launch_misfit_gui(cli):
     together because the former is required by the later and takes a rather
     long time.
     """
-    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
 
     processing_tag = cli.project._get_iteration("1").get_processing_tag()
     preprocessing_data = os.path.join(
@@ -385,7 +385,7 @@ def test_preprocessing_event_limiting_works(cli):
     """
     Asserts that the event parsing is correct.
     """
-    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
 
     # No event should result in None.
     with mock.patch("lasif.project.Project.preprocess_data") as patch:
@@ -419,12 +419,12 @@ def test_iteration_info(cli):
     """
     Tests the 'lasif iteration_info' command.
     """
-    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
 
     out = cli.run("lasif iteration_info 1").stdout
     assert "LASIF Iteration" in out
     assert "Name: 1" in out
-    assert "Solver: SES3D 4.0" in out
+    assert "Solver: SES3D 4.1" in out
 
 
 def test_remove_empty_coordinate_entries(cli):
@@ -467,7 +467,7 @@ def test_iteration_status_command(cli):
     returns the number of already preprocessed data files, how many synthetics
     are available, the windows and adjoint sources.
     """
-    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
     out = cli.run("lasif iteration_status 1").stdout
     assert out == (
         "Iteration Name: 1\n"
@@ -497,7 +497,7 @@ def test_iteration_status_command(cli):
     # The iteration has to be recreated.
     os.remove(os.path.join(cli.project.paths["iterations"],
                            "ITERATION_1.xml"))
-    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
     out = cli.run("lasif iteration_status 1").stdout
     assert out == (
         "Iteration Name: 1\n"
@@ -512,7 +512,7 @@ def test_Q_model_plotting(cli):
     """
     Tests the Q model plotting via mocking.
     """
-    cli.run("lasif create_new_iteration 1 7.0 70.0 SES3D_4_0")
+    cli.run("lasif create_new_iteration 1 7.0 70.0 SES3D_4_1")
     with mock.patch("lasif.tools.Q_discrete.plot") as patch:
         cli.run("lasif plot_Q_model 1")
         patch.assert_called_once()
