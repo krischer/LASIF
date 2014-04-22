@@ -728,14 +728,14 @@ Let's start by creating the XML file for the very first iteration with the
 
 .. code-block:: bash
 
-    $ lasif create_new_iteration 1 8.0 100.0 SES3D_4_0
+    $ lasif create_new_iteration 1 8.0 100.0 SES3D_4_1
 
 
 This command takes four arguments; the first being the iteration name. A simple
 number is sufficient in many cases. The second and third denote the band limit
 of this iteration. In this example the band is limited between 8 and 100
 seconds. The fourth argument is the waveform solver to be used for this
-iteration. It currently only supports SES3D 4.0 but the infrastructure to add
+iteration. It currently only supports SES3D 4.1 but the infrastructure to add
 other solvers is already in place.
 
 You will see that this create a new file; *ITERATIONS/ITERATION_1.xml**. Each
@@ -762,7 +762,7 @@ To get more information about a specific iteration, use the **iteration_info** c
         Preprocessing Settings:
                 Highpass Period: 100.000 s
                 Lowpass Period: 8.000 s
-        Solver: SES3D 4.0 | 500 timesteps (dt: 0.75s)
+        Solver: SES3D 4.1 | 500 timesteps (dt: 0.75s)
         2 events recorded at 10 unique stations
         16 event-station pairs ("rays")
 
@@ -837,7 +837,7 @@ present in the LASIF project.
       </rejection_criteria>
       <source_time_function>Filtered Heaviside</source_time_function>
       <solver_parameters>
-        <solver>SES3D 4.0</solver>
+        <solver>SES3D 4.1</solver>
         <solver_settings>
           <simulation_parameters>
             <number_of_time_steps>4000</number_of_time_steps>
@@ -1036,20 +1036,20 @@ actually simulate anything and LASIF of course also assists in that regard.
 Generating SES3D Input Files
 ----------------------------
 
-LASIF is currently capable of producing input files for SES3D 4.0. It is very
+LASIF is currently capable of producing input files for SES3D 4.1. It is very
 straightforward and knows what data is available for every event and thus can
 generate these files fully automatically. In the future it might be worth
 investigating automatic job submission to high performance machines as this is
 essentially just repetitive and error-prone work.
 
 The iteration XML file also governs the solver used and the specific settings
-used for the given iteration, e.g. the settings for the SES3D 4.0 solver are
+used for the given iteration, e.g. the settings for the SES3D 4.1 solver are
 shown here.
 
 .. code-block:: xml
 
   <solver_parameters>
-    <solver>SES3D 4.0</solver>
+    <solver>SES3D 4.1</solver>
     <solver_settings>
       <simulation_parameters>
         <number_of_time_steps>4000</number_of_time_steps>
@@ -1076,11 +1076,11 @@ shown here.
   </solver_parameters>
 
 Most things should be self-explanatory.  In case something is not fully clear,
-please refer to the SES3D 4.0 manual or contact the author. As previously
+please refer to the SES3D 4.1 manual or contact the author. As previously
 mentioned the **{{EVENT_NAME}}** placeholder will be replaced with the actual
 event. Please take care that what you put in here it correct, otherwise the
 simulations will not work. The settings shown here coincide with the settings
-used in the SES3D 4.0 tutorial so we will just use those here.
+used in the SES3D 4.1 tutorial so we will just use those here.
 
 
 Input File Generation
@@ -1129,11 +1129,11 @@ to verify your setup and potentially also the correctness of this tool suite.
 Organizing the Models
 ---------------------
 
-Short Deviation: Creating an initial model with SES3D 4.0
+Short Deviation: Creating an initial model with SES3D 4.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is very quick tutorial to help you get up to speed with the model
-generation for this tutorial with SES3D 4.0. You will still need to read the
+generation for this tutorial with SES3D 4.1. You will still need to read the
 SES3D manual. This part assumes that you created the input files according to
 the previous section and that you have a copy of SES3D on the supercomputer.
 Please not that you will have to adjust settings if you did not follow along

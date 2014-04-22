@@ -89,13 +89,13 @@ This is a short list of supported data formats and other software.
 
 * **Waveform Data:** All file formats supported by ObsPy.
 * **Synthetics:** All file formats supported by ObsPy and the output files of
-  SES3D 4.0.
+  SES3D 4.1.
 * **Event Metadata:** QuakeML 1.2
 * **Station Metadata:** dataless SEED, RESP and (hopefully) soon FDSN
   StationXML.  Once implemented, StationXML will be the recommended and most
   future proof format.
 * **Earth Models:** Currently the raw SES3D model format is supported.
-* **Waveform Solvers:** SES3D 4.0, support for SpecFEM Cartesian and/or Globe
+* **Waveform Solvers:** SES3D 4.1, support for SpecFEM Cartesian and/or Globe
   will be added soon.
 
 
