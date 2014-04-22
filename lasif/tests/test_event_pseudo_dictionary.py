@@ -131,8 +131,8 @@ def test_contains(event_pseudo_dict):
     """
     assert EVENT_1_NAME in event_pseudo_dict
     assert EVENT_2_NAME in event_pseudo_dict
-    assert not "test" in event_pseudo_dict
-    assert not 1 in event_pseudo_dict
+    assert "test" not in event_pseudo_dict
+    assert 1 not in event_pseudo_dict
 
 
 def test_len(event_pseudo_dict):

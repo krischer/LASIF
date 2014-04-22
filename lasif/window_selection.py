@@ -134,12 +134,12 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     """
 
     print "* ---------------------------"
-    print "* autoselect "+data_trace.stats.channel
+    print "* autoselect " + data_trace.stats.channel
 
-    #==========================================================================
+    # =========================================================================
     # set a couple of selection parameters - might become part of the input in
     # future versions
-    #==========================================================================
+    # =========================================================================
 
     # Minimum normalised correlation coefficient of the complete traces.
     min_cc = 0.0
@@ -164,9 +164,9 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # Maximum energy ratio between data and synthetics within a time window.
     max_energy_ratio = 3.0
 
-    #==========================================================================
+    # =========================================================================
     # initialisations
-    #==========================================================================
+    # =========================================================================
 
     dt = synthetic_trace.stats.delta
     npts = synthetic_trace.stats.npts
@@ -180,7 +180,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # window is set to a multiple of the dominant period of the synthetics.
     # Make sure it is an uneven number; just to have an easy midpoint
     # definition.
-    window_length = int(round(float(2*minimum_period) / dt))
+    window_length = int(round(float(2 * minimum_period) / dt))
 
     if not window_length % 2:
         window_length += 1
@@ -191,27 +191,27 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
 
     taper = np.hanning(window_length)
 
-    #==========================================================================
+    # =========================================================================
     # check if whole seismograms are sufficiently correlated and estimate noise
     # level
-    #==========================================================================
+    # =========================================================================
 
     synth = synthetic_trace.data
     data = data_trace.data
 
-    #- compute correlation coefficient
+    #  compute correlation coefficient
     norm = np.sqrt(np.sum(data ** 2)) * np.sqrt(np.sum(synth ** 2))
     cc = np.sum(data * synth) / norm
     print "** correlation coefficient: " + str(cc)
 
-    #- estimate noise level from waveforms prior to the first arrival
+    #  estimate noise level from waveforms prior to the first arrival
     idx = int(np.ceil((first_tt_arrival - minimum_period * 0.5) / dt))
     noise_absolute = data[50:idx].ptp()
     noise_relative = noise_absolute / data.ptp()
-    print "** absolute noise level: "+str(noise_absolute)+" m/s"
-    print "** relative noise level: "+str(noise_relative)
+    print "** absolute noise level: " + str(noise_absolute) + " m/s"
+    print "** relative noise level: " + str(noise_relative)
 
-    #- rejection criteria
+    #  rejection criteria
     accept = True
     if cc < min_cc:
         print "** no windows selected, correlation " + str(cc) + \
@@ -226,9 +226,9 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
         print "* autoselect done"
         return []
 
-    #==========================================================================
+    # =========================================================================
     # compute sliding time shifts and correlation coefficients
-    #==========================================================================
+    # =========================================================================
 
     for start_idx, end_idx, midpoint_idx in _window_generator(npts,
                                                               window_length):
@@ -257,10 +257,10 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
                                           (data_window ** 2).sum())
         max_cc_coeff[midpoint_idx] = max_cc_value
 
-    #==========================================================================
+    # =========================================================================
     # compute the initial mask, i.e. intervals (windows) where no measurements
     # are made.
-    #==========================================================================
+    # =========================================================================
 
     # Step 1: Initialise masked arrays. The mask will be set to True where no
     # windows are chosen.
@@ -294,15 +294,15 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # is under threshold_correlation as negative
     time_windows.mask[max_cc_coeff < threshold_correlation] = True
 
-    #==========================================================================
-    #- Make the final window selection.
-    #==========================================================================
+    # =========================================================================
+    #  Make the final window selection.
+    # =========================================================================
 
     min_length = min(
         minimum_period / dt * min_length_period, maximum_period / dt)
     final_windows = []
 
-    #- loop through all the time windows
+    #  loop through all the time windows
     for i in np.ma.flatnotmasked_contiguous(time_windows):
 
         window_npts = i.stop - i.start

@@ -327,7 +327,7 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
 
     title = "%i Events with %i recorded 3 component waveforms" % (
         len(station_events), circle_count)
-    #plt.gca().set_title(title, size="large")
+    # plt.gca().set_title(title, size="large")
     plt.title(title, size="xx-large")
 
     data = collected_bins.bins.transpose()

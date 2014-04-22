@@ -279,7 +279,7 @@ class MisfitGUI:
         # provide some basic screen output -----------------------------------
         d = self.data["data"][0]
         print "============================================"
-        print "station: "+d.stats.network+'.'+d.stats.station
+        print "station: " + d.stats.network + '.' + d.stats.station
 
         # loop through components and check if they are flipped --------------
         for comp in {"N", "E", "Z"}:
@@ -587,7 +587,7 @@ class MisfitGUI:
         :param plot_only: If True, do not write anything to disk, but only
             plot.
         """
-        #- Initialisation -----------------------------------------------------
+        #  Initialisation -----------------------------------------------------
 
         # Minimum window length is 50 samples.
         delta = self.data["synthetics"][0].stats.delta
@@ -617,14 +617,14 @@ class MisfitGUI:
             self.plot_window(component=trace.id[-1], starttime=starttime,
                              endtime=endtime, window_weight=self.weight)
 
-        #- window data and synthetics -----------------------------------------
+        #  window data and synthetics -----------------------------------------
 
-        #- Decimal percentage of cosine taper (ranging from 0 to 1). Set to the
+        #  Decimal percentage of cosine taper (ranging from 0 to 1). Set to the
         # fraction of the minimum period to the window length.
         taper_percentage = np.min(
             [1.0, 1.0 / self. process_parameters["lowpass"] / window_width])
 
-        #- data
+        #  data
         data_trimmed = data.copy()
         data_trimmed.trim(starttime, endtime)
         data_trimmed.taper(type='cosine',
@@ -632,7 +632,7 @@ class MisfitGUI:
         data_trimmed.trim(synth.stats.starttime, synth.stats.endtime, pad=True,
                           fill_value=0.0)
 
-        #- synthetics
+        #  synthetics
         synth_trimmed = synth.copy()
         synth_trimmed.trim(starttime, endtime)
         synth_trimmed.taper(type='cosine',
@@ -640,11 +640,11 @@ class MisfitGUI:
         synth_trimmed.trim(synth.stats.starttime, synth.stats.endtime,
                            pad=True, fill_value=0.0)
 
-        #- make time axis
+        #  make time axis
         t = np.linspace(0, synth.stats.npts * synth.stats.delta,
                         synth.stats.npts)
 
-        #- clear axes of misfit plot ------------------------------------------
+        #  clear axes of misfit plot ------------------------------------------
 
         self.misfit_axis.cla()
         self.colorbar_axis.cla()
@@ -655,7 +655,7 @@ class MisfitGUI:
         except:
             pass
 
-        #- set data and synthetics, compute actual misfit ---------------------
+        #  set data and synthetics, compute actual misfit ---------------------
 
         t = np.require(t, dtype="float64", requirements="C")
         data_d = np.require(data_trimmed.data, dtype="float64",
@@ -663,7 +663,7 @@ class MisfitGUI:
         synth_d = np.require(synth_trimmed.data, dtype="float64",
                              requirements="C")
 
-        #- compute misfit and adjoint source
+        #  compute misfit and adjoint source
         adsrc = adsrc_tf_phase_misfit(
             t, data_d, synth_d,
             1.0 / self.process_parameters["lowpass"],
@@ -671,7 +671,7 @@ class MisfitGUI:
             axis=self.misfit_axis,
             colorbar_axis=self.colorbar_axis)
 
-        #- plot misfit distribution -------------------------------------------
+        #  plot misfit distribution -------------------------------------------
 
         # Format all the axis.
         self.misfit_axis.yaxis.set_major_formatter(FormatStrFormatter("%.3f"))
@@ -683,7 +683,7 @@ class MisfitGUI:
         plt.tight_layout()
         plt.draw()
 
-        #- write adjoint source to file ---------------------------------------
+        #  write adjoint source to file ---------------------------------------
 
         if plot_only is not True:
             self.adjoint_source_manager.write_adjoint_src(

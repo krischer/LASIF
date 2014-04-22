@@ -498,9 +498,9 @@ class Project(object):
         process_params = iteration.get_process_params()
         processing_tag = iteration.get_processing_tag()
 
-        #======================================================================
-        #- Waveform information generator for event information
-        #======================================================================
+        # =====================================================================
+        # Waveform information generator for event information
+        # =====================================================================
 
         def processing_data_generator():
             """
@@ -522,7 +522,7 @@ class Project(object):
                     if not os.path.exists(event_data_path):
                         os.makedirs(event_data_path)
 
-                    #- Folder for processing logfiles. Logfile.
+                    # Folder for processing logfiles. Logfile.
                     logfile_path = os.path.join(self.paths["logs"],
                                                 "PROCESSING", event_name)
                     if not os.path.exists(logfile_path):
@@ -543,7 +543,7 @@ class Project(object):
                         warnings.warn(msg)
                         continue
 
-                    #- loop over waveforms in the event =======================
+                    # loop over waveforms in the event =======================
                     for waveform in waveforms.get_values():
                         station_id = "{network}.{station}".format(**waveform)
 
@@ -1033,9 +1033,9 @@ class Project(object):
         """
         from wfs_input_generator import InputFileGenerator
 
-        #======================================================================
+        # =====================================================================
         # read iteration xml file, get event and list of stations
-        #======================================================================
+        # =====================================================================
 
         iteration = self._get_iteration(iteration_name)
 
@@ -1057,9 +1057,9 @@ class Project(object):
             "local_depth_in_m": value["local_depth_in_m"]} for key, value in
             stations.iteritems() if key in stations_for_event]
 
-        #======================================================================
+        # =====================================================================
         # set solver options
-        #======================================================================
+        # =====================================================================
 
         solver = iteration.solver_settings
 
@@ -1075,10 +1075,10 @@ class Project(object):
 
         solver = solver["solver_settings"]
 
-        #======================================================================
+        # =====================================================================
         # create the input file generator, add event and stations,
         # populate the configuration items
-        #======================================================================
+        # =====================================================================
 
         # Add the event and the stations to the input file generator.
         gen = InputFileGenerator()
@@ -1174,9 +1174,9 @@ class Project(object):
             msg = "Unknown solver."
             raise NotImplementedError(msg)
 
-        #==================================================================
+        # =================================================================
         # output
-        #==================================================================
+        # =================================================================
         output_dir = self.get_output_folder(
             "input_files___ITERATION_%s__%s__EVENT_%s" % (
                 iteration_name, simulation_type.replace(" ", "_"),
@@ -1498,8 +1498,8 @@ class Project(object):
             print("%sSkipping waveform file validation.%s" % (
                 colorama.Fore.YELLOW, colorama.Fore.RESET))
 
-        #self._validate_coordinate_deduction(ok_string, fail_string,
-                                            #flush_point, add_report)
+        # self._validate_coordinate_deduction(ok_string, fail_string,
+        # flush_point, add_report)
 
         if raypaths:
             self._validate_raypaths_in_domain(ok_string, fail_string,
@@ -1580,30 +1580,6 @@ class Project(object):
             self._get_waveform_cache_file(event_name, "raw",
                                           show_progress=False)
         print ok_string
-
-    #def _validate_coordinate_deduction(self, ok_string, fail_string,
-                                       #flush_point, add_report):
-        #"""
-        #Function validating that coordinates for all stations can be found.
-
-        #This is essentially only important for the combination of MiniSEED and
-        #RESP files. Otherwise either a SAC file or other station files will
-        #contain the coordinates.
-        #"""
-        #print ("Confirming that station metainformation files exist for "
-               #"all waveforms "),
-        #all_good = True
-        #for event_name in self.events.iterkeys():
-            #flush_point()
-            #waveform_cache = self._get_waveform_cache_file(event_name, "raw",
-                                                       #show_progress=False)
-            #if not waveform_cache:
-                #continue
-
-        #if all_good is True:
-            #print ok_string
-        #else:
-            #print fail_string
 
     def _validate_station_files_availability(self, ok_string, fail_string,
                                              flush_point, add_report):
@@ -1985,9 +1961,9 @@ class Project(object):
         from lasif.window_manager import MisfitWindowManager
         from lasif.adjoint_src_manager import AdjointSourceManager
 
-        #=====================================================================
-        #- initialisations
-        #=====================================================================
+        # ====================================================================
+        # initialisations
+        # ====================================================================
 
         iteration = self._get_iteration(iteration_name)
         long_iteration_name = self._get_long_iteration_name(iteration_name)
@@ -2011,9 +1987,9 @@ class Project(object):
         output_folder = self.get_output_folder(
             "adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
 
-        #======================================================================
-        #- loop through all the stations of this event
-        #======================================================================
+        # =====================================================================
+        # loop through all the stations of this event
+        # =====================================================================
 
         for station_id, station in this_event["stations"].iteritems():
 
@@ -2032,21 +2008,21 @@ class Project(object):
 
             all_channels = {}
 
-            #- loop through all channels for that station --------------------
+            # loop through all channels for that station --------------------
             for channel_windows in windows:
 
                 channel_id = channel_windows["channel_id"]
                 cumulative_weight = 0
                 all_data = []
 
-                #- loop through all windows of one channel -------------------
+                # loop through all windows of one channel -------------------
                 for window in channel_windows["windows"]:
 
-                    #- get window properties
+                    # get window properties
                     window_weight = window["weight"]
                     starttime = window["starttime"]
                     endtime = window["endtime"]
-                    #- load previously stored adjoint source
+                    # load previously stored adjoint source
                     data = adj_src_manager.get_adjoint_src(channel_id,
                                                            starttime, endtime)
                     # lump all adjoint sources together
@@ -2054,7 +2030,7 @@ class Project(object):
                     # compute cumulative weight of all windows for that channel
                     cumulative_weight += window_weight
 
-                #- apply weights for that channel -----------------------------
+                # apply weights for that channel -----------------------------
                 data = all_data.pop()
                 for d in all_data:
                     data += d
@@ -2069,7 +2045,7 @@ class Project(object):
                     continue
                 all_channels[component] = np.zeros(length)
 
-            #- Rotate. if needed ----------------------------------------------
+            # Rotate. if needed ----------------------------------------------
 
             rec_lat = this_station["latitude"]
             rec_lng = this_station["longitude"]
@@ -2101,7 +2077,7 @@ class Project(object):
 
             all_coordinates.append((r_rec_colat, r_rec_lng, r_rec_depth))
 
-            #- Actually write the adjoint source file in SES3D specific format.
+            # Actually write the adjoint source file in SES3D specific format.
 
             with open(adjoint_src_filename, "wt") as open_file:
                 open_file.write("-- adjoint source ------------------\n")
@@ -2236,7 +2212,7 @@ class Project(object):
                                 dep="%.2f" % _i["local_depth_in_m"]
                                 if _i["local_depth_in_m"]
                                 is not None else "--",
-                                ) for _i in details])))
+                            ) for _i in details])))
             else:
                 msg = "The waveform tag '%s' is not used by LASIF." % tag
                 raise LASIFException(msg)
@@ -2277,7 +2253,7 @@ class Project(object):
                             if _i["elevation_in_m"] is not None else "--",
                             dep="%.2f" % _i["local_depth_in_m"]
                             if _i["local_depth_in_m"] is not None else "--",
-                            ) for _i in details])))
+                        ) for _i in details])))
         else:
             raise LASIFException(err_msg)
 

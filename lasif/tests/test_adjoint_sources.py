@@ -86,8 +86,8 @@ def test_time_frequency_transform():
     matlab = os.path.join(
         data_dir, "matlab_tfa_output_reference_solution.mat")
     matlab = loadmat(matlab)
-    #tau_matlab = matlab["TAU"]
-    #nu_matlab = matlab["NU"]
+    # tau_matlab = matlab["TAU"]
+    # nu_matlab = matlab["NU"]
     tfs_matlab = matlab["tfs"]
 
     # Some tolerance is needed to due numeric differences.

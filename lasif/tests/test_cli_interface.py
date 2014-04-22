@@ -401,7 +401,7 @@ def test_preprocessing_event_limiting_works(cli):
     patch.assert_called_once_with(
         "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"])
 
-    ## Multiple result in multiple.
+    # Multiple result in multiple.
     with mock.patch("lasif.project.Project.preprocess_data") as patch:
         cli.run("lasif preprocess_data 1 "
                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "

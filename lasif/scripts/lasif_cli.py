@@ -236,7 +236,7 @@ def lasif_download_waveforms(parser, args):
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
-    if not event_name in proj.events:
+    if event_name not in proj.events:
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
 
@@ -284,7 +284,7 @@ def lasif_download_stations(parser, args):
     event_name = parser.parse_args(args).event_name
 
     proj = _find_project_root(".")
-    if not event_name in proj.events:
+    if event_name not in proj.events:
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
 
@@ -678,7 +678,7 @@ def lasif_launch_misfit_gui(parser, args):
 
     proj = _find_project_root(".")
 
-    if not event_name in proj.events:
+    if event_name not in proj.events:
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
 

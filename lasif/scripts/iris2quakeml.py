@@ -44,7 +44,7 @@ import urllib2
 
 
 def iris2quakeml(url, output_folder=None):
-    if not "/spudservice/" in url:
+    if "/spudservice/" not in url:
         url = url.replace("/spud/", "/spudservice/")
         if url.endswith("/"):
             url += "quakeml"

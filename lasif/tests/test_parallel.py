@@ -114,7 +114,7 @@ def test_parallel_map():
     def input_generator():
         yield {"a": 2, "b": 1}  # results in 2
         yield {"a": 4, "b": 0}  # results in None, an exception,
-                                # and a traceback.
+        # and a traceback.
         yield {"a": 1, "b": 1, "c": 1}  # results in 1 and two warnings.
         raise StopIteration
 

@@ -1004,17 +1004,3 @@ def test_discover_available_data(project):
         {"processed": [processing_tag], "synthetic": ["1"]}
     assert project.discover_available_data(event, "KO.KULA") == \
         {"processed": [processing_tag], "synthetic": []}
-
-
-#def test_station_plotting(project):
-    #"""
-    #Tests the station plotting command. Does not test the interactive part but
-    #at least assert it correctly starts.
-    #"""
-    #event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
-
-    #project.plot_station(event, "HL.ARG")
-
-    #import matplotlib.pyplot as plt
-
-    #plt.savefig("station_plot.png")

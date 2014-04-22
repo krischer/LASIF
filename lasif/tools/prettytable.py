@@ -209,15 +209,17 @@ class PrettyTable(object):
                 # Uneven padding
                 # Put more space on right if text is of odd length...
                 if _str_block_width(text) % 2:
-                    return (excess//2)*" " + text + (excess//2 + 1)*" "
+                    return (excess // 2) * " " + text + (excess // 2 + 1) * \
+                        " "
                 # and more space on left if text is of even length
                 else:
-                    return (excess//2 + 1)*" " + text + (excess//2)*" "
+                    return (excess // 2 + 1) * " " + text + (excess // 2) * \
+                        " "
                 # Why distribute extra space this way?  To match the behaviour
                 # of the inbuilt str.center() method.
             else:
                 # Equal padding on either side
-                return (excess//2)*" " + text + (excess//2)*" "
+                return (excess // 2) * " " + text + (excess // 2) * " "
 
     def __getattr__(self, name):
         if name == "rowcount":
@@ -236,7 +238,7 @@ class PrettyTable(object):
         new = PrettyTable()
         new.field_names = self.field_names
         for attr in self._options:
-            setattr(new, "_"+attr, getattr(self, "_"+attr))
+            setattr(new, "_" + attr, getattr(self, "_" + attr))
         setattr(new, "_align", getattr(self, "_align"))
         if isinstance(index, slice):
             for row in self._rows[index]:
@@ -886,7 +888,7 @@ class PrettyTable(object):
                 self._validate_option(option, kwargs[option])
                 options[option] = kwargs[option]
             else:
-                options[option] = getattr(self, "_"+option)
+                options[option] = getattr(self, "_" + option)
         return options
 
     ##############################
@@ -978,7 +980,7 @@ class PrettyTable(object):
         row_index - The index of the row you want to delete.  Indexing starts
             at 0.
         """
-        if row_index > len(self._rows)-1:
+        if row_index > len(self._rows) - 1:
             raise Exception("Cant delete row at index %d, table only has "
                             "%d rows!" % (row_index, len(self._rows)))
         del self._rows[row_index]
@@ -1004,7 +1006,7 @@ class PrettyTable(object):
             self._align[fieldname] = align
             self._valign[fieldname] = valign
             for i in range(0, len(column)):
-                if len(self._rows) < i+1:
+                if len(self._rows) < i + 1:
                     self._rows.append([])
                 self._rows[i].append(column[i])
         else:
@@ -1089,7 +1091,7 @@ class PrettyTable(object):
         if options["sortby"]:
             sortindex = self._field_names.index(options["sortby"])
             # Decorate
-            rows = [[row[sortindex]]+row for row in rows]
+            rows = [[row[sortindex]] + row for row in rows]
             # Sort
             rows.sort(reverse=options["reversesort"], key=options["sort_key"])
             # Undecorate
@@ -1197,7 +1199,7 @@ class PrettyTable(object):
         for field, width in zip(self._field_names, self._widths):
             if options["fields"] and field not in options["fields"]:
                 continue
-            bits.append((width+lpad+rpad)*options["horizontal_char"])
+            bits.append((width + lpad + rpad) * options["horizontal_char"])
             if options['vrules'] == ALL:
                 bits.append(options["junction_char"])
             else:
@@ -1320,8 +1322,8 @@ class PrettyTable(object):
                 bits[y].append(options["vertical_char"])
 
         if options["border"] and options["hrules"] == ALL:
-            bits[row_height-1].append("\n")
-            bits[row_height-1].append(self._hrule)
+            bits[row_height - 1].append("\n")
+            bits[row_height - 1].append(self._hrule)
 
         for y in range(0, row_height):
             bits[y] = "".join(bits[y])
@@ -1491,8 +1493,8 @@ class PrettyTable(object):
 
 def _char_block_width(char):
     # Basic Latin, which is probably the most common case
-    #if char in xrange(0x0021, 0x007e):
-    #if char >= 0x0021 and char <= 0x007e:
+    # if char in xrange(0x0021, 0x007e):
+    # if char >= 0x0021 and char <= 0x007e:
     if 0x0021 <= char <= 0x007e:
         return 1
     # Chinese, Japanese, Korean (common)
@@ -1620,7 +1622,7 @@ class TableHandler(HTMLParser):
         iterates over the row and make each field unique
         """
         for i in range(0, len(fields)):
-            for j in range(i+1, len(fields)):
+            for j in range(i + 1, len(fields)):
                 if fields[i] == fields[j]:
                     fields[j] += "'"
 

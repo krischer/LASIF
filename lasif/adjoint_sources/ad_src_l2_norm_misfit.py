@@ -48,7 +48,7 @@ def adsrc_l2_norm_misfit(data, synthetic, axis=None):
         s_max = squared_diff.max()
         axis.set_ylim(-0.1 * s_max, 2.1 * s_max)
         axis.set_xticks([])
-        #axis.set_yticks([])
+        # axis.set_yticks([])
         if not hasattr(axis, "twin_axis"):
             axis.twin_axis = axis.twinx()
         ax2 = axis.twin_axis

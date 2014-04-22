@@ -71,7 +71,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # exponentially)
     nu_t_large = np.zeros(nu_t.shape)
     nu_t_small = np.zeros(nu_t.shape)
-    thres = (nu_t <= 1.0/min_period)
+    thres = (nu_t <= 1.0 / min_period)
     nu_t_large[np.invert(thres)] = 1.0
     nu_t_small[thres] = 1.0
     weight *= (np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large +
@@ -83,7 +83,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # computation of phase difference, make quality checks and misfit ---------
 
     # Compute the phase difference.
-    #DP = np.imag(np.log(m + tf_cc / (2 * m + np.abs(tf_cc))))
+    # DP = np.imag(np.log(m + tf_cc / (2 * m + np.abs(tf_cc))))
     DP = np.angle(tf_cc)
 
     # Attempt to detect phase jumps by taking the derivatives in time and
@@ -92,9 +92,9 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     criterion_1 = np.sum([np.abs(np.diff(test_field, axis=0)) > 0.7])
     criterion_2 = np.sum([np.abs(np.diff(test_field, axis=1)) > 0.7])
     criterion = np.sum([criterion_1, criterion_2])
-    #criterion_1 = np.abs(np.diff(test_field, axis=0)).max()
-    #criterion_2 = np.abs(np.diff(test_field, axis=1)).max()
-    #criterion = max(criterion_1, criterion_2)
+    # criterion_1 = np.abs(np.diff(test_field, axis=0)).max()
+    # criterion_2 = np.abs(np.diff(test_field, axis=1)).max()
+    # criterion = max(criterion_1, criterion_2)
     if criterion > 7.0:
         warning = ("Possible phase jump detected. Misfit included. No "
                    "adjoint source computed.")
@@ -157,7 +157,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         ymax = len(temp[temp > temp.max() / 1000.0])
         ymax *= nu[1, 0] - nu[0, 0]
         ymax *= 2
-        axis.set_ylim(0, 2.0/min_period)
+        axis.set_ylim(0, 2.0 / min_period)
 
         if colorbar_axis:
             cm = plt.gcf().colorbar(mappable, cax=colorbar_axis)

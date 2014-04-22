@@ -82,9 +82,9 @@ def preprocess_file(file_info):
         # Apply twice to get rid of the phase distortion.
         trace.data = signal.filtfilt(b, a, trace.data)
 
-    #==========================================================================
+    # =========================================================================
     # Read seismograms and gather basic information.
-    #==========================================================================
+    # =========================================================================
     starttime = file_info["origin_time"]
     endtime = starttime + file_info["dt"] * (file_info["npts"] - 1)
     duration = endtime - starttime
@@ -102,9 +102,9 @@ def preprocess_file(file_info):
     # endtime is the origin time plus the length of the synthetics
     tr.trim(starttime - 0.05 * duration, endtime + 0.05 * duration)
 
-    #==========================================================================
+    # =========================================================================
     # Some basic checks on the data.
-    #==========================================================================
+    # =========================================================================
     # Non-zero length
     if not len(tr):
         msg = "No data found in time window around the event. File skipped."
@@ -115,19 +115,19 @@ def preprocess_file(file_info):
         msg = "Data contains NaNs or Infs. File skipped"
         raise LASIFException(msg)
 
-    #==========================================================================
+    # =========================================================================
     # Step 1: Detrend and taper.
-    #==========================================================================
+    # =========================================================================
     tr.detrend("linear")
     tr.taper(0.05, type="hann")
 
-    #==========================================================================
+    # =========================================================================
     # Step 2: Decimation
     # Decimate with the factor closest to the sampling rate of the synthetics.
     # The data is still oversampled by a large amount so there should be no
     # problems. This has to be done here so that the instrument correction is
     # reasonably fast even for input data with a large sampling rate.
-    #==========================================================================
+    # =========================================================================
     while True:
         decimation_factor = int(file_info["dt"] / tr.stats.delta)
         # Decimate in steps for large sample rate reductions.
@@ -141,18 +141,18 @@ def preprocess_file(file_info):
         else:
             break
 
-    #==========================================================================
+    # =========================================================================
     # Step 3: Instrument correction
     # Correct seismograms to velocity in m/s.
-    #==========================================================================
+    # =========================================================================
     station_file = file_info["station_filename"]
 
-    #- check if the station file actually exists ==============================
+    # check if the station file actually exists ==============================
     if not file_info["station_filename"]:
         msg = "No station file found for the relevant time span. File skipped"
         raise LASIFException(msg)
 
-    #- processing for seed files ==============================================
+    # processing for seed files ==============================================
     if "/SEED/" in station_file:
         # XXX: Check if this is m/s. In all cases encountered so far it
         # always is, but SEED is in theory also able to specify corrections
@@ -166,7 +166,7 @@ def preprocess_file(file_info):
                 % file_info["station_filename"],
             raise LASIFException(msg)
 
-    #- processing with RESP files =============================================
+    # processing with RESP files =============================================
     elif "/RESP/" in station_file:
         try:
             tr.simulate(seedresp={"filename": station_file, "units": "VEL",
@@ -179,9 +179,9 @@ def preprocess_file(file_info):
     else:
         raise NotImplementedError
 
-    #==========================================================================
+    # =========================================================================
     # Step 4: Interpolation
-    #==========================================================================
+    # =========================================================================
     # Apply one more taper to avoid high frequency contributions from sudden
     # steps at the beginning/end if padded with zeros.
     tr.taper(0.05, type="hann")
@@ -203,18 +203,18 @@ def preprocess_file(file_info):
     tr.stats.starttime = starttime
     tr.stats.delta = file_info["dt"]
 
-    #==========================================================================
+    # =========================================================================
     # Step 5: Bandpass filtering
     # This has to be exactly the same filter as in the source time function.
     # Should eventually be configurable.
-    #==========================================================================
+    # =========================================================================
     tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
     tr.filter("highpass", freq=file_info["highpass"], corners=2,
               zerophase=False)
 
-    #==========================================================================
+    # =========================================================================
     # Save processed data and clean up.
-    #==========================================================================
+    # =========================================================================
     # Convert to single precision for saving.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
     if hasattr(tr.stats, "mseed"):
