@@ -41,6 +41,22 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
     extend_y = bounds["maximum_latitude"] - bounds["minimum_latitude"]
     max_extend = max(extend_x, extend_y)
 
+    # If the simulation domain is also available, use it to calculate the
+    # max_extend. This results in the simulation domain affecting the zoom
+    # level.
+    if plot_simulation_domain is True:
+        simulation_domain = rotations.get_border_latlng_list(
+            min_latitude, max_latitude, min_longitude, max_longitude)
+        simulation_domain = np.array(simulation_domain)
+        min_y, min_x = simulation_domain.min(axis=0)
+        max_y, max_x = simulation_domain.max(axis=0)
+        max_extend = max(
+            max(max_x, bounds["maximum_longitude"]) -
+            min(min_x, bounds["minimum_longitude"]),
+            max(max_y, bounds["maximum_latitude"]) -
+            min(min_y, bounds["minimum_latitude"])
+        )
+
     # Arbitrary threshold
     if zoom is False or max_extend > 70:
         if resolution is None:
@@ -85,11 +101,8 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         m.plot(lngs, lats, color="black", lw=2, alpha=0.4)
 
     if plot_simulation_domain is True:
-        border = rotations.get_border_latlng_list(
-            min_latitude, max_latitude, min_longitude, max_longitude)
-        border = np.array(border)
-        lats = border[:, 0]
-        lngs = border[:, 1]
+        lats = simulation_domain[:, 0]
+        lngs = simulation_domain[:, 1]
         lngs, lats = m(lngs, lats)
         m.plot(lngs, lats, color="red", lw=2, label="Simulation Domain")
 
