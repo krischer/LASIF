@@ -471,11 +471,17 @@ class RawSES3DModelHandler(object):
             x_buffer = 0.2 * lon.ptp()
             y_buffer = 0.2 * lat.ptp()
 
-            m = Basemap(projection='merc', resolution="l",
-                        llcrnrlon=lon.min() - x_buffer,
-                        urcrnrlon=lon.max() + x_buffer,
-                        llcrnrlat=lat.min() - y_buffer,
-                        urcrnrlat=lat.max() + y_buffer)
+            # Calculate approximate width and height in meters.
+            width = lon.ptp()
+            height = lat.ptp()
+            width *= 110000 * 1.1
+            height *= 110000 * 1.1
+            # Lambert azimuthal equal area projection. Equal area projections
+            # are useful for interpreting features and this particular one also
+            # does not distort features a lot on regional scales.
+            m = Basemap(projection='laea', resolution="l",
+                        width=width, height=height,
+                        lat_0=lat_0, lon_0=lon_0)
         else:
             m = Basemap(projection='ortho', lon_0=lon_0, lat_0=lat_0,
                         resolution="c")
