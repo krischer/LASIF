@@ -496,16 +496,13 @@ class RawSES3DModelHandler(object):
         x, y = m(lon, lat)
         depth_data = data[::-1, :, depth_index]
         vmin, vmax = depth_data.min(), depth_data.max()
+        vmedian = np.median(depth_data)
+        offset = max(abs(vmax - vmedian), abs(vmedian - vmin))
+        if offset <= 0.01:
+            offset = 0.01
 
-        if self.model_type == "wavefield":
-            value = max([abs(vmin), abs(vmax)])
-            vmin = -value
-            vmax = value
-
-        if (vmax - vmin) < (0.005 * vmax):
-            value = vmin + ((vmax - vmin) / 2.0)
-            vmin -= 0.01 * abs(value)
-            vmax += 0.01 * abs(value)
+        vmin = vmedian - offset
+        vmax = vmedian + offset
 
         im = m.pcolormesh(x, y, depth_data, cmap=tomo_colormap, vmin=vmin,
                           vmax=vmax)
