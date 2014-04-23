@@ -104,7 +104,7 @@ initialized it looks akin to the following:
 * ``name`` is the project's name.
 * ``description`` can be any further useful information about the project. This
   is not used by LASIF but potentially useful for yourself.
-* The ``arclink_username`` tag should be your email. It will be send with all
+* The ``arclink_username`` tag should be your email. It will be sent with all
   requests to the ArcLink network. They ask for it in case they have to contact
   you for whatever reason. Please provide a real email address. Must not be
   empty.
@@ -140,20 +140,20 @@ For this tutorial we are going to work in a rotated domain across Europe.
 Please change the ``config.xml`` file to reflect the following domain
 settings.
 
-* Latitude: ``-20.0° - 20.0°``
-* Longitude: ``-20.0° - 20.0°``
-* Depth: ``0 km - 1000 km``
-* Boundary width in degree: ``3.00°``
+* Latitude: ``-10.0° - 10.0°``
+* Longitude: ``-10.0° - 10.0°``
+* Depth: ``0 km - 471 km``
+* Boundary width in degree: ``2.5°``
 * Rotation axis: ``1.0, 1.0, 0.2``
 * Rotation angle: ``-65.0°``
 
 In general one should only work with data not affected by the boundary
 conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
-It is not advisable to use data that traverses these layers. The default
-setting of SES3D is to use two boundary layers. In this example this amounts to
-(in longitudinal direction) 1.46°. In a real world case it is best to use some
-more buffer layers to avoid boundary effects. In this small example this would
-influence the domain too much so we just set it to 1.46°.
+It is not advisable to use data that traverses these layers. SES3D defaults
+to two layer but more are possible. For this tutorial we will only consider
+data which is at least three elements away from the border in a an attempt
+to avoid unphysical influences of the boundary conditions. This amounts to
+``2.5°``.
 
 At any point you can have a look at the defined domain with
 
@@ -168,10 +168,9 @@ defined boundary width.
 .. plot::
 
     import lasif.visualization
-    lasif.visualization.plot_domain(-20.0, 20.0, -20.0, 20.0, 3.0,
+    lasif.visualization.plot_domain(-10.0, 10.0, -10.0, 10.0, 2.5,
         rotation_axis=[1.0, 1.0, 0.2], rotation_angle_in_degree=-65.0,
         plot_simulation_domain=True, zoom=True)
-
 
 .. note::
 
@@ -195,13 +194,13 @@ look like this.
       </download_settings>
       <domain>
         <domain_bounds>
-          <minimum_longitude>-20</minimum_longitude>
-          <maximum_longitude>20</maximum_longitude>
-          <minimum_latitude>-20</minimum_latitude>
-          <maximum_latitude>20</maximum_latitude>
+          <minimum_longitude>-10</minimum_longitude>
+          <maximum_longitude>10</maximum_longitude>
+          <minimum_latitude>-10</minimum_latitude>
+          <maximum_latitude>10</maximum_latitude>
           <minimum_depth_in_km>0.0</minimum_depth_in_km>
-          <maximum_depth_in_km>1000.0</maximum_depth_in_km>
-          <boundary_width_in_degree>3.0</boundary_width_in_degree>
+          <maximum_depth_in_km>471.0</maximum_depth_in_km>
+          <boundary_width_in_degree>2.5</boundary_width_in_degree>
         </domain_bounds>
         <domain_rotation>
           <rotation_axis_x>1.0</rotation_axis_x>
@@ -211,6 +210,14 @@ look like this.
         </domain_rotation>
       </domain>
     </lasif_project>
+
+
+.. note::
+
+    The true synthetic model is PREM with a small positive Gaussian anomaly  in
+    the center (latitude=longitude=0) at a depth of 70 km applied to the  P and
+    both S-wave velocities. The amplitude of the anomaly is 0.3 km/s with
+    the sigma being 200 km in horizontal and 50 km in the vertical direction.
 
 
 

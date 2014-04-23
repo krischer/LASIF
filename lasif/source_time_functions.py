@@ -30,6 +30,6 @@ def filtered_heaviside(npts, delta, freqmin, freqmax):
     heaviside = obspy.signal.filter.highpass(heaviside, freqmin, 1.0 / delta,
                                              3, zerophase=False)
     heaviside = obspy.signal.filter.lowpass(heaviside, freqmax, 1.0 / delta,
-                                            5, zerophase=False)
+                                            4, zerophase=False)
 
     return heaviside
