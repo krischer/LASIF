@@ -66,12 +66,17 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
     else:
         if resolution is None:
             resolution = "l"
-        buffer = max_extend * 0.1
-        m = Basemap(projection='merc', resolution=resolution,
-                    llcrnrlat=bounds["minimum_latitude"] - buffer,
-                    urcrnrlat=bounds["maximum_latitude"] + buffer,
-                    llcrnrlon=bounds["minimum_longitude"] - buffer,
-                    urcrnrlon=bounds["maximum_longitude"] + buffer)
+        # Calculate approximate width and height in meters.
+        width = bounds["maximum_longitude"] - bounds["minimum_longitude"]
+        height = bounds["maximum_latitude"] - bounds["minimum_latitude"]
+        width *= 110000 * 1.1
+        height *= 110000 * 1.1
+        # Lambert azimuthal equal area projection. Equal area projections
+        # are useful for interpreting features and this particular one also
+        # does not distort features a lot on regional scales.
+        m = Basemap(projection='laea', resolution=resolution,
+                    width=width, height=height,
+                    lat_0=center_lat, lon_0=center_lng)
 
     m.drawmapboundary(fill_color='#cccccc')
     m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
