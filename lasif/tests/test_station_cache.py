@@ -13,6 +13,7 @@ things need to happen in order. Better then nothing.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import inspect
+import obspy
 import os
 import shutil
 import time
@@ -169,3 +170,48 @@ def test_station_cache(tmpdir):
         station_cache.get_coordinates_for_station(network="IU", station="PAB")
     assert coordinates == {"latitude": 39.5446, "longitude": -4.349899,
                            "elevation_in_m": 950.0, "local_depth_in_m": 0.0}
+
+
+def test_station_xml(tmpdir):
+    """
+    Tests the StationXML support.
+    """
+    # Most generic way to get the actual data directory.
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
+        inspect.currentframe()))), "data")
+
+    # Create a temporary directory.
+    directory = tempfile.mkdtemp()
+
+    cache_file = os.path.join(directory, "cache.sqlite")
+    seed_directory = os.path.join(directory, "SEED")
+    resp_directory = os.path.join(directory, "RESP")
+    stationxml_directory = os.path.join(directory, "StationXML")
+    os.makedirs(seed_directory)
+    os.makedirs(resp_directory)
+    os.makedirs(stationxml_directory)
+
+    # Copy the StationXML file.
+    shutil.copy(os.path.join(data_dir,
+                             "IRIS_single_channel_with_response.xml"),
+                os.path.join(stationxml_directory,
+                             "IRIS_single_channel_with_response.xml"))
+
+    # Init station cache.
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
+    stations = station_cache.get_stations()
+    channels = station_cache.get_channels()
+    filename = station_cache.get_station_filename(
+        "IU.ANMO.10.BHZ", obspy.UTCDateTime(2013, 1, 1))
+
+    assert len(stations) == 1
+    assert stations == {"IU.ANMO": {"latitude": 34.945913,
+                                    "longitude": -106.457122}}
+    assert len(channels) == 1
+    assert channels == {"IU.ANMO.10.BHZ": [
+        {"local_depth_in_m": 57.0, "endtime_timestamp": 19880899199,
+         "elevation_in_m": 1759.0, "startime_timestamp": 1331626200,
+         "longitude": -106.457122, "latitude": 34.945913}]}
+    assert filename == os.path.join(
+        stationxml_directory, "IRIS_single_channel_with_response.xml")

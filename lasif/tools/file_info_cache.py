@@ -18,47 +18,50 @@ of flexibility as the data can be managed by some other means.
 
 Example implementation:
 
-class ImageCache(object):
-    def __init__(self, image_folder, cache_db_file):
-        # The index values is a list of tuple. The first denoting the name of
-        # the index and the second the type of the index. The types have to
-        # correspond to SQLite types.
-        self.index_values = [
-            ("width", "INTEGER"),
-            ("height", "INTEGER"),
-            ("type", "TEXT")]
-        # The types of files to index.
-        self.filetypes = ["png", "jpeg"]
 
-        # Subclass specific values
-        self.image_folder = image_folder
+.. code-block:: python
 
-        # Don't forget to inherit!
-        super(ImageCache, self).__init__(cache_db_file=cache_db_file)
+    class ImageCache(object):
+        def __init__(self, image_folder, cache_db_file):
+            # The index values are a list of tuples. The first denotes the
+            # name of the index and the second the type of the index. The types
+            # have to correspond to SQLite types.
+            self.index_values = [
+                ("width", "INTEGER"),
+                ("height", "INTEGER"),
+                ("type", "TEXT")]
+            # The types of files to index.
+            self.filetypes = ["png", "jpeg"]
 
-    # Now you need to define one 'find files' and one 'index file' methods for
-    # each filetype. The 'find files' method needs to be named
-    # '_find_files_FILETYPE' and takes no arguments. The 'index file' method
-    # has to be named '_extract_index_values_FILETYPE' and takes one argument:
-    # the path to file. It needs to return a list of lists. Each inner list
-    # contains the indexed values in the same order as specified in
-    # self.index_values. It can return multiple sets of indices per file.
-    # Useful for lots of filetypes, not necessarily images as in the example
-    # here.
+            # Subclass specific values
+            self.image_folder = image_folder
 
-    def _find_files_png(self):
-        return glob.glob(os.path.join("*.png"))
+            # Don't forget to call the parents __init__()!
+            super(ImageCache, self).__init__(cache_db_file=cache_db_file)
 
-    def _find_files_jpeg(self):
-        return glob.glob(os.path.join("*.png"))
+        # Now you need to define one 'find files' and one 'index file'
+        # methods for each filetype. The 'find files' method needs to be named
+        # '_find_files_FILETYPE' and takes no arguments. The 'index file'
+        # method has to be named '_extract_index_values_FILETYPE' and takes one
+        # argument: the path to file. It needs to return a list of lists. Each
+        # inner list contains the indexed values in the same order as specified
+        # in self.index_values. It can return multiple sets of indices per
+        # file. Useful for lots of filetypes, not necessarily images as in the
+        # example here.
 
-    def _extract_index_values_png(self, filename):
-        # Do somethings to get the values.
-        return [[400, 300, "png"]]
+        def _find_files_png(self):
+            return glob.glob(os.path.join("*.png"))
 
-    def _extract_index_values_jpeg(self, filename):
-        # Do somethings to get the values.
-        return [[400, 300, "jpeg"]]
+        def _find_files_jpeg(self):
+            return glob.glob(os.path.join("*.png"))
+
+        def _extract_index_values_png(self, filename):
+            # Do somethings to get the values.
+            return [[400, 300, "png"]]
+
+        def _extract_index_values_jpeg(self, filename):
+            # Do somethings to get the values.
+            return [[400, 300, "jpeg"]]
 
 
 

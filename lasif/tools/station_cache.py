@@ -51,7 +51,7 @@ class StationCache(FileInfoCache):
             ("elevation_in_m", "REAL"),
             ("local_depth_in_m", "REAL")]
 
-        self.filetypes = ["seed", "resp"]
+        self.filetypes = ["seed", "resp", "stationxml"]
 
         self.seed_folder = seed_folder
         self.resp_folder = resp_folder
@@ -283,9 +283,13 @@ class StationCache(FileInfoCache):
         LIMIT 1;
         """ % (channel_id, time, time)
         try:
-            return self.db_cursor.execute(sql_query).fetchone()[0]
+            result = self.db_cursor.execute(sql_query).fetchone()
         except sqlite3.Error:
             return None
+        if result is None:
+            return None
+        else:
+            return result[0]
 
     def station_info_available(self, channel_id, time):
         """

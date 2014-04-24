@@ -9,3 +9,4 @@ API Documentation
     iris2quakeml
     tools
     tools.parallel
+    tools.file_info_cache
