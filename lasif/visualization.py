@@ -70,7 +70,7 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         width = bounds["maximum_longitude"] - bounds["minimum_longitude"]
         height = bounds["maximum_latitude"] - bounds["minimum_latitude"]
         width *= 110000 * 1.1
-        height *= 110000 * 1.1
+        height *= 110000 * 1.3
         # Lambert azimuthal equal area projection. Equal area projections
         # are useful for interpreting features and this particular one also
         # does not distort features a lot on regional scales.

@@ -185,7 +185,6 @@ class FileInfoCache(object):
         This assumes self._get_all_files_by_filename() has already been
         called.
         """
-        print self.files
         filenames = \
             self.db_cursor.execute("SELECT filename FROM files").fetchall()
         filenames = [_i[0] for _i in filenames]
@@ -356,8 +355,6 @@ class FileInfoCache(object):
                 self.db_conn.commit()
 
             return
-
-        print "ADDING FILE!!!!", filename, filetype
 
         # Get the hash
         with open(filename, "rb") as open_file:

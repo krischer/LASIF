@@ -24,7 +24,6 @@ from lasif import LASIFException
 from lasif.tools.event_pseudo_dict import EventPseudoDict
 
 
-
 # SES3D currently only identifies synthetics  via the filename. Use this
 # template to get the name of a certain file.
 SYNTHETIC_FILENAME_TEMPLATE = \
@@ -1211,6 +1210,7 @@ class Project(object):
         self._station_cache = StationCache(
             os.path.join(self.paths["cache"], "station_cache.sqlite"),
             self.paths["dataless_seed"], self.paths["resp"],
+            self.paths["station_xml"],
             show_progress=show_progress)
         return self._station_cache
 

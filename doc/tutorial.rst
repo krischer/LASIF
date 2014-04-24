@@ -241,6 +241,7 @@ and store an XML file in the correct folder.
 
     $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
     $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/834535
+    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
 
 
 These commands will download two event files and store them in the

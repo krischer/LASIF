@@ -304,7 +304,7 @@ def test_exception_handling(tmpdir, recwarn):
     # Same for the stations.
     assert len(station_cache.get_stations()) == 3
     assert sorted(["G.FDF", "IU.ANMO", "IU.PAB"]) == \
-           sorted(station_cache.get_stations().keys())
+        sorted(station_cache.get_stations().keys())
 
     # Naturally only three files should have been indexed.
     filenames = list(itertools.chain(*station_cache.files.values()))
@@ -312,8 +312,8 @@ def test_exception_handling(tmpdir, recwarn):
 
     # 5 warnings should have been raised.
     assert len(recwarn.list) == 5
-    messages = sorted([str(w.message).split(":")[-1].strip()
-                       for w in recwarn.list])
+    messages = sorted([str(_w.message).split(":")[-1].strip()
+                       for _w in recwarn.list])
     test_strings = sorted([
         "Not a valid SEED file?",
         "Not a valid RESP file?",

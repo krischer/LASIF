@@ -468,9 +468,6 @@ class RawSES3DModelHandler(object):
         max_extend = max(lon.ptp(), lat.ptp())
         extend_used = max_extend / 180.0
         if extend_used < 0.5:
-            x_buffer = 0.2 * lon.ptp()
-            y_buffer = 0.2 * lat.ptp()
-
             # Calculate approximate width and height in meters.
             width = lon.ptp()
             height = lat.ptp()
