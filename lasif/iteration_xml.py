@@ -17,7 +17,7 @@ from scipy.signal.filter_design import BadCoefficients \
     as BadCoefficientsWarning
 import warnings
 
-from lasif.project import LASIFException
+from lasif import LASIFException
 
 
 class Iteration(object):

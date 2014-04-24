@@ -14,7 +14,7 @@ import inspect
 import numpy as np
 import warnings
 
-from lasif.project import LASIFException
+from lasif import LASIFException
 
 
 class TwoWayIter(object):

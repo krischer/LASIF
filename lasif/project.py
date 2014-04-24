@@ -20,20 +20,15 @@ import os
 import sys
 import warnings
 
+from lasif import LASIFException
 from lasif.tools.event_pseudo_dict import EventPseudoDict
+
 
 
 # SES3D currently only identifies synthetics  via the filename. Use this
 # template to get the name of a certain file.
 SYNTHETIC_FILENAME_TEMPLATE = \
     "{network:_<2}.{station:_<5}.{location:_<3}.{component}"
-
-
-class LASIFException(Exception):
-    """
-    Base LASIF specific exception.
-    """
-    pass
 
 
 class Project(object):

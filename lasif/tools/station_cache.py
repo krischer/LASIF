@@ -10,11 +10,13 @@ Station Cache class.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import glob
+import obspy
 from obspy.xseed import Parser
 import os
 import sqlite3
 import warnings
 
+from lasif import LASIFException
 from lasif.tools import simple_resp_parser
 from lasif.tools.file_info_cache import FileInfoCache
 
@@ -24,14 +26,22 @@ TOL_DEGREES = 0.01
 TOL_METERS = 1000.0
 
 
+class StationCacheException(LASIFException):
+    pass
+
+
 class StationCache(FileInfoCache):
     """
     Cache for Station files.
 
-    Currently supports SEED, XML-SEED and RESP files.
+    Currently supports SEED, XML-SEED, RESP, and StationXML files.
+
+    SEED files have to match the following pattern: 'dataless.*'
+    RESP files: RESP.*
+    StationXML: *.xml
     """
     def __init__(self, cache_db_file, seed_folder, resp_folder,
-                 show_progress=True):
+                 stationxml_folder, show_progress=True):
         self.index_values = [
             ("channel_id", "TEXT"),
             ("start_date", "INTEGER"),
@@ -45,6 +55,7 @@ class StationCache(FileInfoCache):
 
         self.seed_folder = seed_folder
         self.resp_folder = resp_folder
+        self.stationxml_folder = stationxml_folder
 
         self.__cache_station_coordinates = {}
 
@@ -66,6 +77,14 @@ class StationCache(FileInfoCache):
             resp_files.append(filename)
         return resp_files
 
+    def _find_files_stationxml(self):
+        stationxml_files = []
+        # Get all dataless XML files.
+        for filename in glob.iglob(os.path.join(self.stationxml_folder,
+                                                "*.xml")):
+            stationxml_files.append(filename)
+        return stationxml_files
+
     @staticmethod
     def _extract_index_values_seed(filename):
         """
@@ -75,7 +94,7 @@ class StationCache(FileInfoCache):
             p = Parser(filename)
         except:
             msg = "Could not read SEED file '%s'." % filename
-            raise ValueError(msg)
+            raise StationCacheException(msg)
         channels = p.getInventory()["channels"]
 
         channels = [[
@@ -87,13 +106,51 @@ class StationCache(FileInfoCache):
         return channels
 
     @staticmethod
+    def _extract_index_values_stationxml(filename):
+        """
+        Reads StationXML files and extracts some keys per channel.
+        """
+        try:
+            inv = obspy.read_inventory(filename, format="stationxml")
+        except:
+            msg = "Could not read StationXML file '%s'." % filename
+            raise StationCacheException(msg)
+
+        channels = []
+        for network in inv:
+            for station in network:
+                for channel in station:
+                    channel_id = "%s.%s.%s.%s" % (
+                        network.code, station.code, channel.location_code,
+                        channel.code)
+                    if channel.response is None:
+                        msg = "Channel %s has no response."
+                        raise StationCacheException(msg)
+                    start_date = channel.start_date
+                    if start_date:
+                        start_date = int(start_date.timestamp)
+                    end_date = channel.end_date
+                    if end_date:
+                        end_date = int(end_date.timestamp)
+                    channels.append([
+                        channel_id, start_date, end_date, channel.latitude,
+                        channel.longitude, channel.elevation, channel.depth
+                    ])
+
+        if not channels:
+            msg = "File %s has no channels." % filename
+            raise StationCacheException(msg)
+
+        return channels
+
+    @staticmethod
     def _extract_index_values_resp(filename):
         try:
             channels = simple_resp_parser.get_inventory(filename,
                                                         remove_duplicates=True)
         except:
             msg = "Could not read RESP file '%s'." % filename
-            raise ValueError(msg)
+            raise StationCacheException(msg)
 
         channels = [[
             _i["channel_id"], int(_i["start_date"].timestamp),
@@ -119,7 +176,7 @@ class StationCache(FileInfoCache):
                 coordinates = self.__cache_station_coordinates[station_id]
             except:
                 msg = "No coordinates found for whatever reason."
-                raise ValueError(msg)
+                raise StationCacheException(msg)
             else:
                 return coordinates
 

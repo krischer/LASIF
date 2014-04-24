@@ -12,7 +12,7 @@ Functionality for data preprocessing.
 import time
 import warnings
 
-from lasif.project import LASIFException
+from lasif import LASIFException
 from lasif.tools.colored_logger import ColoredLogger
 from lasif.tools.parallel import parallel_map
 

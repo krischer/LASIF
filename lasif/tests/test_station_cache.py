@@ -35,6 +35,7 @@ def test_station_cache(tmpdir):
     cache_file = os.path.join(directory, "cache.sqlite")
     seed_directory = os.path.join(directory, "SEED")
     resp_directory = os.path.join(directory, "RESP")
+    stationxml_directory = os.path.join(directory, "StationXML")
     os.makedirs(seed_directory)
     os.makedirs(resp_directory)
 
@@ -44,7 +45,8 @@ def test_station_cache(tmpdir):
                 os.path.join(seed_directory, "dataless.IU_PAB"))
 
     # Init the station cache.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory)
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there. Right now the folder only
@@ -59,7 +61,8 @@ def test_station_cache(tmpdir):
     # Copy one more SEED file and check if the changes are reflected.
     shutil.copy(os.path.join(data_dir, "dataless.BW_FURT"), seed_file)
     # Init the station cache once more.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory)
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
     # Get the list of available channels. It should not contain 4 channels.
     channels = station_cache.get_channels()
     assert len(channels) == 4
@@ -76,7 +79,8 @@ def test_station_cache(tmpdir):
     # Delete the file, and check if everything else is removed as well. It
     # should not only contain one channel.
     os.remove(seed_file)
-    station_cache = StationCache(cache_file, seed_directory, resp_directory)
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -86,7 +90,8 @@ def test_station_cache(tmpdir):
     # Add the file once again...
     del station_cache
     shutil.copy(os.path.join(data_dir, "dataless.BW_FURT"), seed_file)
-    station_cache = StationCache(cache_file, seed_directory, resp_directory)
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
     # It should now again contain 4 channels.
     channels = station_cache.get_channels()
     assert len(channels) == 4
@@ -99,7 +104,8 @@ def test_station_cache(tmpdir):
     # associated channels have been removed.
     shutil.copy(os.path.join(data_dir, "channelless_datalessSEED"), seed_file)
     # Init the station cache once more.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory)
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -112,7 +118,8 @@ def test_station_cache(tmpdir):
     resp_file = os.path.join(resp_directory, "RESP.G.FDF.00.BHE")
     shutil.copy(os.path.join(data_dir, os.path.basename(resp_file)), resp_file)
     # Init the station cache once more.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory)
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -133,7 +140,8 @@ def test_station_cache(tmpdir):
     shutil.copy(os.path.join(data_dir, "RESP.G.FDF.00.BHZ"),
                 os.path.join(resp_directory, "RESP.G.FDF.00.BHZ"))
     # Init the station cache once more.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory)
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.

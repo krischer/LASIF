@@ -41,6 +41,8 @@ should scale fairly well and makes it trivial to add new methods.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import os
+from lasif import LASIFException
+
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 import argparse
@@ -51,7 +53,7 @@ import traceback
 
 import colorama
 
-from lasif.project import Project, LASIFException
+from lasif.project import Project
 
 
 FCT_PREFIX = "lasif_"

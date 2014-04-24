@@ -14,6 +14,8 @@ viewed as integration tests.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import matplotlib as mpl
+from lasif import LASIFException
+
 mpl.use("agg")
 
 import copy
@@ -24,7 +26,8 @@ import os
 import pytest
 import shutil
 
-from lasif.project import Project, LASIFException
+from lasif import LASIFException
+from lasif.project import Project
 from lasif.tests.testing_helpers import project  # NOQA
 from lasif.tests.testing_helpers import images_are_identical, \
     reset_matplotlib, DATA
