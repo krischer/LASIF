@@ -11,3 +11,10 @@ class LASIFException(Exception):
     Base exception class for LASIF.
     """
     pass
+
+
+class LASIFWarning(UserWarning):
+    """
+    Base warning class for LASIF.
+    """
+    pass

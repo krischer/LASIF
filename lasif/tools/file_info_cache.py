@@ -77,6 +77,9 @@ import os
 import progressbar
 import sqlite3
 import time
+import warnings
+
+from lasif import LASIFWarning
 
 
 class FileInfoCache(object):
@@ -166,21 +169,37 @@ class FileInfoCache(object):
         self.db_cursor.execute(sql_create_index_table)
         self.db_conn.commit()
 
-    def _get_all_files(self):
+    def _get_all_files_by_filename(self):
         """
-        Find all files for all filetypes.
+        Find all files for all filetypes by filename.
         """
         self.files = {}
         for filetype in self.filetypes:
             get_file_fct = "_find_files_%s" % filetype
             self.files[filetype] = getattr(self, get_file_fct)()
 
+    def _get_all_files_from_database(self):
+        """
+        Find all files that actually have indexes by querying the database.
+
+        This assumes self._get_all_files_by_filename() has already been
+        called.
+        """
+        print self.files
+        filenames = \
+            self.db_cursor.execute("SELECT filename FROM files").fetchall()
+        filenames = [_i[0] for _i in filenames]
+
+        # Filter to exclude all files not correctly indexed.
+        for key, value in self.files.iteritems():
+            self.files[key] = [_i for _i in value if _i in filenames]
+
     def update(self):
         """
         Updates the database.
         """
         # Get all files first.
-        self._get_all_files()
+        self._get_all_files_by_filename()
 
         # Get all files currently in the database and reshape into a
         # dictionary. The dictionary key is the filename and the value a tuple
@@ -241,6 +260,9 @@ class FileInfoCache(object):
             self.db_cursor.execute("DELETE FROM files WHERE filename='%s';" %
                                    filename)
         self.db_conn.commit()
+
+        # Update the self.files dictionary, this fime from the database.
+        self._get_all_files_from_database()
 
     def get_values(self):
         """
@@ -304,6 +326,39 @@ class FileInfoCache(object):
                                    "filepath_id = %i" % filepath_id)
             self.db_conn.commit()
 
+        # Get all indices from the file.
+        try:
+            indices = getattr(self, "_extract_index_values_%s" %
+                                    filetype)(filename)
+        except Exception as e:
+            msg = "Failed to index '%s' of type '%s' due to: %s" % (
+                filename, filetype, str(e)
+            )
+            warnings.warn(msg, LASIFWarning)
+
+            # If it is an update, also remove the file from the file list.
+            if filepath_id is not None:
+                self.db_cursor.execute(
+                    "DELETE FROM files WHERE filename='%s';" % filename)
+                self.db_conn.commit()
+
+            return
+
+        if not indices:
+            msg = ("Could not extract any index from file '%s' of type '%s'. "
+                   "The file will be skipped." % (filename, filetype))
+            warnings.warn(msg, LASIFWarning)
+
+            # If it is an update, also remove the file from the file list.
+            if filepath_id is not None:
+                self.db_cursor.execute(
+                    "DELETE FROM files WHERE filename='%s';" % filename)
+                self.db_conn.commit()
+
+            return
+
+        print "ADDING FILE!!!!", filename, filetype
+
         # Get the hash
         with open(filename, "rb") as open_file:
             filehash = crc32(open_file.read())
@@ -322,12 +377,6 @@ class FileInfoCache(object):
                     filename, os.path.getmtime(filename), filehash))
             self.db_conn.commit()
             filepath_id = self.db_cursor.lastrowid
-
-        # Get all indices from the file.
-        indices = getattr(self, "_extract_index_values_%s" %
-                          filetype)(filename)
-        if not indices:
-            return
 
         # Append the file's path id to every index.
         for index in indices:

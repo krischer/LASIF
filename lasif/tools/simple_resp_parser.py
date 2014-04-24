@@ -11,6 +11,8 @@ Some basic utility to parse RESP files.
 """
 from obspy import UTCDateTime
 
+from lasif import LASIFException
+
 
 def get_inventory(resp_file, remove_duplicates=False):
     """
@@ -81,6 +83,8 @@ def get_inventory(resp_file, remove_duplicates=False):
                 continue
             unique_list.append(channel)
         channels = unique_list
+    if not channels:
+        raise LASIFException("'%s' is not a valid RESP file." % resp_file)
     return channels
 
 

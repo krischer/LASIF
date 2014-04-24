@@ -13,12 +13,13 @@ things need to happen in order. Better then nothing.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import inspect
+import itertools
 import obspy
 import os
 import shutil
 import time
-import tempfile
 
+from lasif import LASIFWarning
 from lasif.tools.station_cache import StationCache
 
 
@@ -31,7 +32,7 @@ def test_station_cache(tmpdir):
         inspect.currentframe()))), "data")
 
     # Create a temporary directory.
-    directory = tempfile.mkdtemp()
+    directory = str(tmpdir)
 
     cache_file = os.path.join(directory, "cache.sqlite")
     seed_directory = os.path.join(directory, "SEED")
@@ -181,7 +182,7 @@ def test_station_xml(tmpdir):
         inspect.currentframe()))), "data")
 
     # Create a temporary directory.
-    directory = tempfile.mkdtemp()
+    directory = str(tmpdir)
 
     cache_file = os.path.join(directory, "cache.sqlite")
     seed_directory = os.path.join(directory, "SEED")
@@ -215,3 +216,109 @@ def test_station_xml(tmpdir):
          "longitude": -106.457122, "latitude": 34.945913}]}
     assert filename == os.path.join(
         stationxml_directory, "IRIS_single_channel_with_response.xml")
+
+
+def test_exception_handling(tmpdir, recwarn):
+    """
+    Tests exception handling.
+
+    For each file that somehow failed to index, it should raise a warning
+    while still indexing the rest.
+    """
+    # Most generic way to get the actual data directory.
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
+        inspect.currentframe()))), "data")
+
+    # Create a temporary directory.
+    directory = str(tmpdir)
+
+    cache_file = os.path.join(directory, "cache.sqlite")
+    seed_directory = os.path.join(directory, "SEED")
+    resp_directory = os.path.join(directory, "RESP")
+    stationxml_directory = os.path.join(directory, "StationXML")
+
+    os.makedirs(seed_directory)
+    os.makedirs(resp_directory)
+    os.makedirs(stationxml_directory)
+
+    # Copy a StationXML file to a RESP directory which naturally results in
+    # an error which results in a triggered warnings.
+    shutil.copy(os.path.join(data_dir,
+                             "IRIS_single_channel_with_response.xml"),
+                os.path.join(resp_directory,
+                             "RESP.file"))
+
+    recwarn.clear()
+    StationCache(cache_file, seed_directory, resp_directory,
+                 stationxml_directory)
+    w = recwarn.pop(LASIFWarning)
+    assert "Failed to index" in str(w.message)
+    assert "Not a valid RESP file?" in str(w.message)
+
+    # Clear the directories and create a new station cache instance using some
+    # correct and some incorrect files.
+    os.remove(cache_file)
+    os.remove(os.path.join(resp_directory, "RESP.file"))
+
+    # A valid SEED file.
+    shutil.copy(os.path.join(data_dir, "dataless.IU_PAB"),
+                os.path.join(seed_directory, "dataless.IU_PAB"))
+    # A valid RESP file.
+    shutil.copy(os.path.join(data_dir, "RESP.G.FDF.00.BHE"),
+                os.path.join(resp_directory, "RESP.G.FDF.00.BHE"))
+    # A valid StationXML file.
+    shutil.copy(os.path.join(data_dir,
+                             "IRIS_single_channel_with_response.xml"),
+                os.path.join(stationxml_directory,
+                             "IRIS_single_channel_with_response.xml"))
+
+    # Now copy files of the wrong types to the folders.
+    shutil.copy(os.path.join(data_dir, "dataless.IU_PAB"),
+                os.path.join(resp_directory, "RESP.iu_pab"))
+    shutil.copy(os.path.join(data_dir, "dataless.IU_PAB"),
+                os.path.join(stationxml_directory, "IU_PAB.xml"))
+    shutil.copy(os.path.join(data_dir, "RESP.G.FDF.00.BHE"),
+                os.path.join(seed_directory, "dataless.G_FDF"))
+
+    # Also create two StationXML files, one missing the response and one
+    # also missing the channel.
+    inv = obspy.read_inventory(os.path.join(
+        data_dir, "IRIS_single_channel_with_response.xml"))
+    inv[0][0][0].response = None
+    inv[0].code = "AA"
+    inv.write(os.path.join(stationxml_directory, "dummy_1.xml"),
+              format="stationxml")
+    inv[0][0].channels = []
+    inv[0].code = "BB"
+    inv.write(os.path.join(stationxml_directory, "dummy_2.xml"),
+              format="stationxml")
+
+    # Clear all warnings and init a new StationCache.
+    station_cache = StationCache(cache_file, seed_directory, resp_directory,
+                                 stationxml_directory)
+    # It should still have indexed all three files and thus three channels
+    # should be present.
+    assert len(station_cache.get_channels()) == 3
+    assert sorted(["G.FDF.00.BHE", "IU.ANMO.10.BHZ", "IU.PAB.00.BHE"]) == \
+        sorted(station_cache.get_channels().keys())
+    # Same for the stations.
+    assert len(station_cache.get_stations()) == 3
+    assert sorted(["G.FDF", "IU.ANMO", "IU.PAB"]) == \
+           sorted(station_cache.get_stations().keys())
+
+    # Naturally only three files should have been indexed.
+    filenames = list(itertools.chain(*station_cache.files.values()))
+    assert len(filenames) == 3
+
+    # 5 warnings should have been raised.
+    assert len(recwarn.list) == 5
+    messages = sorted([str(w.message).split(":")[-1].strip()
+                       for w in recwarn.list])
+    test_strings = sorted([
+        "Not a valid SEED file?",
+        "Not a valid RESP file?",
+        "Not a valid StationXML file?",
+        "Channel AA.ANMO.10.BHZ has no response.",
+        "File has no channels."
+    ])
+    assert messages == test_strings

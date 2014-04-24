@@ -93,7 +93,7 @@ class StationCache(FileInfoCache):
         try:
             p = Parser(filename)
         except:
-            msg = "Could not read SEED file '%s'." % filename
+            msg = "Not a valid SEED file?"
             raise StationCacheException(msg)
         channels = p.getInventory()["channels"]
 
@@ -113,7 +113,7 @@ class StationCache(FileInfoCache):
         try:
             inv = obspy.read_inventory(filename, format="stationxml")
         except:
-            msg = "Could not read StationXML file '%s'." % filename
+            msg = "Not a valid StationXML file?"
             raise StationCacheException(msg)
 
         channels = []
@@ -124,7 +124,7 @@ class StationCache(FileInfoCache):
                         network.code, station.code, channel.location_code,
                         channel.code)
                     if channel.response is None:
-                        msg = "Channel %s has no response."
+                        msg = "Channel %s has no response." % channel_id
                         raise StationCacheException(msg)
                     start_date = channel.start_date
                     if start_date:
@@ -138,7 +138,7 @@ class StationCache(FileInfoCache):
                     ])
 
         if not channels:
-            msg = "File %s has no channels." % filename
+            msg = "File has no channels."
             raise StationCacheException(msg)
 
         return channels
@@ -149,7 +149,7 @@ class StationCache(FileInfoCache):
             channels = simple_resp_parser.get_inventory(filename,
                                                         remove_duplicates=True)
         except:
-            msg = "Could not read RESP file '%s'." % filename
+            msg = "Not a valid RESP file?"
             raise StationCacheException(msg)
 
         channels = [[
