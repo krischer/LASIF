@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.tools.file_info_cache &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="API Documentation" href="api_doc.html"/>
+        <link rel="prev" title="lasif.tools.parallel" href="tools.parallel.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#creating-a-new-project">Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-seismic-events">Adding Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-waveform-data">Adding Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#station-data">Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#download-helpers">Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#inspecting-the-data">Inspecting the Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#interlude-validating-the-data">Interlude: Validating the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#defining-a-new-iteration">Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#generating-ses3d-input-files">Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#organizing-the-models">Organizing the Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#synthetics">Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_doc.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">lasif.tools.file_info_cache</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
+      
+    <li>lasif.tools.file_info_cache</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/tools.file_info_cache.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="module-lasif.tools.file_info_cache">
+<span id="lasif-tools-file-info-cache"></span><h1>lasif.tools.file_info_cache<a class="headerlink" href="#module-lasif.tools.file_info_cache" title="Permalink to this headline">¶</a></h1>
+<p>A file info cache class. Must be subclassed.</p>
+<p>The cache is able to monitor a bunch of (arbitrary) files and store some
+indexes information about each file. This is useful for keeping track of a
+large number of files and what is in them.</p>
+<p>To subclass it you need to provide the values you want to index, the types of
+files you want to index and functions to extract the indices and find the
+files. Upon each call to the constructor it will check the existing database,
+automatically remove any deleted files, reindex modified ones and add new ones.</p>
+<p>This is much faster then reading the files every time but still provides a lot
+of flexibility as the data can be managed by some other means.</p>
+<p>Example implementation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">ImageCache</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_folder</span><span class="p">,</span> <span class="n">cache_db_file</span><span class="p">):</span>
+        <span class="c"># The index values are a list of tuples. The first denotes the</span>
+        <span class="c"># name of the index and the second the type of the index. The types</span>
+        <span class="c"># have to correspond to SQLite types.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_values</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s">&quot;width&quot;</span><span class="p">,</span> <span class="s">&quot;INTEGER&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&quot;height&quot;</span><span class="p">,</span> <span class="s">&quot;INTEGER&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;TEXT&quot;</span><span class="p">)]</span>
+        <span class="c"># The types of files to index.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filetypes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;png&quot;</span><span class="p">,</span> <span class="s">&quot;jpeg&quot;</span><span class="p">]</span>
+
+        <span class="c"># Subclass specific values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_folder</span> <span class="o">=</span> <span class="n">image_folder</span>
+
+        <span class="c"># Don&#39;t forget to call the parents __init__()!</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ImageCache</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">cache_db_file</span><span class="o">=</span><span class="n">cache_db_file</span><span class="p">)</span>
+
+    <span class="c"># Now you need to define one &#39;find files&#39; and one &#39;index file&#39;</span>
+    <span class="c"># methods for each filetype. The &#39;find files&#39; method needs to be named</span>
+    <span class="c"># &#39;_find_files_FILETYPE&#39; and takes no arguments. The &#39;index file&#39;</span>
+    <span class="c"># method has to be named &#39;_extract_index_values_FILETYPE&#39; and takes one</span>
+    <span class="c"># argument: the path to file. It needs to return a list of lists. Each</span>
+    <span class="c"># inner list contains the indexed values in the same order as specified</span>
+    <span class="c"># in self.index_values. It can return multiple sets of indices per</span>
+    <span class="c"># file. Useful for lots of filetypes, not necessarily images as in the</span>
+    <span class="c"># example here.</span>
+
+    <span class="k">def</span> <span class="nf">_find_files_png</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;*.png&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_find_files_jpeg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;*.png&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_extract_index_values_png</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="c"># Do somethings to get the values.</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s">&quot;png&quot;</span><span class="p">]]</span>
+
+    <span class="k">def</span> <span class="nf">_extract_index_values_jpeg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="c"># Do somethings to get the values.</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s">&quot;jpeg&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2013</td>
+</tr>
+<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</td>
+</tr>
+</tbody>
+</table>
+<dl class="class">
+<dt id="lasif.tools.file_info_cache.FileInfoCache">
+<em class="property">class </em><tt class="descclassname">lasif.tools.file_info_cache.</tt><tt class="descname">FileInfoCache</tt><big>(</big><em>cache_db_file</em>, <em>show_progress=True</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/file_info_cache.html#FileInfoCache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.file_info_cache.FileInfoCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object able to cache information about arbitrary files on the filesystem.</p>
+<p>Intended to be subclassed.</p>
+<dl class="method">
+<dt id="lasif.tools.file_info_cache.FileInfoCache.get_details">
+<tt class="descname">get_details</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/file_info_cache.html#FileInfoCache.get_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.file_info_cache.FileInfoCache.get_details" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the indexed information about one file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; The filename for which to request information.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.tools.file_info_cache.FileInfoCache.get_values">
+<tt class="descname">get_values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/tools/file_info_cache.html#FileInfoCache.get_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.file_info_cache.FileInfoCache.get_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of dictionaries containing all indexed values for every
+file together with the filename.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.tools.file_info_cache.FileInfoCache.update">
+<tt class="descname">update</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/tools/file_info_cache.html#FileInfoCache.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.file_info_cache.FileInfoCache.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the database.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="tools.parallel.html" class="btn btn-neutral" title="lasif.tools.parallel"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -102,6 +102,7 @@
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
 </ul>
 </li>
 </ul>
@@ -230,7 +231,7 @@ initialized it looks akin to the following:</p>
 <li><tt class="docutils literal"><span class="pre">name</span></tt> is the project&#8217;s name.</li>
 <li><tt class="docutils literal"><span class="pre">description</span></tt> can be any further useful information about the project. This
 is not used by LASIF but potentially useful for yourself.</li>
-<li>The <tt class="docutils literal"><span class="pre">arclink_username</span></tt> tag should be your email. It will be send with all
+<li>The <tt class="docutils literal"><span class="pre">arclink_username</span></tt> tag should be your email. It will be sent with all
 requests to the ArcLink network. They ask for it in case they have to contact
 you for whatever reason. Please provide a real email address. Must not be
 empty.</li>
@@ -264,20 +265,20 @@ domain.</p>
 Please change the <tt class="docutils literal"><span class="pre">config.xml</span></tt> file to reflect the following domain
 settings.</p>
 <ul class="simple">
-<li>Latitude: <tt class="docutils literal"><span class="pre">-20.0°</span> <span class="pre">-</span> <span class="pre">20.0°</span></tt></li>
-<li>Longitude: <tt class="docutils literal"><span class="pre">-20.0°</span> <span class="pre">-</span> <span class="pre">20.0°</span></tt></li>
-<li>Depth: <tt class="docutils literal"><span class="pre">0</span> <span class="pre">km</span> <span class="pre">-</span> <span class="pre">1000</span> <span class="pre">km</span></tt></li>
-<li>Boundary width in degree: <tt class="docutils literal"><span class="pre">3.00°</span></tt></li>
+<li>Latitude: <tt class="docutils literal"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></tt></li>
+<li>Longitude: <tt class="docutils literal"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></tt></li>
+<li>Depth: <tt class="docutils literal"><span class="pre">0</span> <span class="pre">km</span> <span class="pre">-</span> <span class="pre">471</span> <span class="pre">km</span></tt></li>
+<li>Boundary width in degree: <tt class="docutils literal"><span class="pre">2.5°</span></tt></li>
 <li>Rotation axis: <tt class="docutils literal"><span class="pre">1.0,</span> <span class="pre">1.0,</span> <span class="pre">0.2</span></tt></li>
 <li>Rotation angle: <tt class="docutils literal"><span class="pre">-65.0°</span></tt></li>
 </ul>
 <p>In general one should only work with data not affected by the boundary
 conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
-It is not advisable to use data that traverses these layers. The default
-setting of SES3D is to use two boundary layers. In this example this amounts to
-(in longitudinal direction) 1.46°. In a real world case it is best to use some
-more buffer layers to avoid boundary effects. In this small example this would
-influence the domain too much so we just set it to 1.46°.</p>
+It is not advisable to use data that traverses these layers. SES3D defaults
+to two layer but more are possible. For this tutorial we will only consider
+data which is at least three elements away from the border in a an attempt
+to avoid unphysical influences of the boundary conditions. This amounts to
+<tt class="docutils literal"><span class="pre">2.5°</span></tt>.</p>
 <p>At any point you can have a look at the defined domain with</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_domain
 </pre></div>
@@ -308,13 +309,13 @@ look like this.</p>
   <span class="nt">&lt;/download_settings&gt;</span>
   <span class="nt">&lt;domain&gt;</span>
     <span class="nt">&lt;domain_bounds&gt;</span>
-      <span class="nt">&lt;minimum_longitude&gt;</span>-20<span class="nt">&lt;/minimum_longitude&gt;</span>
-      <span class="nt">&lt;maximum_longitude&gt;</span>20<span class="nt">&lt;/maximum_longitude&gt;</span>
-      <span class="nt">&lt;minimum_latitude&gt;</span>-20<span class="nt">&lt;/minimum_latitude&gt;</span>
-      <span class="nt">&lt;maximum_latitude&gt;</span>20<span class="nt">&lt;/maximum_latitude&gt;</span>
+      <span class="nt">&lt;minimum_longitude&gt;</span>-10<span class="nt">&lt;/minimum_longitude&gt;</span>
+      <span class="nt">&lt;maximum_longitude&gt;</span>10<span class="nt">&lt;/maximum_longitude&gt;</span>
+      <span class="nt">&lt;minimum_latitude&gt;</span>-10<span class="nt">&lt;/minimum_latitude&gt;</span>
+      <span class="nt">&lt;maximum_latitude&gt;</span>10<span class="nt">&lt;/maximum_latitude&gt;</span>
       <span class="nt">&lt;minimum_depth_in_km&gt;</span>0.0<span class="nt">&lt;/minimum_depth_in_km&gt;</span>
-      <span class="nt">&lt;maximum_depth_in_km&gt;</span>1000.0<span class="nt">&lt;/maximum_depth_in_km&gt;</span>
-      <span class="nt">&lt;boundary_width_in_degree&gt;</span>3.0<span class="nt">&lt;/boundary_width_in_degree&gt;</span>
+      <span class="nt">&lt;maximum_depth_in_km&gt;</span>471.0<span class="nt">&lt;/maximum_depth_in_km&gt;</span>
+      <span class="nt">&lt;boundary_width_in_degree&gt;</span>2.5<span class="nt">&lt;/boundary_width_in_degree&gt;</span>
     <span class="nt">&lt;/domain_bounds&gt;</span>
     <span class="nt">&lt;domain_rotation&gt;</span>
       <span class="nt">&lt;rotation_axis_x&gt;</span>1.0<span class="nt">&lt;/rotation_axis_x&gt;</span>
@@ -325,6 +326,13 @@ look like this.</p>
   <span class="nt">&lt;/domain&gt;</span>
 <span class="nt">&lt;/lasif_project&gt;</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The true synthetic model is PREM with a small positive Gaussian anomaly  in
+the center (latitude=longitude=0) at a depth of 70 km applied to the  P and
+both S-wave velocities. The amplitude of the anomaly is 0.3 km/s with
+the sigma being 200 km in horizontal and 50 km in the vertical direction.</p>
 </div>
 </div>
 <div class="section" id="adding-seismic-events">
@@ -341,6 +349,7 @@ The <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre
 and store an XML file in the correct folder.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
 <span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/834535
+<span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
 </pre></div>
 </div>
 <p>These commands will download two event files and store them in the
@@ -694,14 +703,14 @@ specified. Each iteration can have an arbitrary name. It is probably a good
 idea to give simple numeric names, like 1, 2, 3, ...</p>
 <p>Let&#8217;s start by creating the XML file for the very first iteration with the
 <strong>create_new_iteration</strong> command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration 1 8.0 100.0 SES3D_4_0
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration 1 8.0 100.0 SES3D_4_1
 </pre></div>
 </div>
 <p>This command takes four arguments; the first being the iteration name. A simple
 number is sufficient in many cases. The second and third denote the band limit
 of this iteration. In this example the band is limited between 8 and 100
 seconds. The fourth argument is the waveform solver to be used for this
-iteration. It currently only supports SES3D 4.0 but the infrastructure to add
+iteration. It currently only supports SES3D 4.1 but the infrastructure to add
 other solvers is already in place.</p>
 <p>You will see that this create a new file; <em>ITERATIONS/ITERATION_1.xml*</em>. Each
 iteration will have its own file. To get a list of iterations, use</p>
@@ -721,7 +730,7 @@ LASIF Iteration
     Preprocessing Settings:
             Highpass Period: 100.000 s
             Lowpass Period: 8.000 s
-    Solver: SES3D 4.0 | 500 timesteps <span class="o">(</span>dt: 0.75s<span class="o">)</span>
+    Solver: SES3D 4.1 | 500 timesteps <span class="o">(</span>dt: 0.75s<span class="o">)</span>
     2 events recorded at 10 unique stations
     16 event-station pairs <span class="o">(</span><span class="s2">&quot;rays&quot;</span><span class="o">)</span>
 </pre></div>
@@ -788,7 +797,7 @@ present in the LASIF project.</p>
   <span class="nt">&lt;/rejection_criteria&gt;</span>
   <span class="nt">&lt;source_time_function&gt;</span>Filtered Heaviside<span class="nt">&lt;/source_time_function&gt;</span>
   <span class="nt">&lt;solver_parameters&gt;</span>
-    <span class="nt">&lt;solver&gt;</span>SES3D 4.0<span class="nt">&lt;/solver&gt;</span>
+    <span class="nt">&lt;solver&gt;</span>SES3D 4.1<span class="nt">&lt;/solver&gt;</span>
     <span class="nt">&lt;solver_settings&gt;</span>
       <span class="nt">&lt;simulation_parameters&gt;</span>
         <span class="nt">&lt;number_of_time_steps&gt;</span>4000<span class="nt">&lt;/number_of_time_steps&gt;</span>
@@ -948,16 +957,16 @@ actually simulate anything and LASIF of course also assists in that regard.</p>
 </div>
 <div class="section" id="generating-ses3d-input-files">
 <h2>Generating SES3D Input Files<a class="headerlink" href="#generating-ses3d-input-files" title="Permalink to this headline">¶</a></h2>
-<p>LASIF is currently capable of producing input files for SES3D 4.0. It is very
+<p>LASIF is currently capable of producing input files for SES3D 4.1. It is very
 straightforward and knows what data is available for every event and thus can
 generate these files fully automatically. In the future it might be worth
 investigating automatic job submission to high performance machines as this is
 essentially just repetitive and error-prone work.</p>
 <p>The iteration XML file also governs the solver used and the specific settings
-used for the given iteration, e.g. the settings for the SES3D 4.0 solver are
+used for the given iteration, e.g. the settings for the SES3D 4.1 solver are
 shown here.</p>
 <div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;solver_parameters&gt;</span>
-  <span class="nt">&lt;solver&gt;</span>SES3D 4.0<span class="nt">&lt;/solver&gt;</span>
+  <span class="nt">&lt;solver&gt;</span>SES3D 4.1<span class="nt">&lt;/solver&gt;</span>
   <span class="nt">&lt;solver_settings&gt;</span>
     <span class="nt">&lt;simulation_parameters&gt;</span>
       <span class="nt">&lt;number_of_time_steps&gt;</span>4000<span class="nt">&lt;/number_of_time_steps&gt;</span>
@@ -985,11 +994,11 @@ shown here.</p>
 </pre></div>
 </div>
 <p>Most things should be self-explanatory.  In case something is not fully clear,
-please refer to the SES3D 4.0 manual or contact the author. As previously
+please refer to the SES3D 4.1 manual or contact the author. As previously
 mentioned the <strong>{{EVENT_NAME}}</strong> placeholder will be replaced with the actual
 event. Please take care that what you put in here it correct, otherwise the
 simulations will not work. The settings shown here coincide with the settings
-used in the SES3D 4.0 tutorial so we will just use those here.</p>
+used in the SES3D 4.1 tutorial so we will just use those here.</p>
 <div class="section" id="input-file-generation">
 <h3>Input File Generation<a class="headerlink" href="#input-file-generation" title="Permalink to this headline">¶</a></h3>
 <p>The actual input file generation is now very straightforward:</p>
@@ -1027,10 +1036,10 @@ to verify your setup and potentially also the correctness of this tool suite.</p
 </div>
 <div class="section" id="organizing-the-models">
 <h2>Organizing the Models<a class="headerlink" href="#organizing-the-models" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="short-deviation-creating-an-initial-model-with-ses3d-4-0">
-<h3>Short Deviation: Creating an initial model with SES3D 4.0<a class="headerlink" href="#short-deviation-creating-an-initial-model-with-ses3d-4-0" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="short-deviation-creating-an-initial-model-with-ses3d-4-1">
+<h3>Short Deviation: Creating an initial model with SES3D 4.1<a class="headerlink" href="#short-deviation-creating-an-initial-model-with-ses3d-4-1" title="Permalink to this headline">¶</a></h3>
 <p>This is very quick tutorial to help you get up to speed with the model
-generation for this tutorial with SES3D 4.0. You will still need to read the
+generation for this tutorial with SES3D 4.1. You will still need to read the
 SES3D manual. This part assumes that you created the input files according to
 the previous section and that you have a copy of SES3D on the supercomputer.
 Please not that you will have to adjust settings if you did not follow along
@@ -1213,7 +1222,7 @@ command again.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="how_lasif_finds_coordinates.html" class="btn btn-neutral float-right" title="How LASIF Finds Coordinates"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="how_lasif_finds_coordinates.html" class="btn btn-neutral float-right" title="How LASIF Finds Coordinates">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="introduction.html" class="btn btn-neutral" title="Introduction"><span class="fa fa-arrow-circle-left"></span> Previous</a>
