@@ -305,8 +305,8 @@ class StationCache(FileInfoCache):
             time = int(time)
         sql_query = """
         SELECT id FROM indices
-        WHERE (channel_id = '%s') AND (start_date < %i) AND
-            ((end_date IS NULL) OR (end_date > %i))
+        WHERE (channel_id = '%s') AND (start_date <=  %i) AND
+            ((end_date IS NULL) OR (end_date >= %i))
         LIMIT 1;
         """ % (channel_id, time, time)
         if self.db_cursor.execute(sql_query).fetchone():
