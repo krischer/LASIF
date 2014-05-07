@@ -1187,7 +1187,7 @@ class Project(object):
         Generates a output folder in a unified way.
         """
         from obspy import UTCDateTime
-        output_dir = ("%s___%s" % (str(UTCDateTime), tag))
+        output_dir = ("%s___%s" % (str(UTCDateTime()), tag))
         output_dir = os.path.join(self.paths["output"], output_dir)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
