@@ -1176,9 +1176,12 @@
 
         <span class="c"># Check that the event is part of the iterations.</span>
         <span class="k">if</span> <span class="n">event_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">iteration</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Event &#39;</span><span class="si">%s</span><span class="s">&#39; not part of iteration &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="n">event_name</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Event &#39;</span><span class="si">%s</span><span class="s">&#39; not part of iteration &#39;</span><span class="si">%s</span><span class="s">&#39;.</span><span class="se">\n</span><span class="s">Events available &quot;</span>
+                   <span class="s">&quot;in iteration:</span><span class="se">\n\t</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                   <span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n\t</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="nb">sorted</span><span class="p">(</span><span class="n">iteration</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">keys</span><span class="p">()))))</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
         <span class="n">event</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span>
         <span class="n">stations_for_event</span> <span class="o">=</span> <span class="n">iteration</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 
@@ -1324,8 +1327,8 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates a output folder in a unified way.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">___</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span> <span class="n">tag</span><span class="p">))</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;T&quot;</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">UTCDateTime</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">___</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">UTCDateTime</span><span class="p">),</span> <span class="n">tag</span><span class="p">))</span>
         <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;output&quot;</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
@@ -2364,6 +2367,8 @@
                 <span class="n">filetype</span> <span class="o">=</span> <span class="s">&quot;RESP&quot;</span>
             <span class="k">elif</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_cache</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s">&quot;seed&quot;</span><span class="p">]:</span>
                 <span class="n">filetype</span> <span class="o">=</span> <span class="s">&quot;SEED&quot;</span>
+            <span class="k">elif</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_cache</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="s">&quot;stationxml&quot;</span><span class="p">]:</span>
+                <span class="n">filetype</span> <span class="o">=</span> <span class="s">&quot;STATIONXML&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c"># This really should not happen.</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span>
