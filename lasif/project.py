@@ -1035,8 +1035,11 @@ class Project(object):
 
         # Check that the event is part of the iterations.
         if event_name not in iteration.events:
-            msg = "Event '%s' not part of iteration '%s'." % (
-                event_name, iteration_name)
+            msg = ("Event '%s' not part of iteration '%s'.\nEvents available "
+                   "in iteration:\n\t%s"
+                   % (
+                event_name, iteration_name, "\n\t".join(
+                    sorted(iteration.events.keys()))))
             raise ValueError(msg)
         event = self.events[event_name]
         stations_for_event = iteration.events[event_name]["stations"].keys()
