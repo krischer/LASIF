@@ -1183,8 +1183,8 @@ class Project(object):
         """
         Generates a output folder in a unified way.
         """
-        from datetime import datetime
-        output_dir = ("%s___%s" % (str(datetime.now()), tag)).replace(" ", "T")
+        from obspy import UTCDateTime
+        output_dir = ("%s___%s" % (str(UTCDateTime), tag))
         output_dir = os.path.join(self.paths["output"], output_dir)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -2223,6 +2223,8 @@ class Project(object):
                 filetype = "RESP"
             elif filename in self.station_cache.files["seed"]:
                 filetype = "SEED"
+            elif filename in self.station_cache.files["stationxml"]:
+                filetype = "STATIONXML"
             else:
                 # This really should not happen.
                 raise NotImplementedError
