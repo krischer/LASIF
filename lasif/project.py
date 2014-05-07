@@ -1041,6 +1041,9 @@ class Project(object):
                     sorted(iteration.events.keys()))))
             raise ValueError(msg)
 
+        event = self.events[event_name]
+        stations_for_event = iteration.events[event_name]["stations"].keys()
+
         # Get all stations and create a dictionary for the input file
         # generator.
         stations = self.get_stations_for_event(event_name)
