@@ -51,6 +51,7 @@ class StationCache(FileInfoCache):
             ("elevation_in_m", "REAL"),
             ("local_depth_in_m", "REAL")]
 
+        self.indices = ["channel_id"]
         self.filetypes = ["seed", "resp", "stationxml"]
 
         self.seed_folder = seed_folder

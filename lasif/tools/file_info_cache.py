@@ -100,6 +100,7 @@ class FileInfoCache(object):
         self.files = {}
 
         self._init_database()
+        self._update_indices()
         self.update()
 
     def __del__(self):
@@ -168,6 +169,34 @@ class FileInfoCache(object):
 
         self.db_cursor.execute(sql_create_index_table)
         self.db_conn.commit()
+
+    def _update_indices(self):
+        if not hasattr(self, "indices") or not self.indices:
+            return
+
+        get_indices_query = """
+            SELECT name FROM sqlite_master
+            WHERE type='index';"""
+
+        indices = [_i[0] for _i in
+                   self.db_cursor.execute(get_indices_query).fetchall()]
+        if indices == self.indices:
+            return
+
+        # Drop all indices no.
+        for index in indices:
+            if index in self.indices:
+                continue
+            query = "DROP INDEX %s;" % index
+            self.db_conn.execute(query)
+            self.db_conn.commit()
+
+        for index in self.indices:
+            if index in indices:
+                continue
+            query = "CREATE INDEX %s on indices(%s);" % (index, index)
+            self.db_conn.execute(query)
+            self.db_conn.commit()
 
     def _get_all_files_by_filename(self):
         """
