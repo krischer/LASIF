@@ -1,0 +1,21 @@
+    <h5>Project contains {{events.length}} events.</h5>
+
+    <ul class="nav nav-tabs">
+        <li ng-class="{active: $routeSegment.contains('list')}">
+            <a href="#/events/list">List</a>
+        </li>
+        <li ng-class="{active: $routeSegment.contains('magnitude_histogram')}">
+            <a href="#/events/magnitude_histogram">Magnitude Histogram</a>
+        </li>
+        <li  ng-class="{active: $routeSegment.contains('depth_histogram')}">
+            <a href="#/events/depth_histogram">Depth Histogram</a>
+        </li>
+        <li  ng-class="{active:$routeSegment.contains('time_histogram')}">
+            <a href="#/events/time_histogram">Time Histogram</a>
+        </li>
+        <li ng-class="{active:$routeSegment.contains('magnitude_vs_depth')}">
+            <a href="#/events/magnitude_vs_depth">Magnitude vs Depth</a>
+        </li>
+    </ul>
+
+    <div app-view_segment="1"></div>

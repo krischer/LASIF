@@ -1,0 +1,18 @@
+<h4 class="lead">Temporal Distribution</h4>
+
+
+<nvd3-discrete-bar-chart
+        data="timeHistogramData"
+        id="timeHistogram"
+        showXAxis="true"
+        showValues="true"
+        height="400"
+        interactive="true"
+        valueFormat="formatInt()"
+        tooltips="true"
+        xAxisLabel="Origin Year"
+        noData="No Data!"
+        tooltipcontent="timeToolTipContentFunction()"
+        >
+    <svg></svg>
+</nvd3-discrete-bar-chart>

@@ -1096,6 +1096,34 @@ def lasif_debug(parser, args):
         print ""
 
 
+@command_group("Misc")
+def lasif_serve(parser, args):
+    """
+    Launches the LASIF webinterface.
+    """
+    parser.add_argument("--port", default=8008, type=int,
+                        help="Port of the webserver.")
+
+    parser.add_argument("--nobrowser", help="Do not open a webbrowser.",
+                        action="store_true")
+    args = parser.parse_args(args)
+    port = args.port
+    nobrowser = args.nobrowser
+
+
+    project = _find_project_root(".")
+
+    if nobrowser is False:
+        import webbrowser
+        import threading
+
+        threading.Timer(1.0,
+            lambda: webbrowser.open("http://localhost:%i" % port)).start()
+
+    from lasif.webinterface.server import serve
+    serve(project, port=port)
+
+
 def _get_cmd_description(fct):
     """
     Convenience function extracting the first line of a docstring.

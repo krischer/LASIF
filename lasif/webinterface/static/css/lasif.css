@@ -1,0 +1,43 @@
+#project_name {
+    font-weight: 900;
+    font-size: 100%
+}
+
+#project_root {
+    font-weight: 300;
+    font-size: 90%;
+}
+
+#event_list_table {
+    margin-top: 20px;
+}
+
+/* Center tabs: http://stackoverflow.com/a/9422253 */
+.nav-tabs > li, .nav-pills > li {
+    float:none;
+    display:inline-block;
+    *display:inline; /* ie7 fix */
+     zoom:1; /* hasLayout ie7 trigger */
+}
+.nav-tabs, .nav-pills {
+    text-align:center;
+}
+
+/* Dotted border around links */
+a:focus {
+    -moz-outline-style: none;
+    outline: none;
+}
+
+.latest-output {
+    position: relative;
+    overflow: hidden;
+}
+
+.latest-output .from-now {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding-right: 5px;
+    padding-top: 5px;
+}

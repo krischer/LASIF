@@ -1,0 +1,18 @@
+<h4 class="lead">Magnitude Distribution</h4>
+
+<nvd3-discrete-bar-chart
+        data="magnitudeHistogramData"
+        id="magnitudeHistogram"
+        showXAxis="true"
+        showValues="true"
+        height="400"
+        valueFormat="formatInt()"
+        xAxisTickFormat="magnitudeXAxisTickFormatFunction()"
+        interactive="true"
+        tooltips="true"
+        noData="No Data!"
+        xAxisLabel="Magnitude Range"
+        tooltipcontent="magnitudeToolTipContentFunction()"
+        >
+    <svg></svg>
+</nvd3-discrete-bar-chart>

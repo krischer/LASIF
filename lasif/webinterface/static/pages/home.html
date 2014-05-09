@@ -1,0 +1,22 @@
+<div class="row">
+    <div class="col-md-3 col-md-offset-9">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Latest Output
+            </div>
+            <div class="panel-body">
+                <ul class="list-group">
+                    <li class="list-group-item latest-output"
+                        ng-repeat='folder in latest_output'>
+                        <strong>{{folder.type|removeUnderscoresUppercase}}</strong></br>
+                        <small>{{folder.details}}</small>
+                        <div class="from-now">
+                            <div class="badge">{{folder.time|fromNow}}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+

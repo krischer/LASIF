@@ -1,0 +1,18 @@
+<h4 class="lead">Depth Distribution</h4>
+
+<nvd3-discrete-bar-chart
+        data="depthHistogramData"
+        id="depthHistogram"
+        showXAxis="true"
+        showValues="true"
+        height="400"
+        valueFormat="formatInt()"
+        xAxisTickFormat="depthXAxisTickFormatFunction()"
+        interactive="true"
+        tooltips="true"
+        xAxisLabel="Depth Range"
+        noData="No Data!"
+        tooltipcontent="depthToolTipContentFunction()"
+        >
+    <svg></svg>
+</nvd3-discrete-bar-chart>

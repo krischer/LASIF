@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="LASIFApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Lion Krischer">
+
+    <title>LASIF Web Interface</title>
+
+    <!--External CSS-->
+    <link href="/static/external/bootstrap-v3.1.1/bootstrap.min.css"
+          rel="stylesheet" type="text/css">
+    <link href="/static/external/nv.d3-v1.1-beta/nv.d3.css"
+          rel="stylesheet" type="text/css">
+
+    <!--Custom CSS-->
+    <link href="/static/css/lasif.css" rel="stylesheet">
+
+    <!--External JS-->
+    <script src="/static/external/lodash-v2.4.1.min.js"></script>
+    <script src="/static/external/jquery-2.1.0.min.js"></script>
+    <script src="/static/external/moment-v2.6.0.min.js"></script>
+    <script src="/static/external/d3-3.4.6.min.js"></script>
+    <script src="/static/external/topojson.v1.min.js"></script>
+    <script src="/static/external/nv.d3-v1.1-beta/nv.d3.min.js"></script>
+    <script src="/static/external/angular-1.2.16.min.js"></script>
+    <script src="/static/external/angular-route-1.2.16.min.js"></script>
+    <script src="/static/external/angular-route-segment-v.1.2.3.min.js"></script>
+    <script src="/static/external/angular-strap-v2.0.1/angular-strap.min.js"></script>
+    <script src="/static/external/angular-strap-v2.0.1/angular-strap.tpl.min.js"></script>
+    <script src="/static/external/angularjs-nvd3-directives-0.0.7.min.js"></script>
+
+    <!--AngularJS App-->
+    <script src="/static/src/lasifapp.js"></script>
+
+    <!--Controllers-->
+    <script src="/static/src/controllers/home_controller.js"></script>
+    <script src="/static/src/controllers/events_controller.js"></script>
+
+    <!--Misc-->
+    <script src="/static/src/routes.js"></script>
+    <script src="/static/src/filters.js"></script>
+
+    <!--Directives-->
+    <script src="/static/src/directives/d3_map.js"></script>
+</head>
+
+<body ng-controller="mainController">
+
+<div class="navbar navbar-default" role="navigation" bs-navbar>
+    <div class="navbar-header">
+        <a class="navbar-brand" href="#">LASIF</a>
+    </div>
+
+    <ul class="nav navbar-nav">
+        <li data-match-route="/$"><a href="#/">Home</a></li>
+        <li data-match-route="/map"><a href="#/map">Map</a></li>
+        <li data-match-route="/events"><a href="#/events/list">Events</a></li>
+        <li data-match-route="/iterations"><a
+                href="#/iterations">Iterations</a></li>
+    </ul>
+
+    <div class="nav navbar-right">
+        <p class="navbar-text">
+            <span id="project_name">{{project_name}}</span>
+            <span id="project_root">{{project_root}}</span>
+        </p>
+    </div>
+</div>
+
+<div id="d3_map"></div>
+
+<div class="container-fluid">
+    <div app-view-segment="0"></div>
+</div>
+
+</body>
+</html>

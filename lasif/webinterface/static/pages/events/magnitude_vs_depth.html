@@ -1,0 +1,18 @@
+<h4 class="lead">Magnitude vs Depth Scatter</h4>
+
+<nvd3-scatter-chart
+        data="magnitudeVsDepthData"
+        id="magnitudeVsDepthPlot"
+        height="400"
+        margin="[100,0,0,0]"
+        noData="No Data!"
+        xAxisLabel="Depth"
+        yAxisLabel="Magnitude"
+        yPadding="0.1"
+        xAxisTickFormat="magnitudeVsDepthXAxisTickFormatFunction()"
+        forcex="[0,700]"
+        showDistX="true"
+        showDistY="true"
+        >
+    <svg></svg>
+</nvd3-scatter-chart>
