@@ -115,7 +115,11 @@ lasifApp.directive('d3Map', function ($window, $log, $timeout) {
 
                 // update projection
                 projection
-                    .translate([width / 2, height / 2]);
+                    .translate([width / 2, height / 2])
+                    .clipExtent([
+                            [dx, dx],
+                            [width - dx, height - dx]
+                        ]);
 
                 // resize the map container
                 canvas
