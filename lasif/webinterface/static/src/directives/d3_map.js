@@ -70,6 +70,7 @@ lasifApp.directive('d3Map', function ($window, $log) {
             var context = canvas.node().getContext("2d");
             var land;
             var domain_boundaries;
+            var event_list;
 
             var path = d3.geo.path()
                 .projection(projection)
@@ -78,12 +79,27 @@ lasifApp.directive('d3Map', function ($window, $log) {
             queue()
                 .defer(d3.json, "/static/data/world-110m.json")
                 .defer(d3.json, "/rest/domain.geojson")
-                .await(function (error, world, boundaries) {
+                .defer(d3.json, "/rest/event")
+                .await(function (error, world, boundaries, evs) {
                     if (error) return $log.error(error);
 
                     land = topojson.feature(world, world.objects.land);
                     domain_boundaries = boundaries;
+                    var circles = [];
 
+                    var evs = evs["events"];
+
+                    for (var i=0; i<evs.length; i++) {
+                        var event = evs[i];
+
+                        var circle = d3.geo.circle()
+                            .angle(event["magnitude"] / 4)
+                            .origin(function(x, y) {return [x, y]});
+                        circles.push(circle(event["longitude"],
+                                            event["latitude"]));
+                    }
+                    event_list = {type: "GeometryCollection",
+                                  geometries: circles};
                     redraw();
                 });
 
@@ -99,11 +115,14 @@ lasifApp.directive('d3Map', function ($window, $log) {
                 context.strokeStyle = "#ccc";
                 context.beginPath(), path(graticule), context.stroke();
 
-                $log.log(domain_boundaries);
-
                 context.lineWidth = 2.0 * pixelRatio;
                 context.strokeStyle = "#c00";
                 context.beginPath(), path(domain_boundaries), context.stroke();
+
+                context.lineWidth = 2.0 * pixelRatio;
+                context.strokeStyle = "rgba(0, 0, 150, 1.0)";
+                context.fillStyle = "rgba(0, 0, 150, 0.3)";
+                context.beginPath(), path(event_list), context.fill(), context.stroke();
             };
 
             // Delay resize a bit as it is fairly expensive.
