@@ -63,27 +63,13 @@ class StationCache(FileInfoCache):
                                            show_progress=show_progress)
 
     def _find_files_seed(self):
-        seed_files = []
-        # Get all dataless SEED files.
-        for filename in glob.iglob(os.path.join(self.seed_folder,
-                                                "dataless.*")):
-            seed_files.append(filename)
-        return seed_files
+        return glob.glob(os.path.join(self.seed_folder, "dataless.*"))
 
     def _find_files_resp(self):
-        resp_files = []
-        # Get all RESP files
-        for filename in glob.iglob(os.path.join(self.resp_folder, "RESP.*")):
-            resp_files.append(filename)
-        return resp_files
+        return glob.glob(os.path.join(self.resp_folder, "RESP.*"))
 
     def _find_files_stationxml(self):
-        stationxml_files = []
-        # Get all dataless XML files.
-        for filename in glob.iglob(os.path.join(self.stationxml_folder,
-                                                "*.xml")):
-            stationxml_files.append(filename)
-        return stationxml_files
+        return glob.glob(os.path.join(self.stationxml_folder, "*.xml"))
 
     @staticmethod
     def _extract_index_values_seed(filename):

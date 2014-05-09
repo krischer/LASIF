@@ -187,11 +187,11 @@ class FileInfoCache(object):
         """
         filenames = \
             self.db_cursor.execute("SELECT filename FROM files").fetchall()
-        filenames = [_i[0] for _i in filenames]
+        filenames = set(_i[0] for _i in filenames)
 
         # Filter to exclude all files not correctly indexed.
         for key, value in self.files.iteritems():
-            self.files[key] = [_i for _i in value if _i in filenames]
+            self.files[key] = list(filenames.intersection(set(value)))
 
     def update(self):
         """
