@@ -1,3 +1,7 @@
+html, body {
+    height: 100%
+}
+
 #project_name {
     font-weight: 900;
     font-size: 100%
@@ -40,4 +44,14 @@ a:focus {
     right: 0px;
     padding-right: 5px;
     padding-top: 5px;
+}
+
+.fill {
+    top: 65px;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    position: absolute;
+    width: auto;
+    height: auto;
 }

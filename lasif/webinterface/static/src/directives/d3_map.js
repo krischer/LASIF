@@ -5,12 +5,12 @@ lasifApp.directive('d3Map', function ($window, $log, $timeout) {
         restrict: 'EA',
         scope: {},
         replace: true,
-        template: "<div style='width: 100%; margin: 0 auto;'></div>",
+        template: "<div style='width: 100%; height: 100%; margin: 0 auto;'></div>",
         link: function ($scope, element, attrs) {
 
-            var mapRatio = 0.5;
+            var mapRatio = 0.1;
             var width = parseInt(d3.select(element[0]).style('width'));
-            var height = width * mapRatio;
+            var height = parseInt(d3.select(element[0]).style('height'));
 
 //            var margin = {top: 10, left: 10, bottom: 10, right: 10} , width = parseInt(d3.select(element[0]).style('width'))
 //                , width = width - margin.left - margin.right
@@ -110,8 +110,9 @@ lasifApp.directive('d3Map', function ($window, $log, $timeout) {
 
             function resize() {
                 width = parseInt(d3.select(element[0]).style('width'));
+                height = parseInt(d3.select(element[0]).style('height'));
                 width *= pixelRatio;
-                height = width * mapRatio;
+                height *= pixelRatio;
 
                 // update projection
                 projection
