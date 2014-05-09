@@ -7,11 +7,13 @@ import matplotlib.pylab as plt
 from matplotlib.colors import hex2color
 plt.switch_backend("agg")
 
+import geojson
+from obspy.imaging.mopad_wrapper import Beach
 import io
 import inspect
 import os
 
-from obspy.imaging.mopad_wrapper import Beach
+import lasif
 
 
 WEBSERVER_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(
@@ -26,6 +28,37 @@ def make_cache_key(*args, **kwargs):
     args = str(hash(frozenset(flask.request.args.items())))
     return (path + args).encode('utf-8')
 
+
+@app.route("/rest/domain.geojson")
+def get_domain_geojson():
+    """
+    Returns some basic information about the project.
+    """
+
+    domain = app.project.domain
+    bounds = domain["bounds"]
+    outer_border = lasif.rotations.get_border_latlng_list(
+        bounds["minimum_latitude"],
+        bounds["maximum_latitude"], bounds["minimum_longitude"],
+        bounds["maximum_longitude"], 25,
+        rotation_axis=domain["rotation_axis"],
+        rotation_angle_in_degree=domain["rotation_angle"])
+
+    buf = bounds["boundary_width_in_degree"]
+    inner_border = lasif.rotations.get_border_latlng_list(
+        bounds["minimum_latitude"] + buf,
+        bounds["maximum_latitude"] - buf,
+        bounds["minimum_longitude"] + buf,
+        bounds["maximum_longitude"] - buf, 25,
+        rotation_axis=domain["rotation_axis"],
+        rotation_angle_in_degree=domain["rotation_angle"])
+
+
+    border = geojson.MultiLineString([
+        [(_i[1], _i[0]) for _i in inner_border],
+        [(_i[1], _i[0]) for _i in outer_border],
+    ])
+    return flask.jsonify(**border)
 
 @app.route("/rest/info")
 def get_info():
@@ -145,10 +178,10 @@ def index():
         data = fh.read()
     return data
 
-def serve(project, port=8008):
+def serve(project, port=8008, debug=False):
     cache.init_app(app, config={
         "CACHE_TYPE": "filesystem",
         "CACHE_DIR": os.path.join(project.paths["cache"], "webapp_cache")})
 
     app.project = project
-    app.run(port=port, debug=False)
+    app.run(port=port, debug=debug)

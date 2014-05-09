@@ -411,7 +411,7 @@ def get_border_latlng_list(
     borders = np.concatenate([north_border, east_border[1:], south_border[1:],
                               west_border[1:]])
     borders = list(borders)
-    borders = [list(_i) for _i in borders]
+    borders = [tuple(_i) for _i in borders]
     return borders
 
 

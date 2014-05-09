@@ -1,6 +1,6 @@
 var lasifApp = angular.module("LASIFApp");
 
-lasifApp.directive('d3Map', function ($window, $log, $timeout) {
+lasifApp.directive('d3Map', function ($window, $log) {
     return {
         restrict: 'EA',
         scope: {},
@@ -12,14 +12,9 @@ lasifApp.directive('d3Map', function ($window, $log, $timeout) {
             var width = parseInt(d3.select(element[0]).style('width'));
             var height = parseInt(d3.select(element[0]).style('height'));
 
-//            var margin = {top: 10, left: 10, bottom: 10, right: 10} , width = parseInt(d3.select(element[0]).style('width'))
-//                , width = width - margin.left - margin.right
-//                , mapRatio = .5
-//                , height = width * mapRatio;
-
             // Important for high DPI displays.
-
             var pixelRatio = window.devicePixelRatio || 1;
+
             // Scale as we are using canvas for displaying.
             width *= pixelRatio;
             height *= pixelRatio;
@@ -47,7 +42,7 @@ lasifApp.directive('d3Map', function ($window, $log, $timeout) {
                 .attr("height", height)
                 .style("width", width / pixelRatio + "px")
                 .style("height", height / pixelRatio + "px")
-                .style("box-shadow", "1px 1px 7px 0px rgba(50, 50, 50, 0.12)")
+                .style("box-shadow", "1px 1px 7px 0px rgba(50, 50, 50, 0.32)")
 
                 .call(d3.behavior.zoom()
                     .scale(projection.scale())
@@ -74,16 +69,23 @@ lasifApp.directive('d3Map', function ($window, $log, $timeout) {
 
             var context = canvas.node().getContext("2d");
             var land;
+            var domain_boundaries;
 
             var path = d3.geo.path()
                 .projection(projection)
                 .context(context);
 
-            d3.json("/static/data/world-110m.json", function (error, world) {
-                if (error) return $log.error(error);
-                land = topojson.feature(world, world.objects.land);
-                redraw();
-            });
+            queue()
+                .defer(d3.json, "/static/data/world-110m.json")
+                .defer(d3.json, "/rest/domain.geojson")
+                .await(function (error, world, boundaries) {
+                    if (error) return $log.error(error);
+
+                    land = topojson.feature(world, world.objects.land);
+                    domain_boundaries = boundaries;
+
+                    redraw();
+                });
 
             function redraw() {
                 context.clearRect(0, 0, width, height);
@@ -96,6 +98,12 @@ lasifApp.directive('d3Map', function ($window, $log, $timeout) {
                 context.lineWidth = .5 * pixelRatio;
                 context.strokeStyle = "#ccc";
                 context.beginPath(), path(graticule), context.stroke();
+
+                $log.log(domain_boundaries);
+
+                context.lineWidth = 2.0 * pixelRatio;
+                context.strokeStyle = "#c00";
+                context.beginPath(), path(domain_boundaries), context.stroke();
             };
 
             // Delay resize a bit as it is fairly expensive.
@@ -118,9 +126,9 @@ lasifApp.directive('d3Map', function ($window, $log, $timeout) {
                 projection
                     .translate([width / 2, height / 2])
                     .clipExtent([
-                            [dx, dx],
-                            [width - dx, height - dx]
-                        ]);
+                        [dx, dx],
+                        [width - dx, height - dx]
+                    ]);
 
                 // resize the map container
                 canvas

@@ -1106,10 +1106,16 @@ def lasif_serve(parser, args):
 
     parser.add_argument("--nobrowser", help="Do not open a webbrowser.",
                         action="store_true")
+    parser.add_argument("--debug", help="Turn on debugging. Implies "
+                                        "'--nobrowser'.",
+                        action="store_true")
     args = parser.parse_args(args)
     port = args.port
     nobrowser = args.nobrowser
+    debug = args.debug
 
+    if debug:
+        nobrowser = True
 
     project = _find_project_root(".")
 
@@ -1121,7 +1127,7 @@ def lasif_serve(parser, args):
             lambda: webbrowser.open("http://localhost:%i" % port)).start()
 
     from lasif.webinterface.server import serve
-    serve(project, port=port)
+    serve(project, port=port, debug=debug)
 
 
 def _get_cmd_description(fct):
