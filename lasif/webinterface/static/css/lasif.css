@@ -55,3 +55,6 @@ a:focus {
     width: auto;
     height: auto;
 }
+.aside .aside-dialog .aside-header {
+    background: #666666;
+}

@@ -1,6 +1,6 @@
 var lasifApp = angular.module("LASIFApp",
-    ["ngRoute", "mgcrea.ngStrap", "route-segment", "view-segment",
-     "nvd3ChartDirectives"]);
+    ["ngRoute", "ngAnimate", "mgcrea.ngStrap", "mgcrea.ngStrap.modal",
+     "route-segment", "view-segment", "nvd3ChartDirectives"]);
 
 
 lasifApp.factory('projectInfo', function($http) {

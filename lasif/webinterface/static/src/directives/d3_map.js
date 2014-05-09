@@ -1,9 +1,10 @@
 var lasifApp = angular.module("LASIFApp");
 
-lasifApp.directive('d3Map', function ($window, $log) {
+
+lasifApp.directive('d3Map', function ($window, $log, $aside, $q) {
     return {
         restrict: 'EA',
-        scope: {},
+        scope: true,
         replace: true,
         template: "<div style='width: 100%; height: 100%; margin: 0 auto;'></div>",
         link: function ($scope, element, attrs) {
@@ -37,12 +38,12 @@ lasifApp.directive('d3Map', function ($window, $log) {
                 [180, 85 + 1e-6]
             ])();
 
-            var canvas = d3.select(element[0]).append("canvas")
+            var canvas = d3.select(element[0]).append("canvas");
+            canvas
                 .attr("width", width)
                 .attr("height", height)
                 .style("width", width / pixelRatio + "px")
                 .style("height", height / pixelRatio + "px")
-                .style("box-shadow", "1px 1px 7px 0px rgba(50, 50, 50, 0.32)")
 
                 .call(d3.behavior.zoom()
                     .scale(projection.scale())
@@ -89,17 +90,24 @@ lasifApp.directive('d3Map', function ($window, $log) {
 
                     var evs = evs["events"];
 
-                    for (var i=0; i<evs.length; i++) {
+                    for (var i = 0; i < evs.length; i++) {
                         var event = evs[i];
 
+                        var radius = Math.pow(event["magnitude"], 2.5) / 50;
+                        var point = [event["longitude"], event["latitude"]];
                         var circle = d3.geo.circle()
-                            .angle(event["magnitude"] / 4)
-                            .origin(function(x, y) {return [x, y]});
-                        circles.push(circle(event["longitude"],
-                                            event["latitude"]));
+                            .angle(radius)
+                            .origin(function (x, y) {
+                                return [x, y]
+                            })
+                            (point[0], point[1]);
+                        circles.push(circle);
+                        // Attach the radius and center to the circle.
+                        circle.radius = radius;
+                        circle.event = event;
                     }
                     event_list = {type: "GeometryCollection",
-                                  geometries: circles};
+                        geometries: circles};
                     redraw();
                 });
 
@@ -127,6 +135,51 @@ lasifApp.directive('d3Map', function ($window, $log) {
 
             // Delay resize a bit as it is fairly expensive.
             d3.select(window).on('resize', resizeDelay);
+
+
+            canvas.on('click', onClickCanvas)
+            function onClickCanvas() {
+                // Invert to get longitue/latitude values.
+                var point = projection.invert(
+                    [d3.event.offsetX * pixelRatio,
+                        d3.event.offsetY * pixelRatio]);
+
+                if (_.isNaN(point[0])) {
+                    return
+                }
+
+                var event = _(event_list.geometries)
+                    .map(function (i) {
+                        var dist = d3.geo.distance(
+                            point,
+                            [i.event["longitude"], i.event["latitude"]]) / Math.PI * 180;
+                        i.event.distance = dist;
+                        return dist <= i.radius
+                            ? i.event : null;
+                    })
+                    .compact()
+                    .min('distance').value();
+
+                if (_.isUndefined(event) || event === Infinity) {
+                    return
+                }
+
+                $log.info(event);
+
+                // Show an aside element with some event details.
+                var aside = $aside({
+                    title: "Event Details",
+                    template: "/static/templates/event_detail.tpl.html",
+                    persist: false,
+                    show: true
+                });
+
+                $q.when(aside).then(function(asideEl) {
+                    asideEl.$scope.event = event
+                })
+
+
+            };
 
             var delayIt;
 
