@@ -1,0 +1,64 @@
+<div class="aside" tabindex="-1" role="dialog" style="width: 550px">
+    <div class="aside-dialog">
+        <div class="aside-content">
+            <div class="aside-header" ng-show="title">
+                <button type="button" class="close"
+                        ng-click="$hide()">&times;</button>
+                <h4 class="aside-title" ng-bind-html="title"></h4>
+            </div>
+            <div class="aside-body">
+                <h5>{{event.event_name|truncate:100}}</h5>
+
+                <div class="container-fluid fill">
+                    <div class="row">
+                        <div class="col-md-4 center-block">
+                            <img style="width: 90%"
+                                 ng-src="plot/mt?lw=0.6&m_rr={{event.m_rr}}&m_tt={{event.m_tt}}&m_pp={{event.m_pp}}&m_rt={{event.m_rt}}&m_rp={{event.m_rp}}&m_tp={{event.m_tp}}&size=200&color=ce2824&format=svg">
+                        </div>
+                        <div class="col-md-8">
+                            <table class="table table-condensed">
+                                <tr>
+                                    <td><strong>Latitude</strong></td>
+                                    <td>{{event.latitude|number:2}}&deg;</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Longitude</strong></td>
+                                    <td>{{event.longitude|number:2}}&deg;</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Depth</strong></td>
+                                    <td>{{event.depth_in_km|number:1}} km</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Origin Time</strong></td>
+                                    <td>{{event.origin_time|UTCDateTime}}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Magnitude</strong></td>
+                                    <td>{{event.magnitude|number:1}}
+                                        {{event.magnitude_type}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Region</strong></td>
+                                    <td>{{event.region}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="well well-sm">
+                                <small style="word-wrap: break-word">
+                                    <strong>Filename :</strong>
+                                    {{event.filename}}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
