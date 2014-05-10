@@ -56,9 +56,30 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row" ng-show="stations">
+                        <div class="col-md-9">
+                            <strong>{{stations.length}}</strong> Stations
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-default"
+                                    ng-click="plot_event();$hide()">
+                                Plot
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" ng-hide="stations">
+                        <div class="col-md-12">
+                            Loading...
+                            <div class="spinner">
+                                <div class="cube1"></div>
+                                <div class="cube2"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
 
             </div>
         </div>
     </div>
+</div>

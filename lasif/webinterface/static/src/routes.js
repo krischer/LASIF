@@ -5,7 +5,7 @@ lasifApp.config(function ($routeSegmentProvider) {
     $routeSegmentProvider.
 
         when("/",            "home").
-        when("/map",         "map").
+        when("/map/:event_name?", "map").
         when("/iterations",  "iterations").
         when("/events",      "events").
         when("/events/list", "events.list").

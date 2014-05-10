@@ -29,23 +29,6 @@ def make_cache_key(*args, **kwargs):
     return (path + args).encode('utf-8')
 
 
-@app.route("/rest/events.geojson")
-def get_events_geojson():
-    """
-    Return the events as geojson. Should eventually be refactored to be
-    combined with list_events().
-    """
-    events = dict(app.project.events)
-
-    features = []
-    for value in events.itervalues():
-        value["origin_time"] = str(value["origin_time"])
-        point = geojson.Point((value["longitude"], value["latitude"]))
-        feature = geojson.Feature(geometry=point, properties=value)
-        features.append(feature)
-    return flask.jsonify(**geojson.FeatureCollection(features))
-
-
 @app.route("/rest/domain.geojson")
 def get_domain_geojson():
     """
@@ -185,6 +168,14 @@ def list_events():
     for value in events.itervalues():
         value["origin_time"] = str(value["origin_time"])
     return flask.jsonify(events=events.values())
+
+
+@app.route("/rest/event/<event_name>")
+def get_event_details(event_name):
+    stations = app.project.get_stations_for_event(event_name);
+    for key, value in stations.iteritems():
+        value["station_name"] = key
+    return flask.jsonify(stations=stations.values())
 
 
 @app.route("/")
