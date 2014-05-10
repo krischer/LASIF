@@ -27,9 +27,10 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
 
             // Object collecting all data for the object.
             var data = {
-                land_topo: null,
-                domain_boundaries_geojson: null,
-                all_events: null
+                land_topo: undefined,
+                domain_boundaries_geojson: undefined,
+                all_events: undefined,
+                stations: {}
             };
 
             // Function wide variables.
@@ -61,11 +62,30 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 [180, 85 + 1e-6]
             ])();
 
-            $scope.$watch("shownEvents", function (old_value, new_value) {
+            $scope.$watch("shownEvents", function (new_value, old_value) {
+
                 if (old_value == new_value) {
                     return;
                 }
+
+                if (new_value) {
+                    $http.get("/rest/event/" + new_value, {
+                        cache: true
+                    }).success(function (d) {
+                        data.stations["stations"] = d.stations;
+                        data.stations["geojson"] = {
+                            type: "MultiPoint",
+                            coordinates: _.map(d.stations, function(i) {
+                                return [i.longitude, i.latitude]})
+                        };
+                        redraw();
+                    })
+                }
+                else {
+                    data.stations = {};
+                }
                 redraw();
+
             });
 
             // Define canvas including navigation.
@@ -136,6 +156,7 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 });
 
             function redraw() {
+                $log.info(data.stations);
                 context.clearRect(0, 0, dim.width, dim.height);
 
                 // Draw and fill the land.
@@ -154,6 +175,12 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 context.strokeStyle = "#c00";
                 context.beginPath(), path(data.domain_boundaries_geojson), context.stroke();
 
+                // Draw the stations.
+                if (data.stations && data.stations.geojson) {
+                    context.fillStyle = "rgba(133, 199, 58, 100)";
+                    context.beginPath(), path(data.stations.geojson), context.fill();
+                }
+
                 // Filter out events to only show those that are in $scope.shownEvents.
                 var event_list = {type: "GeometryCollection",
                     geometries: _(data.all_events).map(function (i) {
@@ -163,7 +190,6 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                             return i._geometry.circle;
                         }
                     }).compact().value()};
-                $log.info(event_list);
 
                 // Draw the events.
                 context.lineWidth = 2.0 * dim.pixelRatio;
