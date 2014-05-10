@@ -76,14 +76,18 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                         data.stations["stations"] = d.stations;
                         data.stations["geojson"] = {
                             type: "MultiPoint",
-                            coordinates: _.map(d.stations, function(i) {
-                                return [i.longitude, i.latitude]})
+                            coordinates: _.map(d.stations, function (i) {
+                                return [i.longitude, i.latitude]
+                            })
                         };
                         data.stations["raypaths"] = {
                             type: "MultiLineString",
-                            coordinates: _.map(d.stations, function(i) {
-                                return [[d.longitude, d.latitude],
-                                        [i.longitude, i.latitude]]})
+                            coordinates: _.map(d.stations, function (i) {
+                                return [
+                                    [d.longitude, d.latitude],
+                                    [i.longitude, i.latitude]
+                                ]
+                            })
                         };
                         redraw();
                     })
@@ -102,6 +106,7 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 .attr("height", dim.height)
                 .style("width", dim.width / dim.pixelRatio + "px")
                 .style("height", dim.height / dim.pixelRatio + "px")
+                .style("position", "relative")
 
                 .call(d3.behavior.zoom()
                     .scale(projection.scale())
@@ -195,20 +200,23 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 // Draw the domain boundaries.
                 context.lineWidth = 2.0 * dim.pixelRatio;
                 context.strokeStyle = "#C03000";
-                context.beginPath(), path(data.domain_boundaries_geojson), context.stroke();
+                context.beginPath(), path(data.domain_boundaries_geojson),
+                    context.stroke();
 
                 // Draw the raypaths if they are available.
                 if (data.stations && data.stations.raypaths) {
                     context.lineWidth = 0.5 * dim.pixelRatio;
                     context.strokeStyle = "rgba(180, 175, 145, 50)";
-                    context.beginPath(), path(data.stations.raypaths), context.stroke();
+                    context.beginPath(), path(data.stations.raypaths),
+                        context.stroke();
                 }
 
                 // Draw the stations if they are available.
                 if (data.stations && data.stations.geojson) {
 //                    context.fillStyle = "rgba(133, 199, 58, 100)";
                     context.fillStyle = "#787746";
-                    context.beginPath(), path(data.stations.geojson), context.fill();
+                    context.beginPath(), path(data.stations.geojson),
+                        context.fill();
                 }
 
                 // Filter out events to only show those that are in $scope.shownEvents.
@@ -225,16 +233,20 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 context.lineWidth = 2.0 * dim.pixelRatio;
                 context.strokeStyle = "rgba(64, 65, 30, 1.0)";
                 context.fillStyle = "rgba(64, 65, 30, 0.5)";
-                context.beginPath(), path(event_list), context.fill(), context.stroke();
+                context.beginPath(), path(event_list), context.fill(),
+                    context.stroke();
             };
-
 
             canvas.on('click', onClickCanvas)
             function onClickCanvas() {
+                // Compatibility with Firefox and Chrome.
+                // See http://stackoverflow.com/a/11334572
+                var e = d3.event;
+                var x = e.offsetX == undefined ? e.layerX : e.offsetX;
+                var y = e.offsetY == undefined ? e.layerY : e.offsetY;
                 // Invert to get longitue/latitude values.
                 var point = projection.invert(
-                    [d3.event.offsetX * dim.pixelRatio,
-                        d3.event.offsetY * dim.pixelRatio]);
+                    [x * dim.pixelRatio, y * dim.pixelRatio]);
 
                 if (_.isNaN(point[0])) {
                     return
@@ -284,8 +296,6 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
 
             // Delay resize a bit as it is fairly expensive.
             d3.select(window).on('resize', resizeDelay);
-
-
             var delayIt;
 
             function resizeDelay() {
