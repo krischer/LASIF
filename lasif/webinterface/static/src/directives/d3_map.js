@@ -244,6 +244,7 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 var e = d3.event;
                 var x = e.offsetX == undefined ? e.layerX : e.offsetX;
                 var y = e.offsetY == undefined ? e.layerY : e.offsetY;
+
                 // Invert to get longitue/latitude values.
                 var point = projection.invert(
                     [x * dim.pixelRatio, y * dim.pixelRatio]);
@@ -254,6 +255,10 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
 
                 var event = _(data.all_events)
                     .map(function (i) {
+                        if ($scope.shownEvents && $scope.shownEvents != i.event_name) {
+                            return
+                        }
+
                         var dist = d3.geo.distance(
                             point,
                             [i.longitude, i.latitude]) / Math.PI * 180;
