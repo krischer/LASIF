@@ -7,6 +7,7 @@ import matplotlib.pylab as plt
 from matplotlib.colors import hex2color
 plt.switch_backend("agg")
 
+import copy
 import geojson
 from obspy.imaging.mopad_wrapper import Beach
 import io
@@ -172,10 +173,13 @@ def list_events():
 
 @app.route("/rest/event/<event_name>")
 def get_event_details(event_name):
+    event = copy.deepcopy(app.project.events[event_name])
+    event["origin_time"] = str(event["origin_time"])
     stations = app.project.get_stations_for_event(event_name);
     for key, value in stations.iteritems():
         value["station_name"] = key
-    return flask.jsonify(stations=stations.values())
+    event["stations"] = stations.values()
+    return flask.jsonify(**event)
 
 
 @app.route("/")

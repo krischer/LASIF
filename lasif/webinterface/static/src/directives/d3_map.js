@@ -28,6 +28,7 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
             // Object collecting all data for the object.
             var data = {
                 land_topo: undefined,
+                countries_topo: undefined,
                 domain_boundaries_geojson: undefined,
                 all_events: undefined,
                 stations: {}
@@ -77,6 +78,12 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                             type: "MultiPoint",
                             coordinates: _.map(d.stations, function(i) {
                                 return [i.longitude, i.latitude]})
+                        };
+                        data.stations["raypaths"] = {
+                            type: "MultiLineString",
+                            coordinates: _.map(d.stations, function(i) {
+                                return [[d.longitude, d.latitude],
+                                        [i.longitude, i.latitude]]})
                         };
                         redraw();
                     })
@@ -133,6 +140,7 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
 
                     // Assign the results of XHR call to the data object.
                     data.land_topo = topojson.feature(world, world.objects.land);
+                    data.countries_topo = topojson.feature(world, world.objects.countries);
                     data.domain_boundaries_geojson = boundaries;
                     data.all_events = all_events.events;
 
@@ -156,14 +164,28 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 });
 
             function redraw() {
-                $log.info(data.stations);
+                // Uses the following colorscheme:
+                // https://kuler.adobe.com/Orange-on-olive-color-theme-2227/
+                //
+                // #C03000: Red             | Domain Boundaries
+                // #B4AF91: Lightest Green  | Raypaths
+                // #787746: ...             | Stations
+                // #40411E: ...             | Events
+                // #32331D: Darkest Green   | Currently unused
+                //
+                // Rest of the map consists of black, white and gray colors.
+
                 context.clearRect(0, 0, dim.width, dim.height);
 
                 // Draw and fill the land.
                 context.lineWidth = .75 * dim.pixelRatio;
-                context.strokeStyle = "#000";
-                context.fillStyle = "#eee";
-                context.beginPath(), path(data.land_topo), context.fill(), context.stroke();
+                context.fillStyle = "#ddd";
+                context.beginPath(), path(data.land_topo), context.fill();
+
+                // Draw country border on top of it.
+                context.lineWidth = 1.5 * dim.pixelRatio;
+                context.strokeStyle = "#fff";
+                context.beginPath(), path(data.countries_topo), context.stroke();
 
                 // Draw the graticule.
                 context.lineWidth = .5 * dim.pixelRatio;
@@ -172,12 +194,20 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
 
                 // Draw the domain boundaries.
                 context.lineWidth = 2.0 * dim.pixelRatio;
-                context.strokeStyle = "#c00";
+                context.strokeStyle = "#C03000";
                 context.beginPath(), path(data.domain_boundaries_geojson), context.stroke();
 
-                // Draw the stations.
+                // Draw the raypaths if they are available.
+                if (data.stations && data.stations.raypaths) {
+                    context.lineWidth = 0.5 * dim.pixelRatio;
+                    context.strokeStyle = "rgba(180, 175, 145, 50)";
+                    context.beginPath(), path(data.stations.raypaths), context.stroke();
+                }
+
+                // Draw the stations if they are available.
                 if (data.stations && data.stations.geojson) {
-                    context.fillStyle = "rgba(133, 199, 58, 100)";
+//                    context.fillStyle = "rgba(133, 199, 58, 100)";
+                    context.fillStyle = "#787746";
                     context.beginPath(), path(data.stations.geojson), context.fill();
                 }
 
@@ -191,10 +221,10 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                         }
                     }).compact().value()};
 
-                // Draw the events.
+                // Actually draw the events.
                 context.lineWidth = 2.0 * dim.pixelRatio;
-                context.strokeStyle = "rgba(0, 0, 150, 1.0)";
-                context.fillStyle = "rgba(0, 0, 150, 0.3)";
+                context.strokeStyle = "rgba(64, 65, 30, 1.0)";
+                context.fillStyle = "rgba(64, 65, 30, 0.5)";
                 context.beginPath(), path(event_list), context.fill(), context.stroke();
             };
 
