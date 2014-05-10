@@ -2,6 +2,8 @@ var lasifApp = angular.module("LASIFApp");
 
 
 lasifApp.controller('mapController', function ($scope, $log, $location, $routeSegment) {
+    $scope.shownEvents = undefined;
+
     function getCurrentEvent() {
         var split_url = _($location.url().split("/")).compact().value();
         if (split_url[0] != "map") {

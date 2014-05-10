@@ -63,6 +63,34 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 [180, 85 + 1e-6]
             ])();
 
+            function update_stations() {
+                if (!$scope.shownEvents) {
+                    redraw();
+                    return
+                }
+                $http.get("/rest/event/" + $scope.shownEvents, {
+                    cache: true
+                }).success(function (d) {
+                    data.stations["stations"] = d.stations;
+                    data.stations["geojson"] = {
+                        type: "MultiPoint",
+                        coordinates: _.map(d.stations, function (i) {
+                            return [i.longitude, i.latitude]
+                        })
+                    };
+                    data.stations["raypaths"] = {
+                        type: "MultiLineString",
+                        coordinates: _.map(d.stations, function (i) {
+                            return [
+                                [d.longitude, d.latitude],
+                                [i.longitude, i.latitude]
+                            ]
+                        })
+                    };
+                    redraw();
+                })
+            }
+
             $scope.$watch("shownEvents", function (new_value, old_value) {
 
                 if (old_value == new_value) {
@@ -70,32 +98,12 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 }
 
                 if (new_value) {
-                    $http.get("/rest/event/" + new_value, {
-                        cache: true
-                    }).success(function (d) {
-                        data.stations["stations"] = d.stations;
-                        data.stations["geojson"] = {
-                            type: "MultiPoint",
-                            coordinates: _.map(d.stations, function (i) {
-                                return [i.longitude, i.latitude]
-                            })
-                        };
-                        data.stations["raypaths"] = {
-                            type: "MultiLineString",
-                            coordinates: _.map(d.stations, function (i) {
-                                return [
-                                    [d.longitude, d.latitude],
-                                    [i.longitude, i.latitude]
-                                ]
-                            })
-                        };
-                        redraw();
-                    })
+                    update_stations()
                 }
                 else {
                     data.stations = {};
+                    redraw();
                 }
-                redraw();
 
             });
 
@@ -165,6 +173,7 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                             radius: radius,
                         };
                     });
+                    update_stations();
                     redraw();
                 });
 
