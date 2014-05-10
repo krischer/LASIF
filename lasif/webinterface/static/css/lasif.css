@@ -51,7 +51,7 @@ a:focus {
     top: 65px;
     left: 0;
     right: 0;
-    bottom: 10px;
+    bottom: 46px;
     position: absolute;
     width: auto;
     height: auto;
@@ -61,13 +61,13 @@ a:focus {
     background: #666666;
 }
 
+/*From http://tobiasahlin.com/spinkit/*/
 .spinner {
     margin: 100px auto;
     width: 32px;
     height: 32px;
     position: relative;
 }
-
 .cube1, .cube2 {
     background-color: #333;
     width: 10px;
@@ -75,16 +75,13 @@ a:focus {
     position: absolute;
     top: 0;
     left: 0;
-
     -webkit-animation: cubemove 1.8s infinite ease-in-out;
     animation: cubemove 1.8s infinite ease-in-out;
 }
-
 .cube2 {
     -webkit-animation-delay: -0.9s;
     animation-delay: -0.9s;
 }
-
 @-webkit-keyframes cubemove {
     25% {
         -webkit-transform: translateX(42px) rotate(-90deg) scale(0.5)
@@ -99,7 +96,6 @@ a:focus {
         -webkit-transform: rotate(-360deg)
     }
 }
-
 @keyframes cubemove {
     25% {
         transform: translateX(42px) rotate(-90deg) scale(0.5);
@@ -123,3 +119,6 @@ a:focus {
     }
 }
 
+.breadcrumb {
+    margin: 0px;
+}

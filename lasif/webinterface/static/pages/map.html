@@ -1,1 +1,8 @@
+<ol class="breadcrumb">
+    <li>
+        <div ng-hide="shownEvents">All Events</div>
+        <a ng-show="shownEvents" href="#/map">All Events</a>
+    </li>
+    <li ng-show="shownEvents">{{shownEvents}}</li>
+</ol>
 <d3-map></d3-map>
