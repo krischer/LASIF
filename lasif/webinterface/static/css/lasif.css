@@ -122,3 +122,8 @@ a:focus {
 .breadcrumb {
     margin: 0px;
 }
+
+body .modal-dialog {
+    /* new custom width */
+    width: 1100px;
+}

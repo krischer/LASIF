@@ -1,17 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import warnings
 import flask
 from flask.ext.cache import Cache
 
+import matplotlib
 import matplotlib.pylab as plt
 from matplotlib.colors import hex2color
 plt.switch_backend("agg")
 
 import copy
+import datetime
 import geojson
+import obspy
 from obspy.imaging.mopad_wrapper import Beach
 import io
 import inspect
+import numpy as np
 import os
 
 import lasif
@@ -180,6 +185,129 @@ def get_event_details(event_name):
         value["station_name"] = key
     event["stations"] = stations.values()
     return flask.jsonify(**event)
+
+@app.route("/rest/event/<event_name>/<station_id>")
+def get_waveform_plot(event_name, station_id):
+    event = copy.deepcopy(app.project.events[event_name])
+    event["origin_time"] = obspy.UTCDateTime(event["origin_time"])
+    # Collect all information for that particular station.
+    available_data = app.project.discover_available_data(event_name,
+                                                         station_id)
+
+    # Read all data.
+    raw_data = app.project.get_waveform_data(event_name, station_id,
+                                             data_type="raw")
+
+    for tr in raw_data:
+        # Normalize data.
+        tr.data = np.require(tr.data, dtype="float32")
+        tr.data -= tr.data.min()
+        tr.data /= tr.data.max()
+        tr.data -= tr.data.mean()
+        tr.data /= np.abs(tr.data).max() * 1.1
+
+    processed_data = []
+    for tag in available_data["processed"]:
+        try:
+            processed_data.append(app.project.get_waveform_data(
+                event_name, station_id, data_type="processed", tag=tag))
+        except lasif.LASIFException:
+            warnings.warn("Failed to get processed data for tag '%s'." % tag)
+            continue
+        for tr in processed_data[-1]:
+            # Normalize data.
+            tr.data = np.require(tr.data, dtype="float32")
+            tr.data -= tr.data.min()
+            tr.data /= tr.data.max()
+            tr.data -= tr.data.mean()
+            tr.data /= np.abs(tr.data).max() * 1.1
+
+    synthetics = []
+    for iteration_name in available_data["synthetic"]:
+        synthetics.append(app.project.get_waveform_data(
+            event_name, station_id, data_type="synthetic",
+            iteration_name=iteration_name))
+        for tr in synthetics[-1]:
+            # Normalize data.
+            tr.data = np.require(tr.data, dtype="float32")
+            tr.data -= tr.data.min()
+            tr.data /= tr.data.max()
+            tr.data -= tr.data.mean()
+            tr.data /= np.abs(tr.data).max() * 1.1
+
+    dpi = 100
+    fig = plt.figure(figsize=(10, 7))
+
+    z_ax = fig.add_axes([0.01, 0.65, 0.98, 0.3])
+    n_ax = fig.add_axes([0.01, 0.35, 0.98, 0.3])
+    e_ax = fig.add_axes([0.01, 0.05, 0.98, 0.3])
+
+    plt.setp(z_ax.get_yticklabels(), visible=False)
+    plt.setp(n_ax.get_yticklabels(), visible=False)
+    plt.setp(e_ax.get_yticklabels(), visible=False)
+    plt.setp(z_ax.get_xticklabels(), visible=False)
+    plt.setp(n_ax.get_xticklabels(), visible=False)
+
+    for component, axis in [("N", n_ax), ("E", e_ax), ("Z", z_ax)]:
+        plotted_something = False
+        # Plot raw data.
+        st = raw_data.select(component=component)
+        if st:
+            tr = st[0]
+            time_axis = matplotlib.dates.drange(
+                tr.stats.starttime.datetime,
+                (tr.stats.endtime + tr.stats.delta).datetime,
+                datetime.timedelta(seconds=tr.stats.delta))
+            axis.plot_date(time_axis[:len(tr.data)], tr.data,
+                           color="#dddddd",
+                           marker="", linestyle="-")
+            plotted_something = True
+        for proc in processed_data[:1]:
+            st = proc.select(component=component)
+            if st:
+                tr = st[0]
+                time_axis = matplotlib.dates.drange(
+                    tr.stats.starttime.datetime,
+                    (tr.stats.endtime + tr.stats.delta).datetime,
+                    datetime.timedelta(seconds=tr.stats.delta))
+                axis.plot_date(time_axis[:len(tr.data)], tr.data,
+                               color="#000000",
+                               marker="", linestyle="-")
+                plotted_something = True
+        for synth in synthetics:
+            st = synth.select(channel=component)
+            if st:
+                tr = st[0]
+                print event["origin_time"], type(event["origin_time"])
+                time_axis = matplotlib.dates.drange(
+                    event["origin_time"].datetime,
+                    (event["origin_time"] + tr.stats.delta * (tr.stats.npts))
+                    .datetime,
+                    datetime.timedelta(seconds=tr.stats.delta))
+                axis.plot_date(time_axis[:len(tr.data)], tr.data,
+                               color="red",
+                               marker="", linestyle="-")
+                plotted_something = True
+
+        axis.set_title(component)
+
+        if plotted_something:
+            axis.xaxis.set_major_formatter(
+                matplotlib.dates.DateFormatter("%H:%M:%S"))
+
+            if component == "E":
+                plt.setp(axis.get_xticklabels(), visible=True)
+
+
+    temp = io.BytesIO()
+    plt.savefig(temp, format="png", dpi=dpi, transparent=False)
+    plt.close(fig)
+    plt.close("all")
+    temp.seek(0, 0)
+
+    return flask.send_file(temp, mimetype="image/png",
+                           add_etags=False,
+                           attachment_filename="waveforms.png")
 
 
 @app.route("/")

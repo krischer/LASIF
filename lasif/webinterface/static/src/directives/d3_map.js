@@ -17,7 +17,7 @@ var getDimensions = function (element) {
 };
 
 
-lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout, $location, $alert) {
+lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout, $location, $alert, $modal) {
     return {
         restrict: 'EA',
         scope: false,
@@ -72,12 +72,14 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                     cache: true
                 }).success(function (d) {
                     data.stations["stations"] = d.stations;
+                    // Build geojson to ease plotting.
                     data.stations["geojson"] = {
                         type: "MultiPoint",
                         coordinates: _.map(d.stations, function (i) {
                             return [i.longitude, i.latitude]
                         })
                     };
+                    // A further list containing raypath endpoints.
                     data.stations["raypaths"] = {
                         type: "MultiLineString",
                         coordinates: _.map(d.stations, function (i) {
@@ -87,6 +89,15 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                             ]
                         })
                     };
+                    // Build a kdTree to enable fast nearest neighbour
+                    // searches over the stations.
+                    data.stations["kdTree"] = new kdTree(
+                        d.stations,
+                        function (a, b) {
+                            return d3.geo.distance(
+                                [a.longitude, a.latitude],
+                                [b.longitude, b.latitude])
+                        }, ["longitude", "latitude"]);
                     redraw();
                 })
             }
@@ -257,6 +268,29 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                 // Invert to get longitue/latitude values.
                 var point = projection.invert(
                     [x * dim.pixelRatio, y * dim.pixelRatio]);
+
+                if (data.stations && data.stations["kdTree"]) {
+                    var nearest_point = data.stations["kdTree"].nearest(
+                        {longitude: point[0], latitude: point[1]}
+                        , 1)[0];
+
+                    // Check if the nearest point is within a 20 pixel radius.
+                    var projected_point = projection(
+                        [nearest_point[0].longitude,
+                            nearest_point[0].latitude]);
+
+                    var distance = Math.sqrt(
+                        Math.pow((x * dim.pixelRatio) - projected_point[0], 2),
+                        Math.pow((y * dim.pixelRatio) - projected_point[1], 2));
+                    if (distance <= 10 * dim.pixelRatio) {
+                        $modal({
+                            title: nearest_point[0].station_name,
+                            content: '<div><img class="img-responsive text-center" style="margin-left: auto; margin-right: auto" width="1000" height="700" src="/rest/event/' + $scope.shownEvents + "/" + nearest_point[0].station_name + '"></div>',
+                            html: true,
+                            show: true});
+                    }
+                }
+
 
                 if (_.isNaN(point[0])) {
                     return
