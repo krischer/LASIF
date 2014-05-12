@@ -257,6 +257,8 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                     context.stroke();
             };
 
+            var scope;
+
             canvas.on('click', onClickCanvas)
             function onClickCanvas() {
                 // Compatibility with Firefox and Chrome.
@@ -274,7 +276,7 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                         {longitude: point[0], latitude: point[1]}
                         , 1)[0];
 
-                    // Check if the nearest point is within a 20 pixel radius.
+                    // Check if the nearest point is within a 5 pixel radius.
                     var projected_point = projection(
                         [nearest_point[0].longitude,
                             nearest_point[0].latitude]);
@@ -282,15 +284,18 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                     var distance = Math.sqrt(
                         Math.pow((x * dim.pixelRatio) - projected_point[0], 2),
                         Math.pow((y * dim.pixelRatio) - projected_point[1], 2));
-                    if (distance <= 10 * dim.pixelRatio) {
-                        $modal({
+                    if (distance <= 5 * dim.pixelRatio) {
+                        var modal = $modal({
                             title: nearest_point[0].station_name,
-                            content: '<div><img class="img-responsive text-center" style="margin-left: auto; margin-right: auto" width="1000" height="700" src="/rest/event/' + $scope.shownEvents + "/" + nearest_point[0].station_name + '"></div>',
-                            html: true,
+                            template: "/static/templates/station_waveform_plot.tpl.html",
+//                            content: '<div><img class="img-responsive text-center" style="margin-left: auto; margin-right: auto" width="1000" height="700" src="/rest/event/' + $scope.shownEvents + "/" + nearest_point[0].station_name + '"></div>',
+                            persist: false,
                             show: true});
+                        // Set some information about the station and event.
+                        modal.$scope.event_name = $scope.shownEvents;
+                        modal.$scope.station = nearest_point[0];
                     }
                 }
-
 
                 if (_.isNaN(point[0])) {
                     return

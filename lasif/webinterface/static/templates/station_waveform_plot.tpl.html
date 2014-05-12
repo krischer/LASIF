@@ -1,0 +1,87 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" ng-show="title">
+                <button type="button" class="close"
+                        ng-click="$hide()">&times;</button>
+                <h4 class="modal-title">Station {{title}}</h4>
+            </div>
+            <div class="modal-body" ng-controller="waveformPlotController">
+                <div class="row">
+                    <div class="col-md-4">
+                        <dl class="dl-horizontal">
+                            <dt>Latitude</dt>
+                            <dd>{{$parent.station.latitude|number:2}}&deg;</dd>
+                            <dt>Longitude</dt>
+                            <dd>
+                                {{$parent.station.longitude|number:2}}&deg;</dd>
+                            <dt>Elevation</dt>
+                            <dd>{{$parent.station.elevation_in_m|number:1}} m
+                            </dd>
+                            <dt>Local Depth</dt>
+                            <dd>{{$parent.station.local_depth_in_m|number:1}}
+                                m
+                            </dd>
+                        </dl>
+                        <h4>Available Data</h4>
+
+                        <form>
+                            <input type="checkbox" ng-model="availableData.raw">
+                            <small>Raw Data</small>
+                        </form>
+
+                        <h6>Processed Data</h6>
+
+                        <form ng-repeat="data in availableData.processed">
+                            <input type="checkbox" ng-model="data[1]">
+                            <small>{{data[0]}}</small>
+                        </form>
+                        <h6>Synthetic Data</h6>
+
+                        <form ng-repeat="data in availableData.synthetic">
+                            <input type="checkbox" ng-model="data[1]">
+                            <small>Iteration {{data[0]}}</small>
+                        </form>
+
+                    </div>
+                    <div class="col-md-8">
+                        <nvd3-line-chart
+                                data="zData"
+                                id="z_data"
+                                height="200"
+                                color="colorFunction()"
+                                showXAxis="true"
+                                showYAxis="true">
+                            <svg></svg>
+                        </nvd3-line-chart>
+                        <nvd3-line-chart
+                                data="nData"
+                                id="n_data"
+                                height="200"
+                                color="colorFunction()"
+                                showXAxis="true"
+                                showYAxis="true">
+                            <svg></svg>
+                        </nvd3-line-chart>
+                        <nvd3-line-chart
+                                data="eData"
+                                id="e_data"
+                                xAxisTickFormat="xAxisTickFormatFunction()"
+                                color="colorFunction()"
+                                height="200"
+                                showXAxis="true"
+                                showYAxis="true">
+                            <svg></svg>
+                        </nvd3-line-chart>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        ng-click="$hide()">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

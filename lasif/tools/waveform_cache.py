@@ -81,7 +81,7 @@ class WaveformCache(FileInfoCache):
         Extract all the information from the file.
         """
         try:
-            st = obspy.read(filename)
+            st = obspy.read(filename, headonly=True)
         except:
             warnings.warn("Could not read waveform file '%s'." % filename)
             return None

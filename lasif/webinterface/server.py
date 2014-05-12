@@ -12,6 +12,7 @@ plt.switch_backend("agg")
 import copy
 import datetime
 import geojson
+import json
 import obspy
 from obspy.imaging.mopad_wrapper import Beach
 import io
@@ -185,6 +186,73 @@ def get_event_details(event_name):
         value["station_name"] = key
     event["stations"] = stations.values()
     return flask.jsonify(**event)
+
+@app.route("/rest/available_data/<event_name>/<station_id>")
+def get_available_data(event_name, station_id):
+    available_data = app.project.discover_available_data(event_name,
+                                                         station_id)
+    available_data["raw"] = True
+    return flask.jsonify(**available_data)
+
+@app.route("/rest/get_data/<event_name>/<station_id>/<name>")
+def get_data(event_name, station_id, name):
+    if name == "raw":
+        st = app.project.get_waveform_data(event_name, station_id,
+                                           data_type="raw")
+
+    BIN_LENGTH = 1500
+    data = {}
+    components = {}
+
+    for tr in st:
+        component = tr.stats.channel[-1].upper()
+        # Normalize data.
+        tr.data = np.require(tr.data, dtype="float32")
+        tr.data -= tr.data.min()
+        tr.data /= tr.data.max()
+        tr.data -= tr.data.mean()
+        tr.data /= np.abs(tr.data).max() * 1.1
+
+        if tr.stats.npts > 20000:
+            rest = tr.stats.npts % BIN_LENGTH
+            per_bin = tr.stats.npts // BIN_LENGTH
+            if rest:
+                final_data = np.empty(2 * BIN_LENGTH + 2)
+                final_data[::2][:BIN_LENGTH] = tr.data[:-rest].reshape(
+                    (BIN_LENGTH, per_bin)).min(axis=1)
+                final_data[1::2][:BIN_LENGTH] = tr.data[:-rest].reshape(
+                    (BIN_LENGTH, per_bin)).max(axis=1)
+            else:
+                final_data = np.empty(2 * BIN_LENGTH)
+                final_data[::2][:BIN_LENGTH] = tr.data.reshape(
+                    (BIN_LENGTH, per_bin)).min(axis=1)
+                final_data[1::2][:BIN_LENGTH] = tr.data.reshape(
+                    (BIN_LENGTH, per_bin)).max(axis=1)
+            if rest:
+                final_data[-2] = tr.data[-rest:].min()
+                final_data[-1] = tr.data[-rest:].max()
+            time_array = np.empty(len(final_data))
+            time_array[::2] = np.linspace(tr.stats.starttime.timestamp,
+                                     tr.stats.endtime.timestamp,
+                                     len(final_data) / 2)
+            time_array[1::2] = np.linspace(tr.stats.starttime.timestamp,
+                                          tr.stats.endtime.timestamp,
+                                          len(final_data) / 2)
+        else:
+            final_data = tr.data
+            # Create times array.
+            time_array = np.linspace(tr.stats.starttime.timestamp,
+                                     tr.stats.endtime.timestamp,
+                                     tr.stats.npts)
+
+        temp = np.empty((len(final_data), 2), dtype="float64")
+        temp[:, 0] = time_array
+        temp[:, 1] = final_data
+        components[component] = temp.tolist()
+
+    # Much faster then flask.jsonify as it does not pretty print.
+    data = json.dumps(components)
+    return data
 
 @app.route("/rest/event/<event_name>/<station_id>")
 def get_waveform_plot(event_name, station_id):
