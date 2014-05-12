@@ -749,11 +749,9 @@ def lasif_create_successive_iteration(parser, args):
     existing_iteration_name = args.existing_iteration
     new_iteration_name = args.new_iteration
 
-    proj = _find_project_root(".")
-
-    # Get the old iteration
     from lasif.iteration_xml import Iteration
 
+    # Get the old iteration
     proj = _find_project_root(".")
     iterations = proj.get_iteration_dict()
     if existing_iteration_name not in iterations:
@@ -767,6 +765,78 @@ def lasif_create_successive_iteration(parser, args):
     existing_iteration.comments = []
     existing_iteration.iteration_name = new_iteration_name
     print existing_iteration
+
+
+@command_group("Iteration Management")
+def lasif_migrate_windows(parser, args):
+    """
+    Migrates windows from one iteration to the next.
+    """
+    parser.add_argument("from_iteration",
+                        help="iteration containing windows")
+    parser.add_argument("to_iteration", help="iteration windows will "
+                                             "migratet to")
+    args = parser.parse_args(args)
+
+    from_iteration = args.from_iteration
+    to_iteration = args.to_iteration
+
+    proj = _find_project_root(".")
+
+    # Get some information about the iteration.
+    iterations = proj.get_iteration_dict()
+    if from_iteration not in iterations:
+        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
+               "a list of all available iterations.") % from_iteration
+        raise LASIFCommandLineException(msg)
+    if to_iteration not in iterations:
+        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
+               "a list of all available iterations.") % to_iteration
+        raise LASIFCommandLineException(msg)
+
+    # After all checks have passed, import the necessary modules.
+    from lasif.iteration_xml import Iteration
+    from lasif.window_manager import MisfitWindowManager
+    from lasif.adjoint_src_manager import AdjointSourceManager
+
+    from_it = Iteration(iterations[from_iteration])
+    to_it = Iteration(iterations[to_iteration])
+
+    long_iteration_name_from = "ITERATION_%s" % from_iteration
+    long_iteration_name_to = "ITERATION_%s" % to_iteration
+
+    # Get a list of windows that are in both, the new and the old iteration.
+    events = list(set(from_it.events.keys()).intersection(
+        set(to_it.events.keys())))
+
+    # Loop over events and migrate the windows.
+    for event_name in events:
+        # Managers from.
+        window_directory_from = os.path.join(
+            proj.paths["windows"], event_name, long_iteration_name_from)
+        ad_src_directory_from = os.path.join(
+            proj.paths["adjoint_sources"], event_name,
+            long_iteration_name_from)
+        window_manager_from = MisfitWindowManager(
+            window_directory_from, long_iteration_name_from, event_name)
+        adj_src_manager_from = AdjointSourceManager(ad_src_directory_from)
+
+        # Managers to.
+        window_directory_to = os.path.join(
+            proj.paths["windows"], event_name, long_iteration_name_to)
+        ad_src_directory_to = os.path.join(
+            proj.paths["adjoint_sources"], event_name, long_iteration_name_to)
+        window_manager_to = MisfitWindowManager(
+            window_directory_to, long_iteration_name_to, event_name)
+        adj_src_manager_to = AdjointSourceManager(ad_src_directory_to)
+
+        # Loop over all new data.
+        iterator = proj.data_synthetic_iterator(event_name, to_iteration)
+        for data_set in iterator:
+            for component in ["Z", "N", "E"]:
+                data = data_set["data"].select(component=component)[0]
+                synth = data_set["synthetics"].select(channel=component)[0]
+            raise NotImplementedError
 
 
 @command_group("Iteration Management")
