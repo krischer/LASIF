@@ -185,6 +185,10 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                         };
                     });
                     update_stations();
+
+                    // Center the map on the boundary region. The rotation is the negative location.
+                    var centroid = d3.geo.centroid(boundaries);
+                    projection.rotate([-1.0 * centroid[0], -1.0 * centroid[1]]);
                     redraw();
                 });
 
@@ -288,7 +292,6 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
                         var modal = $modal({
                             title: nearest_point[0].station_name,
                             template: "/static/templates/station_waveform_plot.tpl.html",
-//                            content: '<div><img class="img-responsive text-center" style="margin-left: auto; margin-right: auto" width="1000" height="700" src="/rest/event/' + $scope.shownEvents + "/" + nearest_point[0].station_name + '"></div>',
                             persist: false,
                             show: true});
                         // Set some information about the station and event.
