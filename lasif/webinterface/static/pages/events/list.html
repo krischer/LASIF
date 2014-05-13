@@ -1,18 +1,39 @@
-<table id="event_list_table" class="table table-condensed table-hover table-responsive">
+<table id="event_list_table"
+       class="table table-condensed table-hover table-responsive">
     <tr>
         <th></th>
-        <th ng-click="orderByField='event_name'; reverseSort = !reverseSort">Event Name</th>
-        <th ng-click="orderByField='latitude'; reverseSort = !reverseSort">Latitude</th>
-        <th ng-click="orderByField='longitude'; reverseSort = !reverseSort" >Longitude</th>
-        <th ng-click="orderByField='depth_in_km'; reverseSort = !reverseSort">Depth</th>
-        <th ng-click="orderByField='origin_time'; reverseSort = !reverseSort">Origin Time</th>
-        <th ng-click="orderByField='magnitude'; reverseSort = !reverseSort">Magnitude</th>
-        <th ng-click="orderByField='region'; reverseSort = !reverseSort">Region</th>
+        <th ng-click="orderByField='event_name'; reverseSort = !reverseSort">
+            Event Name
+        </th>
+        <th ng-click="orderByField='latitude'; reverseSort = !reverseSort">
+            Latitude
+        </th>
+        <th ng-click="orderByField='longitude'; reverseSort = !reverseSort">
+            Longitude
+        </th>
+        <th ng-click="orderByField='depth_in_km'; reverseSort = !reverseSort">
+            Depth
+        </th>
+        <th ng-click="orderByField='origin_time'; reverseSort = !reverseSort">
+            Origin Time
+        </th>
+        <th ng-click="orderByField='magnitude'; reverseSort = !reverseSort">
+            Magnitude
+        </th>
+        <th ng-click="orderByField='region'; reverseSort = !reverseSort">
+            Region
+        </th>
     </tr>
     <tr ng-repeat='event in events|orderBy:orderByField:reverseSort'>
         <td><img class="img-response"
-                 ng-src="plot/mt?lw=0.6&m_rr={{event.m_rr}}&m_tt={{event.m_tt}}&m_pp={{event.m_pp}}&m_rt={{event.m_rt}}&m_rp={{event.m_rp}}&m_tp={{event.m_tp}}&size=25&color=ce2824&format=svg"></td>
-        <td>{{event.event_name|truncate:40}}</td>
+                 ng-src="plot/mt?lw=0.6&m_rr={{event.m_rr}}&m_tt={{event.m_tt}}&m_pp={{event.m_pp}}&m_rt={{event.m_rt}}&m_rp={{event.m_rp}}&m_tp={{event.m_tp}}&size=25&color=ce2824&format=svg">
+        </td>
+        <td><a href="#/map/{{event.event_name}}" type="button"
+               class="btn btn-default btn-xs">
+            <span class="glyphicon glyphicon-map-marker"></span> View on Map
+        </a>
+            {{event.event_name|truncate:40}}
+        </td>
         <td>{{event.latitude|number:2}}&deg;</td>
         <td>{{event.longitude|number:2}}&deg;</td>
         <td>{{event.depth_in_km|number:1}} km</td>
