@@ -187,18 +187,27 @@ def get_event_details(event_name):
     event["stations"] = stations.values()
     return flask.jsonify(**event)
 
+
 @app.route("/rest/available_data/<event_name>/<station_id>")
 def get_available_data(event_name, station_id):
     available_data = app.project.discover_available_data(event_name,
                                                          station_id)
-    available_data["raw"] = True
     return flask.jsonify(**available_data)
+
 
 @app.route("/rest/get_data/<event_name>/<station_id>/<name>")
 def get_data(event_name, station_id, name):
     if name == "raw":
         st = app.project.get_waveform_data(event_name, station_id,
                                            data_type="raw")
+    elif name.startswith("preprocessed_"):
+        st = app.project.get_waveform_data(event_name, station_id,
+                                           data_type="processed",
+                                           tag=name)
+    else:
+        st = app.project.get_waveform_data(event_name, station_id,
+                                           data_type="synthetic",
+                                           iteration_name=name)
 
     BIN_LENGTH = 1500
     data = {}
@@ -213,7 +222,7 @@ def get_data(event_name, station_id, name):
         tr.data -= tr.data.mean()
         tr.data /= np.abs(tr.data).max() * 1.1
 
-        if tr.stats.npts > 20000:
+        if tr.stats.npts > 5000:
             rest = tr.stats.npts % BIN_LENGTH
             per_bin = tr.stats.npts // BIN_LENGTH
             if rest:

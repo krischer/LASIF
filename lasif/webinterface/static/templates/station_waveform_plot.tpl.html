@@ -19,58 +19,80 @@
                             <dd>{{$parent.station.elevation_in_m|number:1}} m
                             </dd>
                             <dt>Local Depth</dt>
-                            <dd>{{$parent.station.local_depth_in_m|number:1}}
+                            <dd>{{($parent.station.local_depth_in_m|number:1) || 0}}
                                 m
                             </dd>
                         </dl>
                         <h4>Available Data</h4>
 
                         <form>
-                            <input type="checkbox" ng-model="availableData.raw">
+                            <input type="checkbox"
+                                   ng-disabled="downloadInProgress"
+                                   ng-model="availableData.raw[0][1]">
                             <small>Raw Data</small>
                         </form>
 
                         <h6>Processed Data</h6>
 
                         <form ng-repeat="data in availableData.processed">
-                            <input type="checkbox" ng-model="data[1]">
+                            <input type="checkbox"
+                                   ng-disabled="downloadInProgress"
+                                   ng-model="data[1]">
                             <small>{{data[0]}}</small>
                         </form>
                         <h6>Synthetic Data</h6>
 
                         <form ng-repeat="data in availableData.synthetic">
-                            <input type="checkbox" ng-model="data[1]">
+                            <input type="checkbox"
+                                   ng-disabled="downloadInProgress"
+                                   ng-model="data[1]">
                             <small>Iteration {{data[0]}}</small>
                         </form>
 
                     </div>
+
                     <div class="col-md-8">
                         <nvd3-line-chart
-                                data="zData"
+                                style="margin-left: 100px"
+                                data="dataZ"
+                                yAxisLabel="Vertical"
+                                yAxisLabelDistance="60"
                                 id="z_data"
                                 height="200"
                                 color="colorFunction()"
+                                xAxisTickFormat="xAxisTickFormatFunction()"
+                                yAxisTickFormat="yAxisTickFormatFunction()"
                                 showXAxis="true"
-                                showYAxis="true">
-                            <svg></svg>
+                                showYAxis="true"
+                                noData="No Data for Vertical Component">
                         </nvd3-line-chart>
                         <nvd3-line-chart
-                                data="nData"
+                                data="dataN"
+                                title="N"
+                                yAxisLabel="North"
+                                yAxisLabelDistance="60"
                                 id="n_data"
                                 height="200"
                                 color="colorFunction()"
+                                xAxisTickFormat="xAxisTickFormatFunction()"
+                                yAxisTickFormat="yAxisTickFormatFunction()"
                                 showXAxis="true"
-                                showYAxis="true">
+                                showYAxis="true"
+                                noData="No Data for Northern Component">
                             <svg></svg>
                         </nvd3-line-chart>
                         <nvd3-line-chart
-                                data="eData"
+                                data="dataE"
                                 id="e_data"
+                                yAxisLabel="East"
+                                yAxisLabelDistance="60"
                                 xAxisTickFormat="xAxisTickFormatFunction()"
+                                yAxisTickFormat="yAxisTickFormatFunction()"
                                 color="colorFunction()"
                                 height="200"
                                 showXAxis="true"
-                                showYAxis="true">
+                                showYAxis="true"
+                                noData="No Data for Eastern Component">
                             <svg></svg>
                         </nvd3-line-chart>
                     </div>

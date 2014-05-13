@@ -1,32 +1,40 @@
 var lasifApp = angular.module("LASIFApp");
 
 
-lasifApp.controller('waveformPlotController', function ($scope, $log, $http) {
+lasifApp.controller('waveformPlotController', function($scope, $log, $http) {
 
     $http.get("/rest/available_data/" + $scope.$parent.event_name + "/"
         + $scope.$parent.station.station_name, {
         cache: true
-    }).success(function (data) {
+    }).success(function(data) {
         var availableData = {
-            "raw": true,
-            "processed": _.map(data.processed, function (i) {
+            "raw": _.map(data.raw, function(i) {
+                return [i, true]
+            }),
+            "processed": _.map(data.processed, function(i) {
                 return [i, false]
             }),
-            "synthetic": _.map(data.synthetic, function (i) {
+            "synthetic": _.map(data.synthetic, function(i) {
                 return [i, false]
             })
         }
         $scope.availableData = availableData;
     });
 
-    $scope.zData = [];
-    $scope.nData = [];
-    $scope.eData = [];
+    // The data that will actually be plotted. Assign anew to trigger a redraw!
+    $scope.dataZ = [];
+    $scope.dataE = [];
+    $scope.dataN = [];
 
-    $scope.colorFunction = function () {
-        return function (d, i) {
+    $scope.downloadInProgress = false;
+
+    $scope.colorFunction = function() {
+        return function(d, i) {
             if (d.key == "raw") {
                 return "#CCC";
+            }
+            else if (d.key.startsWith("preprocessed")) {
+                return "#000";
             }
             else {
                 return "#F00";
@@ -34,47 +42,84 @@ lasifApp.controller('waveformPlotController', function ($scope, $log, $http) {
         }
     };
 
-    $scope.$watch("availableData", function (new_value, old_value) {
-        if (new_value == old_value) {
+    $scope.xAxisTickFormatFunction = function() {
+        return function(d) {
+            return d3.time.format.utc('%H:%M:%S')(new Date(d * 1000));
+        }
+    }
+
+    $scope.yAxisTickFormatFunction = function() {
+        return function(d) {
+            return ""
+        }
+    }
+
+    $scope.$watch("availableData", function(newV, oldV) {
+        if (newV == oldV) {
             return
         }
-        // Figure out what changed.
-        if (!old_value || new_value.raw != old_value.raw) {
-            // Remove if deselected.
-            if (new_value.raw == false) {
-                _.forEach(["z", "n", "e"], function (i) {
-                    $scope[i + "Data"] = _.filter($scope[i + "Data"],
-                        function (i) {
-                            if (i.key == "raw") {
-                                return false
-                            }
-                            else {
-                                return true
-                            }
-                        });
-                });
-            }
-            // Otherwise add.
-            else {
-                $http.get("/rest/get_data/" + $scope.$parent.event_name + "/"
-                    + $scope.$parent.station.station_name + "/" + "raw", {
-                    cache: false
-                }).success(function (data) {
-                    _.forEach(["Z", "N", "E"], function (i) {
-                        if (data[i]) {
-                            var cur_data = _.clone(
-                                $scope[i.toLowerCase() + "Data"]);
-                            cur_data.push({
-                                key: "raw",
-                                values: data[i]
-                            });
-                            $scope[i.toLowerCase() + "Data"] = cur_data;
-                        }
-                    });
-                });
-            }
+
+        $scope.downloadInProgress = true;
+
+        var should_be_plotted = _(newV)
+            .map(function(i) {
+                return _(i)
+                    .filter(function(j) {return j[1]})
+                    .map(function(k) {return k[0];})
+                    .value();
+            })
+            .flatten()
+            .value();
+
+        var tempDataScopes = {};
+        // Remove unnecessarily plotted values.
+        _.forEach(["Z", "N", "E"], function(component) {
+            tempDataScopes[component] = _.filter($scope["data" + component],
+                function(i) {return _.contains(should_be_plotted, i.key)});
+        });
+
+        var data_scopes = [$scope.dataZ, $scope.dataN, $scope.dataE]
+        $log.log(tempDataScopes);
+        var is_plotted = _(tempDataScopes)
+            .map(function(i) {return i})
+            .flatten()
+            .map("key")
+            .union()
+            .value()
+
+        function applyScopes() {
+            _.forEach(tempDataScopes, function(value, key) {
+                $scope["data" + key] = value
+            });
+            $scope.downloadInProgress = false;
+        };
+
+        var needs_plotting = _.difference(should_be_plotted, is_plotted);
+        if (!needs_plotting || !needs_plotting[0]) {
+            applyScopes();
+            return
         }
-        $log.log("Old:", old_value);
-        $log.log("New:", new_value);
+
+        if (needs_plotting.length > 1) {
+            $log.error("Cannot download two tags simultaneously");
+        }
+
+        needs_plotting = needs_plotting[0];
+
+        $http.get("/rest/get_data/" + $scope.$parent.event_name + "/"
+            + $scope.$parent.station.station_name + "/" + needs_plotting, {
+            cache: false
+        }).success(function(data) {
+            _.forEach(["Z", "N", "E"], function(i) {
+                if (data[i]) {
+                    tempDataScopes[i].push({
+                        key: needs_plotting,
+                        values: data[i]
+                    });
+                }
+            });
+            applyScopes();
+        });
     }, true);
-});
+})
+;

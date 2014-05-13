@@ -802,6 +802,7 @@ class Project(object):
 
         # Collect all tags and iteration names.
         all_files = {
+            "raw": ["raw"],
             "processed": [],
             "synthetic": []}
 
