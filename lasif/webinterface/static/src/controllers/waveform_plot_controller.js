@@ -3,18 +3,24 @@ var lasifApp = angular.module("LASIFApp");
 
 lasifApp.controller('waveformPlotController', function($scope, $log, $http) {
 
+    $scope.tag_color_map = {}
+    $scope.downloadInProgress = false;
+
     $http.get("/rest/available_data/" + $scope.$parent.event_name + "/"
         + $scope.$parent.station.station_name, {
         cache: true
     }).success(function(data) {
         var availableData = {
             "raw": _.map(data.raw, function(i) {
+                $scope.tag_color_map[i] = "#ccc";
                 return [i, true]
             }),
-            "processed": _.map(data.processed, function(i) {
+            "processed": _.map(data.processed, function(i, index) {
+                $scope.tag_color_map[i] = colorbrewer["Greys"]["6"][(5 - index) % 6];
                 return [i, false]
             }),
-            "synthetic": _.map(data.synthetic, function(i) {
+            "synthetic": _.map(data.synthetic, function(i, index) {
+                $scope.tag_color_map[i] = colorbrewer["Reds"]["6"][(5 - index) % 6];
                 return [i, false]
             })
         }
@@ -26,19 +32,9 @@ lasifApp.controller('waveformPlotController', function($scope, $log, $http) {
     $scope.dataE = [];
     $scope.dataN = [];
 
-    $scope.downloadInProgress = false;
-
     $scope.colorFunction = function() {
         return function(d, i) {
-            if (d.key == "raw") {
-                return "#CCC";
-            }
-            else if (d.key.startsWith("preprocessed")) {
-                return "#000";
-            }
-            else {
-                return "#F00";
-            }
+            return $scope.tag_color_map[d.key];
         }
     };
 

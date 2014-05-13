@@ -19,7 +19,8 @@
                             <dd>{{$parent.station.elevation_in_m|number:1}} m
                             </dd>
                             <dt>Local Depth</dt>
-                            <dd>{{($parent.station.local_depth_in_m|number:1) || 0}}
+                            <dd>{{($parent.station.local_depth_in_m|number:1)
+                                || 0}}
                                 m
                             </dd>
                         </dl>
@@ -29,6 +30,9 @@
                             <input type="checkbox"
                                    ng-disabled="downloadInProgress"
                                    ng-model="availableData.raw[0][1]">
+                            <span style="font-size: larger; color: {{tag_color_map.raw}}">
+                                &#9632
+                            </span>
                             <small>Raw Data</small>
                         </form>
 
@@ -38,6 +42,9 @@
                             <input type="checkbox"
                                    ng-disabled="downloadInProgress"
                                    ng-model="data[1]">
+                            <span style="font-size: larger; color: {{tag_color_map[data[0]]}}">
+                                &#9632
+                            </span>
                             <small>{{data[0]}}</small>
                         </form>
                         <h6>Synthetic Data</h6>
@@ -46,8 +53,16 @@
                             <input type="checkbox"
                                    ng-disabled="downloadInProgress"
                                    ng-model="data[1]">
+                            <span style="font-size: larger; color: {{tag_color_map[data[0]]}}">
+                                &#9632
+                            </span>
                             <small>Iteration {{data[0]}}</small>
                         </form>
+
+                        <div class="spinner" ng-show="downloadInProgress">
+                            <div class="cube1"></div>
+                            <div class="cube2"></div>
+                        </div>
 
                     </div>
 
