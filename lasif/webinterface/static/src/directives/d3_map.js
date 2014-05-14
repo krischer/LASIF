@@ -153,7 +153,8 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
 
             path = d3.geo.path()
                 .projection(projection)
-                .context(context);
+                .context(context)
+                .pointRadius(2.25 * dim.pixelRatio);
 
             // Download all necessary data.
             queue()
