@@ -172,7 +172,7 @@ def list_events():
     """
     Returns a list of events.
     """
-    events = dict(app.project.events)
+    events = copy.deepcopy(dict(app.project.events))
     for value in events.itervalues():
         value["origin_time"] = str(value["origin_time"])
     return flask.jsonify(events=events.values())

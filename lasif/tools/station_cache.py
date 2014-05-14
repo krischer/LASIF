@@ -146,6 +146,30 @@ class StationCache(FileInfoCache):
 
         return channels
 
+    def get_all_channel_coordinates(self, timestamp):
+        """
+        Returns a dictionary with all station coordinates available at a
+        certain time. The coordinates will be None if the station file has
+        no coordinates but at least, it will assure that the channel
+        actually has an available response information.
+        """
+        query = """
+        SELECT channel_id, latitude, longitude, elevation_in_m,
+            local_depth_in_m
+        FROM indices
+        WHERE start_date <= %i
+          AND (end_date IS NULL OR end_date >= %i)
+        """ % (int(timestamp), int(timestamp))
+
+        results = self.db_cursor.execute(query).fetchall()
+
+        return {_i[0]: {
+            "latitude": _i[1],
+            "longitude": _i[2],
+            "elevation_in_m": _i[3],
+            "local_depth_in_m": _i[4]}
+            for _i in results}
+
     def get_coordinates_for_station(self, network, station):
         """
         Returns the coordinates for any station from the cache.

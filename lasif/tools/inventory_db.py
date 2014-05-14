@@ -62,6 +62,20 @@ class InventoryDB(object):
         self.cursor.execute(SQL)
         self.conn.commit()
 
+    def get_all_coordinates(self):
+        SQL = """
+        SELECT station_name, latitude, longitude, elevation, depth
+        FROM stations
+        """
+        results = self.cursor.execute(SQL).fetchall()
+
+        return {_i[0]: {
+            "latitude": _i[1],
+            "longitude": _i[2],
+            "elevation_in_m": _i[3],
+            "local_depth_in_m": _i[4]}
+                for _i in results}
+
 
 def reset_coordinate_less_stations(db_file):
     """

@@ -1318,36 +1318,43 @@ class Project(object):
                 "elevation_in_m": coordinates["elevation_in_m"],
                 "local_depth_in_m": coordinates["local_depth_in_m"]}
 
-        # Query the station cache for a list of all channels.
+        # If all stations are requested, do it in an optimized fashion as
+        # this is requested a lot. Care has to be taken to perform lookups
+        # in the same fashion as in the
+        # self._get_coordinates_for_waveform_file() method.
+        from lasif.tools.inventory_db import InventoryDB
+
+        all_waveforms = waveforms.get_values()
+
+        # Get all channels active at that time frame from the station cache.
+        all_channel_coordinates = \
+            self.station_cache.get_all_channel_coordinates(
+                self.events[event_name]["origin_time"].timestamp)
+        # Get all channels from inventory DB.
+        inv_db = InventoryDB(self.paths["inv_db_file"]).get_all_coordinates()
+
         stations = {}
-        for waveform in waveforms.get_values():
+        for waveform in all_waveforms:
             station = "%s.%s" % (waveform["network"], waveform["station"])
-            # Do not add if already exists.
             if station in stations:
                 continue
 
-            # Assert that a station file exists for the current station.
-            # Otherwise continue.
-            if not self.station_cache.station_info_available(
-                    waveform["channel_id"], waveform["starttime_timestamp"]):
+            if waveform["channel_id"] not in all_channel_coordinates:
                 continue
 
-            coordinates = self._get_coordinates_for_waveform_file(
-                waveform_filename=waveform["filename"],
-                waveform_type="raw",
-                network_code=waveform["network"],
-                station_code=waveform["station"],
-                event_name=event_name)
-            if not coordinates:
-                msg = "No coordinates available for waveform file '%s'" % \
-                    waveform["filename"]
-                warnings.warn(msg)
+            if all_channel_coordinates[waveform["channel_id"]]["latitude"] \
+                    is not None:
+                stations[station] = all_channel_coordinates[
+                    waveform["channel_id"]]
                 continue
-            stations[station] = {
-                "latitude": coordinates["latitude"],
-                "longitude": coordinates["longitude"],
-                "elevation_in_m": coordinates["elevation_in_m"],
-                "local_depth_in_m": coordinates["local_depth_in_m"]}
+            elif waveform["latitude"] is not None:
+                stations[station] = waveform
+            elif station in inv_db:
+                stations[station] = inv_db[station]
+            else:
+                msg = ("Could not find coordinates for file '%s'. Will be " \
+                       "skipped" % waveform["filename"])
+                warnings.warn(msg)
         return stations
 
     def _get_coordinates_for_waveform_file(self, waveform_filename,
