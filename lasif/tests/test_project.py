@@ -978,23 +978,23 @@ def test_discover_available_data(project):
 
     # At the beginning it contains nothing.
     assert project.discover_available_data(event, "HL.ARG") == \
-        {"processed": [], "synthetic": []}
+        {"processed": [], "synthetic": [], "raw": ["raw"]}
 
     # Create a new iteration. At this point it should contain some synthetics.
     project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     assert project.discover_available_data(event, "HL.ARG") == \
-        {"processed": [], "synthetic": ["1"]}
+        {"processed": [], "synthetic": ["1"], "raw": ["raw"]}
 
     # A new iteration without data does not add anything.
     project.create_new_iteration("2", "ses3d_4_1", 8, 100)
     assert project.discover_available_data(event, "HL.ARG") == \
-        {"processed": [], "synthetic": ["1"]}
+        {"processed": [], "synthetic": ["1"], "raw": ["raw"]}
 
     # Data is also available for a second station. But not for another one.
     assert project.discover_available_data(event, "HT.SIGR") == \
-        {"processed": [], "synthetic": ["1"]}
+        {"processed": [], "synthetic": ["1"], "raw": ["raw"]}
     assert project.discover_available_data(event, "KO.KULA") == \
-        {"processed": [], "synthetic": []}
+        {"processed": [], "synthetic": [], "raw": ["raw"]}
 
     # Requesting data for a non-existent station raises.
     with pytest.raises(LASIFException):
@@ -1004,9 +1004,9 @@ def test_discover_available_data(project):
     processing_tag = project._get_iteration("1").get_processing_tag()
     project.preprocess_data("1", [event], waiting_time=0.0)
     assert project.discover_available_data(event, "HT.SIGR") == \
-        {"processed": [processing_tag], "synthetic": ["1"]}
+        {"processed": [processing_tag], "synthetic": ["1"], "raw": ["raw"]}
     assert project.discover_available_data(event, "KO.KULA") == \
-        {"processed": [processing_tag], "synthetic": []}
+        {"processed": [processing_tag], "synthetic": [], "raw": ["raw"]}
 
 
 def test_output_folder_name(project):

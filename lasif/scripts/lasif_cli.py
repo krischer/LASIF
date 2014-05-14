@@ -830,12 +830,16 @@ def lasif_migrate_windows(parser, args):
             window_directory_to, long_iteration_name_to, event_name)
         adj_src_manager_to = AdjointSourceManager(ad_src_directory_to)
 
+        print (window_manager_from, adj_src_manager_from, window_manager_to,
+               adj_src_manager_to)
+
         # Loop over all new data.
         iterator = proj.data_synthetic_iterator(event_name, to_iteration)
         for data_set in iterator:
             for component in ["Z", "N", "E"]:
                 data = data_set["data"].select(component=component)[0]
                 synth = data_set["synthetics"].select(channel=component)[0]
+                print data, synth
             raise NotImplementedError
 
 
@@ -1193,8 +1197,8 @@ def lasif_serve(parser, args):
         import webbrowser
         import threading
 
-        threading.Timer(1.0,
-            lambda: webbrowser.open("http://localhost:%i" % port)).start()
+        threading.Timer(
+            1.0, lambda: webbrowser.open("http://localhost:%i" % port)).start()
 
     from lasif.webinterface.server import serve
     serve(project, port=port, debug=debug)

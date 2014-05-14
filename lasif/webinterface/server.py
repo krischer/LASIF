@@ -1,19 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import warnings
 import flask
 from flask.ext.cache import Cache
 
-import matplotlib
 import matplotlib.pylab as plt
 from matplotlib.colors import hex2color
 plt.switch_backend("agg")
 
 import copy
-import datetime
 import geojson
 import json
-import obspy
 from obspy.imaging.mopad_wrapper import Beach
 import io
 import inspect
@@ -60,12 +56,12 @@ def get_domain_geojson():
         rotation_axis=domain["rotation_axis"],
         rotation_angle_in_degree=domain["rotation_angle"])
 
-
     border = geojson.MultiLineString([
         [(_i[1], _i[0]) for _i in inner_border],
         [(_i[1], _i[0]) for _i in outer_border],
     ])
     return flask.jsonify(**border)
+
 
 @app.route("/rest/info")
 def get_info():
@@ -182,7 +178,7 @@ def list_events():
 def get_event_details(event_name):
     event = copy.deepcopy(app.project.events[event_name])
     event["origin_time"] = str(event["origin_time"])
-    stations = app.project.get_stations_for_event(event_name);
+    stations = app.project.get_stations_for_event(event_name)
     for key, value in stations.iteritems():
         value["station_name"] = key
     event["stations"] = stations.values()
@@ -243,11 +239,11 @@ def get_data(event_name, station_id, name):
                 final_data[-1] = tr.data[-rest:].max()
             time_array = np.empty(len(final_data))
             time_array[::2] = np.linspace(tr.stats.starttime.timestamp,
-                                     tr.stats.endtime.timestamp,
-                                     len(final_data) / 2)
-            time_array[1::2] = np.linspace(tr.stats.starttime.timestamp,
                                           tr.stats.endtime.timestamp,
                                           len(final_data) / 2)
+            time_array[1::2] = np.linspace(tr.stats.starttime.timestamp,
+                                           tr.stats.endtime.timestamp,
+                                           len(final_data) / 2)
         else:
             final_data = tr.data
             # Create times array.

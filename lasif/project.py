@@ -1352,7 +1352,7 @@ class Project(object):
             elif station in inv_db:
                 stations[station] = inv_db[station]
             else:
-                msg = ("Could not find coordinates for file '%s'. Will be " \
+                msg = ("Could not find coordinates for file '%s'. Will be "
                        "skipped" % waveform["filename"])
                 warnings.warn(msg)
         return stations

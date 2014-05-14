@@ -74,7 +74,7 @@ class InventoryDB(object):
             "longitude": _i[2],
             "elevation_in_m": _i[3],
             "local_depth_in_m": _i[4]}
-                for _i in results}
+            for _i in results}
 
 
 def reset_coordinate_less_stations(db_file):
