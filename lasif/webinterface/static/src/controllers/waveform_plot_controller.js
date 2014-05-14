@@ -75,7 +75,6 @@ lasifApp.controller('waveformPlotController', function($scope, $log, $http) {
         });
 
         var data_scopes = [$scope.dataZ, $scope.dataN, $scope.dataE]
-        $log.log(tempDataScopes);
         var is_plotted = _(tempDataScopes)
             .map(function(i) {return i})
             .flatten()

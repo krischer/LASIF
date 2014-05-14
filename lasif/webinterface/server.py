@@ -163,6 +163,46 @@ def mt_plot():
                            attachment_filename="mt.%s" % format)
 
 
+@app.route("/rest/iteration")
+def list_iterations():
+    """
+    Returns a list of events.
+    """
+    iterations = app.project.get_iteration_dict().keys()
+    return flask.jsonify(iterations=iterations)
+
+
+@app.route("/rest/iteration/<iteration_name>")
+def get_iteration_detail(iteration_name):
+    """
+    Returns a list of events.
+    """
+    from lasif.iteration_xml import Iteration
+
+    iterations = app.project.get_iteration_dict()
+    iteration = Iteration(iterations[iteration_name])
+
+    stf = iteration.get_source_time_function()
+    stf["data"] = stf["data"].tolist()
+
+    return flask.jsonify(
+        iteration_name=iteration.iteration_name,
+        description=iteration.description,
+        comments=iteration.comments,
+        data_preprocessing=iteration.data_preprocessing,
+        events=iteration.events.keys(),
+        processing_params=iteration.get_process_params(),
+        processing_tag=iteration.get_processing_tag(),
+        solver=iteration.solver_settings["solver"],
+        solver_settings=iteration.solver_settings["solver_settings"],
+        source_time_function=stf)
+
+
+@app.route("/rest/iteration/<iteration_name>/stf")
+def get_iteration_stf(iteration_name):
+    pass
+
+
 @app.route("/rest/event")
 def list_events():
     """

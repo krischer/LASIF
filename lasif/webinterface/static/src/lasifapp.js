@@ -1,6 +1,7 @@
 var lasifApp = angular.module("LASIFApp",
     ["ngRoute", "ngAnimate", "mgcrea.ngStrap", "mgcrea.ngStrap.modal",
-        "route-segment", "view-segment", "nvd3ChartDirectives"]);
+        "route-segment", "view-segment", "nvd3ChartDirectives",
+        "hljs"]);
 
 
 lasifApp.factory('projectInfo', function ($http) {
@@ -26,10 +27,6 @@ lasifApp.controller('mainController', function ($scope, projectInfo) {
         $scope.project_name = data.project_name;
         $scope.project_root = data.project_root;
     })
-});
-
-
-lasifApp.controller('iterationsController', function ($scope) {
 });
 
 

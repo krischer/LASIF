@@ -1,6 +1,7 @@
 var lasifApp = angular.module("LASIFApp");
 
 
+
 // Helper function calculating the dimension of everything.
 var getDimensions = function (element) {
     var width = parseInt(d3.select(element[0]).style('width'));

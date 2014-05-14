@@ -1,1 +1,23 @@
-iterations
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <table class="table table-condensed table-hover table-responsive">
+            <tr>
+                <th></th>
+                <th>
+                    Iteration Name
+                </th>
+            </tr>
+            <tr ng-repeat='iteration in iterations|orderBy:iteration'>
+                <td align="right">
+                    <a ng-click="showIteration(iteration)"
+                       type="button"
+                       class="btn btn-default btn-xs">
+                        <span class="glyphicon glyphicon-info-sign"></span>
+                        Info
+                    </a>
+                </td>
+                <td>{{iteration}}</td>
+            </tr>
+        </table>
+    </div>
+</div>

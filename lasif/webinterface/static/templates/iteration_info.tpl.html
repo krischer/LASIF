@@ -1,0 +1,145 @@
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" ng-show="title">
+                <button type="button" class="close"
+                        ng-click="$hide()">&times;</button>
+                <h4 class="modal-title">Details for {{title}}</h4>
+            </div>
+            <div class="modal-body" ng-controller="iterationInfoController">
+                <div class="row">
+                    <div class="col-md-4">
+
+                        <div class="panel panel-default"
+                             style="height: 300px; max-height: 300px">
+                            <div class="panel-heading">
+                                Information
+                            </div>
+                            <div class="panel-body">
+                                <dl class="dl-horizontal">
+                                    <dt>Iteration Name</dt>
+                                    <dd>{{info.iteration_name}}</dd>
+                                    <dt ng-show="info.description">
+                                        Description
+                                    </dt>
+                                    <dd ng-show="info.description">
+                                        {{info.description}}
+                                    </dd>
+                                    <dt ng-show="info.comments">Comments</dt>
+                                    <dd ng-show="info.comments">
+                                        <ul style="padding-left:10px">
+                                            <li ng-repeat="c in info.comments">
+                                                {{c}}
+                                            </li>
+                                        </ul>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="panel panel-default"
+                             style="height: 300px; max-height: 300px">
+                            <div class="panel-heading">
+                                Solver Settings
+                            </div>
+                            <div class="panel-body">
+                                <dl class="dl-horizontal">
+                                    <dt>Solver Name</dt>
+                                    <dd>{{info.solver}}</dd>
+                                </dl>
+                                <div style="height: 180px; overflow-y: auto"
+                                     hljs
+                                     source="pretty_solver_settings()"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-4">
+                        <div class="panel panel-default"
+                             style="height: 300px; max-height: 300px">
+                            <div class="panel-heading">
+                                Processing Information
+                            </div>
+                            <div class="panel-body">
+                                <dl class="dl-horizontal">
+                                    <dt>Processing Tag</dt>
+                                    <dd style="word-break: break-all">
+                                        <small>{{info.processing_tag}}</small>
+                                    </dd>
+                                    <dt>Lowpass Period</dt>
+                                    <dd>
+                                        {{info.data_preprocessing.lowpass_period}}
+                                        s
+                                    </dd>
+                                    <dt>Highpass Period</dt>
+                                    <dd>
+                                        {{info.data_preprocessing.highpass_period}}
+                                        s
+                                    </dd>
+                                    <dt>Time Delta</dt>
+                                    <dd>{{info.processing_params.dt}} s</dd>
+                                    <dt>NPTS</dt>
+                                    <dd>{{info.processing_params.npts}}</dd>
+                                    <dt>Source Time Function</dt>
+                                    <dd>{{info.processing_params.stf}}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="panel panel-default"
+                             style="height: 300px; max-height: 300px">
+                            <div class="panel-heading">
+                                {{info.events.length}} Events in Iteration
+                            </div>
+                            <div class="panel-body">
+                                <ul class="list-group"
+                                    style="max-height: 230px; overflow-y: auto">
+                                    <li class="list-group-item"
+                                        ng-repeat="event in info.events">
+
+                                        <a href="#/map/{{event}}" type="button"
+                                           class="btn btn-default btn-xs"
+                                           ng-click="$hide()">
+                                            <span class="glyphicon glyphicon-map-marker"></span>
+                                            View on Map
+                                        </a>
+                                        <small>{{event}}</small>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <nvd3-line-chart
+                                data="stf"
+                                yAxisLabel="Source Time Function"
+                                xAxisLabel="Seconds since Event"
+                                yAxisLabelDistance="60"
+                                id="sdf_chart"
+                                height="300"
+                                yAxisTickFormat="yAxisTickFormatFunction()"
+                                showXAxis="true"
+                                showYAxis="true"
+                                noData="No STF Loaded yet">
+                            <svg></svg>
+                        </nvd3-line-chart>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"
+                        ng-click="$hide()">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
