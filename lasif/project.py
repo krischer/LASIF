@@ -800,11 +800,21 @@ class Project(object):
                 event_name, station_id)
             raise LASIFException(msg)
 
+        # Get the waveform
+        waveform_cache = self._get_waveform_cache_file(event_name, "raw")
+
+        def get_components(waveform_cache):
+            return [_i["channel"][-1] for _i in
+                    waveform_cache.get_files_for_station(
+                        *station_id.split("."))]
+
+        raw_comps = sorted(get_components(waveform_cache), reverse=True)
+
         # Collect all tags and iteration names.
         all_files = {
-            "raw": ["raw"],
-            "processed": [],
-            "synthetic": []}
+            "raw": {"raw": raw_comps},
+            "processed": {},
+            "synthetic": {}}
 
         # Get the processed tags.
         data_dir = os.path.join(self.paths["data"], event_name)
@@ -814,17 +824,22 @@ class Project(object):
                     tag.endswith("_cache.sqlite"):
                 continue
             waveforms = self._get_waveform_cache_file(event_name, tag)
-            if waveforms.get_files_for_station(*station_id.split(".")):
-                all_files["processed"].append(tag)
+            comps = get_components(waveforms)
+            if comps:
+                all_files["processed"][tag] = sorted(comps, reverse=True)
 
         # Get all synthetic files for the current iteration and event.
+        synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
         iterations = self.get_iteration_dict().keys()
         for iteration_name in iterations:
             synthetic_files = self._get_synthetic_waveform_filenames(
                 event_name, iteration_name)
             if station_id not in synthetic_files:
                 continue
-            all_files["synthetic"].append(iteration_name)
+            all_files["synthetic"][iteration_name] = \
+                sorted([synthetic_coordinates_mapping[i]
+                        for i in synthetic_files[station_id].keys()],
+                       reverse=True)
         return all_files
 
     def plot_station(self, station_id, event_name):

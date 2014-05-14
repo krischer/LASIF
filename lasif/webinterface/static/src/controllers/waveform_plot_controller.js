@@ -11,19 +11,37 @@ lasifApp.controller('waveformPlotController', function($scope, $log, $http) {
         cache: true
     }).success(function(data) {
         var availableData = {
-            "raw": _.map(data.raw, function(i) {
-                $scope.tag_color_map[i] = "#ccc";
-                return [i, true]
-            }),
-            "processed": _.map(data.processed, function(i, index) {
-                $scope.tag_color_map[i] = colorbrewer["Greys"]["6"][(5 - index) % 6];
-                return [i, false]
-            }),
-            "synthetic": _.map(data.synthetic, function(i, index) {
-                $scope.tag_color_map[i] = colorbrewer["Reds"]["6"][(5 - index) % 6];
-                return [i, false]
+            "raw": _.map(data.raw, function(components, tag) {
+                $scope.tag_color_map[tag] = "#ccc";
+                return {
+                    tag: tag,
+                    show: true,
+                    components: components
+                };
             })
-        }
+        };
+
+        var index = 0;
+        availableData.processed = _.map(data.processed, function(components, tag) {
+            $scope.tag_color_map[tag] = colorbrewer["Greys"]["6"][(5 - index++) % 6];
+            return {
+                tag: tag,
+                show: false,
+                components: components
+            };
+        });
+
+        index = 0;
+        availableData.synthetic = _.map(data.synthetic, function(components, tag) {
+            $scope.tag_color_map[tag] = colorbrewer["Reds"]["6"][(5 - index) % 6];
+            return {
+                tag: tag,
+                show: false,
+                components: components
+            };
+        });
+        $log.log(availableData);
+        $log.log($scope.tag_color_map);
         $scope.availableData = availableData;
     });
 
@@ -60,8 +78,8 @@ lasifApp.controller('waveformPlotController', function($scope, $log, $http) {
         var should_be_plotted = _(newV)
             .map(function(i) {
                 return _(i)
-                    .filter(function(j) {return j[1]})
-                    .map(function(k) {return k[0];})
+                    .filter(function(j) {return j.show})
+                    .map(function(k) {return k.tag;})
                     .value();
             })
             .flatten()

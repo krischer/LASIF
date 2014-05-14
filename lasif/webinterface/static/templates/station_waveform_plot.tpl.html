@@ -29,7 +29,12 @@
                         <form>
                             <input type="checkbox"
                                    ng-disabled="downloadInProgress"
-                                   ng-model="availableData.raw[0][1]">
+                                   ng-model="availableData.raw[0].show">
+                            <small>
+                                <span ng-repeat="comp in availableData.raw[0].components">
+                                    <kbd>{{comp}}</kbd>
+                                </span>
+                            </small>
                             <span style="font-size: larger; color: {{tag_color_map.raw}}">
                                 &#9632
                             </span>
@@ -41,22 +46,32 @@
                         <form ng-repeat="data in availableData.processed">
                             <input type="checkbox"
                                    ng-disabled="downloadInProgress"
-                                   ng-model="data[1]">
-                            <span style="font-size: larger; color: {{tag_color_map[data[0]]}}">
+                                   ng-model="data.show">
+                            <small>
+                                <span ng-repeat="comp in data.components">
+                                    <kbd>{{comp}}</kbd>
+                                </span>
+                            </small>
+                            <span style="font-size: larger; color: {{tag_color_map[data.tag]}}">
                                 &#9632
                             </span>
-                            <small>{{data[0]}}</small>
+                            <small>{{data.tag}}</small>
                         </form>
                         <h6>Synthetic Data</h6>
 
                         <form ng-repeat="data in availableData.synthetic">
                             <input type="checkbox"
                                    ng-disabled="downloadInProgress"
-                                   ng-model="data[1]">
-                            <span style="font-size: larger; color: {{tag_color_map[data[0]]}}">
+                                   ng-model="data.show">
+                            <small>
+                                <span ng-repeat="comp in data.components">
+                                    <kbd>{{comp}}</kbd>
+                                </span>
+                            </small>
+                            <span style="font-size: larger; color: {{tag_color_map[data.tag]}}">
                                 &#9632
                             </span>
-                            <small>Iteration {{data[0]}}</small>
+                            <small>Iteration {{data.tag}}</small>
                         </form>
 
                         <div class="spinner" ng-show="downloadInProgress">
