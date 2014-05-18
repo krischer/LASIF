@@ -43,5 +43,6 @@ tomographic images.
     tutorial
 
     cli
+    webinterface
     api_doc
 

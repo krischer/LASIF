@@ -45,6 +45,14 @@ lasifApp.controller('waveformPlotController', function($scope, $log, $http) {
         $scope.availableData = availableData;
     });
 
+    // Function returning the smallest and largest time value across all
+    // arrays. This will make sure the plots share the xAxis.
+//    $scope.forceX =
+//        $log.log("========")
+//        $log.log(x);
+//        $log.log("========")
+//    }
+
     // The data that will actually be plotted. Assign anew to trigger a redraw!
     $scope.dataZ = [];
     $scope.dataE = [];
