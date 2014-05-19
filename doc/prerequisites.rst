@@ -36,7 +36,7 @@ And for running the tests you need
 * flake8
 
 
-ObsPy and basemap might proove complicated to install. Please refer to the
+ObsPy and basemap might prove complicated to install. Please refer to the
 projects` websites for more detailed instructions.
 
 The *wfs_input_generator* module currently has to be checked out via git:
