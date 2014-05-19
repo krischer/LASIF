@@ -64,7 +64,7 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
                     resolution=resolution, ax=ax)
         
-        parallels = np.arange(0.0,180.0,10.0)
+        parallels = np.arange(-90.0,90.0,10.0)
         m.drawparallels(parallels)
 
         meridians = np.arange(0.0,351.0,10.0)
