@@ -11,6 +11,7 @@ Visualization scripts.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from itertools import izip
+import warnings
 from matplotlib import cm
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
@@ -20,6 +21,13 @@ from obspy.signal.tf_misfit import plotTfr
 import os
 
 import rotations
+
+
+# Style for parallels and meridians.
+LINESTYLE = {
+    "linewidth": 0.5,
+    "dashes": [],
+    "color": "#aaaaaa"}
 
 
 def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
@@ -48,28 +56,14 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         simulation_domain = rotations.get_border_latlng_list(
             min_latitude, max_latitude, min_longitude, max_longitude)
         simulation_domain = np.array(simulation_domain)
-        min_y, min_x = simulation_domain.min(axis=0)
-        max_y, max_x = simulation_domain.max(axis=0)
-        max_extend = max(
-            max(max_x, bounds["maximum_longitude"]) -
-            min(min_x, bounds["minimum_longitude"]),
-            max(max_y, bounds["maximum_latitude"]) -
-            min(min_y, bounds["minimum_latitude"])
-        )
 
     # Arbitrary threshold
-    if zoom is False or max_extend > 75:
+    if zoom is False or max_extend > 90 or plot_simulation_domain:
         if resolution is None:
             resolution = "c"
         m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
                     resolution=resolution, ax=ax)
-
-        parallels = np.arange(-90.0, 90.0, 10.0)
-        m.drawparallels(parallels)
-
-        meridians = np.arange(0.0, 351.0, 10.0)
-        m.drawmeridians(meridians)
-
+        stepsize = 10.0
     else:
         if resolution is None:
             resolution = "l"
@@ -78,22 +72,13 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         height = bounds["maximum_latitude"] - bounds["minimum_latitude"]
 
         if width > 50.0:
-            factor = 10.0
-        elif (width <= 50.0) & (width > 20.0):
-            factor = 5.0
-        elif (width <= 20.0) & (width > 5.0):
-            factor = 2.0
+            stepsize = 10.0
+        elif 20.0 < width <= 50.0:
+            stepsize = 5.0
+        elif 5.0 < width <= 20.0:
+            stepsize = 2.0
         else:
-            factor = 1.0
-
-        meridians = np.arange(
-            factor * np.round(bounds["minimum_longitude"] / factor) - factor,
-            factor * np.round(bounds["maximum_longitude"] / factor + factor),
-            factor)
-        parallels = np.arange(
-            factor * np.round(bounds["minimum_latitude"] / factor) - factor,
-            factor * np.round(bounds["maximum_latitude"] / factor + factor),
-            factor)
+            stepsize = 1.0
 
         width *= 110000 * 1.1
         height *= 110000 * 1.3
@@ -102,8 +87,17 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         # does not distort features a lot on regional scales.
         m = Basemap(projection='laea', resolution=resolution, width=width,
                     height=height, lat_0=center_lat, lon_0=center_lng)
-        m.drawparallels(parallels, labels=[False, True, False, False])
-        m.drawmeridians(meridians, labels=[False, False, False, True])
+
+    # Catch warning that no labels can be drawn with an orthographic
+    # projection.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        parallels = np.arange(-90.0, 90.0, stepsize)
+        m.drawparallels(parallels, labels=[False, True, False, False],
+                        **LINESTYLE)
+        meridians = np.arange(0.0, 351.0, stepsize)
+        m.drawmeridians(meridians, labels=[False, False, False, True],
+                        **LINESTYLE)
 
     m.drawmapboundary(fill_color='#cccccc')
     m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
@@ -401,8 +395,8 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     # sometimes hard to see.
     map_object.drawcoastlines()
     map_object.drawcountries(linewidth=0.2)
-    map_object.drawmeridians(np.arange(0, 360, 30))
-    map_object.drawparallels(np.arange(-90, 90, 30))
+    map_object.drawmeridians(np.arange(0, 360, 30), **LINESTYLE)
+    map_object.drawparallels(np.arange(-90, 90, 30), **LINESTYLE)
 
 
 def plot_data_for_station(station, available_data, event, get_data_callback,
