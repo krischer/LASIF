@@ -22,19 +22,24 @@ Dependencies
 * colorama
 * joblib
 
-The later four should prove no trouble installing via pip. They will also be
-automatically installed when running **LASIF**'s setup script.
+For the webinterface, you additionally need
 
-.. code-block:: bash
+* Flask
+* Flask-Cache
+* geojson
 
-    $ pip install progressbar geographiclib colorama joblib
+And for running the tests you need
 
-ObsPy and basemap are slightly more complicated to install. Please refer to the
-projects websites for more detailed instructions.
+* pytest
+* mock
+* nose
+* flake8
 
-Both, the *wfs_input_generator* module and **LASIF** are in active development
-and thus should be installed as a develop installation so they can be easily
-upgraded via git:
+
+ObsPy and basemap might proove complicated to install. Please refer to the
+projects` websites for more detailed instructions.
+
+The *wfs_input_generator* module currently has to be checked out via git:
 
 .. code-block:: bash
 
@@ -42,6 +47,8 @@ upgraded via git:
     $ cd wfs_input_generator
     $ pip install -v -e .
 
+Make sure **ObsPy**, **basemap**, and the **wfs_input_generator** are
+installed before proceeding.
 
 
 Installing LASIF
@@ -55,6 +62,7 @@ The actual **LASIF** module can then be installed with
     $ cd LASIF
     $ pip install -v -e .
 
+This will also install all further dependencies.
 
 After the installation one should run the tests to ensure everything is
 installed correctly and works as intended on your machine.

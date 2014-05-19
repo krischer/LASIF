@@ -60,9 +60,14 @@ setup_config = dict(
         "colorama",
         "matplotlib",
         "joblib",
-        "lxml"],
-    extras_require={
-        "tests": ["nose", "pytest", "flake8", "mock"]},
+        "lxml",
+        "nose",
+        "pytest",
+        "flake8",
+        "mock",
+        "flask",
+        "flask-cache",
+        "geojson"],
     package_data={
         "lasif": get_package_data()},
     entry_points={
