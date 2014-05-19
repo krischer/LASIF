@@ -33,7 +33,7 @@ lasifApp.controller('waveformPlotController', function($scope, $log, $http) {
 
         index = 0;
         availableData.synthetic = _.map(data.synthetic, function(components, tag) {
-            $scope.tag_color_map[tag] = colorbrewer["Reds"]["6"][(5 - index) % 6];
+            $scope.tag_color_map[tag] = colorbrewer["Reds"]["5"][(4 - index++) % 5];
             return {
                 tag: tag,
                 show: false,
