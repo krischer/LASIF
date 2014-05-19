@@ -543,7 +543,11 @@ def lasif_event_info(parser, args):
     Print information about a single event.
     """
     parser.add_argument("event_name", help="name of the event")
-    event_name = parser.parse_args(args).event_name
+    parser.add_argument("-v", help="Verbose. Print all contained events.",
+                        action="store_true")
+    parser = parser.parse_args(args)
+    event_name = parser.event_name
+    verbose = parser.v
 
     from lasif.utils import table_printer
 
@@ -566,15 +570,20 @@ def lasif_event_info(parser, args):
         stations = proj.get_stations_for_event(event_name)
     except LASIFException:
         stations = {}
-    print "\nStation and waveform information available at %i stations:\n" \
-        % len(stations)
-    header = ["id", "latitude", "longitude", "elevation_in_m", "local depth"]
-    keys = sorted(stations.keys())
-    data = [[
-        key, stations[key]["latitude"], stations[key]["longitude"],
-        stations[key]["elevation_in_m"], stations[key]["local_depth_in_m"]]
-        for key in keys]
-    table_printer(header, data)
+
+    if verbose:
+        print "\nStation and waveform information available at %i stations:\n" \
+            % len(stations)
+        header = ["id", "latitude", "longitude", "elevation_in_m", "local depth"]
+        keys = sorted(stations.keys())
+        data = [[
+            key, stations[key]["latitude"], stations[key]["longitude"],
+            stations[key]["elevation_in_m"], stations[key]["local_depth_in_m"]]
+            for key in keys]
+        table_printer(header, data)
+    else:
+        print("\nStation and waveform information available at %i stations. "
+              "Use '-v' to print them." % len(stations))
 
 
 @command_group("Plotting")
