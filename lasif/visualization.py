@@ -78,35 +78,22 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         height = bounds["maximum_latitude"] - bounds["minimum_latitude"]
 
         if width > 50.0:
-            meridians = np.arange(
-                10.0 * np.round(bounds["minimum_longitude"] / 10.0) - 10.0,
-                10.0 * np.round(bounds["maximum_longitude"] / 10.0 + 10.0),
-                10.0)
-            parallels = np.arange(
-                10.0 * np.round(bounds["minimum_latitude"] / 10.0) - 10.0,
-                10.0 * np.round(bounds["maximum_latitude"] / 10.0 + 10.0),
-                10.0)
+            factor = 10.0
         elif (width <= 50.0) & (width > 20.0):
-            meridians = np.arange(
-                5.0 * np.round(bounds["minimum_longitude"] / 5.0) - 5.0,
-                5.0 * np.round(bounds["maximum_longitude"] / 5.0 + 5.0), 5.0)
-            parallels = np.arange(
-                5.0 * np.round(bounds["minimum_latitude"] / 5.0) - 5.0,
-                5.0 * np.round(bounds["maximum_latitude"] / 5.0 + 5.0), 5.0)
+            factor = 5.0
         elif (width <= 20.0) & (width > 5.0):
-            meridians = np.arange(
-                2.0 * np.round(bounds["minimum_longitude"] / 2.0) - 2.0,
-                2.0 * np.round(bounds["maximum_longitude"] / 2.0 + 2.0), 2.0)
-            parallels = np.arange(
-                2.0 * np.round(bounds["minimum_latitude"] / 2.0) - 2.0,
-                2.0 * np.round(bounds["maximum_latitude"] / 2.0 + 2.0), 2.0)
+            factor = 2.0
         else:
-            meridians = np.arange(
-                1.0 * np.round(bounds["minimum_longitude"] / 1.0) - 1.0,
-                1.0 * np.round(bounds["maximum_longitude"] / 1.0 + 1.0), 1.0)
-            parallels = np.arange(
-                1.0 * np.round(bounds["minimum_latitude"] / 1.0) - 1.0,
-                1.0 * np.round(bounds["maximum_latitude"] / 1.0 + 1.0), 1.0)
+            factor = 1.0
+
+        meridians = np.arange(
+            factor * np.round(bounds["minimum_longitude"] / factor) - factor,
+            factor * np.round(bounds["maximum_longitude"] / factor + factor),
+            factor)
+        parallels = np.arange(
+            factor * np.round(bounds["minimum_latitude"] / factor) - factor,
+            factor * np.round(bounds["maximum_latitude"] / factor + factor),
+            factor)
 
         width *= 110000 * 1.1
         height *= 110000 * 1.3
