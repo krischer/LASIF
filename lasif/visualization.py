@@ -670,6 +670,8 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     :param station_dict: A dictionary whose values at least contain latitude
         and longitude keys.
     """
+    import re
+
     # Loop as dicts are unordered.
     lngs = []
     lats = []
@@ -700,7 +702,8 @@ def plot_stations_for_event(map_object, station_dict, event_info,
                                    lw=2, alpha=0.3)
 
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
-        event_info["region"], str(event_info["origin_time"]),
+        event_info["region"], re.sub(
+            r":\d{2}\.\d{6}Z", "", str(event_info["origin_time"])),
         event_info["magnitude"], len(station_dict))
     plt.gca().set_title(title, size="large")
 
@@ -717,63 +720,65 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
     fig = plotTfr(data, dt=delta, fmin=1.0 / (npts * delta),
                   fmax=1.0 / (2.0 * delta), show=False)
 
-    x_axis = collections.defaultdict(list)
-    y_axis = collections.defaultdict(list)
+    # Get the different axes...use some kind of logic to determine which is
+    # which. This is super flaky as dependent on the ObsPy version and what
+    # not.
+    axes = {}
     for ax in fig.axes:
-        x_axis[ax.get_xlim()].append(ax)
-        y_axis[ax.get_ylim()].append(ax)
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
 
-    # Get those, that have two items.
-    x_axis = {key: value for key, value in x_axis.iteritems()
-              if len(value) == 2}
-    y_axis = {key: value for key, value in y_axis.iteritems()
-              if len(value) == 2}
+        # Colorbar.
+        if xlim == ylim:
+            continue
+
+        # Spectral axis.
+        elif xlim[0] > xlim[1]:
+            axes["spec"] = ax
+
+        elif ylim[0] < 0:
+            axes["time"] = ax
+
+        else:
+            axes["tf"] = ax
 
     fig.suptitle("Source Time Function")
 
-    if len(x_axis) != 1 or len(y_axis) != 1:
+    if len(axes) != 3:
         msg = "Could not plot frequency limits!"
         print msg
         plt.gcf().patch.set_alpha(0.0)
         plt.show()
         return
 
-    # The axis that is in both collections will be the time frequency axis. The
-    # other one that shares the y axis the spectrum.
-    tf_axis = set(x_axis.values()[0]).intersection(
-        set(y_axis.values()[0])).pop()
-    spec_axis = [i for i in y_axis.values()[0] if i != tf_axis][0]
-    time_axis = [i for i in x_axis.values()[0] if i != tf_axis][0]
+    axes["spec"].grid()
+    axes["time"].grid()
+    axes["tf"].grid()
 
-    spec_axis.grid()
-    time_axis.grid()
-    tf_axis.grid()
+    axes["spec"].xaxis.tick_top()
+    axes["spec"].set_ylabel("Frequency [Hz]")
 
-    spec_axis.xaxis.tick_top()
-    spec_axis.set_ylabel("Frequency [Hz]")
-
-    time_axis.set_xlabel("Time [s]")
-    time_axis.set_ylabel("Velocity [m/s]")
+    axes["time"].set_xlabel("Time [s]")
+    axes["time"].set_ylabel("Velocity [m/s]")
 
     if freqmin is not None and freqmax is not None:
-        xmin, xmax = tf_axis.get_xlim()
-        tf_axis.hlines(freqmin, xmin, xmax, color="green", lw=2)
-        tf_axis.hlines(freqmax, xmin, xmax, color="red", lw=2)
-
-        tf_axis.text(xmax - (0.02 * (xmax - xmin)),
+        xmin, xmax = axes["tf"].get_xlim()
+        axes["tf"].hlines(freqmin, xmin, xmax, color="green", lw=2)
+        axes["tf"].hlines(freqmax, xmin, xmax, color="red", lw=2)
+        axes["tf"].text(xmax - (0.02 * (xmax - xmin)),
                      freqmin,
                      "%.1f s" % (1.0 / freqmin),
                      color="green",
                      horizontalalignment="right", verticalalignment="top")
-        tf_axis.text(xmax - (0.02 * (xmax - xmin)),
+        axes["tf"].text(xmax - (0.02 * (xmax - xmin)),
                      freqmax,
                      "%.1f s" % (1.0 / freqmax),
                      color="red",
                      horizontalalignment="right", verticalalignment="bottom")
 
-        xmin, xmax = spec_axis.get_xlim()
-        spec_axis.hlines(freqmin, xmin, xmax, color="green", lw=2)
-        spec_axis.hlines(freqmax, xmin, xmax, color="red", lw=2)
+        xmin, xmax = axes["spec"].get_xlim()
+        axes["spec"].hlines(freqmin, xmin, xmax, color="green", lw=2)
+        axes["spec"].hlines(freqmax, xmin, xmax, color="red", lw=2)
 
     plt.gcf().patch.set_alpha(0.0)
     plt.show()
