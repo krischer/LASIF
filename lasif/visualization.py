@@ -95,7 +95,7 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         parallels = np.arange(-90.0, 90.0, stepsize)
         m.drawparallels(parallels, labels=[False, True, False, False],
                         **LINESTYLE)
-        meridians = np.arange(0.0, 351.0, stepsize)
+        meridians = np.arange(0.0, 360.0, stepsize)
         m.drawmeridians(meridians, labels=[False, False, False, True],
                         **LINESTYLE)
 
