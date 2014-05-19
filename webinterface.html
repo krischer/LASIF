@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Web Interface &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="API Documentation" href="api_doc.html"/>
+        <link rel="prev" title="Command Line Interface" href="cli.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#creating-a-new-project">Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-seismic-events">Adding Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#adding-waveform-data">Adding Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#station-data">Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#download-helpers">Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#inspecting-the-data">Inspecting the Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#interlude-validating-the-data">Interlude: Validating the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#defining-a-new-iteration">Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#generating-ses3d-input-files">Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#organizing-the-models">Organizing the Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#synthetics">Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#misfit-and-adjoint-source-calculation">Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Web Interface</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/webinterface.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="web-interface">
+<h1>Web Interface<a class="headerlink" href="#web-interface" title="Permalink to this headline">¶</a></h1>
+<p>The web interface is a way to interactively explore a LASIF project and the
+data within. To start it, simply execute the following command inside the
+folder structure of a LASIF project:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif serve
+</pre></div>
+</div>
+<p>This will start a local web server and open the website in your browser. It
+heavily relies on JavaScript so make sure it is not disabled. Please also use
+a modern and up-to-date browser. I tested it with Firefox, Chrome, and Safari;
+Firefox being the slowest of the bunch.</p>
+<p>The webinterface is designed to display the state of a project at the time
+the <tt class="docutils literal"><span class="pre">serve</span></tt> command is executed. If you modify the state of a project
+while the web server is running, the result is undefined. Please restart the
+server in that case.</p>
+<p>Here are a couple of screenshots highlighting some features of the web
+interface. Click on them for full size.</p>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" style="width: 100%;" /></a>
+<p class="caption">Interactive map capable of showing the domain boundaries, events,
+and per-event recording stations including raypaths.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/2.png"><img alt="_images/2.png" src="_images/2.png" style="width: 100%;" /></a>
+<p class="caption">Interactive waveform plotting.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/3.png"><img alt="_images/3.png" src="_images/3.png" style="width: 100%;" /></a>
+<p class="caption">List of all events with some more information.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/4.png"><img alt="_images/4.png" src="_images/4.png" style="width: 100%;" /></a>
+<p class="caption">Various interactive plots related to event distributions.</p>
+</div>
+<div class="figure align-center">
+<a class="reference internal image-reference" href="_images/5.png"><img alt="_images/5.png" src="_images/5.png" style="width: 100%;" /></a>
+<p class="caption">Detailed information about the defined iterations.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api_doc.html" class="btn btn-neutral float-right" title="API Documentation">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cli.html" class="btn btn-neutral" title="Command Line Interface"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli.html#project-management-functions">Project Management Functions</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
@@ -158,21 +159,29 @@ will be assumed for the following instructions.</p>
 <li>colorama</li>
 <li>joblib</li>
 </ul>
-<p>The later four should prove no trouble installing via pip. They will also be
-automatically installed when running <strong>LASIF</strong>&#8216;s setup script.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install progressbar geographiclib colorama joblib
-</pre></div>
-</div>
-<p>ObsPy and basemap are slightly more complicated to install. Please refer to the
-projects websites for more detailed instructions.</p>
-<p>Both, the <em>wfs_input_generator</em> module and <strong>LASIF</strong> are in active development
-and thus should be installed as a develop installation so they can be easily
-upgraded via git:</p>
+<p>For the webinterface, you additionally need</p>
+<ul class="simple">
+<li>Flask</li>
+<li>Flask-Cache</li>
+<li>geojson</li>
+</ul>
+<p>And for running the tests you need</p>
+<ul class="simple">
+<li>pytest</li>
+<li>mock</li>
+<li>nose</li>
+<li>flake8</li>
+</ul>
+<p>ObsPy and basemap might prove complicated to install. Please refer to the
+projects` websites for more detailed instructions.</p>
+<p>The <em>wfs_input_generator</em> module currently has to be checked out via git:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/krischer/wfs_input_generator.git
 <span class="nv">$ </span><span class="nb">cd </span>wfs_input_generator
 <span class="nv">$ </span>pip install -v -e .
 </pre></div>
 </div>
+<p>Make sure <strong>ObsPy</strong>, <strong>basemap</strong>, and the <strong>wfs_input_generator</strong> are
+installed before proceeding.</p>
 </div>
 <div class="section" id="installing-lasif">
 <h3>Installing LASIF<a class="headerlink" href="#installing-lasif" title="Permalink to this headline">¶</a></h3>
@@ -182,6 +191,7 @@ upgraded via git:</p>
 <span class="nv">$ </span>pip install -v -e .
 </pre></div>
 </div>
+<p>This will also install all further dependencies.</p>
 <p>After the installation one should run the tests to ensure everything is
 installed correctly and works as intended on your machine.</p>
 </div>
@@ -287,8 +297,11 @@ in case her/his commit breaks <strong>LASIF</strong>.</li>
 </ul>
 <div class="section" id="building-the-documentation">
 <h3>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h3>
-<p><cite>sphinx</cite> is used to build the documentation so it needs to be installed.</p>
+<p><cite>sphinx</cite> is used to build the documentation so it needs to be installed. The
+theme is the standalone readthedocs theme. We will use the most up-to-date
+repository version here.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install sphinx
+<span class="nv">$ </span>pip install https://github.com/snide/sphinx_rtd_theme/archive/master.zip
 </pre></div>
 </div>
 <p>To actually build the documentation (in this case in the HTML format), run</p>
@@ -296,6 +309,7 @@ in case her/his commit breaks <strong>LASIF</strong>.</li>
 <span class="nv">$ </span>make html
 </pre></div>
 </div>
+<p>This might take a while if run for the first time. Subsequent runs are faster.</p>
 </div>
 <div class="section" id="terminology">
 <h3>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h3>

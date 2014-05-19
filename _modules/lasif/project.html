@@ -95,6 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../cli.html#project-management-functions">Project Management Functions</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../rotations.html">lasif.rotations</a></li>
@@ -941,10 +942,21 @@
                 <span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">LASIFException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
+        <span class="c"># Get the waveform</span>
+        <span class="n">waveform_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_waveform_cache_file</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="s">&quot;raw&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">get_components</span><span class="p">(</span><span class="n">waveform_cache</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">_i</span><span class="p">[</span><span class="s">&quot;channel&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
+                    <span class="n">waveform_cache</span><span class="o">.</span><span class="n">get_files_for_station</span><span class="p">(</span>
+                        <span class="o">*</span><span class="n">station_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">))]</span>
+
+        <span class="n">raw_comps</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">get_components</span><span class="p">(</span><span class="n">waveform_cache</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
         <span class="c"># Collect all tags and iteration names.</span>
         <span class="n">all_files</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s">&quot;processed&quot;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s">&quot;synthetic&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="s">&quot;raw&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s">&quot;raw&quot;</span><span class="p">:</span> <span class="n">raw_comps</span><span class="p">},</span>
+            <span class="s">&quot;processed&quot;</span><span class="p">:</span> <span class="p">{},</span>
+            <span class="s">&quot;synthetic&quot;</span><span class="p">:</span> <span class="p">{}}</span>
 
         <span class="c"># Get the processed tags.</span>
         <span class="n">data_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">],</span> <span class="n">event_name</span><span class="p">)</span>
@@ -954,17 +966,22 @@
                     <span class="n">tag</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;_cache.sqlite&quot;</span><span class="p">):</span>
                 <span class="k">continue</span>
             <span class="n">waveforms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_waveform_cache_file</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">get_files_for_station</span><span class="p">(</span><span class="o">*</span><span class="n">station_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)):</span>
-                <span class="n">all_files</span><span class="p">[</span><span class="s">&quot;processed&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+            <span class="n">comps</span> <span class="o">=</span> <span class="n">get_components</span><span class="p">(</span><span class="n">waveforms</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">comps</span><span class="p">:</span>
+                <span class="n">all_files</span><span class="p">[</span><span class="s">&quot;processed&quot;</span><span class="p">][</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">comps</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c"># Get all synthetic files for the current iteration and event.</span>
+        <span class="n">synthetic_coordinates_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;X&quot;</span><span class="p">:</span> <span class="s">&quot;N&quot;</span><span class="p">,</span> <span class="s">&quot;Y&quot;</span><span class="p">:</span> <span class="s">&quot;E&quot;</span><span class="p">,</span> <span class="s">&quot;Z&quot;</span><span class="p">:</span> <span class="s">&quot;Z&quot;</span><span class="p">}</span>
         <span class="n">iterations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">iteration_name</span> <span class="ow">in</span> <span class="n">iterations</span><span class="p">:</span>
             <span class="n">synthetic_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_synthetic_waveform_filenames</span><span class="p">(</span>
                 <span class="n">event_name</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">station_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">synthetic_files</span><span class="p">:</span>
                 <span class="k">continue</span>
-            <span class="n">all_files</span><span class="p">[</span><span class="s">&quot;synthetic&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
+            <span class="n">all_files</span><span class="p">[</span><span class="s">&quot;synthetic&quot;</span><span class="p">][</span><span class="n">iteration_name</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="nb">sorted</span><span class="p">([</span><span class="n">synthetic_coordinates_mapping</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">synthetic_files</span><span class="p">[</span><span class="n">station_id</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()],</span>
+                       <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">all_files</span>
 </div>
 <div class="viewcode-block" id="Project.plot_station"><a class="viewcode-back" href="../../project.html#lasif.project.Project.plot_station">[docs]</a>    <span class="k">def</span> <span class="nf">plot_station</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">event_name</span><span class="p">):</span>
@@ -1458,36 +1475,43 @@
                 <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;elevation_in_m&quot;</span><span class="p">],</span>
                 <span class="s">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;local_depth_in_m&quot;</span><span class="p">]}</span>
 
-        <span class="c"># Query the station cache for a list of all channels.</span>
+        <span class="c"># If all stations are requested, do it in an optimized fashion as</span>
+        <span class="c"># this is requested a lot. Care has to be taken to perform lookups</span>
+        <span class="c"># in the same fashion as in the</span>
+        <span class="c"># self._get_coordinates_for_waveform_file() method.</span>
+        <span class="kn">from</span> <span class="nn">lasif.tools.inventory_db</span> <span class="kn">import</span> <span class="n">InventoryDB</span>
+
+        <span class="n">all_waveforms</span> <span class="o">=</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+
+        <span class="c"># Get all channels active at that time frame from the station cache.</span>
+        <span class="n">all_channel_coordinates</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">station_cache</span><span class="o">.</span><span class="n">get_all_channel_coordinates</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s">&quot;origin_time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+        <span class="c"># Get all channels from inventory DB.</span>
+        <span class="n">inv_db</span> <span class="o">=</span> <span class="n">InventoryDB</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;inv_db_file&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>
+
         <span class="n">stations</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">waveform</span> <span class="ow">in</span> <span class="n">waveforms</span><span class="o">.</span><span class="n">get_values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">waveform</span> <span class="ow">in</span> <span class="n">all_waveforms</span><span class="p">:</span>
             <span class="n">station</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">waveform</span><span class="p">[</span><span class="s">&quot;network&quot;</span><span class="p">],</span> <span class="n">waveform</span><span class="p">[</span><span class="s">&quot;station&quot;</span><span class="p">])</span>
-            <span class="c"># Do not add if already exists.</span>
             <span class="k">if</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="c"># Assert that a station file exists for the current station.</span>
-            <span class="c"># Otherwise continue.</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_cache</span><span class="o">.</span><span class="n">station_info_available</span><span class="p">(</span>
-                    <span class="n">waveform</span><span class="p">[</span><span class="s">&quot;channel_id&quot;</span><span class="p">],</span> <span class="n">waveform</span><span class="p">[</span><span class="s">&quot;starttime_timestamp&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">waveform</span><span class="p">[</span><span class="s">&quot;channel_id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_channel_coordinates</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="n">coordinates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_coordinates_for_waveform_file</span><span class="p">(</span>
-                <span class="n">waveform_filename</span><span class="o">=</span><span class="n">waveform</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">],</span>
-                <span class="n">waveform_type</span><span class="o">=</span><span class="s">&quot;raw&quot;</span><span class="p">,</span>
-                <span class="n">network_code</span><span class="o">=</span><span class="n">waveform</span><span class="p">[</span><span class="s">&quot;network&quot;</span><span class="p">],</span>
-                <span class="n">station_code</span><span class="o">=</span><span class="n">waveform</span><span class="p">[</span><span class="s">&quot;station&quot;</span><span class="p">],</span>
-                <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">coordinates</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;No coordinates available for waveform file &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> \
-                    <span class="n">waveform</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">]</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">all_channel_coordinates</span><span class="p">[</span><span class="n">waveform</span><span class="p">[</span><span class="s">&quot;channel_id&quot;</span><span class="p">]][</span><span class="s">&quot;latitude&quot;</span><span class="p">]</span> \
+                    <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_channel_coordinates</span><span class="p">[</span>
+                    <span class="n">waveform</span><span class="p">[</span><span class="s">&quot;channel_id&quot;</span><span class="p">]]</span>
                 <span class="k">continue</span>
-            <span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">],</span>
-                <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;longitude&quot;</span><span class="p">],</span>
-                <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;elevation_in_m&quot;</span><span class="p">],</span>
-                <span class="s">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;local_depth_in_m&quot;</span><span class="p">]}</span>
+            <span class="k">elif</span> <span class="n">waveform</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">]</span> <span class="o">=</span> <span class="n">waveform</span>
+            <span class="k">elif</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">inv_db</span><span class="p">:</span>
+                <span class="n">stations</span><span class="p">[</span><span class="n">station</span><span class="p">]</span> <span class="o">=</span> <span class="n">inv_db</span><span class="p">[</span><span class="n">station</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Could not find coordinates for file &#39;</span><span class="si">%s</span><span class="s">&#39;. Will be &quot;</span>
+                       <span class="s">&quot;skipped&quot;</span> <span class="o">%</span> <span class="n">waveform</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">])</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">stations</span>
 </div>
 <div class="viewcode-block" id="Project._get_coordinates_for_waveform_file"><a class="viewcode-back" href="../../project.html#lasif.project.Project._get_coordinates_for_waveform_file">[docs]</a>    <span class="k">def</span> <span class="nf">_get_coordinates_for_waveform_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waveform_filename</span><span class="p">,</span>

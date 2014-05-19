@@ -29,7 +29,7 @@
 
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="API Documentation" href="api_doc.html"/>
+        <link rel="next" title="Web Interface" href="webinterface.html"/>
         <link rel="prev" title="How LASIF Finds Coordinates" href="how_lasif_finds_coordinates.html"/> 
 
   
@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#project-management-functions">Project Management Functions</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
@@ -289,15 +290,15 @@ message and exit</td>
 <div class="section" id="lasif-event-info">
 <h3>lasif event_info<a class="headerlink" href="#lasif-event-info" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif event_info [-h] event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif event_info [-h] [-v] event_name
 </pre></div>
 </div>
 </div></blockquote>
 <p>Print information about a single event.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="51%" />
-<col width="49%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -310,6 +311,10 @@ message and exit</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
 <td>show this help
 message and exit</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-v</span></tt></td>
+<td>Verbose. Print all
+contained events.</td>
 </tr>
 </tbody>
 </table>
@@ -577,6 +582,37 @@ message and exit</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="lasif-migrate-windows">
+<h3>lasif migrate_windows<a class="headerlink" href="#lasif-migrate-windows" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif migrate_windows [-h] from_iteration to_iteration
+</pre></div>
+</div>
+</div></blockquote>
+<p>Migrates windows from one iteration to the next.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="64%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">from_iteration</span></tt></td>
+<td>iteration containing windows</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">to_iteration</span></tt></td>
+<td>iteration windows will migratet to</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="lasif-plot-q-model">
 <h3>lasif plot_q_model<a class="headerlink" href="#lasif-plot-q-model" title="Permalink to this headline">¶</a></h3>
 <blockquote>
@@ -696,6 +732,42 @@ message and exit</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
 <td>show this help
 message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-serve">
+<h3>lasif serve<a class="headerlink" href="#lasif-serve" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif serve [-h] [--port PORT] [--nobrowser] [--debug]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Launches the LASIF webinterface.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--port</span></tt></td>
+<td>Port of the
+webserver.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--nobrowser</span></tt></td>
+<td>Do not open a
+webbrowser.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--debug</span></tt></td>
+<td>Turn on debugging.
+Implies &#8216;&#8211;
+nobrowser&#8217;.</td>
 </tr>
 </tbody>
 </table>
@@ -1239,7 +1311,7 @@ message and exit</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api_doc.html" class="btn btn-neutral float-right" title="API Documentation">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="webinterface.html" class="btn btn-neutral float-right" title="Web Interface">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="how_lasif_finds_coordinates.html" class="btn btn-neutral" title="How LASIF Finds Coordinates"><span class="fa fa-arrow-circle-left"></span> Previous</a>

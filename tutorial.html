@@ -96,6 +96,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cli.html#project-management-functions">Project Management Functions</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
@@ -348,7 +349,6 @@ events.  Simply search for an event on their webpage and copy the event url.
 The <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></tt> command will then grab the QuakeML from the url
 and store an XML file in the correct folder.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
-<span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/834535
 <span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
 </pre></div>
 </div>
@@ -356,8 +356,8 @@ and store an XML file in the correct folder.</p>
 <tt class="docutils literal"><span class="pre">EVENTS</span></tt> subfolder.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>ls EVENTS
 
+GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
 GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
-GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40.xml
 </pre></div>
 </div>
 <p>A more convenient way to see which events are currently defined in the
@@ -368,8 +368,8 @@ project is the <tt class="docutils literal"><span class="pre">lasif</span> <span
 +--------------------------------------------------------------+-----------------------------+---------------------+
 | Event Name                                                   |    Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag    | <span class="c"># raw/preproc/synth |</span>
 +--------------------------------------------------------------+-----------------------------+---------------------+
+| GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14            |   44.9 /    8.5 /  10 / 4.9 |    0 /     0 /    0 |
 | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2 |   43.3 /   20.8 /   9 / 5.9 |    0 /     0 /    0 |
-| GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40                  |   43.3 /   -0.3 /  10 / 5.1 |    0 /     0 /    0 |
 +--------------------------------------------------------------+-----------------------------+---------------------+
 </pre></div>
 </div>
@@ -390,13 +390,13 @@ part of the project.</p>
 <div class="figure">
 <img alt="_images/tutorial-2.png" src="_images/tutorial-2.png" />
 </div>
-<p>The <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></tt> command is your friend if you desire more  information
+<p>The <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></tt> command is your friend if you desire more information
 about a certain event:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
 
-Earthquake with 5.1 Mwc at PYRENEES
-    Latitude: 43.260, Longitude: -0.340, Depth: 10.0 km
-    1980-02-29T20:40:48.500000Z UTC
+Earthquake with 4.9 Mwc at NORTHERN ITALY
+    Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
+    2000-08-21T17:14:27.000000Z UTC
 ...
 </pre></div>
 </div>
@@ -423,29 +423,31 @@ single event will be stored in a subfolder of the <em>DATA</em> folder with the
 <p>These folder are automatically created and updated each time a lasif command is
 executed. If you followed the tutorial, your directory structure should
 resemble the following:</p>
-<div class="highlight-python"><div class="highlight"><pre>TutorialAnatolia
-|── ADJOINT_SOURCES_AND_WINDOWS
-|   |── ADJOINT_SOURCES
-|   |── WINDOWS
-|── CACHE
-|── config.xml
-|── DATA
-|   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-|   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
-|── EVENTS
-|   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml
-|   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml
-|── ITERATIONS
-|── LOGS
-|── MODELS
-|── OUTPUT
-|── STATIONS
-|   |── RESP
-|   |── SEED
-|   |── StationXML
-|── SYNTHETICS
-    |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-    |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+<div class="highlight-python"><div class="highlight"><pre>Tutorial
+├── ADJOINT_SOURCES_AND_WINDOWS
+│   ├── ADJOINT_SOURCES
+│   └── WINDOWS
+├── CACHE
+├── DATA
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+│   ├── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+├── EVENTS
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
+│   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+├── ITERATIONS
+├── KERNELS
+├── LOGS
+├── MODELS
+├── OUTPUT
+├── STATIONS
+│   ├── RESP
+│   ├── SEED
+│   └── StationXML
+├── SYNTHETICS
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+│   ├── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+├── WAVEFIELDS
+└── config.xml
 </pre></div>
 </div>
 <p>All data in the <em>DATA</em> subfolder has to be processed or unprocessed actual
@@ -461,14 +463,14 @@ tags have to coincide with the iteration names. More on this later on.</p>
 <p>After a while, the structure might look like this:</p>
 <div class="highlight-python"><div class="highlight"><pre>TutorialAnatolia
 |-- DATA
-    |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
         |-- raw
         |-- preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
     |...
 |-- SYNTHETICS
-    |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-        |-- inversion_1
-        |-- inversion_2
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+        |-- INVERSION_1
+        |-- INVERSION_2
         |...
     |...
 |...

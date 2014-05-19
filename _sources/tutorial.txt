@@ -240,7 +240,6 @@ and store an XML file in the correct folder.
 .. code-block:: bash
 
     $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
-    $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/834535
     $ lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
 
 
@@ -251,8 +250,8 @@ These commands will download two event files and store them in the
 
     $ ls EVENTS
 
+    GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
     GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
-    GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40.xml
 
 A more convenient way to see which events are currently defined in the
 project is the ``lasif list_events`` command.
@@ -265,8 +264,8 @@ project is the ``lasif list_events`` command.
     +--------------------------------------------------------------+-----------------------------+---------------------+
     | Event Name                                                   |    Lat/Lng/Depth(km)/Mag    | # raw/preproc/synth |
     +--------------------------------------------------------------+-----------------------------+---------------------+
+    | GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14            |   44.9 /    8.5 /  10 / 4.9 |    0 /     0 /    0 |
     | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2 |   43.3 /   20.8 /   9 / 5.9 |    0 /     0 /    0 |
-    | GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40                  |   43.3 /   -0.3 /  10 / 5.1 |    0 /     0 /    0 |
     +--------------------------------------------------------------+-----------------------------+---------------------+
 
 You will notice that events are identified via their filename minus the
@@ -289,26 +288,10 @@ part of the project.
 
     import lasif.visualization
     from obspy import UTCDateTime
-    bmap = lasif.visualization.plot_domain(-20.0, 20.0, -20.0, 20.0, 3.0,
+    bmap = lasif.visualization.plot_domain(-15.0, 15.0, -15.0, 15.0, 2.5,
         rotation_axis=[1.0, 1.0, 0.2], rotation_angle_in_degree=-65.0,
         plot_simulation_domain=False, zoom=True)
     events = [{
-        'depth_in_km': 10.0,
-        'event_name': 'GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40',
-        'filename': 'GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40.xml',
-        'latitude': 43.26,
-        'longitude': -0.34,
-        'm_pp': -7730000000000000.0,
-        'm_rp': -2.617e+16,
-        'm_rr': -3.713e+16,
-        'm_rt': 3.348e+16,
-        'm_tp': -2.662e+16,
-        'm_tt': 4.487e+16,
-        'magnitude': 5.1,
-        'magnitude_type': 'Mwc',
-        'origin_time': UTCDateTime(1980, 2, 29, 20, 40, 48, 500000),
-        'region': u'PYRENEES'
-    }, {
         'depth_in_km': 9.0,
         'event_name': 'GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2',
         'filename': 'GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml',
@@ -323,20 +306,36 @@ part of the project.
         'magnitude': 5.9,
         'magnitude_type': 'Mwc',
         'origin_time': UTCDateTime(1980, 5, 18, 20, 2, 57, 500000),
-        'region': u'NORTHWESTERN BALKAN REGION'}]
+        'region': u'NORTHWESTERN BALKAN REGION'
+    }, {
+        'depth_in_km': 10.0,
+        'event_name': 'GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14',
+        'filename': 'GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml',
+        'latitude': 44.87,
+        'longitude': 8.48,
+        'm_pp': 1.189e+16,
+        'm_rp': -1600000000000000.0,
+        'm_rr': -2.271e+16,
+        'm_rt': -100000000000000.0,
+        'm_tp': -2.075e+16,
+        'm_tt': 1.082e+16,
+        'magnitude': 4.9,
+        'magnitude_type': 'Mwc',
+        'origin_time': UTCDateTime(2000, 8, 21, 17, 14, 27),
+        'region': u'NORTHERN ITALY'}]
     lasif.visualization.plot_events(events, bmap)
 
 
-The ``lasif event_info`` command is your friend if you desire more  information
+The ``lasif event_info`` command is your friend if you desire more information
 about a certain event:
 
 .. code-block:: bash
 
-    $ lasif event_info GCMT_event_PYRENEES_Mag_5.1_1980-2-29-20-40
+    $ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
 
-    Earthquake with 5.1 Mwc at PYRENEES
-        Latitude: 43.260, Longitude: -0.340, Depth: 10.0 km
-        1980-02-29T20:40:48.500000Z UTC
+    Earthquake with 4.9 Mwc at NORTHERN ITALY
+        Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
+        2000-08-21T17:14:27.000000Z UTC
     ...
 
 The information given with this command will be the one LASIF uses. This is
@@ -365,29 +364,31 @@ These folder are automatically created and updated each time a lasif command is
 executed. If you followed the tutorial, your directory structure should
 resemble the following::
 
-    TutorialAnatolia
-    |── ADJOINT_SOURCES_AND_WINDOWS
-    |   |── ADJOINT_SOURCES
-    |   |── WINDOWS
-    |── CACHE
-    |── config.xml
-    |── DATA
-    |   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-    |   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
-    |── EVENTS
-    |   |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml
-    |   |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml
-    |── ITERATIONS
-    |── LOGS
-    |── MODELS
-    |── OUTPUT
-    |── STATIONS
-    |   |── RESP
-    |   |── SEED
-    |   |── StationXML
-    |── SYNTHETICS
-        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-        |── GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15
+    Tutorial
+    ├── ADJOINT_SOURCES_AND_WINDOWS
+    │   ├── ADJOINT_SOURCES
+    │   └── WINDOWS
+    ├── CACHE
+    ├── DATA
+    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+    │   ├── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+    ├── EVENTS
+    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
+    │   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+    ├── ITERATIONS
+    ├── KERNELS
+    ├── LOGS
+    ├── MODELS
+    ├── OUTPUT
+    ├── STATIONS
+    │   ├── RESP
+    │   ├── SEED
+    │   └── StationXML
+    ├── SYNTHETICS
+    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+    │   ├── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+    ├── WAVEFIELDS
+    └── config.xml
 
 
 All data in the *DATA* subfolder has to be processed or unprocessed actual
@@ -405,14 +406,14 @@ After a while, the structure might look like this::
 
     TutorialAnatolia
     |-- DATA
-        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
             |-- raw
             |-- preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
         |...
     |-- SYNTHETICS
-        |── GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-            |-- inversion_1
-            |-- inversion_2
+    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+            |-- INVERSION_1
+            |-- INVERSION_2
             |...
         |...
     |...

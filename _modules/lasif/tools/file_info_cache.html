@@ -95,6 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../cli.html#project-management-functions">Project Management Functions</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../rotations.html">lasif.rotations</a></li>
@@ -241,6 +242,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_database</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_indices</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -310,6 +312,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_create_index_table</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
+    <span class="k">def</span> <span class="nf">_update_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;indices&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">get_indices_query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">            SELECT name FROM sqlite_master</span>
+<span class="s">            WHERE type=&#39;index&#39;;&quot;&quot;&quot;</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
+                   <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">get_indices_query</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">indices</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c"># Drop all indices no.</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;DROP INDEX </span><span class="si">%s</span><span class="s">;&quot;</span> <span class="o">%</span> <span class="n">index</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;CREATE INDEX </span><span class="si">%s</span><span class="s"> on indices(</span><span class="si">%s</span><span class="s">);&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
     <span class="k">def</span> <span class="nf">_get_all_files_by_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find all files for all filetypes by filename.</span>
@@ -328,11 +358,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filenames</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT filename FROM files&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">]</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">)</span>
 
         <span class="c"># Filter to exclude all files not correctly indexed.</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">if</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">filenames</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="FileInfoCache.update"><a class="viewcode-back" href="../../../tools.file_info_cache.html#lasif.tools.file_info_cache.FileInfoCache.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
