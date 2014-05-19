@@ -574,7 +574,8 @@ def lasif_event_info(parser, args):
     if verbose:
         print "\nStation and waveform information available at %i stations:\n" \
             % len(stations)
-        header = ["id", "latitude", "longitude", "elevation_in_m", "local depth"]
+        header = ["id", "latitude", "longitude", "elevation_in_m",
+                  "local depth"]
         keys = sorted(stations.keys())
         data = [[
             key, stations[key]["latitude"], stations[key]["longitude"],
