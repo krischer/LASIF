@@ -193,11 +193,14 @@ The following rules should be followed when developing for **LASIF**:
 Building the Documentation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-`sphinx` is used to build the documentation so it needs to be installed.
+`sphinx` is used to build the documentation so it needs to be installed. The
+theme is the standalone readthedocs theme. We will use the most up-to-date
+repository version here.
 
 .. code-block:: bash
 
     $ pip install sphinx
+    $ pip install https://github.com/snide/sphinx_rtd_theme/archive/master.zip
 
 To actually build the documentation (in this case in the HTML format), run
 
@@ -205,6 +208,8 @@ To actually build the documentation (in this case in the HTML format), run
 
     $ cd doc
     $ make html
+
+This might take a while if run for the first time. Subsequent runs are faster.
 
 
 Terminology
