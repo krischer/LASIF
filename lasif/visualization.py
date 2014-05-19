@@ -58,7 +58,7 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         )
 
     # Arbitrary threshold
-    if zoom is False or max_extend > 60:
+    if zoom is False or max_extend > 90:
         if resolution is None:
             resolution = "c"
         m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
@@ -76,18 +76,33 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         # Calculate approximate width and height in meters.
         width = bounds["maximum_longitude"] - bounds["minimum_longitude"]
         height = bounds["maximum_latitude"] - bounds["minimum_latitude"]
+
+        if width > 50.0:
+            meridians = np.arange(10.0*np.round(bounds["minimum_longitude"]/10.0)-10.0,10.0*np.round(bounds["maximum_longitude"]/10.0+10.0),10.0)
+            parallels = np.arange(10.0*np.round(bounds["minimum_latitude"]/10.0)-10.0,10.0*np.round(bounds["maximum_latitude"]/10.0+10.0),10.0)
+        elif (width <= 50.0) & (width>20.0):
+            meridians = np.arange(5.0*np.round(bounds["minimum_longitude"]/5.0)-5.0,5.0*np.round(bounds["maximum_longitude"]/5.0+5.0),5.0)
+            parallels = np.arange(5.0*np.round(bounds["minimum_latitude"]/5.0)-5.0,5.0*np.round(bounds["maximum_latitude"]/5.0+5.0),5.0)
+        elif (width <= 20.0) & (width>5.0):
+            meridians = np.arange(2.0*np.round(bounds["minimum_longitude"]/2.0)-2.0,2.0*np.round(bounds["maximum_longitude"]/2.0+2.0),2.0)
+            parallels = np.arange(2.0*np.round(bounds["minimum_latitude"]/2.0)-2.0,2.0*np.round(bounds["maximum_latitude"]/2.0+2.0),2.0)
+        else:
+            meridians = np.arange(1.0*np.round(bounds["minimum_longitude"]/1.0)-1.0,1.0*np.round(bounds["maximum_longitude"]/1.0+1.0),1.0)
+            parallels = np.arange(1.0*np.round(bounds["minimum_latitude"]/1.0)-1.0,1.0*np.round(bounds["maximum_latitude"]/1.0+1.0),1.0)
+
+
         width *= 110000 * 1.1
         height *= 110000 * 1.3
         # Lambert azimuthal equal area projection. Equal area projections
         # are useful for interpreting features and this particular one also
         # does not distort features a lot on regional scales.
-        m = Basemap(projection='laea', resolution=resolution,
-                    width=width, height=height,
-                    lat_0=center_lat, lon_0=center_lng)
+        m = Basemap(projection='laea', resolution=resolution, width=width, height=height, lat_0=center_lat, lon_0=center_lng)
+        m.drawparallels(parallels,labels=[False,True,False,False])
+        m.drawmeridians(meridians,labels=[False,False,False,True])
 
     m.drawmapboundary(fill_color='#cccccc')
     m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
-    m.drawcoastlines()
+    #m.drawcoastlines()
 
     border = rotations.get_border_latlng_list(
         min_latitude, max_latitude, min_longitude, max_longitude,
