@@ -58,7 +58,7 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         )
 
     # Arbitrary threshold
-    if zoom is False or max_extend > 90:
+    if zoom is False or max_extend > 75:
         if resolution is None:
             resolution = "c"
         m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
