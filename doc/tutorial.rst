@@ -326,7 +326,7 @@ part of the project.
     lasif.visualization.plot_events(events, bmap)
 
 
-The ``lasif event_info`` command is your friend if you desire more  information
+The ``lasif event_info`` command is your friend if you desire more information
 about a certain event:
 
 .. code-block:: bash
