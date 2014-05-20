@@ -342,11 +342,13 @@ lasifApp.directive('d3Map', function ($window, $log, $aside, $q, $http, $timeout
 
                     asideEl.$scope.event = event;
                     asideEl.$scope.plot_event = plot_event;
+                    asideEl.$scope.stations_downloaded = false;
                     $timeout(function () {
                         $http.get("/rest/event/" + event.event_name, {
                             cache: true
                         }).success(function (data) {
                             asideEl.$scope.stations = data.stations;
+                            asideEl.$scope.stations_downloaded = true;
                         })
                     }, 200);
                 })
