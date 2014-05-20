@@ -10,9 +10,11 @@ calculating misfits.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
-# The OSX backend has a problem with blitting.
 import matplotlib
-matplotlib.use('TkAgg')
+# The OSX backend has a problem with blitting. Default to TkAgg instead. If
+# another backend is being used, don't do anything.
+if "osx" in matplotlib.get_backend().lower():
+    matplotlib.use('TkAgg')
 matplotlib.rcParams['toolbar'] = 'None'
 
 # Deactivate all default key shortcuts.
