@@ -2178,6 +2178,7 @@ class Project(object):
         Currently only works with waveform and station files.
         """
         from obspy import read, UTCDateTime
+        import pprint
 
         err_msg = "LASIF cannot gather any information from the file."
         filename = os.path.abspath(filename)
@@ -2277,6 +2278,20 @@ class Project(object):
                             dep="%.2f" % _i["local_depth_in_m"]
                             if _i["local_depth_in_m"] is not None else "--",
                         ) for _i in details])))
+
+        # Event files.
+        elif os.path.commonprefix([filename, self.paths["events"]]) == \
+                self.paths["events"]:
+            event_name = os.path.splitext(os.path.basename(filename))[0]
+            try:
+                event = self.events[event_name]
+            except IndexError:
+                raise LASIFException(err_msg)
+            return (
+                "The QuakeML files contains the following information:\n" +
+                pprint.pformat(event)
+            )
+
         else:
             raise LASIFException(err_msg)
 
