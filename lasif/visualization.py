@@ -713,8 +713,6 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
     Plots a time frequency representation of any time series. Right now it is
     basically limited to plotting source time functions.
     """
-    import collections
-
     npts = len(data)
 
     fig = plotTfr(data, dt=delta, fmin=1.0 / (npts * delta),
@@ -766,15 +764,16 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
         axes["tf"].hlines(freqmin, xmin, xmax, color="green", lw=2)
         axes["tf"].hlines(freqmax, xmin, xmax, color="red", lw=2)
         axes["tf"].text(xmax - (0.02 * (xmax - xmin)),
-                     freqmin,
-                     "%.1f s" % (1.0 / freqmin),
-                     color="green",
-                     horizontalalignment="right", verticalalignment="top")
+                        freqmin,
+                        "%.1f s" % (1.0 / freqmin),
+                        color="green",
+                        horizontalalignment="right", verticalalignment="top")
         axes["tf"].text(xmax - (0.02 * (xmax - xmin)),
-                     freqmax,
-                     "%.1f s" % (1.0 / freqmax),
-                     color="red",
-                     horizontalalignment="right", verticalalignment="bottom")
+                        freqmax,
+                        "%.1f s" % (1.0 / freqmax),
+                        color="red",
+                        horizontalalignment="right",
+                        verticalalignment="bottom")
 
         xmin, xmax = axes["spec"].get_xlim()
         axes["spec"].hlines(freqmin, xmin, xmax, color="green", lw=2)
