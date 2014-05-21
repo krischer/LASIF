@@ -761,9 +761,14 @@ def lasif_create_successive_iteration(parser, args):
 
     from lasif.iteration_xml import Iteration
 
-    # Get the old iteration
     proj = _find_project_root(".")
     iterations = proj.get_iteration_dict()
+
+    if new_iteration_name in iterations:
+        msg = ("Iteration '%s' already exists." % new_iteration_name)
+        raise LASIFCommandLineException(msg)
+
+    # Get the old iteration
     if existing_iteration_name not in iterations:
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
                "a list of all available iterations.") % \
@@ -774,7 +779,11 @@ def lasif_create_successive_iteration(parser, args):
     # Clone the old iteration, delete any comments and change the name.
     existing_iteration.comments = []
     existing_iteration.iteration_name = new_iteration_name
-    print existing_iteration
+
+    existing_iteration.write(proj._get_iteration_filename(new_iteration_name))
+
+    print("Successfully created new iteration:")
+    print(existing_iteration)
 
 
 @command_group("Iteration Management")

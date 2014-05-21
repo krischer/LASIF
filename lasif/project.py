@@ -413,6 +413,13 @@ class Project(object):
             self._get_long_iteration_name(iteration_name),
             event_name)
 
+    def _get_iteration_filename(self, iteration_name):
+        iteration_name = iteration_name.replace(" ", "_").upper()
+        filename = self._get_long_iteration_name(iteration_name) + \
+                   os.path.extsep + "xml"
+        filename = os.path.join(self.paths["iterations"], filename)
+        return filename
+
     def create_new_iteration(self, iteration_name, solver_name, min_period=8.0,
                              max_period=100.0):
         """
@@ -420,11 +427,8 @@ class Project(object):
         """
         from lasif import iteration_xml
 
-        iteration_name = iteration_name.replace(" ", "_").upper()
-        filename = self._get_long_iteration_name(iteration_name)
-        filename = self._get_long_iteration_name(iteration_name) + \
-            os.path.extsep + "xml"
-        filename = os.path.join(self.paths["iterations"], filename)
+        filename = self._get_iteration_filename(iteration_name)
+
         if os.path.exists(filename):
             msg = "Iteration already exists."
             raise LASIFException(msg)
