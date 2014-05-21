@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>5. Waveform Data &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorial" href="../tutorial.html"/>
+        <link rel="next" title="6. Download Helpers" href="05_download_helpers.html"/>
+        <link rel="prev" title="4. Station Data" href="03_station_data.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+      
+    <li>5. Waveform Data</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/tutorial/04_waveform_data.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="waveform-data">
+<h1>5. Waveform Data<a class="headerlink" href="#waveform-data" title="Permalink to this headline">¶</a></h1>
+<p>Every inversion needs real data to be able to quantify misfits. The waveform
+data for all events are stored in the <tt class="docutils literal"><span class="pre">DATA</span></tt> subfolder. The data for each
+single event will be stored in a subfolder of the <tt class="docutils literal"><span class="pre">DATA</span></tt> folder with the
+<strong>same name as the QuakeML file minus the .xml</strong>.</p>
+<p>These folder are automatically created and updated each time a <strong>LASIF</strong>
+command is executed. If you followed the tutorial, your directory structure
+should resemble the following:</p>
+<div class="highlight-python"><div class="highlight"><pre>Tutorial
+├── ADJOINT_SOURCES_AND_WINDOWS
+│   ├── ADJOINT_SOURCES
+│   └── WINDOWS
+├── CACHE
+├── DATA
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+│   ├── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+├── EVENTS
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
+│   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+├── ITERATIONS
+├── KERNELS
+├── LOGS
+├── MODELS
+├── OUTPUT
+├── STATIONS
+│   ├── RESP
+│   ├── SEED
+│   └── StationXML
+├── SYNTHETICS
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+│   ├── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+├── WAVEFIELDS
+└── config.xml
+</pre></div>
+</div>
+<p>All data in the <tt class="docutils literal"><span class="pre">DATA</span></tt> subfolder has to be processed or unprocessed actual
+data. The data is further structured by assigning a tag to every data set. A
+tag is assigned by simply placing a folder in <tt class="docutils literal"><span class="pre">ROOT/DATA/EVENT_NAME</span></tt> and
+putting all data in there. The special tag <tt class="docutils literal"><span class="pre">raw</span></tt> is reserved for the raw
+waveforms straight from the datacenters or some other source. Other tags should
+describe the filtering and processing applied to the data (LASIF&#8217;s built-in
+processing capabilities actually enforce certain tag names - this will be
+covered in more detail later on). The same is true for synthetic waveform data,
+except that in that case, the data resides in the <tt class="docutils literal"><span class="pre">SYNTHETICS</span></tt> folder and
+the tags have to coincide with the iteration names. More on this later on.</p>
+<p>After a while, the structure might look like this:</p>
+<div class="highlight-python"><div class="highlight"><pre>TutorialAnatolia
+|-- DATA
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+        |-- raw
+        |-- preprocessed_hp_0.01000_lp_0.12500_npts_4000_dt_0.130000
+    |...
+|-- SYNTHETICS
+│   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+        |-- INVERSION_1
+        |-- INVERSION_2
+        |...
+    |...
+|...
+</pre></div>
+</div>
+<p><strong>The user is responsible</strong> for adhering to that structure. Otherwise other
+parts of LASIF cannot operate properly. Many commands shipping with LASIF ease
+that process.</p>
+<p><strong>LASIF</strong> is able to deal with waveform data in essentially every common
+format thanks to being built on top of ObsPy. We recommend to use the
+MiniSEED format as that is the one actually shipped by effectively all data
+centers.</p>
+<div class="section" id="tutorial-data">
+<h2>5.1. Tutorial Data<a class="headerlink" href="#tutorial-data" title="Permalink to this headline">¶</a></h2>
+<p>Download the data for the tutorial
+<a class="reference external" href="https://raw.githubusercontent.com/wiki/krischer/LASIF/data/data.tar.bz2">here</a>
+and place the contents in the <tt class="docutils literal"><span class="pre">DATA</span></tt> folder of the project. The <tt class="docutils literal"><span class="pre">raw</span></tt>
+subfolder should already be clear to you, the <tt class="docutils literal"><span class="pre">preprocessed_*</span></tt> folders will
+be explained in the course of this tutorial.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="05_download_helpers.html" class="btn btn-neutral float-right" title="6. Download Helpers">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="03_station_data.html" class="btn btn-neutral" title="4. Station Data"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,291 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>7. Data Inspection &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorial" href="../tutorial.html"/>
+        <link rel="next" title="8. Data Validation" href="07_data_validation.html"/>
+        <link rel="prev" title="6. Download Helpers" href="05_download_helpers.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+      
+    <li>7. Data Inspection</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/tutorial/06_data_inspection.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="data-inspection">
+<h1>7. Data Inspection<a class="headerlink" href="#data-inspection" title="Permalink to this headline">¶</a></h1>
+<p>Once waveform and station metadata has been downloaded (either with the
+built-in helpers or manually) and placed in the correct folders, LASIF can
+start to work with it.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>LASIF essentially needs three ingredients to be able to interpret waveform
+data:</p>
+<ul class="simple">
+<li>The actual waveforms</li>
+<li>The location of the recording seismometer</li>
+<li>The instrument response for each channel at the time of data recording</li>
+</ul>
+<p>Some possibilities exist to specify these:</p>
+<ul class="last simple">
+<li>MiniSEED and StationXML (strongloy preferred)</li>
+<li>SAC data and RESP files (needed for legacy reasons)</li>
+<li>MiniSEED and RESP files (this combination does not actually contain
+location information but LASIF launches some web requests to get just the
+locations and stores them in a cache database)</li>
+<li>Most other combinations should also work but have not been tested.</li>
+</ul>
+</div>
+<p>At this point, LASIF is able to match available station and waveform
+information. Only stations where the three aforementioned ingredients are
+available will be considered to be stations that are good to be worked with by
+LASIF. Others will be ignored.</p>
+<p>To get an overview, of what data is actually available for any given event,
+just execute:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+
+Earthquake with 4.9 Mwc at NORTHERN ITALY
+Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
+2000-08-21T17:14:27.000000Z UTC
+
+Station and waveform information available at 51 stations:
+
+<span class="o">===========================================================================</span>
+         id       latitude      longitude elevation_in_m    <span class="nb">local </span><span class="nv">depth</span>
+<span class="o">===========================================================================</span>
+    LA.AA00  44.4567283802  5.62467939102            0.0            0.0
+    LA.AA01   42.192951649  23.3492243512            0.0            0.0
+    LA.AA02  53.2426492521  16.0639363825            0.0            0.0
+    LA.AA03  34.5585730668   9.5857134452            0.0            0.0
+    LA.AA04  45.6821185764  15.1965770125            0.0            0.0
+    LA.AA05  50.2345625685  9.03513474669            0.0            0.0
+    ...
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The local depth can is allowed to not be set. In that case it will be
+assumed to be zero. For all practical purposes the local depth does not
+matter for continental scale inversions.</p>
+</div>
+<p>It is furthermore possible to plot the availability information for one event
+including a very simple ray coverage plot with:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_event GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+</pre></div>
+</div>
+<p>(<a class="reference external" href="../tutorial/06_data_inspection-1.py">Source code</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.png">png</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/06_data_inspection-1.png" src="../_images/06_data_inspection-1.png" />
+</div>
+<p>If you are interested in getting a coverage plot of all events and data
+available for the current project, please execute the <strong>plot_raydensity</strong>
+command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_raydensity
+</pre></div>
+</div>
+<p>Keep in mind that this only results in a reasonable plot for large amounts of
+data; for the toy example used in the tutorial it will not work. It is not a
+physically accurate plot but helps in judging data coverage and directionality
+effects. An example from a larger LASIF project illustrates this:</p>
+<a class="reference internal image-reference" href="../_images/raydensity.jpg"><img alt="../_images/raydensity.jpg" class="align-center" src="../_images/raydensity.jpg" style="width: 70%;" /></a>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="07_data_validation.html" class="btn btn-neutral float-right" title="8. Data Validation">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="05_download_helpers.html" class="btn btn-neutral" title="6. Download Helpers"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

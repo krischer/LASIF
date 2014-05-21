@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>4. Station Data &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorial" href="../tutorial.html"/>
+        <link rel="next" title="5. Waveform Data" href="04_waveform_data.html"/>
+        <link rel="prev" title="3. Seismic Events" href="02_seismic_events.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+      
+    <li>4. Station Data</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/tutorial/03_station_data.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="station-data">
+<h1>4. Station Data<a class="headerlink" href="#station-data" title="Permalink to this headline">¶</a></h1>
+<p>LASIF needs to know the coordinates and instrument response of each channel.
+One way to achieve this to use SAC files, which contain coordinates, and RESP
+files containing the response information for each channel. Another possibility
+is to use MiniSEED waveform data and the corresponding dataless SEED or
+StationXML files. Please keep in mind that LASIF currently expects to only have
+channels of one station in each dataless SEED and StationXML file. All station
+information files are stored in a subfolder of the <tt class="docutils literal"><span class="pre">STATIONS</span></tt> directory.</p>
+<p>For more information about how LASIF derives station coordinates:
+<a class="reference internal" href="../how_lasif_finds_coordinates.html"><em>How LASIF Finds Coordinates</em></a></p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">If possible in any way, we strongly recommend to use station data in the
+<tt class="docutils literal"><span class="pre">StationXML</span></tt> format. It is the most future proof and sane format of
+the three. Please only use <tt class="docutils literal"><span class="pre">RESP</span></tt> files if absolutely necessary. The
+problem with them is that they do not contain coordinates and thus LASIF
+needs to derive them by other means which is not as clean and more error
+prone.</p>
+</div>
+<div class="section" id="naming-scheme">
+<h2>4.1. Naming scheme<a class="headerlink" href="#naming-scheme" title="Permalink to this headline">¶</a></h2>
+<p><strong>dataless SEED</strong></p>
+<p>All dataless SEED files are expected to be in the <tt class="docutils literal"><span class="pre">STATIONS/SEED</span></tt> directory
+and be named after the following scheme:</p>
+<div class="highlight-python"><div class="highlight"><pre>dataless.NETWORK_STATION[.X]
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">NETWORK</span></tt> and <tt class="docutils literal"><span class="pre">STATION</span></tt> should be replaced with the corresponding network
+and stations codes. It is possible that multiple files are needed for each
+station (e.g. different files for different time intervals/channels) and thus
+<tt class="docutils literal"><span class="pre">.1</span></tt>, <tt class="docutils literal"><span class="pre">.2</span></tt>, ... can be appended to the filename. LASIF will automatically
+choose the correct file in case they need to be accessed.</p>
+<p><strong>StationXML</strong></p>
+<p>All StationXML files are expected to be placed in the <tt class="docutils literal"><span class="pre">STATIONS/StationXML</span></tt>
+folder and follow the scheme:</p>
+<div class="highlight-python"><div class="highlight"><pre>station.NETWORK_STATION[.X].xml
+</pre></div>
+</div>
+<p>The logic for for the different parts is the same as for the dataless SEED
+files described in the previous paragraph.</p>
+<p><strong>RESP Files</strong></p>
+<p>All RESP files are to be put in the <tt class="docutils literal"><span class="pre">STATIONS/RESP</span></tt> folder with the
+following name:</p>
+<div class="highlight-python"><div class="highlight"><pre>RESP.NETWORK.STATION.LOCATION.CHANNEL[.X]
+</pre></div>
+</div>
+<p>In contrast to the two other station information formats the RESP filename also
+has to include the location and channel identifiers.</p>
+</div>
+<div class="section" id="stations-for-tutorial">
+<h2>4.2. Stations for Tutorial<a class="headerlink" href="#stations-for-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>For this tutorial we will work with a bunch of well distributed stations in
+the domain of interest. Unpack
+<a class="reference download internal" href="../_downloads/stations.tar.bz2"><tt class="xref download docutils literal"><span class="pre">this</span> <span class="pre">archive</span></tt></a> and place the XML
+files in the <tt class="docutils literal"><span class="pre">STATIONS/StationXML/</span></tt> folder. At this point LASIF is aware
+of the stations. Please note that the stations will not yet show up in any
+command as <strong>LASIF only treats data that has raw waveforms and an associated
+station file as being actually available</strong>.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="04_waveform_data.html" class="btn btn-neutral float-right" title="5. Waveform Data">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

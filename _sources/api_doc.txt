@@ -10,3 +10,9 @@ API Documentation
     tools
     tools.parallel
     tools.file_info_cache
+
+
+.. toctree::
+    :hidden:
+
+    how_lasif_finds_coordinates

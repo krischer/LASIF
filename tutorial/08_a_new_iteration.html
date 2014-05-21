@@ -1,0 +1,483 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>9. Defining a New Iteration &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorial" href="../tutorial.html"/>
+        <link rel="next" title="10. Earth Model Handling" href="09_model_handling.html"/>
+        <link rel="prev" title="8. Data Validation" href="07_data_validation.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+      
+    <li>9. Defining a New Iteration</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/tutorial/08_a_new_iteration.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="defining-a-new-iteration">
+<h1>9. Defining a New Iteration<a class="headerlink" href="#defining-a-new-iteration" title="Permalink to this headline">¶</a></h1>
+<p>LASIF organizes the actual inversion in an arbitrary number of iterations; each
+of which is described by a single XML file. Within each file, the events and
+stations for this iterations, the solver settings, and other information is
+specified. Each iteration can have an arbitrary name. It is probably a good
+idea to give simple numeric names, like 1, 2, 3, ...</p>
+<p>Let&#8217;s start by creating the XML file for the first iteration with the
+<strong>create_new_iteration</strong> command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration 1 40.0 100.0 SES3D_4_1
+</pre></div>
+</div>
+<p>This command takes four arguments; the first being the iteration name. A simple
+number is sufficient in many cases. The second and third denote the band limit
+of this iteration. In this example the band is limited between 40 and 100
+seconds. The fourth argument is the waveform solver to be used for this
+iteration. It currently only supports SES3D 4.1 but the infrastructure to add
+other solvers is already in place.</p>
+<p>You will see that this create a new file: <tt class="docutils literal"><span class="pre">ITERATIONS/ITERATION_1.xml</span></tt>.
+Each iteration will have its own file. To get a list of iterations, use</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_iterations
+
+1 Iteration in project:
+1
+</pre></div>
+</div>
+<p>To get more information about a specific iteration,  use the <tt class="docutils literal"><span class="pre">iteration_info</span></tt>
+command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif iteration_info 1
+
+LASIF Iteration
+Name: 1
+Description: None
+Source Time Function: Filtered Heaviside
+Preprocessing Settings:
+    Highpass Period: 100.000 s
+    Lowpass Period: 40.000 s
+Solver: SES3D 4.1 | 500 timesteps <span class="o">(</span>dt: 0.75s<span class="o">)</span>
+2 events recorded at 51 unique stations
+102 event-station pairs <span class="o">(</span><span class="s2">&quot;rays&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You might have noticed the pairs of <strong>list_x</strong> and <strong>x_info</strong> commands, e.g.
+<strong>list_events</strong> and <strong>event_info</strong> or <strong>list_iterations</strong> and
+<strong>iteration_info</strong>. This scheme is true for most things in LASIF. The
+<strong>list_x</strong> variant is always used to get a quick overview of everything
+currently part of the LASIF project. The <strong>x_info</strong> counterpart returns
+more detailed information about the resource.</p>
+</div>
+<div class="section" id="the-iteration-xml-files">
+<h2>9.1. The Iteration XML Files<a class="headerlink" href="#the-iteration-xml-files" title="Permalink to this headline">¶</a></h2>
+<p>The XML file defining each iteration attempts to be a collection of all
+information relevant for a single iteration.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The iteration XML files are the <strong>main provenance information</strong> (in
+combination with the log files) within LASIF. By keeping track of what
+happened during each iteration it is possible to reasonably judge how any
+model came into being.</p>
+</div>
+<p>If at any point you feel the need to keep track of additional information
+and there is no place for it within LASIF, please contact the developers.
+LASIF aims to offer an environment where all necessary information can be
+stored in an organized and sane manner.</p>
+<p>The iteration XML files currently contain:</p>
+<ul class="simple">
+<li>Some metadata: the iteration name, a description and some comments.</li>
+<li>A limited data preprocessing configuration. The data preprocessing is
+currently mostly fixed and only the desired frequency content can be chosen.
+Keep in mind that these values will also be used to filter the source time
+function.</li>
+<li>Some data rejection criterias. This will be covered in more detail later on.</li>
+<li>The source time function configuration.</li>
+<li>The settings for the solver used for this iteration.</li>
+<li>A list of all events used for the iteration. Here it is possible to apply
+weights to the different events and also to apply a time correction. It can
+differ per iteration.</li>
+<li>Each event contains a list of stations where data is available. Furthermore
+each station can have a different weight and time correction.</li>
+</ul>
+<p>This file is rather verbose but also very flexible. It is usually only
+necessary to create this file once and then make a copy and small adjustments
+for each iteration. In the future some more user-friendly ways to deal with the
+information will hopefully be incorporated into LASIF.</p>
+<p>Let&#8217;s have a quick look at the generated file. The <strong>create_new_iteration</strong>
+command will create a new iteration file with all the information currently
+present in the LASIF project.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<span class="nt">&lt;iteration&gt;</span>
+  <span class="nt">&lt;iteration_name&gt;</span>1<span class="nt">&lt;/iteration_name&gt;</span>
+  <span class="nt">&lt;data_preprocessing&gt;</span>
+    <span class="nt">&lt;highpass_period&gt;</span>100.0<span class="nt">&lt;/highpass_period&gt;</span>
+    <span class="nt">&lt;lowpass_period&gt;</span>40.0<span class="nt">&lt;/lowpass_period&gt;</span>
+  <span class="nt">&lt;/data_preprocessing&gt;</span>
+  <span class="nt">&lt;rejection_criteria&gt;</span>...<span class="nt">&lt;/rejection_criteria&gt;</span>
+  <span class="nt">&lt;source_time_function&gt;</span>Filtered Heaviside<span class="nt">&lt;/source_time_function&gt;</span>
+  <span class="nt">&lt;solver_parameters&gt;</span>
+    <span class="nt">&lt;solver&gt;</span>SES3D 4.1<span class="nt">&lt;/solver&gt;</span>
+    <span class="nt">&lt;solver_settings&gt;</span>
+      <span class="nt">&lt;simulation_parameters&gt;</span>
+        <span class="nt">&lt;number_of_time_steps&gt;</span>2000<span class="nt">&lt;/number_of_time_steps&gt;</span>
+        <span class="nt">&lt;time_increment&gt;</span>0.3<span class="nt">&lt;/time_increment&gt;</span>
+        <span class="nt">&lt;is_dissipative&gt;</span>false<span class="nt">&lt;/is_dissipative&gt;</span>
+      <span class="nt">&lt;/simulation_parameters&gt;</span>
+      <span class="nt">&lt;output_directory&gt;</span>../OUTPUT/{{EVENT_NAME}}<span class="nt">&lt;/output_directory&gt;</span>
+      <span class="nt">&lt;adjoint_output_parameters&gt;</span>...<span class="nt">&lt;/adjoint_output_parameters&gt;</span>
+      <span class="nt">&lt;computational_setup&gt;</span>
+        <span class="nt">&lt;nx_global&gt;</span>24<span class="nt">&lt;/nx_global&gt;</span>
+        <span class="nt">&lt;ny_global&gt;</span>24<span class="nt">&lt;/ny_global&gt;</span>
+        <span class="nt">&lt;nz_global&gt;</span>15<span class="nt">&lt;/nz_global&gt;</span>
+        <span class="nt">&lt;lagrange_polynomial_degree&gt;</span>4<span class="nt">&lt;/lagrange_polynomial_degree&gt;</span>
+        <span class="nt">&lt;px_processors_in_theta_direction&gt;</span>2<span class="nt">&lt;/px_processors_in_theta_direction&gt;</span>
+        <span class="nt">&lt;py_processors_in_phi_direction&gt;</span>2<span class="nt">&lt;/py_processors_in_phi_direction&gt;</span>
+        <span class="nt">&lt;pz_processors_in_r_direction&gt;</span>1<span class="nt">&lt;/pz_processors_in_r_direction&gt;</span>
+      <span class="nt">&lt;/computational_setup&gt;</span>
+      <span class="nt">&lt;relaxation_parameter_list&gt;</span>
+        ...
+      <span class="nt">&lt;/relaxation_parameter_list&gt;</span>
+    <span class="nt">&lt;/solver_settings&gt;</span>
+  <span class="nt">&lt;/solver_parameters&gt;</span>
+  <span class="nt">&lt;event&gt;</span>
+    <span class="nt">&lt;event_name&gt;</span>GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2<span class="nt">&lt;/event_name&gt;</span>
+    <span class="nt">&lt;event_weight&gt;</span>1.0<span class="nt">&lt;/event_weight&gt;</span>
+    <span class="nt">&lt;time_correction_in_s&gt;</span>0.0<span class="nt">&lt;/time_correction_in_s&gt;</span>
+    <span class="nt">&lt;station&gt;</span>
+      <span class="nt">&lt;station_id&gt;</span>LA.AA22<span class="nt">&lt;/station_id&gt;</span>
+      <span class="nt">&lt;station_weight&gt;</span>1.0<span class="nt">&lt;/station_weight&gt;</span>
+      <span class="nt">&lt;time_correction_in_s&gt;</span>0.0<span class="nt">&lt;/time_correction_in_s&gt;</span>
+    <span class="nt">&lt;/station&gt;</span>
+    <span class="nt">&lt;station&gt;</span>
+      ...
+    <span class="nt">&lt;/station&gt;</span>
+  <span class="nt">&lt;/event&gt;</span>
+    ...
+  <span class="nt">&lt;event&gt;</span>
+  <span class="nt">&lt;/event&gt;</span>
+<span class="nt">&lt;/iteration&gt;</span>
+</pre></div>
+</div>
+<p>It is a rather self-explaining file; some things to look out for:</p>
+<ul class="simple">
+<li>The dataprocessing frequency limits are given periods in seconds. This is
+more in line what one would normally use.</li>
+<li>The source time function is just given as a string. The &#8220;Filtered Heaviside&#8221;
+is the only source time function currently supported. It will be filtered
+with the limits specified in the data preprocessing section.</li>
+<li>The paths in the solver settings contains an <strong>{{EVENT_NAME}}</strong> part. This
+part will be replaced by the actual event name. This means that the file
+does not have to be adjusted for every event.</li>
+</ul>
+<p>The file shown here has already been adjusted for the tutorial example. For
+this tutorial we will run a simulation on 4 cores (should be suitable for your
+Desktop PC/Laptop) for 2000 timesteps with a time delta of 0.3 seconds. Please
+also adjust the file.</p>
+</div>
+<div class="section" id="source-time-functions">
+<h2>9.2. Source Time Functions<a class="headerlink" href="#source-time-functions" title="Permalink to this headline">¶</a></h2>
+<p>The source time functions will be dynamically generated from the information
+specified in the iteration XML files. Currently only one type of source time
+function, a filtered Heaviside function is supported. In the future, if
+desired, it could also be possible to use inverted source time functions.</p>
+<p>The source time function will always be defined for the number of time steps
+and time increment you specify in the solver settings. Furthermore all source
+time functions will be filtered with the same bandpass as the data.</p>
+<p>To get a quick look of the source time function for any given iteration, use
+the <strong>plot_stf</strong> command with the iteration name:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_stf 1
+</pre></div>
+</div>
+<p>This command will read the corresponding iteration file and open a plot with a
+time series and a time frequency representation of the source time function.</p>
+<p>(<a class="reference external" href="../tutorial/08_a_new_iteration-1.py">Source code</a>, <a class="reference external" href="../tutorial/08_a_new_iteration-1.png">png</a>, <a class="reference external" href="../tutorial/08_a_new_iteration-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorial/08_a_new_iteration-1.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/08_a_new_iteration-1.png" src="../_images/08_a_new_iteration-1.png" />
+</div>
+</div>
+<div class="section" id="attenuation">
+<h2>9.3. Attenuation<a class="headerlink" href="#attenuation" title="Permalink to this headline">¶</a></h2>
+<p>SES3D models attenuation with a discrete superposition of a finite number of
+relaxation mechanisms. The goal is to achieve a constant Q model over the
+chosen frequency range. Upon creating an iteration, LASIF will run a non-linear
+optimization algorithm to find relaxation times and associated weights that
+will be nearly constant over the chosen frequency domain.</p>
+<p>At any point you can see the absorption-band model for a given iteration at a
+couple of exemplary Q values with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_Q_model 1
+</pre></div>
+</div>
+<p>The single argument is the name of the iteration.</p>
+<p>(<a class="reference external" href="../tutorial/08_a_new_iteration-2.py">Source code</a>, <a class="reference external" href="../tutorial/08_a_new_iteration-2.png">png</a>, <a class="reference external" href="../tutorial/08_a_new_iteration-2.hires.png">hires.png</a>, <a class="reference external" href="../tutorial/08_a_new_iteration-2.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/08_a_new_iteration-2.png" src="../_images/08_a_new_iteration-2.png" />
+</div>
+<p>The two vertical lines in each plot mark the frequency range as specified in
+the iteration XML file.</p>
+<p>It is also possible to directly generate the relaxation times and weights for
+any frequency band. To generate a Q model approximately constant in a period
+band from 10 seconds to 100 seconds use</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif calculate_constant_Q_model 10 100
+
+Weights: 2.51476795756, 2.45723765861, 0.0554802992816
+Relaxation Times: 2.51476795756, 2.45723765861, 0.0554802992816
+</pre></div>
+</div>
+</div>
+<div class="section" id="data-preprocessing">
+<h2>9.4. Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You do not actually need to do this for the tutorial.</p>
+</div>
+<p>Data preprocessing is an essential step if one wants to compare data and
+seismograms. It serves several purposes: Restricting the frequency content of
+the data to that of the synthetics - what is not simulated can no be seen in
+synthetic seismograms. Remove the instrument response and convert to the same
+units used for the synthetics (usually <tt class="docutils literal"><span class="pre">m/s</span></tt>). Furthermore any linear  trends
+and static offset are removed and the some processing has to be performed so
+that the data is available at the same points in time as the synthetics. The
+goal of the preprocessing within LASIF is to create data that is directly
+comparable to simulated data without any more processing.</p>
+<p>The applied processing is identified via the a name:</p>
+<div class="highlight-python"><div class="highlight"><pre>preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000
+</pre></div>
+</div>
+<p>or (in Python terms):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
+<span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">40.0</span>
+<span class="n">npts</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+<span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
+                  <span class="s">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">highpass</span><span class="o">=</span><span class="n">highpass</span><span class="p">,</span> <span class="n">lowpass</span><span class="o">=</span><span class="n">lowpass</span><span class="p">,</span>
+                                                   <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can use any processing tool you want, but you have to adhere to the
+directory structure otherwise LASIF will not be able to work with the data.
+It is furthermore important that the processed filenames are identical to
+the unprocessed ones.</p>
+</div>
+<p>If you feel that additional identifiers are needed to uniquely identify the
+applied processing (in the limited setting of being useful for the here
+performed full waveform inversion) please contact the LASIF developers.</p>
+<p>You can of course also simply utilize LASIF&#8217;s built-in preprocessing. Using it
+is trivial, just launch the <strong>preprocess_data</strong> command together with the
+iteration name.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif preprocess_data 1
+</pre></div>
+</div>
+<p>This will start a fully parallelized preprocessing for all data required for
+the specified iteration. It will utilize all your machine&#8217;s cores and might
+take a while. If you repeat the command it will only process data not already
+processed; an advantages is that you can cancel the processing at any time and
+then later on just execute the command again to continue where you left off.
+This usually only needs to be done every couple of iterations when you decide
+to go to higher frequencies or add new data.</p>
+<p>The preprocessed data will be put in the correct folder.</p>
+</div>
+<div class="section" id="data-rejection">
+<h2>9.5. Data Rejection<a class="headerlink" href="#data-rejection" title="Permalink to this headline">¶</a></h2>
+<p>Coming soon...watch this space.</p>
+<p>This concludes the initial setup for each iteration. The next steps is to
+actually simulate anything and LASIF of course also assists in that regard.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="09_model_handling.html" class="btn btn-neutral float-right" title="10. Earth Model Handling">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="07_data_validation.html" class="btn btn-neutral" title="8. Data Validation"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

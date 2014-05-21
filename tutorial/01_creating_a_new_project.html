@@ -1,0 +1,393 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2. Creating a New Project &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorial" href="../tutorial.html"/>
+        <link rel="next" title="3. Seismic Events" href="02_seismic_events.html"/>
+        <link rel="prev" title="1. Interfaces" href="00_interfaces.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> LASIF</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project.html">lasif.project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+      
+    <li>2. Creating a New Project</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/tutorial/01_creating_a_new_project.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="creating-a-new-project">
+<h1>2. Creating a New Project<a class="headerlink" href="#creating-a-new-project" title="Permalink to this headline">¶</a></h1>
+<p>The necessary first step, whether for starting a new inversion or migrating an
+already existing inversion to LASIF, is to create a new project with the
+<tt class="code docutils literal"><span class="pre">lasif</span> <span class="pre">init_project</span></tt> command. In this  tutorial we will work with a
+project called <strong>Tutorial</strong>. The <tt class="code docutils literal"><span class="pre">lasif</span> <span class="pre">init_project</span></tt> command will
+create a  new folder in whichever directory the command is executed in.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project Tutorial
+
+Initialized project in:
+    /Users/lion/workspace/temp/LASIF_Tutorial/Tutorial
+</pre></div>
+</div>
+<p>This will create the following directory structure. A <strong>LASIF</strong> project is
+defined by the files it contains. All information it requires will be
+assembled from the available data. In the course of this tutorial you will
+learn what piece of data belongs where.</p>
+<div class="highlight-none"><div class="highlight"><pre>Tutorial
+├── ADJOINT_SOURCES_AND_WINDOWS
+│   ├── ADJOINT_SOURCES
+│   └── WINDOWS
+├── CACHE
+├── DATA
+├── EVENTS
+├── ITERATIONS
+├── KERNELS
+├── LOGS
+├── MODELS
+├── OUTPUT
+├── STATIONS
+│   ├── RESP
+│   ├── SEED
+│   └── StationXML
+├── SYNTHETICS
+├── WAVEFIELDS
+└── config.xml
+</pre></div>
+</div>
+<p>Each project stores its configuration values in the <strong>config.xml</strong> file; the
+location of this file also determines the root folder of the project. It is
+a simple, self-explanatory XML format. Immediately after the project has been
+initialized it looks akin to the following:</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<span class="nt">&lt;lasif_project&gt;</span>
+  <span class="nt">&lt;name&gt;</span>Tutorial<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;description&gt;&lt;/description&gt;</span>
+  <span class="nt">&lt;download_settings&gt;</span>
+    <span class="nt">&lt;arclink_username&gt;&lt;/arclink_username&gt;</span>
+    <span class="nt">&lt;seconds_before_event&gt;</span>300<span class="nt">&lt;/seconds_before_event&gt;</span>
+    <span class="nt">&lt;seconds_after_event&gt;</span>3600<span class="nt">&lt;/seconds_after_event&gt;</span>
+  <span class="nt">&lt;/download_settings&gt;</span>
+  <span class="nt">&lt;domain&gt;</span>
+    <span class="nt">&lt;domain_bounds&gt;</span>
+      <span class="nt">&lt;minimum_longitude&gt;</span>-20<span class="nt">&lt;/minimum_longitude&gt;</span>
+      <span class="nt">&lt;maximum_longitude&gt;</span>20<span class="nt">&lt;/maximum_longitude&gt;</span>
+      <span class="nt">&lt;minimum_latitude&gt;</span>-20<span class="nt">&lt;/minimum_latitude&gt;</span>
+      <span class="nt">&lt;maximum_latitude&gt;</span>20<span class="nt">&lt;/maximum_latitude&gt;</span>
+      <span class="nt">&lt;minimum_depth_in_km&gt;</span>0.0<span class="nt">&lt;/minimum_depth_in_km&gt;</span>
+      <span class="nt">&lt;maximum_depth_in_km&gt;</span>200.0<span class="nt">&lt;/maximum_depth_in_km&gt;</span>
+      <span class="nt">&lt;boundary_width_in_degree&gt;</span>3.0<span class="nt">&lt;/boundary_width_in_degree&gt;</span>
+    <span class="nt">&lt;/domain_bounds&gt;</span>
+    <span class="nt">&lt;domain_rotation&gt;</span>
+      <span class="nt">&lt;rotation_axis_x&gt;</span>1.0<span class="nt">&lt;/rotation_axis_x&gt;</span>
+      <span class="nt">&lt;rotation_axis_y&gt;</span>1.0<span class="nt">&lt;/rotation_axis_y&gt;</span>
+      <span class="nt">&lt;rotation_axis_z&gt;</span>1.0<span class="nt">&lt;/rotation_axis_z&gt;</span>
+      <span class="nt">&lt;rotation_angle_in_degree&gt;</span>-45.0<span class="nt">&lt;/rotation_angle_in_degree&gt;</span>
+    <span class="nt">&lt;/domain_rotation&gt;</span>
+  <span class="nt">&lt;/domain&gt;</span>
+<span class="nt">&lt;/lasif_project&gt;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">name</span></tt> is the project&#8217;s name.</li>
+<li><tt class="docutils literal"><span class="pre">description</span></tt> can be any further useful information about the project. This
+is not used by LASIF but potentially useful for documentation purposes.</li>
+<li>The <tt class="docutils literal"><span class="pre">arclink_username</span></tt> tag should be your email. It will be sent with all
+requests to the ArcLink network. They ask for it in case they have to contact
+you for whatever reason. Please provide a real email address. Must not be
+empty.</li>
+<li><tt class="docutils literal"><span class="pre">seconds_before_event</span></tt>: Used by the waveform download scripts. It will
+attempt to download this many seconds for every waveform before the origin of
+the associated event.</li>
+<li><tt class="docutils literal"><span class="pre">seconds_after_event</span></tt>: Used by the waveform download scripts. It will
+attempt to download this many seconds for every waveform after the origin of
+the associated event. Adapt this to the size of your inversion domain.</li>
+<li>The <tt class="docutils literal"><span class="pre">domain</span></tt> settings will be explained in more detail in the following
+paragraphs.</li>
+<li>The <tt class="docutils literal"><span class="pre">boundary_width_in_degree</span></tt> tag is use to be able to take care of the
+boundary conditions, e.g. no data will be downloaded within
+<tt class="docutils literal"><span class="pre">boundary_width_in_degree</span></tt> distance to the domain border.</li>
+</ul>
+<p>The nature of SES3D&#8217;s coordinate system has the effect that simulation is most
+efficient in equatorial regions. Furthermore a domain can only be  specified by
+minimum and maximum extends as it works with spherical sections. Thus it is
+oftentimes  advantageous to rotate the frame of reference so that the
+simulation happens close to the equator. LASIF first defines the simulation
+domain; the actual simulation happens there. Optional rotation parameters
+define the physical location of the domain. The coordinate system for the
+rotation parameters is described in <a class="reference internal" href="../rotations.html#module-lasif.rotations" title="lasif.rotations"><tt class="xref py py-mod docutils literal"><span class="pre">lasif.rotations</span></tt></a>.  You will have
+to edit the <tt class="docutils literal"><span class="pre">config.xml</span></tt> file to adjust it to your region of interest.</p>
+<p>LASIF handles all rotations necessary so the user never needs to worry about
+these. Just keep in mind to always keep any data (real waveforms, station
+metadata and events) in coordinates that correspond to the physical domain and
+all synthetic waveforms in coordinates that correspond to the simulation
+domain.</p>
+<p>For this tutorial we are going to work in a rotated domain across Europe.
+Please change the <tt class="docutils literal"><span class="pre">config.xml</span></tt> file to reflect the following domain
+settings.</p>
+<ul class="simple">
+<li>Latitude: <tt class="docutils literal"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></tt></li>
+<li>Longitude: <tt class="docutils literal"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></tt></li>
+<li>Depth: <tt class="docutils literal"><span class="pre">0</span> <span class="pre">km</span> <span class="pre">-</span> <span class="pre">471</span> <span class="pre">km</span></tt></li>
+<li>Boundary width in degree: <tt class="docutils literal"><span class="pre">2.5°</span></tt></li>
+<li>Rotation axis: <tt class="docutils literal"><span class="pre">1.0,</span> <span class="pre">1.0,</span> <span class="pre">0.2</span></tt></li>
+<li>Rotation angle: <tt class="docutils literal"><span class="pre">-65.0°</span></tt></li>
+</ul>
+<p>In general one should only work with data not affected by the boundary
+conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
+It is not advisable to use data that traverses these layers. SES3D defaults
+to two layer but more are possible. For this tutorial we will only consider
+data which is at least three elements away from the border in a an attempt
+to avoid unphysical influences of the boundary conditions. This amounts to
+<tt class="docutils literal"><span class="pre">2.5°</span></tt>.</p>
+<p>At any point you can have a look at the defined domain with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_domain
+</pre></div>
+</div>
+<p>This will open a window showing the location of the physical domain and the
+simulation domain. The inner contour shows the domain minus the previously
+defined boundary width.</p>
+<p>(<a class="reference external" href="../tutorial/01_creating_a_new_project-1.py">Source code</a>, <a class="reference external" href="../tutorial/01_creating_a_new_project-1.png">png</a>, <a class="reference external" href="../tutorial/01_creating_a_new_project-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorial/01_creating_a_new_project-1.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/01_creating_a_new_project-1.png" src="../_images/01_creating_a_new_project-1.png" />
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The map projection and zoom should automatically adjust so it is suitable
+for the dimensions and location of the chosen domain. If that is not the
+case please file an issue on the project&#8217;s Github page.</p>
+</div>
+<p>Assuming you carefully followed this part the <tt class="docutils literal"><span class="pre">config.xml</span></tt> file should
+look like this.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<span class="nt">&lt;lasif_project&gt;</span>
+  <span class="nt">&lt;name&gt;</span>Tutorial<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;description&gt;&lt;/description&gt;</span>
+  <span class="nt">&lt;download_settings&gt;</span>
+    <span class="nt">&lt;arclink_username&gt;&lt;/arclink_username&gt;</span>
+    <span class="nt">&lt;seconds_before_event&gt;</span>300<span class="nt">&lt;/seconds_before_event&gt;</span>
+    <span class="nt">&lt;seconds_after_event&gt;</span>3600<span class="nt">&lt;/seconds_after_event&gt;</span>
+  <span class="nt">&lt;/download_settings&gt;</span>
+  <span class="nt">&lt;domain&gt;</span>
+    <span class="nt">&lt;domain_bounds&gt;</span>
+      <span class="nt">&lt;minimum_longitude&gt;</span>-10<span class="nt">&lt;/minimum_longitude&gt;</span>
+      <span class="nt">&lt;maximum_longitude&gt;</span>10<span class="nt">&lt;/maximum_longitude&gt;</span>
+      <span class="nt">&lt;minimum_latitude&gt;</span>-10<span class="nt">&lt;/minimum_latitude&gt;</span>
+      <span class="nt">&lt;maximum_latitude&gt;</span>10<span class="nt">&lt;/maximum_latitude&gt;</span>
+      <span class="nt">&lt;minimum_depth_in_km&gt;</span>0.0<span class="nt">&lt;/minimum_depth_in_km&gt;</span>
+      <span class="nt">&lt;maximum_depth_in_km&gt;</span>471.0<span class="nt">&lt;/maximum_depth_in_km&gt;</span>
+      <span class="nt">&lt;boundary_width_in_degree&gt;</span>2.5<span class="nt">&lt;/boundary_width_in_degree&gt;</span>
+    <span class="nt">&lt;/domain_bounds&gt;</span>
+    <span class="nt">&lt;domain_rotation&gt;</span>
+      <span class="nt">&lt;rotation_axis_x&gt;</span>1.0<span class="nt">&lt;/rotation_axis_x&gt;</span>
+      <span class="nt">&lt;rotation_axis_y&gt;</span>1.0<span class="nt">&lt;/rotation_axis_y&gt;</span>
+      <span class="nt">&lt;rotation_axis_z&gt;</span>0.2<span class="nt">&lt;/rotation_axis_z&gt;</span>
+      <span class="nt">&lt;rotation_angle_in_degree&gt;</span>-65.0<span class="nt">&lt;/rotation_angle_in_degree&gt;</span>
+    <span class="nt">&lt;/domain_rotation&gt;</span>
+  <span class="nt">&lt;/domain&gt;</span>
+<span class="nt">&lt;/lasif_project&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The true synthetic model is PREM with a small positive Gaussian anomaly  in
+the center (latitude=longitude=0) at a depth of 70 km applied to the  P and
+both S-wave velocities. The amplitude of the anomaly is 0.3 km/s with
+the sigma being 200 km in horizontal and 50 km in the vertical direction.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="02_seismic_events.html" class="btn btn-neutral float-right" title="3. Seismic Events">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="00_interfaces.html" class="btn btn-neutral" title="1. Interfaces"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
