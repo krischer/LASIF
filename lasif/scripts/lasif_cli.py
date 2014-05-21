@@ -370,8 +370,8 @@ def lasif_plot_kernel(parser, args):
     """
     Work in progress.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
+    parser.add_argument("iteration_name", help="name of the iteration")
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
     event_name = args.event_name

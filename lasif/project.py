@@ -408,8 +408,10 @@ class Project(object):
         plot(D_p=weights, tau_p=tau_p, f_min=f_min, f_max=f_max)
 
     def get_kernel_dir(self, iteration_name, event_name):
-        return os.path.join(self.paths["kernels"], event_name, self.
-                            _get_long_iteration_name(iteration_name))
+        return os.path.join(
+            self.paths["kernels"],
+            self._get_long_iteration_name(iteration_name),
+            event_name)
 
     def create_new_iteration(self, iteration_name, solver_name, min_period=8.0,
                              max_period=100.0):
