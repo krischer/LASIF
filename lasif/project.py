@@ -2127,7 +2127,7 @@ class Project(object):
         Return an iterator that returns processed data and synthetic files for
         one event and iteration.
         """
-        from lasif.tools.two_way_data_synthetics_iterator import \
+        from lasif.tools.data_synthetics_iterator import \
             DataSyntheticIterator
         return DataSyntheticIterator(self, event_name, iteration_name)
 
