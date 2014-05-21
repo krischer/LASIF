@@ -9,6 +9,7 @@ Test cases for the iteration xml file handling.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import copy
 import inspect
 from lxml import etree
 import os
@@ -110,3 +111,37 @@ def test_reading_and_writing(tmpdir):
 
     # pytest takes care of meaningful string differences.
     assert tree_old == tree_new
+
+
+def test_iteration_equality():
+    """
+    Tests equality/inequality for iteration xml files.
+    """
+    filename = os.path.join(data_dir, "iteration_example.xml")
+
+    iteration = Iteration(filename)
+    other_iteration = copy.deepcopy(iteration)
+
+    assert iteration == other_iteration
+    assert not iteration != other_iteration
+
+    iteration.iteration_name = "blub"
+    assert iteration != other_iteration
+    assert not iteration == other_iteration
+
+
+def test_reading_writing_with_empty_description(tmpdir):
+    """
+    Tests reading and writing with an empty description.
+    """
+    filename = os.path.join(data_dir, "iteration_example.xml")
+    new_filename = os.path.join(str(tmpdir), "iteration.xml")
+
+    iteration = Iteration(filename)
+    iteration.description = None
+
+    # Write and read again.
+    iteration.write(new_filename)
+    reread_iteration = Iteration(new_filename)
+
+    assert iteration == reread_iteration

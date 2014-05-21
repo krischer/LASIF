@@ -31,6 +31,16 @@ class Iteration(object):
             raise ValueError(msg)
         self._parse_iteration_xml(iteration_xml_filename)
 
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        if self.__dict__ == other.__dict__:
+            return True
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def _parse_iteration_xml(self, iteration_xml_filename):
         """
         Parses the given iteration xml file and stores the information with the
@@ -225,11 +235,14 @@ class Iteration(object):
             self.solver_settings["solver_settings"])
 
         contents = []
-        contents.extend([
-            E.iteration_name(self.iteration_name),
-            E.iteration_description(self.description),
-        ])
-        contents.extend([E.comment(_i) for _i in self.comments])
+        contents.append(E.iteration_name(self.iteration_name))
+
+        if self.description:
+            contents.append(E.iteration_description(self.description))
+
+        if self.comments:
+            contents.extend([E.comment(_i) for _i in self.comments])
+
         contents.extend([
             E.data_preprocessing(
                 E.highpass_period(
