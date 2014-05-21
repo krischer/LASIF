@@ -188,23 +188,9 @@ class RawSES3DModelHandler(object):
             self.parsed_components = {}
             for component in components:
                 files = glob.glob(
-                    os.path.join(directory, "%s_[0-9]*_[0-9]*" % component))
-                length = int(files[0][files[0].rfind("_") + 1:])
+                    os.path.join(directory, "%s_[0-9]*" % component))
                 if len(files) != len(self.setup["subdomains"]):
                     continue
-                    # Check that the naming is continuous.
-                all_good = True
-                for _i in xrange(len(self.setup["subdomains"])):
-                    if os.path.join(directory, "%s_%i_%i" % (
-                            component, _i, length)) in files:
-                        continue
-                    all_good = False
-                    break
-                if all_good is False:
-                    msg = "Naming for component %s is off. It will be skipped."
-                    warnings.warn(msg)
-                    continue
-                    # They also all need to have the same size.
                 if len(set([os.path.getsize(_i) for _i in files])) != 1:
                     msg = ("Component %s has the right number of model files "
                            "but they are not of equal size") % component

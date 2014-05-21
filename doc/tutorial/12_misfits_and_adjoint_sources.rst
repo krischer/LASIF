@@ -51,7 +51,7 @@ name and the event name.
 
 .. code-block:: bash
 
-    $ lasif launch_misfit_gui 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    $ lasif launch_misfit_gui 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
 
 
 This will open a window akin to the following:
@@ -108,10 +108,17 @@ name.
 
 .. code-block:: bash
 
-    $ lasif finalize_adjoint_sources 1 GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    $ lasif finalize_adjoint_sources 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
 
 This will also rotate the adjoint sources to the frame of reference used in the
 simulations.
 
 If you pick any more windows or change them in any way, you need to run the
-command again.
+command again. The result of that command is a list of adjoint sources
+directly usable by SES3D in the ``OUTPUT`` folder.
+
+Copy these to the correct folder inside your SES3D installation,
+make sure the tell SES3D to perform an adjoint reverse simulation and launch
+it. Please refer to the SES3D manual for the necessary details.
+
+Now do the same for the second event.
