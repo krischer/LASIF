@@ -668,8 +668,9 @@ class Project(object):
             if len(channel_set) != 1:
                 msg = ("More than one combination of location and channel type"
                        " found for event '%s' and station '%s'. The first one "
-                       "will be chosen. Please run the data validation to "
-                       "identify any problems.") % (event_name, station_id)
+                       "found will be chosen. Please run the data validation "
+                       "to identify and fix the problem.") % (
+                    event_name, station_id)
                 warnings.warn(msg)
             channel = sorted(list(channel_set))[0]
             filenames = [_i["filename"] for _i in waveforms
@@ -2318,6 +2319,31 @@ class Project(object):
             stations[station_id][component.upper()] = \
                 os.path.abspath(filename)
         return stations
+
+    def _calculate_adjoint_source(self, iteration_name, event_name,
+                                  station_id, window_starttime,
+                                  window_endtime):
+        """
+        Calculates the adjoint source for a certain window.
+        """
+        iteration = self._get_iteration(iteration_name)
+        proc_tag = iteration.get_processing_tag()
+        process_params = iteration.get_processing_tag()
+
+        data = self.get_waveform_data(event_name, station_id,
+                                      data_type="processed", tag=proc_tag)
+        synthetics = self.get_waveform_data(event_name, station_id,
+                                            data_type="synthetic",
+                                            iteration_name=iteration_name)
+
+        taper_percentage = 0.5
+        data_trimmed = data.copy()\
+            .trim(window_starttime, window_endtime)\
+            .taper(type="cosine", max_percentage=0.5 * taper_percentage)
+        synth_trim = synthetics.copy() \
+            .trim(window_starttime, window_endtime) \
+            .taper(type="cosine", max_percentage=0.5 * taper_percentage)
+
 
     def get_iteration_status(self, iteration_name):
         """

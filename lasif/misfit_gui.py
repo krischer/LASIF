@@ -71,7 +71,6 @@ class MisfitGUI:
     def __init__(self, event, seismogram_generator, project, window_manager,
                  adjoint_source_manager, iteration):
         # gather basic information --------------------------------------------
-
         plt.figure(figsize=(22, 12))
         self.event = event
         self.project = project

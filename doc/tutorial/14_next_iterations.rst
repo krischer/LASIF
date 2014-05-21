@@ -41,3 +41,25 @@ also not be used for this iteration.
 
 This commando takes an existing iteration ``1`` and uses it as a template
 for iteration ``2``.
+
+
+Migrating the misfit windows
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Once the windows for the misfit calculation have been determined for an
+iteration they can usually be used for a couple of iterations before they have
+to be determined again. The following command will take all windows defined
+in iteration ``1`` and transfer them to iteration ``2``. The synthetics for
+iteration ``2`` already need to be available. Depending on the size of the
+iteration, this might take a while as it also calculates the adjoint sources
+for each window.
+
+.. code-block:: bash
+
+    $ lasif migrate_windows 1 2
+
+Please keep in mind that this command will not create windows for data not
+present in the first iteration.
+
+The ``finalize_adjoint_sources`` command can then be used generate the
+adjoint sources in a format suitable for SES3D to finish the iteration.
