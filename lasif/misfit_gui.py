@@ -190,8 +190,8 @@ class MisfitGUI:
         """
 
         for component in ["Z", "N", "E"]:
-            real_trace = self.data["data"].select(component=component)
-            synth_trace = self.data["synthetics"].select(channel=component)
+            real_trace = self.data.data.select(component=component)
+            synth_trace = self.data.synthetics.select(channel=component)
             if not real_trace or not synth_trace:
                 continue
             real_trace = real_trace[0]
@@ -200,8 +200,8 @@ class MisfitGUI:
             windows = select_windows(
                 real_trace, synth_trace, self.event["latitude"],
                 self.event["longitude"], self.event["depth_in_km"],
-                self.data["coordinates"]["latitude"],
-                self.data["coordinates"]["longitude"],
+                self.data.coordinates["latitude"],
+                self.data.coordinates["longitude"],
                 1.0 / self.process_parameters["lowpass"],
                 1.0 / self.process_parameters["highpass"])
 
@@ -265,7 +265,7 @@ class MisfitGUI:
             "N": [],
             "E": []}
         self.plot()
-        for trace in self.data["data"]:
+        for trace in self.data.data:
             windows = self.window_manager.get_windows(trace.id)
             if not windows or "windows" not in windows or \
                     not windows["windows"]:
@@ -279,16 +279,16 @@ class MisfitGUI:
 
     def checks_and_infos(self):
         # provide some basic screen output -----------------------------------
-        d = self.data["data"][0]
+        d = self.data.data[0]
         print "============================================"
         print "station: " + d.stats.network + '.' + d.stats.station
 
         # loop through components and check if they are flipped --------------
         for comp in {"N", "E", "Z"}:
             # transcribe traces
-            synth = self.data["synthetics"].select(channel=comp)[0].data
+            synth = self.data.synthetics.select(channel=comp)[0].data
             try:
-                data = self.data["data"].select(component=comp)[0].data
+                data = self.data.data.select(component=comp)[0].data
             except IndexError:
                 return
 
@@ -298,13 +298,13 @@ class MisfitGUI:
 
             # flip traces if correlation coefficient is close to -1 ----------
             if cc < (-0.7):
-                self.data["data"].select(component=comp)[0].data = -data
+                self.data.data.select(component=comp)[0].data = -data
                 print "correlation coefficient below -0.7, data fliped"
 
         print "============================================"
 
     def delete_window(self, x_min, x_max, component):
-        trace = self.data["data"].select(component=component)[0]
+        trace = self.data.data.select(component=component)[0]
         starttime = trace.stats.starttime + x_min
         endtime = trace.stats.starttime + x_max
         channel_id = trace.id
@@ -320,7 +320,7 @@ class MisfitGUI:
         else:
             raise NotImplementedError
 
-        trace = self.data["synthetics"][0]
+        trace = self.data.synthetics[0]
 
         ymin, ymax = axis.get_ylim()
         xmin = starttime - trace.stats.starttime
@@ -342,7 +342,7 @@ class MisfitGUI:
         rect.remove = remove
 
     def reset(self, *args):
-        for trace in self.data["data"]:
+        for trace in self.data.data:
             self.window_manager.delete_windows(trace.id)
         self.update()
 
@@ -374,13 +374,13 @@ class MisfitGUI:
         self.plot_axis_n.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
         self.plot_axis_e.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
 
-        s_stats = self.data["synthetics"][0].stats
+        s_stats = self.data.synthetics[0].stats
         self.time_axis = np.linspace(0, s_stats.npts * s_stats.delta,
                                      s_stats.npts)
 
         def plot_trace(axis, component):
-            real_trace = self.data["data"].select(component=component)
-            synth_trace = self.data["synthetics"].select(channel=component)
+            real_trace = self.data.data.select(component=component)
+            synth_trace = self.data.synthetics.select(channel=component)
             if real_trace:
                 axis.plot(self.time_axis, real_trace[0].data, color="black")
             if synth_trace:
@@ -423,8 +423,8 @@ class MisfitGUI:
     def plot_traveltimes(self):
         great_circle_distance = locations2degrees(
             self.event["latitude"], self.event["longitude"],
-            self.data["coordinates"]["latitude"],
-            self.data["coordinates"]["longitude"])
+            self.data.coordinates["latitude"],
+            self.data.coordinates["longitude"])
         tts = getTravelTimes(great_circle_distance, self.event["depth_in_km"],
                              model="ak135")
         for component in ["z", "n", "e"]:
@@ -451,13 +451,13 @@ class MisfitGUI:
         except:
             pass
         self.greatcircle = self.map_obj.drawgreatcircle(
-            self.data["coordinates"]["longitude"],
-            self.data["coordinates"]["latitude"],
+            self.data.coordinates["longitude"],
+            self.data.coordinates["latitude"],
             self.event["longitude"], self.event["latitude"], linewidth=2,
             color='green', ax=self.map_axis)
 
-        lng, lats = self.map_obj([self.data["coordinates"]["longitude"]],
-                                 [self.data["coordinates"]["latitude"]])
+        lng, lats = self.map_obj([self.data.coordinates["longitude"]],
+                                 [self.data.coordinates["latitude"]])
         self.station_icon = self.map_axis.scatter(
             lng, lats, facecolor="blue", edgecolor="black", zorder=10000,
             marker="^", s=40)
@@ -563,19 +563,19 @@ class MisfitGUI:
         # Store the axis.
         if event.name == "button_press_event":
             if event.inaxes == self.plot_axis_z:
-                data = self.data["data"].select(component="Z")
+                data = self.data.data.select(component="Z")
                 if not data:
                     return
                 self.rect = WindowSelectionRectangle(event, self.plot_axis_z,
                                                      self._onWindowSelected)
             if event.inaxes == self.plot_axis_n:
-                data = self.data["data"].select(component="N")
+                data = self.data.data.select(component="N")
                 if not data:
                     return
                 self.rect = WindowSelectionRectangle(event, self.plot_axis_n,
                                                      self._onWindowSelected)
             if event.inaxes == self.plot_axis_e:
-                data = self.data["data"].select(component="E")
+                data = self.data.data.select(component="E")
                 if not data:
                     return
                 self.rect = WindowSelectionRectangle(event, self.plot_axis_e,
@@ -592,13 +592,13 @@ class MisfitGUI:
         #  Initialisation -----------------------------------------------------
 
         # Minimum window length is 50 samples.
-        delta = self.data["synthetics"][0].stats.delta
+        delta = self.data.synthetics[0].stats.delta
         if window_width < 50 * delta:
             plt.draw()
             return
 
-        data = self.data["data"].select(component=axis.seismic_component)[0]
-        synth = self.data["synthetics"].select(
+        data = self.data.data.select(component=axis.seismic_component)[0]
+        synth = self.data.synthetics.select(
             channel=axis.seismic_component)[0]
 
         if not data:

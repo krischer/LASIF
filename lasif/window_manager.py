@@ -34,6 +34,10 @@ class MisfitWindowManager(object):
         self.synthetic_tag = synthetic_tag
         self.event_name = event_name
 
+    def __iter__(self):
+        for filename in iglob(os.path.join(self.directory, "window_*.xml")):
+            yield self._read_windowfile(filename)
+
     def get_windows(self, channel_id):
         windowfile = self._get_window_filename(channel_id)
         if not os.path.exists(windowfile):

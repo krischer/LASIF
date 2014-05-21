@@ -416,7 +416,7 @@ class Project(object):
     def _get_iteration_filename(self, iteration_name):
         iteration_name = iteration_name.replace(" ", "_").upper()
         filename = self._get_long_iteration_name(iteration_name) + \
-                   os.path.extsep + "xml"
+            os.path.extsep + "xml"
         filename = os.path.join(self.paths["iterations"], filename)
         return filename
 
@@ -2014,10 +2014,7 @@ class Project(object):
         output_folder = self.get_output_folder(
             "adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
 
-        # =====================================================================
         # loop through all the stations of this event
-        # =====================================================================
-
         for station_id, station in this_event["stations"].iteritems():
 
             try:
@@ -2035,14 +2032,14 @@ class Project(object):
 
             all_channels = {}
 
-            # loop through all channels for that station --------------------
+            # loop through all channels for that station
             for channel_windows in windows:
 
                 channel_id = channel_windows["channel_id"]
                 cumulative_weight = 0
                 all_data = []
 
-                # loop through all windows of one channel -------------------
+                # loop through all windows of one channel
                 for window in channel_windows["windows"]:
 
                     # get window properties
@@ -2057,7 +2054,7 @@ class Project(object):
                     # compute cumulative weight of all windows for that channel
                     cumulative_weight += window_weight
 
-                # apply weights for that channel -----------------------------
+                # apply weights for that channel
                 data = all_data.pop()
                 for d in all_data:
                     data += d
@@ -2072,8 +2069,7 @@ class Project(object):
                     continue
                 all_channels[component] = np.zeros(length)
 
-            # Rotate. if needed ----------------------------------------------
-
+            # Rotate. if needed
             rec_lat = this_station["latitude"]
             rec_lng = this_station["longitude"]
 
@@ -2105,7 +2101,6 @@ class Project(object):
             all_coordinates.append((r_rec_colat, r_rec_lng, r_rec_depth))
 
             # Actually write the adjoint source file in SES3D specific format.
-
             with open(adjoint_src_filename, "wt") as open_file:
                 open_file.write("-- adjoint source ------------------\n")
                 open_file.write("-- source coordinates (colat,lon,depth)\n")
@@ -2132,49 +2127,9 @@ class Project(object):
         Return an iterator that returns processed data and synthetic files for
         one event and iteration.
         """
-        from lasif.tools.two_way_data_synthetics_iterator import TwoWayIter
-
-        # Retrieve information on the event, iteration and waveforms
-        iteration = self._get_iteration(iteration_name)
-        # This are all stations in the current iteration.
-        iteration_stations = iteration.events[event_name]["stations"].keys()
-
-        # List of all stations for the given event that are also specified in
-        # the iterations files. This result in a dictionary with additional
-        # metadata per station.
-        stations = {key: value for key, value in
-                    self.get_stations_for_event(event_name).iteritems()
-                    if key in iteration_stations}
-
-        # Get all processed waveforms including metadata for the current event
-        # and iteration.
-        processed_waveforms = self._get_waveform_cache_file(
-            event_name, iteration.get_processing_tag()).get_values()
-
-        # All synthetic files.
-        synthetic_files = self._get_synthetic_waveform_filenames(
-            event_name, iteration_name)
-
-        if not synthetic_files:
-            msg = "Could not find suitable synthetic files."
-            raise ValueError(msg)
-
-        def get_synthetics_callback(station_id):
-            return self.get_waveform_data(event_name, station_id,
-                                          data_type="synthetic",
-                                          iteration_name=iteration_name)
-
-        def get_data_callback(station_id):
-            return self.get_waveform_data(
-                event_name, station_id, data_type="processed",
-                tag=iteration.get_processing_tag())
-
-        return TwoWayIter(get_data_callback=get_data_callback,
-                          get_synthetics_callback=get_synthetics_callback,
-                          stations=stations,
-                          processed_waveforms=processed_waveforms,
-                          event_name=event_name,
-                          iteration_name=iteration_name)
+        from lasif.tools.two_way_data_synthetics_iterator import \
+            DataSyntheticIterator
+        return DataSyntheticIterator(self, event_name, iteration_name)
 
     def get_debug_information_for_file(self, filename):
         """

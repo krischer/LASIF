@@ -828,8 +828,27 @@ def lasif_migrate_windows(parser, args):
     events = list(set(from_it.events.keys()).intersection(
         set(to_it.events.keys())))
 
-    # Loop over events and migrate the windows.
+    # Check that the new iteration actually has some synthetics.
+    filtered_events = []
     for event_name in events:
+        folder_name = os.path.join(
+            proj.paths["synthetics"], event_name,
+            long_iteration_name_to)
+        if not os.path.exists(folder_name) or \
+                (len(os.listdir(folder_name)) == 0):
+            msg = ("Warning: No synthetics for iteration '%s' and event '%s'."
+                   % (to_iteration, event_name))
+            print(colorama.Fore.YELLOW + msg + colorama.Fore.RESET)
+            continue
+        filtered_events.append(event_name)
+
+    if not filtered_events:
+        msg = ("No events that could be migrated have synthetics in "
+               "iteration '%s'" % event_name)
+        raise LASIFCommandLineException(msg)
+
+    # Loop over events and migrate the windows.
+    for event_name in filtered_events:
         # Managers from.
         window_directory_from = os.path.join(
             proj.paths["windows"], event_name, long_iteration_name_from)
@@ -856,8 +875,8 @@ def lasif_migrate_windows(parser, args):
         iterator = proj.data_synthetic_iterator(event_name, to_iteration)
         for data_set in iterator:
             for component in ["Z", "N", "E"]:
-                data = data_set["data"].select(component=component)[0]
-                synth = data_set["synthetics"].select(channel=component)[0]
+                data = data_set.data.select(component=component)[0]
+                synth = data_set.synthetics.select(channel=component)[0]
                 print data, synth
             raise NotImplementedError
 
@@ -999,18 +1018,19 @@ def lasif_plot_selected_windows(parser, args):
     output_folder = proj.get_output_folder(
         "Selected_Windows_Iteration_%s__%s" % (event_name, iteration_name))
 
-    for i in iterator:
+    for data_set in iterator:
         for component in ["Z", "N", "E"]:
             try:
-                data = i["data"].select(component=component)[0]
+                data = data_set.data.select(component=component)[0]
             except IndexError:
                 continue
-            synthetics = i["synthetics"].select(component=component)[0]
+            synthetics = data_set.synthetics.select(component=component)[0]
             windows = select_windows(
                 data, synthetics,
                 event_info["latitude"], event_info["longitude"],
-                event_info["depth_in_km"], i["coordinates"]["latitude"],
-                i["coordinates"]["longitude"], minimum_period, maximum_period)
+                event_info["depth_in_km"], data_set["coordinates"]["latitude"],
+                data_set["coordinates"]["longitude"], minimum_period,
+                maximum_period)
             plot_windows(
                 data, synthetics, windows, maximum_period,
                 filename=os.path.join(output_folder,
@@ -1349,7 +1369,7 @@ def main():
     try:
         fcts[fct_name](parser, further_args)
     except LASIFCommandLineException as e:
-        print(colorama.Fore.YELLOW + ("Error: %s\n" % e.message) +
+        print(colorama.Fore.YELLOW + ("Error: %s\n" % str(e)) +
               colorama.Style.RESET_ALL)
         sys.exit(1)
     except Exception as e:

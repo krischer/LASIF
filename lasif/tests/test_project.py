@@ -606,9 +606,9 @@ def test_data_synthetic_iterator(project, recwarn):
             assert "No synthetics found" in w.message.args[0]
             no_synthetics_found_count += 1
             continue
-        data = _i["data"]
-        synth = _i["synthetics"]
-        coods = _i["coordinates"]
+        data = _i.data
+        synth = _i.synthetics
+        coods = _i.coordinates
         assert recwarn.list == []
 
         # Only one real data is present at all times.
