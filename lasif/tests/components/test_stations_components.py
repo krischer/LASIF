@@ -11,60 +11,56 @@ from lasif import LASIFNotFoundError
 from lasif.components.stations import StationsComponent
 from lasif.components.communicator import Communicator
 
-# Test data directory
-data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe())))), "data")
 
-
-def _create_stations_object(cache_directory):
-    """
-    Helper function returning an initialized stations component.
-    """
+@pytest.fixture
+def comm(tmpdir):
+    tmpdir = str(tmpdir)
+    # Test data directory
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+        inspect.getfile(inspect.currentframe())))), "data")
     comm = Communicator()
-    stations_component = StationsComponent(
+    StationsComponent(
         stationxml_folder=os.path.join(data_dir, "station_files",
                                        "stationxml"),
         seed_folder=os.path.join(data_dir, "station_files", "seed"),
         resp_folder=os.path.join(data_dir, "station_files", "resp"),
-        cache_folder=cache_directory,
+        cache_folder=tmpdir,
         communicator=comm,
         component_name="stations")
-    return stations_component, comm
+    comm.cache_dir = tmpdir
+    return comm
 
 
-def test_station_cache_update(tmpdir):
-    tmpdir = str(tmpdir)
-    comm = _create_stations_object(tmpdir)[1]
-    assert len(os.listdir(tmpdir)) == 0
+def test_station_cache_update(comm):
+    assert len(os.listdir(comm.cache_dir)) == 0
     comm.stations.force_cache_update()
-    assert os.listdir(tmpdir) == ["station_cache.sqlite"]
+    assert os.listdir(comm.cache_dir) == ["station_cache.sqlite"]
 
     # Make sure all files are in there.
     filenames = list(set([i["filename"]
                           for i in comm.stations.get_all_channels()]))
     assert sorted(os.path.basename(i) for i in filenames) == \
-           sorted(
-               ["RESP.AF.DODT..BHE", "RESP.G.FDF.00.BHE", "RESP.G.FDF.00.BHN",
-                "RESP.G.FDF.00.BHZ", "dataless.BW_FURT", "dataless.IU_PAB",
-                "IRIS_single_channel_with_response.xml"])
+        sorted(
+            ["RESP.AF.DODT..BHE", "RESP.G.FDF.00.BHE", "RESP.G.FDF.00.BHN",
+             "RESP.G.FDF.00.BHZ", "dataless.BW_FURT", "dataless.IU_PAB",
+             "IRIS_single_channel_with_response.xml"])
 
+
+def test_autocreation_of_cache(comm):
     # Deleting the cache file and initializing a new stations object will
     # create the station cache if it is accessed.
-    os.remove(os.path.join(tmpdir, "station_cache.sqlite"))
-    assert len(os.listdir(tmpdir)) == 0
-    comm = _create_stations_object(tmpdir)[1]
+    assert len(os.listdir(comm.cache_dir)) == 0
     filenames = list(set([i["filename"]
                           for i in comm.stations.get_all_channels()]))
     assert sorted(os.path.basename(i) for i in filenames) == \
-           sorted(
-               ["RESP.AF.DODT..BHE", "RESP.G.FDF.00.BHE", "RESP.G.FDF.00.BHN",
-                "RESP.G.FDF.00.BHZ", "dataless.BW_FURT", "dataless.IU_PAB",
-                "IRIS_single_channel_with_response.xml"])
-    assert os.listdir(tmpdir) == ["station_cache.sqlite"]
+        sorted(
+            ["RESP.AF.DODT..BHE", "RESP.G.FDF.00.BHE", "RESP.G.FDF.00.BHN",
+             "RESP.G.FDF.00.BHZ", "dataless.BW_FURT", "dataless.IU_PAB",
+             "IRIS_single_channel_with_response.xml"])
+    assert os.listdir(comm.cache_dir) == ["station_cache.sqlite"]
 
 
-def test_has_channel(tmpdir):
-    comm = _create_stations_object(str(tmpdir))[1]
+def test_has_channel(comm):
     all_channels = comm.stations.get_all_channels()
     for channel in all_channels:
         # Works for timestamps and UTCDateTime objects.
@@ -110,8 +106,8 @@ def test_has_channel(tmpdir):
             assert comm.stations.has_channel(channel["channel_id"],
                                              obspy.UTCDateTime(2030, 1, 1))
 
-def test_get_station_filename(tmpdir):
-    comm = _create_stations_object(str(tmpdir))[1]
+
+def test_get_station_filename(comm):
     all_channels = comm.stations.get_all_channels()
     for channel in all_channels:
         # Should work for timestamps and UTCDateTime objects.
@@ -125,8 +121,7 @@ def test_get_station_filename(tmpdir):
                 channel["channel_id"], channel["start_date"] - 3600)
 
 
-def test_get_coordinates_for_stations(tmpdir):
-    comm = _create_stations_object(str(tmpdir))[1]
+def test_get_coordinates_for_stations(comm):
     all_channels = comm.stations.get_all_channels()
     for channel in all_channels:
         net, sta = channel["channel_id"].split(".")[:2]
@@ -147,31 +142,27 @@ def test_get_coordinates_for_stations(tmpdir):
         comm.stations.get_coordinates("AA", "BB")
 
 
-def test_get_details_for_filename(tmpdir):
-    comm = _create_stations_object(str(tmpdir))[1]
+def test_get_details_for_filename(comm):
     all_channels = comm.stations.get_all_channels()
     for channel in all_channels:
         assert channel in \
-           comm.stations.get_details_for_filename(channel["filename"])
+            comm.stations.get_details_for_filename(channel["filename"])
 
 
-def test_all_coordinates_at_time(tmpdir):
-    comm = _create_stations_object(str(tmpdir))[1]
-    all_channels = comm.stations.get_all_channels()
-
+def test_all_coordinates_at_time(comm):
     # There is only one stations that start that early.
     coords = comm.stations.get_all_coordinates_at_time(920000000)
     assert coords == \
-    {'IU.PAB.00.BHE':
-         {'latitude': 39.5446, 'elevation_in_m': 950.0,
-          'local_depth_in_m': 0.0, 'longitude': -4.349899}}
+        {'IU.PAB.00.BHE':
+            {'latitude': 39.5446, 'elevation_in_m': 950.0,
+             'local_depth_in_m': 0.0, 'longitude': -4.349899}}
     # Also works with a UTCDateTime object.
     coords = comm.stations.get_all_coordinates_at_time(
         obspy.UTCDateTime(920000000))
     assert coords == \
-           {'IU.PAB.00.BHE':
-                {'latitude': 39.5446, 'elevation_in_m': 950.0,
-                 'local_depth_in_m': 0.0, 'longitude': -4.349899}}
+        {'IU.PAB.00.BHE':
+            {'latitude': 39.5446, 'elevation_in_m': 950.0,
+             'local_depth_in_m': 0.0, 'longitude': -4.349899}}
 
     # Most channels have no set endtime or an endtime very far in the
     # future.

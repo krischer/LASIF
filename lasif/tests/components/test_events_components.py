@@ -20,18 +20,21 @@ def comm():
     """
     data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         inspect.getfile(inspect.currentframe())))), "data", "ExampleProject",
-                            "EVENTS")
+        "EVENTS")
     comm = Communicator()
     EventsComponent(data_dir, comm, "events")
     return comm
 
+
 def test_event_list(comm):
     assert sorted(comm.events.list()) == sorted([
-      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-      "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"])
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"])
+
 
 def test_event_count(comm):
     assert comm.events.count() == 2
+
 
 def test_has_event(comm):
     assert comm.events.has_event(
@@ -40,10 +43,11 @@ def test_has_event(comm):
         "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
     assert not comm.events.has_event("random")
 
+
 def test_get_event(comm):
     ev = comm.events.get("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
     ev["filename"] = os.path.basename(ev["filename"])
-    assert ev ==  {
+    assert ev == {
         'depth_in_km': 4.5,
         'event_name': 'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
         'filename': 'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml',
@@ -82,6 +86,7 @@ def test_get_event(comm):
     with pytest.raises(LASIFNotFoundError):
         comm.events.get("random")
 
+
 def test_get_all_events(comm):
     events = {
         "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11":
@@ -89,6 +94,7 @@ def test_get_all_events(comm):
         "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15":
             comm.events.get("GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")}
     assert events == comm.events.get_all_events()
+
 
 def test_event_caching(comm):
     """
