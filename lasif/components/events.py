@@ -91,18 +91,19 @@ class EventsComponent(Component):
         if len(cat) > 1:
             msg = "File '%s' has more than one event. Only the first one " \
                   "will be used"
-            warnings.warn(LASIFWarning(msg % event_name))
+            warnings.warn(msg % event_name, LASIFWarning)
         event = cat[0]
 
         # Extract information.
         mag = event.preferred_magnitude() or event.magnitudes[0]
         org = event.preferred_origin() or event.origins[0]
         if org.depth is None:
-            warnings.warn("Origin contains no depth. Will be assumed to be 0")
+            warnings.warn("Origin contains no depth. Will be assumed to be 0",
+                          LASIFWarning)
             org.depth = 0.0
         if mag.magnitude_type is None:
             warnings.warn("Magnitude has no specified type. Will be assumed "
-                          "to be Mw")
+                          "to be Mw", LASIFWarning)
             mag.magnitude_type = "Mw"
 
         # Get the moment tensor.

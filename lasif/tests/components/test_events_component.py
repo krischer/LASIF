@@ -3,12 +3,14 @@
 from __future__ import absolute_import
 
 import inspect
+import io
 import obspy
 import os
 import pytest
 import time
+import re
 
-from lasif import LASIFNotFoundError
+from lasif import LASIFNotFoundError, LASIFWarning
 from lasif.components.events import EventsComponent
 from lasif.components.communicator import Communicator
 
@@ -113,3 +115,39 @@ def test_event_caching(comm):
     second_run = b - a
 
     assert (second_run * 10) <= first_run
+
+
+def test_faulty_events(tmpdir, recwarn):
+    tmpdir = str(tmpdir)
+    file_1 = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+        inspect.getfile(inspect.currentframe())))), "data", "ExampleProject",
+        "EVENTS", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml")
+    file_2 = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+        inspect.getfile(inspect.currentframe())))), "data", "ExampleProject",
+        "EVENTS", "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml")
+    cat = obspy.readEvents(file_1)
+    cat += obspy.readEvents(file_2)
+
+    # Modify it to trigger all problems.
+    temp = io.BytesIO()
+    cat.write(temp, format="quakeml")
+    temp.seek(0, 0)
+    temp = temp.read()
+    pattern = re.compile(r"<depth>.*?</depth>", re.DOTALL)
+    temp = re.sub(pattern, "<depth></depth>", temp)
+    temp = re.sub(r"<type>.*?</type>", "<type></type>", temp)
+    with open(os.path.join(tmpdir, "random.xml"), "wb") as fh:
+        fh.write(temp)
+
+    comm = Communicator()
+    EventsComponent(tmpdir, comm, "events")
+
+    event = comm.events.get('random')
+    assert "more than one event" in str(recwarn.pop(LASIFWarning).message)
+    assert "contains no depth" in str(recwarn.pop(LASIFWarning).message)
+    assert "Magnitude has no specified type" in str(
+        recwarn.pop(LASIFWarning).message)
+
+    # Assert the default values it will then take.
+    assert event["depth_in_km"] == 0.0
+    assert event["magnitude_type"] == "Mw"

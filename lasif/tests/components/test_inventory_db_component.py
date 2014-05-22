@@ -216,6 +216,6 @@ def test_coordinate_downloading_fails(patch, comm):
 def test_coordinate_downloading_urllib_errors(patch, comm):
     patch.side_effect = _urlopen_raises
     assert comm.inventory_db.get_coordinates("BW.ROTZ") == \
-           {"latitude": None, "longitude": None,
-            "elevation_in_m": None, "local_depth_in_m": None}
+        {"latitude": None, "longitude": None,
+         "elevation_in_m": None, "local_depth_in_m": None}
     assert patch.call_count == 2
