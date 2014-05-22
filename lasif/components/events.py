@@ -33,6 +33,8 @@ events.
 :license: GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from __future__ import absolute_import
+
 import glob
 from itertools import izip
 import os
@@ -40,18 +42,11 @@ import warnings
 
 
 from .component import Component
+from lasif import LASIFNotFoundError
 
 
 class EventsComponent(Component):
-    """
-    A helper class for the main lasif.project.Project class.
-
-    It aims to provide a convenient and simple interface to access all events
-    within LASIF. It will work with all xml files in one folder.
-    """
     def __init__(self, folder, communicator, component_name):
-        """
-        """
         # Build a dictionary with the keys being the names of all events and
         # the values the filenames.
         self.__event_files = {}
@@ -65,55 +60,31 @@ class EventsComponent(Component):
 
         super(EventsComponent, self).__init__(communicator, component_name)
 
-    def keys(self):
-        """
-        Returns all event names.
-        """
-        return list(self.iterkeys())
+    def list(self):
+        return self.__event_files.keys()
 
-    def iterkeys(self):
-        """
-        Like keys, but an iterator.
-        """
-        return (_i for _i in self.__event_files.iterkeys())
-
-    def __contains__(self, event_name):
-        if event_name in self.__event_files:
-            return True
-        return False
-
-    def __len__(self):
+    def count(self):
         return len(self.__event_files)
 
-    def values(self):
-        """
-        Returns a list with a dictionary describing each event.
-        """
-        return list(self.itervalues())
+    def has_event(self, event_name):
+        return event_name in self.__event_files
 
-    def itervalues(self):
+    def get_all_events(self):
         """
-        Like values(), but an iterator.
+        Returns a dictionary with the key being the event names and the
+        values the information about each event, as would be returned by the
+        get() method.
         """
-        return (self.__getitem__(_i) for _i in self.__event_files.iterkeys())
+        all_events = {}
+        for event_name in self.__event_files.keys():
+            all_events[event_name] = self.get(event_name)
+        return all_events
 
-    def items(self):
-        """
-        Returns a list of all items.
-        """
-        return list(self.iteritems())
-
-    def iteritems(self):
-        """
-        Like items(), but an iterator.
-        """
-        return izip(self.iterkeys(), self.itervalues())
-
-    def __getitem__(self, event_name):
+    def get(self, event_name):
         """
         Get information about one event.
 
-        :type event_name: dict
+        :type event_name: str
         :param event_name: The event name.
         :rtype: dict
         :returns: A dictionary with information about the current event.
@@ -136,22 +107,24 @@ class EventsComponent(Component):
 
         The moment tensor components are in Newton * meter.
         """
-        # Raise a KeyError if the event is not found.
         if event_name not in self.__event_files:
-            raise KeyError("'%s'" % str(event_name))
+            raise LASIFNotFoundError
 
         # Check if it already exists within the cache.
         if event_name in self.__event_info_cache:
             return self.__event_info_cache[event_name]
 
         # Import here so a simple class import does not yet require and ObsPy
-        # import. Repeated imports are fast.
+        # import. Repeated imports are fast as they do nothing.
         from obspy import readEvents
         from obspy.core.util import FlinnEngdahl
 
         # Get an ObsPy event object.
         filename = self.__event_files[event_name]
-        event = readEvents(filename)[0]
+        cat = readEvents(filename)
+        if len(cat) > 1:
+            msg = "File '%s' has more than one event. Only the first one will"
+        event = cat[0]
 
         # Extract information.
         mag = event.preferred_magnitude() or event.magnitudes[0]
