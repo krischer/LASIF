@@ -12,7 +12,7 @@ Functionality for data preprocessing.
 import time
 import warnings
 
-from lasif import LASIFException
+from lasif import LASIFError
 from lasif.tools.colored_logger import ColoredLogger
 from lasif.tools.parallel import parallel_map
 
@@ -108,12 +108,12 @@ def preprocess_file(file_info):
     # Non-zero length
     if not len(tr):
         msg = "No data found in time window around the event. File skipped."
-        raise LASIFException(msg)
+        raise LASIFError(msg)
 
     # No nans or infinity values allowed.
     if not np.isfinite(tr.data).all():
         msg = "Data contains NaNs or Infs. File skipped"
-        raise LASIFException(msg)
+        raise LASIFError(msg)
 
     # =========================================================================
     # Step 1: Detrend and taper.
@@ -150,7 +150,7 @@ def preprocess_file(file_info):
     # check if the station file actually exists ==============================
     if not file_info["station_filename"]:
         msg = "No station file found for the relevant time span. File skipped"
-        raise LASIFException(msg)
+        raise LASIFError(msg)
 
     # processing for seed files ==============================================
     if "/SEED/" in station_file:
@@ -164,7 +164,7 @@ def preprocess_file(file_info):
             msg = ("File  could not be corrected with the help of the "
                    "SEED file '%s'. Will be skipped.") \
                 % file_info["station_filename"],
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
     # processing with RESP files =============================================
     elif "/RESP/" in station_file:
@@ -175,7 +175,7 @@ def preprocess_file(file_info):
             msg = ("File  could not be corrected with the help of the "
                    "RESP file '%s'. Will be skipped.") \
                 % file_info["station_filename"],
-            raise LASIFException(msg)
+            raise LASIFError(msg)
     else:
         raise NotImplementedError
 

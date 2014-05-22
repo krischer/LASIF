@@ -17,7 +17,7 @@ from scipy.signal.filter_design import BadCoefficients \
     as BadCoefficientsWarning
 import warnings
 
-from lasif import LASIFException
+from lasif import LASIFError
 
 
 class Iteration(object):
@@ -140,7 +140,7 @@ class Iteration(object):
                     msg = ("The filter for creating the source time function "
                            "is potentially unstable! Please change its "
                            "settings!")
-                    raise LASIFException(msg)
+                    raise LASIFError(msg)
 
         return ret_dict
 
@@ -450,4 +450,4 @@ def _get_default_solver_settings(solver, min_period, max_period):
     else:
         msg = "Solver '%s' not known. Known solvers: %s" % (
             solver, ",".join(known_solvers))
-        raise LASIFException(msg)
+        raise LASIFError(msg)

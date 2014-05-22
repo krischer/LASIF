@@ -9,7 +9,7 @@ lasif.project
 Exceptions
 ==========
 
-.. autoexception:: lasif.project.LASIFException
+.. autoexception:: lasif.project.LASIFError
 
 
 Classes

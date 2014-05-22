@@ -15,7 +15,7 @@ import inspect
 import numpy as np
 import warnings
 
-from lasif import LASIFException
+from lasif import LASIFError
 
 DataTuple = collections.namedtuple("DataTuple", ["data", "synthetics",
                                                  "coordinates"])
@@ -45,7 +45,7 @@ class DataSyntheticIterator(object):
         if event_name not in self.iteration.events:
             msg = "Event '%s' not used in iteration '%s.'" % \
                   (event_name, iteration_name)
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
         # Get the coordinates.
         self._station_coordinates = \
@@ -104,7 +104,7 @@ class DataSyntheticIterator(object):
             data = self._project.get_waveform_data(
                 self.event_name, station_id, data_type="processed",
                 tag=self._processing_tag)
-        except LASIFException:
+        except LASIFError:
             msg = "No data found for station '%s'." % station_id
             warnings.warn_explicit(
                 msg, UserWarning, __file__,
@@ -116,7 +116,7 @@ class DataSyntheticIterator(object):
             synthetics = self._project.get_waveform_data(
                 self.event_name, station_id, data_type="synthetic",
                 iteration_name=self.iteration.iteration_name)
-        except LASIFException:
+        except LASIFError:
             msg = "No synthetics found for station '%s'." % station_id
             warnings.warn_explicit(
                 msg, UserWarning, __file__,

@@ -41,7 +41,7 @@ should scale fairly well and makes it trivial to add new methods.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import os
-from lasif import LASIFException
+from lasif import LASIFError
 
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
@@ -568,7 +568,7 @@ def lasif_event_info(parser, args):
 
     try:
         stations = proj.get_stations_for_event(event_name)
-    except LASIFException:
+    except LASIFError:
         stations = {}
 
     if verbose:
@@ -1182,7 +1182,7 @@ def lasif_debug(parser, args):
     """
     Print information LASIF can gather from a list of files.
     """
-    from lasif.project import LASIFException
+    from lasif.project import LASIFError
 
     parser.add_argument(
         "files", help="filenames to print debug information about", nargs="+")
@@ -1202,7 +1202,7 @@ def lasif_debug(parser, args):
 
         try:
             info = proj.get_debug_information_for_file(filename)
-        except LASIFException as e:
+        except LASIFError as e:
             info = "Error: %s" % e.message
 
         print info

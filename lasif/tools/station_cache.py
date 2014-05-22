@@ -16,7 +16,7 @@ import os
 import sqlite3
 import warnings
 
-from lasif import LASIFException
+from lasif import LASIFError
 from lasif.tools import simple_resp_parser
 from lasif.tools.file_info_cache import FileInfoCache
 
@@ -26,7 +26,7 @@ TOL_DEGREES = 0.01
 TOL_METERS = 1000.0
 
 
-class StationCacheException(LASIFException):
+class StationCacheError(LASIFError):
     pass
 
 
@@ -81,7 +81,7 @@ class StationCache(FileInfoCache):
             p = Parser(filename)
         except:
             msg = "Not a valid SEED file?"
-            raise StationCacheException(msg)
+            raise StationCacheError(msg)
         channels = p.getInventory()["channels"]
 
         channels = [[
@@ -101,7 +101,7 @@ class StationCache(FileInfoCache):
             inv = obspy.read_inventory(filename, format="stationxml")
         except:
             msg = "Not a valid StationXML file?"
-            raise StationCacheException(msg)
+            raise StationCacheError(msg)
 
         channels = []
         for network in inv:
@@ -112,7 +112,7 @@ class StationCache(FileInfoCache):
                         channel.code)
                     if channel.response is None:
                         msg = "Channel %s has no response." % channel_id
-                        raise StationCacheException(msg)
+                        raise StationCacheError(msg)
                     start_date = channel.start_date
                     if start_date:
                         start_date = int(start_date.timestamp)
@@ -126,7 +126,7 @@ class StationCache(FileInfoCache):
 
         if not channels:
             msg = "File has no channels."
-            raise StationCacheException(msg)
+            raise StationCacheError(msg)
 
         return channels
 
@@ -137,7 +137,7 @@ class StationCache(FileInfoCache):
                                                         remove_duplicates=True)
         except:
             msg = "Not a valid RESP file?"
-            raise StationCacheException(msg)
+            raise StationCacheError(msg)
 
         channels = [[
             _i["channel_id"], int(_i["start_date"].timestamp),
@@ -146,20 +146,26 @@ class StationCache(FileInfoCache):
 
         return channels
 
-    def get_all_channel_coordinates(self, timestamp):
+    def get_all_channel_coordinates(self, time):
         """
         Returns a dictionary with all station coordinates available at a
         certain time. The coordinates will be None if the station file has
         no coordinates but at least, it will assure that the channel
         actually has an available response information.
         """
+        try:
+            time = time.timestamp
+        except AttributeError:
+            pass
+        time = int(time)
+
         query = """
         SELECT channel_id, latitude, longitude, elevation_in_m,
             local_depth_in_m
         FROM indices
         WHERE start_date <= %i
           AND (end_date IS NULL OR end_date >= %i)
-        """ % (int(timestamp), int(timestamp))
+        """ % (time, time)
 
         results = self.db_cursor.execute(query).fetchall()
 
@@ -187,7 +193,7 @@ class StationCache(FileInfoCache):
                 coordinates = self.__cache_station_coordinates[station_id]
             except:
                 msg = "No coordinates found for whatever reason."
-                raise StationCacheException(msg)
+                raise StationCacheError(msg)
             else:
                 return coordinates
 
@@ -284,7 +290,11 @@ class StationCache(FileInfoCache):
         :param channel_id: The channel id.
         :param time: The time as a timestamp.
         """
-        time = int(time.timestamp)
+        try:
+            time = time.timestamp
+        except AttributeError:
+            pass
+        time = int(time)
         sql_query = """
         SELECT files.filename FROM indices
         INNER JOIN files
@@ -311,9 +321,10 @@ class StationCache(FileInfoCache):
         :param time: The time as a timestamp.
         """
         try:
-            time = int(time.timestamp)
+            time = time.timestamp
         except AttributeError:
-            time = int(time)
+            pass
+        time = int(time)
         sql_query = """
         SELECT id FROM indices
         WHERE (channel_id = '%s') AND (start_date <=  %i) AND

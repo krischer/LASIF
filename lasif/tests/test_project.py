@@ -14,7 +14,7 @@ viewed as integration tests.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import matplotlib as mpl
-from lasif import LASIFException
+from lasif import LASIFError
 
 mpl.use("agg")
 
@@ -26,7 +26,7 @@ import os
 import pytest
 import shutil
 
-from lasif import LASIFException
+from lasif import LASIFError
 from lasif.project import Project
 from lasif.tests.testing_helpers import project  # NOQA
 from lasif.tests.testing_helpers import images_are_identical, \
@@ -46,7 +46,7 @@ def test_initalizing_project_in_wrong_path():
     A useful error message should be returned when a project initialized with
     the wrong path.
     """
-    with pytest.raises(LASIFException) as excinfo:
+    with pytest.raises(LASIFError) as excinfo:
         Project("/some/random/path")
     assert "wrong project path" in excinfo.value.message.lower()
 
@@ -322,7 +322,7 @@ def test_generating_new_iteration(project):
     assert os.listdir(project.paths["iterations"]) == []
 
     # Using an invalid solver raises.
-    with pytest.raises(LASIFException) as excinfo:
+    with pytest.raises(LASIFError) as excinfo:
         project.create_new_iteration("1", "unknown_solver", 8, 100)
     msg = excinfo.value.message
     assert "not known" in msg
@@ -336,7 +336,7 @@ def test_generating_new_iteration(project):
     assert os.listdir(project.paths["iterations"]) == ["ITERATION_1.xml"]
 
     # Creating an already existing iteration raises.
-    with pytest.raises(LASIFException) as excinfo:
+    with pytest.raises(LASIFError) as excinfo:
         project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     assert excinfo.value.message.lower() == "iteration already exists."
 
@@ -775,7 +775,7 @@ def test_get_debug_information_for_file(project):
         "Lat/Lng/Ele/Dep: --/--/--/--")
 
     # Any other file should simply return an error.
-    with pytest.raises(LASIFException) as excinfo:
+    with pytest.raises(LASIFError) as excinfo:
         project.get_debug_information_for_file(os.path.join("DATA", "File_r"))
     assert "LASIF cannot gather any information from the file." == \
         excinfo.value.message
@@ -961,7 +961,7 @@ def test_get_stations_for_event(project):
         "longitude": 28.126}
 
     # event_2 has no stations.
-    with pytest.raises(LASIFException):
+    with pytest.raises(LASIFError):
         project.get_stations_for_event(event_2)
 
     # Passing a station_id only returns the requested station.
@@ -1005,7 +1005,7 @@ def test_discover_available_data(project):
          "raw": {"raw": ["Z"]}}
 
     # Requesting data for a non-existent station raises.
-    with pytest.raises(LASIFException):
+    with pytest.raises(LASIFError):
         project.discover_available_data(event, "NET.STA")
 
     # Now preprocess some data that then should appear.

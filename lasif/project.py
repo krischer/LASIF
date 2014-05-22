@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Project management class.
+Project components class.
 
 It is important to not import necessary things at the method level to make
 importing this file as fast as possible. Otherwise using the command line
@@ -20,7 +20,7 @@ import os
 import sys
 import warnings
 
-from lasif import LASIFException
+from lasif import LASIFError
 from lasif.tools.event_pseudo_dict import EventPseudoDict
 
 
@@ -54,12 +54,13 @@ class Project(object):
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
                    "path or uninitialized project?")
-            raise LASIFException(msg)
+            raise LASIFError(msg)
+
+        self.__update_folder_structure()
 
         # Easy event access.
         self.events = EventPseudoDict(self.paths["events"])
 
-        self.__update_folder_structure()
         self._read_config_file()
 
     def __setup_paths(self, root_path):
@@ -394,7 +395,7 @@ class Project(object):
         iteration = self._get_iteration(iteration_name)
         if iteration.solver_settings["solver"].lower() != "ses3d 4.1":
             msg = "Only works for SES3D 4.1"
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
         proc_params = iteration.get_process_params()
         f_min = proc_params["highpass"]
@@ -431,7 +432,7 @@ class Project(object):
 
         if os.path.exists(filename):
             msg = "Iteration already exists."
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
         # Get a dictionary containing the event names as keys and a list of
         # stations per event as values.
@@ -439,7 +440,7 @@ class Project(object):
         for event in self.events.iterkeys():
             try:
                 info = self.get_stations_for_event(event)
-            except LASIFException:
+            except LASIFError:
                 continue
             events_dict[event] = info
 
@@ -476,7 +477,7 @@ class Project(object):
         iterations = self.get_iteration_dict()
         if iteration_name not in iterations:
             msg = "Could not find iteration '%s'." % iteration_name
-            raise LASIFException(msg)
+            raise LASIFError(msg)
         return Iteration(iterations[iteration_name])
 
     def preprocess_data(self, iteration_name, event_ids=None,
@@ -649,7 +650,7 @@ class Project(object):
         except:
             msg = "No raw data found for event '%s' and station '%s'." % (
                 event_name, station_id)
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
         network, station = station_id.split(".")
 
@@ -659,7 +660,7 @@ class Project(object):
             waveforms = self._get_waveform_cache_file(event_name, "raw")
             if not waveforms:
                 msg = "No suitable data found."
-                raise LASIFException(msg)
+                raise LASIFError(msg)
             waveforms = waveforms.get_files_for_station(network, station)
             # Make sure only one location and channel type component is used.
             channel_set = set()
@@ -685,7 +686,7 @@ class Project(object):
                 if not filenames:
                     msg = ("Failed to find processed files. Did you "
                            "preprocess the data?")
-                    raise LASIFException(msg)
+                    raise LASIFError(msg)
             st = obspy.Stream()
             for filename in filenames:
                 st += obspy.read(filename)
@@ -699,7 +700,7 @@ class Project(object):
                 self._get_long_iteration_name(iteration_name))
             if not os.path.exists(folder_name):
                 msg = "Could not find suitable synthetics."
-                raise LASIFException(msg)
+                raise LASIFError(msg)
 
             # Find all files.
             files = []
@@ -714,7 +715,7 @@ class Project(object):
 
             if not files:
                 msg = "Could not find suitable synthetics."
-                raise LASIFException(msg)
+                raise LASIFError(msg)
 
             # This maps the synthetic channels to ZNE.
             synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
@@ -742,7 +743,7 @@ class Project(object):
                        "synthetics for event '%s' at station '%s' for "
                        "iteration '%s'." % (event_name, station_id,
                                             iteration_name))
-                raise LASIFException(msg)
+                raise LASIFError(msg)
 
             synthetics.sort()
 
@@ -779,7 +780,7 @@ class Project(object):
         """
         Discovers the available data for one event at a certain station.
 
-        Will raise a :exc:`~lasif.project.LASIFException` if no raw data is
+        Will raise a :exc:`~lasif.project.LASIFError` if no raw data is
         found for the given event and station combination.
 
         :type event_name: str
@@ -805,7 +806,7 @@ class Project(object):
         except:
             msg = "No raw data found for event '%s' and station '%s'." % (
                 event_name, station_id)
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
         # Get the waveform
         waveform_cache = self._get_waveform_cache_file(event_name, "raw")
@@ -868,7 +869,7 @@ class Project(object):
         if not available_data:
             msg = ("No data available for the chosen event - station "
                    "combination")
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
         # Callback for dynamic data plotting.
         def get_data_callback(data_type, tag_or_iteration=None):
@@ -956,7 +957,7 @@ class Project(object):
             visualization.plot_event_histogram(events, "time")
         else:
             msg = "Unknown plot_type"
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
     def plot_raydensity(self, save_plot=True):
         """
@@ -981,7 +982,7 @@ class Project(object):
         for event_name, event_info in self.events.iteritems():
             try:
                 stations = self.get_stations_for_event(event_name)
-            except LASIFException:
+            except LASIFError:
                 stations = {}
             event_stations.append((event_info, stations))
 
@@ -1260,7 +1261,7 @@ class Project(object):
 
         if waveform_type not in ["data", "synthetics"]:
             msg = "waveform_type must be either 'data' or 'synthetics'."
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
         from lasif.tools.waveform_cache import WaveformCache
 
@@ -1309,7 +1310,7 @@ class Project(object):
         data_path = os.path.join(self.paths["data"], event_name, "raw")
         if not os.path.exists(data_path):
             msg = "No raw data found."
-            raise LASIFException(msg)
+            raise LASIFError(msg)
 
         waveforms = self._get_waveform_cache_file(event_name, "raw")
 
@@ -1319,14 +1320,14 @@ class Project(object):
             if not files:
                 msg = "Station '%s' could not be found for the given event." \
                     % station_id
-                raise LASIFException(msg)
+                raise LASIFError(msg)
 
             # Assert that a station file exists for the current station.
             # Otherwise the station does not exists for the current event.
             if not self.station_cache.station_info_available(
                     files[0]["channel_id"], files[0]["starttime_timestamp"]):
                 msg = "No station file found for the station."
-                raise LASIFException(msg)
+                raise LASIFError(msg)
 
             coordinates = self._get_coordinates_for_waveform_file(
                 waveform_filename=files[0]["filename"],
@@ -2157,7 +2158,7 @@ class Project(object):
             # Now rest should not be existant anymore
             if rest:
                 msg = "File is nested too deep in the data directory."
-                raise LASIFException(msg)
+                raise LASIFError(msg)
             if tag.startswith("preprocessed_"):
                 return ("The waveform file is a preprocessed file. LASIF will "
                         "not use it to extract any metainformation.")
@@ -2167,11 +2168,11 @@ class Project(object):
                                                           use_cache=False)
                 if not waveforms:
                     msg = "LASIF could not read the waveform file."
-                    raise LASIFException(msg)
+                    raise LASIFError(msg)
                 details = waveforms.get_details(filename)
                 if not details:
                     msg = "LASIF could not read the waveform file."
-                    raise LASIFException(msg)
+                    raise LASIFError(msg)
                 filetype = read(filename)[0].stats._format
                 # Now assemble the final return string.
                 return (
@@ -2199,7 +2200,7 @@ class Project(object):
                             ) for _i in details])))
             else:
                 msg = "The waveform tag '%s' is not used by LASIF." % tag
-                raise LASIFException(msg)
+                raise LASIFError(msg)
 
         # Station files.
         elif os.path.commonprefix([filename, self.paths["stations"]]) == \
@@ -2207,7 +2208,7 @@ class Project(object):
             # Get the station cache
             details = self.station_cache.get_details(filename)
             if not details:
-                raise LASIFException(err_msg)
+                raise LASIFError(err_msg)
             if filename in self.station_cache.files["resp"]:
                 filetype = "RESP"
             elif filename in self.station_cache.files["seed"]:
@@ -2248,14 +2249,14 @@ class Project(object):
             try:
                 event = self.events[event_name]
             except IndexError:
-                raise LASIFException(err_msg)
+                raise LASIFError(err_msg)
             return (
                 "The QuakeML files contains the following information:\n" +
                 pprint.pformat(event)
             )
 
         else:
-            raise LASIFException(err_msg)
+            raise LASIFError(err_msg)
 
     def has_station_file(self, channel_id, time):
         """

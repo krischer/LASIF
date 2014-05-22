@@ -6,9 +6,16 @@ import os
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 
-class LASIFException(Exception):
+class LASIFError(Exception):
     """
     Base exception class for LASIF.
+    """
+    pass
+
+
+class LASIFNotFoundError(LASIFError):
+    """
+    Raised whenever something is not found inside the project.
     """
     pass
 
