@@ -79,7 +79,6 @@ class Project(Component):
                           resp_folder=self.paths["resp"],
                           communicator=self.comm, component_name="stations")
 
-
     def __setup_paths(self, root_path):
         """
         Central place to define all paths.

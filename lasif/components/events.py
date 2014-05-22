@@ -1,48 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Defines a class to easily deal with QuakeML files stored in one folder.
-
-Provides a lazy dicionary-like interface to get information about all the
-events.
-
-
-.. code-block::python
-
-    >> from lasif.tools.event_pseudo_dict import EventPseudoDict
-    >> events = EventPseudoDict("/path/to/folder/of/QuakeMLs")
-
-    # The .xml extension is stripped from all names.
-    >> events.keys()
-    ["event_name_1", "event_name_2"]
-
-    # All events will only be read once requested. Repeated accessing will not
-    # read the QuakeML file again but access a cached information dictionary.
-    >> events["event_name_1"]
-    {"latitude": 10.1, "longitude": 11.1,
-     "origin_time": obspy.UTCDateTime(...), ...}
-
-    >> "event_name_1" in events
-    True
-
-    >> len(events)
-    2
-
-:copyright: Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
-
-:license: GNU General Public License, Version 3
-    (http://www.gnu.org/copyleft/gpl.html)
-"""
 from __future__ import absolute_import
 
 import glob
-from itertools import izip
 import os
 import warnings
 
-
 from .component import Component
-from lasif import LASIFNotFoundError
+from lasif import LASIFNotFoundError, LASIFWarning
 
 
 class EventsComponent(Component):
@@ -123,7 +88,9 @@ class EventsComponent(Component):
         filename = self.__event_files[event_name]
         cat = readEvents(filename)
         if len(cat) > 1:
-            msg = "File '%s' has more than one event. Only the first one will"
+            msg = "File '%s' has more than one event. Only the first one " \
+                  "will be used"
+            warnings.warn(LASIFWarning(msg % event_name))
         event = cat[0]
 
         # Extract information.
