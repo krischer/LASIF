@@ -23,6 +23,7 @@ from .communicator import Communicator
 from .component import Component
 from .events import EventsComponent
 from .stations import StationsComponent
+from .waveforms import WaveformsComponent
 
 
 class Project(Component):
@@ -78,6 +79,9 @@ class Project(Component):
                           seed_folder=self.paths["dataless_seed"],
                           resp_folder=self.paths["resp"],
                           communicator=self.comm, component_name="stations")
+        WaveformsComponent(data_folder=self.paths["data"],
+                           synthetics_folder=self.paths["synthetics"],
+                           communicator=self.comm, component_name="waveforms")
 
     def __setup_paths(self, root_path):
         """

@@ -73,7 +73,8 @@ class EventsComponent(Component):
         The moment tensor components are in Newton * meter.
         """
         if event_name not in self.__event_files:
-            raise LASIFNotFoundError
+            raise LASIFNotFoundError("Event '%s' not known to LASIF." %
+                                     event_name)
 
         # Check if it already exists within the cache.
         if event_name in self.__event_info_cache:
