@@ -22,6 +22,7 @@ from lasif import LASIFError
 from .communicator import Communicator
 from .component import Component
 from .events import EventsComponent
+from .inventory_db import InventoryDBComponent
 from .stations import StationsComponent
 from .waveforms import WaveformsComponent
 
@@ -82,6 +83,9 @@ class Project(Component):
         WaveformsComponent(data_folder=self.paths["data"],
                            synthetics_folder=self.paths["synthetics"],
                            communicator=self.comm, component_name="waveforms")
+        InventoryDBComponent(db_file=self.paths["inv_db_file"],
+                             communicator=self.comm,
+                             component_name="inventory_db")
 
     def __setup_paths(self, root_path):
         """

@@ -1351,7 +1351,7 @@ class Project(object):
 
         # Get all channels active at that time frame from the station cache.
         all_channel_coordinates = \
-            self.station_cache.get_all_channel_coordinates(
+            self.station_cache.get_all_channels_at_time(
                 self.events[event_name]["origin_time"].timestamp)
         # Get all channels from inventory DB.
         inv_db = InventoryDB(self.paths["inv_db_file"]).get_all_coordinates()

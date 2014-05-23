@@ -2,12 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import glob
-import os
-import warnings
-
 from .component import Component
-from lasif import LASIFNotFoundError, LASIFWarning
 
 
 class WaveformsComponent(Component):
@@ -19,3 +14,4 @@ class WaveformsComponent(Component):
         super(WaveformsComponent, self).__init__(communicator, component_name)
 
     def get_raw(self, event_name):
+        pass

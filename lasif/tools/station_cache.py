@@ -146,7 +146,7 @@ class StationCache(FileInfoCache):
 
         return channels
 
-    def get_all_channel_coordinates(self, time):
+    def get_all_channels_at_time(self, time):
         """
         Returns a dictionary with all station coordinates available at a
         certain time. The coordinates will be None if the station file has
@@ -175,77 +175,6 @@ class StationCache(FileInfoCache):
             "elevation_in_m": _i[3],
             "local_depth_in_m": _i[4]}
             for _i in results}
-
-    def get_coordinates_for_station(self, network, station):
-        """
-        Returns the coordinates for any station from the cache.
-
-        :param network: Network code.
-        :param station: Station code.
-        """
-        # Caching per instance. Otherwise this is very very slow.
-        station_id = network + "." + station
-
-        # Check if something has been written to the instance variable. If
-        # yes, assume all available stations have been written to it.
-        if self.__cache_station_coordinates:
-            try:
-                coordinates = self.__cache_station_coordinates[station_id]
-            except:
-                msg = "No coordinates found for whatever reason."
-                raise StationCacheError(msg)
-            else:
-                return coordinates
-
-        # Otherwise get all coordinates!
-        query = """
-        SELECT channel_id, latitude, longitude, elevation_in_m,
-            local_depth_in_m
-        FROM indices
-        WHERE latitude IS NOT NULL
-        """
-        results = self.db_cursor.execute(query).fetchall()
-
-        stations = {}
-
-        for result in results:
-            network_code, station_code = result[0].split(".")[:2]
-            station_id = ".".join((network_code, station_code))
-            this_station = {
-                "latitude": result[1],
-                "longitude": result[2],
-                "elevation_in_m": result[3],
-                "local_depth_in_m": result[4]}
-
-            if station_id in stations:
-                if this_station == stations[station_id]:
-                    continue
-                new_station = stations[station_id]
-
-                # Check if they are equal to a certain tolerance.
-                if \
-                        abs(this_station["latitude"] -
-                            new_station["latitude"]) > TOL_DEGREES \
-                        or \
-                        abs(this_station["longitude"] -
-                            new_station["longitude"]) > TOL_DEGREES \
-                        or \
-                        abs(this_station["elevation_in_m"] -
-                            new_station["elevation_in_m"]) > TOL_METERS \
-                        or \
-                        abs(this_station["local_depth_in_m"] -
-                            new_station["local_depth_in_m"]) > TOL_METERS:
-                    msg = ("Several different coordinates set found in "
-                           "station cache for %s. The first one found will be "
-                           "chosen.") % station_id
-                    warnings.warn(msg)
-                continue
-
-            stations[station_id] = this_station
-
-        self.__cache_station_coordinates = stations
-        # Recurse once; this only accesses the cache.
-        return self.get_coordinates_for_station(network, station)
 
     def get_channels(self):
         """
@@ -311,6 +240,24 @@ class StationCache(FileInfoCache):
             return None
         else:
             return result[0]
+
+    def get_channel_info(self, channel_id, time):
+        """
+        Returns some information for a certain channel and a certain time.
+        """
+        try:
+            time = time.timestamp
+        except AttributeError:
+            pass
+        time = int(time)
+        sql_query = """
+        SELECT id FROM indices
+        WHERE (channel_id = '%s') AND (start_date <=  %i) AND
+            ((end_date IS NULL) OR (end_date >= %i))
+        LIMIT 1;
+        """ % (channel_id, time, time)
+        result = self.db_cursor.execute(sql_query).fetchone()
+        from IPython.core.debugger import Tracer; Tracer(colors="Linux")()
 
     def station_info_available(self, channel_id, time):
         """

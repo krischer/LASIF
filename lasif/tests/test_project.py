@@ -292,7 +292,7 @@ def test_station_filename_generator(project):
     station filenames. This is used when downloading new station files.
     """
     new_seed_filename = \
-        project.get_station_filename("HL", "ARG", "", "BHZ", "datalessSEED")
+        project.get_channel_filename("HL", "ARG", "", "BHZ", "datalessSEED")
     existing_seed_filename = glob.glob(os.path.join(
         project.paths["dataless_seed"], "dataless.HL_*"))[0]
 
@@ -303,14 +303,14 @@ def test_station_filename_generator(project):
     assert os.path.dirname(new_seed_filename) == project.paths["dataless_seed"]
 
     # Test RESP file name generation.
-    resp_filename_1 = project.get_station_filename("A", "B", "C", "D", "RESP")
+    resp_filename_1 = project.get_channel_filename("A", "B", "C", "D", "RESP")
     assert not os.path.exists(resp_filename_1)
     assert os.path.dirname(resp_filename_1) == project.paths["resp"]
     with open(resp_filename_1, "wt") as fh:
         fh.write("blub")
     assert os.path.exists(resp_filename_1)
 
-    resp_filename_2 = project.get_station_filename("A", "B", "C", "D", "RESP")
+    resp_filename_2 = project.get_channel_filename("A", "B", "C", "D", "RESP")
     assert resp_filename_1 != resp_filename_2
     assert os.path.dirname(resp_filename_2) == project.paths["resp"]
 

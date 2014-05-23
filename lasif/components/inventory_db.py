@@ -37,7 +37,7 @@ class InventoryDBComponent(Component):
                                                    component_name)
 
     def save_station_coordinates(self, station_id, latitude, longitude,
-                                elevation_in_m, local_depth_in_m):
+                                 elevation_in_m, local_depth_in_m):
         """
         Saves the coordinates for some station in the database.
         """
@@ -106,7 +106,7 @@ class InventoryDBComponent(Component):
             "longitude": _i[2],
             "elevation_in_m": _i[3],
             "local_depth_in_m": _i[4]}
-                for _i in results}
+            for _i in results}
 
     def get_coordinates(self, station_id):
         """

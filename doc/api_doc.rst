@@ -10,6 +10,7 @@ API Documentation
     tools
     tools.parallel
     tools.file_info_cache
+    components/stations
 
 
 .. toctree::

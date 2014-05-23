@@ -111,35 +111,14 @@ def test_get_station_filename(comm):
     all_channels = comm.stations.get_all_channels()
     for channel in all_channels:
         # Should work for timestamps and UTCDateTime objects.
-        assert channel["filename"] == comm.stations.get_station_filename(
+        assert channel["filename"] == comm.stations.get_channel_filename(
             channel["channel_id"], channel["start_date"] + 3600)
-        assert channel["filename"] == comm.stations.get_station_filename(
+        assert channel["filename"] == comm.stations.get_channel_filename(
             channel["channel_id"],
             obspy.UTCDateTime(channel["start_date"] + 3600))
         with pytest.raises(LASIFNotFoundError):
-            comm.stations.get_station_filename(
+            comm.stations.get_channel_filename(
                 channel["channel_id"], channel["start_date"] - 3600)
-
-
-def test_get_coordinates_for_stations(comm):
-    all_channels = comm.stations.get_all_channels()
-    for channel in all_channels:
-        net, sta = channel["channel_id"].split(".")[:2]
-        # Resp files have no coordinates.
-        if "RESP." in channel["filename"]:
-            with pytest.raises(LASIFNotFoundError):
-                comm.stations.get_coordinates(net, sta)
-        # Others do.
-        else:
-            coordinates = comm.stations.get_coordinates(net, sta)
-            assert coordinates == {
-                "latitude": channel["latitude"],
-                "longitude": channel["longitude"],
-                "elevation_in_m": channel["elevation_in_m"],
-                "local_depth_in_m": channel["local_depth_in_m"]}
-    # Not available station.
-    with pytest.raises(LASIFNotFoundError):
-        comm.stations.get_coordinates("AA", "BB")
 
 
 def test_get_details_for_filename(comm):
@@ -151,13 +130,13 @@ def test_get_details_for_filename(comm):
 
 def test_all_coordinates_at_time(comm):
     # There is only one stations that start that early.
-    coords = comm.stations.get_all_coordinates_at_time(920000000)
+    coords = comm.stations.get_all_channels_at_time(920000000)
     assert coords == \
         {'IU.PAB.00.BHE':
             {'latitude': 39.5446, 'elevation_in_m': 950.0,
              'local_depth_in_m': 0.0, 'longitude': -4.349899}}
     # Also works with a UTCDateTime object.
-    coords = comm.stations.get_all_coordinates_at_time(
+    coords = comm.stations.get_all_channels_at_time(
         obspy.UTCDateTime(920000000))
     assert coords == \
         {'IU.PAB.00.BHE':
@@ -166,7 +145,7 @@ def test_all_coordinates_at_time(comm):
 
     # Most channels have no set endtime or an endtime very far in the
     # future.
-    channels = comm.stations.get_all_coordinates_at_time(
+    channels = comm.stations.get_all_channels_at_time(
         obspy.UTCDateTime(2030, 1, 1))
     assert sorted(channels.keys()) == sorted(
         ["G.FDF.00.BHZ", "G.FDF.00.BHN", "G.FDF.00.BHE", "AF.DODT..BHE",
