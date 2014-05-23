@@ -11,6 +11,16 @@ from lasif import LASIFNotFoundError, LASIFWarning
 
 
 class EventsComponent(Component):
+    """
+    Component managing a folder of QuakeML files.
+
+    Each file must adhere to the scheme ``*.xml``.
+
+    :param folder: Folder with QuakeML files.
+    :param communicator: The communicator instance.
+    :param component_name: The name of this component for the
+        communicator.
+    """
     def __init__(self, folder, communicator, component_name):
         # Build a dictionary with the keys being the names of all events and
         # the values the filenames.
@@ -26,19 +36,52 @@ class EventsComponent(Component):
         super(EventsComponent, self).__init__(communicator, component_name)
 
     def list(self):
+        """
+        List of all events.
+
+        >>> comm = getfixture('events_comm')
+        >>> comm.events.list() #  doctest: +NORMALIZE_WHITESPACE
+        ['GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15',
+         'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11']
+        """
         return self.__event_files.keys()
 
     def count(self):
+        """
+        Get the number of events managed by this component.
+
+        >>> comm = getfixture('events_comm')
+        >>> comm.events.count()
+        2
+        """
         return len(self.__event_files)
 
     def has_event(self, event_name):
+        """
+        Test for existence of an event.
+
+        :type event_name: str
+        :param event_name: The name of the event.
+
+        >>> comm = getfixture('events_comm')
+        >>> comm.events.has_event('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15')
+        True
+        >>> comm.events.has_event('random')
+        False
+        """
         return event_name in self.__event_files
 
     def get_all_events(self):
         """
         Returns a dictionary with the key being the event names and the
         values the information about each event, as would be returned by the
-        get() method.
+        :meth:`~.get` method.
+
+        >>> comm = getfixture('events_comm')
+        >>> comm.events.get_all_events() \
+        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+        {'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15': {...},
+         'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11': {...}}
         """
         all_events = {}
         for event_name in self.__event_files.keys():
@@ -50,27 +93,30 @@ class EventsComponent(Component):
         Get information about one event.
 
         :type event_name: str
-        :param event_name: The event name.
+        :param event_name: The name of the event.
         :rtype: dict
-        :returns: A dictionary with information about the current event.
-            Contains the following keys:
-            * event_name
-            * filename
-            * latitude
-            * longitude
-            * origin_time
-            * depth_in_km
-            * magnitude
-            * region
-            * magnitude_type
-            * m_rr
-            * m_tt
-            * m_pp
-            * m_rt
-            * m_rp
-            * m_tp
 
-        The moment tensor components are in Newton * meter.
+        >>> comm = getfixture('events_comm')
+        >>> comm.events.get('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15') \
+        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+        {'m_tp': -2.17e+17, 'm_tt': 8.92e+17, 'depth_in_km': 7.0,
+        'event_name': 'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15',
+        'magnitude_type': 'Mwc', 'm_rr': -8.07e+17, 'm_rp': -5.3e+16,
+        'm_pp': -8.5e+16, 'm_rt': 2.8e+16, 'region': u'TURKEY',
+        'longitude': 29.1,
+        'filename': '/.../GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml',
+        'magnitude': 5.9, 'latitude': 39.15,
+        'origin_time': UTCDateTime(2011, 5, 19, 20, 15, 22, 900000)}
+
+        The moment tensor components are in ``Nm``. The dictionary will
+        contain the following keys:
+
+        >>> sorted(comm.events.get(
+        ...     'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15').keys()) \
+        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+         ['depth_in_km', 'event_name', 'filename', 'latitude', 'longitude',
+          'm_pp', 'm_rp', 'm_rr', 'm_rt', 'm_tp', 'm_tt', 'magnitude',
+          'magnitude_type', 'origin_time', 'region']
         """
         if event_name not in self.__event_files:
             raise LASIFNotFoundError("Event '%s' not known to LASIF." %

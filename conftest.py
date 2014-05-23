@@ -24,6 +24,8 @@ plt.switch_backend("agg")
 # Import the necessary fixtures.
 from lasif.tests.components.test_stations_component import comm as \
     stations_comm
+from lasif.tests.components.test_events_component import comm as \
+    events_comm
 
 
 def pytest_runtest_setup(item):
