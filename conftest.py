@@ -26,8 +26,10 @@ from lasif.tests.components.test_stations_component import comm as \
     stations_comm
 from lasif.tests.components.test_events_component import comm as \
     events_comm
-from lasif.tests.components.test_inventory_db_component import filled_comm \
-    as inventory_db_comm
+from lasif.tests.components.test_inventory_db_component import filled_comm as \
+    inventory_db_comm
+from lasif.tests.components.test_waveforms_component import comm as \
+    waveforms_comm
 
 
 def pytest_runtest_setup(item):

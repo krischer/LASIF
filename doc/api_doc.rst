@@ -1,6 +1,18 @@
 API Documentation
 =================
 
+**Project wide exceptions and warnings.**
+
+.. autoclass:: lasif.LASIFError
+
+.. autoclass:: lasif.LASIFNotFoundError
+
+.. autoclass:: lasif.LASIFWarning
+
+
+
+**Contents:**
+
 .. toctree::
     :maxdepth: 2
 
