@@ -21,7 +21,7 @@ matplotlib.use("agg")
 import matplotlib.pyplot as plt
 plt.switch_backend("agg")
 
-# Import the necessary fixtures.
+# Fixtures will be available in the whole module.
 from lasif.tests.components.test_stations_component import comm as \
     stations_comm
 from lasif.tests.components.test_events_component import comm as \
@@ -32,6 +32,8 @@ from lasif.tests.components.test_waveforms_component import comm as \
     waveforms_comm
 from lasif.tests.components.test_iterations_component import comm as \
     iterations_comm
+from lasif.tests.components.test_query_component import comm as \
+    query_comm
 
 
 def pytest_runtest_setup(item):

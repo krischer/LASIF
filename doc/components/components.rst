@@ -10,3 +10,5 @@ API Components
     iterations
     stations
     waveforms
+
+    query

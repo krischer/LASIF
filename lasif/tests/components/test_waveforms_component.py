@@ -3,12 +3,9 @@
 from __future__ import absolute_import
 
 import inspect
-import io
-import obspy
 import os
 import pytest
-import time
-import re
+import shutil
 
 from lasif import LASIFNotFoundError, LASIFWarning
 from lasif.components.waveforms import WaveformsComponent
@@ -16,12 +13,16 @@ from lasif.components.communicator import Communicator
 
 
 @pytest.fixture
-def comm():
+def comm(tmpdir):
     """
     Returns a communicator with an initialized events component.
     """
     proj_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         inspect.getfile(inspect.currentframe())))), "data", "ExampleProject")
+    tmpdir = str(tmpdir)
+    shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
+    proj_dir = os.path.join(tmpdir, "proj")
+
     data_folder = os.path.join(proj_dir, "DATA")
     synthetics_folder = os.path.join(proj_dir, "SYNTHETICS")
     comm = Communicator()
