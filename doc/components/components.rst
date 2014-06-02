@@ -7,5 +7,6 @@ API Components
 
     events
     inventory_db
+    iterations
     stations
     waveforms

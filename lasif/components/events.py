@@ -75,7 +75,7 @@ class EventsComponent(Component):
         """
         Returns a dictionary with the key being the event names and the
         values the information about each event, as would be returned by the
-        :meth:`~.get` method.
+        :meth:`~lasif.components.events.EventsComponent.get` method.
 
         >>> comm = getfixture('events_comm')
         >>> comm.events.get_all_events() \
