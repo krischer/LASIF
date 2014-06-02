@@ -4,15 +4,25 @@ class ComponentProxy(object):
     all private methods and attributes of a component and only expose public
     functions.
     """
-    __slots__ = "component"
+    __slots__ = "_component"
 
     def __init__(self, component):
-        self.component = component
+        self._component = component
+
+    def __dir__(self):
+        return sorted(_i for _i in dir(self._component) if not
+                      _i.startswith("_") and _i != "comm")
 
     def __getattr__(self, item):
-        if item.startswith("_") or not hasattr(self.component, item):
+        if item.startswith("_") or not hasattr(self._component, item):
             raise AttributeError("'%s' not found on component." % item)
-        return getattr(self.component, item)
+        return getattr(self._component, item)
+
+    def __str__(self):
+        return self._component.__str__()
+
+    def __repr__(self):
+        return self._component.__repr__()
 
 
 class Communicator(object):
@@ -22,6 +32,9 @@ class Communicator(object):
     """
     def __init__(self):
         self.__components = {}
+
+    def __dir__(self):
+        return sorted(self.__components.keys())
 
     def __getattr__(self, item):
         if item not in self.__components:

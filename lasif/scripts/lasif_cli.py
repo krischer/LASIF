@@ -53,7 +53,7 @@ import traceback
 
 import colorama
 
-from lasif.project import Project
+from lasif.components.project import Project
 
 
 FCT_PREFIX = "lasif_"
@@ -103,7 +103,7 @@ class LASIFCommandLineException(Exception):
     pass
 
 
-def _find_project_root(folder):
+def _find_project_comm(folder):
     """
     Will search upwards from the given folder until a folder containing a
     LASIF root structure is found. The absolute path to the root is returned.
@@ -112,7 +112,7 @@ def _find_project_root(folder):
     folder = folder
     for _ in xrange(max_folder_depth):
         if os.path.exists(os.path.join(folder, "config.xml")):
-            return Project(os.path.abspath(folder))
+            return Project(os.path.abspath(folder)).get_communicator()
         folder = os.path.join(folder, os.path.pardir)
     msg = "Not inside a LASIF project."
     raise LASIFCommandLineException(msg)
@@ -126,9 +126,15 @@ def lasif_plot_domain(parser, args):
     import matplotlib.pyplot as plt
     parser.parse_args(args)
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     proj.plot_domain()
     plt.show()
+
+
+def lasif_shell(parser, args):
+    comm = _find_project_comm(".")
+    from IPython import embed
+    embed(display_banner=False)
 
 
 @command_group("Plotting")
@@ -143,7 +149,7 @@ def lasif_plot_event(parser, args):
     fig = plt.figure()
     fig.canvas.mpl_connect("close_event", lambda x: sys.exit(0))
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     proj.plot_event(event_name)
     plt.show()
 
@@ -161,7 +167,7 @@ def lasif_plot_station(parser, args):
     station_id = parser.parse_args(args).station_id
     event_name = parser.parse_args(args).event_name
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     proj.plot_station(station_id, event_name)
     plt.show()
 
@@ -188,7 +194,7 @@ def lasif_plot_events(parser, args):
     fig = plt.figure()
     fig.canvas.mpl_connect("close_event", lambda x: sys.exit(0))
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     proj.plot_events(plot_type)
     plt.show()
 
@@ -200,7 +206,7 @@ def lasif_plot_raydensity(parser, args):
     """
     parser.parse_args(args)
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     proj.plot_raydensity()
 
 
@@ -214,7 +220,7 @@ def lasif_add_spud_event(parser, args):
 
     from lasif.scripts.iris2quakeml import iris2quakeml
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     iris2quakeml(url, proj.paths["events"])
 
 
@@ -225,7 +231,7 @@ def lasif_info(parser, args):
     """
     parser.parse_args(args)
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     print(proj)
 
 
@@ -237,7 +243,7 @@ def lasif_download_waveforms(parser, args):
     parser.add_argument("event_name", help="name of the event")
     event_name = parser.parse_args(args).event_name
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     if event_name not in proj.events:
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
@@ -285,7 +291,7 @@ def lasif_download_stations(parser, args):
     parser.add_argument("event_name", help="name of the event")
     event_name = parser.parse_args(args).event_name
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     if event_name not in proj.events:
         msg = "Event '%s' not found." % event_name
         raise LASIFCommandLineException(msg)
@@ -331,7 +337,7 @@ def lasif_list_events(parser, args):
     parser.parse_args(args)
 
     from lasif.tools.prettytable import PrettyTable
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     print("%i event%s in project:" % (len(proj.events),
           "s" if len(proj.events) != 1 else ""))
     tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag",
@@ -358,7 +364,7 @@ def lasif_list_models(parser, args):
     """
     parser.parse_args(args)
 
-    models = _find_project_root(".").get_model_dict()
+    models = _find_project_comm(".").get_model_dict()
     print("%i model%s in project:" % (len(models), "s" if len(models) != 1
           else ""))
     for model in sorted(models.keys()):
@@ -379,7 +385,7 @@ def lasif_plot_kernel(parser, args):
     from glob import glob
     from lasif import ses3d_models
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     kernel_dir = proj.get_kernel_dir(iteration_name, event_name)
 
@@ -459,7 +465,7 @@ def lasif_plot_model(parser, args):
 
     from lasif import ses3d_models
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     model_dir = proj.get_model_dict()[model_name]
     handler = ses3d_models.RawSES3DModelHandler(model_dir)
@@ -497,7 +503,7 @@ def lasif_plot_wavefield(parser, args):
 
     from lasif import ses3d_models
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     event_name = args.event_name
     iteration_name = args.iteration_name
@@ -551,7 +557,7 @@ def lasif_event_info(parser, args):
 
     from lasif.utils import table_printer
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     if event_name not in proj.events:
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
@@ -597,7 +603,7 @@ def lasif_plot_stf(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     iteration_name = parser.parse_args(args).iteration_name
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     iteration = proj._get_iteration(iteration_name)
     pp = iteration.get_process_params()
@@ -633,7 +639,7 @@ def lasif_generate_input_files(parser, args):
     event_name = args.event_name
     simulation_type = args.simulation_type
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     simulation_type = simulation_type.replace("_", " ")
     proj.generate_input_files(iteration_name, event_name, simulation_type)
 
@@ -673,7 +679,7 @@ def lasif_finalize_adjoint_sources(parser, args):
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     proj.finalize_adjoint_sources(iteration_name, event_name)
 
 
@@ -688,7 +694,7 @@ def lasif_launch_misfit_gui(parser, args):
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     if event_name not in proj.events:
         msg = "Event '%s' not found in project." % event_name
@@ -739,7 +745,7 @@ def lasif_create_new_iteration(parser, args):
         msg = "min_period needs to be smaller than max_period."
         raise LASIFCommandLineException(msg)
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     proj.create_new_iteration(iteration_name, solver_name, min_period,
                               max_period)
 
@@ -761,7 +767,7 @@ def lasif_create_successive_iteration(parser, args):
 
     from lasif.iteration_xml import Iteration
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     iterations = proj.get_iteration_dict()
 
     if new_iteration_name in iterations:
@@ -800,7 +806,7 @@ def lasif_migrate_windows(parser, args):
     from_iteration = args.from_iteration
     to_iteration = args.to_iteration
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     # Get some information about the iteration.
     iterations = proj.get_iteration_dict()
@@ -888,7 +894,7 @@ def lasif_list_iterations(parser, args):
     """
     parser.parse_args(args)
 
-    iterations = _find_project_root(".").get_iteration_dict().keys()
+    iterations = _find_project_comm(".").get_iteration_dict().keys()
 
     print("%i iteration%s in project:" % (len(iterations),
           "s" if len(iterations) != 1 else ""))
@@ -906,7 +912,7 @@ def lasif_iteration_info(parser, args):
 
     from lasif.iteration_xml import Iteration
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     iterations = proj.get_iteration_dict()
     if iteration_name not in iterations:
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
@@ -928,7 +934,7 @@ def lasif_remove_empty_coordinate_entries(parser, args):
 
     from lasif.tools.inventory_db import reset_coordinate_less_stations
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     reset_coordinate_less_stations(proj.paths["inv_db_file"])
 
     print "SUCCESS"
@@ -947,7 +953,7 @@ def lasif_preprocess_data(parser, args):
     iteration_name = args.iteration_name
     events = args.events if args.events else None
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     # Check if the iteration name is valid.
     iterations = proj.get_iteration_dict()
@@ -976,7 +982,7 @@ def lasif_plot_q_model(parser, args):
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     # Check if the iteration name is valid.
     iterations = proj.get_iteration_dict()
@@ -1001,7 +1007,7 @@ def lasif_plot_selected_windows(parser, args):
     event_name = args.event_name
 
     from lasif.window_selection import select_windows, plot_windows
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     if event_name not in proj.events:
         msg = "Event '%s' not found in project." % event_name
@@ -1088,7 +1094,7 @@ def lasif_validate_data(parser, args):
         raypaths = True
         waveforms = True
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     proj.validate_data(station_file_availability=station_file_availability,
                        raypaths=raypaths, waveforms=waveforms)
 
@@ -1101,7 +1107,7 @@ def lasif_iteration_status(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     iteration_name = parser.parse_args(args).iteration_name
 
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
     status = proj.get_iteration_status(iteration_name)
 
     file_count = len(proj._get_all_raw_waveform_files_for_iteration(
@@ -1187,7 +1193,7 @@ def lasif_debug(parser, args):
     parser.add_argument(
         "files", help="filenames to print debug information about", nargs="+")
     files = parser.parse_args(args).files
-    proj = _find_project_root(".")
+    proj = _find_project_comm(".")
 
     for filename in files:
         filename = os.path.relpath(filename)
@@ -1230,7 +1236,7 @@ def lasif_serve(parser, args):
     if debug:
         nobrowser = True
 
-    project = _find_project_root(".")
+    project = _find_project_comm(".")
 
     if nobrowser is False:
         import webbrowser

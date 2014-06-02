@@ -23,6 +23,8 @@ from .communicator import Communicator
 from .component import Component
 from .events import EventsComponent
 from .inventory_db import InventoryDBComponent
+from .iterations import IterationsComponent
+from .query import QueryComponent
 from .stations import StationsComponent
 from .waveforms import WaveformsComponent
 
@@ -47,16 +49,18 @@ class Project(Component):
         """
         if init_project:
             self.__init_new_project(init_project)
+
+        # Setup the paths.
+        self.__setup_paths(project_root_path)
+
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
                    "path or uninitialized project?")
             raise LASIFError(msg)
 
-        # Setup the paths.
-        self.__setup_paths(project_root_path)
-
         # Setup the communicator and register this component.
-        super(Project, self).__init__(Communicator(), "project")
+        self.__comm = Communicator()
+        super(Project, self).__init__(self.__comm, "project")
         # Setup the different components.
         self.__setup_components()
 
@@ -64,6 +68,9 @@ class Project(Component):
         self.__update_folder_structure()
 
         # self._read_config_file()
+
+    def get_communicator(self):
+        return self.__comm
 
     def __setup_components(self):
         """
@@ -79,6 +86,7 @@ class Project(Component):
         StationsComponent(stationxml_folder=self.paths["station_xml"],
                           seed_folder=self.paths["dataless_seed"],
                           resp_folder=self.paths["resp"],
+                          cache_folder=self.paths["cache"],
                           communicator=self.comm, component_name="stations")
         WaveformsComponent(data_folder=self.paths["data"],
                            synthetics_folder=self.paths["synthetics"],
@@ -86,6 +94,10 @@ class Project(Component):
         InventoryDBComponent(db_file=self.paths["inv_db_file"],
                              communicator=self.comm,
                              component_name="inventory_db")
+        QueryComponent(communicator=self.comm, component_name="query")
+        IterationsComponent(iterations_folder=self.paths["iterations"],
+                            communicator=self.comm,
+                            component_name="iterations")
 
     def __setup_paths(self, root_path):
         """
@@ -137,7 +149,7 @@ class Project(Component):
             if "file" in name or os.path.exists(path):
                 continue
             os.makedirs(path)
-        events = self.events.keys()
+        events = self.comm.events.list()
         folders = [self.paths["data"], self.paths["synthetics"]]
         for folder in folders:
             for event in events:
