@@ -14,21 +14,28 @@ URL = ("http://{service}/fdsnws/station/1/query?"
 
 class InventoryDBComponent(Component):
     """
-    Component wrapping the inventory DB.
+    Component dealing with station coordinates from web services or manual
+    entry. This is used if station coordinates could not be retrieved by
+    other means. The component will attempt to request the station
+    coordinates from IRIS and ORFEUS. Each station will only be requested
+    once and the result will be stored in the database instance.
+
+    :param db_file: The full path of the inventory SQLITE file.
+    :param communicator: The communicator instance.
+    :param component_name: The name of this component for the communicator.
     """
     def __init__(self, db_file, communicator, component_name):
-        self._db_file = db_file
-
         sql = """
         CREATE TABLE IF NOT EXISTS stations(
-            station_name TEXT,
+            station_name TEXT PRIMARY_KEY UNIQUE,
             latitude REAL,
             longitude REAL,
             elevation REAL,
             depth REAL
         );"""
 
-        self._conn = sqlite3.connect(db_file)
+        self._db_file = db_file
+        self._conn = sqlite3.connect(self._db_file)
         self._cursor = self._conn.cursor()
         self._cursor.execute(sql)
         self._conn.commit()
@@ -40,6 +47,28 @@ class InventoryDBComponent(Component):
                                  elevation_in_m, local_depth_in_m):
         """
         Saves the coordinates for some station in the database.
+
+        Used internally but can also be used to save coordinates from other
+        sources in the project.
+
+        >>> comm = getfixture('inventory_db_comm')
+        >>> comm.inventory_db.save_station_coordinates(station_id="XX.YY",
+        ... latitude=10.0, longitude=11.0, elevation_in_m=12.0,
+        ... local_depth_in_m=13.0)
+        >>> comm.inventory_db.get_coordinates("XX.YY") \
+        # doctest: +NORMALIZE_WHITESPACE
+        {'latitude': 10.0, 'elevation_in_m': 12.0, 'local_depth_in_m': 13.0,
+        'longitude': 11.0}
+
+        Inserting once again will update the entry.
+
+        >>> comm.inventory_db.save_station_coordinates(station_id="XX.YY",
+        ... latitude=20.0, longitude=21.0, elevation_in_m=22.0,
+        ... local_depth_in_m=23.0)
+        >>> comm.inventory_db.get_coordinates("XX.YY") \
+        # doctest: +NORMALIZE_WHITESPACE
+        {'latitude': 20.0, 'elevation_in_m': 22.0, 'local_depth_in_m': 23.0,
+         'longitude': 21.0}
         """
         # Either all are None or only the local_depth.
         coods = [latitude, longitude, elevation_in_m, local_depth_in_m]
@@ -49,20 +78,20 @@ class InventoryDBComponent(Component):
                 msg = "Only local depth is allowed to be None."
                 raise ValueError(msg)
 
-        latitude = str(latitude) if latitude is not None else "NULL"
-        longitude = str(longitude) if longitude is not None else "NULL"
+        latitude = str(latitude) if latitude is not None else None
+        longitude = str(longitude) if longitude is not None else None
         elevation_in_m = str(elevation_in_m) \
-            if elevation_in_m is not None else "NULL"
+            if elevation_in_m is not None else None
         local_depth_in_m = str(local_depth_in_m) \
-            if local_depth_in_m is not None else "NULL"
+            if local_depth_in_m is not None else None
 
         sql = """
-        REPLACE INTO stations
+        INSERT OR REPLACE INTO stations
             (station_name, latitude, longitude, elevation, depth)
-        VALUES ('%s', %s, %s, %s, %s);
-        """ % (station_id, latitude, longitude, elevation_in_m,
-               local_depth_in_m)
-        self._cursor.execute(sql)
+        VALUES (?, ?, ?, ?, ?);
+        """
+        self._cursor.execute(sql, (station_id, latitude, longitude,
+                                   elevation_in_m, local_depth_in_m))
         self._conn.commit()
 
     def remove_coordinate_less_stations(self):
@@ -70,6 +99,23 @@ class InventoryDBComponent(Component):
         Simple command removing all stations that have no associated
         coordinates. This means it will attempt to download them again on
         the next run.
+
+        >>> comm = getfixture('inventory_db_comm')
+        >>> comm.inventory_db.get_all_coordinates() \
+        # doctest: +NORMALIZE_WHITESPACE
+        {u'AA.BB': {'latitude': 1.0, 'elevation_in_m': 3.0,
+                    'local_depth_in_m': 4.0, 'longitude': 2.0},
+         u'CC.DD': {'latitude': 2.0, 'elevation_in_m': 2.0,
+                    'local_depth_in_m': 2.0, 'longitude': 2.0},
+         u'EE.FF': {'latitude': None, 'elevation_in_m': None,
+                    'local_depth_in_m': None, 'longitude': None}}
+        >>> comm.inventory_db.remove_coordinate_less_stations()
+        >>> comm.inventory_db.get_all_coordinates() \
+        # doctest: +NORMALIZE_WHITESPACE
+        {u'AA.BB': {'latitude': 1.0, 'elevation_in_m': 3.0,
+                    'local_depth_in_m': 4.0, 'longitude': 2.0},
+         u'CC.DD': {'latitude': 2.0, 'elevation_in_m': 2.0,
+                    'local_depth_in_m': 2.0, 'longitude': 2.0}}
         """
         sql = """
         DELETE FROM stations
@@ -81,19 +127,19 @@ class InventoryDBComponent(Component):
     def get_all_coordinates(self):
         """
         Returns a dictionary with all stations coordinates defined in the
-        inventory database.
+        inventory database. All entries will be ``None`` if a webservice
+        request has been attempted but returned nothing. This is to prevent
+        successive requests.
 
-        >>> comm.inventory_db.get_all_coordinates()  # doctest: +SKIP
-        {'BW.ROTZ': {'latitude': ..., 'longitude': ..,
-                     'elevation_in_m': ..., 'local_depth_in_m': ...},
-          'AU.INV': {...},
-          # All entries will be None if a webservice request has been
-          # attempted but returned nothing. This is to prevent successive
-          # requests.
-          'AU.INV2': {'latitude': None, 'longitude': None,
-                      'elevation_in_m': None, 'local_depth_in_m': None},
-          ...
-        }
+        >>> comm = getfixture('inventory_db_comm')
+        >>> comm.inventory_db.get_all_coordinates() \
+        # doctest: +NORMALIZE_WHITESPACE
+        {u'AA.BB': {'latitude': 1.0, 'elevation_in_m': 3.0,
+                    'local_depth_in_m': 4.0, 'longitude': 2.0},
+         u'CC.DD': {'latitude': 2.0, 'elevation_in_m': 2.0,
+                    'local_depth_in_m': 2.0, 'longitude': 2.0},
+         u'EE.FF': {'latitude': None, 'elevation_in_m': None,
+                    'local_depth_in_m': None, 'longitude': None}}
         """
         sql = """
         SELECT station_name, latitude, longitude, elevation, depth
@@ -110,17 +156,32 @@ class InventoryDBComponent(Component):
 
     def get_coordinates(self, station_id):
         """
-        Returns either a dictionary containing "latitude", "longitude",
-        "elevation_in_m", "local_depth_in_m" keys. If the station is in the
-        DB but has no coordinates, all values will be set to None.
+        Returns a dictionary containing ``latitude``, ``longitude``,
+        ``elevation_in_m``, and ``local_depth_in_m`` keys. If the station is
+        not yet in the database, it will attempt to download the coordinates
+        from the web services.
+
+        >>> comm = getfixture('inventory_db_comm')
+        >>> comm.inventory_db.get_coordinates("AA.BB") \
+        # doctest: +NORMALIZE_WHITESPACE
+        {'latitude': 1.0, 'elevation_in_m': 3.0, 'local_depth_in_m': 4.0,
+         'longitude': 2.0}
+
+        A station whose coordinates have already been requested but whose
+        request failed will have ``None`` for all coordinate values.
+
+        >>> comm.inventory_db.get_coordinates("EE.FF") \
+        # doctest: +NORMALIZE_WHITESPACE
+        {'latitude': None, 'elevation_in_m': None, 'local_depth_in_m': None,
+         'longitude': None}
         """
         sql = """
         SELECT latitude, longitude, elevation, depth
         FROM stations
-        WHERE station_name = '%s'
+        WHERE station_name = ?
         LIMIT 1;
-        """ % station_id
-        coordinates = self._cursor.execute(sql).fetchone()
+        """
+        coordinates = self._cursor.execute(sql, (station_id,)).fetchone()
 
         # If there is a result and it is None, then the coordinate has been
         # requested before but has not been found. Thus return 0.

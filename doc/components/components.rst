@@ -7,3 +7,4 @@ API Components
 
     events
     stations
+    inventory_db

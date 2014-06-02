@@ -25,6 +25,31 @@ def comm(tmpdir):
     return comm
 
 
+@pytest.fixture
+def filled_comm(tmpdir):
+    """
+    Used for doctests. Needs a separate initialization as for some reason
+    doctests do sometimes not like chained fixtures...
+    """
+    tmpdir = str(tmpdir)
+    db_file = os.path.join(tmpdir, "inventory_db.sqlite")
+    comm = Communicator()
+    InventoryDBComponent(
+        db_file=db_file,
+        communicator=comm,
+        component_name="inventory_db")
+    comm.inventory_db.save_station_coordinates(
+        station_id="AA.BB", latitude=1.0, longitude=2.0, elevation_in_m=3.0,
+        local_depth_in_m=4.0)
+    comm.inventory_db.save_station_coordinates(
+        station_id="CC.DD", latitude=2.0, longitude=2.0, elevation_in_m=2.0,
+        local_depth_in_m=2.0)
+    comm.inventory_db.save_station_coordinates(
+        station_id="EE.FF", latitude=None, longitude=None, elevation_in_m=None,
+        local_depth_in_m=None)
+    return comm
+
+
 def test_save_and_get_station_coordinates(comm):
     comm.inventory_db.save_station_coordinates(
         station_id="AA.BB", latitude=1.0, longitude=2.0, elevation_in_m=3.0,

@@ -12,6 +12,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import os
 import sys
 import sphinx_rtd_theme
 
@@ -19,7 +20,7 @@ import sphinx_rtd_theme
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, ".")
+sys.path.insert(0, os.path.abspath("."))
 
 # -- General configuration ---------------------------------------------------
 
