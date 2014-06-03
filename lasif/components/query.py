@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+from lasif import LASIFNotFoundError
+
 from .component import Component
 
 
@@ -92,3 +94,13 @@ class QueryComponent(Component):
             if coords["latitude"]:
                 stations[station_id] = coords
         return stations
+
+    def get_stations_for_all_events(self):
+        events = {}
+        for event in self.comm.events.list():
+            try:
+                data = self.get_all_stations_for_event(event).keys()
+            except LASIFNotFoundError:
+                continue
+            events[event] = data
+        return events

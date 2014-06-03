@@ -251,21 +251,21 @@ def test_various_list_functions(cli):
     assert "1 model" in models
 
 
-# def test_iteration_creation_and_stf_plotting(cli):
-#     """
-#     Tests the generation of an iteration and the supsequent STF plotting.
-#     """
-#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-#     assert "1" in cli.project.get_iteration_dict().keys()
-#
-#     with mock.patch("lasif.visualization.plot_tf") as patch:
-#         cli.run("lasif plot_stf 1")
-#         patch.assert_called_once()
-#         data, delta = patch.call_args[0]
-#         np.testing.assert_array_equal(
-#             data,
-#             cli.project._get_iteration("1").get_source_time_function()["data"])
-#         assert delta == 0.75
+def test_iteration_creation_and_stf_plotting(cli):
+    """
+    Tests the generation of an iteration and the supsequent STF plotting.
+    """
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+    assert "1" in cli.project.get_iteration_dict().keys()
+
+    with mock.patch("lasif.visualization.plot_tf") as patch:
+        cli.run("lasif plot_stf 1")
+        patch.assert_called_once()
+        data, delta = patch.call_args[0]
+        np.testing.assert_array_equal(
+            data,
+            cli.project._get_iteration("1").get_source_time_function()["data"])
+        assert delta == 0.75
 
 
 def test_lasif_event_info(cli):
@@ -413,20 +413,20 @@ def test_lasif_event_info(cli):
 #
 #     out = cli.run("lasif preprocess_data 1 blub wub").stdout
 #     assert "Event 'blub' not found." in out
-#
-#
-# def test_iteration_info(cli):
-#     """
-#     Tests the 'lasif iteration_info' command.
-#     """
-#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-#
-#     out = cli.run("lasif iteration_info 1").stdout
-#     assert "LASIF Iteration" in out
-#     assert "Name: 1" in out
-#     assert "Solver: SES3D 4.1" in out
-#
-#
+
+
+def test_iteration_info(cli):
+    """
+    Tests the 'lasif iteration_info' command.
+    """
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+
+    out = cli.run("lasif iteration_info 1").stdout
+    assert "LASIF Iteration" in out
+    assert "Name: 1" in out
+    assert "Solver: SES3D 4.1" in out
+
+
 # def test_remove_empty_coordinate_entries(cli):
 #     """
 #     Simple mock test.
@@ -459,55 +459,55 @@ def test_lasif_event_info(cli):
 #     with mock.patch("webbrowser.open") as patch:
 #         cli.run("lasif tutorial")
 #         patch.assert_called_once_with("http://krischer.github.io/LASIF/")
-#
-#
-# def test_iteration_status_command(cli):
-#     """
-#     The iteration status command returns the current state of any iteration. It
-#     returns the number of already preprocessed data files, how many synthetics
-#     are available, the windows and adjoint sources.
-#     """
-#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-#     out = cli.run("lasif iteration_status 1").stdout
-#     assert out == (
-#         "Iteration Name: 1\n"
-#         "\tAll necessary files available.\n"
-#         "\t4 out of 4 files still require preprocessing.\n"
-#         "\tMissing synthetics for 1 event:\n"
-#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
-#
-#     cli.run("lasif preprocess_data 1")
-#     out = cli.run("lasif iteration_status 1").stdout
-#     assert out == (
-#         "Iteration Name: 1\n"
-#         "\tAll necessary files available.\n"
-#         "\tAll files are preprocessed.\n"
-#         "\tMissing synthetics for 1 event:\n"
-#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
-#
-#     # Copy the data for the first event to the second.
-#     shutil.rmtree(os.path.join(
-#         cli.project.paths["data"],
-#         "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
-#     shutil.copytree(
-#         os.path.join(cli.project.paths["data"],
-#                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
-#         os.path.join(cli.project.paths["data"],
-#                      "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
-#     # The iteration has to be recreated.
-#     os.remove(os.path.join(cli.project.paths["iterations"],
-#                            "ITERATION_1.xml"))
-#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-#     out = cli.run("lasif iteration_status 1").stdout
-#     assert out == (
-#         "Iteration Name: 1\n"
-#         "\tAll necessary files available.\n"
-#         "\tAll files are preprocessed.\n"
-#         "\tMissing synthetics for 2 events:\n"
-#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n"
-#         "\t\tGCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 (for 4 stations)\n")
-#
-#
+
+
+def test_iteration_status_command(cli):
+    """
+    The iteration status command returns the current state of any iteration. It
+    returns the number of already preprocessed data files, how many synthetics
+    are available, the windows and adjoint sources.
+    """
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+    out = cli.run("lasif iteration_status 1").stdout
+    assert out == (
+        "Iteration Name: 1\n"
+        "\tAll necessary files available.\n"
+        "\t4 out of 4 files still require preprocessing.\n"
+        "\tMissing synthetics for 1 event:\n"
+        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
+
+    cli.run("lasif preprocess_data 1")
+    out = cli.run("lasif iteration_status 1").stdout
+    assert out == (
+        "Iteration Name: 1\n"
+        "\tAll necessary files available.\n"
+        "\tAll files are preprocessed.\n"
+        "\tMissing synthetics for 1 event:\n"
+        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
+
+    # Copy the data for the first event to the second.
+    shutil.rmtree(os.path.join(
+        cli.project.paths["data"],
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
+    shutil.copytree(
+        os.path.join(cli.project.paths["data"],
+                     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
+        os.path.join(cli.project.paths["data"],
+                     "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
+    # The iteration has to be recreated.
+    os.remove(os.path.join(cli.project.paths["iterations"],
+                           "ITERATION_1.xml"))
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+    out = cli.run("lasif iteration_status 1").stdout
+    assert out == (
+        "Iteration Name: 1\n"
+        "\tAll necessary files available.\n"
+        "\tAll files are preprocessed.\n"
+        "\tMissing synthetics for 2 events:\n"
+        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n"
+        "\t\tGCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 (for 4 stations)\n")
+
+
 # def test_Q_model_plotting(cli):
 #     """
 #     Tests the Q model plotting via mocking.

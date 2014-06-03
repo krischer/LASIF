@@ -748,9 +748,13 @@ def lasif_create_new_iteration(parser, args):
         msg = "min_period needs to be smaller than max_period."
         raise LASIFCommandLineException(msg)
 
-    proj = _find_project_comm(".")
-    proj.create_new_iteration(iteration_name, solver_name, min_period,
-                              max_period)
+    comm = _find_project_comm(".")
+    comm.iterations.create_new_iteration(
+        iteration_name=iteration_name,
+        solver_name=solver_name,
+        events_dict=comm.query.get_stations_for_all_events(),
+        min_period=min_period,
+        max_period=max_period)
 
 
 @command_group("Iteration Management")
@@ -915,17 +919,13 @@ def lasif_iteration_info(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     iteration_name = parser.parse_args(args).iteration_name
 
-    from lasif.iteration_xml import Iteration
-
-    proj = _find_project_comm(".")
-    iterations = proj.get_iteration_dict()
-    if iteration_name not in iterations:
+    comm = _find_project_comm(".")
+    if not comm.iterations.has_iteration(iteration_name):
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
                "a list of all available iterations.") % iteration_name
         raise LASIFCommandLineException(msg)
 
-    iteration = Iteration(iterations[iteration_name])
-    print iteration
+    print comm.iterations.get(iteration_name)
 
 
 @command_group("Project Management")
