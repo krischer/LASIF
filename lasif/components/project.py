@@ -47,11 +47,11 @@ class Project(Component):
             passed, the project will be given this name. Otherwise a default
             name will be chosen. Defaults to False.
         """
-        if init_project:
-            self.__init_new_project(init_project)
-
         # Setup the paths.
         self.__setup_paths(project_root_path)
+
+        if init_project:
+            self.__init_new_project(init_project)
 
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
@@ -174,7 +174,6 @@ class Project(Component):
             E.name(project_name),
             E.description(""),
             E.download_settings(
-                E.arclink_username(""),
                 E.seconds_before_event(str(300)),
                 E.seconds_after_event(str(3600))),
             E.domain(

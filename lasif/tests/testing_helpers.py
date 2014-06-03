@@ -21,7 +21,7 @@ import pytest
 import shutil
 import sys
 
-from lasif.project import Project
+from lasif.components.project import Project
 from lasif.scripts import lasif_cli
 
 # Folder where all the images for comparison are stored.

@@ -131,7 +131,13 @@ def lasif_plot_domain(parser, args):
     plt.show()
 
 
+@command_group("Misc")
 def lasif_shell(parser, args):
+    """
+    Drops you into a shell with an communicator.
+    """
+    parser.parse_args(args)
+
     comm = _find_project_comm(".")
     from IPython import embed
     embed(display_banner=False)
