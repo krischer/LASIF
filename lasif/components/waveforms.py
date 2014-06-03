@@ -118,7 +118,39 @@ class WaveformsComponent(Component):
         return self._convert_timestamps(waveform_cache.get_values())
 
     def get_metadata_processed(self, event_name, tag):
-        pass
+        data_folder = os.path.join(self._data_folder, event_name)
+        waveform_db_file = os.path.join(
+            data_folder, tag + "_cache" + os.path.extsep + "sqlite")
+        data_path = os.path.join(data_folder, tag)
+        if not os.path.exists(data_path):
+            msg = "No data for event '%s' and processing tag '%s' found." % \
+                  (event_name, tag)
+            raise LASIFNotFoundError(msg)
+        waveform_cache = self._get_waveform_cache_file(waveform_db_file,
+                                                       data_path)
+        values = waveform_cache.get_values()
+        if not values:
+            msg = "No data for event '%s' and processing tag '%s' found." % \
+                  (event_name, tag)
+            raise LASIFNotFoundError(msg)
+        return self._convert_timestamps(waveform_cache.get_values())
 
-    def get_metadata_synthetic(self, event_name, iteration_name):
-        pass
+    def get_metadata_synthetic(self, event_name, long_iteration_name):
+        data_folder = os.path.join(self._synthetics_folder, event_name)
+        waveform_db_file = os.path.join(
+            data_folder, long_iteration_name + "_cache" + os.path.extsep +
+            "sqlite")
+        data_path = os.path.join(data_folder, long_iteration_name)
+        if not os.path.exists(data_path):
+            msg = ("No synthetic data for event '%s' and iteration '%s' "
+                   "found." %
+                   (event_name, long_iteration_name))
+            raise LASIFNotFoundError(msg)
+        waveform_cache = self._get_waveform_cache_file(waveform_db_file,
+                                                       data_path)
+        values = waveform_cache.get_values()
+        if not values:
+            msg = ("No synthetic data for event '%s' and iteration '%s' "
+                   "found." %
+                   (event_name, long_iteration_name))
+        return self._convert_timestamps(waveform_cache.get_values())
