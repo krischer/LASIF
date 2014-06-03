@@ -206,22 +206,22 @@ def test_project_init(cli):
 #         cli.run("lasif download_stations "
 #                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
 #         download_patch.assert_called_once()
-#
-#
-# def test_lasif_info(cli):
-#     """
-#     Tests the 'lasif info' command.
-#     """
-#     out = cli.run("lasif info").stdout
-#     assert "\"ExampleProject\"" in out
-#     assert "Toy Project used in the Test Suite" in out
-#     assert "2 events" in out
-#     assert "4 station files" in out
-#     assert "4 raw waveform files" in out
-#     assert "0 processed waveform files" in out
-#     assert "6 synthetic waveform files" in out
-#
-#
+
+
+def test_lasif_info(cli):
+    """
+    Tests the 'lasif info' command.
+    """
+    out = cli.run("lasif info").stdout
+    assert "\"ExampleProject\"" in out
+    assert "Toy Project used in the Test Suite" in out
+    assert "2 events" in out
+    assert "4 station files" in out
+    assert "4 raw waveform files" in out
+    assert "0 processed waveform files" in out
+    assert "6 synthetic waveform files" in out
+
+
 # def test_various_list_functions(cli):
 #     """
 #     Tests all the "lasif list_" functions.

@@ -15,6 +15,7 @@ needed.
 """
 from __future__ import absolute_import
 
+import cPickle
 import os
 
 from lasif import LASIFError
@@ -67,7 +68,156 @@ class Project(Component):
         # Finally update the folder structure.
         self.__update_folder_structure()
 
-        # self._read_config_file()
+        self._read_config_file()
+
+    def __str__(self):
+        """
+        Pretty string representation.
+        """
+        from lasif.utils import sizeof_fmt
+        # Count all files and sizes.
+
+        raw_data_file_count = 0
+        processed_data_file_count = 0
+        synthetic_data_file_count = 0
+        station_file_count = 0
+        project_filesize = 0
+
+        for dirpath, _, filenames in os.walk(self.paths["root"]):
+            size = sum([os.path.getsize(os.path.join(dirpath, _i))
+                        for _i in filenames])
+            project_filesize += size
+            if dirpath.startswith(self.paths["data"]):
+                if dirpath.endswith("raw"):
+                    raw_data_file_count += len(filenames)
+                elif "processed" in dirpath:
+                    processed_data_file_count += len(filenames)
+            elif dirpath.startswith(self.paths["synthetics"]):
+                synthetic_data_file_count += len(filenames)
+            elif dirpath.startswith(self.paths["stations"]):
+                station_file_count += len(filenames)
+
+        ret_str = "LASIF project \"%s\"\n" % self.config["name"]
+        ret_str += "\tDescription: %s\n" % self.config["description"]
+        ret_str += "\tProject root: %s\n" % self.paths["root"]
+        ret_str += "\tContent:\n"
+        ret_str += "\t\t%i events\n" % self.comm.events.count()
+        ret_str += "\t\t%i station files\n" % station_file_count
+        ret_str += "\t\t%i raw waveform files\n" % raw_data_file_count
+        ret_str += "\t\t%i processed waveform files \n" % \
+                   processed_data_file_count
+        ret_str += "\t\t%i synthetic waveform files\n" % \
+                   synthetic_data_file_count
+
+        ret_str += "\tTotal project size: %s\n\n" % \
+                   sizeof_fmt(project_filesize)
+
+        # Add information about the domain.
+        domain = {}
+        domain.update(self.domain["bounds"])
+        domain["latitude_extend"] = \
+            domain["maximum_latitude"] - domain["minimum_latitude"]
+        domain["latitude_extend_in_km"] = domain["latitude_extend"] * 111.32
+        domain["longitude_extend"] = \
+            domain["maximum_longitude"] - domain["minimum_longitude"]
+        domain["longitude_extend_in_km"] = domain["longitude_extend"] * 111.32
+        domain["depth_extend_in_km"] = \
+            domain["maximum_depth_in_km"] - domain["minimum_depth_in_km"]
+        ret_str += (
+            u"\tLatitude: {minimum_latitude:.2f}° - {maximum_latitude:.2f}°"
+            u" (total of {latitude_extend:.2f}° "
+            u"≅ {latitude_extend_in_km} km)\n"
+            u"\tLongitude: {minimum_longitude:.2f}° - {maximum_longitude:.2f}°"
+            u" (total of {longitude_extend:.2f}° "
+            u"≅ {longitude_extend_in_km} km)\n"
+            u"\tDepth: {minimum_depth_in_km}km - {maximum_depth_in_km}km"
+            u" (total of {depth_extend_in_km}km)\n") \
+            .format(**domain)
+
+        # Add information about rotation axis.
+        if self.domain["rotation_angle"]:
+            a = self.domain["rotation_axis"]
+            ret_str += \
+                u"\tDomain rotated around axis %.1f/%.1f/%.1f for %.2f°" \
+                % (a[0], a[1], a[2], self.domain["rotation_angle"])
+        else:
+            ret_str += "\tDomain is not rotated."
+
+        return ret_str.encode("utf-8")
+
+    def _read_config_file(self):
+        """
+        Parse the config file.
+        """
+        # Attempt to read the cached config file. This might seem excessive but
+        # since this file is read every single time a LASIF command is used it
+        # makes difference at least in the perceived speed of LASIF.
+        cfile = self.paths["config_file_cache"]
+        if os.path.exists(cfile):
+            with open(cfile, "rb") as fh:
+                cf_cache = cPickle.load(fh)
+            last_m_time = int(os.path.getmtime(self.paths["config_file"]))
+            if last_m_time == cf_cache["last_m_time"]:
+                self.config = cf_cache["config"]
+                self.domain = cf_cache["domain"]
+                return
+
+        from lxml import etree
+        root = etree.parse(self.paths["config_file"]).getroot()
+
+        self.config = {}
+        self.config["name"] = root.find("name").text
+        self.config["description"] = root.find("description").text
+        # The description field is the only field allowed to be empty.
+        if self.config["description"] is None:
+            self.config["description"] = ""
+
+        self.config["download_settings"] = {}
+        dl_settings = root.find("download_settings")
+        self.config["download_settings"]["arclink_username"] = \
+            dl_settings.find("arclink_username").text
+        self.config["download_settings"]["seconds_before_event"] = \
+            float(dl_settings.find("seconds_before_event").text)
+        self.config["download_settings"]["seconds_after_event"] = \
+            float(dl_settings.find("seconds_after_event").text)
+
+        # Read the domain.
+        domain = root.find("domain")
+        self.domain = {}
+        self.domain["bounds"] = {}
+
+        bounds = domain.find("domain_bounds")
+        self.domain["bounds"]["minimum_latitude"] = \
+            float(bounds.find("minimum_latitude").text)
+        self.domain["bounds"]["maximum_latitude"] = \
+            float(bounds.find("maximum_latitude").text)
+        self.domain["bounds"]["minimum_longitude"] = \
+            float(bounds.find("minimum_longitude").text)
+        self.domain["bounds"]["maximum_longitude"] = \
+            float(bounds.find("maximum_longitude").text)
+        self.domain["bounds"]["minimum_depth_in_km"] = \
+            float(bounds.find("minimum_depth_in_km").text)
+        self.domain["bounds"]["maximum_depth_in_km"] = \
+            float(bounds.find("maximum_depth_in_km").text)
+        self.domain["bounds"]["boundary_width_in_degree"] = \
+            float(bounds.find("boundary_width_in_degree").text)
+
+        rotation = domain.find("domain_rotation")
+        self.domain["rotation_axis"] = [
+            float(rotation.find("rotation_axis_x").text),
+            float(rotation.find("rotation_axis_y").text),
+            float(rotation.find("rotation_axis_z").text)]
+        self.domain["rotation_angle"] = \
+            float(rotation.find("rotation_angle_in_degree").text)
+
+        # Write cache file.
+        cf_cache = {}
+        cf_cache["config"] = self.config
+        cf_cache["domain"] = self.domain
+        cf_cache["last_m_time"] = \
+            int(os.path.getmtime(self.paths["config_file"]))
+        with open(cfile, "wb") as fh:
+            cPickle.dump(cf_cache, fh, protocol=2)
 
     def get_communicator(self):
         return self.__comm

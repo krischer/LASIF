@@ -237,8 +237,8 @@ def lasif_info(parser, args):
     """
     parser.parse_args(args)
 
-    proj = _find_project_comm(".")
-    print(proj)
+    comm = _find_project_comm(".")
+    print(comm.project)
 
 
 @command_group("Data Acquisition")
