@@ -25,6 +25,31 @@ class InventoryDBComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
     def __init__(self, db_file, communicator, component_name):
+        self._db_file = db_file
+        super(InventoryDBComponent, self).__init__(communicator,
+                                                   component_name)
+
+    @property
+    def _conn(self):
+        """
+        Lazy init of connection.
+        """
+        try:
+            return self.__connection
+        except AttributeError:
+            pass
+        self.__connection = sqlite3.connect(self._db_file)
+        return self.__connection
+
+    @property
+    def _cursor(self):
+        """
+        Lazy init of cursor.
+        """
+        try:
+            return self.__cursor
+        except AttributeError:
+            pass
         sql = """
         CREATE TABLE IF NOT EXISTS stations(
             station_name TEXT PRIMARY_KEY UNIQUE,
@@ -33,15 +58,10 @@ class InventoryDBComponent(Component):
             elevation REAL,
             depth REAL
         );"""
-
-        self._db_file = db_file
-        self._conn = sqlite3.connect(self._db_file)
-        self._cursor = self._conn.cursor()
-        self._cursor.execute(sql)
+        self.__cursor = self._conn.cursor()
+        self.__cursor.execute(sql)
         self._conn.commit()
-
-        super(InventoryDBComponent, self).__init__(communicator,
-                                                   component_name)
+        return self.__cursor
 
     def save_station_coordinates(self, station_id, latitude, longitude,
                                  elevation_in_m, local_depth_in_m):
