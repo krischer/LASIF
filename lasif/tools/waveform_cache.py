@@ -103,6 +103,24 @@ class WaveformCache(FileInfoCache):
                     elevation_in_m = float(s_stats.stel)
                     local_depth_in_m = float(s_stats.stdp) \
                         if s_stats.stdp != -12345.0 else 0.0
+            # Synthetic SES3D files.
+            elif "ses3d" in tr.stats:
+                # Get network, station, location, component from the filename.
+                network, station, location, channel = \
+                    [_i.replace("_", "")
+                     for _i in os.path.basename(filename).split(".")]
+                if channel != tr.stats.channel:
+                    msg = "Channel in filename != channel in SES3D file."
+                    raise ValueError(msg)
+                tr.stats.network = network
+                tr.stats.station = station
+                tr.stats.location = location
+                # Get receiver coordinates (in the possibly rotated frame of
+                # reference)
+                latitude = tr.stats.ses3d.receiver_latitude
+                longitude = tr.stats.ses3d.receiver_longitude
+                elevation_in_m = 0.0
+                local_depth_in_m = tr.stats.receiver_depth_in_m
 
             s = tr.stats
 
