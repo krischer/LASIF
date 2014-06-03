@@ -343,15 +343,15 @@ def lasif_list_events(parser, args):
     parser.parse_args(args)
 
     from lasif.tools.prettytable import PrettyTable
-    proj = _find_project_comm(".")
-    print("%i event%s in project:" % (len(proj.events),
-          "s" if len(proj.events) != 1 else ""))
+    comm = _find_project_comm(".")
+    print("%i event%s in project:" % (comm.events.count(),
+          "s" if comm.events.count() != 1 else ""))
     tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag",
                        "# raw/preproc/synth"])
     tab.align["Event Name"] = "l"
-    for event in sorted(proj.events.keys()):
-        ev = proj.events[event]
-        count = proj.get_filecounts_for_event(event)
+    for event in comm.events.list():
+        ev = comm.events.get(event)
+        count = comm.project.get_filecounts_for_event(event)
         tab.add_row([
             event, "%6.1f / %6.1f / %3i / %3.1f" % (
                 ev["latitude"], ev["longitude"], int(ev["depth_in_km"]),

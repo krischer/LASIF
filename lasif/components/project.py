@@ -219,6 +219,41 @@ class Project(Component):
         with open(cfile, "wb") as fh:
             cPickle.dump(cf_cache, fh, protocol=2)
 
+    def get_filecounts_for_event(self, event_name):
+        """
+        Gets the number of files associated with the current event.
+
+        :type event_name: str
+        :param event_name: The name of the event.
+
+        :rtype: dict
+        :returns: A dictionary with the following self-explaining keys:
+            * raw_waveform_file_count
+            * synthetic_waveform_file_count
+            * preprocessed_waveform_file_count
+        """
+        # Make sure the event exists.
+        if not self.comm.events.has_event(event_name):
+            msg = "Event '%s' not found in project." % event_name
+            raise ValueError(msg)
+
+        data_path = os.path.join(self.paths["data"], event_name)
+        synth_path = os.path.join(self.paths["synthetics"], event_name)
+        raw_data_count = 0
+        processed_data_count = 0
+        synthetic_data_count = 0
+        for dirpath, _, filenames in os.walk(data_path):
+            if dirpath.endswith("raw"):
+                raw_data_count += len(filenames)
+            elif "preprocessed" in dirpath:
+                processed_data_count += len(filenames)
+        for dirpath, _, filenames in os.walk(synth_path):
+            synthetic_data_count += len(filenames)
+        return {
+            "raw_waveform_file_count": raw_data_count,
+            "synthetic_waveform_file_count": synthetic_data_count,
+            "preprocessed_waveform_file_count": processed_data_count}
+
     def get_communicator(self):
         return self.__comm
 

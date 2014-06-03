@@ -222,35 +222,35 @@ def test_lasif_info(cli):
     assert "6 synthetic waveform files" in out
 
 
-# def test_various_list_functions(cli):
-#     """
-#     Tests all the "lasif list_" functions.
-#     """
-#     events = cli.run("lasif list_events").stdout
-#     assert "2 events" in events
-#     assert "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11" in events
-#     assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in events
-#
-#     iterations = cli.run("lasif list_iterations").stdout
-#     assert "0 iterations" in iterations
-#     with open(os.path.join(cli.project.paths["iterations"], "1.xml"),
-#               "wt") as fh:
-#         fh.write("<>")
-#     iterations = cli.run("lasif list_iterations").stdout
-#     assert "1 iteration" in iterations
-#     with open(os.path.join(cli.project.paths["iterations"], "temp.xml"),
-#               "wt") as fh:
-#         fh.write("<>")
-#     iterations = cli.run("lasif list_iterations").stdout
-#     assert "2 iteration" in iterations
-#
-#     models = cli.run("lasif list_models").stdout
-#     assert "0 models" in models
-#     os.makedirs(os.path.join(cli.project.paths["models"], "BLUB"))
-#     models = cli.run("lasif list_models").stdout
-#     assert "1 model" in models
-#
-#
+def test_various_list_functions(cli):
+    """
+    Tests all the "lasif list_" functions.
+    """
+    events = cli.run("lasif list_events").stdout
+    assert "2 events" in events
+    assert "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11" in events
+    assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in events
+
+    iterations = cli.run("lasif list_iterations").stdout
+    assert "0 iterations" in iterations
+    with open(os.path.join(cli.project.paths["iterations"], "1.xml"),
+              "wt") as fh:
+        fh.write("<>")
+    iterations = cli.run("lasif list_iterations").stdout
+    assert "1 iteration" in iterations
+    with open(os.path.join(cli.project.paths["iterations"], "temp.xml"),
+              "wt") as fh:
+        fh.write("<>")
+    iterations = cli.run("lasif list_iterations").stdout
+    assert "2 iteration" in iterations
+
+    models = cli.run("lasif list_models").stdout
+    assert "0 models" in models
+    os.makedirs(os.path.join(cli.project.paths["models"], "BLUB"))
+    models = cli.run("lasif list_models").stdout
+    assert "1 model" in models
+
+
 # def test_iteration_creation_and_stf_plotting(cli):
 #     """
 #     Tests the generation of an iteration and the supsequent STF plotting.

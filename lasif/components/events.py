@@ -44,7 +44,7 @@ class EventsComponent(Component):
         ['GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15',
          'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11']
         """
-        return self.__event_files.keys()
+        return sorted(self.__event_files.keys())
 
     def count(self):
         """
