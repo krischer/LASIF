@@ -25,6 +25,7 @@ from .component import Component
 from .events import EventsComponent
 from .inventory_db import InventoryDBComponent
 from .iterations import IterationsComponent
+from .models import ModelsComponent
 from .query import QueryComponent
 from .stations import StationsComponent
 from .waveforms import WaveformsComponent
@@ -174,8 +175,6 @@ class Project(Component):
 
         self.config["download_settings"] = {}
         dl_settings = root.find("download_settings")
-        self.config["download_settings"]["arclink_username"] = \
-            dl_settings.find("arclink_username").text
         self.config["download_settings"]["seconds_before_event"] = \
             float(dl_settings.find("seconds_before_event").text)
         self.config["download_settings"]["seconds_after_event"] = \
@@ -279,6 +278,9 @@ class Project(Component):
         InventoryDBComponent(db_file=self.paths["inv_db_file"],
                              communicator=self.comm,
                              component_name="inventory_db")
+        ModelsComponent(models_folder=self.paths["models"],
+                        communicator=self.comm,
+                        component_name="models")
         QueryComponent(communicator=self.comm, component_name="query")
         IterationsComponent(iterations_folder=self.paths["iterations"],
                             communicator=self.comm,

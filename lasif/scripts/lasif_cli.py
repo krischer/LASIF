@@ -370,10 +370,11 @@ def lasif_list_models(parser, args):
     """
     parser.parse_args(args)
 
-    models = _find_project_comm(".").get_model_dict()
+    comm = _find_project_comm(".")
+    models = comm.models.list()
     print("%i model%s in project:" % (len(models), "s" if len(models) != 1
           else ""))
-    for model in sorted(models.keys()):
+    for model in models:
         print ("\t%s" % model)
 
 
@@ -900,11 +901,13 @@ def lasif_list_iterations(parser, args):
     """
     parser.parse_args(args)
 
-    iterations = _find_project_comm(".").get_iteration_dict().keys()
+    comm = _find_project_comm(".")
 
-    print("%i iteration%s in project:" % (len(iterations),
-          "s" if len(iterations) != 1 else ""))
-    for iteration in sorted(iterations):
+    it_len = comm.iterations.count()
+
+    print("%i iteration%s in project:" % (it_len,
+          "s" if it_len != 1 else ""))
+    for iteration in comm.iterations.list():
         print ("\t%s" % iteration)
 
 

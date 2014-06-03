@@ -233,12 +233,12 @@ def test_various_list_functions(cli):
 
     iterations = cli.run("lasif list_iterations").stdout
     assert "0 iterations" in iterations
-    with open(os.path.join(cli.project.paths["iterations"], "1.xml"),
+    with open(os.path.join(cli.project.paths["iterations"], "ITERATION_1.xml"),
               "wt") as fh:
         fh.write("<>")
     iterations = cli.run("lasif list_iterations").stdout
     assert "1 iteration" in iterations
-    with open(os.path.join(cli.project.paths["iterations"], "temp.xml"),
+    with open(os.path.join(cli.project.paths["iterations"], "ITERATION_2.xml"),
               "wt") as fh:
         fh.write("<>")
     iterations = cli.run("lasif list_iterations").stdout
