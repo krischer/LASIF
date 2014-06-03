@@ -150,78 +150,6 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
     return m
 
 
-# File global pick state handler. Used to handle the different pick events.
-__pick_state = {
-    # Any possible existing event_annotations.
-    "event_annotations": [],
-    # The currently annotated event if any.
-    "current_event_annotation_artist": None
-}
-
-
-def _pick_handler(event):
-    """
-    File global pick handler. Called for every pick event in the file.
-    """
-    if hasattr(event.artist, "detailed_event_description"):
-        __pick_handler_event_annotation(event)
-    elif hasattr(event.artist, "_station_scatter"):
-        __pick_handler_station_scatter(event)
-    else:
-        return
-    plt.gcf().canvas.draw()
-
-
-def __pick_handler_event_annotation(event):
-    """
-    Pick handler for the event annotation.
-    """
-    if event.mouseevent.button == 1 and not event.mouseevent.dblclick:
-        # Remove any potentially existing annotations.
-        for i in __pick_state["event_annotations"]:
-            i.remove()
-        __pick_state["event_annotations"][:] = []
-
-        if __pick_state["current_event_annotation_artist"] is event.artist:
-            __pick_state["current_event_annotation_artist"] = None
-            return
-
-        x, y = event.mouseevent.xdata, event.mouseevent.ydata
-        annotation = plt.annotate(
-            event.artist.detailed_event_description,
-            xy=(x, y), xytext=(0.98, 0.98), textcoords="figure fraction",
-            horizontalalignment="right", verticalalignment="top",
-            arrowprops=dict(arrowstyle="fancy", color="0.5",
-                            connectionstyle="arc3,rad=0.3"),
-            zorder=10E9, fontsize="small")
-        __pick_state["event_annotations"].append(annotation)
-        __pick_state["current_event_annotation_artist"] = event.artist
-    # If it is a double-click, plot the event in a new figure.
-    elif event.mouseevent.dblclick and event.artist._project:
-        plt.figure()
-        event.artist._project.plot_event(event.artist._event_name)
-        plt.gcf().patch.set_alpha(0.0)
-        plt.show()
-
-
-def __pick_handler_station_scatter(event):
-    idx = event.ind[0]
-    station_id = event.artist._station_scatter[idx]
-    if event.artist._project:
-        event.artist._project.plot_station(
-            station_id, event.artist._event_info["event_name"])
-
-
-def _set_global_pick_handler():
-    """
-    Sets the global pick handler if not yet set.
-    """
-    canvas = plt.gcf().canvas
-    if "pick_event" in canvas.callbacks.callbacks:
-        return
-    canvas.mpl_connect("pick_event", _pick_handler)
-
-
 def plot_events(events, map_object, beachball_size=0.02, project=None):
     """
     """
@@ -235,7 +163,6 @@ def plot_events(events, map_object, beachball_size=0.02, project=None):
         width = max((map_object.xmax - map_object.xmin,
                      map_object.ymax - map_object.ymin)) * beachball_size
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
-        b.set_picker(True)
         b._project = project
         b._event_name = os.path.splitext(
             os.path.basename(event["filename"]))[0]
@@ -250,7 +177,6 @@ def plot_events(events, map_object, beachball_size=0.02, project=None):
 
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
-    _set_global_pick_handler()
 
 
 def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
@@ -684,16 +610,11 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     x, y = map_object(lngs, lats)
 
     stations = map_object.scatter(x, y, color="green", s=35, marker="v",
-                                  zorder=100, edgecolor="black", picker=1.0)
+                                  zorder=100, edgecolor="black")
     # Setting the picker overwrites the edgecolor attribute on certain
     # matplotlib and basemap versions. Fix it here.
     stations._edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]])
     stations._edgecolors_original = "black"
-    # Add three additional information attributes that the pick callback has
-    # access to.
-    stations._station_scatter = station_ids
-    stations._project = project
-    stations._event_info = event_info
 
     # Plot the ray paths.
     for sta_lng, sta_lat in izip(lngs, lats):

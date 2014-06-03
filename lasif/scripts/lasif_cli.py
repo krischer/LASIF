@@ -148,15 +148,13 @@ def lasif_plot_event(parser, args):
     """
     Plot a single event including stations on a map.
     """
-    import matplotlib.pyplot as plt
     parser.add_argument("event_name", help="name of the event to plot")
     event_name = parser.parse_args(args).event_name
 
-    fig = plt.figure()
-    fig.canvas.mpl_connect("close_event", lambda x: sys.exit(0))
+    comm = _find_project_comm(".")
+    comm.visualizations.plot_event(event_name)
 
-    proj = _find_project_comm(".")
-    proj.plot_event(event_name)
+    import matplotlib.pyplot as plt
     plt.show()
 
 
@@ -188,7 +186,6 @@ def lasif_plot_events(parser, args):
         * ``depth`` - a depth distribution histogram
         * ``time`` - a time distribution histogram
     """
-    import matplotlib.pyplot as plt
     parser.add_argument("--type", default="map", choices=["map", "depth",
                                                           "time"],
                         help="the type of plot. "
@@ -197,11 +194,10 @@ def lasif_plot_events(parser, args):
                         "``time``: time distribution histogram")
     plot_type = parser.parse_args(args).type
 
-    fig = plt.figure()
-    fig.canvas.mpl_connect("close_event", lambda x: sys.exit(0))
+    comm = _find_project_comm(".")
+    comm.visualizations.plot_events(plot_type)
 
-    proj = _find_project_comm(".")
-    proj.plot_events(plot_type)
+    import matplotlib.pyplot as plt
     plt.show()
 
 
@@ -212,8 +208,8 @@ def lasif_plot_raydensity(parser, args):
     """
     parser.parse_args(args)
 
-    proj = _find_project_comm(".")
-    proj.plot_raydensity()
+    comm = _find_project_comm(".")
+    comm.visualizations.plot_raydensity()
 
 
 @command_group("Data Acquisition")
@@ -562,14 +558,13 @@ def lasif_event_info(parser, args):
     event_name = parser.event_name
     verbose = parser.v
 
-    from lasif.utils import table_printer
 
-    proj = _find_project_comm(".")
-    if event_name not in proj.events:
+    comm = _find_project_comm(".")
+    if not comm.events.has_event(event_name):
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
 
-    event_dict = proj.events[event_name]
+    event_dict = comm.events.get(event_name)
 
     print "Earthquake with %.1f %s at %s" % (
         event_dict["magnitude"], event_dict["magnitude_type"],
@@ -580,11 +575,12 @@ def lasif_event_info(parser, args):
     print "\t%s UTC" % str(event_dict["origin_time"])
 
     try:
-        stations = proj.get_stations_for_event(event_name)
+        stations = comm.query.get_all_stations_for_event(event_name)
     except LASIFError:
         stations = {}
 
     if verbose:
+        from lasif.utils import table_printer
         print "\nStation and waveform information available at %i stations:\n" \
             % len(stations)
         header = ["id", "latitude", "longitude", "elevation_in_m",

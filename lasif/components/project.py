@@ -28,6 +28,7 @@ from .iterations import IterationsComponent
 from .models import ModelsComponent
 from .query import QueryComponent
 from .stations import StationsComponent
+from .visualizations import VisualizationsComponent
 from .waveforms import WaveformsComponent
 
 
@@ -281,10 +282,12 @@ class Project(Component):
         ModelsComponent(models_folder=self.paths["models"],
                         communicator=self.comm,
                         component_name="models")
-        QueryComponent(communicator=self.comm, component_name="query")
         IterationsComponent(iterations_folder=self.paths["iterations"],
                             communicator=self.comm,
                             component_name="iterations")
+        QueryComponent(communicator=self.comm, component_name="query")
+        VisualizationsComponent(communicator=self.comm,
+                                component_name="visualizations")
 
     def __setup_paths(self, root_path):
         """
@@ -383,3 +386,14 @@ class Project(Component):
 
         with open(self.paths["config_file"], "wt") as open_file:
             open_file.write(string_doc)
+
+    def get_output_folder(self, tag):
+        """
+        Generates a output folder in a unified way.
+        """
+        from obspy import UTCDateTime
+        output_dir = ("%s___%s" % (str(UTCDateTime()), tag))
+        output_dir = os.path.join(self.paths["output"], output_dir)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        return output_dir

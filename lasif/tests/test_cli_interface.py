@@ -266,29 +266,29 @@ def test_various_list_functions(cli):
 #             data,
 #             cli.project._get_iteration("1").get_source_time_function()["data"])
 #         assert delta == 0.75
-#
-#
-# def test_lasif_event_info(cli):
-#     """
-#     Tests the event info function.
-#     """
-#     event_1 = cli.run("lasif event_info "
-#                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11").stdout
-#     event_2 = cli.run("lasif event_info "
-#                       "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15").stdout
-#
-#     assert "5.1 Mw" in event_1
-#     assert "TURKEY" in event_1
-#     assert "38.820" in event_1
-#     assert "available at 4 stations" in event_1
-#
-#     assert "5.9 Mw" in event_2
-#     assert "TURKEY" in event_2
-#     assert "39.150" in event_2
-#     assert "available at 0 stations" in event_2
-#
-#
-# def test_input_file_generatioN(cli):
+
+
+def test_lasif_event_info(cli):
+    """
+    Tests the event info function.
+    """
+    event_1 = cli.run("lasif event_info "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11").stdout
+    event_2 = cli.run("lasif event_info "
+                      "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15").stdout
+
+    assert "5.1 Mw" in event_1
+    assert "TURKEY" in event_1
+    assert "38.820" in event_1
+    assert "available at 4 stations" in event_1
+
+    assert "5.9 Mw" in event_2
+    assert "TURKEY" in event_2
+    assert "39.150" in event_2
+    assert "available at 0 stations" in event_2
+
+
+# def test_input_file_generation(cli):
 #     """
 #     Mock test to see if the input file generation routine is called. The
 #     routine is tested partially by the event tests and more by the input file
