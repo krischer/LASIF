@@ -469,31 +469,8 @@ def lasif_plot_model(parser, args):
 
     from lasif import ses3d_models
 
-    proj = _find_project_comm(".")
-
-    model_dir = proj.get_model_dict()[model_name]
-    handler = ses3d_models.RawSES3DModelHandler(model_dir)
-    handler.rotation_axis = proj.domain["rotation_axis"]
-    handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
-
-    while True:
-        print handler
-        print ""
-
-        inp = raw_input("Enter 'COMPONENT DEPTH' "
-                        "('quit/exit' to exit): ").strip()
-        if inp.lower() in ["quit", "q", "exit", "leave"]:
-            break
-        try:
-            component, depth = inp.split()
-        except:
-            continue
-
-        try:
-            handler.parse_component(component)
-        except:
-            continue
-        handler.plot_depth_slice(component, float(depth))
+    comm = _find_project_comm(".")
+    comm.models.plot(model_name)
 
 
 @command_group("Plotting")
