@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import obspy
 import os
 
-from lasif import LASIFNotFoundError
+from lasif import LASIFNotFoundError, LASIFError
 from lasif.tools.waveform_cache import WaveformCache
 
 from .component import Component
@@ -102,10 +102,8 @@ class WaveformsComponent(Component):
             ...
         LASIFNotFoundError: ...
         """
-        data_folder = os.path.join(self._data_folder, event_name)
-        waveform_db_file = os.path.join(data_folder,
-                               "raw_cache" + os.path.extsep + "sqlite")
-        data_path = os.path.join(data_folder, "raw")
+        data_path = self.get_waveform_folder(event_name, "raw")
+        waveform_db_file = self._get_waveform_cache_path(event_name, "raw")
         if not os.path.exists(data_path):
             msg = "No data for event '%s' found." % event_name
             raise LASIFNotFoundError(msg)
@@ -118,10 +116,10 @@ class WaveformsComponent(Component):
         return self._convert_timestamps(waveform_cache.get_values())
 
     def get_metadata_processed(self, event_name, tag):
-        data_folder = os.path.join(self._data_folder, event_name)
-        waveform_db_file = os.path.join(
-            data_folder, tag + "_cache" + os.path.extsep + "sqlite")
-        data_path = os.path.join(data_folder, tag)
+        data_path = self.get_waveform_folder(event_name, "processed",
+                                             tag)
+        waveform_db_file = self._get_waveform_cache_path(
+            event_name, "processed", tag)
         if not os.path.exists(data_path):
             msg = "No data for event '%s' and processing tag '%s' found." % \
                   (event_name, tag)
@@ -136,11 +134,10 @@ class WaveformsComponent(Component):
         return self._convert_timestamps(waveform_cache.get_values())
 
     def get_metadata_synthetic(self, event_name, long_iteration_name):
-        data_folder = os.path.join(self._synthetics_folder, event_name)
-        waveform_db_file = os.path.join(
-            data_folder, long_iteration_name + "_cache" + os.path.extsep +
-            "sqlite")
-        data_path = os.path.join(data_folder, long_iteration_name)
+        data_path = self.get_waveform_folder(event_name, "synthetic",
+                                             long_iteration_name)
+        waveform_db_file = self._get_waveform_cache_path(
+            event_name, "synthetic", long_iteration_name)
         if not os.path.exists(data_path):
             msg = ("No synthetic data for event '%s' and iteration '%s' "
                    "found." %
@@ -153,4 +150,30 @@ class WaveformsComponent(Component):
             msg = ("No synthetic data for event '%s' and iteration '%s' "
                    "found." %
                    (event_name, long_iteration_name))
+            raise LASIFNotFoundError(msg)
         return self._convert_timestamps(waveform_cache.get_values())
+
+    def get_waveform_folder(self, event_name, waveform_type,
+                            tag_or_long_iteration_name=None):
+        if waveform_type == "raw":
+            return os.path.join(self._data_folder, event_name, "raw")
+        elif waveform_type == "processed":
+            if not tag_or_long_iteration_name:
+                msg = "Tag must be given for processed data."
+                raise ValueError(msg)
+            return os.path.join(self._data_folder, event_name,
+                                tag_or_long_iteration_name)
+        elif waveform_type == "synthetic":
+            if not tag_or_long_iteration_name:
+                msg = "Long iteration name must be given for synthetic data."
+                raise ValueError(msg)
+            return os.path.join(self._synthetics_folder, event_name,
+                                tag_or_long_iteration_name)
+        else:
+            raise ValueError("Invalid waveform type '%s'." % waveform_type)
+
+    def _get_waveform_cache_path(self, event_name, waveform_type,
+                                 tag_or_long_iteration_name=None):
+        path = self.get_waveform_folder(event_name, waveform_type,
+                                        tag_or_long_iteration_name)
+        return path + "_cache" + os.path.extsep + "sqlite"

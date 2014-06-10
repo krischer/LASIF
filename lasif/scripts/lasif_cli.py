@@ -123,11 +123,12 @@ def lasif_plot_domain(parser, args):
     """
     Plot the project's domain on a map.
     """
-    import matplotlib.pyplot as plt
     parser.parse_args(args)
 
-    proj = _find_project_comm(".")
-    proj.plot_domain()
+    comm = _find_project_comm(".")
+    comm.visualizations.plot_domain()
+
+    import matplotlib.pyplot as plt
     plt.show()
 
 
@@ -958,11 +959,9 @@ def lasif_preprocess_data(parser, args):
     iteration_name = args.iteration_name
     events = args.events if args.events else None
 
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
 
-    # Check if the iteration name is valid.
-    iterations = proj.get_iteration_dict()
-    if iteration_name not in iterations:
+    if not comm.iterations.has_iteration(iteration_name):
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
                "a list of all available iterations.") % iteration_name
         raise LASIFCommandLineException(msg)
@@ -970,11 +969,11 @@ def lasif_preprocess_data(parser, args):
     # Check if the event ids are valid.
     if events:
         for event_name in events:
-            if event_name not in proj.events:
+            if not comm.events.has_event(event_name):
                 msg = "Event '%s' not found." % event_name
                 raise LASIFCommandLineException(msg)
 
-    proj.preprocess_data(iteration_name, events)
+    comm.actions.preprocess_data(iteration_name, events)
 
 
 @command_group("Iteration Management")
@@ -982,20 +981,14 @@ def lasif_plot_q_model(parser, args):
     """
     Plots the Q model for a given iteration.
     """
-    import matplotlib.pyplot as plt
     parser.add_argument("iteration_name", help="name of iteration")
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
 
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
+    comm.iterations.plot_Q_model(iteration_name)
 
-    # Check if the iteration name is valid.
-    iterations = proj.get_iteration_dict()
-    if iteration_name not in iterations:
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % iteration_name
-        raise LASIFCommandLineException(msg)
-    proj.plot_Q_model(iteration_name)
+    import matplotlib.pyplot as plt
     plt.show()
 
 

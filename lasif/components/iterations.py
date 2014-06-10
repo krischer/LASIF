@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import glob
 import os
 
-from lasif import LASIFNotFoundError
+from lasif import LASIFNotFoundError, LASIFError
 from .component import Component
 
 
@@ -226,3 +226,27 @@ class IterationsComponent(Component):
         from lasif.iteration_xml import Iteration
         it = Iteration(it_dict[iteration_name])
         return it
+
+
+    def plot_Q_model(self, iteration_name):
+        """
+        Plots the Q model for a given iteration. Will only work if the
+        iteration uses SES3D as its solver.
+        """
+        from lasif.tools.Q_discrete import plot
+
+        iteration = self.get(iteration_name)
+        if iteration.solver_settings["solver"].lower() != "ses3d 4.1":
+            msg = "Only works for SES3D 4.1"
+            raise LASIFError(msg)
+
+        proc_params = iteration.get_process_params()
+        f_min = proc_params["highpass"]
+        f_max = proc_params["lowpass"]
+
+        relax = iteration.solver_settings["solver_settings"][
+            "relaxation_parameter_list"]
+        tau_p = relax["tau"]
+        weights = relax["w"]
+
+        plot(D_p=weights, tau_p=tau_p, f_min=f_min, f_max=f_max)

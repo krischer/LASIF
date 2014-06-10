@@ -85,6 +85,23 @@ class VisualizationsComponent(Component):
         # Plot the beachball for one event.
         visualization.plot_events([event_info], map_object=map_object)
 
+    def plot_domain(self):
+        """
+        Plots the simulation domain and the actual physical domain.
+
+        Wrapper around one of the visualization routines.
+        """
+        from lasif import visualization
+
+        domain = self.comm.project.domain
+        bounds = domain["bounds"]
+        visualization.plot_domain(
+            bounds["minimum_latitude"],
+            bounds["maximum_latitude"], bounds["minimum_longitude"],
+            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
+            rotation_axis=domain["rotation_axis"],
+            rotation_angle_in_degree=domain["rotation_angle"],
+            plot_simulation_domain=True, zoom=True)
 
     def plot_raydensity(self, save_plot=True):
         """

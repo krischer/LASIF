@@ -17,7 +17,7 @@ from lasif.tools.colored_logger import ColoredLogger
 from lasif.tools.parallel import parallel_map
 
 
-def preprocess_file(file_info):
+def preprocess_file(processing_info):
     """
     Function to perform the actual preprocessing for one individual seismogram.
 
@@ -27,23 +27,42 @@ def preprocess_file(file_info):
 
     Furthermore the data has to be converted to m/s.
 
-    :param file_info: A dictionary containing information about the file to
-        be processed.
+    :param processing_info: A dictionary containing information about the
+        file to be processed. It will have the following structure.
 
-    file_info is dictionary containing the following keys:
-        * data_path: Path to the raw data. This has to be read.
-        * processed_data_path: The path where the processed file has to be
-            saved at.
-        * origin_time: The origin time of the event for the file.
-        * npts: The number of samples of the synthetic waveform. The data
-            should be interpolated to have the same amount of samples.
-        * dt: The time increment of the synthetics.
-        * station_filename: The filename of the station file for the waveform.
-            Can either be a RESP file or a dataless SEED file.
-        * highpass: The highpass frequency of the source time function for the
-            synthetics.
-        * lowpass: The lowpass frequency of the source time function for the
-            synthetics.
+    .. code-block:: python
+
+        {'event_information': {
+            'depth_in_km': 22.0,
+            'event_name': 'GCMT_event_VANCOUVER_ISLAND...',
+            'filename': '/.../GCMT_event_VANCOUVER_ISLAND....xml',
+            'latitude': 49.53,
+            'longitude': -126.89,
+            'm_pp': 2.22e+18,
+            'm_rp': -2.78e+18,
+            'm_rr': -6.15e+17,
+            'm_rt': 1.98e+17,
+            'm_tp': 5.14e+18,
+            'm_tt': -1.61e+18,
+            'magnitude': 6.5,
+            'magnitude_type': 'Mwc',
+            'origin_time': UTCDateTime(2011, 9, 9, 19, 41, 34, 200000),
+            'region': u'VANCOUVER ISLAND, CANADA REGION'},
+         'input_filename': u'/.../raw/7D.FN01A..HHZ.mseed',
+         'output_filename': u'/.../processed_.../7D.FN01A..HHZ.mseed',
+         'process_params': {
+            'dt': 0.75,
+            'highpass': 0.007142857142857143,
+            'lowpass': 0.0125,
+            'npts': 2000,
+            'stf': 'Filtered Heaviside'},
+         'station_coordinates': {
+            'elevation_in_m': -54.0,
+            'latitude': 46.882,
+            'local_depth_in_m': None,
+            'longitude': -124.3337},
+         'station_filename': u'/.../STATIONS/RESP/RESP.7D.FN01A..HH*'}
+
     """
     import numpy as np
     import obspy
@@ -85,16 +104,17 @@ def preprocess_file(file_info):
     # =========================================================================
     # Read seismograms and gather basic information.
     # =========================================================================
-    starttime = file_info["origin_time"]
-    endtime = starttime + file_info["dt"] * (file_info["npts"] - 1)
+    starttime = processing_info["event_information"]["origin_time"]
+    endtime = starttime + processing_info["process_params"]["dt"] * \
+        (processing_info["process_params"]["npts"] - 1)
     duration = endtime - starttime
 
-    st = obspy.read(file_info["data_path"])
+    st = obspy.read(processing_info["input_filename"])
 
     if len(st) != 1:
         warnings.warn("The file '%s' has %i traces and not 1. "
                       "Skip all but the first" % (
-                          file_info["data_path"], len(st)))
+                          processing_info["input_filename"], len(st)))
     tr = st[0]
 
     # Trim with a short buffer in an attempt to avoid boundary effects.
@@ -129,7 +149,8 @@ def preprocess_file(file_info):
     # reasonably fast even for input data with a large sampling rate.
     # =========================================================================
     while True:
-        decimation_factor = int(file_info["dt"] / tr.stats.delta)
+        decimation_factor = int(processing_info["process_params"]["dt"] /
+                                tr.stats.delta)
         # Decimate in steps for large sample rate reductions.
         if decimation_factor > 8:
             decimation_factor = 8
@@ -145,10 +166,10 @@ def preprocess_file(file_info):
     # Step 3: Instrument correction
     # Correct seismograms to velocity in m/s.
     # =========================================================================
-    station_file = file_info["station_filename"]
+    station_file = processing_info["station_filename"]
 
     # check if the station file actually exists ==============================
-    if not file_info["station_filename"]:
+    if not processing_info["station_filename"]:
         msg = "No station file found for the relevant time span. File skipped"
         raise LASIFError(msg)
 
@@ -163,7 +184,7 @@ def preprocess_file(file_info):
         except ValueError:
             msg = ("File  could not be corrected with the help of the "
                    "SEED file '%s'. Will be skipped.") \
-                % file_info["station_filename"],
+                % processing_info["station_filename"],
             raise LASIFError(msg)
 
     # processing with RESP files =============================================
@@ -174,7 +195,7 @@ def preprocess_file(file_info):
         except ValueError:
             msg = ("File  could not be corrected with the help of the "
                    "RESP file '%s'. Will be skipped.") \
-                % file_info["station_filename"],
+                % processing_info["station_filename"],
             raise LASIFError(msg)
     else:
         raise NotImplementedError
@@ -188,7 +209,7 @@ def preprocess_file(file_info):
     # Make sure that the data array is at least as long as the
     # synthetics array. Also add some buffer sample for the
     # spline interpolation to work in any case.
-    buf = file_info["dt"] * 5
+    buf = processing_info["process_params"]["dt"] * 5
     if starttime < (tr.stats.starttime + buf):
         tr.trim(starttime=starttime - buf, pad=True, fill_value=0.0)
     if endtime > (tr.stats.endtime - buf):
@@ -196,21 +217,22 @@ def preprocess_file(file_info):
 
     # Actual interpolation. Currently a linear interpolation is used.
     new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,
-                                 file_info["npts"])
+                                 processing_info["process_params"]["npts"])
     old_time_array = np.linspace(tr.stats.starttime.timestamp,
                                  tr.stats.endtime.timestamp, tr.stats.npts)
     tr.data = interp1d(old_time_array, tr.data, kind=1)(new_time_array)
     tr.stats.starttime = starttime
-    tr.stats.delta = file_info["dt"]
+    tr.stats.delta = processing_info["process_params"]["dt"]
 
     # =========================================================================
     # Step 5: Bandpass filtering
     # This has to be exactly the same filter as in the source time function.
     # Should eventually be configurable.
     # =========================================================================
-    tr.filter("lowpass", freq=file_info["lowpass"], corners=5, zerophase=False)
-    tr.filter("highpass", freq=file_info["highpass"], corners=2,
-              zerophase=False)
+    tr.filter("lowpass", freq=processing_info["process_params"]["lowpass"],
+              corners=5, zerophase=False)
+    tr.filter("highpass", freq=processing_info["process_params"]["highpass"],
+              corners=2, zerophase=False)
 
     # =========================================================================
     # Save processed data and clean up.
@@ -220,7 +242,7 @@ def preprocess_file(file_info):
     if hasattr(tr.stats, "mseed"):
         tr.stats.mseed.encoding = "FLOAT32"
 
-    tr.write(file_info["processed_data_path"], format=tr.stats._format)
+    tr.write(processing_info["output_filename"], format=tr.stats._format)
 
 
 def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
@@ -243,10 +265,9 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
 
     # Give the user some time to read the message.
     time.sleep(waiting_time)
-
     results = parallel_map(preprocess_file,
-                           ({"file_info": i} for i in data_generator),
-                           verbose=1, pre_dispatch="all")
+                           ({"processing_info": i} for i in data_generator),
+                           verbose=50, pre_dispatch="all")
 
     # Keep track of all files.
     successful_file_count = 0

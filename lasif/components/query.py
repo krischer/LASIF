@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import collections
+
 from lasif import LASIFNotFoundError
 
 from .component import Component
@@ -96,6 +98,9 @@ class QueryComponent(Component):
         return stations
 
     def get_stations_for_all_events(self):
+        """
+        Returns a dictionary with a list of stations per event.
+        """
         events = {}
         for event in self.comm.events.list():
             try:
@@ -104,3 +109,63 @@ class QueryComponent(Component):
                 continue
             events[event] = data
         return events
+
+    def get_iteration_status(self, iteration_name):
+        """
+        Return the status of an iteration. This is a query command as it
+        integrates a lot of different information.
+        """
+        iteration = self.comm.iterations.get(iteration_name)
+
+        events = collections.defaultdict(dict)
+
+        # Get all the data.
+        for event_name, event_dict in iteration.events.iteritems():
+            # Get all stations that should be defined for the current
+            # iteration.
+            stations = set(event_dict["stations"].keys())
+
+            # Raw data.
+            try:
+                raw = self.comm.waveforms.get_metadata_raw(event_name)
+                # Get a list of all stations
+                raw = set((
+                    "{network}.{station}".format(**_i) for _i in raw))
+                # Get all stations in raw that are also defined for the
+                # current iteration.
+                raw_stations = stations.intersection(raw)
+            except LASIFNotFoundError:
+                raw_stations = {}
+            events[event_name]["raw"] = raw_stations
+
+            # Processed data.
+            try:
+                processed = self.comm.waveforms.get_metadata_processed(
+                    event_name, iteration.get_processing_tag())
+                # Get a list of all stations
+                processed = set((
+                    "{network}.{station}".format(**_i) for _i in processed))
+                # Get all stations in raw that are also defined for the
+                # current iteration.
+                processed_stations = stations.intersection(processed)
+            except LASIFNotFoundError:
+                processed_stations = {}
+            events[event_name]["processed"] = processed_stations
+
+            # Synthetic data.
+            try:
+                synthetic = self.comm.waveforms.get_metadata_synthetic(
+                    event_name,
+                    self.comm.iterations.get_long_iteration_name(
+                        iteration_name))
+                # Get a list of all stations
+                synthetic = set((
+                    "{network}.{station}".format(**_i) for _i in synthetic))
+                # Get all stations in raw that are also defined for the
+                # current iteration.
+                synthetic_stations = stations.intersection(synthetic)
+            except LASIFNotFoundError:
+                synthetic_stations = {}
+            events[event_name]["synthetic"] = synthetic_stations
+
+        return dict(events)

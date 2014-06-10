@@ -20,11 +20,13 @@ import os
 
 from lasif import LASIFError
 
+from .actions import ActionsComponent
 from .communicator import Communicator
 from .component import Component
 from .events import EventsComponent
 from .inventory_db import InventoryDBComponent
 from .iterations import IterationsComponent
+from .kernels import KernelsComponent
 from .models import ModelsComponent
 from .query import QueryComponent
 from .stations import StationsComponent
@@ -282,12 +284,17 @@ class Project(Component):
         ModelsComponent(models_folder=self.paths["models"],
                         communicator=self.comm,
                         component_name="models")
+        KernelsComponent(kernels_folder=self.paths["kernels"],
+                        communicator=self.comm,
+                        component_name="kernels")
         IterationsComponent(iterations_folder=self.paths["iterations"],
                             communicator=self.comm,
                             component_name="iterations")
         QueryComponent(communicator=self.comm, component_name="query")
         VisualizationsComponent(communicator=self.comm,
                                 component_name="visualizations")
+        ActionsComponent(communicator=self.comm,
+                         component_name="actions")
 
     def __setup_paths(self, root_path):
         """
