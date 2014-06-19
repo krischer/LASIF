@@ -178,7 +178,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
 
     # Number of samples in the sliding window. Currently, the length of the
     # window is set to a multiple of the dominant period of the synthetics.
-    # Make sure it is an uneven number; just to have an easy midpoint
+    # Make sure it is an uneven number; just to have a trivial midpoint
     # definition.
     window_length = int(round(float(2 * minimum_period) / dt))
 

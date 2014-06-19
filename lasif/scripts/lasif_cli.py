@@ -223,8 +223,8 @@ def lasif_add_spud_event(parser, args):
 
     from lasif.scripts.iris2quakeml import iris2quakeml
 
-    proj = _find_project_comm(".")
-    iris2quakeml(url, proj.paths["events"])
+    comm = _find_project_comm(".")
+    iris2quakeml(url, comm.project.paths["events"])
 
 
 @command_group("Project Management")
@@ -1069,9 +1069,10 @@ def lasif_validate_data(parser, args):
         raypaths = True
         waveforms = True
 
-    proj = _find_project_comm(".")
-    proj.validate_data(station_file_availability=station_file_availability,
-                       raypaths=raypaths, waveforms=waveforms)
+    comm = _find_project_comm(".")
+    comm.validator.validate_data(
+        station_file_availability=station_file_availability,
+        raypaths=raypaths, waveforms=waveforms)
 
 
 @command_group("Iteration Management")

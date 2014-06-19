@@ -30,6 +30,7 @@ from .kernels import KernelsComponent
 from .models import ModelsComponent
 from .query import QueryComponent
 from .stations import StationsComponent
+from .validator import ValidatorComponent
 from .visualizations import VisualizationsComponent
 from .waveforms import WaveformsComponent
 
@@ -295,6 +296,8 @@ class Project(Component):
                                 component_name="visualizations")
         ActionsComponent(communicator=self.comm,
                          component_name="actions")
+        ValidatorComponent(communicator=self.comm,
+                           component_name="validator")
 
     def __setup_paths(self, root_path):
         """
