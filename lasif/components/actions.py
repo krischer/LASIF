@@ -138,3 +138,175 @@ class ActionsComponent(Component):
                colorama.Fore.RESET))
 
         print("Logfile written to '%s'." % os.path.relpath(logfile))
+
+    def generate_input_files(self, iteration_name, event_name,
+                             simulation_type):
+        """
+        Generate the input files for one event.
+
+        :param iteration_name: The name of the iteration.
+        :param event_name: The name of the event for which to generate the
+            input files.
+        :param simulation_type: The type of simulation to perform. Possible
+            values are: 'normal simulation', 'adjoint forward', 'adjoint
+            reverse'
+        """
+        from wfs_input_generator import InputFileGenerator
+
+        # =====================================================================
+        # read iteration xml file, get event and list of stations
+        # =====================================================================
+
+        iteration = self.comm.iterations.get(iteration_name)
+
+        # Check that the event is part of the iterations.
+        if event_name not in iteration.events:
+            msg = ("Event '%s' not part of iteration '%s'.\nEvents available "
+                   "in iteration:\n\t%s" %
+                   (event_name, iteration_name, "\n\t".join(
+                       sorted(iteration.events.keys()))))
+            raise ValueError(msg)
+
+        event = self.comm.events.get(event_name)
+        stations_for_event = iteration.events[event_name]["stations"].keys()
+
+        # Get all stations and create a dictionary for the input file
+        # generator.
+        stations = self.comm.query.get_all_stations_for_event(event_name)
+        stations = [{
+                        "id": key, "latitude": value["latitude"],
+                        "longitude": value["longitude"],
+                        "elevation_in_m": value["elevation_in_m"],
+                        "local_depth_in_m": value["local_depth_in_m"]} for key, value in
+                    stations.iteritems() if key in stations_for_event]
+
+        # =====================================================================
+        # set solver options
+        # =====================================================================
+
+        solver = iteration.solver_settings
+
+        # Currently only SES3D 4.1 is supported
+        solver_format = solver["solver"].lower()
+        if solver_format not in ["ses3d 4.1", "ses3d 2.0",
+                                 "specfem3d cartesian"]:
+            msg = ("Currently only SES3D 4.1, SES3D 2.0, and SPECFEM3D "
+                   "CARTESIAN are supported.")
+            raise ValueError(msg)
+        solver_format = solver_format.replace(' ', '_')
+        solver_format = solver_format.replace('.', '_')
+
+        solver = solver["solver_settings"]
+
+        # =====================================================================
+        # create the input file generator, add event and stations,
+        # populate the configuration items
+        # =====================================================================
+
+        # Add the event and the stations to the input file generator.
+        gen = InputFileGenerator()
+        gen.add_events(event["filename"])
+        gen.add_stations(stations)
+
+        if solver_format in ["ses3d_4_1", "ses3d_2_0"]:
+            # event tag
+            gen.config.event_tag = event_name
+
+            # Time configuration.
+            npts = solver["simulation_parameters"]["number_of_time_steps"]
+            delta = solver["simulation_parameters"]["time_increment"]
+            gen.config.number_of_time_steps = npts
+            gen.config.time_increment_in_s = delta
+
+            # SES3D specific configuration
+            gen.config.output_folder = solver["output_directory"].replace(
+                "{{EVENT_NAME}}", event_name.replace(" ", "_"))
+            gen.config.simulation_type = simulation_type
+
+            gen.config.adjoint_forward_wavefield_output_folder = \
+                solver["adjoint_output_parameters"][
+                    "forward_field_output_directory"].replace(
+                    "{{EVENT_NAME}}", event_name.replace(" ", "_"))
+            gen.config.adjoint_forward_sampling_rate = \
+                solver["adjoint_output_parameters"][
+                    "sampling_rate_of_forward_field"]
+
+            # Visco-elastic dissipation
+            diss = solver["simulation_parameters"]["is_dissipative"]
+            gen.config.is_dissipative = diss
+
+            # Only SES3D 4.1 has the relaxation parameters.
+            if solver_format == "ses3d_4_1":
+                gen.config.Q_model_relaxation_times = \
+                    solver["relaxation_parameter_list"]["tau"]
+                gen.config.Q_model_weights_of_relaxation_mechanisms = \
+                    solver["relaxation_parameter_list"]["w"]
+
+            # Discretization
+            disc = solver["computational_setup"]
+            gen.config.nx_global = disc["nx_global"]
+            gen.config.ny_global = disc["ny_global"]
+            gen.config.nz_global = disc["nz_global"]
+            gen.config.px = disc["px_processors_in_theta_direction"]
+            gen.config.py = disc["py_processors_in_phi_direction"]
+            gen.config.pz = disc["pz_processors_in_r_direction"]
+            gen.config.lagrange_polynomial_degree = \
+                disc["lagrange_polynomial_degree"]
+
+            # Configure the mesh.
+            domain = self.comm.project.domain
+            gen.config.mesh_min_latitude = \
+                domain["bounds"]["minimum_latitude"]
+            gen.config.mesh_max_latitude = \
+                domain["bounds"]["maximum_latitude"]
+            gen.config.mesh_min_longitude = \
+                domain["bounds"]["minimum_longitude"]
+            gen.config.mesh_max_longitude = \
+                domain["bounds"]["maximum_longitude"]
+            gen.config.mesh_min_depth_in_km = \
+                domain["bounds"]["minimum_depth_in_km"]
+            gen.config.mesh_max_depth_in_km = \
+                domain["bounds"]["maximum_depth_in_km"]
+
+            # Set the rotation parameters.
+            gen.config.rotation_angle_in_degree = domain["rotation_angle"]
+            gen.config.rotation_axis = domain["rotation_axis"]
+
+            # Make source time function
+            gen.config.source_time_function = \
+                iteration.get_source_time_function()["data"]
+        elif solver_format == "specfem3d_cartesian":
+            gen.config.NSTEP = \
+                solver["simulation_parameters"]["number_of_time_steps"]
+            gen.config.DT = \
+                solver["simulation_parameters"]["time_increment"]
+            gen.config.NPROC = \
+                solver["computational_setup"]["number_of_processors"]
+            if simulation_type == "normal simulation":
+                msg = ("'normal_simulation' not supported for SPECFEM3D "
+                       "Cartesian. Please choose either 'adjoint_forward' or "
+                       "'adjoint_reverse'.")
+                raise NotImplementedError(msg)
+            elif simulation_type == "adjoint forward":
+                gen.config.SIMULATION_TYPE = 1
+            elif simulation_type == "adjoint reverse":
+                gen.config.SIMULATION_TYPE = 2
+            else:
+                raise NotImplementedError
+            solver_format = solver_format.upper()
+        else:
+            msg = "Unknown solver."
+            raise NotImplementedError(msg)
+
+        # =================================================================
+        # output
+        # =================================================================
+        output_dir = self.comm.project.get_output_folder(
+            "input_files___ITERATION_%s__%s__EVENT_%s" % (
+                iteration_name, simulation_type.replace(" ", "_"),
+                event_name))
+
+        gen.write(format=solver_format, output_dir=output_dir)
+        print "Written files to '%s'." % output_dir
+
+

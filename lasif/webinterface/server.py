@@ -38,7 +38,7 @@ def get_domain_geojson():
     """
     Return the domain as GeoJSON multipath.
     """
-    domain = app.project.domain
+    domain = app.comm.project.domain
     bounds = domain["bounds"]
     outer_border = lasif.rotations.get_border_latlng_list(
         bounds["minimum_latitude"],
@@ -69,8 +69,8 @@ def get_info():
     Returns some basic information about the project.
     """
     info = {
-        "project_name": app.project.config["name"],
-        "project_root": app.project.paths["root"]
+        "project_name": app.comm.project.config["name"],
+        "project_root": app.comm.project.paths["root"]
     }
     return flask.jsonify(**info)
 
@@ -82,7 +82,7 @@ def get_output():
     """
     import glob
 
-    output_folder = app.project.paths["output"]
+    output_folder = app.comm.project.paths["output"]
     folders = glob.glob(os.path.join(output_folder, "????-??-??*"))
     folders = sorted((os.path.basename(i) for i in folders))[-7:][::-1]
     all_folders = []
@@ -168,7 +168,7 @@ def list_iterations():
     """
     Returns a list of events.
     """
-    iterations = app.project.get_iteration_dict().keys()
+    iterations = app.comm.iterations.list()
     return flask.jsonify(iterations=iterations)
 
 
@@ -179,7 +179,7 @@ def get_iteration_detail(iteration_name):
     """
     from lasif.iteration_xml import Iteration
 
-    iterations = app.project.get_iteration_dict()
+    iterations = app.comm.iterations.get_iteration_dict()
     iteration = Iteration(iterations[iteration_name])
 
     stf = iteration.get_source_time_function()
@@ -208,7 +208,7 @@ def list_events():
     """
     Returns a list of events.
     """
-    events = copy.deepcopy(dict(app.project.events))
+    events = copy.deepcopy(app.comm.events.get_all_events())
     for value in events.itervalues():
         value["origin_time"] = str(value["origin_time"])
     return flask.jsonify(events=events.values())
@@ -216,9 +216,9 @@ def list_events():
 
 @app.route("/rest/event/<event_name>")
 def get_event_details(event_name):
-    event = copy.deepcopy(app.project.events[event_name])
+    event = copy.deepcopy(app.comm.events.get(event_name))
     event["origin_time"] = str(event["origin_time"])
-    stations = app.project.get_stations_for_event(event_name)
+    stations = app.comm.query.get_all_stations_for_event(event_name)
     for key, value in stations.iteritems():
         value["station_name"] = key
     event["stations"] = stations.values()
@@ -309,10 +309,11 @@ def index():
     return data
 
 
-def serve(project, port=8008, debug=False):
+def serve(comm, port=8008, debug=False):
     cache.init_app(app, config={
         "CACHE_TYPE": "filesystem",
-        "CACHE_DIR": os.path.join(project.paths["cache"], "webapp_cache")})
+        "CACHE_DIR": os.path.join(comm.project.paths["cache"],
+                                  "webapp_cache")})
 
-    app.project = project
+    app.comm = comm
     app.run(port=port, debug=debug)

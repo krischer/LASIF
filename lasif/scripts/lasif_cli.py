@@ -584,9 +584,9 @@ def lasif_plot_stf(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     iteration_name = parser.parse_args(args).iteration_name
 
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
 
-    iteration = proj._get_iteration(iteration_name)
+    iteration = comm.iterations.get(iteration_name)
     pp = iteration.get_process_params()
     freqmin = pp["highpass"]
     freqmax = pp["lowpass"]
@@ -620,9 +620,10 @@ def lasif_generate_input_files(parser, args):
     event_name = args.event_name
     simulation_type = args.simulation_type
 
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
     simulation_type = simulation_type.replace("_", " ")
-    proj.generate_input_files(iteration_name, event_name, simulation_type)
+    comm.actions.generate_input_files(iteration_name, event_name,
+                                      simulation_type)
 
 
 @command_group("Project Management")
@@ -675,9 +676,9 @@ def lasif_launch_misfit_gui(parser, args):
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
 
-    if event_name not in proj.events:
+    if not comm.events.has_event(event_name):
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
 
@@ -1212,7 +1213,7 @@ def lasif_serve(parser, args):
     if debug:
         nobrowser = True
 
-    project = _find_project_comm(".")
+    comm = _find_project_comm(".")
 
     if nobrowser is False:
         import webbrowser
@@ -1222,7 +1223,7 @@ def lasif_serve(parser, args):
             1.0, lambda: webbrowser.open("http://localhost:%i" % port)).start()
 
     from lasif.webinterface.server import serve
-    serve(project, port=port, debug=debug)
+    serve(comm, port=port, debug=debug)
 
 
 def _get_cmd_description(fct):
