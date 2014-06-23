@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+import itertools
+import warnings
 
 import obspy
 import os
 
-from lasif import LASIFNotFoundError, LASIFError
+from lasif import LASIFNotFoundError, LASIFError, LASIFWarning
 from lasif.tools.waveform_cache import WaveformCache
 
 from .component import Component
@@ -46,7 +48,7 @@ class WaveformsComponent(Component):
             if not os.path.exists(data_path):
                 msg = ("No data for event '%s' and processing tag '%s' "
                        "found." % (event_name, tag_or_iteration))
-            raise LASIFNotFoundError(msg)
+                raise LASIFNotFoundError(msg)
         elif data_type == "synthetic":
             if not tag_or_iteration:
                 msg = "Long iteration name must be given for synthetic data."
@@ -77,6 +79,91 @@ class WaveformsComponent(Component):
             del value["starttime_timestamp"]
             del value["endtime_timestamp"]
         return values
+
+    def get_waveforms_raw(self, event_name, station_id):
+        return self._get_waveforms(event_name, station_id, data_type="raw")
+
+    def get_waveforms_processed(self, event_name, station_id, tag):
+        return self._get_waveforms(event_name, station_id,
+                                   data_type="processed", tag_or_iteration=tag)
+
+    def get_waveforms_synthetic(self, event_name, station_id,
+                                long_iteration_name):
+        from lasif import rotations
+
+        st = self._get_waveforms(event_name, station_id,
+                                 data_type="synthetic",
+                                 tag_or_iteration=long_iteration_name)
+        network, station = station_id.split(".")
+
+        # This maps the synthetic channels to ZNE.
+        synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
+
+        for tr in st:
+            tr.stats.network = network
+            tr.stats.station = station
+            if tr.stats.channel in ["X"]:
+                tr.data *= -1.0
+            tr.stats.starttime = \
+                self.comm.events.get(event_name)["origin_time"]
+            tr.stats.channel = \
+                synthetic_coordinates_mapping[tr.stats.channel]
+
+        # Also need to be rotated.
+        domain = self.comm.project.domain
+
+        # Coordinates are required for the rotation.
+        coordinates = self.comm.query.get_coordinates_for_station(
+            event_name, station_id)
+
+        # First rotate the station back to see, where it was
+        # recorded.
+        lat, lng = rotations.rotate_lat_lon(
+            coordinates["latitude"], coordinates["longitude"],
+            domain["rotation_axis"], -domain["rotation_angle"])
+        # Rotate the synthetics.
+        n, e, z = rotations.rotate_data(
+            st.select(channel="N")[0].data,
+            st.select(channel="E")[0].data,
+            st.select(channel="Z")[0].data,
+            lat, lng,
+            domain["rotation_axis"],
+            domain["rotation_angle"])
+        st.select(channel="N")[0].data = n
+        st.select(channel="E")[0].data = e
+        st.select(channel="Z")[0].data = z
+
+        return st
+
+    def _get_waveforms(self, event_name, station_id, data_type,
+                       tag_or_iteration=None):
+        waveform_cache = self._get_waveform_cache_file(event_name,
+                                                       data_type,
+                                                       tag_or_iteration)
+        network, station = station_id.split(".")
+        files = waveform_cache.get_files_for_station(network, station)
+        if len(files) == 0:
+            raise LASIFNotFoundError("No '%s' waveform data found for event "
+                                     "'%s' and station '%s'." % (
+                data_type, event_name, station_id))
+        if data_type in ["raw", "processed"]:
+            # Sort files by location.
+            locations = {key: list(value) for key, value in itertools.groupby(
+                files, key=lambda x: x["location"])}
+            keys = sorted(locations.keys())
+            if len(keys) != 1:
+                msg = ("Found %s waveform data from %i locations for event "
+                       "'%s' and station '%s': %s. Will only use data from "
+                       "location '%s'." % (
+                    data_type, len(keys), event_name, station_id,
+                    ", ".join(["'%s'" % _i for _i in keys]),
+                    keys[0]))
+                warnings.warn(LASIFWarning, msg)
+            files = locations[keys[0]]
+        st = obspy.Stream()
+        for single_file in files:
+            st += obspy.read(single_file["filename"])
+        return st
 
     def get_metadata_raw(self, event_name):
         """
@@ -136,6 +223,28 @@ class WaveformsComponent(Component):
             msg = "No data for event '%s' found." % event_name
             raise LASIFNotFoundError(msg)
         return self._convert_timestamps(waveform_cache.get_values())
+
+    def get_metadata_raw_for_station(self, event_name, station_id):
+        """
+        Returns the available metadata at the channel level for the raw
+        waveforms and the given event_name at a certain station.
+
+        Same as :func:`~.get_metadata_raw` just for only a single station.
+
+        :param event_name: The name of the event.
+        :param station_id: The station id.
+        :returns: A list of dictionaries, each describing channel level data
+            at a particular point in time.
+        """
+        waveform_cache = self._get_waveform_cache_file(event_name,
+                                                       data_type="raw")
+        network_id, station_id = station_id.split(".")
+        values = waveform_cache.get_files_for_station(network_id, station_id)
+        if not values:
+            msg = "No data for event '%s' and station '%s' found." % (
+                event_name, station_id)
+            raise LASIFNotFoundError(msg)
+        return values
 
     def get_metadata_processed(self, event_name, tag):
         waveform_cache = self._get_waveform_cache_file(event_name,

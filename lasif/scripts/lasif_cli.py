@@ -686,23 +686,23 @@ def lasif_launch_misfit_gui(parser, args):
     from lasif.window_manager import MisfitWindowManager
     from lasif.adjoint_src_manager import AdjointSourceManager
 
-    iterator = proj.data_synthetic_iterator(event_name, iteration_name)
+    iterator = comm.query.get_data_and_synthetics_iterator(
+        iteration_name, event_name, scale_data=True)
+    event = comm.events.get(event_name)
+    iteration = comm.iterations.get(iteration_name)
+    long_iteration_name = comm.iterations.get_long_iteration_name(
+        iteration_name)
 
-    long_iteration_name = "ITERATION_%s" % iteration_name
-
-    window_directory = os.path.join(proj.paths["windows"],
+    window_directory = os.path.join(comm.project.paths["windows"],
                                     event_name, long_iteration_name)
-    ad_src_directory = os.path.join(proj.paths["adjoint_sources"],
+    ad_src_directory = os.path.join(comm.project.paths["adjoint_sources"],
                                     event_name, long_iteration_name)
     window_manager = MisfitWindowManager(window_directory, long_iteration_name,
                                          event_name)
     adj_src_manager = AdjointSourceManager(ad_src_directory)
 
-    event = proj.events[event_name]
-    iteration = proj._get_iteration(iteration_name)
-
-    MisfitGUI(event, iterator, proj, window_manager, adj_src_manager,
-              iteration)
+    MisfitGUI(event, iterator, comm.project, window_manager,
+              adj_src_manager, iteration)
 
 
 @command_group("Iteration Management")

@@ -97,6 +97,43 @@ class QueryComponent(Component):
                 stations[station_id] = coords
         return stations
 
+    def get_coordinates_for_station(self, event_name, station_id):
+        """
+        Get the coordinates for one station.
+
+        Must be in sync with :func:`~.get_all_stations_for_event`.
+        """
+        event = self.comm.events.get(event_name)
+
+        # Collect information from all the different places.
+        waveform = self.comm.waveforms.get_metadata_raw_for_station(
+            event_name, station_id)[0]
+        station_coordinates = self.comm.stations.get_all_channels_at_time(
+            event["origin_time"])
+
+        try:
+            stat_coords = station_coordinates[waveform["channel_id"]]
+        except KeyError:
+            # No station file for channel.
+            raise LASIFNotFoundError("Station '%s' has no available "
+                                      "station file." % station_id)
+
+        # First attempt to retrieve from the station files.
+        if stat_coords["latitude"] is not None:
+            return stat_coords
+        # Then from the waveform metadata in the case of a sac file.
+        elif waveform["latitude"] is not None:
+            return waveform
+        # The last resort is a new query via the inventory database.
+        coords = self.comm.inventory_db.get_coordinates(station_id)
+        if coords["latitude"]:
+            return coords
+        else:
+            # No station file for channel.
+            raise LASIFNotFoundError("Coordinates could not be deduced for "
+                                     "station '%s' and event '%s'." % (
+                                     station_id, event_name))
+
     def get_stations_for_all_events(self):
         """
         Returns a dictionary with a list of stations per event.
@@ -169,3 +206,12 @@ class QueryComponent(Component):
             events[event_name]["synthetic"] = synthetic_stations
 
         return dict(events)
+
+    def get_data_and_synthetics_iterator(self, iteration_name, event_name,
+                                         scale_data=False):
+        """
+        Get the processed data and matching synthetics for a particular event.
+        """
+        from ..tools.data_synthetics_iterator import DataSyntheticIterator
+        return DataSyntheticIterator(self.comm, iteration_name, event_name,
+                                     scale_data)
