@@ -937,8 +937,6 @@ def lasif_compare_misfits(parser, args):
 
         s_keys = sorted(to_data.keys())
 
-        import random
-
         for key in s_keys:
             to_items = to_data[key]
             try:
