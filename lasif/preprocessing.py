@@ -147,6 +147,8 @@ def preprocess_file(file_info):
     # =========================================================================
     station_file = file_info["station_filename"]
 
+    print station_file
+
     # check if the station file actually exists ==============================
     if not file_info["station_filename"]:
         msg = "No station file found for the relevant time span. File skipped"
