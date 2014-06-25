@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>8. Data Validation &mdash; LASIF 0.0.1 documentation</title>
+  <title>14. Model Update &mdash; LASIF 0.0.1 documentation</title>
   
 
   
@@ -30,8 +30,8 @@
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="9. Defining a New Iteration" href="08_a_new_iteration.html"/>
-        <link rel="prev" title="7. Data Inspection" href="06_data_inspection.html"/> 
+        <link rel="next" title="15. Next Iterations" href="14_next_iterations.html"/>
+        <link rel="prev" title="13. Misfit and Adjoint Source Calculation" href="12_misfits_and_adjoint_sources.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -80,13 +80,13 @@
 <li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">14. Model Update</a></li>
 <li class="toctree-l2"><a class="reference internal" href="14_next_iterations.html">15. Next Iterations</a></li>
 </ul>
 </li>
@@ -135,10 +135,10 @@
       
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
-    <li>8. Data Validation</li>
+    <li>14. Model Update</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/07_data_validation.txt" rel="nofollow"> View page source</a>
+          <a href="../_sources/tutorial/13_model_update.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -146,29 +146,26 @@
 </div>
           <div role="main">
             
-  <div class="section" id="data-validation">
-<h1>8. Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h1>
-<p>You might have noticed that LASIF projects can potentially contain many million
-files and it will thus be impossible to validate the data by hand. Therefore
-LASIF contains a number of functions attempting to check the data of a
-project. All of these can be called with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif validate_data
+  <div class="section" id="model-update">
+<h1>14. Model Update<a class="headerlink" href="#model-update" title="Permalink to this headline">¶</a></h1>
+<p>LASIF does not currently aid you with updating the model so this is still a
+fairly manual process. We are in the process of correcting this.</p>
+<p>Right now it is possible to view the raw gradients from a SES3D simulation.
+To do this, simply put them in the a folder according to the following scheme:</p>
+<p><tt class="docutils literal"><span class="pre">KERNELS/ITERATION_{{ITERATION_NAME}}/{{EVENT_NAME}}</span></tt></p>
+<p>For the example in the tutorial this results in the two folders:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">KERNELS/ITERATION_1/GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2</span></tt></li>
+</ul>
+<p>If the folder inside an iteration has the name of an event it is assumed to
+be the gradient from that particular event. If it has any other name it can
+still be plotted but you have to take care of the meaning.</p>
+<p>The <tt class="docutils literal"><span class="pre">plot_kernel</span></tt> command is used to plot the gradients/kernels and usage
+is similar to the <tt class="docutils literal"><span class="pre">plot_events</span></tt> command.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_kernel GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2 1
 </pre></div>
 </div>
-<p>Please make sure no errors appear otherwise LASIF cannot guarantee to work
-correctly.  With time more checks will be added to this function as more
-problems arise.</p>
-<p>This command will output an oftentimes very large report. All problems
-indicated in it should be solved to ensure LASIF can operate correctly. The
-best strategy to it is to start at the very beginning of the file. Oftentimes
-some errors are due to others and the <em>validate_data</em> command tries to be smart
-and checks for simple errors first. Per default the command will launch only a
-simplified validation function as some tests are rather slow. To get a full
-validation going use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif validate_data --full
-</pre></div>
-</div>
-<p>Be aware that this may take a while.</p>
 </div>
 
 
@@ -177,10 +174,10 @@ validation going use</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="08_a_new_iteration.html" class="btn btn-neutral float-right" title="9. Defining a New Iteration">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="14_next_iterations.html" class="btn btn-neutral float-right" title="15. Next Iterations">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="06_data_inspection.html" class="btn btn-neutral" title="7. Data Inspection"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="12_misfits_and_adjoint_sources.html" class="btn btn-neutral" title="13. Misfit and Adjoint Source Calculation"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

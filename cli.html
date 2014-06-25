@@ -30,7 +30,7 @@
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="next" title="Web Interface" href="webinterface.html"/>
-        <link rel="prev" title="13. Misfit and Adjoint Source Calculation" href="tutorial/12_misfits_and_adjoint_sources.html"/> 
+        <link rel="prev" title="15. Next Iterations" href="tutorial/14_next_iterations.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -85,6 +85,8 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/14_next_iterations.html">15. Next Iterations</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Command Line Interface</a><ul>
@@ -456,6 +458,37 @@ message and exit</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="lasif-migrate-windows">
+<h3>lasif migrate_windows<a class="headerlink" href="#lasif-migrate-windows" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif migrate_windows [-h] from_iteration to_iteration
+</pre></div>
+</div>
+</div></blockquote>
+<p>Migrates windows from one iteration to the next.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="34%" />
+<col width="66%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">from_iteration</span></tt></td>
+<td>iteration containing windows</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">to_iteration</span></tt></td>
+<td>iteration windows will be migrated to</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="lasif-create-successive-iteration">
 <h3>lasif create_successive_iteration<a class="headerlink" href="#lasif-create-successive-iteration" title="Permalink to this headline">¶</a></h3>
 <blockquote>
@@ -583,27 +616,29 @@ message and exit</td>
 </tbody>
 </table>
 </div>
-<div class="section" id="lasif-migrate-windows">
-<h3>lasif migrate_windows<a class="headerlink" href="#lasif-migrate-windows" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="lasif-compare-misfits">
+<h3>lasif compare_misfits<a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif migrate_windows [-h] from_iteration to_iteration
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif compare_misfits [-h] from_iteration to_iteration
 </pre></div>
 </div>
 </div></blockquote>
-<p>Migrates windows from one iteration to the next.</p>
+<p>Compares the misfit between two iterations. Will only consider windows
+that are identical in both iterations as the comparision is otherwise
+meaningless.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="36%" />
-<col width="64%" />
+<col width="51%" />
+<col width="49%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">from_iteration</span></tt></td>
-<td>iteration containing windows</td>
+<td>past iteration</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">to_iteration</span></tt></td>
-<td>iteration windows will migratet to</td>
+<td>current iteration</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
@@ -1080,7 +1115,7 @@ message and exit</td>
 <div class="section" id="lasif-plot-kernel">
 <h3>lasif plot_kernel<a class="headerlink" href="#lasif-plot-kernel" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_kernel [-h] iteration_name event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_kernel [-h] event_name iteration_name
 </pre></div>
 </div>
 </div></blockquote>
@@ -1093,11 +1128,11 @@ message and exit</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
-<td>name of the iteration</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
 <td>name of the event</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
@@ -1315,7 +1350,7 @@ message and exit</td>
         <a href="webinterface.html" class="btn btn-neutral float-right" title="Web Interface">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorial/12_misfits_and_adjoint_sources.html" class="btn btn-neutral" title="13. Misfit and Adjoint Source Calculation"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial/14_next_iterations.html" class="btn btn-neutral" title="15. Next Iterations"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

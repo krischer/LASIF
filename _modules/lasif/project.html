@@ -84,6 +84,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/14_next_iterations.html">15. Next Iterations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a><ul>
@@ -551,8 +553,17 @@
         <span class="n">plot</span><span class="p">(</span><span class="n">D_p</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">tau_p</span><span class="o">=</span><span class="n">tau_p</span><span class="p">,</span> <span class="n">f_min</span><span class="o">=</span><span class="n">f_min</span><span class="p">,</span> <span class="n">f_max</span><span class="o">=</span><span class="n">f_max</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Project.get_kernel_dir"><a class="viewcode-back" href="../../project.html#lasif.project.Project.get_kernel_dir">[docs]</a>    <span class="k">def</span> <span class="nf">get_kernel_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">,</span> <span class="n">event_name</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;kernels&quot;</span><span class="p">],</span> <span class="n">event_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span>
-                            <span class="n">_get_long_iteration_name</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;kernels&quot;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_long_iteration_name</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">),</span>
+            <span class="n">event_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Project._get_iteration_filename"><a class="viewcode-back" href="../../project.html#lasif.project.Project._get_iteration_filename">[docs]</a>    <span class="k">def</span> <span class="nf">_get_iteration_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">):</span>
+        <span class="n">iteration_name</span> <span class="o">=</span> <span class="n">iteration_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_long_iteration_name</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">extsep</span> <span class="o">+</span> <span class="s">&quot;xml&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;iterations&quot;</span><span class="p">],</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">filename</span>
 </div>
 <div class="viewcode-block" id="Project.create_new_iteration"><a class="viewcode-back" href="../../project.html#lasif.project.Project.create_new_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">,</span> <span class="n">solver_name</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">8.0</span><span class="p">,</span>
                              <span class="n">max_period</span><span class="o">=</span><span class="mf">100.0</span><span class="p">):</span>
@@ -561,11 +572,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">lasif</span> <span class="kn">import</span> <span class="n">iteration_xml</span>
 
-        <span class="n">iteration_name</span> <span class="o">=</span> <span class="n">iteration_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_long_iteration_name</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_long_iteration_name</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span> <span class="o">+</span> \
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">extsep</span> <span class="o">+</span> <span class="s">&quot;xml&quot;</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;iterations&quot;</span><span class="p">],</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_iteration_filename</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Iteration already exists.&quot;</span>
             <span class="k">raise</span> <span class="n">LASIFException</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
@@ -805,8 +813,9 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">channel_set</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;More than one combination of location and channel type&quot;</span>
                        <span class="s">&quot; found for event &#39;</span><span class="si">%s</span><span class="s">&#39; and station &#39;</span><span class="si">%s</span><span class="s">&#39;. The first one &quot;</span>
-                       <span class="s">&quot;will be chosen. Please run the data validation to &quot;</span>
-                       <span class="s">&quot;identify any problems.&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">)</span>
+                       <span class="s">&quot;found will be chosen. Please run the data validation &quot;</span>
+                       <span class="s">&quot;to identify and fix the problem.&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">)</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
             <span class="n">channel</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">channel_set</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">waveforms</span>
@@ -2151,10 +2160,7 @@
         <span class="n">output_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_output_folder</span><span class="p">(</span>
             <span class="s">&quot;adjoint_sources__ITERATION_</span><span class="si">%s</span><span class="s">__</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">iteration_name</span><span class="p">,</span> <span class="n">event_name</span><span class="p">))</span>
 
-        <span class="c"># =====================================================================</span>
         <span class="c"># loop through all the stations of this event</span>
-        <span class="c"># =====================================================================</span>
-
         <span class="k">for</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">this_event</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
 
             <span class="k">try</span><span class="p">:</span>
@@ -2172,14 +2178,14 @@
 
             <span class="n">all_channels</span> <span class="o">=</span> <span class="p">{}</span>
 
-            <span class="c"># loop through all channels for that station --------------------</span>
+            <span class="c"># loop through all channels for that station</span>
             <span class="k">for</span> <span class="n">channel_windows</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
 
                 <span class="n">channel_id</span> <span class="o">=</span> <span class="n">channel_windows</span><span class="p">[</span><span class="s">&quot;channel_id&quot;</span><span class="p">]</span>
                 <span class="n">cumulative_weight</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="n">all_data</span> <span class="o">=</span> <span class="p">[]</span>
 
-                <span class="c"># loop through all windows of one channel -------------------</span>
+                <span class="c"># loop through all windows of one channel</span>
                 <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">channel_windows</span><span class="p">[</span><span class="s">&quot;windows&quot;</span><span class="p">]:</span>
 
                     <span class="c"># get window properties</span>
@@ -2194,7 +2200,7 @@
                     <span class="c"># compute cumulative weight of all windows for that channel</span>
                     <span class="n">cumulative_weight</span> <span class="o">+=</span> <span class="n">window_weight</span>
 
-                <span class="c"># apply weights for that channel -----------------------------</span>
+                <span class="c"># apply weights for that channel</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">all_data</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
                 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">all_data</span><span class="p">:</span>
                     <span class="n">data</span> <span class="o">+=</span> <span class="n">d</span>
@@ -2209,8 +2215,7 @@
                     <span class="k">continue</span>
                 <span class="n">all_channels</span><span class="p">[</span><span class="n">component</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
 
-            <span class="c"># Rotate. if needed ----------------------------------------------</span>
-
+            <span class="c"># Rotate. if needed</span>
             <span class="n">rec_lat</span> <span class="o">=</span> <span class="n">this_station</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">]</span>
             <span class="n">rec_lng</span> <span class="o">=</span> <span class="n">this_station</span><span class="p">[</span><span class="s">&quot;longitude&quot;</span><span class="p">]</span>
 
@@ -2242,7 +2247,6 @@
             <span class="n">all_coordinates</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">r_rec_colat</span><span class="p">,</span> <span class="n">r_rec_lng</span><span class="p">,</span> <span class="n">r_rec_depth</span><span class="p">))</span>
 
             <span class="c"># Actually write the adjoint source file in SES3D specific format.</span>
-
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">adjoint_src_filename</span><span class="p">,</span> <span class="s">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
                 <span class="n">open_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;-- adjoint source ------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
                 <span class="n">open_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;-- source coordinates (colat,lon,depth)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
@@ -2269,49 +2273,9 @@
 <span class="sd">        Return an iterator that returns processed data and synthetic files for</span>
 <span class="sd">        one event and iteration.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">lasif.tools.two_way_data_synthetics_iterator</span> <span class="kn">import</span> <span class="n">TwoWayIter</span>
-
-        <span class="c"># Retrieve information on the event, iteration and waveforms</span>
-        <span class="n">iteration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_iteration</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
-        <span class="c"># This are all stations in the current iteration.</span>
-        <span class="n">iteration_stations</span> <span class="o">=</span> <span class="n">iteration</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-
-        <span class="c"># List of all stations for the given event that are also specified in</span>
-        <span class="c"># the iterations files. This result in a dictionary with additional</span>
-        <span class="c"># metadata per station.</span>
-        <span class="n">stations</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_stations_for_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">iteration_stations</span><span class="p">}</span>
-
-        <span class="c"># Get all processed waveforms including metadata for the current event</span>
-        <span class="c"># and iteration.</span>
-        <span class="n">processed_waveforms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_waveform_cache_file</span><span class="p">(</span>
-            <span class="n">event_name</span><span class="p">,</span> <span class="n">iteration</span><span class="o">.</span><span class="n">get_processing_tag</span><span class="p">())</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
-
-        <span class="c"># All synthetic files.</span>
-        <span class="n">synthetic_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_synthetic_waveform_filenames</span><span class="p">(</span>
-            <span class="n">event_name</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">synthetic_files</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Could not find suitable synthetic files.&quot;</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">get_synthetics_callback</span><span class="p">(</span><span class="n">station_id</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_waveform_data</span><span class="p">(</span><span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">,</span>
-                                          <span class="n">data_type</span><span class="o">=</span><span class="s">&quot;synthetic&quot;</span><span class="p">,</span>
-                                          <span class="n">iteration_name</span><span class="o">=</span><span class="n">iteration_name</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">get_data_callback</span><span class="p">(</span><span class="n">station_id</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_waveform_data</span><span class="p">(</span>
-                <span class="n">event_name</span><span class="p">,</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s">&quot;processed&quot;</span><span class="p">,</span>
-                <span class="n">tag</span><span class="o">=</span><span class="n">iteration</span><span class="o">.</span><span class="n">get_processing_tag</span><span class="p">())</span>
-
-        <span class="k">return</span> <span class="n">TwoWayIter</span><span class="p">(</span><span class="n">get_data_callback</span><span class="o">=</span><span class="n">get_data_callback</span><span class="p">,</span>
-                          <span class="n">get_synthetics_callback</span><span class="o">=</span><span class="n">get_synthetics_callback</span><span class="p">,</span>
-                          <span class="n">stations</span><span class="o">=</span><span class="n">stations</span><span class="p">,</span>
-                          <span class="n">processed_waveforms</span><span class="o">=</span><span class="n">processed_waveforms</span><span class="p">,</span>
-                          <span class="n">event_name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span>
-                          <span class="n">iteration_name</span><span class="o">=</span><span class="n">iteration_name</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">lasif.tools.data_synthetics_iterator</span> <span class="kn">import</span> \
+            <span class="n">DataSyntheticIterator</span>
+        <span class="k">return</span> <span class="n">DataSyntheticIterator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Project.get_debug_information_for_file"><a class="viewcode-back" href="../../project.html#lasif.project.Project.get_debug_information_for_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_debug_information_for_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
