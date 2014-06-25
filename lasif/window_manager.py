@@ -52,6 +52,14 @@ class MisfitWindowManager(object):
             windows.append(self._read_windowfile(filename))
         return windows
 
+    def list_windows(self):
+        """
+        Get a list of channels with windows.
+        """
+        files = iglob(os.path.join(self.directory, "window_*.xml"))
+        return [os.path.basename(i).lstrip("window_").rstrip(".xml") for i in
+                files]
+
     def delete_windows(self, channel_id):
         """
         Deletes all windows for a certain channal.

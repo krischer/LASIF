@@ -791,6 +791,8 @@ def lasif_migrate_windows(parser, args):
     """
     Migrates windows from one iteration to the next.
     """
+    from lasif.iteration_xml import Iteration
+
     parser.add_argument("from_iteration",
                         help="iteration containing windows")
     parser.add_argument("to_iteration", help="iteration windows will "
@@ -813,10 +815,18 @@ def lasif_migrate_windows(parser, args):
                "a list of all available iterations.") % to_iteration
         raise LASIFCommandLineException(msg)
 
+    from_it = Iteration(iterations[from_iteration])
+    to_it = Iteration(iterations[to_iteration])
+
+    print "Migrating windows from iteration '%s' to iteration '%s'..." % (
+        from_iteration, to_iteration
+    )
+
     # After all checks have passed, import the necessary modules.
     from lasif.iteration_xml import Iteration
     from lasif.window_manager import MisfitWindowManager
     from lasif.adjoint_src_manager import AdjointSourceManager
+    from lasif.temp import adjoint_src_for_window
 
     from_it = Iteration(iterations[from_iteration])
     to_it = Iteration(iterations[to_iteration])
@@ -849,6 +859,7 @@ def lasif_migrate_windows(parser, args):
 
     # Loop over events and migrate the windows.
     for event_name in filtered_events:
+        print "Migrating windows for event '%s'." % event_name
         # Managers from.
         window_directory_from = os.path.join(
             proj.paths["windows"], event_name, long_iteration_name_from)
@@ -868,17 +879,36 @@ def lasif_migrate_windows(parser, args):
             window_directory_to, long_iteration_name_to, event_name)
         adj_src_manager_to = AdjointSourceManager(ad_src_directory_to)
 
-        print (window_manager_from, adj_src_manager_from, window_manager_to,
-               adj_src_manager_to)
+        old_windows = window_manager_from.list_windows()
+        new_windows = window_manager_to.list_windows()
 
-        # Loop over all new data.
-        iterator = proj.data_synthetic_iterator(event_name, to_iteration)
-        for data_set in iterator:
-            for component in ["Z", "N", "E"]:
-                data = data_set.data.select(component=component)[0]
-                synth = data_set.synthetics.select(channel=component)[0]
-                print data, synth
-            raise NotImplementedError
+        # Loop over all data.
+        data_iterator = proj.data_synthetic_iterator(event_name, to_iteration)
+        for data, synthetics, coordinates in data_iterator:
+            for data_trace in data:
+                synthetics_trace = synthetics.select(
+                    channel=data_trace.stats.channel[-1])
+                if not synthetics_trace:
+                    continue
+                synthetics_trace = synthetics_trace[0]
+                if data_trace.id not in old_windows:
+                    continue
+                # Check if window already exists.
+                if data_trace.id in new_windows:
+                    print("Window for event '%s' and channel '%s' already "
+                          "exists for iteration '%s'." % (
+                        event_name, data_trace.id, to_iteration))
+                    continue
+                # Get the existing window.
+                window = window_manager_from.get_windows(data_trace.id)
+
+                for w in window["windows"]:
+                    adjoint_src_for_window(
+                        data_trace, synthetics_trace, w["starttime"],
+                        w["endtime"], w["weight"], to_it.get_process_params(),
+                        window_manager_to, adj_src_manager_to)
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
 
 
 @command_group("Iteration Management")
