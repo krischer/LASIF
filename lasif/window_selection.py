@@ -206,7 +206,10 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
 
     #  estimate noise level from waveforms prior to the first arrival
     idx = int(np.ceil((first_tt_arrival - minimum_period * 0.5) / dt))
-    noise_absolute = data[50:idx].ptp()
+    if idx > 10:
+        noise_absolute = data[10:idx].ptp()
+    else:
+        noise_absolute = data[:idx].ptp()
     noise_relative = noise_absolute / data.ptp()
     print "** absolute noise level: " + str(noise_absolute) + " m/s"
     print "** relative noise level: " + str(noise_relative)
@@ -305,14 +308,14 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     #  loop through all the time windows
     for i in np.ma.flatnotmasked_contiguous(time_windows):
 
-        window_npts = i.stop - i.start
-        synthetic_window = synthetic_trace.data[i.start: i.stop]
-        data_window = data_trace.data[i.start: i.stop]
-
         # Step 7: Throw away all windows with a length of less then
         # min_length_period the dominant period.
         if (i.stop - i.start) < min_length:
             continue
+
+        window_npts = i.stop - i.start
+        synthetic_window = synthetic_trace.data[i.start: i.stop]
+        data_window = data_trace.data[i.start: i.stop]
 
         # Step 8: Exclude windows without a real peak or trough (except for the
         # edges).

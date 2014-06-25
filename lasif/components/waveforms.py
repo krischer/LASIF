@@ -32,10 +32,30 @@ class WaveformsComponent(Component):
 
         super(WaveformsComponent, self).__init__(communicator, component_name)
 
+    def get_waveform_folder(self, event_name, data_type,
+                            tag_or_iteration=None):
+        if data_type == "raw":
+            return os.path.join(self._data_folder, event_name, "raw")
+        elif data_type == "processed":
+            if not tag_or_iteration:
+                msg = "Tag must be given for processed data."
+                raise ValueError(msg)
+            return os.path.join(self._data_folder, event_name,
+                                tag_or_iteration)
+        elif data_type == "synthetic":
+            if not tag_or_iteration:
+                msg = "Long iteration name must be given for synthetic data."
+                raise ValueError(msg)
+            return os.path.join(self._synthetics_folder, event_name,
+                                tag_or_iteration)
+        else:
+            raise ValueError("Invalid data type '%s'." % data_type)
+
     def _get_waveform_cache_file(self, event_name, data_type,
                                  tag_or_iteration=None):
+        data_path = self.get_waveform_folder(event_name, data_type,
+                                             tag_or_iteration)
         if data_type == "raw":
-            data_path = os.path.join(self._data_folder, event_name, "raw")
             if not os.path.exists(data_path):
                 msg = "No data for event '%s' found." % event_name
                 raise LASIFNotFoundError(msg)
@@ -43,8 +63,6 @@ class WaveformsComponent(Component):
             if not tag_or_iteration:
                 msg = "Tag must be given for processed data."
                 raise ValueError(msg)
-            data_path = os.path.join(self._data_folder, event_name,
-                                     tag_or_iteration)
             if not os.path.exists(data_path):
                 msg = ("No data for event '%s' and processing tag '%s' "
                        "found." % (event_name, tag_or_iteration))
@@ -53,14 +71,12 @@ class WaveformsComponent(Component):
             if not tag_or_iteration:
                 msg = "Long iteration name must be given for synthetic data."
                 raise ValueError(msg)
-            data_path = os.path.join(self._synthetics_folder, event_name,
-                                     tag_or_iteration)
             if not os.path.exists(data_path):
                 msg = ("No synthetic data for event '%s' and iteration '%s' "
                        "found." % (event_name, tag_or_iteration))
                 raise LASIFNotFoundError(msg)
         else:
-            raise ValueError("Invalid waveform type '%s'." % data_type)
+            raise ValueError("Invalid data type '%s'." % data_type)
 
         waveform_db_file = data_path + "_cache" + os.path.extsep + "sqlite"
         if waveform_db_file in self.__cache:

@@ -55,8 +55,8 @@ class ActionsComponent(Component):
                     continue
 
                 output_folder = self.comm.waveforms.get_waveform_folder(
-                    event_name=event_name, waveform_type="processed",
-                    tag_or_long_iteration_name=processing_tag)
+                    event_name=event_name, data_type="processed",
+                    tag_or_iteration=processing_tag)
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
 
