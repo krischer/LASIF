@@ -863,12 +863,8 @@ def lasif_migrate_windows(parser, args):
         # Managers from.
         window_directory_from = os.path.join(
             proj.paths["windows"], event_name, long_iteration_name_from)
-        ad_src_directory_from = os.path.join(
-            proj.paths["adjoint_sources"], event_name,
-            long_iteration_name_from)
         window_manager_from = MisfitWindowManager(
             window_directory_from, long_iteration_name_from, event_name)
-        adj_src_manager_from = AdjointSourceManager(ad_src_directory_from)
 
         # Managers to.
         window_directory_to = os.path.join(
@@ -897,7 +893,7 @@ def lasif_migrate_windows(parser, args):
                 if data_trace.id in new_windows:
                     print("Window for event '%s' and channel '%s' already "
                           "exists for iteration '%s'." % (
-                        event_name, data_trace.id, to_iteration))
+                              event_name, data_trace.id, to_iteration))
                     continue
                 # Get the existing window.
                 window = window_manager_from.get_windows(data_trace.id)

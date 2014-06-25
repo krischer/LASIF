@@ -2320,31 +2320,6 @@ class Project(object):
                 os.path.abspath(filename)
         return stations
 
-    def _calculate_adjoint_source(self, iteration_name, event_name,
-                                  station_id, window_starttime,
-                                  window_endtime):
-        """
-        Calculates the adjoint source for a certain window.
-        """
-        iteration = self._get_iteration(iteration_name)
-        proc_tag = iteration.get_processing_tag()
-        process_params = iteration.get_processing_tag()
-
-        data = self.get_waveform_data(event_name, station_id,
-                                      data_type="processed", tag=proc_tag)
-        synthetics = self.get_waveform_data(event_name, station_id,
-                                            data_type="synthetic",
-                                            iteration_name=iteration_name)
-
-        taper_percentage = 0.5
-        data_trimmed = data.copy()\
-            .trim(window_starttime, window_endtime)\
-            .taper(type="cosine", max_percentage=0.5 * taper_percentage)
-        synth_trim = synthetics.copy() \
-            .trim(window_starttime, window_endtime) \
-            .taper(type="cosine", max_percentage=0.5 * taper_percentage)
-
-
     def get_iteration_status(self, iteration_name):
         """
         Return a dictionary with information about the current status of an
