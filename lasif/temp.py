@@ -15,11 +15,12 @@ from lasif.adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 
 def adjoint_src_for_window(data, synth, starttime, endtime, weight,
                            process_parameters, output_window_manager,
-                           output_adjoint_source_manager):
+                           output_adjoint_source_manager, write_data=True):
 
-    output_window_manager.write_window(
-        data.id, starttime, endtime, weight, "cosine",
-        "TimeFrequencyPhaseMisfitFichtner2008")
+    if write_data:
+        output_window_manager.write_window(
+            data.id, starttime, endtime, weight, "cosine",
+            "TimeFrequencyPhaseMisfitFichtner2008")
 
     #  Decimal percentage of cosine taper (ranging from 0 to 1). Set to the
     # fraction of the minimum period to the window length.
@@ -64,5 +65,7 @@ def adjoint_src_for_window(data, synth, starttime, endtime, weight,
         axis=None, colorbar_axis=None)
 
     #  write adjoint source to file ---------------------------------------
-    output_adjoint_source_manager.write_adjoint_src(
-        adsrc["adjoint_source"], data.id, starttime, endtime)
+    if write_data:
+        output_adjoint_source_manager.write_adjoint_src(
+            adsrc["adjoint_source"], data.id, starttime, endtime)
+    return adsrc
