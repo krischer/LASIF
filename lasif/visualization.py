@@ -33,7 +33,7 @@ LINESTYLE = {
 def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
                 boundary_buffer_in_degree=0.0, rotation_axis=[0.0, 0.0, 1.0],
                 rotation_angle_in_degree=0.0, plot_simulation_domain=False,
-                zoom=False, resolution=None, ax=None):
+                zoom=False, resolution=None, ax=None, labels=True):
     """
     """
     bounds = rotations.get_max_extention_of_domain(
@@ -50,8 +50,7 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
     max_extend = max(extend_x, extend_y)
 
     # If the simulation domain is also available, use it to calculate the
-    # max_extend. This results in the simulation domain affecting the zoom
-    # level.
+    # max_extend. This results in the simulation domain affecting the zoom level.
     if plot_simulation_domain is True:
         simulation_domain = rotations.get_border_latlng_list(
             min_latitude, max_latitude, min_longitude, max_longitude)
@@ -88,20 +87,20 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         m = Basemap(projection='laea', resolution=resolution, width=width,
                     height=height, lat_0=center_lat, lon_0=center_lng)
 
-    # Catch warning that no labels can be drawn with an orthographic
-    # projection.
+    # Catch warning that no labels can be drawn with an orthographic projection.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         parallels = np.arange(-90.0, 90.0, stepsize)
-        m.drawparallels(parallels, labels=[False, True, False, False],
-                        **LINESTYLE)
         meridians = np.arange(0.0, 360.0, stepsize)
-        m.drawmeridians(meridians, labels=[False, False, False, True],
-                        **LINESTYLE)
+        if labels==True:
+            m.drawparallels(parallels, labels=[False, True, False, False], **LINESTYLE)
+            m.drawmeridians(meridians, labels=[False, False, False, True], **LINESTYLE)
+        else:
+            m.drawparallels(parallels, labels=[False, False, False, False], **LINESTYLE)
+            m.drawmeridians(meridians, labels=[False, False, False, False], **LINESTYLE)
 
     m.drawmapboundary(fill_color='#cccccc')
     m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
-    # m.drawcoastlines()
 
     border = rotations.get_border_latlng_list(
         min_latitude, max_latitude, min_longitude, max_longitude,

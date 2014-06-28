@@ -391,7 +391,7 @@ def lasif_plot_kernel(parser, args):
     if not os.path.exists(boxfile):
         boxfile_found = False
         # Find all vp gradients.
-        vp_gradients = glob(os.path.join(kernel_dir, "grad_cp_*"))
+        vp_gradients = glob(os.path.join(kernel_dir, "grad_csv_*"))
         file_count = len(vp_gradients)
         filesize = list(set([os.path.getsize(_i) for _i in vp_gradients]))
         if len(filesize) != 1:

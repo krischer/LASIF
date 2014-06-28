@@ -145,12 +145,13 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         import matplotlib.cm as cm
         import matplotlib.pyplot as plt
 
+        # Primary axis: plot weighted phase difference. -----------------------
+
         weighted_phase_difference = (DP * weight).transpose()
         abs_diff = np.abs(weighted_phase_difference)
-        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference,
-                                   vmin=-1.0, vmax=1.0, cmap=cm.RdBu_r)
+        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference, vmin=-1.0, vmax=1.0, cmap=cm.RdBu_r)
         axis.set_xlabel("Seconds since event")
-        axis.set_ylabel("TF Phase Misfit: Frequency [Hz]")
+        axis.set_ylabel("Frequency [Hz]")
 
         # Smart scaling for the frequency axis.
         temp = abs_diff.max(axis=1) * (nu[1] - nu[0])
@@ -164,20 +165,21 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         else:
             cm = plt.gcf().colorbar(mappable, ax=axis)
         cm.set_label("Phase difference in radian")
-        axis.set_title("Weighted phase difference")
+       
+        # Secondary axis: plot waveforms and adjoint source. ------------------
 
         ax2 = axis.twinx()
-        ax2.plot(t, data, color="black", alpha=1.0)
-        ax2.plot(t, synthetic, color="red", alpha=1.0)
-        min_value = min(data.min(), synthetic.min())
-        max_value = max(data.max(), synthetic.max())
+        
+        ax2.plot(t, ad_src, color="black", alpha=1.0)
+        min_value = min(ad_src.min(), -1.0)
+        max_value = max(ad_src.max(), 1.0)
+
         value_range = max_value - min_value
         axis.twin_axis = ax2
-        ax2.set_ylim(min_value - 2.5 * value_range, max_value + 0.5 *
-                     value_range)
-        ax2.set_ylabel("Waveforms: Amplitude [m/s]")
+        ax2.set_ylim(min_value - 2.5 * value_range, max_value + 0.5 * value_range)
         axis.set_xlim(0, tau[:, -1][-1])
         ax2.set_xlim(0, tau[:, -1][-1])
+        ax2.set_yticks([])
 
         text = "Misfit: %.4f" % phase_misfit
         axis.text(x=0.99, y=0.02, s=text, transform=axis.transAxes,
