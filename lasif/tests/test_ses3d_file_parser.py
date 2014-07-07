@@ -16,7 +16,7 @@ from StringIO import StringIO
 
 import numpy as np
 
-from tools.parsers_and_converters.ses3d_file_parser import is_SES3D, read_SES3D
+from lasif.file_handling.ses3d_file_parser import is_SES3D, read_SES3D
 
 
 

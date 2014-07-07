@@ -15,10 +15,10 @@ import os
 
 
 # Most generic way to get the actual data directory.
-from tools.parsers_and_converters import simple_resp_parser
+from lasif.file_handling import simple_resp_parser
 
 data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
-    inspect.currentframe()))), "data")
+    inspect.currentframe()))), "data", "station_files", "resp")
 
 
 def test_reading_simple_resp_file():

@@ -21,7 +21,7 @@ import time
 import obspy
 
 from lasif import LASIFWarning
-from tools.cache_helpers.station_cache import StationCache
+from lasif.tools.cache_helpers.station_cache import StationCache
 
 
 def test_station_cache(tmpdir):
@@ -30,7 +30,7 @@ def test_station_cache(tmpdir):
     """
     # Most generic way to get the actual data directory.
     data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
-        inspect.currentframe()))), "data")
+        inspect.currentframe()))), "data", "station_files")
 
     # Create a temporary directory.
     directory = str(tmpdir)
@@ -44,7 +44,7 @@ def test_station_cache(tmpdir):
 
     # Copy the SEED file. This files contains exactly one channel,
     # IU.PAB.00.BHE.
-    shutil.copy(os.path.join(data_dir, "dataless.IU_PAB"),
+    shutil.copy(os.path.join(data_dir, "seed", "dataless.IU_PAB"),
                 os.path.join(seed_directory, "dataless.IU_PAB"))
 
     # Init the station cache.
@@ -62,7 +62,7 @@ def test_station_cache(tmpdir):
     # This SEED file contains three more channels.
     seed_file = os.path.join(seed_directory, "dataless.BW_FURT")
     # Copy one more SEED file and check if the changes are reflected.
-    shutil.copy(os.path.join(data_dir, "dataless.BW_FURT"), seed_file)
+    shutil.copy(os.path.join(data_dir, "seed", "dataless.BW_FURT"), seed_file)
     # Init the station cache once more.
     station_cache = StationCache(cache_file, seed_directory, resp_directory,
                                  stationxml_directory)
@@ -92,7 +92,7 @@ def test_station_cache(tmpdir):
 
     # Add the file once again...
     del station_cache
-    shutil.copy(os.path.join(data_dir, "dataless.BW_FURT"), seed_file)
+    shutil.copy(os.path.join(data_dir, "seed", "dataless.BW_FURT"), seed_file)
     station_cache = StationCache(cache_file, seed_directory, resp_directory,
                                  stationxml_directory)
     # It should now again contain 4 channels.
@@ -105,7 +105,8 @@ def test_station_cache(tmpdir):
     time.sleep(1.5)
     # Now replace the file with an empty SEED file and assure that all
     # associated channels have been removed.
-    shutil.copy(os.path.join(data_dir, "channelless_datalessSEED"), seed_file)
+    shutil.copy(os.path.join(data_dir, "seed", "channelless_datalessSEED"),
+                seed_file)
     # Init the station cache once more.
     station_cache = StationCache(cache_file, seed_directory, resp_directory,
                                  stationxml_directory)
@@ -119,7 +120,8 @@ def test_station_cache(tmpdir):
 
     # Now copy some RESP files.
     resp_file = os.path.join(resp_directory, "RESP.G.FDF.00.BHE")
-    shutil.copy(os.path.join(data_dir, os.path.basename(resp_file)), resp_file)
+    shutil.copy(os.path.join(data_dir, "resp", os.path.basename(resp_file)),
+                resp_file)
     # Init the station cache once more.
     station_cache = StationCache(cache_file, seed_directory, resp_directory,
                                  stationxml_directory)
@@ -136,11 +138,11 @@ def test_station_cache(tmpdir):
     del station_cache
 
     # Add some more RESP files.
-    shutil.copy(os.path.join(data_dir, "RESP.AF.DODT..BHE"),
+    shutil.copy(os.path.join(data_dir, "resp", "RESP.AF.DODT..BHE"),
                 os.path.join(resp_directory, "RESP.AF.DODT..BHE"))
-    shutil.copy(os.path.join(data_dir, "RESP.G.FDF.00.BHN"),
+    shutil.copy(os.path.join(data_dir, "resp", "RESP.G.FDF.00.BHN"),
                 os.path.join(resp_directory, "RESP.G.FDF.00.BHN"))
-    shutil.copy(os.path.join(data_dir, "RESP.G.FDF.00.BHZ"),
+    shutil.copy(os.path.join(data_dir, "resp", "RESP.G.FDF.00.BHZ"),
                 os.path.join(resp_directory, "RESP.G.FDF.00.BHZ"))
     # Init the station cache once more.
     station_cache = StationCache(cache_file, seed_directory, resp_directory,
@@ -168,11 +170,6 @@ def test_station_cache(tmpdir):
     single_value = station_cache.get_details(all_values[0]["filename"])[0]
     assert single_value == all_values[0]
 
-    coordinates = \
-        station_cache.get_coordinates_for_station(network="IU", station="PAB")
-    assert coordinates == {"latitude": 39.5446, "longitude": -4.349899,
-                           "elevation_in_m": 950.0, "local_depth_in_m": 0.0}
-
 
 def test_station_xml(tmpdir):
     """
@@ -180,7 +177,7 @@ def test_station_xml(tmpdir):
     """
     # Most generic way to get the actual data directory.
     data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
-        inspect.currentframe()))), "data")
+        inspect.currentframe()))), "data", "station_files")
 
     # Create a temporary directory.
     directory = str(tmpdir)
@@ -194,7 +191,7 @@ def test_station_xml(tmpdir):
     os.makedirs(stationxml_directory)
 
     # Copy the StationXML file.
-    shutil.copy(os.path.join(data_dir,
+    shutil.copy(os.path.join(data_dir, "stationxml",
                              "IRIS_single_channel_with_response.xml"),
                 os.path.join(stationxml_directory,
                              "IRIS_single_channel_with_response.xml"))
@@ -228,7 +225,7 @@ def test_exception_handling(tmpdir, recwarn):
     """
     # Most generic way to get the actual data directory.
     data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
-        inspect.currentframe()))), "data")
+        inspect.currentframe()))), "data", "station_files")
 
     # Create a temporary directory.
     directory = str(tmpdir)
@@ -244,7 +241,7 @@ def test_exception_handling(tmpdir, recwarn):
 
     # Copy a StationXML file to a RESP directory which naturally results in
     # an error which results in a triggered warnings.
-    shutil.copy(os.path.join(data_dir,
+    shutil.copy(os.path.join(data_dir, "stationxml",
                              "IRIS_single_channel_with_response.xml"),
                 os.path.join(resp_directory,
                              "RESP.file"))
@@ -262,29 +259,29 @@ def test_exception_handling(tmpdir, recwarn):
     os.remove(os.path.join(resp_directory, "RESP.file"))
 
     # A valid SEED file.
-    shutil.copy(os.path.join(data_dir, "dataless.IU_PAB"),
+    shutil.copy(os.path.join(data_dir, "seed", "dataless.IU_PAB"),
                 os.path.join(seed_directory, "dataless.IU_PAB"))
     # A valid RESP file.
-    shutil.copy(os.path.join(data_dir, "RESP.G.FDF.00.BHE"),
+    shutil.copy(os.path.join(data_dir, "resp", "RESP.G.FDF.00.BHE"),
                 os.path.join(resp_directory, "RESP.G.FDF.00.BHE"))
     # A valid StationXML file.
-    shutil.copy(os.path.join(data_dir,
+    shutil.copy(os.path.join(data_dir, "stationxml",
                              "IRIS_single_channel_with_response.xml"),
                 os.path.join(stationxml_directory,
                              "IRIS_single_channel_with_response.xml"))
 
     # Now copy files of the wrong types to the folders.
-    shutil.copy(os.path.join(data_dir, "dataless.IU_PAB"),
+    shutil.copy(os.path.join(data_dir, "seed", "dataless.IU_PAB"),
                 os.path.join(resp_directory, "RESP.iu_pab"))
-    shutil.copy(os.path.join(data_dir, "dataless.IU_PAB"),
+    shutil.copy(os.path.join(data_dir, "seed", "dataless.IU_PAB"),
                 os.path.join(stationxml_directory, "IU_PAB.xml"))
-    shutil.copy(os.path.join(data_dir, "RESP.G.FDF.00.BHE"),
+    shutil.copy(os.path.join(data_dir, "resp", "RESP.G.FDF.00.BHE"),
                 os.path.join(seed_directory, "dataless.G_FDF"))
 
     # Also create two StationXML files, one missing the response and one
     # also missing the channel.
     inv = obspy.read_inventory(os.path.join(
-        data_dir, "IRIS_single_channel_with_response.xml"))
+        data_dir, "stationxml", "IRIS_single_channel_with_response.xml"))
     inv[0][0][0].response = None
     inv[0].code = "AA"
     inv.write(os.path.join(stationxml_directory, "dummy_1.xml"),
