@@ -1170,25 +1170,25 @@ def lasif_debug(parser, args):
     parser.add_argument(
         "files", help="filenames to print debug information about", nargs="+")
     files = parser.parse_args(args).files
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
 
     for filename in files:
         filename = os.path.relpath(filename)
         if not os.path.exists(filename):
-            print("{red}File '{f}' does not exist.{reset}\n".format(
+            print("{red}Path '{f}' does not exist.{reset}\n".format(
                 f=filename, red=colorama.Fore.RED,
                 reset=colorama.Style.RESET_ALL))
             continue
-        print("{green}File '{f}':{reset}".format(
+        print("{green}Path '{f}':{reset}".format(
             f=filename, green=colorama.Fore.GREEN,
             reset=colorama.Style.RESET_ALL))
 
         try:
-            info = proj.get_debug_information_for_file(filename)
+            info = comm.query.what_is(filename)
         except LASIFError as e:
             info = "Error: %s" % e.message
 
-        print info
+        print "\t" + info
         print ""
 
 

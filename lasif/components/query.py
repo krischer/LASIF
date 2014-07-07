@@ -284,3 +284,73 @@ class QueryComponent(Component):
             comps = [synthetic_coordinates_mapping[i] for i in comps]
             all_files["synthetic"][it] = sorted(comps, reverse=True)
         return all_files
+
+    def what_is(self, path):
+        """
+        Debug function returning a string with information about the file.
+        Useful as a debug function and to figure out what LASIF is doing.
+
+        :param path: The path to the file.
+        """
+        path = os.path.normpath(os.path.abspath(path))
+        # Split in dir an folder to ease the rest.
+        if os.path.isdir(path):
+            return self.__what_is_this_folder(path)
+        else:
+            return self.__what_is_this_file(path)
+
+    def __what_is_this_folder(self, folder_path):
+        key = [_i[0] for _i in self.comm.project.paths.items() if _i[1] ==
+               folder_path]
+        if key:
+            key = key[0]
+            info = {
+                "kernels": "Folder storing all kernels and gradients.",
+                "synthetics": "Folder storing synthetic waveforms.",
+                "config_file": "The configuration file.",
+                "logs": "Folder storing logs of various operations.",
+                "config_file_cache": "The cache file for the config file.",
+                "stations": "Folder storing all station files.",
+                "models": "Folder storing Earth models.",
+                "root": "The root directory of the project.",
+                "resp": "Folder storing station files in the resp format.",
+                "cache": "Folder storing various intermediate caches.",
+                "inv_db_file": "Database for coordinates from the internet.",
+                "station_xml": "Folder storing StationXML station files.",
+                "adjoint_sources": "Folder storing adjoint sources.",
+                "windows": "Folder storing window definition files.",
+                "wavefields": "Folder storing wavefields.",
+                "dataless_seed": "Folder storing dataless SEED station files.",
+                "iterations": "Folder storing the iteration definitions.",
+                "output": "Folder storing the output of various operations.",
+                "data": "Folder storing raw and processed waveforms.",
+                "events": "Folder storing event definitions as QuakeML."
+            }
+
+            if key in info:
+                ret_str = info[key]
+            else:
+                ret_str = "Project folder '%s'." % key
+            return ret_str
+        else:
+            return None
+
+    def __what_is_this_file(self, file_path):
+        key = [_i[0] for _i in self.comm.project.paths.items() if _i[1] ==
+               file_path]
+        if key:
+            key = key[0]
+            info = {
+                "config_file": "The main project configuration file.",
+                "config_file_cache": "The cache file for the config file.",
+                "inv_db_file": "Database for coordinates from the internet.",
+            }
+
+            if key in info:
+                ret_str = info[key]
+            else:
+                ret_str = "Project file '%s'." % key
+            return ret_str
+        else:
+            return None
+
