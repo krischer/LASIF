@@ -161,8 +161,9 @@ class WaveformsComponent(Component):
         files = waveform_cache.get_files_for_station(network, station)
         if len(files) == 0:
             raise LASIFNotFoundError("No '%s' waveform data found for event "
-                                     "'%s' and station '%s'." % (
-                data_type, event_name, station_id))
+                                     "'%s' and station '%s'." % (data_type,
+                                                                 event_name,
+                                                                 station_id))
         if data_type in ["raw", "processed"]:
             # Sort files by location.
             locations = {key: list(value) for key, value in itertools.groupby(
@@ -172,9 +173,8 @@ class WaveformsComponent(Component):
                 msg = ("Found %s waveform data from %i locations for event "
                        "'%s' and station '%s': %s. Will only use data from "
                        "location '%s'." % (
-                    data_type, len(keys), event_name, station_id,
-                    ", ".join(["'%s'" % _i for _i in keys]),
-                    keys[0]))
+                           data_type, len(keys), event_name, station_id,
+                           ", ".join(["'%s'" % _i for _i in keys]), keys[0]))
                 warnings.warn(LASIFWarning, msg)
             files = locations[keys[0]]
         st = obspy.Stream()
@@ -307,8 +307,8 @@ class WaveformsComponent(Component):
         values = waveform_cache.get_files_for_station(network_id, station_id)
         if not values:
             msg = "No synthetic data for event '%s', iteration '%s', " \
-                  "and station '%s' found." % (
-                  event_name, long_iteration_name, station_id)
+                  "and station '%s' found." % (event_name, long_iteration_name,
+                                               station_id)
             raise LASIFNotFoundError(msg)
         return self._convert_timestamps(values)
 

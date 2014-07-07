@@ -26,12 +26,11 @@ class ActionsComponent(Component):
         :param waiting_time: The time spent sleeping after the initial message
             has been printed. Useful if the user should be given the chance to
             cancel the processing.
-        :param event_names: event_ids is a list of events to process in this run.
-            It will process all events if not given.
+        :param event_names: event_ids is a list of events to process in this
+            run. It will process all events if not given.
         """
         import colorama
         from lasif import preprocessing
-        import obspy
 
         iteration = self.comm.iterations.get(iteration_name)
 
@@ -112,9 +111,9 @@ class ActionsComponent(Component):
                                 "local_depth_in_m": channel[
                                     "local_depth_in_m"],
                             },
-                            "station_filename": self.comm.stations
-                                .get_channel_filename(
-                                channel["channel_id"], channel["starttime"]),
+                            "station_filename": self.comm.stations.
+                            get_channel_filename(channel["channel_id"],
+                                                 channel["starttime"]),
                             "event_information": event,
                         }
                         yield ret_dict
@@ -173,12 +172,12 @@ class ActionsComponent(Component):
         # Get all stations and create a dictionary for the input file
         # generator.
         stations = self.comm.query.get_all_stations_for_event(event_name)
-        stations = [{
-                        "id": key, "latitude": value["latitude"],
-                        "longitude": value["longitude"],
-                        "elevation_in_m": value["elevation_in_m"],
-                        "local_depth_in_m": value["local_depth_in_m"]} for key, value in
-                    stations.iteritems() if key in stations_for_event]
+        stations = [{"id": key, "latitude": value["latitude"],
+                     "longitude": value["longitude"],
+                     "elevation_in_m": value["elevation_in_m"],
+                     "local_depth_in_m": value["local_depth_in_m"]}
+                    for key, value in stations.iteritems()
+                    if key in stations_for_event]
 
         # =====================================================================
         # set solver options
@@ -308,5 +307,3 @@ class ActionsComponent(Component):
 
         gen.write(format=solver_format, output_dir=output_dir)
         print "Written files to '%s'." % output_dir
-
-

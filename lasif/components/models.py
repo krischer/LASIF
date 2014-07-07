@@ -21,7 +21,7 @@ class ModelsComponent(Component):
     def __init__(self, models_folder, communicator, component_name):
         self._folder = models_folder
         super(ModelsComponent, self).__init__(communicator,
-                                                  component_name)
+                                              component_name)
 
     def list(self):
         """

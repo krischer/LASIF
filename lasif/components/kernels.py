@@ -18,7 +18,7 @@ class KernelsComponent(Component):
     def __init__(self, kernels_folder, communicator, component_name):
         self._folder = kernels_folder
         super(KernelsComponent, self).__init__(communicator,
-                                                  component_name)
+                                               component_name)
 
     def list(self):
         """

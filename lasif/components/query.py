@@ -117,7 +117,7 @@ class QueryComponent(Component):
         except KeyError:
             # No station file for channel.
             raise LASIFNotFoundError("Station '%s' has no available "
-                                      "station file." % station_id)
+                                     "station file." % station_id)
 
         # First attempt to retrieve from the station files.
         if stat_coords["latitude"] is not None:
@@ -133,7 +133,7 @@ class QueryComponent(Component):
             # No station file for channel.
             raise LASIFNotFoundError("Coordinates could not be deduced for "
                                      "station '%s' and event '%s'." % (
-                                     station_id, event_name))
+                                         station_id, event_name))
 
     def get_stations_for_all_events(self):
         """
@@ -353,4 +353,3 @@ class QueryComponent(Component):
             return ret_str
         else:
             return None
-

@@ -227,7 +227,6 @@ class IterationsComponent(Component):
         it = Iteration(it_dict[iteration_name])
         return it
 
-
     def plot_Q_model(self, iteration_name):
         """
         Plots the Q model for a given iteration. Will only work if the

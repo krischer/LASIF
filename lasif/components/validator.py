@@ -131,7 +131,7 @@ class ValidatorComponent(Component):
             self._flush_point()
             for station_id, value in \
                     self.comm.query.get_all_stations_for_event(
-                            event_name).iteritems():
+                        event_name).iteritems():
                 network_code, station_code = station_id.split(".")
                 # Check if the whole path of the event-station pair is within
                 # the domain boundaries.
@@ -164,8 +164,6 @@ class ValidatorComponent(Component):
         """
         Checks that all waveform files have an associated station file.
         """
-        from obspy import UTCDateTime
-
         print ("Confirming that station metainformation files exist for "
                "all waveforms "),
 
@@ -207,7 +205,6 @@ class ValidatorComponent(Component):
         * each station only has data from one location for each event.
         """
         print "Checking all waveform files ",
-        import collections
 
         all_good = True
 
@@ -225,7 +222,7 @@ class ValidatorComponent(Component):
                     stations,
                     key=lambda x: ".".join(x["channel_id"].split(".")[:2]))
                 locations = [i[0] for i in xx]
-                if len(locations)  == 1:
+                if len(locations) == 1:
                     continue
                 all_good = False
                 files = sorted([_i["filename"] for _i in stations])
@@ -324,14 +321,14 @@ class ValidatorComponent(Component):
                 "\n".join(["\t%s in files: %s" % (
                     id_string,
                     ", ".join([os.path.basename(i) for i in faulty_files]))
-                           for id_string, faulty_files in ids.iteritems()]),
+                    for id_string, faulty_files in ids.iteritems()]),
                 error_count=len(ids))
 
         def print_warning(filename, message):
             self._add_report("WARNING: File '{event_name}' "
-                       "contains {msg}.\n".format(
-                event_name=os.path.basename(filename),
-                msg=message))
+                             "contains {msg}.\n".format(
+                                 event_name=os.path.basename(filename),
+                                 msg=message))
 
         # Performing simple sanity checks.
         print "\tPerforming some basic sanity checks ",
@@ -357,10 +354,11 @@ class ValidatorComponent(Component):
             if (origin.depth % 100.0):
                 all_good = False
                 print_warning(
-                    filename, "a depth of %.1f meters. This kind of "
-                              "accuracy seems unrealistic. The depth in the QuakeML "
-                              "file has to be specified in meters. Checking all other "
-                              "QuakeML files for the correct units might be a good idea"
+                    filename, "a depth of %.1f meters. This kind of accuracy "
+                              "seems unrealistic. The depth in the QuakeML "
+                              "file has to be specified in meters. Checking "
+                              "all other QuakeML files for the correct units "
+                              "might be a good idea"
                     % origin.depth)
             if (origin.depth > (800.0 * 1000.0)):
                 all_good = False
@@ -380,7 +378,7 @@ class ValidatorComponent(Component):
                 continue
 
             focmec = event.preferred_focal_mechanism() or \
-                     event.focal_mechanisms[0]
+                event.focal_mechanisms[0]
             if not hasattr(focmec, "moment_tensor") or \
                     not focmec.moment_tensor:
                 all_good = False
@@ -406,11 +404,10 @@ class ValidatorComponent(Component):
             if not (mag_in_file - 1.0) < magnitude < (mag_in_file + 1.0):
                 all_good = False
                 print_warning(
-                    filename, "a moment tensor that would result in "
-                              "a moment magnitude of %.2f. The magnitude specified in "
-                              "the file is %.2f. "
-                              "Please check that all components of the tensor are in "
-                              "Newton * meter"
+                    filename, "a moment tensor that would result in a moment "
+                              "magnitude of %.2f. The magnitude specified in "
+                              "the file is %.2f. Please check that all "
+                              "components of the tensor are in Newton * meter"
                     % (magnitude, mag_in_file))
 
         if all_good is True:
@@ -508,4 +505,3 @@ class ValidatorComponent(Component):
                     rotation_angle_in_degree=domain["rotation_angle"]):
                 return False
         return True
-

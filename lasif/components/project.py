@@ -289,8 +289,8 @@ class Project(Component):
                         communicator=self.comm,
                         component_name="models")
         KernelsComponent(kernels_folder=self.paths["kernels"],
-                        communicator=self.comm,
-                        component_name="kernels")
+                         communicator=self.comm,
+                         component_name="kernels")
         IterationsComponent(iterations_folder=self.paths["iterations"],
                             communicator=self.comm,
                             component_name="iterations")
