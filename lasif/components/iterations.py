@@ -116,6 +116,7 @@ class IterationsComponent(Component):
         True
         >>> os.remove(comm.iterations.get_iteration_dict()["3"])
         """
+        iteration_name = str(iteration_name)
         if iteration_name in self.get_iteration_dict():
             msg = "Iteration %s already exists." % iteration_name
             raise ValueError(msg)

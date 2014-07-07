@@ -265,7 +265,7 @@ class MisfitGUI:
             "E": []}
         self.plot()
         for trace in self.data.data:
-            windows = self.window_manager.get_windows(trace.id)
+            windows = self.window_manager.get(trace.id)
             if not windows or "windows" not in windows or \
                     not windows["windows"]:
                 continue

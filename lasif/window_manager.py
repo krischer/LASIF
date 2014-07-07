@@ -28,33 +28,43 @@ class MisfitWindowManager(object):
     A simple class reading and writing Windows.
     """
     def __init__(self, directory, synthetic_tag, event_name):
-        self.directory = directory
-        if not os.path.exists(self.directory):
-            os.makedirs(self.directory)
-        self.synthetic_tag = synthetic_tag
-        self.event_name = event_name
+        self._directory = directory
+        if not os.path.exists(self._directory):
+            os.makedirs(self._directory)
+        self._synthetic_tag = synthetic_tag
+        self._event_name = event_name
 
     def __iter__(self):
-        for filename in iglob(os.path.join(self.directory, "window_*.xml")):
-            yield self._read_windowfile(filename)
+        for channel_id in self.list():
+            yield self.get(channel_id)
 
-    def get_windows(self, channel_id):
+    def list(self):
+        """
+        Returns a list of station ids with windows.
+        """
+        windows = []
+        for filename in iglob(os.path.join(self._directory, "window_*.xml")):
+            windows.append(os.path.basename(filename).lstrip("window_")
+                           .rstrip(".xml"))
+        return sorted(windows)
+
+    def get(self, channel_id):
         windowfile = self._get_window_filename(channel_id)
         if not os.path.exists(windowfile):
             return {}
-        return self._read_windowfile(windowfile)
+        return WindowCollection(filename=windowfile)
 
     def get_windows_for_station(self, station_id):
-        files = iglob(os.path.join(self.directory, "window_%s.*.*.xml" %
-                      station_id))
+        channels = [_i for _i in self.list()
+                    if _i.startswith(station_id + ".")]
         windows = []
-        for filename in files:
-            windows.append(self._read_windowfile(filename))
+        for channel_id in channels:
+            windows.append(self.get(channel_id))
         return windows
 
     def delete_windows(self, channel_id):
         """
-        Deletes all windows for a certain channal.
+        Deletes all windows for a certain channel.
 
         In essence it will just delete the file.
 
@@ -85,7 +95,7 @@ class MisfitWindowManager(object):
         min_endtime = endtime - tolerance
         max_endtime = endtime + tolerance
 
-        windows = self.get_windows(channel_id)
+        windows = self.get(channel_id)
         if not windows:
             msg = "Window not found."
             raise ValueError(msg)
@@ -113,10 +123,94 @@ class MisfitWindowManager(object):
         self._write_window(channel_id, new_windows)
 
     def _get_window_filename(self, channel_id):
-        return os.path.join(self.directory, "window_%s.xml" % channel_id)
+        return os.path.join(self._directory, "window_%s.xml" % channel_id)
 
-    def _read_windowfile(self, filename):
-        root = etree.parse(filename).getroot()
+
+class Window(object):
+    __slots__ = ["starttime", "endtime", "weight", "taper",
+                 "taper_percentage", "misfit", "misfit_value"]
+
+    def __init__(self, starttime, endtime, weight, taper,
+                 taper_percentage, misfit, misfit_value):
+        self.starttime = starttime
+        self.endtime = endtime
+        self.weight = weight
+        self.taper = taper
+        self.taper_percentage = taper_percentage
+        self.misfit = misfit
+        self.misfit_value = misfit_value
+
+    def __str__(self):
+        return (
+            "{duration:.2f} seconds window from {st}\n\tWeight: "
+            "{weight:.2f}, {perc:.2f}% {taper} taper, {misfit}{value}"
+
+        ).format(
+            duration=self.endtime - self.starttime,
+            st=self.starttime,
+            weight=self.weight,
+            taper=self.taper,
+            perc=self.taper_percentage * 100.0,
+            misfit=self.misfit,
+            value=" (%.3g)" % self.misfit_value
+                if self.misfit_value is not None else "")
+
+
+class WindowCollection(object):
+    def __init__(self, filename, windows=None, event_name=None,
+                 channel_id=None, synthetics_tag=None):
+        if windows and os.path.exists(filename):
+            raise ValueError("An existing file and new windows is not "
+                             "allowed. Either only a file or windows and a "
+                             "non-existing file")
+        self.filename = filename
+        self.event_name = event_name
+        self.channel_id = channel_id
+        self.synthetics_tag = synthetics_tag
+        self.windows = []
+
+        if os.path.exists(filename):
+            self._parse()
+        else:
+            self.windows.extend(windows)
+
+    def __str__(self):
+        ret_str = ("Window group for channel '{channel_id}' with {count} "
+                   "window(s):\n"
+                   "  Event: {event_name}\n"
+                   "  Iteration: {it}\n"
+                   "  Window(s):\n    {windows}")
+        return ret_str.format(count=len(self.windows), it=self.synthetics_tag,
+                              channel_id=self.channel_id,
+                              event_name=self.event_name,
+                              windows="\n    ".join(
+                                  ["* " + str(_i) for _i in self.windows]))
+
+    def add_window(self, starttime, endtime, weight, taper,
+                   taper_percentage, misfit, misfit_value):
+        """
+        Adds a single window.
+
+        :param starttime: Starttime of the window.
+        :param endtime: Endtime of the window.
+        :param weight: Weight of the window.
+        :param taper: Used taper.
+        :param taper_percentage: Decimal percentage of taper at one end.
+            Ranges from 0.0 to 0.5 for a full-width taper.
+        :param misfit: Used misfit.
+        :param misfit_value: Used misfit value.
+        """
+        self.windows.append(Window(
+            starttime=UTCDateTime(starttime),
+            endtime=UTCDateTime(endtime),
+            weight=float(weight),
+            taper=taper,
+            taper_percentage=float(taper_percentage),
+            misfit=misfit,
+            misfit_value=float(misfit_value) if misfit_value else None))
+
+    def _parse(self):
+        root = etree.parse(self.filename).getroot()
         windows = {"windows": []}
         for element in root:
             if element.tag == "Event":
@@ -132,50 +226,62 @@ class MisfitWindowManager(object):
                 w = {}
                 for elem in element:
                     if elem.tag == "Starttime":
-                        w["starttime"] = UTCDateTime(elem.text)
+                        w["starttime"] = elem.text
                     elif elem.tag == "Endtime":
-                        w["endtime"] = UTCDateTime(elem.text)
+                        w["endtime"] = elem.text
                     elif elem.tag == "Weight":
-                        w["weight"] = float(elem.text)
+                        w["weight"] = elem.text
                     elif elem.tag == "Taper":
                         w["taper"] = elem.text
+                    elif elem.tag == "TaperPercentage":
+                        w["taper_percentage"] = elem.text
                     elif elem.tag == "Misfit":
                         w["misfit"] = elem.text
+                    elif elem.tag == "MisfitValue":
+                        w["misfit_value"] = elem.text
                 windows["windows"].append(w)
-        return windows
 
-    def write_window(self, channel_id, starttime, endtime, weight, taper,
-                     misfit):
-        window = self.get_windows(channel_id)
-        if not window:
-            window["event"] = self.event_name
-            window["channel_id"] = channel_id
-            window["synthetic_tag"] = self.synthetic_tag
-            window["windows"] = []
-        window["windows"].append({
-            "starttime": starttime,
-            "endtime": endtime,
-            "weight": weight,
-            "taper": taper,
-            "misfit": misfit})
-        self._write_window(channel_id, window)
+        self.event_name = windows["event"]
+        self.channel_id = windows["channel_id"]
+        self.synthetics_tag = windows["synthetic_tag"]
 
-    def _write_window(self, channel_id, window):
-        windowfile = self._get_window_filename(channel_id)
-        windows = [
-            E.Window(
-                E.Starttime(str(_i["starttime"])),
-                E.Endtime(str(_i["endtime"])),
-                E.Weight(str(_i["weight"])),
-                E.Taper(_i["taper"]),
-                E.Misfit(_i["misfit"])) for _i in window["windows"]]
+        for w in windows["windows"]:
+            self.add_window(
+                w["starttime"], w["endtime"], w["weight"], w["taper"],
+                # Default to 0.05 to ease transition to the new format. The
+                # old format did not track it at all. This will also trigger
+                # a recalculation of the adjoint source in case no taper
+                # percentage has been set before.
+                w["taper_percentage"]  if "taper_percentage" in w else "0.05",
+                w["misfit"],
+                w["misfit_value"] if "misfit_value" in w else None)
+
+    def write(self, filename):
+        """
+        Writes the window group to the specified filename.
+
+        :param filename: Path to save to. Will be overwritten if it already
+            exists.
+        """
+        windows = []
+        for w in self.windows:
+            local_win = []
+            local_win.append(E.Starttime(str(w.starttime)))
+            local_win.append(E.Endtime(str(w.endtime)))
+            local_win.append(E.Weight(str(w.weight)))
+            local_win.append(E.Taper(str(w.taper)))
+            local_win.append(E.TaperPercentage(str(w.taper_percentage)))
+            local_win.append(E.Misfit(str(w.misfit)))
+            if w.misfit_value is not None:
+                local_win.append(E.MisfitValue(str(w.misfit_value)))
+            windows.append(E.Window(*local_win))
 
         doc = (
             E.MisfitWindow(
-                E.Event(window["event"]),
-                E.ChannelID(window["channel_id"]),
-                E.SyntheticsTag(window["synthetic_tag"]),
+                E.Event(self.event_name),
+                E.ChannelID(self.channel_id),
+                E.SyntheticsTag(self.synthetic_tag),
                 *windows))
-        with open(windowfile, "wb") as fh:
+        with open(filename, "wb") as fh:
             fh.write(etree.tostring(doc, pretty_print=True,
                                     xml_declaration=True, encoding="utf-8"))

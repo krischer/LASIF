@@ -177,10 +177,7 @@ def get_iteration_detail(iteration_name):
     """
     Returns a list of events.
     """
-    from lasif.iteration_xml import Iteration
-
-    iterations = app.comm.iterations.get_iteration_dict()
-    iteration = Iteration(iterations[iteration_name])
+    iteration = app.comm.iterations.get(iteration_name)
 
     stf = iteration.get_source_time_function()
     stf["data"] = stf["data"].tolist()

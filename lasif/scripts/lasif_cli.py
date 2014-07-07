@@ -751,28 +751,25 @@ def lasif_create_successive_iteration(parser, args):
     existing_iteration_name = args.existing_iteration
     new_iteration_name = args.new_iteration
 
-    from lasif.iteration_xml import Iteration
+    comm = _find_project_comm(".")
 
-    proj = _find_project_comm(".")
-    iterations = proj.get_iteration_dict()
-
-    if new_iteration_name in iterations:
+    if comm.iterations.has_iteration(new_iteration_name):
         msg = ("Iteration '%s' already exists." % new_iteration_name)
         raise LASIFCommandLineException(msg)
 
     # Get the old iteration
-    if existing_iteration_name not in iterations:
+    if not comm.iterations.has_iteration(existing_iteration_name):
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
                "a list of all available iterations.") % \
             existing_iteration_name
         raise LASIFCommandLineException(msg)
-    existing_iteration = Iteration(iterations[existing_iteration_name])
+    existing_iteration = comm.iterations.get(existing_iteration_name)
 
     # Clone the old iteration, delete any comments and change the name.
     existing_iteration.comments = []
     existing_iteration.iteration_name = new_iteration_name
 
-    existing_iteration.write(proj._get_iteration_filename(new_iteration_name))
+    existing_iteration.write(comm._get_iteration_filename(new_iteration_name))
 
     print("Successfully created new iteration:")
     print(existing_iteration)
@@ -1084,10 +1081,10 @@ def lasif_iteration_status(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     iteration_name = parser.parse_args(args).iteration_name
 
-    proj = _find_project_comm(".")
-    status = proj.get_iteration_status(iteration_name)
+    comm = _find_project_comm(".")
+    status = comm.get_iteration_status(iteration_name)
 
-    file_count = len(proj._get_all_raw_waveform_files_for_iteration(
+    file_count = len(comm._get_all_raw_waveform_files_for_iteration(
                      iteration_name))
 
     if not status["stations_in_iteration_that_do_not_exist"]:
