@@ -33,7 +33,7 @@ DATA = os.path.join(os.path.dirname(os.path.abspath(
 
 
 @pytest.fixture
-def project(tmpdir):
+def communicator(tmpdir):
     """
     Fixture returning the initialized example project. It will be a fresh copy
     every time that will be deleted after the test has finished so every test
@@ -50,18 +50,18 @@ def project(tmpdir):
     shutil.copytree(example_project, project_path)
 
     # Init it. This will create the missing paths.
-    return Project(project_path)
+    return Project(project_path).comm
 
 
 @pytest.fixture
-def cli(project, request, capsys):
+def cli(communicator, request, capsys):
     """
     Fixture for being able to easily test the command line interface.
 
     Usage:
         stdout = cli.run("lasif info")
     """
-    request.project = project
+    request.comm = communicator
 
     Output = namedtuple("Output", ["stdout", "stderr"])
 
@@ -70,7 +70,7 @@ def cli(project, request, capsys):
         old_argv = copy.deepcopy(sys.argv)
         try:
             # Change the path to the root path of the project.
-            os.chdir(os.path.abspath(project.paths["root"]))
+            os.chdir(os.path.abspath(communicator.project.paths["root"]))
             components = command.split()
             if components[0] != "lasif":
                 msg = "Invalid LASIF CLI command."

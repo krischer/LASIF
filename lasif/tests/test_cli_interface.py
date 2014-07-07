@@ -27,7 +27,7 @@ import shutil
 
 from lasif.scripts import lasif_cli
 
-from lasif.tests.testing_helpers import project, cli  # NOQA
+from lasif.tests.testing_helpers import communicator, cli  # NOQA
 from lasif.tests.testing_helpers import reset_matplotlib
 
 # Get a list of all available commands.
@@ -191,7 +191,7 @@ def test_project_init(cli):
 #     with mock.patch("lasif.scripts.iris2quakeml.iris2quakeml") as patch:
 #         cli.run("lasif add_spud_event https://test.org")
 #         patch.assert_called_once_with(
-#             "https://test.org", cli.project.paths["events"])
+#             "https://test.org", cli.communicator.paths["events"])
 #
 #     # Test the waveform downloader invocation.
 #     with mock.patch("lasif.download_helpers.downloader.download_waveforms") \
@@ -233,20 +233,20 @@ def test_various_list_functions(cli):
 
     iterations = cli.run("lasif list_iterations").stdout
     assert "0 iterations" in iterations
-    with open(os.path.join(cli.project.paths["iterations"], "ITERATION_1.xml"),
-              "wt") as fh:
+    with open(os.path.join(cli.comm.project.paths["iterations"],
+                           "ITERATION_1.xml"), "wt") as fh:
         fh.write("<>")
     iterations = cli.run("lasif list_iterations").stdout
     assert "1 iteration" in iterations
-    with open(os.path.join(cli.project.paths["iterations"], "ITERATION_2.xml"),
-              "wt") as fh:
+    with open(os.path.join(cli.comm.project.paths["iterations"],
+                           "ITERATION_2.xml"), "wt") as fh:
         fh.write("<>")
     iterations = cli.run("lasif list_iterations").stdout
     assert "2 iteration" in iterations
 
     models = cli.run("lasif list_models").stdout
     assert "0 models" in models
-    os.makedirs(os.path.join(cli.project.paths["models"], "BLUB"))
+    os.makedirs(os.path.join(cli.comm.project.paths["models"], "BLUB"))
     models = cli.run("lasif list_models").stdout
     assert "1 model" in models
 
@@ -256,7 +256,7 @@ def test_iteration_creation_and_stf_plotting(cli):
     Tests the generation of an iteration and the supsequent STF plotting.
     """
     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-    assert "1" in cli.project.get_iteration_dict().keys()
+    assert cli.comm.iterations.has_iteration("1")
 
     with mock.patch("lasif.visualization.plot_tf") as patch:
         cli.run("lasif plot_stf 1")
@@ -264,7 +264,7 @@ def test_iteration_creation_and_stf_plotting(cli):
         data, delta = patch.call_args[0]
         np.testing.assert_array_equal(
             data,
-            cli.project._get_iteration("1").get_source_time_function()["data"])
+            cli.comm.iterations.get("1").get_source_time_function()["data"])
         assert delta == 0.75
 
 
@@ -556,7 +556,7 @@ def test_iteration_status_command(cli):
 #             cli.project.paths["data"],
 #             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "raw",
 #             "HL.ARG..BHZ.mseed")
-#         filename = os.path.relpath(filename, cli.project.paths["root"])
+#         filename = os.path.relpath(filename, cli.comm.project.paths["root"])
 #         patch.return_value = "I CALLED THIS"
 #         out = cli.run("lasif debug %s" % filename).stdout
 #         patch.assert_called_once_with(filename)
