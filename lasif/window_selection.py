@@ -150,7 +150,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     max_noise_window = 0.4
     # All arrivals later than those corresponding to the threshold velocity
     # [km/s] will be excluded.
-    threshold_velocity = 2.4
+    min_velocity = 2.4
     # Maximum allowable time shift within a window, as a fraction of the
     # minimum period.
     threshold_shift = 0.2
@@ -278,7 +278,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # Step 3: Mark everything more then half a dominant period after the
     # threshold arrival time - computed from the threshold velocity - as
     # negative.
-    time_windows.mask[int(np.floor(dist_in_km / threshold_velocity / dt)):] = \
+    time_windows.mask[int(np.floor(dist_in_km / min_velocity / dt)):] = \
         True
 
     # Step 4: Mark everything with an absolute travel time shift of more than
