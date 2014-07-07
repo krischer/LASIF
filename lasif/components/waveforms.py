@@ -246,7 +246,7 @@ class WaveformsComponent(Component):
         Returns the available metadata at the channel level for the raw
         waveforms and the given event_name at a certain station.
 
-        Same as :func:`~.get_metadata_raw` just for only a single station.
+        Same as :meth:`~.get_metadata_raw` just for only a single station.
 
         :param event_name: The name of the event.
         :param station_id: The station id.

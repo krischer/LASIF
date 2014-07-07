@@ -102,7 +102,7 @@ class QueryComponent(Component):
         """
         Get the coordinates for one station.
 
-        Must be in sync with :func:`~.get_all_stations_for_event`.
+        Must be in sync with :meth:`~.get_all_stations_for_event`.
         """
         event = self.comm.events.get(event_name)
 

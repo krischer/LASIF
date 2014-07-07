@@ -226,3 +226,83 @@ class StationsComponent(Component):
         if filename is None:
             raise LASIFNotFoundError
         return filename
+
+    def get_station_filename(self, network, station, location, channel,
+                             file_format):
+        """
+        Function returning the filename a station file of a certain format
+        should be written to. Only useful as a callback function for
+        downloaders or other modules saving data to LASIF.
+
+        :type file_format: str
+        :param file_format: 'datalessSEED', 'StationXML', or 'RESP'
+
+        >>> comm = getfixture('stations_comm')
+        >>> comm.stations.get_station_filename(
+        ...     "BW", "FURT", "", "BHZ", file_format="RESP")\
+        # doctest: +ELLIPSIS
+        '/.../resp/RESP.BW.FURT..BHZ'
+
+        >>> comm.stations.get_station_filename(
+        ...     "BW", "ALTM", "", "BHZ", file_format="datalessSEED")\
+        # doctest: +ELLIPSIS
+        '/.../seed/dataless.BW_ALTM'
+
+        >>> comm.stations.get_station_filename(
+        ...     "BW", "FURT", "", "BHZ", file_format="StationXML")\
+        # doctest: +ELLIPSIS
+        '/.../stationxml/BW_FURT.xml'
+        """
+        if file_format not in ["datalessSEED", "StationXML", "RESP"]:
+            msg = "Unknown format '%s'" % file_format
+            raise ValueError(msg)
+        if file_format == "datalessSEED":
+            def seed_filename_generator():
+                i = 0
+                while True:
+                    filename = os.path.join(
+                        self.seed_folder,
+                        "dataless.{network}_{station}".format(
+                            network=network, station=station))
+                    if i:
+                        filename += ".%i" % i
+                    i += 1
+                    yield filename
+            for filename in seed_filename_generator():
+                if not os.path.exists(filename):
+                    break
+            return filename
+        elif file_format == "RESP":
+            def resp_filename_generator():
+                i = 0
+                while True:
+                    filename = os.path.join(
+                        self.resp_folder,
+                        "RESP.{network}.{station}.{location}.{channel}"
+                        .format(network=network, station=station,
+                                location=location, channel=channel))
+                    if i:
+                        filename += ".%i" % i
+                    i += 1
+                    yield filename
+            for filename in resp_filename_generator():
+                if not os.path.exists(filename):
+                    break
+            return filename
+        elif file_format == "StationXML":
+            def stationxml_filename_generator():
+                i = 0
+                while True:
+                    filename = os.path.join(
+                        self.stationxml_folder,
+                        "{network}_{station}{i}.xml".format(
+                            network=network, station=station,
+                            i=".%i" if i else ""))
+                    i += 1
+                    yield filename
+            for filename in stationxml_filename_generator():
+                if not os.path.exists(filename):
+                    break
+            return filename
+        else:
+            raise NotImplementedError
