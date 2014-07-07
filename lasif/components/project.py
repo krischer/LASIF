@@ -17,12 +17,11 @@ from __future__ import absolute_import
 
 import cPickle
 import os
-from components.adjoint_sources import AdjointSourcesComponent
-from components.windows import WindowsComponent
 
 from lasif import LASIFError
 
 from .actions import ActionsComponent
+from .adjoint_sources import AdjointSourcesComponent
 from .communicator import Communicator
 from .component import Component
 from .events import EventsComponent
@@ -35,6 +34,7 @@ from .stations import StationsComponent
 from .validator import ValidatorComponent
 from .visualizations import VisualizationsComponent
 from .waveforms import WaveformsComponent
+from .windows import WindowsComponent
 
 
 class Project(Component):

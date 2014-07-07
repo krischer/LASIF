@@ -10,7 +10,7 @@ import warnings
 import obspy
 
 from lasif import LASIFNotFoundError, LASIFWarning
-from tools.cache_helpers.waveform_cache import WaveformCache
+from ..tools.cache_helpers.waveform_cache import WaveformCache
 from .component import Component
 
 

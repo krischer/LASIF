@@ -9,6 +9,8 @@ Station Cache class.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from __future__ import absolute_import
+
 import glob
 import os
 import sqlite3
@@ -17,8 +19,8 @@ import obspy
 from obspy.xseed import Parser
 
 from lasif import LASIFError
-from lasif.tools import simple_resp_parser
-from tools.cache_helpers.file_info_cache import FileInfoCache
+from lasif.file_handling import simple_resp_parser
+from .file_info_cache import FileInfoCache
 
 
 # The tolerances to which station coordinates for different locations are

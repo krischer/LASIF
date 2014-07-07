@@ -71,6 +71,8 @@ Example implementation:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from __future__ import absolute_import
+
 from binascii import crc32
 from itertools import izip
 import os

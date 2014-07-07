@@ -9,14 +9,15 @@ Cache taking care of a single waveform directory.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from __future__ import absolute_import
+
 import glob
 from itertools import izip
+import obspy
 import os
 import warnings
 
-import obspy
-
-from tools.cache_helpers.file_info_cache import FileInfoCache
+from .file_info_cache import FileInfoCache
 
 
 class WaveformCache(FileInfoCache):
