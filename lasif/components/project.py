@@ -17,6 +17,8 @@ from __future__ import absolute_import
 
 import cPickle
 import os
+from components.adjoint_sources import AdjointSourcesComponent
+from components.windows import WindowsComponent
 
 from lasif import LASIFError
 
@@ -269,6 +271,7 @@ class Project(Component):
         Communication will happen through the communicator which will also
         keep the references to the single components.
         """
+        # Basic components.
         EventsComponent(folder=self.paths["events"], communicator=self.comm,
                         component_name="events")
         StationsComponent(stationxml_folder=self.paths["station_xml"],
@@ -291,6 +294,8 @@ class Project(Component):
         IterationsComponent(iterations_folder=self.paths["iterations"],
                             communicator=self.comm,
                             component_name="iterations")
+
+        # Action and query components.
         QueryComponent(communicator=self.comm, component_name="query")
         VisualizationsComponent(communicator=self.comm,
                                 component_name="visualizations")
@@ -298,6 +303,14 @@ class Project(Component):
                          component_name="actions")
         ValidatorComponent(communicator=self.comm,
                            component_name="validator")
+
+        # Window and adjoint source components.
+        WindowsComponent(windows_folder=self.paths["windows"],
+                         communicator=self.comm,
+                         component_name="windows")
+        AdjointSourcesComponent(ad_src_folder=self.paths["adjoint_sources"],
+                                communicator=self.comm,
+                                component_name="adjoint_sources")
 
     def __setup_paths(self, root_path):
         """
