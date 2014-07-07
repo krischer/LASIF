@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-import itertools
-import warnings
 
+import fnmatch
+import itertools
 import obspy
 import os
+import warnings
 
 from lasif import LASIFNotFoundError, LASIFError, LASIFWarning
 from lasif.tools.waveform_cache import WaveformCache
@@ -260,7 +261,7 @@ class WaveformsComponent(Component):
             msg = "No data for event '%s' and station '%s' found." % (
                 event_name, station_id)
             raise LASIFNotFoundError(msg)
-        return values
+        return self._convert_timestamps(values)
 
     def get_metadata_processed(self, event_name, tag):
         waveform_cache = self._get_waveform_cache_file(event_name,
@@ -273,6 +274,18 @@ class WaveformsComponent(Component):
             raise LASIFNotFoundError(msg)
         return self._convert_timestamps(waveform_cache.get_values())
 
+    def get_metadata_processed_for_station(self, event_name, tag, station_id):
+        waveform_cache = self._get_waveform_cache_file(event_name,
+                                                       data_type="processed",
+                                                       tag_or_iteration=tag)
+        network_id, station_id = station_id.split(".")
+        values = waveform_cache.get_files_for_station(network_id, station_id)
+        if not values:
+            msg = "No processed data for event '%s', tag '%s', and station " \
+                  "'%s' found." % (event_name, tag, station_id)
+            raise LASIFNotFoundError(msg)
+        return self._convert_timestamps(values)
+
     def get_metadata_synthetic(self, event_name, long_iteration_name):
         waveform_cache = self._get_waveform_cache_file(
             event_name, data_type="synthetic",
@@ -284,3 +297,54 @@ class WaveformsComponent(Component):
                    (event_name, long_iteration_name))
             raise LASIFNotFoundError(msg)
         return self._convert_timestamps(waveform_cache.get_values())
+
+    def get_metadata_synthetic_for_station(self, event_name,
+                                           long_iteration_name, station_id):
+        waveform_cache = self._get_waveform_cache_file(
+            event_name, data_type="synthetic",
+            tag_or_iteration=long_iteration_name)
+        network_id, station_id = station_id.split(".")
+        values = waveform_cache.get_files_for_station(network_id, station_id)
+        if not values:
+            msg = "No synthetic data for event '%s', iteration '%s', " \
+                  "and station '%s' found." % (
+                  event_name, long_iteration_name, station_id)
+            raise LASIFNotFoundError(msg)
+        return self._convert_timestamps(values)
+
+    def get_available_processing_tags(self, event_name):
+        """
+        Returns the available processing tags for a given event.
+
+        :param event_name: The event name.
+        """
+        data_dir = os.path.join(self._data_folder, event_name)
+        if not os.path.exists(data_dir):
+            raise LASIFNotFoundError("No data for event '%s'." % event_name)
+        tags = []
+        for tag in os.listdir(data_dir):
+            # Only interested in preprocessed data.
+            if not tag.startswith("preprocessed") or \
+                    tag.endswith("_cache.sqlite"):
+                continue
+            tags.append(tag)
+        return tags
+
+    def get_available_synthetics(self, event_name):
+        """
+        Returns the available synthetics for a given event.
+
+        :param event_name: The event name.
+        """
+        data_dir = os.path.join(self._synthetics_folder, event_name)
+        if not os.path.exists(data_dir):
+            raise LASIFNotFoundError("No synthetic data for event '%s'." %
+                                     event_name)
+        iterations = []
+        for folder in os.listdir(data_dir):
+            if not os.path.isdir(os.path.join(
+                    self._synthetics_folder, event_name, folder)) \
+                    or not fnmatch.fnmatch(folder, "ITERATION_*"):
+                continue
+            iterations.append(folder.lstrip("ITERATION_"))
+        return iterations
