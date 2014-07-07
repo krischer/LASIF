@@ -346,5 +346,5 @@ class WaveformsComponent(Component):
                     self._synthetics_folder, event_name, folder)) \
                     or not fnmatch.fnmatch(folder, "ITERATION_*"):
                 continue
-            iterations.append(folder.lstrip("ITERATION_"))
+            iterations.append(folder)
         return iterations

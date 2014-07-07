@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import collections
+import os
 
 from lasif import LASIFNotFoundError
 
@@ -215,3 +216,71 @@ class QueryComponent(Component):
         from ..tools.data_synthetics_iterator import DataSyntheticIterator
         return DataSyntheticIterator(self.comm, iteration_name, event_name,
                                      scale_data)
+
+    def discover_available_data(self, event_name, station_id):
+        """
+        Discovers the available data for one event at a certain station.
+
+        Will raise a :exc:`~lasif.LASIFNotFoundError` if no raw data is
+        found for the given event and station combination.
+
+        :type event_name: str
+        :param event_name: The name of the event.
+        :type station_id: str
+        :param station_id: The id of the station in question.
+
+        :rtype: dict
+        :returns: Return a dictionary with "processed" and "synthetic" keys.
+            Both values will be a list of strings. In the case of "processed"
+            it will be a list of all available preprocessing tags. In the case
+            of the synthetics it will be a list of all iterations for which
+            synthetics are available.
+        """
+        if not self.comm.events.has_event(event_name):
+            msg = "Event '%s' not found in project." % event_name
+            raise LASIFNotFoundError(msg)
+        # Attempt to get the station coordinates. This ensures availability
+        # of the raw data.
+        self.get_coordinates_for_station(event_name, station_id)
+
+        def get_components(waveform_cache):
+            return sorted([_i["channel"][-1] for _i in waveform_cache],
+                          reverse=True)
+
+        raw = self.comm.waveforms.get_metadata_raw_for_station(event_name,
+                                                               station_id)
+        raw_comps = get_components(raw)
+
+        # Collect all tags and iteration names.
+        all_files = {
+            "raw": {"raw": raw_comps},
+            "processed": {},
+            "synthetic": {}}
+
+        # Get the available synthetic and processing tags.
+        proc_tags = self.comm.waveforms.get_available_processing_tags(
+            event_name)
+        iterations = self.comm.waveforms.get_available_synthetics(event_name)
+
+        for tag in proc_tags:
+            procs = self.comm.waveforms.get_metadata_processed_for_station(
+                event_name, tag, station_id)
+            comps = get_components(procs)
+            if not comps:
+                continue
+            all_files["processed"][tag] = comps
+
+        synthetic_coordinates_mapping = {"X": "N",
+                                         "Y": "E",
+                                         "Z": "Z",
+                                         "N": "N",
+                                         "E": "E"}
+        for it in iterations:
+            its = self.comm.waveforms.get_metadata_synthetic_for_station(
+                event_name, it, station_id)
+            comps = get_components(its)
+            if not comps:
+                continue
+            comps = [synthetic_coordinates_mapping[i] for i in comps]
+            all_files["synthetic"][it] = sorted(comps, reverse=True)
+        return all_files

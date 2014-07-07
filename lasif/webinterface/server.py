@@ -227,24 +227,21 @@ def get_event_details(event_name):
 
 @app.route("/rest/available_data/<event_name>/<station_id>")
 def get_available_data(event_name, station_id):
-    available_data = app.project.discover_available_data(event_name,
-                                                         station_id)
+    available_data = app.comm.query.discover_available_data(event_name,
+                                                            station_id)
     return flask.jsonify(**available_data)
 
 
 @app.route("/rest/get_data/<event_name>/<station_id>/<name>")
 def get_data(event_name, station_id, name):
     if name == "raw":
-        st = app.project.get_waveform_data(event_name, station_id,
-                                           data_type="raw")
+        st = app.comm.waveforms.get_waveforms_raw(event_name, station_id)
     elif name.startswith("preprocessed_"):
-        st = app.project.get_waveform_data(event_name, station_id,
-                                           data_type="processed",
-                                           tag=name)
+        st = app.comm.waveforms.get_waveforms_processed(
+            event_name, station_id, tag=name)
     else:
-        st = app.project.get_waveform_data(event_name, station_id,
-                                           data_type="synthetic",
-                                           iteration_name=name)
+        st = app.comm.waveforms.get_waveforms_synthetic(
+            event_name, station_id, long_iteration_name=name)
 
     BIN_LENGTH = 2000
     data = {}
