@@ -14,13 +14,14 @@ things need to happen in order. Better then nothing.
 """
 import inspect
 import itertools
-import obspy
 import os
 import shutil
 import time
 
+import obspy
+
 from lasif import LASIFWarning
-from lasif.tools.station_cache import StationCache
+from tools.cache_helpers.station_cache import StationCache
 
 
 def test_station_cache(tmpdir):

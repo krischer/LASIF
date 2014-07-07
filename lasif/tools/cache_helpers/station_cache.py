@@ -10,15 +10,16 @@ Station Cache class.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import glob
-import obspy
-from obspy.xseed import Parser
 import os
 import sqlite3
-import warnings
+
+import obspy
+from obspy.xseed import Parser
 
 from lasif import LASIFError
 from lasif.tools import simple_resp_parser
-from lasif.tools.file_info_cache import FileInfoCache
+from tools.cache_helpers.file_info_cache import FileInfoCache
+
 
 # The tolerances to which station coordinates for different locations are
 # considered equal.

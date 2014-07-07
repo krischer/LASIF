@@ -143,7 +143,7 @@ def parallel_map(func, iterable, n_jobs=-1, verbose=1,
     arguments. It will return a list FunctionInfo objects containing
     information about the execution of the function on each of the inputs.
 
-    >>> from lasif.tools.parallel import parallel_map #doctest: +SKIP
+    >>> from lasif.tools.parallel_helpers import parallel_map #doctest: +SKIP
     >>> def square(a): #doctest: +SKIP
     ...     return a ** 2
     >>> for result in parallel_map(square, [{"a": i} for i in xrange(3)]): \

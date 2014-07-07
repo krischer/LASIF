@@ -14,7 +14,7 @@ import warnings
 
 from lasif import LASIFError
 from lasif.tools.colored_logger import ColoredLogger
-from lasif.tools.parallel import parallel_map
+from lasif.tools.parallel_helpers import parallel_map
 
 
 def preprocess_file(processing_info):

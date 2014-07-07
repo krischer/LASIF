@@ -77,10 +77,11 @@ setup_config = dict(
             "iris2quakeml = lasif.scripts.iris2quakeml:main"
         ],
         # Register the SES3D reading function with ObsPy.
-        "obspy.plugin.waveform": "SES3D = lasif.ses3d_file_parser",
+        "obspy.plugin.waveform":
+            "SES3D = lasif.file_handling.s3d_file_parser",
         "obspy.plugin.waveform.SES3D": [
-            "isFormat = lasif.ses3d_file_parser:is_SES3D",
-            "readFormat = lasif.ses3d_file_parser:read_SES3D"
+            "isFormat = lasif.file_handling.ses3d_file_parser:is_SES3D",
+            "readFormat = lasif.file_handling.ses3d_file_parser:read_SES3D"
         ]
     }
 )

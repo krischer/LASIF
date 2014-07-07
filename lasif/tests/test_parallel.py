@@ -9,7 +9,7 @@ Test suite for the parallel helper methods.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
-from lasif.tools.parallel import function_info, parallel_map
+from lasif.tools.parallel_helpers import function_info, parallel_map
 import warnings
 
 

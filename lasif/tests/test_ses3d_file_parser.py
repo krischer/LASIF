@@ -11,11 +11,13 @@ Test suite for the SES3D file parser.
 """
 from glob import glob
 import inspect
-import numpy as np
 import os
 from StringIO import StringIO
 
-from lasif.ses3d_file_parser import is_SES3D, read_SES3D
+import numpy as np
+
+from tools.parsers_and_converters.ses3d_file_parser import is_SES3D, read_SES3D
+
 
 
 # Most generic way to get the actual data directory.

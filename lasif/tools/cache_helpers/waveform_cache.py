@@ -11,11 +11,12 @@ Cache taking care of a single waveform directory.
 """
 import glob
 from itertools import izip
-import obspy
 import os
 import warnings
 
-from lasif.tools.file_info_cache import FileInfoCache
+import obspy
+
+from tools.cache_helpers.file_info_cache import FileInfoCache
 
 
 class WaveformCache(FileInfoCache):

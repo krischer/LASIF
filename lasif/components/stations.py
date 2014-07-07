@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import obspy
 import os
 
-from lasif import LASIFNotFoundError
+import obspy
 
+from lasif import LASIFNotFoundError
 from .component import Component
 
 
@@ -67,7 +67,7 @@ class StationsComponent(Component):
         need it to be reflected immediatly. The next invocation of LASIF
         will update the cache automatically.
         """
-        from lasif.tools.station_cache import StationCache
+        from tools.cache_helpers.station_cache import StationCache
         self.__cached_station_cache = StationCache(
             os.path.join(self.cache_folder, "station_cache.sqlite"),
             self.seed_folder, self.resp_folder, self.stationxml_folder)

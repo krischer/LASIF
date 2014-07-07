@@ -21,7 +21,6 @@ import sys
 import warnings
 
 from lasif import LASIFError
-from lasif.tools.event_pseudo_dict import EventPseudoDict
 
 
 # SES3D currently only identifies synthetics  via the filename. Use this

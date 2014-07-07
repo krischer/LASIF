@@ -13,10 +13,10 @@ import inspect
 import obspy
 import os
 
-from lasif.tools import simple_resp_parser
-
 
 # Most generic way to get the actual data directory.
+from tools.parsers_and_converters import simple_resp_parser
+
 data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
     inspect.currentframe()))), "data")
 

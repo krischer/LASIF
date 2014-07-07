@@ -31,7 +31,6 @@ from lasif.project import Project
 from lasif.tests.testing_helpers import project  # NOQA
 from lasif.tests.testing_helpers import images_are_identical, \
     reset_matplotlib, DATA
-from lasif.tools.event_pseudo_dict import EventPseudoDict
 
 
 def setup_function(function):

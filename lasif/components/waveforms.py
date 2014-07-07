@@ -4,13 +4,13 @@ from __future__ import absolute_import
 
 import fnmatch
 import itertools
-import obspy
 import os
 import warnings
 
-from lasif import LASIFNotFoundError, LASIFError, LASIFWarning
-from lasif.tools.waveform_cache import WaveformCache
+import obspy
 
+from lasif import LASIFNotFoundError, LASIFWarning
+from tools.cache_helpers.waveform_cache import WaveformCache
 from .component import Component
 
 
