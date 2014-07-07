@@ -51,7 +51,7 @@ name and the event name.
 
 .. code-block:: bash
 
-    $ lasif launch_misfit_gui 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+    $ lasif launch_misfit_gui 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 
 This will open a window akin to the following:
@@ -108,7 +108,7 @@ name.
 
 .. code-block:: bash
 
-    $ lasif finalize_adjoint_sources 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+    $ lasif finalize_adjoint_sources 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 This will also rotate the adjoint sources to the frame of reference used in the
 simulations.

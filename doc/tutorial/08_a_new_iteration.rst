@@ -171,10 +171,26 @@ It is a rather self-explaining file; some things to look out for:
   part will be replaced by the actual event name. This means that the file
   does not have to be adjusted for every event.
 
-The file shown here has already been adjusted for the tutorial example. For
-this tutorial we will run a simulation on 4 cores (should be suitable for your
-Desktop PC/Laptop) for 2000 timesteps with a time delta of 0.3 seconds. Please
-also adjust the file.
+.. note::
+
+    The file shown here has already been adjusted for the tutorial example.
+    For the tutorial we will run a simulation on 4 cores (should be suitable
+    for your Desktop PC/Laptop) for 2000 timesteps with a time delta of 0.3
+    seconds. Please make sure to also adjust the file. The following
+    parameters are essential in almost all cases (shown here with the values
+    for the tutorial):
+
+    * ``number_of_time_steps``: ``2000``
+    * ``time_increment``: ``0.3``
+    * ``is_dissipative``: ``false`` (in a real world application set this to ``true``)
+    * ``nx_global``: ``24``
+    * ``ny_global``: ``24``
+    * ``nz_global``: ``15``
+    * ``px_processors_in_theta_direction``: ``2``
+    * ``py_processors_in_phi_direction``: ``2``
+    * ``pz_processors_in_r_direction``: ``1``
+
+    Please refer to the SES3D documentation for more information.
 
 
 Source Time Functions

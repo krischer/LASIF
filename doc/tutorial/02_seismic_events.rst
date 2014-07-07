@@ -27,8 +27,8 @@ These commands will download two event files and store them in the
 
     $ ls EVENTS
 
-    GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
-    GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+    GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml
+    GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
 
 A more convenient way to see which events are currently defined in the
 project is the ``lasif list_events`` command.
@@ -38,12 +38,12 @@ project is the ``lasif list_events`` command.
     $ lasif list_events
 
     2 events in project:
-    +--------------------------------------------------------------+-----------------------------+---------------------+
-    | Event Name                                                   |    Lat/Lng/Depth(km)/Mag    | # raw/preproc/synth |
-    +--------------------------------------------------------------+-----------------------------+---------------------+
-    | GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14            |   44.9 /    8.5 /  10 / 4.9 |    0 /     0 /    0 |
-    | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2 |   43.3 /   20.8 /   9 / 5.9 |    0 /     0 /    0 |
-    +--------------------------------------------------------------+-----------------------------+---------------------+
+    +------------------------------------------------------------+--------------------------+---------------------+
+    | Event Name                                                 |  Lat/Lng/Depth(km)/Mag   | # raw/preproc/synth |
+    +------------------------------------------------------------+--------------------------+---------------------+
+    | GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             |   44.9 / 8.5  / 10 / 4.9 |    0 /     0 /    0 |
+    | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 |   43.3 / 20.8 /  9 / 5.9 |    0 /     0 /    0 |
+    +------------------------------------------------------------+------------------------+-----------------------+
 
 You will notice that events are identified via their filename minus the
 extension. This is an easy and flexible solution enabling you to tag the events

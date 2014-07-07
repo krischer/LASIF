@@ -34,7 +34,7 @@ just execute:
 
 .. code-block:: bash
 
-    $ lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+    $ lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
     Earthquake with 4.9 Mwc at NORTHERN ITALY
     Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
@@ -65,7 +65,7 @@ including a very simple ray coverage plot with:
 
 .. code-block:: bash
 
-    $ lasif plot_event GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+    $ lasif plot_event GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 
 .. plot::
@@ -77,8 +77,8 @@ including a very simple ray coverage plot with:
         rotation_axis=[1.0, 1.0, 0.2], rotation_angle_in_degree=-65.0,
         plot_simulation_domain=False, zoom=True)
     event_info = {'depth_in_km': 10.0,
-        'event_name': 'GCMT_EVENT_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14',
-        'filename': 'GCMT_EVENT_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml',
+        'event_name': 'GCMT_EVENT_NORTHERN_ITALY_Mag_4.9_2000-8-21-17',
+        'filename': 'GCMT_EVENT_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml',
         'latitude': 44.87, 'longitude': 8.48, 'm_pp': 1.189e+16,
         'm_rp': -1600000000000000.0, 'm_rr': -2.271e+16,
         'm_rt': -100000000000000.0, 'm_tp': -2.075e+16, 'm_tt': 1.082e+16,

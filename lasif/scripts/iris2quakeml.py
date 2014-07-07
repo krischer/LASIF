@@ -94,10 +94,10 @@ def iris2quakeml(url, output_folder=None):
     region_name = fe.get_region(ev.origins[0].longitude,
                                 ev.origins[0].latitude)
     region_name = region_name.replace(" ", "_")
-    event_name = "GCMT_event_%s_Mag_%.1f_%s-%s-%s-%s-%s.xml" % \
+    event_name = "GCMT_event_%s_Mag_%.1f_%s-%s-%s-%s.xml" % \
         (region_name, ev.magnitudes[0].mag, ev.origins[0].time.year,
          ev.origins[0].time.month, ev.origins[0].time.day,
-         ev.origins[0].time.hour, ev.origins[0].time.minute)
+         ev.origins[0].time.hour)
 
     if output_folder:
         event_name = os.path.join(output_folder, event_name)
