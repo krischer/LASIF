@@ -145,6 +145,38 @@ def generate_specfem3d_cartesian_template():
     return doc
 
 
+def generate_specfem3d_globe_cem_template():
+    """
+    Generates a template for SPECFEM3D GLOBE CEM input files.
+
+    Returns the etree representation.
+    """
+    doc = E.solver_settings(
+        E.simulation_parameters(
+            E.number_of_time_steps("2000"),
+            E.time_increment("0.1")),
+        E.local_path("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
+        E.local_temp_path("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
+        E.computational_setup(
+            E.number_of_processors_xi("5"),
+            E.number_of_processors_eta("5"),
+            E.number_of_chunks("1"),
+            E.elements_per_chunk_xi("240"),
+            E.elements_per_chunk_eta("240"),
+            E.simulate_oceans("true"),
+            E.simulate_ellipticity("false"),
+            E.simulate_topography("true"),
+            E.simulate_gravity("false"),
+            E.simulate_rotation("false"),
+            E.simulate_attenuation("true"),
+            E.partial_physical_dispersion_only("true"),
+            E.fast_undo_attenuation("false"),
+            E.use_gpu("false")
+            ))
+
+    return doc
+
+
 def point_in_domain(latitude, longitude, domain,
                     rotation_axis=[0.0, 0.0, 1.0],
                     rotation_angle_in_degree=0.0):

@@ -139,15 +139,15 @@ class ActionsComponent(Component):
         print("Logfile written to '%s'." % os.path.relpath(logfile))
 
     def generate_input_files(self, iteration_name, event_name,
-                             simulation_type):
+                             simulate_type):
         """
         Generate the input files for one event.
 
         :param iteration_name: The name of the iteration.
         :param event_name: The name of the event for which to generate the
             input files.
-        :param simulation_type: The type of simulation to perform. Possible
-            values are: 'normal simulation', 'adjoint forward', 'adjoint
+        :param simulate_type: The type of simulation to perform. Possible
+            values are: 'normal simulate', 'adjoint forward', 'adjoint
             reverse'
         """
         from wfs_input_generator import InputFileGenerator
@@ -188,9 +188,9 @@ class ActionsComponent(Component):
         # Currently only SES3D 4.1 is supported
         solver_format = solver["solver"].lower()
         if solver_format not in ["ses3d 4.1", "ses3d 2.0",
-                                 "specfem3d cartesian"]:
-            msg = ("Currently only SES3D 4.1, SES3D 2.0, and SPECFEM3D "
-                   "CARTESIAN are supported.")
+                                 "specfem3d cartesian", "specfem3d globe cem"]:
+            msg = ("Currently only SES3D 4.1, SES3D 2.0, SPECFEM3D "
+                   "CARTESIAN, and SPECFEM3D GLOBE CEM are supported.")
             raise ValueError(msg)
         solver_format = solver_format.replace(' ', '_')
         solver_format = solver_format.replace('.', '_')
@@ -212,15 +212,15 @@ class ActionsComponent(Component):
             gen.config.event_tag = event_name
 
             # Time configuration.
-            npts = solver["simulation_parameters"]["number_of_time_steps"]
-            delta = solver["simulation_parameters"]["time_increment"]
+            npts = solver["simulate_parameters"]["number_of_time_steps"]
+            delta = solver["simulate_parameters"]["time_increment"]
             gen.config.number_of_time_steps = npts
             gen.config.time_increment_in_s = delta
 
             # SES3D specific configuration
             gen.config.output_folder = solver["output_directory"].replace(
                 "{{EVENT_NAME}}", event_name.replace(" ", "_"))
-            gen.config.simulation_type = simulation_type
+            gen.config.simulate_type = simulation_type
 
             gen.config.adjoint_forward_wavefield_output_folder = \
                 solver["adjoint_output_parameters"][
@@ -231,7 +231,7 @@ class ActionsComponent(Component):
                     "sampling_rate_of_forward_field"]
 
             # Visco-elastic dissipation
-            diss = solver["simulation_parameters"]["is_dissipative"]
+            diss = solver["simulate_parameters"]["is_dissipative"]
             gen.config.is_dissipative = diss
 
             # Only SES3D 4.1 has the relaxation parameters.
@@ -276,25 +276,70 @@ class ActionsComponent(Component):
                 iteration.get_source_time_function()["data"]
         elif solver_format == "specfem3d_cartesian":
             gen.config.NSTEP = \
-                solver["simulation_parameters"]["number_of_time_steps"]
+                solver["simulate_parameters"]["number_of_time_steps"]
             gen.config.DT = \
-                solver["simulation_parameters"]["time_increment"]
+                solver["simulate_parameters"]["time_increment"]
             gen.config.NPROC = \
                 solver["computational_setup"]["number_of_processors"]
-            if simulation_type == "normal simulation":
-                msg = ("'normal_simulation' not supported for SPECFEM3D "
+            if simulate_type == "normal simulation":
+                msg = ("'normal_simulate' not supported for SPECFEM3D "
                        "Cartesian. Please choose either 'adjoint_forward' or "
                        "'adjoint_reverse'.")
                 raise NotImplementedError(msg)
-            elif simulation_type == "adjoint forward":
+            elif simulate_type == "adjoint forward":
                 gen.config.SIMULATION_TYPE = 1
-            elif simulation_type == "adjoint reverse":
+            elif simulate_type == "adjoint reverse":
                 gen.config.SIMULATION_TYPE = 2
             else:
                 raise NotImplementedError
             solver_format = solver_format.upper()
+
+        elif solver_format == "specfem3d_globe_cem":
+            cs = solver["computational_setup"]
+            gen.config.NPROC_XI = cs["number_of_processors_xi"]
+            gen.config.NPROC_ETA = cs["number_of_processors_eta"]
+            gen.config.NCHUNKS = cs["number_of_chunks"]
+            gen.config.NEX_XI = cs["elements_per_chunk_xi"]
+            gen.config.NEX_ETA = cs["elements_per_chunk_eta"]
+            gen.config.OCEANS = cs["simulate_oceans"]
+            gen.config.ELLIPTICITY = cs["simulate_ellipticity"]
+            gen.config.TOPOGRAPHY = cs["simulate_topography"]
+            gen.config.GRAVITY = cs["simulate_gravity"]
+            gen.config.ROTATION = cs["simulate_rotation"]
+            gen.config.ATTENUATION = cs["simulate_attenuation"]
+            gen.config.PARTIAL_PHYS_DISPERSION_ONLY = \
+                cs["partial_physical_dispersion_only"]
+            if cs["fast_undo_attenuation"]:
+                gen.config.ATTENUATION_1D_WITH_3D_STORAGE = True
+                gen.config.UNDO_ATTENUATION = False
+            else:
+                gen.config.ATTENUATION_1D_WITH_3D_STORAGE = False
+                gen.config.UNDO_ATTENUATION = True
+            gen.config.GPU_MODE = cs["use_gpu"]
+            gen.config.SOURCE_TIME_FUNCTION = \
+                iteration.get_source_time_function()["data"]
+
+            if simulate_type == "normal simulation":
+                gen.config.SIMULATION_TYPE = 1
+                gen.config.SAVE_FORWARD = False
+            elif simulate_type == "adjoint forward":
+                gen.config.SIMULATION_TYPE = 1
+                gen.config.SAVE_FORWARD = True
+            elif simulate_type == "adjoint reverse":
+                gen.config.SIMULATION_TYPE = 2
+                gen.config.SAVE_FORWARD = True
+            else:
+                raise NotImplementedError
+
+            gen.config.MODEL = "CEM_ACCEPT"
+
+            pp = iteration.get_process_params()
+            gen.config.RECORD_LENGTH_IN_MINUTES = \
+                (pp["npts"] * pp["dt"]) / 60.0
+            solver_format = solver_format.upper()
+
         else:
-            msg = "Unknown solver."
+            msg = "Unknown solver '%s'." % solver_format
             raise NotImplementedError(msg)
 
         # =================================================================
@@ -302,7 +347,7 @@ class ActionsComponent(Component):
         # =================================================================
         output_dir = self.comm.project.get_output_folder(
             "input_files___ITERATION_%s__%s__EVENT_%s" % (
-                iteration_name, simulation_type.replace(" ", "_"),
+                iteration_name, simulate_type.replace(" ", "_"),
                 event_name))
 
         gen.write(format=solver_format, output_dir=output_dir)
