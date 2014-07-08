@@ -132,13 +132,30 @@ class Window(object):
 
     def __init__(self, starttime, endtime, weight, taper,
                  taper_percentage, misfit, misfit_value):
-        self.starttime = starttime
-        self.endtime = endtime
-        self.weight = weight
-        self.taper = taper
+        self.starttime = UTCDateTime(starttime)
+        self.endtime = UTCDateTime(endtime)
+        self.weight = float(weight)
+        self.taper = str(taper)
+        taper_percentage = float(taper_percentage)
+        if not 0.0 <= taper_percentage <= 0.5:
+            raise ValueError("Invalid taper percentage.")
         self.taper_percentage = taper_percentage
-        self.misfit = misfit
-        self.misfit_value = misfit_value
+        self.misfit = str(misfit)
+        self.misfit_value = float(misfit_value)
+
+    def __eq__(self, other):
+        if not isinstance(other, Window):
+            return False
+        return self.starttime == other.starttime and \
+            self.endtime == other.endtime and \
+            self.weight == other.weight and \
+            self.taper == other.taper and \
+            self.taper_percentage == other.taper_percentage and \
+            self.misfit == other.misfit and \
+            self.misfit_value == other.misfit_value
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __str__(self):
         return (
@@ -155,6 +172,10 @@ class Window(object):
             value=" (%.3g)" % self.misfit_value
                 if self.misfit_value is not None else "")
 
+    @property
+    def duration(self):
+        return self.endtime - self.starttime
+
 
 class WindowCollection(object):
     def __init__(self, filename, windows=None, event_name=None,
@@ -163,6 +184,13 @@ class WindowCollection(object):
             raise ValueError("An existing file and new windows is not "
                              "allowed. Either only a file or windows and a "
                              "non-existing file")
+        if not os.path.exists(filename) and \
+                None in [event_name, channel_id, synthetics_tag]:
+            raise ValueError("If the file does not yet exist, "
+                             "'event_name', 'channel_id', "
+                             "and 'synthetics_tag' must all exist.")
+
+
         self.filename = filename
         self.event_name = event_name
         self.channel_id = channel_id
@@ -172,7 +200,20 @@ class WindowCollection(object):
         if os.path.exists(filename):
             self._parse()
         else:
-            self.windows.extend(windows)
+            if windows:
+                self.windows.extend(windows)
+
+    def __eq__(self, other):
+        if not isinstance(other, WindowCollection):
+            return False
+        return self.filename == other.filename and \
+            self.event_name == other.event_name and \
+            self.channel_id == other.channel_id and \
+            self.synthetics_tag == other.synthetics_tag and \
+            self.windows == other.windows
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __str__(self):
         ret_str = ("Window group for channel '{channel_id}' with {count} "
@@ -207,7 +248,8 @@ class WindowCollection(object):
             taper=taper,
             taper_percentage=float(taper_percentage),
             misfit=misfit,
-            misfit_value=float(misfit_value) if misfit_value else None))
+            misfit_value=float(misfit_value)
+            if misfit_value is not None else None))
 
     def _parse(self):
         root = etree.parse(self.filename).getroot()
@@ -256,7 +298,7 @@ class WindowCollection(object):
                 w["misfit"],
                 w["misfit_value"] if "misfit_value" in w else None)
 
-    def write(self, filename):
+    def write(self):
         """
         Writes the window group to the specified filename.
 
@@ -280,8 +322,8 @@ class WindowCollection(object):
             E.MisfitWindow(
                 E.Event(self.event_name),
                 E.ChannelID(self.channel_id),
-                E.SyntheticsTag(self.synthetic_tag),
+                E.SyntheticsTag(self.synthetics_tag),
                 *windows))
-        with open(filename, "wb") as fh:
+        with open(self.filename, "wb") as fh:
             fh.write(etree.tostring(doc, pretty_print=True,
                                     xml_declaration=True, encoding="utf-8"))
