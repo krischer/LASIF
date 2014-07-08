@@ -93,10 +93,11 @@ class Window(object):
     Object representing one window.
     """
     __slots__ = ["starttime", "endtime", "weight", "taper",
-                 "taper_percentage", "misfit", "__misfit_value"]
+                 "taper_percentage", "misfit", "__misfit_value",
+                 "__collection"]
 
     def __init__(self, starttime, endtime, weight, taper,
-                 taper_percentage, misfit, misfit_value):
+                 taper_percentage, misfit, misfit_value, collection):
         self.starttime = UTCDateTime(starttime)
         self.endtime = UTCDateTime(endtime)
         self.weight = float(weight)
@@ -108,6 +109,8 @@ class Window(object):
         self.misfit = str(misfit)
         self.__misfit_value = float(misfit_value) \
             if misfit_value is not None else None
+        # Reference to the window collection.
+        self.__collection = collection
 
     @property
     def misfit_value(self):
@@ -116,6 +119,21 @@ class Window(object):
         calculated and thus is potentially an expensive operation.
         """
         return self.__misfit_value
+
+    def get_adjoint_source(self):
+        """
+        Returns the adjoint source for the window. If not available it will
+        be calculated and cached for future access. Calling this function
+        will also set the misfit value of the window. Don't forget to write
+        the window collection!
+        """
+        pass
+
+    @property
+    def ad_src_filename(self):
+        """
+        Filename of the adjoint source.
+        """
 
     def __eq__(self, other):
         if not isinstance(other, Window):
@@ -143,7 +161,7 @@ class Window(object):
             taper=self.taper,
             perc=self.taper_percentage * 100.0,
             misfit=self.misfit,
-            value="%.3)" % self.__misfit_value
+            value="%.3g" % self.__misfit_value
                 if self.__misfit_value is not None else "not calculated")
 
     @property
@@ -233,7 +251,8 @@ class WindowCollection(object):
             taper_percentage=float(taper_percentage),
             misfit=misfit,
             misfit_value=float(misfit_value)
-            if misfit_value is not None else None))
+            if misfit_value is not None else None,
+            collection=self))
 
     def delete_window(self, starttime, endtime, tolerance=0.01):
         """

@@ -35,6 +35,14 @@ class WaveformsComponent(Component):
 
     def get_waveform_folder(self, event_name, data_type,
                             tag_or_iteration=None):
+        """
+        Returns the folder where the waveforms are stored.
+
+        :param event_name: Name of the event.
+        :param data_type: The type of data, one of ``"raw"``,
+            ``"processed"``, ``"synthetic"``
+        :param tag_or_iteration: The processing tag or iteration name if any.
+        """
         if data_type == "raw":
             return os.path.join(self._data_folder, event_name, "raw")
         elif data_type == "processed":
@@ -98,14 +106,37 @@ class WaveformsComponent(Component):
         return values
 
     def get_waveforms_raw(self, event_name, station_id):
+        """
+        Gets the raw waveforms for the given event and station as a
+        :class:`~obspy.core.stream.Stream` object.
+
+        :param event_name: The name of the event.
+        :param station_id: The id of the station in the form NET.STA.
+        """
         return self._get_waveforms(event_name, station_id, data_type="raw")
 
     def get_waveforms_processed(self, event_name, station_id, tag):
+        """
+        Gets the processed waveforms for the given event and station as a
+        :class:`~obspy.core.stream.Stream` object.
+
+        :param event_name: The name of the event.
+        :param station_id: The id of the station in the form NET.STA.
+        :param tag: The processing tag.
+        """
         return self._get_waveforms(event_name, station_id,
                                    data_type="processed", tag_or_iteration=tag)
 
     def get_waveforms_synthetic(self, event_name, station_id,
                                 long_iteration_name):
+        """
+        Gets the synthetic waveforms for the given event and station as a
+        :class:`~obspy.core.stream.Stream` object.
+
+        :param event_name: The name of the event.
+        :param station_id: The id of the station in the form NET.STA.
+        :param long_iteration_name: The long form of an iteration name.
+        """
         from lasif import rotations
 
         st = self._get_waveforms(event_name, station_id,
@@ -264,6 +295,12 @@ class WaveformsComponent(Component):
         return self._convert_timestamps(values)
 
     def get_metadata_processed(self, event_name, tag):
+        """
+        Get the processed metadata.
+
+        :param event_name: The name of the event.
+        :param tag: The processing tag.
+        """
         waveform_cache = self._get_waveform_cache_file(event_name,
                                                        data_type="processed",
                                                        tag_or_iteration=tag)
@@ -275,6 +312,15 @@ class WaveformsComponent(Component):
         return self._convert_timestamps(waveform_cache.get_values())
 
     def get_metadata_processed_for_station(self, event_name, tag, station_id):
+        """
+        Get the processed metadata for a single station.
+
+        Same as :meth:`~.get_metadata_processed` but for a single station.
+
+        :param event_name: The name of the event.
+        :param tag: The processing tag.
+        :param station_id: The id of the station in the form NET.STA.
+        """
         waveform_cache = self._get_waveform_cache_file(event_name,
                                                        data_type="processed",
                                                        tag_or_iteration=tag)
@@ -287,6 +333,13 @@ class WaveformsComponent(Component):
         return self._convert_timestamps(values)
 
     def get_metadata_synthetic(self, event_name, long_iteration_name):
+        """
+        Get the synthetics metadata.
+
+        :param event_name: The name of the event.
+        :param long_iteration_name: The long form of the iteration name.
+        :param station_id: The id of the station in the form NET.STA.
+        """
         waveform_cache = self._get_waveform_cache_file(
             event_name, data_type="synthetic",
             tag_or_iteration=long_iteration_name)
@@ -300,6 +353,15 @@ class WaveformsComponent(Component):
 
     def get_metadata_synthetic_for_station(self, event_name,
                                            long_iteration_name, station_id):
+        """
+        Get the synthetics metadata for a single station.
+
+        Same as :meth:`~.get_metadata_synthetic` but for a single station.
+
+        :param event_name: The name of the event.
+        :param long_iteration_name: The long form of the iteration name.
+        :param station_id: The id of the station in the form NET.STA.
+        """
         waveform_cache = self._get_waveform_cache_file(
             event_name, data_type="synthetic",
             tag_or_iteration=long_iteration_name)

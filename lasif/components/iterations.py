@@ -148,7 +148,8 @@ class IterationsComponent(Component):
         >>> comm.iterations.has_iteration("3")
         True
 
-        # Comments of an iteration will be stripped.
+        Comments of an iteration will be stripped.
+
         >>> comm.iterations.get("1").comments
         ['Some', 'random comments']
         >>> comm.iterations.get("3").comments

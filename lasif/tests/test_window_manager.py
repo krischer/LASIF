@@ -27,7 +27,8 @@ def test_window_class():
         taper="cosine",
         taper_percentage=0.05,
         misfit="RandomMisfit",
-        misfit_value=1E-5)
+        misfit_value=1e-5,
+        collection=None)
 
     assert win.length == 60.0
 
