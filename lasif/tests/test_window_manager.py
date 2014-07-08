@@ -29,7 +29,7 @@ def test_window_class():
         misfit="RandomMisfit",
         misfit_value=1E-5)
 
-    assert win.duration == 60.0
+    assert win.length == 60.0
 
     assert str(win) == (
         "60.00 seconds window from 2012-01-01T00:00:00.000000Z\n"
@@ -140,3 +140,124 @@ def test_window_collection_i_o(tmpdir):
 
     wc3 = WindowCollection(filename)
     assert wc == wc3
+
+
+def test_window_i_o_missing_taper_percentage(tmpdir):
+    """
+    Legacy test as older windows definitions have no taper percentage.
+
+    It thus should be added automatically.
+    """
+    tmpdir = str(tmpdir)
+    filename = os.path.join(tmpdir, "random.xml")
+
+    xml = (
+        "<?xml version='1.0' encoding='utf-8'?>\n"
+        "<MisfitWindow>\n"
+        "  <Event>SomeEvent</Event>\n"
+        "  <ChannelID>AA.BB.CC.DD</ChannelID>\n"
+        "  <SyntheticsTag>Iteration_A</SyntheticsTag>\n"
+        "  <Window>\n"
+        "    <Starttime>2012-01-01T00:00:00.000000Z</Starttime>\n"
+        "    <Endtime>2012-01-01T00:01:00.000000Z</Endtime>\n"
+        "    <Weight>0.5</Weight>\n"
+        "    <Taper>cosine</Taper>\n"
+        "    <Misfit>some misfit</Misfit>\n"
+        "    <MisfitValue>1e-05</MisfitValue>\n"
+        "  </Window>\n"
+        "</MisfitWindow>")
+    with open(filename, "wb") as fh:
+        fh.write(xml)
+
+    wc = WindowCollection(filename)
+    assert wc.windows[0].taper_percentage == 0.05
+
+    # Writing it again adds the taper percentage.
+    os.remove(filename)
+    wc.write()
+    with open(filename, "rb") as fh:
+        actual = fh.read().strip()
+    reference = (
+        "<?xml version='1.0' encoding='utf-8'?>\n"
+        "<MisfitWindow>\n"
+        "  <Event>SomeEvent</Event>\n"
+        "  <ChannelID>AA.BB.CC.DD</ChannelID>\n"
+        "  <SyntheticsTag>Iteration_A</SyntheticsTag>\n"
+        "  <Window>\n"
+        "    <Starttime>2012-01-01T00:00:00.000000Z</Starttime>\n"
+        "    <Endtime>2012-01-01T00:01:00.000000Z</Endtime>\n"
+        "    <Weight>0.5</Weight>\n"
+        "    <Taper>cosine</Taper>\n"
+        "    <TaperPercentage>0.05</TaperPercentage>\n"
+        "    <Misfit>some misfit</Misfit>\n"
+        "    <MisfitValue>1e-05</MisfitValue>\n"
+        "  </Window>\n"
+        "</MisfitWindow>")
+    assert reference == actual
+
+
+def test_no_windows_will_remove_existing_file(tmpdir):
+    """
+    A window collection that has no windows will attempt to remove its own
+    file if it has no windows without emitting a warnings.
+
+    This grants a natural way to get rid of empty windows.
+    """
+    tmpdir = str(tmpdir)
+    filename = os.path.join(tmpdir, "random.xml")
+
+    wc = WindowCollection(filename, event_name="SomeEvent",
+                          channel_id="AA.BB.CC.DD",
+                          synthetics_tag="Iteration_A")
+    wc.add_window(starttime=UTCDateTime(2012, 1, 1),
+                  endtime=UTCDateTime(2012, 1, 1, 0, 1),
+                  weight=0.5, taper="cosine", taper_percentage=0.08,
+                  misfit="some misfit", misfit_value=1E-5)
+    wc.write()
+
+    assert os.listdir(tmpdir) == [os.path.basename(filename)]
+    wc.windows = []
+    wc.write()
+    assert os.listdir(tmpdir) == []
+
+
+def test_delete_windows(tmpdir):
+    """
+    Tests the deletion of windows.
+    """
+    tmpdir = str(tmpdir)
+    filename = os.path.join(tmpdir, "random.xml")
+
+    wc = WindowCollection(filename, event_name="SomeEvent",
+                          channel_id="AA.BB.CC.DD",
+                          synthetics_tag="Iteration_A")
+    wc.add_window(starttime=UTCDateTime(2012, 1, 1),
+                  endtime=UTCDateTime(2012, 1, 1, 0, 1),
+                  weight=0.5, taper="cosine", taper_percentage=0.08,
+                  misfit="some misfit", misfit_value=1E-5)
+    # The last three windows differ by a second each.
+    wc.add_window(starttime=UTCDateTime(2013, 1, 1),
+                  endtime=UTCDateTime(2013, 1, 1, 0, 1),
+                  weight=0.5, taper="cosine", taper_percentage=0.08,
+                  misfit="some misfit", misfit_value=1E-5)
+    wc.add_window(starttime=UTCDateTime(2013, 1, 1),
+                  endtime=UTCDateTime(2013, 1, 1, 0, 1, 1),
+                  weight=0.5, taper="cosine", taper_percentage=0.08,
+                  misfit="some misfit", misfit_value=1E-5)
+    wc.add_window(starttime=UTCDateTime(2013, 1, 1),
+                  endtime=UTCDateTime(2013, 1, 1, 0, 1, 2),
+                  weight=0.5, taper="cosine", taper_percentage=0.08,
+                  misfit="some misfit", misfit_value=1E-5)
+
+    assert len(wc) == 4
+
+    wc.delete_window(starttime=UTCDateTime(2012, 1, 1),
+                     endtime=UTCDateTime(2012, 1, 1, 0, 1),
+                     tolerance=0.0)
+    assert len(wc) == 3
+
+    # 2 percent of one minute is 1.2 seconds.
+    wc.delete_window(starttime=UTCDateTime(2013, 1, 1),
+                     endtime=UTCDateTime(2013, 1, 1, 0, 1),
+                     tolerance=0.02)
+    assert len(wc) == 1

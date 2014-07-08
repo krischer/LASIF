@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-A class handling misfit windows based on a channel_id.
+Classes handling misfit windows.
 
 A single misfit window is identified by:
     * Starttime
@@ -10,12 +10,11 @@ A single misfit window is identified by:
     * Misfit Type
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013-2014
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from copy import deepcopy
 from glob import iglob
 from obspy import UTCDateTime
 from lxml import etree
@@ -25,7 +24,8 @@ import os
 
 class MisfitWindowManager(object):
     """
-    A simple class reading and writing Windows.
+    Class managing WindowCollections for windows from a specific event and
+    iteration.
     """
     def __init__(self, directory, synthetic_tag, event_name):
         self._directory = directory
@@ -49,12 +49,22 @@ class MisfitWindowManager(object):
         return sorted(windows)
 
     def get(self, channel_id):
+        """
+        Returns a window collection object for the given channel.
+
+        :param channel_id: The id of the channel in the form NET.STA.LOC.CHA
+        """
         windowfile = self._get_window_filename(channel_id)
         if not os.path.exists(windowfile):
             return {}
         return WindowCollection(filename=windowfile)
 
     def get_windows_for_station(self, station_id):
+        """
+        Get a list of window collection objects for the given station.
+
+        :param station_id: The id of the station in the form NET.STA
+        """
         channels = [_i for _i in self.list()
                     if _i.startswith(station_id + ".")]
         windows = []
@@ -62,71 +72,26 @@ class MisfitWindowManager(object):
             windows.append(self.get(channel_id))
         return windows
 
-    def delete_windows(self, channel_id):
+    def delete_windows_for_channel(self, channel_id):
         """
-        Deletes all windows for a certain channel.
+        Deletes all windows for a certain channel by removing the window
+        file for the channel.
 
-        In essence it will just delete the file.
-
-        :param channel_id: The channel id for the windows to delete.
+        :param channel_id: The channel id for the windows to delete in the
+            form NET.STA.LOC.CHA
         """
         windowfile = self._get_window_filename(channel_id)
         if os.path.exists(windowfile):
             os.remove(windowfile)
-
-    def delete_window(self, channel_id, starttime, endtime, tolerance=0.01):
-        """
-        Deletes one specific window.
-
-        If it is the only window in the file, the file will be deleted. A
-        window is specified with the channel_id, start- and endtime. A certain
-        tolerance can also be given. The tolerance is the maximum allowed error
-        if start- and endtime relative to the total time span.
-
-        :param channel_id: The channel id of the window to be deleted.
-        :param starttime: The starttime of the window to be deleted.
-        :param endtime: The endtime of the window to be deleted.
-        :param tolerance: The maximum acceptable deviation in start- and
-            endtime relative to the total timespan. Defaults to 0.01, e.g. 1%.
-        """
-        tolerance = tolerance * (endtime - starttime)
-        min_starttime = starttime - tolerance
-        max_starttime = starttime + tolerance
-        min_endtime = endtime - tolerance
-        max_endtime = endtime + tolerance
-
-        windows = self.get(channel_id)
-        if not windows:
-            msg = "Window not found."
-            raise ValueError(msg)
-
-        new_windows = deepcopy(windows)
-        new_windows["windows"] = []
-        found_window = False
-
-        for window in windows["windows"]:
-            if (min_starttime <= window["starttime"] <= max_starttime) and \
-                    (min_endtime <= window["endtime"] <= max_endtime):
-                found_window = True
-                continue
-            new_windows["windows"].append(window)
-
-        if found_window is False:
-            msg = "Window not found."
-            raise ValueError(msg)
-
-        # Delete the file if no windows are left.
-        if not new_windows["windows"]:
-            self.delete_windows(channel_id)
-            return
-
-        self._write_window(channel_id, new_windows)
 
     def _get_window_filename(self, channel_id):
         return os.path.join(self._directory, "window_%s.xml" % channel_id)
 
 
 class Window(object):
+    """
+    Object representing one window.
+    """
     __slots__ = ["starttime", "endtime", "weight", "taper",
                  "taper_percentage", "misfit", "misfit_value"]
 
@@ -173,11 +138,18 @@ class Window(object):
                 if self.misfit_value is not None else "")
 
     @property
-    def duration(self):
+    def length(self):
+        """
+        The length of the window in seconds.
+        """
         return self.endtime - self.starttime
 
 
 class WindowCollection(object):
+    """
+    Represents all the windows for one particular channel for one event and
+    one iteration.
+    """
     def __init__(self, filename, windows=None, event_name=None,
                  channel_id=None, synthetics_tag=None):
         if windows and os.path.exists(filename):
@@ -215,6 +187,9 @@ class WindowCollection(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __len__(self):
+        return len(self.windows)
+
     def __str__(self):
         ret_str = ("Window group for channel '{channel_id}' with {count} "
                    "window(s):\n"
@@ -250,6 +225,34 @@ class WindowCollection(object):
             misfit=misfit,
             misfit_value=float(misfit_value)
             if misfit_value is not None else None))
+
+    def delete_window(self, starttime, endtime, tolerance=0.01):
+        """
+        Deletes one or more windows from the group.
+
+        A window is specified with its start- and endtime. A certain
+        tolerance can also be given. The tolerance is the maximum allowed
+        error if start- and endtime relative to the total time span.
+
+        :param starttime: The starttime of the window to be deleted.
+        :param endtime: The endtime of the window to be deleted.
+        :param tolerance: The maximum acceptable deviation in start- and
+            endtime relative to the total timespan. Defaults to 0.01, e.g. 1%.
+        """
+        tolerance = tolerance * (endtime - starttime)
+        min_starttime = starttime - tolerance
+        max_starttime = starttime + tolerance
+        min_endtime = endtime - tolerance
+        max_endtime = endtime + tolerance
+
+        new_windows = []
+
+        for window in self.windows:
+            if (min_starttime <= window.starttime <= max_starttime) and \
+                    (min_endtime <= window.endtime <= max_endtime):
+                continue
+            new_windows.append(window)
+        self.windows = new_windows
 
     def _parse(self):
         root = etree.parse(self.filename).getroot()
@@ -302,9 +305,20 @@ class WindowCollection(object):
         """
         Writes the window group to the specified filename.
 
+        Will delete a possibly exiting file if the collection has no windows.
+
         :param filename: Path to save to. Will be overwritten if it already
             exists.
         """
+        # A window collection that has no windows will attempt to remove its
+        # own file if it has no windows without emitting a warnings.
+        if not self.windows:
+            try:
+                os.remove(self.filename)
+            except OSError:
+                pass
+            return
+
         windows = []
         for w in self.windows:
             local_win = []
