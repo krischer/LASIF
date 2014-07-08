@@ -93,7 +93,7 @@ class Window(object):
     Object representing one window.
     """
     __slots__ = ["starttime", "endtime", "weight", "taper",
-                 "taper_percentage", "misfit", "misfit_value"]
+                 "taper_percentage", "misfit", "__misfit_value"]
 
     def __init__(self, starttime, endtime, weight, taper,
                  taper_percentage, misfit, misfit_value):
@@ -106,7 +106,16 @@ class Window(object):
             raise ValueError("Invalid taper percentage.")
         self.taper_percentage = taper_percentage
         self.misfit = str(misfit)
-        self.misfit_value = float(misfit_value)
+        self.__misfit_value = float(misfit_value) \
+            if misfit_value is not None else None
+
+    @property
+    def misfit_value(self):
+        """
+        Returns the misfit value. If not stored in the file, it will be
+        calculated and thus is potentially an expensive operation.
+        """
+        return self.__misfit_value
 
     def __eq__(self, other):
         if not isinstance(other, Window):
@@ -117,7 +126,7 @@ class Window(object):
             self.taper == other.taper and \
             self.taper_percentage == other.taper_percentage and \
             self.misfit == other.misfit and \
-            self.misfit_value == other.misfit_value
+            self.__misfit_value == other.__misfit_value
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -125,7 +134,7 @@ class Window(object):
     def __str__(self):
         return (
             "{duration:.2f} seconds window from {st}\n\tWeight: "
-            "{weight:.2f}, {perc:.2f}% {taper} taper, {misfit}{value}"
+            "{weight:.2f}, {perc:.2f}% {taper} taper, {misfit} ({value})"
 
         ).format(
             duration=self.endtime - self.starttime,
@@ -134,8 +143,8 @@ class Window(object):
             taper=self.taper,
             perc=self.taper_percentage * 100.0,
             misfit=self.misfit,
-            value=" (%.3g)" % self.misfit_value
-                if self.misfit_value is not None else "")
+            value="%.3)" % self.__misfit_value
+                if self.__misfit_value is not None else "not calculated")
 
     @property
     def length(self):

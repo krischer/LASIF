@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Test suite for the windows component.
+
+:copyright:
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014
+:license:
+    GNU Lesser General Public License, Version 3
+    (http://www.gnu.org/copyleft/gpl.html)
+"""
 from __future__ import absolute_import
 
 import os

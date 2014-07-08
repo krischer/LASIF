@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Test suite for the parallel helper methods.
+Test suite for the window managing classes.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014
 :license:
     GNU Lesser General Public License, Version 3
-    (http://www.gnu.org/copyleft/lesser.html)
+    (http://www.gnu.org/copyleft/gpl.html)
 """
 from obspy import UTCDateTime
 import os
