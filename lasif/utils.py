@@ -163,6 +163,7 @@ def generate_specfem3d_globe_cem_template():
             E.number_of_chunks("1"),
             E.elements_per_chunk_xi("240"),
             E.elements_per_chunk_eta("240"),
+            E.model("1D_transversely_isotropic_prem"),
             E.simulate_oceans("true"),
             E.simulate_ellipticity("true"),
             E.simulate_topography("true"),

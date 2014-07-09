@@ -391,7 +391,7 @@ class ActionsComponent(Component):
             gen.config.CENTER_LONGITUDE_IN_DEGREES = c_lng_1
             gen.config.GAMMA_ROTATION_AZIMUTH = angle
 
-            gen.config.MODEL = "CEM_ACCEPT"
+            gen.config.MODEL = cs["model"]
 
             pp = iteration.get_process_params()
             gen.config.RECORD_LENGTH_IN_MINUTES = \
