@@ -164,12 +164,11 @@ def generate_specfem3d_globe_cem_template():
             E.elements_per_chunk_xi("240"),
             E.elements_per_chunk_eta("240"),
             E.simulate_oceans("true"),
-            E.simulate_ellipticity("false"),
+            E.simulate_ellipticity("true"),
             E.simulate_topography("true"),
-            E.simulate_gravity("false"),
-            E.simulate_rotation("false"),
+            E.simulate_gravity("true"),
+            E.simulate_rotation("true"),
             E.simulate_attenuation("true"),
-            E.partial_physical_dispersion_only("true"),
             E.fast_undo_attenuation("false"),
             E.use_gpu("false")
             ))

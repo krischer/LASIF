@@ -141,7 +141,7 @@ class ActionsComponent(Component):
         print("Logfile written to '%s'." % os.path.relpath(logfile))
 
     def generate_input_files(self, iteration_name, event_name,
-                             simulate_type):
+                             simulation_type):
         """
         Generate the input files for one event.
 
@@ -283,14 +283,14 @@ class ActionsComponent(Component):
                 solver["simulate_parameters"]["time_increment"]
             gen.config.NPROC = \
                 solver["computational_setup"]["number_of_processors"]
-            if simulate_type == "normal simulation":
+            if simulation_type == "normal simulation":
                 msg = ("'normal_simulate' not supported for SPECFEM3D "
                        "Cartesian. Please choose either 'adjoint_forward' or "
                        "'adjoint_reverse'.")
                 raise NotImplementedError(msg)
-            elif simulate_type == "adjoint forward":
+            elif simulation_type == "adjoint forward":
                 gen.config.SIMULATION_TYPE = 1
-            elif simulate_type == "adjoint reverse":
+            elif simulation_type == "adjoint reverse":
                 gen.config.SIMULATION_TYPE = 2
             else:
                 raise NotImplementedError
@@ -310,25 +310,23 @@ class ActionsComponent(Component):
             gen.config.ROTATION = cs["simulate_rotation"]
             gen.config.ATTENUATION = cs["simulate_attenuation"]
             gen.config.ABSORBING_CONDITIONS = True
-            gen.config.PARTIAL_PHYS_DISPERSION_ONLY = \
-                cs["partial_physical_dispersion_only"]
             if cs["fast_undo_attenuation"]:
-                gen.config.ATTENUATION_1D_WITH_3D_STORAGE = True
+                gen.config.PARTIAL_PHYS_DISPERSION_ONLY = True
                 gen.config.UNDO_ATTENUATION = False
             else:
-                gen.config.ATTENUATION_1D_WITH_3D_STORAGE = False
+                gen.config.PARTIAL_PHYS_DISPERSION_ONLY = False
                 gen.config.UNDO_ATTENUATION = True
             gen.config.GPU_MODE = cs["use_gpu"]
             gen.config.SOURCE_TIME_FUNCTION = \
                 iteration.get_source_time_function()["data"]
 
-            if simulate_type == "normal simulation":
+            if simulation_type == "normal simulation":
                 gen.config.SIMULATION_TYPE = 1
                 gen.config.SAVE_FORWARD = False
-            elif simulate_type == "adjoint forward":
+            elif simulation_type == "adjoint forward":
                 gen.config.SIMULATION_TYPE = 1
                 gen.config.SAVE_FORWARD = True
-            elif simulate_type == "adjoint reverse":
+            elif simulation_type == "adjoint reverse":
                 gen.config.SIMULATION_TYPE = 2
                 gen.config.SAVE_FORWARD = True
             else:
@@ -387,8 +385,8 @@ class ActionsComponent(Component):
                       "understands"
                 raise LASIFError(msg)
 
-            gen.config.ANGULAR_WIDTH_XI_IN_DEGREES = lat_range
-            gen.config.ANGULAR_WIDTH_ETA_IN_DEGREES = lng_range
+            gen.config.ANGULAR_WIDTH_XI_IN_DEGREES = lng_range
+            gen.config.ANGULAR_WIDTH_ETA_IN_DEGREES = lat_range
             gen.config.CENTER_LATITUDE_IN_DEGREES = c_lat_1
             gen.config.CENTER_LONGITUDE_IN_DEGREES = c_lng_1
             gen.config.GAMMA_ROTATION_AZIMUTH = angle
@@ -409,7 +407,7 @@ class ActionsComponent(Component):
         # =================================================================
         output_dir = self.comm.project.get_output_folder(
             "input_files___ITERATION_%s__%s__EVENT_%s" % (
-                iteration_name, simulate_type.replace(" ", "_"),
+                iteration_name, simulation_type.replace(" ", "_"),
                 event_name))
 
         gen.write(format=solver_format, output_dir=output_dir)
