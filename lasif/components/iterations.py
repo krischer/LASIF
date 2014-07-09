@@ -220,6 +220,10 @@ class IterationsComponent(Component):
             ...
         LASIFNotFoundError: ...
         """
+        # Make it work with both the long and short version of the iteration
+        # name.
+        iteration_name = iteration_name.lstrip("ITERATION_")
+
         it_dict = self.get_iteration_dict()
         if iteration_name not in it_dict:
             msg = "Iteration '%s' not found." % iteration_name

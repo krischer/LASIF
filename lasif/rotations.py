@@ -123,28 +123,10 @@ def rotate_vector(vector, rotation_axis, angle):
     :param rotation_axis: The axis to be rotating around given as [x, y, z].
     :param angle: The rotation angle in degree.
     """
-    # Convert angle to radian.
-    angle = np.deg2rad(angle)
-
-    # Normalize the rotation_axis
-    rotation_axis = map(float, rotation_axis)
-    rotation_axis /= np.linalg.norm(rotation_axis)
-
-    # Use c1, c2, and c3 as shortcuts for the rotation axis.
-    c1 = rotation_axis[0]
-    c2 = rotation_axis[1]
-    c3 = rotation_axis[2]
+    rotation_matrix = _get_rotation_matrix(rotation_axis, angle)
 
     # Build a column vector.
     vector = _get_vector(vector)
-
-    # Build the rotation matrix.
-    rotation_matrix = np.cos(angle) * \
-        np.matrix(((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))) + \
-        (1 - np.cos(angle)) * np.matrix(((c1 * c1, c1 * c2, c1 * c3),
-                                         (c2 * c1, c2 * c2, c2 * c3),
-                                         (c3 * c1, c3 * c2, c3 * c3))) + \
-        np.sin(angle) * np.matrix(((0, -c3, c2), (c3, 0, -c1), (-c2, c1, 0)))
 
     # Rotate the vector.
     rotated_vector = np.array(rotation_matrix.dot(vector))
@@ -154,6 +136,28 @@ def rotate_vector(vector, rotation_axis, angle):
         return rotated_vector
     else:
         return rotated_vector.ravel()
+
+
+def _get_rotation_matrix(axis, angle):
+    """
+    Returns the rotation matrix for the specified axis and angle.
+    """
+    axis = map(float, axis) / np.linalg.norm(axis)
+    angle = np.deg2rad(angle)
+
+    # Use c1, c2, and c3 as shortcuts for the rotation axis.
+    c1 = axis[0]
+    c2 = axis[1]
+    c3 = axis[2]
+
+    # Build the rotation matrix.
+    rotation_matrix = np.cos(angle) * \
+        np.matrix(((1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))) + \
+        (1 - np.cos(angle)) * np.matrix(((c1 * c1, c1 * c2, c1 * c3),
+                                         (c2 * c1, c2 * c2, c2 * c3),
+                                         (c3 * c1, c3 * c2, c3 * c3))) + \
+        np.sin(angle) * np.matrix(((0, -c3, c2), (c3, 0, -c1), (-c2, c1, 0)))
+    return rotation_matrix
 
 
 def get_spherical_unit_vectors(lat, lon):
@@ -241,6 +245,28 @@ def lat_lon_radius_to_xyz(lat, lon, r):
     y = r * np.sin(colat) * np.sin(lon)
     z = r * np.cos(colat)
     return _get_vector(x, y, z)
+
+
+def _get_axis_and_angle_from_rotation_matrix(M):
+    """
+    Extracts the axis and angle from a rotation matrix.
+
+    >>> M = _get_rotation_matrix([0.26726124, 0.53452248, 0.80178373], 40)
+    >>> _get_axis_and_angle_from_rotation_matrix(M)  \
+    # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+    (array([ 0.26726124,  0.53452248,  0.80178373]), 40.00...)
+    """
+    x = M[2, 1] - M[1, 2]
+    y = M[0, 2] - M[2, 0]
+    z = M[1, 0] - M[0, 1]
+
+    r = np.sqrt(x**2 + y**2 + z**2)
+    t = M[0, 0] + M[1, 1] + M[2, 2]
+    theta = np.arctan2(r, t - 1)
+    axis = [x, y, z]
+    axis /= np.linalg.norm(axis)
+
+    return axis, np.rad2deg(theta)
 
 
 def _get_rotation_and_base_transfer_matrix(lat, lon, rotation_axis, angle):

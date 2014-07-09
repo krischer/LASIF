@@ -144,8 +144,11 @@ class WaveformsComponent(Component):
                                  tag_or_iteration=long_iteration_name)
         network, station = station_id.split(".")
 
+        iteration = self.comm.iterations.get(long_iteration_name)
+
         # This maps the synthetic channels to ZNE.
-        synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
+        synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z",
+                                         "E": "E", "N": "N"}
 
         for tr in st:
             tr.stats.network = network
@@ -157,29 +160,30 @@ class WaveformsComponent(Component):
             tr.stats.channel = \
                 synthetic_coordinates_mapping[tr.stats.channel]
 
-        # Also need to be rotated.
-        domain = self.comm.project.domain
+        if not "specfem" in iteration.solver_settings["solver"].lower():
+            # Also need to be rotated.
+            domain = self.comm.project.domain
 
-        # Coordinates are required for the rotation.
-        coordinates = self.comm.query.get_coordinates_for_station(
-            event_name, station_id)
+            # Coordinates are required for the rotation.
+            coordinates = self.comm.query.get_coordinates_for_station(
+                event_name, station_id)
 
-        # First rotate the station back to see, where it was
-        # recorded.
-        lat, lng = rotations.rotate_lat_lon(
-            coordinates["latitude"], coordinates["longitude"],
-            domain["rotation_axis"], -domain["rotation_angle"])
-        # Rotate the synthetics.
-        n, e, z = rotations.rotate_data(
-            st.select(channel="N")[0].data,
-            st.select(channel="E")[0].data,
-            st.select(channel="Z")[0].data,
-            lat, lng,
-            domain["rotation_axis"],
-            domain["rotation_angle"])
-        st.select(channel="N")[0].data = n
-        st.select(channel="E")[0].data = e
-        st.select(channel="Z")[0].data = z
+            # First rotate the station back to see, where it was
+            # recorded.
+            lat, lng = rotations.rotate_lat_lon(
+                coordinates["latitude"], coordinates["longitude"],
+                domain["rotation_axis"], -domain["rotation_angle"])
+            # Rotate the synthetics.
+            n, e, z = rotations.rotate_data(
+                st.select(channel="N")[0].data,
+                st.select(channel="E")[0].data,
+                st.select(channel="Z")[0].data,
+                lat, lng,
+                domain["rotation_axis"],
+                domain["rotation_angle"])
+            st.select(channel="N")[0].data = n
+            st.select(channel="E")[0].data = e
+            st.select(channel="Z")[0].data = z
 
         return st
 

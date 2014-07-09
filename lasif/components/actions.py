@@ -3,10 +3,12 @@
 from __future__ import absolute_import
 
 import itertools
+import numpy as np
 import os
 import warnings
 
-from lasif import LASIFWarning
+from lasif import LASIFError, LASIFWarning
+from lasif import rotations
 from .component import Component
 
 
@@ -307,6 +309,7 @@ class ActionsComponent(Component):
             gen.config.GRAVITY = cs["simulate_gravity"]
             gen.config.ROTATION = cs["simulate_rotation"]
             gen.config.ATTENUATION = cs["simulate_attenuation"]
+            gen.config.ABSORBING_CONDITIONS = True
             gen.config.PARTIAL_PHYS_DISPERSION_ONLY = \
                 cs["partial_physical_dispersion_only"]
             if cs["fast_undo_attenuation"]:
@@ -330,6 +333,65 @@ class ActionsComponent(Component):
                 gen.config.SAVE_FORWARD = True
             else:
                 raise NotImplementedError
+
+            # Use the current domain setting to derive the bounds in the way
+            # SPECFEM specifies them.
+            domain = self.comm.project.domain
+
+            lat_range = domain["bounds"]["maximum_latitude"] - \
+                domain["bounds"]["minimum_latitude"]
+            lng_range = domain["bounds"]["maximum_longitude"] - \
+                        domain["bounds"]["minimum_longitude"]
+
+            c_lat = \
+                domain["bounds"]["minimum_latitude"] + lat_range / 2.0
+            c_lng = \
+                domain["bounds"]["minimum_longitude"] + lng_range / 2.0
+
+            # Rotate the point.
+            c_lat_1, c_lng_1 = rotations.rotate_lat_lon(
+                c_lat, c_lng, domain["rotation_axis"],
+                domain["rotation_angle"])
+
+            # SES3D rotation.
+            A = rotations._get_rotation_matrix(
+                domain["rotation_axis"], domain["rotation_angle"])
+
+            latitude_rotation = -(c_lat_1 - c_lat)
+            longitude_rotation = c_lng_1 - c_lng
+
+            # Rotate the latitude. The rotation axis is latitude 0 and
+            # the center longitude + 90 degree
+            B = rotations._get_rotation_matrix(
+                rotations.lat_lon_radius_to_xyz(0.0, c_lng + 90, 1.0),
+                latitude_rotation)
+            # Rotate around the North pole.
+            C = rotations._get_rotation_matrix(
+                [0.0, 0.0, 1.0], longitude_rotation)
+
+            D = A * np.linalg.inv(C * B)
+
+            axis, angle = rotations._get_axis_and_angle_from_rotation_matrix(D)
+            rotated_axis = rotations.xyz_to_lat_lon_radius(*axis)
+
+            # Consistency check
+            if abs(rotated_axis[0] - c_lat_1) >= 0.01 or \
+                    abs(rotated_axis[1] - c_lng_1) >= 0.01:
+                axis *= -1.0
+                angle *= -1.0
+                rotated_axis = rotations.xyz_to_lat_lon_radius(*axis)
+
+            if abs(rotated_axis[0] - c_lat_1) >= 0.01 or \
+                        abs(rotated_axis[1] - c_lng_1) >= 0.01:
+                msg = "Failed to describe the domain in terms that SPECFEM " \
+                      "understands"
+                raise LASIFError(msg)
+
+            gen.config.ANGULAR_WIDTH_XI_IN_DEGREES = lat_range
+            gen.config.ANGULAR_WIDTH_ETA_IN_DEGREES = lng_range
+            gen.config.CENTER_LATITUDE_IN_DEGREES = c_lat_1
+            gen.config.CENTER_LONGITUDE_IN_DEGREES = c_lng_1
+            gen.config.GAMMA_ROTATION_AZIMUTH = angle
 
             gen.config.MODEL = "CEM_ACCEPT"
 
