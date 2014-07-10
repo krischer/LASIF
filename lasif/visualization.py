@@ -52,13 +52,22 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
 
     # Arbitrary threshold
     if max_extent > 160:
-        buffer = 5
+        buffer = 15
         if resolution is None:
             resolution = "c"
         m = Basemap(lon_0=center_lng,
                     lat_0=center_lat,
-                    projection='eck4', resolution=resolution,
-                    ax=ax)
+                    projection='cea', resolution=resolution,
+                    ax=ax,
+                    llcrnrlat=bounds["minimum_latitude"] - buffer,
+                    urcrnrlat=min(
+                        bounds["maximum_latitude"] + buffer * 2, 90.0),
+                    urcrnrlon=bounds["maximum_longitude"] + buffer,
+                    llcrnrlon=bounds["minimum_longitude"] - buffer)
+
+        # from IPython.core.debugger import Tracer; Tracer(colors="Linux")()
+        # m.llcrnrlat = 0
+
         stepsize = 45.0
     elif zoom is False or max_extent > 90 or plot_simulation_domain:
         if resolution is None:
