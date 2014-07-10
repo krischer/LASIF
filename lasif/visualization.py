@@ -45,20 +45,22 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
     center_lng = bounds["minimum_longitude"] + (
         bounds["maximum_longitude"] - bounds["minimum_longitude"]) / 2.0
 
-    extend_x = bounds["maximum_longitude"] - bounds["minimum_longitude"]
-    extend_y = bounds["maximum_latitude"] - bounds["minimum_latitude"]
-    max_extend = max(extend_x, extend_y)
-
-    # If the simulation domain is also available, use it to calculate the
-    # max_extend. This results in the simulation domain affecting the zoom
-    # level.
-    if plot_simulation_domain is True:
-        simulation_domain = rotations.get_border_latlng_list(
-            min_latitude, max_latitude, min_longitude, max_longitude)
-        simulation_domain = np.array(simulation_domain)
+    extent_x = bounds["maximum_longitude"] - bounds["minimum_longitude"]
+    extent_y = bounds["maximum_latitude"] - bounds["minimum_latitude"]
+    max_extent = max(extent_x, extent_y)
+    print max_extent, center_lat, center_lng
 
     # Arbitrary threshold
-    if zoom is False or max_extend > 90 or plot_simulation_domain:
+    if max_extent > 160:
+        buffer = 5
+        if resolution is None:
+            resolution = "c"
+        m = Basemap(lon_0=center_lng,
+                    lat_0=center_lat,
+                    projection='eck4', resolution=resolution,
+                    ax=ax)
+        stepsize = 45.0
+    elif zoom is False or max_extent > 90 or plot_simulation_domain:
         if resolution is None:
             resolution = "c"
         m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
@@ -128,6 +130,10 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
         m.plot(lngs, lats, color="black", lw=2, alpha=0.4)
 
     if plot_simulation_domain is True:
+        simulation_domain = rotations.get_border_latlng_list(
+            min_latitude, max_latitude, min_longitude, max_longitude)
+        simulation_domain = np.array(simulation_domain)
+
         lats = simulation_domain[:, 0]
         lngs = simulation_domain[:, 1]
         lngs, lats = m(lngs, lats)
