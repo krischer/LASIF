@@ -368,7 +368,7 @@ def test_lasif_event_info(cli):
 #             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
 #         assert proj.paths["root"] == cli.project.paths["root"]
 #         assert tw.__class__.__name__ == "DataSyntheticIterator"
-#         assert wm.__class__.__name__ == "MisfitWindowManager"
+#         assert wm.__class__.__name__ == "WindowGroupManager"
 #         assert ad_m.__class__.__name__ == "AdjointSourceManager"
 #         assert it.__class__.__name__ == "Iteration"
 #

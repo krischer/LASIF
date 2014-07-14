@@ -1,13 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Classes handling misfit windows.
+Classes managing misfit windows and associated operations.
 
-A single misfit window is identified by:
-    * Starttime
-    * Endtime
-    * Taper
-    * Misfit Type
+This happens in a layer of hierarchies. It might look over-engineered but it
+offers a nice separation of concerns and is pretty intuitive once it is
+actually clear what is going on.
+
+The :class:`~WindowGroupManager: class manages all windows per event and
+iteration. This offers a convenient way to loop over all windows for an
+event and a certain iteration. It will always return :class:`~WindowCollection`
+objects.
+
+A :class:`~WindowCollection` object manages all windows (for a given event
+and iteration) for one channel. It contains :class:`~Window` object,
+each defining a single window with an associated misfit and adjoint source.
+
+Windows are serialized at the :class:`~WindowCollection` level so remember
+to call :meth:`~WindowCollection.write` when adding/removing/changing windows.
+
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013-2014
@@ -22,16 +33,15 @@ from lxml.builder import E
 import os
 
 
-class MisfitWindowManager(object):
+class WindowGroupManager(object):
     """
-    Class managing WindowCollections for windows from a specific event and
-    iteration.
+    Class managing all windows for one event and a certain iteration.
     """
-    def __init__(self, directory, synthetic_tag, event_name):
+    def __init__(self, directory, iteration, event_name):
         self._directory = directory
         if not os.path.exists(self._directory):
             os.makedirs(self._directory)
-        self._synthetic_tag = synthetic_tag
+        self._synthetic_tag = iteration
         self._event_name = event_name
 
     def __iter__(self):
@@ -86,90 +96,6 @@ class MisfitWindowManager(object):
 
     def _get_window_filename(self, channel_id):
         return os.path.join(self._directory, "window_%s.xml" % channel_id)
-
-
-class Window(object):
-    """
-    Object representing one window.
-    """
-    __slots__ = ["starttime", "endtime", "weight", "taper",
-                 "taper_percentage", "misfit", "__misfit_value",
-                 "__collection"]
-
-    def __init__(self, starttime, endtime, weight, taper,
-                 taper_percentage, misfit, misfit_value, collection):
-        self.starttime = UTCDateTime(starttime)
-        self.endtime = UTCDateTime(endtime)
-        self.weight = float(weight)
-        self.taper = str(taper)
-        taper_percentage = float(taper_percentage)
-        if not 0.0 <= taper_percentage <= 0.5:
-            raise ValueError("Invalid taper percentage.")
-        self.taper_percentage = taper_percentage
-        self.misfit = str(misfit)
-        self.__misfit_value = float(misfit_value) \
-            if misfit_value is not None else None
-        # Reference to the window collection.
-        self.__collection = collection
-
-    @property
-    def misfit_value(self):
-        """
-        Returns the misfit value. If not stored in the file, it will be
-        calculated and thus is potentially an expensive operation.
-        """
-        return self.__misfit_value
-
-    def get_adjoint_source(self):
-        """
-        Returns the adjoint source for the window. If not available it will
-        be calculated and cached for future access. Calling this function
-        will also set the misfit value of the window. Don't forget to write
-        the window collection!
-        """
-        pass
-
-    @property
-    def ad_src_filename(self):
-        """
-        Filename of the adjoint source.
-        """
-
-    def __eq__(self, other):
-        if not isinstance(other, Window):
-            return False
-        return self.starttime == other.starttime and \
-            self.endtime == other.endtime and \
-            self.weight == other.weight and \
-            self.taper == other.taper and \
-            self.taper_percentage == other.taper_percentage and \
-            self.misfit == other.misfit and \
-            self.__misfit_value == other.__misfit_value
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __str__(self):
-        return (
-            "{duration:.2f} seconds window from {st}\n\tWeight: "
-            "{weight:.2f}, {perc:.2f}% {taper} taper, {misfit} ({value})"
-
-        ).format(
-            duration=self.endtime - self.starttime,
-            st=self.starttime,
-            weight=self.weight,
-            taper=self.taper,
-            perc=self.taper_percentage * 100.0,
-            misfit=self.misfit,
-            value="%.3g" % self.__misfit_value
-                if self.__misfit_value is not None else "not calculated")
-
-    @property
-    def length(self):
-        """
-        The length of the window in seconds.
-        """
-        return self.endtime - self.starttime
 
 
 class WindowCollection(object):
@@ -369,3 +295,88 @@ class WindowCollection(object):
         with open(self.filename, "wb") as fh:
             fh.write(etree.tostring(doc, pretty_print=True,
                                     xml_declaration=True, encoding="utf-8"))
+
+
+class Window(object):
+    """
+    Object representing one window.
+    """
+    __slots__ = ["starttime", "endtime", "weight", "taper",
+                 "taper_percentage", "misfit", "__misfit_value",
+                 "__collection"]
+
+    def __init__(self, starttime, endtime, weight, taper,
+                 taper_percentage, misfit, misfit_value, collection):
+        self.starttime = UTCDateTime(starttime)
+        self.endtime = UTCDateTime(endtime)
+        self.weight = float(weight)
+        self.taper = str(taper)
+        taper_percentage = float(taper_percentage)
+        if not 0.0 <= taper_percentage <= 0.5:
+            raise ValueError("Invalid taper percentage.")
+        self.taper_percentage = taper_percentage
+        self.misfit = str(misfit)
+        self.__misfit_value = float(misfit_value) \
+            if misfit_value is not None else None
+        # Reference to the window collection.
+        self.__collection = collection
+
+    @property
+    def misfit_value(self):
+        """
+        Returns the misfit value. If not stored in the file, it will be
+        calculated and thus is potentially an expensive operation.
+        """
+        return self.__misfit_value
+
+    def get_adjoint_source(self):
+        """
+        Returns the adjoint source for the window. If not available it will
+        be calculated and cached for future access. Calling this function
+        will also set the misfit value of the window. Don't forget to write
+        the window collection!
+        """
+        pass
+
+    @property
+    def ad_src_filename(self):
+        """
+        Filename of the adjoint source.
+        """
+
+    def __eq__(self, other):
+        if not isinstance(other, Window):
+            return False
+        return self.starttime == other.starttime and \
+               self.endtime == other.endtime and \
+               self.weight == other.weight and \
+               self.taper == other.taper and \
+               self.taper_percentage == other.taper_percentage and \
+               self.misfit == other.misfit and \
+               self.__misfit_value == other.__misfit_value
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return (
+            "{duration:.2f} seconds window from {st}\n\tWeight: "
+            "{weight:.2f}, {perc:.2f}% {taper} taper, {misfit} ({value})"
+
+        ).format(
+            duration=self.endtime - self.starttime,
+            st=self.starttime,
+            weight=self.weight,
+            taper=self.taper,
+            perc=self.taper_percentage * 100.0,
+            misfit=self.misfit,
+            value="%.3g" % self.__misfit_value
+            if self.__misfit_value is not None else "not calculated")
+
+    @property
+    def length(self):
+        """
+        The length of the window in seconds.
+        """
+        return self.endtime - self.starttime
+

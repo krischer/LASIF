@@ -46,7 +46,7 @@ class Project(object):
         import numpy as np
 
         from lasif import rotations
-        from lasif.window_manager import MisfitWindowManager
+        from lasif.window_manager import WindowGroupManager
         from lasif.adjoint_src_manager import AdjointSourceManager
 
         # ====================================================================
@@ -60,7 +60,7 @@ class Project(object):
                                         long_iteration_name)
         ad_src_directory = os.path.join(self.paths["adjoint_sources"],
                                         event_name, long_iteration_name)
-        window_manager = MisfitWindowManager(window_directory,
+        window_manager = WindowGroupManager(window_directory,
                                              long_iteration_name, event_name)
         adj_src_manager = AdjointSourceManager(ad_src_directory)
 

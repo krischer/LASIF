@@ -15,7 +15,7 @@ import os
 import pytest
 
 from lasif import LASIFNotFoundError
-from lasif.window_manager import MisfitWindowManager
+from lasif.window_manager import WindowGroupManager
 from ..testing_helpers import communicator  # NOQA
 
 
@@ -79,4 +79,4 @@ def test_get(comm):
     assert "not known" in str(error.value).lower()
 
     wm = comm.windows.get('GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11', '1')
-    assert isinstance(wm, MisfitWindowManager)
+    assert isinstance(wm, WindowGroupManager)

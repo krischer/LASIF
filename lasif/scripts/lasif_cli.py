@@ -683,7 +683,7 @@ def lasif_launch_misfit_gui(parser, args):
         raise LASIFCommandLineException(msg)
 
     from lasif.misfit_gui import MisfitGUI
-    from lasif.window_manager import MisfitWindowManager
+    from lasif.window_manager import WindowGroupManager
     from lasif.adjoint_src_manager import AdjointSourceManager
 
     iterator = comm.query.get_data_and_synthetics_iterator(
@@ -697,7 +697,7 @@ def lasif_launch_misfit_gui(parser, args):
                                     event_name, long_iteration_name)
     ad_src_directory = os.path.join(comm.project.paths["adjoint_sources"],
                                     event_name, long_iteration_name)
-    window_manager = MisfitWindowManager(window_directory, long_iteration_name,
+    window_manager = WindowGroupManager(window_directory, long_iteration_name,
                                          event_name)
     adj_src_manager = AdjointSourceManager(ad_src_directory)
 
@@ -805,7 +805,7 @@ def lasif_migrate_windows(parser, args):
 
     # After all checks have passed, import the necessary modules.
     from lasif.iteration_xml import Iteration
-    from lasif.window_manager import MisfitWindowManager
+    from lasif.window_manager import WindowGroupManager
     from lasif.adjoint_src_manager import AdjointSourceManager
 
     from_it = Iteration(iterations[from_iteration])
@@ -845,7 +845,7 @@ def lasif_migrate_windows(parser, args):
         ad_src_directory_from = os.path.join(
             proj.paths["adjoint_sources"], event_name,
             long_iteration_name_from)
-        window_manager_from = MisfitWindowManager(
+        window_manager_from = WindowGroupManager(
             window_directory_from, long_iteration_name_from, event_name)
         adj_src_manager_from = AdjointSourceManager(ad_src_directory_from)
 
@@ -854,7 +854,7 @@ def lasif_migrate_windows(parser, args):
             proj.paths["windows"], event_name, long_iteration_name_to)
         ad_src_directory_to = os.path.join(
             proj.paths["adjoint_sources"], event_name, long_iteration_name_to)
-        window_manager_to = MisfitWindowManager(
+        window_manager_to = WindowGroupManager(
             window_directory_to, long_iteration_name_to, event_name)
         adj_src_manager_to = AdjointSourceManager(ad_src_directory_to)
 
