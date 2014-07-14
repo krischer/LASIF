@@ -19,6 +19,57 @@ each defining a single window with an associated misfit and adjoint source.
 Windows are serialized at the :class:`~WindowCollection` level so remember
 to call :meth:`~WindowCollection.write` when adding/removing/changing windows.
 
+One thing to keep in mind is that a window can be in several "states" for
+lack of a better word. Each an every window will always be defined by a
+start time, an end time, a weight normalized between 0.0 and 1.0, a tapering
+function and the percentage of the data it tapers at each end, e.g. 0.5 for
+a full width taper. A window with only these 5 components is an empty window:
+
+.. code-block::xml
+
+    <Window>
+        <Starttime>2012-01-01T00:00:00.000000Z</Starttime>
+        <Endtime>2012-01-01T00:01:00.000000Z</Endtime>
+        <Weight>0.5</Weight>
+        <Taper>cosine</Taper>
+        <TaperPercentage>0.08</TaperPercentage>
+    </Window>
+
+
+A window can furthermore have an associated misfit functional, a simple
+string denoting the type of misfit:
+
+.. code-block::xml
+
+    <Window>
+        <Starttime>2012-01-01T00:00:00.000000Z</Starttime>
+        <Endtime>2012-01-01T00:01:00.000000Z</Endtime>
+        <Weight>0.5</Weight>
+        <Taper>cosine</Taper>
+        <TaperPercentage>0.08</TaperPercentage>
+        <Misfit>some misfit</Misfit>
+    </Window>
+
+
+In the final state, the window can also contain details about the calculated
+misfit. In that case it is always expected to have the value of the misfit.
+All other parameters are optional and misfit specific.
+
+.. code-block::xml
+
+    <Window>
+        <Starttime>2012-01-01T00:00:00.000000Z</Starttime>
+        <Endtime>2012-01-01T00:01:00.000000Z</Endtime>
+        <Weight>0.5</Weight>
+        <Taper>cosine</Taper>
+        <TaperPercentage>0.08</TaperPercentage>
+        <Misfit>some misfit</Misfit>
+        <MisfitDetails>
+            <Value>1e-05</Value>
+            <TimeDelay>-1.5</TimeDelay>
+        </MisfitDetails>
+    </Window>
+
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013-2014
@@ -47,6 +98,18 @@ class WindowGroupManager(object):
     def __iter__(self):
         for channel_id in self.list():
             yield self.get(channel_id)
+
+    def __len__(self):
+        return len(self.list())
+
+    def __str__(self):
+         return (
+             "WidowGroupManager containing windows for %i channels.\n"
+             "\tEvent name: %s\n"
+             "\tIteration: %s\n"
+             "\tWindow directory: %s\n" % (
+                 len(self), self._event_name, self._synthetic_tag,
+                 os.path.relpath(self._directory)))
 
     def list(self):
         """
