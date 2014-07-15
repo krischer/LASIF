@@ -16,19 +16,133 @@ import pytest
 from lasif.window_manager import Window, WindowCollection
 
 
-def test_window_class():
+def test_window_class_initialization():
     """
-    Tests the window class. Not much to test but better then nothing.
+    Assert the initialization works correctly.
     """
+    # Standard init.
+    win = Window(
+        starttime=UTCDateTime(2012, 1, 1),
+        endtime=UTCDateTime(2012, 1, 1, 0, 1),
+        weight=1.0,
+        taper="cosine",
+        taper_percentage=0.05)
+    assert win.length == 60.0
+
+    # Endtime must be larger then starttime
+    with pytest.raises(ValueError):
+        Window(
+            starttime=UTCDateTime(2012, 1, 2),
+            endtime=UTCDateTime(2012, 1, 1, 0, 1),
+            weight=1.0,
+            taper="cosine",
+            taper_percentage=0.05)
+    with pytest.raises(ValueError):
+        Window(
+            starttime=UTCDateTime(2012, 1, 2),
+            endtime=UTCDateTime(2012, 1, 2),
+            weight=1.0,
+            taper="cosine",
+            taper_percentage=0.05)
+
+    # Weight must be between 0.0 and 1.0.
+    with pytest.raises(ValueError):
+        Window(
+            starttime=UTCDateTime(2012, 1, 1),
+            endtime=UTCDateTime(2012, 1, 1, 0, 1),
+            weight=-1.0,
+            taper="cosine",
+            taper_percentage=0.05)
+
+    # Taper percentage must be between 0.0 and 0.5
+    with pytest.raises(ValueError):
+        Window(
+            starttime=UTCDateTime(2012, 1, 1),
+            endtime=UTCDateTime(2012, 1, 1, 0, 1),
+            weight=1.0,
+            taper="cosine",
+            taper_percentage=0.55)
+
+    # No misfit details without a misfit value.
+    with pytest.raises(ValueError):
+        win = Window(
+            starttime=UTCDateTime(2012, 1, 1),
+            endtime=UTCDateTime(2012, 1, 1, 0, 1),
+            weight=1.0,
+            taper="cosine",
+            taper_percentage=0.05,
+            misfit_type=None,
+            misfit_details={"Some details": 1})
+
+    # No misfit details without a misfit value.
+    with pytest.raises(ValueError):
+        win = Window(
+            starttime=UTCDateTime(2012, 1, 1),
+            endtime=UTCDateTime(2012, 1, 1, 0, 1),
+            weight=1.0,
+            taper="cosine",
+            taper_percentage=0.05,
+            misfit_type="random misfit",
+            misfit_details={"Some details": 1})
+
+    # The misfit value must be positive.
+    with pytest.raises(ValueError):
+        win = Window(
+            starttime=UTCDateTime(2012, 1, 1),
+            endtime=UTCDateTime(2012, 1, 1, 0, 1),
+            weight=1.0,
+            taper="cosine",
+            taper_percentage=0.05,
+            misfit_type="random misfit",
+            misfit_details={"value": -0.5, "some details": 1})
+
+    # Otherwise it should work. Window without a misfit value.
     win = Window(
         starttime=UTCDateTime(2012, 1, 1),
         endtime=UTCDateTime(2012, 1, 1, 0, 1),
         weight=1.0,
         taper="cosine",
         taper_percentage=0.05,
-        misfit="RandomMisfit",
-        misfit_value=1e-5,
-        collection=None)
+        misfit_type="random misfit")
+    assert win.misfit_type == "random misfit"
+    assert win.misfit_details == {}
+    assert win.misfit_value == None
+
+    # Window with a misfit value.
+    win = Window(
+        starttime=UTCDateTime(2012, 1, 1),
+        endtime=UTCDateTime(2012, 1, 1, 0, 1),
+        weight=1.0,
+        taper="cosine",
+        taper_percentage=0.05,
+        misfit_type="random misfit")
+    assert win.misfit_type == "random misfit"
+    assert win.misfit_details == {}
+    assert win.misfit_value == None
+
+
+
+def test_window_class():
+    """
+    Tests the window class. It can have different states.
+    """
+    # Bare bones window with no misfit and not associated values.
+    win = Window(
+        starttime=UTCDateTime(2012, 1, 1),
+        endtime=UTCDateTime(2012, 1, 1, 0, 1),
+        weight=1.0,
+        taper="cosine",
+        taper_percentage=0.05)
+
+    assert win.length == 60.0
+    assert str(win) == (
+        "60.00 seconds window from 2012-01-01T00:00:00.000000Z\n"
+        "\tWeight: 1.00, 5.00% cosine taper, RandomMisfit (1e-05)")
+
+
+        # misfit="RandomMisfit",
+        # misfit_value=1e-5,
+        # collection=None)
 
     assert win.length == 60.0
 

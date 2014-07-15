@@ -69,4 +69,5 @@ class WindowsComponent(Component):
         folder = os.path.join(self._folder, event_name,
                               self.comm.iterations.get_long_iteration_name(
                                   iteration_name))
-        return WindowGroupManager(folder, iteration_name, event_name)
+        return WindowGroupManager(folder, iteration_name, event_name,
+                                  comm=self.comm)

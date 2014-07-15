@@ -88,12 +88,21 @@ class WindowGroupManager(object):
     """
     Class managing all windows for one event and a certain iteration.
     """
-    def __init__(self, directory, iteration, event_name):
+    def __init__(self, directory, iteration, event_name, comm=None):
+        """
+
+        :param directory: The directory of the windows.
+        :param iteration: The iteration name.
+        :param event_name: The event name.
+        :param comm: The communicator instance. Can be none, but required
+            for some operations.
+        """
         self._directory = directory
         if not os.path.exists(self._directory):
             os.makedirs(self._directory)
         self._synthetic_tag = iteration
         self._event_name = event_name
+        self.comm = comm
 
     def __iter__(self):
         for channel_id in self.list():
@@ -130,7 +139,7 @@ class WindowGroupManager(object):
         windowfile = self._get_window_filename(channel_id)
         if not os.path.exists(windowfile):
             return {}
-        return WindowCollection(filename=windowfile)
+        return WindowCollection(filename=windowfile, comm=self.comm)
 
     def get_windows_for_station(self, station_id):
         """
@@ -167,7 +176,7 @@ class WindowCollection(object):
     one iteration.
     """
     def __init__(self, filename, windows=None, event_name=None,
-                 channel_id=None, synthetics_tag=None):
+                 channel_id=None, synthetics_tag=None, comm=None):
         if windows and os.path.exists(filename):
             raise ValueError("An existing file and new windows is not "
                              "allowed. Either only a file or windows and a "
@@ -178,11 +187,11 @@ class WindowCollection(object):
                              "'event_name', 'channel_id', "
                              "and 'synthetics_tag' must all exist.")
 
-
         self.filename = filename
         self.event_name = event_name
         self.channel_id = channel_id
         self.synthetics_tag = synthetics_tag
+        self.comm = comm
         self.windows = []
 
         if os.path.exists(filename):
@@ -190,6 +199,10 @@ class WindowCollection(object):
         else:
             if windows:
                 self.windows.extend(windows)
+
+        if self.comm:
+            self.event = self.comm.events.get(self.event_name)
+            self.iteration = self.comm.iterations.get(self.synthetics_tag)
 
     def __eq__(self, other):
         if not isinstance(other, WindowCollection):
@@ -218,8 +231,17 @@ class WindowCollection(object):
                               windows="\n    ".join(
                                   ["* " + str(_i) for _i in self.windows]))
 
+    def get_adjoint_source_for_window(self, window):
+        if self.comm is None:
+            raise ValueError("Operation only possible with an active "
+                             "communicator instance.")
+        self.comm.adjoint_sources.calculate_adjoint_source(
+            self.event_name, self.synthetics_tag, self.channel_id,
+            window.starttime, window.endtime, window.taper,
+            window.taper_percentage, window.misfit_type)
+
     def add_window(self, starttime, endtime, weight, taper,
-                   taper_percentage, misfit, misfit_value):
+                   taper_percentage, misfit_type, misfit_details):
         """
         Adds a single window.
 
@@ -236,11 +258,10 @@ class WindowCollection(object):
             starttime=UTCDateTime(starttime),
             endtime=UTCDateTime(endtime),
             weight=float(weight),
-            taper=taper,
+            taper=str(taper),
             taper_percentage=float(taper_percentage),
-            misfit=misfit,
-            misfit_value=float(misfit_value)
-            if misfit_value is not None else None,
+            misfit_type=str(misfit_type),
+            misfit_details=misfit_details,
             collection=self))
 
     def delete_window(self, starttime, endtime, tolerance=0.01):
@@ -361,62 +382,114 @@ class WindowCollection(object):
 
 
 class Window(object):
-    """
-    Object representing one window.
-    """
     __slots__ = ["starttime", "endtime", "weight", "taper",
-                 "taper_percentage", "misfit", "__misfit_value",
-                 "__collection"]
+                 "taper_percentage", "misfit_type", "__misfit_value",
+                 "__misfit_details", "__collection"]
 
     def __init__(self, starttime, endtime, weight, taper,
-                 taper_percentage, misfit, misfit_value, collection):
+                 taper_percentage, misfit_type=None,
+                 misfit_value=None, misfit_details=None,
+                 collection=None):
+        """
+        Object representing one window.
+
+        :param starttime: The start time of the window.
+        :type starttime: :class:`~obspy.core.utcdatetime.UTCDateTime`
+        :param endtime: The end time of the window.
+        :type endtime: :class:`~obspy.core.utcdatetime.UTCDateTime`
+        :param weight: The weight of the window normalized between 0.0 and 1.0
+        :type weight: float
+        :param taper: The type of taper, must coincide with an ObsPy taper.
+        :type taper: str
+        :param taper_percentage: The one sided taper percentage between 0.0
+            and 0.5. A value of 0.0 taper nothing, 0.5 is a full width
+            taper, e.g. 50 % at each side.
+        :type taper_percentage: float
+        :param misfit_type: The misfit (and adjoint source) type as a string.
+        :type misfit_type: str, optional
+        :param misfit_value: The misfit value. Must be positive.
+        :type misfit_value: float, optional
+        :param misfit_details: Details about the calculated misfit.
+        :type misfit_details: dict, optional
+        :param collection: The window collection object. Necessary for
+            example to compute misfit values and adjoint sources on demand
+            for a given window. The window itself does not have enough
+            information to do that.
+        :type collection: :class:`~.WindowCollection`, optional
+        """
+        # Force types of all values.
         self.starttime = UTCDateTime(starttime)
         self.endtime = UTCDateTime(endtime)
         self.weight = float(weight)
         self.taper = str(taper)
-        taper_percentage = float(taper_percentage)
-        if not 0.0 <= taper_percentage <= 0.5:
-            raise ValueError("Invalid taper percentage.")
-        self.taper_percentage = taper_percentage
-        self.misfit = str(misfit)
+        self.taper_percentage = float(taper_percentage)
+        # Some sanity checks.
+        if self.starttime >= self.endtime:
+            raise ValueError("The window starttime must be smaller than the "
+                             "window endtime.")
+        if not 0.0 <= self.weight <= 1.0:
+            raise ValueError("Window weight must be between 0.0 and 1.0.")
+        if not 0.0 <= self.taper_percentage <= 0.5:
+            raise ValueError("Invalid taper percentage. Must be between 0.0 "
+                             "and 0.5")
+
+        # All other values are optional.
+        self.misfit_type = str(misfit_type) \
+            if misfit_type is not None else None
+        # Delegate misfit value and details to properties to be able to
+        # calculate them on demand.
         self.__misfit_value = float(misfit_value) \
             if misfit_value is not None else None
+        self.__misfit_details = misfit_details
+        if self.__misfit_details is None:
+            self.__misfit_details = {}
+
         # Reference to the window collection.
         self.__collection = collection
 
+        # Force some sanity. If no misfit is specified, it can have no
+        # misfit details. Also if no misfit value is given, it can have no
+        # misfit details.
+        if self.misfit_type is None and self.__misfit_details:
+            raise ValueError("No misfit details allowed without a misfit "
+                             "type.")
+        elif self.misfit_value is None and self.__misfit_details:
+            raise ValueError("No misfit details allowed without a misfit "
+                             "value.")
+        # LASIF expects a positive misfit for a bunch of operations.
+        elif self.misfit_value is not None and self.misfit_value < 0.0:
+            raise ValueError("Misfit value must be positive.")
+        # 'value' is not a valid key for the misfit details.
+        if "value" in self.__misfit_details:
+            raise ValueError("The misfit details cannot contain a second "
+                             "'value' field.")
+
     @property
-    def misfit_value(self):
+    def misfit_details(self):
         """
-        Returns the misfit value. If not stored in the file, it will be
+        Returns the misfit details. If not stored in the file, it will be
         calculated and thus is potentially an expensive operation.
         """
-        return self.__misfit_value
-
-    def get_adjoint_source(self):
-        """
-        Returns the adjoint source for the window. If not available it will
-        be calculated and cached for future access. Calling this function
-        will also set the misfit value of the window. Don't forget to write
-        the window collection!
-        """
-        pass
+        return self.__misfit_details
 
     @property
-    def ad_src_filename(self):
-        """
-        Filename of the adjoint source.
-        """
+    def misfit_value(self):
+        if self.__misfit_value is not None:
+            return self.__misfit_value
+        else:
+            return None
 
     def __eq__(self, other):
         if not isinstance(other, Window):
             return False
+        # No need to check the actual details as they by definition must be
+        # identical if everything else is identical.
         return self.starttime == other.starttime and \
                self.endtime == other.endtime and \
                self.weight == other.weight and \
                self.taper == other.taper and \
                self.taper_percentage == other.taper_percentage and \
-               self.misfit == other.misfit and \
-               self.__misfit_value == other.__misfit_value
+               self.misfit_type == other.misfit_type
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -424,7 +497,7 @@ class Window(object):
     def __str__(self):
         return (
             "{duration:.2f} seconds window from {st}\n\tWeight: "
-            "{weight:.2f}, {perc:.2f}% {taper} taper, {misfit} ({value})"
+            "{weight:.2f}, {perc:.2f}% {taper} taper, {misfit_type} ({value})"
 
         ).format(
             duration=self.endtime - self.starttime,
@@ -432,9 +505,9 @@ class Window(object):
             weight=self.weight,
             taper=self.taper,
             perc=self.taper_percentage * 100.0,
-            misfit=self.misfit,
-            value="%.3g" % self.__misfit_value
-            if self.__misfit_value is not None else "not calculated")
+            misfit_type=self.misfit_type,
+            value="%.3g" % self.misfit_value
+            if self.misfit_value is not None else "not calculated")
 
     @property
     def length(self):
