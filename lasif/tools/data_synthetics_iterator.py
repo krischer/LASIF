@@ -14,8 +14,6 @@ import collections
 
 from lasif import LASIFNotFoundError
 
-DataTuple = collections.namedtuple("DataTuple", ["data", "synthetics",
-                                                 "coordinates"])
 
 class DataSyntheticIterator(object):
     def __init__(self, comm, iteration_name, event_name, scale_data=False):
@@ -54,29 +52,9 @@ class DataSyntheticIterator(object):
         self._current_index = -1
 
     def get(self, station_id):
-        # Get the metadata for the processed and synthetics for this
-        # particular station.
-        data = self.comm.waveforms.get_waveforms_processed(
-            self.event_name, station_id,
-            tag=self.iteration.get_processing_tag())
-        synthetics = self.comm.waveforms.get_waveforms_synthetic(
-            self.event_name, station_id,
-            long_iteration_name=self.long_iteration_name)
-        coordinates = self.comm.query.get_coordinates_for_station(
-            self.event_name, station_id)
-
-        if self._scale_data_flag:
-            for data_tr in data:
-                synthetic_tr = synthetics.select(
-                    channel=data_tr.stats.channel[-1])[0]
-                scaling_factor = synthetic_tr.data.ptp() / \
-                                 data_tr.data.ptp()
-                # Store and apply the scaling.
-                data_tr.stats.scaling_factor = scaling_factor
-                data_tr.data *= scaling_factor
-
-        return DataTuple(data=data, synthetics=synthetics,
-                         coordinates=coordinates)
+        return self.comm.query.get_matching_waveforms(
+            self.iteration.iteration_name, self.event_name, self.station_id,
+            scale_data=self._scale_data_flag, component=None)
 
     def next(self):
         """

@@ -9,6 +9,9 @@ from lasif import LASIFNotFoundError
 
 from .component import Component
 
+DataTuple = collections.namedtuple("DataTuple", ["data", "synthetics",
+                                                 "coordinates"])
+
 
 class QueryComponent(Component):
     """
@@ -216,6 +219,45 @@ class QueryComponent(Component):
         from ..tools.data_synthetics_iterator import DataSyntheticIterator
         return DataSyntheticIterator(self.comm, iteration_name, event_name,
                                      scale_data)
+
+    def get_matching_waveforms(self, iteration_name, event_name, station_id,
+                               scale_data=False, component=None):
+        iteration = self.comm.iterations.get(iteration_name)
+        # Get the metadata for the processed and synthetics for this
+        # particular station.
+        data = self.comm.waveforms.get_waveforms_processed(
+            event_name, station_id,
+            tag=iteration.get_processing_tag())
+        synthetics = self.comm.waveforms.get_waveforms_synthetic(
+            event_name, station_id,
+            long_iteration_name=self.comm.iterations
+            .get_long_iteration_name(iteration.iteration_name))
+        coordinates = self.comm.query.get_coordinates_for_station(
+            event_name, station_id)
+
+        if scale_data:
+            for data_tr in data:
+                synthetic_tr = synthetics.select(
+                    channel=data_tr.stats.channel[-1])[0]
+                scaling_factor = synthetic_tr.data.ptp() / \
+                                 data_tr.data.ptp()
+                # Store and apply the scaling.
+                data_tr.stats.scaling_factor = scaling_factor
+                data_tr.data *= scaling_factor
+
+        data.sort()
+        synthetics.sort()
+
+        # Select component if necessary.
+        if component is not None:
+            component = component.upper()
+            data.traces = [i for i in data.traces
+                           if i.stats.channel[-1].upper() == component]
+            synthetics.traces = [i for i in synthetics.traces
+                                 if i.stats.channel[-1].upper() == component]
+
+        return DataTuple(data=data, synthetics=synthetics,
+                         coordinates=coordinates)
 
     def discover_available_data(self, event_name, station_id):
         """

@@ -57,15 +57,11 @@ class AdjointSourcesComponent(Component):
 
         iteration = self.comm.iterations.get(iteration_name)
 
-        data = self.comm.waveforms.get_waveforms_processed(
-            event_name, station_id, iteration.get_processing_tag())
-        synth = self.comm.waveforms.get_waveforms_synthetic(
-            event_name, station_id,
-            self.comm.iterations.get_long_iteration_name(
-                iteration.iteration_name))
-
-        data = data.select(component=cha[-1])
-        synth = synth.select(channel=cha[-1])
+        waveforms = self.comm.query.get_matching_waveforms(
+            iteration_name, event_name, station_id,
+            scale_data=True, component=cha[-1])
+        data = waveforms.data
+        synth = waveforms.synthetics
 
         if len(data) != 1:
             raise LASIFNotFoundError(
