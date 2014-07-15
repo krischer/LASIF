@@ -64,9 +64,10 @@ All other parameters are optional and misfit specific.
         <Taper>cosine</Taper>
         <TaperPercentage>0.08</TaperPercentage>
         <Misfit>some misfit</Misfit>
+        <MisfitValue>0.05</MisfitValue>
         <MisfitDetails>
-            <Value>1e-05</Value>
             <TimeDelay>-1.5</TimeDelay>
+            <SomethingElse>complex</SomethingElse>
         </MisfitDetails>
     </Window>
 
@@ -241,7 +242,8 @@ class WindowCollection(object):
             window.taper_percentage, window.misfit_type)
 
     def add_window(self, starttime, endtime, weight, taper,
-                   taper_percentage, misfit_type, misfit_details):
+                   taper_percentage, misfit_type=None, misfit_value=None,
+                   misfit_details=None):
         """
         Adds a single window.
 
@@ -255,12 +257,13 @@ class WindowCollection(object):
         :param misfit_value: Used misfit value.
         """
         self.windows.append(Window(
-            starttime=UTCDateTime(starttime),
-            endtime=UTCDateTime(endtime),
-            weight=float(weight),
-            taper=str(taper),
-            taper_percentage=float(taper_percentage),
-            misfit_type=str(misfit_type),
+            starttime=starttime,
+            endtime=endtime,
+            weight=weight,
+            taper=taper,
+            taper_percentage=taper_percentage,
+            misfit_type=misfit_type,
+            misfit_value=misfit_value,
             misfit_details=misfit_details,
             collection=self))
 
@@ -365,9 +368,15 @@ class WindowCollection(object):
             local_win.append(E.Weight(str(w.weight)))
             local_win.append(E.Taper(str(w.taper)))
             local_win.append(E.TaperPercentage(str(w.taper_percentage)))
-            local_win.append(E.Misfit(str(w.misfit)))
+            if w.misfit_type is not None:
+                local_win.append(E.Misfit(str(w.misfit_type)))
             if w.misfit_value is not None:
-                local_win.append(E.MisfitValue(str(w.misfit_value)))
+                local_win.append(E.MisfitValue(
+                    str(w.misfit_value)))
+            if w.misfit_details:
+                local_win.append(E.MisfitDetails(
+                    *[getattr(E, k)(v) for k, v in w.misfit_details.items()]
+                ))
             windows.append(E.Window(*local_win))
 
         doc = (
@@ -450,9 +459,14 @@ class Window(object):
         # Force some sanity. If no misfit is specified, it can have no
         # misfit details. Also if no misfit value is given, it can have no
         # misfit details.
-        if self.misfit_type is None and self.__misfit_details:
+        if self.misfit_type is None and \
+                (self.misfit_value or self.misfit_details):
+            raise ValueError("No misfit value or misfit details without "
+                             "misfit type.")
+        if (self.misfit_type is None or self.misfit_value is None) and \
+                self.__misfit_details:
             raise ValueError("No misfit details allowed without a misfit "
-                             "type.")
+                             "type and value.")
         elif self.misfit_value is None and self.__misfit_details:
             raise ValueError("No misfit details allowed without a misfit "
                              "value.")
@@ -495,9 +509,15 @@ class Window(object):
         return not self.__eq__(other)
 
     def __str__(self):
+        if self.misfit_type is None:
+            misfit_str = ""
+        elif self.misfit_value is None:
+            misfit_str = ", %s (not calculated)" % self.misfit_type
+        else:
+            misfit_str = ", %s (%.3g)" % (self.misfit_type, self.misfit_value)
         return (
             "{duration:.2f} seconds window from {st}\n\tWeight: "
-            "{weight:.2f}, {perc:.2f}% {taper} taper, {misfit_type} ({value})"
+            "{weight:.2f}, {perc:.2f}% {taper} taper{misfit_str}"
 
         ).format(
             duration=self.endtime - self.starttime,
@@ -505,9 +525,7 @@ class Window(object):
             weight=self.weight,
             taper=self.taper,
             perc=self.taper_percentage * 100.0,
-            misfit_type=self.misfit_type,
-            value="%.3g" % self.misfit_value
-            if self.misfit_value is not None else "not calculated")
+            misfit_str=misfit_str)
 
     @property
     def length(self):
