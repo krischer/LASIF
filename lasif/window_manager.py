@@ -7,6 +7,10 @@ This happens in a layer of hierarchies. It might look over-engineered but it
 offers a nice separation of concerns and is pretty intuitive once it is
 actually clear what is going on.
 
+Furthermore it turned out to be way more complicated to manage windows and
+the associated adjoint sources in a managable and flexible way than I
+originally thought...
+
 The :class:`~WindowGroupManager: class manages all windows per event and
 iteration. This offers a convenient way to loop over all windows for an
 event and a certain iteration. It will always return :class:`~WindowCollection`
@@ -236,10 +240,11 @@ class WindowCollection(object):
         if self.comm is None:
             raise ValueError("Operation only possible with an active "
                              "communicator instance.")
-        self.comm.adjoint_sources.calculate_adjoint_source(
+        adsrc = self.comm.adjoint_sources.calculate_adjoint_source(
             self.event_name, self.synthetics_tag, self.channel_id,
             window.starttime, window.endtime, window.taper,
             window.taper_percentage, window.misfit_type)
+        return adsrc
 
     def add_window(self, starttime, endtime, weight, taper,
                    taper_percentage, misfit_type=None, misfit_value=None,

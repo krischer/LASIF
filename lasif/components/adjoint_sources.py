@@ -61,7 +61,8 @@ class AdjointSourcesComponent(Component):
             event_name, station_id, iteration.get_processing_tag())
         synth = self.comm.waveforms.get_waveforms_synthetic(
             event_name, station_id,
-            self.comm.iterations.get_long_iteration_name(iteration_name))
+            self.comm.iterations.get_long_iteration_name(
+                iteration.iteration_name))
 
         data = data.select(component=cha[-1])
         synth = synth.select(channel=cha[-1])
@@ -114,6 +115,6 @@ class AdjointSourcesComponent(Component):
         # Recreate dictionary for clarity.
         return {
             "adjoint_source": adsrc["adjoint_source"],
-            "misfit": adsrc["misfit"],
-            "messages": adsrc["messages"]
+            "misfit_value": adsrc["misfit_value"],
+            "details": adsrc["details"]
         }

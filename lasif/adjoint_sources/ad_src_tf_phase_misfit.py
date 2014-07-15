@@ -194,7 +194,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     ret_dict = {
         "adjoint_source": ad_src,
-        "misfit": phase_misfit,
-        "messages": messages}
+        "misfit_value": phase_misfit,
+        "details": {"messages": messages}
+    }
 
     return ret_dict
