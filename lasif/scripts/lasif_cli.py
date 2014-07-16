@@ -989,6 +989,9 @@ def lasif_plot_windows(parser, args):
     for window_group in window_manager:
         window_group.plot(show=False, filename=os.path.join(output_folder,
             "%s.png" % window_group.channel_id))
+        sys.stdout.write(".")
+        sys.stdout.flush()
+    print "\nDone"
 
     print "Done. Written output to folder %s." % output_folder
 

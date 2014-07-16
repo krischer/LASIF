@@ -219,9 +219,23 @@ class IterationsComponent(Component):
         Traceback (most recent call last):
             ...
         LASIFNotFoundError: ...
+
+
+        It also works with the long iteration name and event an existing
+        iteration object. This makes it simple to use, one path for all
+        possibilities.
+        >>> it = comm.iterations.get("ITERATION_1")
+        >>> it  # doctest: +ELLIPSIS
+        <lasif.iteration_xml.Iteration object at ...>
+        >>> comm.iterations.get(it)
+        <lasif.iteration_xml.Iteration object at ...>
         """
         # Make it work with both the long and short version of the iteration
-        # name.
+        # name, and existing iteration object.
+        try:
+            iteration_name = iteration_name.iteration_name
+        except AttributeError:
+            pass
         iteration_name = iteration_name.lstrip("ITERATION_")
 
         it_dict = self.get_iteration_dict()

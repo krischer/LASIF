@@ -54,6 +54,21 @@ class Iteration(object):
         self.comments = [_i.text for _i in root.findall("comment") if _i.text]
         self.source_time_function = self._get(root, "source_time_function")
 
+        self.scale_data_to_synthetics = \
+            self._get_if_available(root, "scale_data_to_synthetics")
+
+        # Defaults to True.
+        if self.scale_data_to_synthetics is None:
+            self.scale_data_to_synthetics = True
+        elif self.scale_data_to_synthetics.lower() == "true":
+            self.scale_data_to_synthetics = True
+        elif self.scale_data_to_synthetics.lower() == "false":
+            self.scale_data_to_synthetics = False
+        else:
+            raise ValueError("Value '%s' invalid for "
+                             "'scale_data_to_synthetics'." %
+                             self.scale_data_to_synthetics)
+
         self.data_preprocessing = {}
         prep = root.find("data_preprocessing")
         self.data_preprocessing["highpass_period"] = \
@@ -244,6 +259,8 @@ class Iteration(object):
             contents.extend([E.comment(_i) for _i in self.comments])
 
         contents.extend([
+            E.scale_data_to_synthetics(str(
+                self.scale_data_to_synthetics).lower()),
             E.data_preprocessing(
                 E.highpass_period(
                     str(self.data_preprocessing["highpass_period"])),
@@ -403,6 +420,7 @@ def create_iteration_xml_string(iteration_name, solver_name, events,
         E.iteration_name(iteration_name),
         E.iteration_description(""),
         E.comment(""),
+        E.scale_data_to_synthetics("true"),
         E.data_preprocessing(
             E.highpass_period(str(max_period)),
             E.lowpass_period(str(min_period))),
