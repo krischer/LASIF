@@ -969,52 +969,27 @@ def lasif_plot_q_model(parser, args):
 
 
 @command_group("Plotting")
-def lasif_plot_selected_windows(parser, args):
+def lasif_plot_windows(parser, args):
     """
     Plot the selected windows.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
+    parser.add_argument("iteration_name", help="name of the iteration")
     args = parser.parse_args(args)
 
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    from lasif.window_selection import select_windows, plot_windows
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
 
-    if event_name not in proj.events:
-        msg = "Event '%s' not found in project." % event_name
-        raise LASIFCommandLineException(msg)
-
-    iterator = proj.data_synthetic_iterator(event_name, iteration_name)
-    event_info = proj.events[event_name]
-
-    iteration = proj._get_iteration(iteration_name)
-    process_params = iteration.get_process_params()
-    minimum_period = 1.0 / process_params["lowpass"]
-    maximum_period = 1.0 / process_params["highpass"]
-
-    output_folder = proj.get_output_folder(
+    output_folder = comm.project.get_output_folder(
         "Selected_Windows_Iteration_%s__%s" % (event_name, iteration_name))
 
-    for data_set in iterator:
-        for component in ["Z", "N", "E"]:
-            try:
-                data = data_set.data.select(component=component)[0]
-            except IndexError:
-                continue
-            synthetics = data_set.synthetics.select(component=component)[0]
-            windows = select_windows(
-                data, synthetics,
-                event_info["latitude"], event_info["longitude"],
-                event_info["depth_in_km"], data_set["coordinates"]["latitude"],
-                data_set["coordinates"]["longitude"], minimum_period,
-                maximum_period)
-            plot_windows(
-                data, synthetics, windows, maximum_period,
-                filename=os.path.join(output_folder,
-                                      "windows_%s.pdf" % data.id))
+    window_manager = comm.windows.get(event_name, iteration_name)
+    for window_group in window_manager:
+        window_group.plot(show=False, filename=os.path.join(output_folder,
+            "%s.png" % window_group.channel_id))
+
     print "Done. Written output to folder %s." % output_folder
 
 
