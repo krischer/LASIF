@@ -69,6 +69,12 @@ class EventsComponent(Component):
         >>> comm.events.has_event('random')
         False
         """
+        # Make sure  it also works with existing event dictionaries. This
+        # has the potential to simplify lots of code.
+        try:
+            event_name = event_name["event_name"]
+        except (KeyError, TypeError):
+            pass
         return event_name in self.__event_files
 
     def get_all_events(self):

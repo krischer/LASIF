@@ -93,6 +93,14 @@ class IterationsComponent(Component):
         >>> comm.iterations.has_iteration("99")
         False
         """
+        # Make it work with both the long and short version of the iteration
+        # name, and existing iteration object.
+        try:
+            iteration_name = iteration_name.iteration_name
+        except AttributeError:
+            pass
+        iteration_name = iteration_name.lstrip("ITERATION_")
+
         return iteration_name in self.get_iteration_dict()
 
     def create_new_iteration(self, iteration_name, solver_name, events_dict,
