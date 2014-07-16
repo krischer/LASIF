@@ -158,20 +158,30 @@ class VisualizationsComponent(Component):
         data = self.comm.query.get_matching_waveforms(event, iteration,
                                                       channel_id)
         if ax is None:
-            plt.figure(figsize=(15, 4))
+            plt.figure(figsize=(15, 3))
             ax = plt.gca()
 
+        iteration = self.comm.iterations.get(iteration)
 
         ax.plot(data.data[0].times(), data.data[0].data, color="black",
                 label="observed")
         ax.plot(data.synthetics[0].times(), data.synthetics[0].data,
-                color="red", label="synthetics")
+                color="red",
+                label="synthetic, iteration %s" % str(iteration.name))
         ax.legend()
 
         ax.set_xlabel("Seconds since event")
+        ax.set_ylabel("m/s")
         ax.set_title(channel_id)
         ax.grid()
+
+        if iteration.scale_data_to_synthetics:
+            ax.text(0.995, 0.005, "data scaled to synthetics",
+                    horizontalalignment="right", verticalalignment="bottom",
+                    transform=ax.transAxes, color="0.2")
+
         if show:
+            plt.tight_layout()
             plt.show()
             plt.close()
 
