@@ -150,3 +150,5 @@ class VisualizationsComponent(Component):
                 "raydensity.png")
             plt.savefig(outfile, dpi=200, transparent=True)
             print "Saved picture at %s" % outfile
+
+    def plot_data_and_synthetics(self, event, iteration, channel_id):

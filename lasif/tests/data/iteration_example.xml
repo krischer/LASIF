@@ -5,6 +5,7 @@
   <comment>Comment 1</comment>
   <comment>Comment 2</comment>
   <comment>Comment 3</comment>
+  <scale_data_to_synthetics>true</scale_data_to_synthetics>
   <data_preprocessing>
     <highpass_period>100.0</highpass_period>
     <lowpass_period>8.0</lowpass_period>
