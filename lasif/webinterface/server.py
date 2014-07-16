@@ -7,6 +7,7 @@ import matplotlib.pylab as plt
 from matplotlib.colors import hex2color
 plt.switch_backend("agg")
 
+import collections
 import copy
 import geojson
 import json
@@ -170,6 +171,21 @@ def list_iterations():
     """
     iterations = app.comm.iterations.list()
     return flask.jsonify(iterations=iterations)
+
+
+@app.route("/rest/windows")
+def list_windows():
+    """
+    Returns a JSON dictionary with the events that have windows for each
+    iteration.
+    """
+    iterations = collections.defaultdict(list)
+    events = app.comm.windows.list()
+    for event_name in events:
+        its = app.comm.windows.list_for_event(event_name)
+        for it in its:
+            iterations[it].append(event_name)
+    return flask.jsonify(iterations)
 
 
 @app.route("/rest/iteration/<iteration_name>")
