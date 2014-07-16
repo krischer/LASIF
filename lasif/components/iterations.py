@@ -18,6 +18,7 @@ class IterationsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
     def __init__(self, iterations_folder, communicator, component_name):
+        self.__cached_iterations = {}
         self._folder = iterations_folder
         super(IterationsComponent, self).__init__(communicator,
                                                   component_name)
@@ -194,8 +195,14 @@ class IterationsComponent(Component):
         Save an iteration object to disc.
         :param iteration:
         """
-        filename = self._get_filename_for_iteration(iteration.iteration_name)
+        name = iteration.iteration_name
+        filename = self._get_filename_for_iteration(name)
         iteration.write(filename)
+
+        # Remove the iteration from the cache so it is loaded anew the next
+        # time it is accessed.
+        if name in self.__cached_iterations:
+            del self.__cached_iterations[name]
 
     def get(self, iteration_name):
         """
@@ -238,6 +245,10 @@ class IterationsComponent(Component):
             pass
         iteration_name = iteration_name.lstrip("ITERATION_")
 
+        # Access cache.
+        if iteration_name in self.__cached_iterations:
+            return self.__cached_iterations[iteration_name]
+
         it_dict = self.get_iteration_dict()
         if iteration_name not in it_dict:
             msg = "Iteration '%s' not found." % iteration_name
@@ -245,6 +256,10 @@ class IterationsComponent(Component):
 
         from lasif.iteration_xml import Iteration
         it = Iteration(it_dict[iteration_name])
+
+        # Store in cache.
+        self.__cached_iterations[iteration_name] = it
+
         return it
 
     def plot_Q_model(self, iteration_name):

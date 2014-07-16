@@ -92,6 +92,8 @@ class EventsComponent(Component):
         """
         Get information about one event.
 
+        This function caches the results and is thus very cheap.
+
         :type event_name: str
         :param event_name: The name of the event.
         :rtype: dict

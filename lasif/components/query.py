@@ -220,9 +220,10 @@ class QueryComponent(Component):
         return DataSyntheticIterator(self.comm, iteration_name, event_name,
                                      scale_data)
 
-    def get_matching_waveforms(self, iteration_name, event_name, station_id,
+    def get_matching_waveforms(self, iteration, event, station_id,
                                scale_data=False, component=None):
-        iteration = self.comm.iterations.get(iteration_name)
+        iteration = self.comm.iterations.get(iteration)
+        event = self.comm.query.get(event)
         # Get the metadata for the processed and synthetics for this
         # particular station.
         data = self.comm.waveforms.get_waveforms_processed(
