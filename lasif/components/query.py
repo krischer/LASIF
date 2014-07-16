@@ -218,8 +218,18 @@ class QueryComponent(Component):
         from ..tools.data_synthetics_iterator import DataSyntheticIterator
         return DataSyntheticIterator(self.comm, iteration, event)
 
-    def get_matching_waveforms(self, iteration, event, station_id,
-                               component=None):
+    def get_matching_waveforms(self, iteration, event, station_or_channel_id):
+        seed_id = station_or_channel_id.split(".")
+        if len(seed_id) == 2:
+            channel = None
+            station_id = seed_id
+        elif len(seed_id) == 4:
+            network, station, _, channel = seed_id
+            station_id = ".".join((network, station))
+        else:
+            raise ValueError("'station_or_channel_id' must either have "
+                             "2 or 4 parts.")
+
         iteration = self.comm.iterations.get(iteration)
         event = self.comm.events.get(event)
 
@@ -251,8 +261,11 @@ class QueryComponent(Component):
         synthetics.sort()
 
         # Select component if necessary.
-        if component is not None:
-            component = component.upper()
+        if channel and channel is not None:
+            # Only use the last letter of the channel for the selection.
+            # Different solvers have different conventions for the location
+            # and channel codes.
+            component = channel[-1].upper()
             data.traces = [i for i in data.traces
                            if i.stats.channel[-1].upper() == component]
             synthetics.traces = [i for i in synthetics.traces
