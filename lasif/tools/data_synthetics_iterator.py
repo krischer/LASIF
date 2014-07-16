@@ -51,8 +51,7 @@ class DataSyntheticIterator(object):
 
     def get(self, station_id):
         return self.comm.query.get_matching_waveforms(
-            self.iteration.iteration_name, self.event_name, self.station_id,
-            component=None)
+            self.event_name, self.iteration, self.station_id, component=None)
 
     def next(self):
         """

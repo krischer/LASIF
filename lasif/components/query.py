@@ -218,7 +218,7 @@ class QueryComponent(Component):
         from ..tools.data_synthetics_iterator import DataSyntheticIterator
         return DataSyntheticIterator(self.comm, iteration, event)
 
-    def get_matching_waveforms(self, iteration, event, station_or_channel_id):
+    def get_matching_waveforms(self, event, iteration, station_or_channel_id):
         seed_id = station_or_channel_id.split(".")
         if len(seed_id) == 2:
             channel = None

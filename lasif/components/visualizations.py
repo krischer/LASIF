@@ -151,5 +151,30 @@ class VisualizationsComponent(Component):
             plt.savefig(outfile, dpi=200, transparent=True)
             print "Saved picture at %s" % outfile
 
-    def plot_data_and_synthetics(self, event, iteration, channel_id):
-        data = self.comm.query.get_ma
+    def plot_data_and_synthetics(self, event, iteration, channel_id, ax=None,
+                                 show=True):
+        import matplotlib.pylab as plt
+
+        data = self.comm.query.get_matching_waveforms(event, iteration,
+                                                      channel_id)
+        if ax is None:
+            plt.figure(figsize=(15, 4))
+            ax = plt.gca()
+
+
+        ax.plot(data.data[0].times(), data.data[0].data, color="black",
+                label="observed")
+        ax.plot(data.synthetics[0].times(), data.synthetics[0].data,
+                color="red", label="synthetics")
+        ax.legend()
+
+        ax.set_xlabel("Seconds since event")
+        ax.set_title(channel_id)
+        ax.grid()
+        if show:
+            plt.show()
+            plt.close()
+
+        return ax
+
+
