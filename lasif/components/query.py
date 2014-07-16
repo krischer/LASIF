@@ -182,7 +182,7 @@ class QueryComponent(Component):
             # Processed data.
             try:
                 processed = self.comm.waveforms.get_metadata_processed(
-                    event_name, iteration.get_processing_tag())
+                    event_name, iteration.processing_tag)
                 # Get a list of all stations
                 processed = set((
                     "{network}.{station}".format(**_i) for _i in processed))
@@ -223,23 +223,26 @@ class QueryComponent(Component):
     def get_matching_waveforms(self, iteration, event, station_id,
                                scale_data=False, component=None):
         iteration = self.comm.iterations.get(iteration)
+        event = self.comm.events.get(event)
 
         # Get the metadata for the processed and synthetics for this
         # particular station.
         data = self.comm.waveforms.get_waveforms_processed(
-            event_name, station_id,
-            tag=iteration.get_processing_tag())
+            event["event_name"], station_id,
+            tag=iteration.processing_tag)
         synthetics = self.comm.waveforms.get_waveforms_synthetic(
-            event_name, station_id,
-            long_iteration_name=self.comm.iterations
-            .get_long_iteration_name(iteration.iteration_name))
+            event["event_name"], station_id,
+            long_iteration_name=iteration.long_name)
         coordinates = self.comm.query.get_coordinates_for_station(
-            event_name, station_id)
+            event["event_name"], station_id)
 
-        if scale_data:
+        # Scale the data if required.
+        if iteration.scale_data_to_synthetics:
             for data_tr in data:
-                synthetic_tr = synthetics.select(
-                    channel=data_tr.stats.channel[-1])[0]
+                synthetic_tr = [
+                    tr for tr in synthetics
+                    if tr.stats.channel[-1].lower() ==
+                    data_tr.stats.channel[-1].lower()][0]
                 scaling_factor = synthetic_tr.data.ptp() / \
                                  data_tr.data.ptp()
                 # Store and apply the scaling.

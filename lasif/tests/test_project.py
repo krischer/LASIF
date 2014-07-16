@@ -385,7 +385,7 @@ def test_preprocessing_runs(project):
     expected.
     """
     project.create_new_iteration("1", "ses3d_4_1", 8, 100)
-    processing_tag = project._get_iteration("1").get_processing_tag()
+    processing_tag = project._get_iteration("1").processing_tag
     event_data_dir = os.path.join(
         project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
     processing_dir = os.path.join(event_data_dir, processing_tag)
@@ -706,7 +706,7 @@ def test_iteration_status(project):
     # detected.
     proc_folder = os.path.join(
         project.paths["data"], event,
-        project._get_iteration("1").get_processing_tag())
+        project._get_iteration("1").processing_tag)
     data_folder = os.path.join(project.paths["data"], event, "raw")
 
     data_file = sorted(glob.glob(os.path.join(data_folder, "*")))[0]
@@ -853,7 +853,7 @@ def test_coordinate_retrieval(project):
     # create processed data.
     project.create_new_iteration("1", "ses3d_4_1", 8, 100)
     project.preprocess_data("1", [event_name], waiting_time=0.0)
-    processing_tag = project._get_iteration("1").get_processing_tag()
+    processing_tag = project._get_iteration("1").processing_tag
 
     filename = os.path.join(project.paths["data"], event_name, processing_tag,
                             "HL.ARG..BHZ.mseed")
@@ -1008,7 +1008,7 @@ def test_discover_available_data(project):
         project.discover_available_data(event, "NET.STA")
 
     # Now preprocess some data that then should appear.
-    processing_tag = project._get_iteration("1").get_processing_tag()
+    processing_tag = project._get_iteration("1").processing_tag
     project.preprocess_data("1", [event], waiting_time=0.0)
     assert project.discover_available_data(event, "HT.SIGR") == \
         {"processed": {processing_tag: ["Z"]},

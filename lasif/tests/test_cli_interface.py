@@ -349,7 +349,7 @@ def test_lasif_event_info(cli):
 #     """
 #     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
 #
-#     processing_tag = cli.project._get_iteration("1").get_processing_tag()
+#     processing_tag = cli.project._get_iteration("1").processing_tag
 #     preprocessing_data = os.path.join(
 #         cli.project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
 #         processing_tag)

@@ -189,7 +189,8 @@ class Iteration(object):
             "dt": float(dt),
             "stf": stf}
 
-    def get_processing_tag(self):
+    @property
+    def processing_tag(self):
         """
         Returns the processing tag for this iteration.
         """

@@ -315,8 +315,8 @@ class Project(object):
         Calculates the adjoint source for a certain window.
         """
         iteration = self._get_iteration(iteration_name)
-        proc_tag = iteration.get_processing_tag()
-        process_params = iteration.get_processing_tag()
+        proc_tag = iteration.processing_tag()
+        process_params = iteration.processing_tag()
 
         data = self.get_waveform_data(event_name, station_id,
                                       data_type="processed", tag=proc_tag)
