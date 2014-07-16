@@ -205,7 +205,7 @@ def get_iteration_detail(iteration_name):
         data_preprocessing=iteration.data_preprocessing,
         events=iteration.events.keys(),
         processing_params=iteration.get_process_params(),
-        processing_tag=iteration.processing_tag(),
+        processing_tag=iteration.processing_tag,
         solver=iteration.solver_settings["solver"],
         solver_settings=iteration.solver_settings["solver_settings"],
         source_time_function=stf)

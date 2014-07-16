@@ -37,7 +37,7 @@ class ActionsComponent(Component):
         iteration = self.comm.iterations.get(iteration_name)
 
         process_params = iteration.get_process_params()
-        processing_tag = iteration.processing_tag()
+        processing_tag = iteration.processing_tag
 
         logfile = os.path.join(
             self.comm.project.get_output_folder("data_preprocessing"),

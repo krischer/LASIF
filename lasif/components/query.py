@@ -211,17 +211,15 @@ class QueryComponent(Component):
 
         return dict(events)
 
-    def get_data_and_synthetics_iterator(self, iteration_name, event_name,
-                                         scale_data=False):
+    def get_data_and_synthetics_iterator(self, iteration, event):
         """
         Get the processed data and matching synthetics for a particular event.
         """
         from ..tools.data_synthetics_iterator import DataSyntheticIterator
-        return DataSyntheticIterator(self.comm, iteration_name, event_name,
-                                     scale_data)
+        return DataSyntheticIterator(self.comm, iteration, event)
 
     def get_matching_waveforms(self, iteration, event, station_id,
-                               scale_data=False, component=None):
+                               component=None):
         iteration = self.comm.iterations.get(iteration)
         event = self.comm.events.get(event)
 

@@ -687,7 +687,7 @@ def lasif_launch_misfit_gui(parser, args):
     from lasif.adjoint_src_manager import AdjointSourceManager
 
     iterator = comm.query.get_data_and_synthetics_iterator(
-        iteration_name, event_name, scale_data=True)
+        iteration_name, event_name)
     event = comm.events.get(event_name)
     iteration = comm.iterations.get(iteration_name)
     long_iteration_name = comm.iterations.get_long_iteration_name(

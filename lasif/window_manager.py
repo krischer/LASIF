@@ -280,7 +280,7 @@ class WindowCollection(object):
         waveforms = self.comm.query.get_matching_waveforms(
             self.synthetics_tag, self.event_name,
             ".".join(self.channel_id.split(".")[:2]),
-            scale_data=True, component=self.channel_id[-1])
+            component=self.channel_id[-1])
         data = waveforms.data
         synth = waveforms.synthetics
 

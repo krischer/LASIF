@@ -59,7 +59,7 @@ class AdjointSourcesComponent(Component):
 
         waveforms = self.comm.query.get_matching_waveforms(
             iteration_name, event_name, station_id,
-            scale_data=True, component=cha[-1])
+            component=cha[-1])
         data = waveforms.data
         synth = waveforms.synthetics
 

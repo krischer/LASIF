@@ -16,7 +16,7 @@ from lasif import LASIFNotFoundError
 
 
 class DataSyntheticIterator(object):
-    def __init__(self, comm, iteration_name, event_name, scale_data=False):
+    def __init__(self, comm, iteration_name, event_name):
         self.comm = comm
 
         self.event_name = event_name
@@ -30,8 +30,6 @@ class DataSyntheticIterator(object):
             msg = "Event '%s' not part of iteration '%s'." % (
                 event_name, iteration_name)
             raise LASIFNotFoundError(msg)
-
-        self._scale_data_flag = scale_data
 
         # Get all stations defined for the given iteration and event.
         self.stations = tuple(sorted(
@@ -54,7 +52,7 @@ class DataSyntheticIterator(object):
     def get(self, station_id):
         return self.comm.query.get_matching_waveforms(
             self.iteration.iteration_name, self.event_name, self.station_id,
-            scale_data=self._scale_data_flag, component=None)
+            component=None)
 
     def next(self):
         """
