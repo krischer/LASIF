@@ -200,6 +200,14 @@ class Iteration(object):
             .format(**self.get_process_params())
         return processing_tag
 
+    @property
+    def long_name(self):
+        return "ITERATION_%s" % self.name
+
+    @property
+    def name(self):
+        return self.iteration_name
+
     def __str__(self):
         """
         Pretty printing.
