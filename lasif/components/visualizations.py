@@ -152,3 +152,4 @@ class VisualizationsComponent(Component):
             print "Saved picture at %s" % outfile
 
     def plot_data_and_synthetics(self, event, iteration, channel_id):
+        pass

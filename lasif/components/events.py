@@ -117,7 +117,21 @@ class EventsComponent(Component):
          ['depth_in_km', 'event_name', 'filename', 'latitude', 'longitude',
           'm_pp', 'm_rp', 'm_rr', 'm_rt', 'm_tp', 'm_tt', 'magnitude',
           'magnitude_type', 'origin_time', 'region']
+
+        It also works with an existing event dictionary. This eases calling
+        the function under certain circumstances.
+
+        >>> ev = comm.events.get('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15')
+        >>> ev == comm.events.get(ev)
+        True
         """
+        # Make sure  it also works with existing event dictionaries. This
+        # has the potential to simplify lots of code.
+        try:
+            event_name = event_name["event_name"]
+        except (KeyError, TypeError):
+            pass
+
         if event_name not in self.__event_files:
             raise LASIFNotFoundError("Event '%s' not known to LASIF." %
                                      event_name)
