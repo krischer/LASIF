@@ -40,8 +40,6 @@ should scale fairly well and makes it trivial to add new methods.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from __future__ import print_function
-
 import os
 from lasif import LASIFError
 
@@ -1071,24 +1069,20 @@ def lasif_iteration_status(parser, args):
     print("Iteration %s is defined for %i events:" % (iteration_name,
                                                       len(iteration.events)))
     for event in sorted(status.keys()):
-        print("\t%s: " % event, end="")
-        all_ok = True
         st = status[event]
+        print("\t%s" % event)
+
+        print("\t\t%.2f %% of the events stations have picked windows" %
+              (st["fraction_of_stations_that_have_windows"] * 100))
         if st["missing_raw"]:
-            all_ok = False
-            print("\n\t\tLacks raw data for %i stations" %
-                  len(st["missing_raw"]), end="")
+            print("\t\tLacks raw data for %i stations" %
+                  len(st["missing_raw"]))
         if st["missing_processed"]:
-            all_ok = False
-            print("\n\t\tLacks processed data for %i stations" %
-                  len(st["missing_processed"]), end="")
+            print("\t\tLacks processed data for %i stations" %
+                  len(st["missing_processed"]))
         if st["missing_synthetic"]:
-            all_ok = False
-            print("\n\t\tLacks synthetic data for %i stations" %
-                  len(st["missing_synthetic"]), end="")
-        if all_ok is True:
-            print("[All set]", end="")
-        print("")
+            print("\t\tLacks synthetic data for %i stations" %
+                  len(st["missing_synthetic"]))
 
 
 

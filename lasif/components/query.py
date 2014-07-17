@@ -162,7 +162,8 @@ class QueryComponent(Component):
         :type events: list, optional
 
         Returns a dictionary of events, each containing the following keys:
-        ``missing_raw``, ``missing_processed``, ``missing_synthetic``
+        ``"missing_raw"``, ``"missing_processed"``,
+        ``"missing_synthetic"``, ``"fraction_of_stations_that_have_windows"``
 
         Each of those is a list of stations missing for that particular data
         type.
@@ -226,6 +227,19 @@ class QueryComponent(Component):
             except LASIFNotFoundError:
                 missing_synthetic = set(stations)
             status[event_name]["missing_synthetic"] = missing_synthetic
+
+
+            try:
+                windows = self.comm.windows.get(event_name, iteration)
+            except LASIFNotFoundError:
+                windows = 0
+            if windows:
+                # Get the windows per station.
+                windows = set(".".join(_i.split(".")[:2]) for _i in
+                                  windows.list())
+                windows = stations.intersection(windows)
+            status[event_name]["fraction_of_stations_that_have_windows"] = \
+                float(len(windows)) / float(len(stations))
 
         return dict(status)
 

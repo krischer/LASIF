@@ -149,7 +149,10 @@ class ActionsComponent(Component):
         """
         event = self.comm.events.get(event)
         iteration = self.comm.iterations.get(iteration)
+
+
         from IPython.core.debugger import Tracer; Tracer(colors="Linux")()
+
 
 
     def generate_input_files(self, iteration_name, event_name,

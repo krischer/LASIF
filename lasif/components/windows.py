@@ -45,13 +45,18 @@ class WindowsComponent(Component):
                        os.path.isdir(os.path.join(event_folder, _i)) and
                        _i.startswith("ITERATION_")])
 
-    def get(self, event_name, iteration_name):
+    def get(self, event, iteration):
         """
         Returns the window manager instance for a given event and iteration.
 
         :param event_name: The name of the event.
         :param iteration_name: The name of the iteration.
         """
+        event = self.comm.events.get(event)
+        iteration = self.comm.iterations.get(iteration)
+        event_name = event["event_name"]
+        iteration_name = iteration.name
+
         if not self.comm.events.has_event(event_name):
             msg = "Event '%s' not known." % event_name
             raise LASIFNotFoundError(msg)
