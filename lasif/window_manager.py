@@ -273,41 +273,40 @@ class WindowCollection(object):
             collection=self))
 
     def plot(self, show=True, filename=None):
+        """
+        Plots the windows for the object's channel.
+
+        :param show: Calls ``plt.show()`` before returning if True.
+        :param filename: If given, a picture will be saved to this path.
+
+        :return: The possibly created axes object.
+        """
         if self.comm is None:
             raise ValueError("Operation only possible with an active "
                              "communicator instance.")
 
-        waveforms = self.comm.query.get_matching_waveforms(
-            self.synthetics_tag, self.event_name,
-            ".".join(self.channel_id.split(".")[:2]),
-            component=self.channel_id[-1])
-        data = waveforms.data
-        synth = waveforms.synthetics
-
         import matplotlib.pylab as plt
-        plt.figure(figsize=(15, 4))
-        plt.plot(data[0].times(), data[0].data, color="black",
-                 label="observed")
-        plt.plot(synth[0].times(), synth[0].data, color="red",
-                 label="synthetics")
-        plt.legend()
 
-        ylim = plt.ylim()
-        st = data[0].stats.starttime
+        ax = self.comm.visualizations.plot_data_and_synthetics(
+            self.event, self.iteration, self.channel_id, show=False)
+        ylim = ax.get_ylim()
+
+        st = self.event["origin_time"]
         for window in self.windows:
-            plt.fill_between((window.starttime - st, window.endtime - st),
-                             [ylim[0] - 10] * 2, [ylim[1] + 10] * 2,
-                             alpha=0.3, lw=0)
-        plt.ylim(*ylim)
-        plt.xlabel("Seconds since event")
-        plt.title(self.channel_id)
-        plt.grid()
+            ax.fill_between((window.starttime - st, window.endtime - st),
+                            [ylim[0] - 10] * 2, [ylim[1] + 10] * 2,
+                            alpha=0.3, lw=0, zorder=-10)
+        ax.set_ylim(*ylim)
         if show:
+            plt.tight_layout()
             plt.show()
             plt.close()
         elif filename:
+            plt.tight_layout()
             plt.savefig(filename)
             plt.close()
+
+        return ax
 
     def delete_window(self, starttime, endtime, tolerance=0.01):
         """

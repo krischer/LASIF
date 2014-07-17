@@ -153,6 +153,17 @@ class VisualizationsComponent(Component):
 
     def plot_data_and_synthetics(self, event, iteration, channel_id, ax=None,
                                  show=True):
+        """
+        Plots the data and corresponding synthetics for a given event,
+        iteration, and channel.
+
+        :param event: The event.
+        :param iteration: The iteration.
+        :param channel_id: The channel id.
+        :param ax: If given, it will be plotted to this ax.
+        :param show: If true, ``plt.show()`` will be called before returning.
+        :return: The potentially created axes object.
+        """
         import matplotlib.pylab as plt
 
         data = self.comm.query.get_matching_waveforms(event, iteration,
