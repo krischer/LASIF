@@ -40,6 +40,8 @@ should scale fairly well and makes it trivial to add new methods.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+from __future__ import print_function
+
 import os
 from lasif import LASIFError
 
@@ -359,7 +361,7 @@ def lasif_list_events(parser, args):
                 count["raw_waveform_file_count"],
                 count["preprocessed_waveform_file_count"],
                 count["synthetic_waveform_file_count"])])
-    print tab
+    print(tab)
 
 
 @command_group("Project Management")
@@ -442,8 +444,8 @@ def lasif_plot_kernel(parser, args):
     handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
 
     while True:
-        print handler
-        print ""
+        print(handler)
+        print("")
 
         inp = raw_input("Enter 'COMPONENT DEPTH' "
                         "('quit/exit' to exit): ").strip()
@@ -505,8 +507,8 @@ def lasif_plot_wavefield(parser, args):
     handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
 
     while True:
-        print handler
-        print ""
+        print(handler)
+        print("")
 
         inp = raw_input("Enter 'COMPONENT DEPTH' "
                         "('quit/exit' to exit): ").strip()
@@ -546,13 +548,13 @@ def lasif_event_info(parser, args):
 
     event_dict = comm.events.get(event_name)
 
-    print "Earthquake with %.1f %s at %s" % (
-        event_dict["magnitude"], event_dict["magnitude_type"],
-        event_dict["region"])
-    print "\tLatitude: %.3f, Longitude: %.3f, Depth: %.1f km" % (
-        event_dict["latitude"], event_dict["longitude"],
-        event_dict["depth_in_km"])
-    print "\t%s UTC" % str(event_dict["origin_time"])
+    print("Earthquake with %.1f %s at %s" % (
+          event_dict["magnitude"], event_dict["magnitude_type"],
+          event_dict["region"]))
+    print("\tLatitude: %.3f, Longitude: %.3f, Depth: %.1f km" % (
+          event_dict["latitude"], event_dict["longitude"],
+          event_dict["depth_in_km"]))
+    print("\t%s UTC" % str(event_dict["origin_time"]))
 
     try:
         stations = comm.query.get_all_stations_for_event(event_name)
@@ -561,8 +563,8 @@ def lasif_event_info(parser, args):
 
     if verbose:
         from lasif.utils import table_printer
-        print "\nStation and waveform information available at %i stations:\n" \
-            % len(stations)
+        print("\nStation and waveform information available at %i "
+              "stations:\n" % len(stations))
         header = ["id", "latitude", "longitude", "elevation_in_m",
                   "local depth"]
         keys = sorted(stations.keys())
@@ -869,7 +871,7 @@ def lasif_migrate_windows(parser, args):
             for component in ["Z", "N", "E"]:
                 data = data_set.data.select(component=component)[0]
                 synth = data_set.synthetics.select(channel=component)[0]
-                print data, synth
+                print(data, synth)
             raise NotImplementedError
 
 
@@ -904,7 +906,7 @@ def lasif_iteration_info(parser, args):
                "a list of all available iterations.") % iteration_name
         raise LASIFCommandLineException(msg)
 
-    print comm.iterations.get(iteration_name)
+    print(comm.iterations.get(iteration_name))
 
 
 @command_group("Project Management")
@@ -921,7 +923,7 @@ def lasif_remove_empty_coordinate_entries(parser, args):
     proj = _find_project_comm(".")
     reset_coordinate_less_stations(proj.paths["inv_db_file"])
 
-    print "SUCCESS"
+    print("SUCCESS")
 
 
 @command_group("Iteration Management")
@@ -993,9 +995,9 @@ def lasif_plot_windows(parser, args):
             "%s.png" % window_group.channel_id))
         sys.stdout.write(".")
         sys.stdout.flush()
-    print "\nDone"
+    print("\nDone")
 
-    print "Done. Written output to folder %s." % output_folder
+    print("Done. Written output to folder %s." % output_folder)
 
 
 @command_group("Project Management")
@@ -1063,47 +1065,31 @@ def lasif_iteration_status(parser, args):
     iteration_name = parser.parse_args(args).iteration_name
 
     comm = _find_project_comm(".")
-    status = comm.get_iteration_status(iteration_name)
+    status = comm.query.get_iteration_status(iteration_name)
+    iteration = comm.iterations.get(iteration_name)
 
-    file_count = len(comm._get_all_raw_waveform_files_for_iteration(
-                     iteration_name))
+    print("Iteration %s is defined for %i events:" % (iteration_name,
+                                                      len(iteration.events)))
+    for event in sorted(status.keys()):
+        print("\t%s: " % event, end="")
+        all_ok = True
+        st = status[event]
+        if st["missing_raw"]:
+            all_ok = False
+            print("\n\t\tLacks raw data for %i stations" %
+                  len(st["missing_raw"]), end="")
+        if st["missing_processed"]:
+            all_ok = False
+            print("\n\t\tLacks processed data for %i stations" %
+                  len(st["missing_processed"]), end="")
+        if st["missing_synthetic"]:
+            all_ok = False
+            print("\n\t\tLacks synthetic data for %i stations" %
+                  len(st["missing_synthetic"]), end="")
+        if all_ok is True:
+            print("[All set]", end="")
+        print("")
 
-    if not status["stations_in_iteration_that_do_not_exist"]:
-        file_status = "All necessary files available."
-    else:
-        file_status = ("{count} waveform files specified in the iteration "
-                       "are not available."
-                       .format(count=len(status[
-                           "stations_in_iteration_that_do_not_exist"])))
-    if not status["channels_not_yet_preprocessed"]:
-        processing_status = "All files are preprocessed."
-    else:
-        processing_status = ("{proc_files} out of {file_count} files still "
-                             "require preprocessing.".format(
-                                 proc_files=len(status[
-                                     "channels_not_yet_preprocessed"]),
-                                 file_count=file_count))
-    s_stat = status["synthetic_data_missing"]
-    if not s_stat:
-        synthetics_status = "All required synthetic files available."
-    else:
-        synthetics_status = \
-            "Missing synthetics for {count} event{p}:\n\t\t{events}".format(
-                count=len(s_stat),
-                p="s" if len(s_stat) != 1 else "",
-                events="\n\t\t".join(sorted([
-                    "%s (for %i stations)" % (key, len(value))
-                    for key, value in s_stat.iteritems()])))
-
-    print(
-        "Iteration Name: {iteration_name}\n"
-        "\t{file_status}\n"
-        "\t{processing_status}\n"
-        "\t{synthetics_status}".format(
-            iteration_name=iteration_name,
-            file_status=file_status,
-            processing_status=processing_status,
-            synthetics_status=synthetics_status))
 
 
 def lasif_tutorial(parser, args):
@@ -1135,8 +1121,8 @@ def lasif_calculate_constant_q_model(parser, args):
         iterations=10000,
         initial_temperature=0.1,
         cooling_factor=0.9998)
-    print "Weights: %s" % ", ".join([str(i) for i in weights])
-    print "Relaxation Times: %s" % ", ".join([str(i) for i in weights])
+    print("Weights: %s" % ", ".join([str(i) for i in weights]))
+    print("Relaxation Times: %s" % ", ".join([str(i) for i in weights]))
 
 
 def lasif_debug(parser, args):
@@ -1166,8 +1152,8 @@ def lasif_debug(parser, args):
         except LASIFError as e:
             info = "Error: %s" % e.message
 
-        print "\t" + info
-        print ""
+        print("\t" + info)
+        print("")
 
 
 @command_group("Misc")
@@ -1227,8 +1213,8 @@ def _print_generic_help(fcts):
                   inverted_style=colorama.Style.BRIGHT + colorama.Fore.BLACK +
                   colorama.Back.WHITE,
                   reset_style=colorama.Style.RESET_ALL))
-    print "\t" + header
-    print "\thttp://krischer.github.io/LASIF"
+    print("\t" + header)
+    print("\thttp://krischer.github.io/LASIF")
     print(80 * "#")
     print("\n{cmd}usage: lasif [--help] COMMAND [ARGS]{reset}\n".format(
         cmd=colorama.Style.BRIGHT + colorama.Fore.RED,
