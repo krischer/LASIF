@@ -151,17 +151,37 @@ class QueryComponent(Component):
             events[event] = data
         return events
 
-    def get_iteration_status(self, iteration_name):
+    def get_iteration_status(self, iteration, events=None):
         """
         Return the status of an iteration. This is a query command as it
         integrates a lot of different information.
-        """
-        iteration = self.comm.iterations.get(iteration_name)
 
-        events = collections.defaultdict(dict)
+        :param iteration: The iteration which to query.
+        :param events: If given, only the events of those events will be
+            queried. Otherwise all will be queried.
+        :type events: list, optional
+
+        Returns a dictionary of events, each containing the following keys:
+        ``missing_raw``, ``missing_processed``, ``missing_synthetic``
+
+        Each of those is a list of stations missing for that particular data
+        type.
+        """
+        iteration = self.comm.iterations.get(iteration)
+
+        # Collect the status information per event.
+        status = collections.defaultdict(dict)
+
+        # Make sure events is a list of event names to ease the later check.
+        if events:
+            events = [self.comm.events.get(_i)["event_name"] for _i in events]
 
         # Get all the data.
-        for event_name, event_dict in iteration.events.iteritems():
+        for event_name, event_dict in iteration.events.items():
+            # Skip events if some are specified.
+            if events and event_name not in events:
+                    continue
+
             # Get all stations that should be defined for the current
             # iteration.
             stations = set(event_dict["stations"].keys())
@@ -172,12 +192,11 @@ class QueryComponent(Component):
                 # Get a list of all stations
                 raw = set((
                     "{network}.{station}".format(**_i) for _i in raw))
-                # Get all stations in raw that are also defined for the
-                # current iteration.
-                raw_stations = stations.intersection(raw)
+                # Get the missing raw stations.
+                missing_raw = stations.difference(raw)
             except LASIFNotFoundError:
-                raw_stations = {}
-            events[event_name]["raw"] = raw_stations
+                missing_raw = set(stations)
+            status[event_name]["missing_raw"] = missing_raw
 
             # Processed data.
             try:
@@ -188,28 +207,27 @@ class QueryComponent(Component):
                     "{network}.{station}".format(**_i) for _i in processed))
                 # Get all stations in raw that are also defined for the
                 # current iteration.
-                processed_stations = stations.intersection(processed)
+                # Get the missing raw stations.
+                missing_processed = stations.difference(processed)
             except LASIFNotFoundError:
-                processed_stations = {}
-            events[event_name]["processed"] = processed_stations
+                missing_processed = set(stations)
+            status[event_name]["missing_processed"] = missing_processed
 
             # Synthetic data.
             try:
                 synthetic = self.comm.waveforms.get_metadata_synthetic(
-                    event_name,
-                    self.comm.iterations.get_long_iteration_name(
-                        iteration_name))
+                    event_name, iteration.long_name)
                 # Get a list of all stations
                 synthetic = set((
                     "{network}.{station}".format(**_i) for _i in synthetic))
                 # Get all stations in raw that are also defined for the
                 # current iteration.
-                synthetic_stations = stations.intersection(synthetic)
+                missing_synthetic = stations.difference(synthetic)
             except LASIFNotFoundError:
-                synthetic_stations = {}
-            events[event_name]["synthetic"] = synthetic_stations
+                missing_synthetic = set(stations)
+            status[event_name]["missing_synthetic"] = missing_synthetic
 
-        return dict(events)
+        return dict(status)
 
     def get_data_and_synthetics_iterator(self, iteration, event):
         """

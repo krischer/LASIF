@@ -140,6 +140,8 @@ def lasif_shell(parser, args):
     parser.parse_args(args)
 
     comm = _find_project_comm(".")
+    print("LASIF shell, 'comm' object is available in the local namespace.\n")
+    print(comm)
     from IPython import embed
     embed(display_banner=False)
 

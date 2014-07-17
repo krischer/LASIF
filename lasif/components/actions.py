@@ -140,6 +140,18 @@ class ActionsComponent(Component):
 
         print("Logfile written to '%s'." % os.path.relpath(logfile))
 
+    def select_windows(self, event, iteration):
+        """
+        Automatically select the windows for the given event and iteration.
+
+        :param event: The event.
+        :param iteration: The iteration.
+        """
+        event = self.comm.events.get(event)
+        iteration = self.comm.iterations.get(iteration)
+        from IPython.core.debugger import Tracer; Tracer(colors="Linux")()
+
+
     def generate_input_files(self, iteration_name, event_name,
                              simulation_type):
         """
