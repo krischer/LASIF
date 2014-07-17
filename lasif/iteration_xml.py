@@ -319,7 +319,7 @@ class Iteration(object):
 
         doc = E.iteration(*contents)
         doc.getroottree().write(filename, xml_declaration=True,
-                                encoding="UTF-8")
+                                pretty_print=True, encoding="UTF-8")
 
 
 def _recursive_dict(element):
