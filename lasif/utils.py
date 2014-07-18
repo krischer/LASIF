@@ -290,3 +290,29 @@ def select_component_from_stream(st, component):
         raise LASIFNotFoundError("More than 1 Trace with component %s found "
                                  "in Stream." % component)
     return component[0]
+
+def get_event_filename(event, prefix):
+    """
+    Helper function generating a descriptive event filename.
+
+    :param event: The event object.
+    :param prefix: A prefix for the file, denoting e.g. the event catalog.
+
+    >>> from obspy import readEvents
+    >>> event = readEvents()[0]
+    >>> print get_event_filename(event, "GCMT")
+    GCMT_event_KYRGYZSTAN-XINJIANG_BORDER_REG._Mag_4.4_2012-4-4-14.xml
+    """
+    from obspy.core.util.geodetics.flinnengdahl import FlinnEngdahl
+
+    mag = event.preferred_magnitude() or event.magnitudes[0]
+    org = event.preferred_origin() or event.origins[0]
+
+    # Get the flinn_engdahl region for a nice name.
+    fe = FlinnEngdahl()
+    region_name = fe.get_region(org.longitude, org.latitude)
+    region_name = region_name.replace(" ", "_")
+
+    return "%s_event_%s_Mag_%.1f_%s-%s-%s-%s.xml" % \
+        (prefix, region_name, mag.mag, org.time.year, org.time.month,
+         org.time.day, org.time.hour)

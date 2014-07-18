@@ -229,6 +229,36 @@ def lasif_add_spud_event(parser, args):
     iris2quakeml(url, comm.project.paths["events"])
 
 
+@command_group("Data Acquisition")
+def lasif_add_gcmt_events(parser, args):
+    """
+    Selects and adds optimally distributed events from the GCMT catalog.
+    """
+    parser.add_argument("count", type=int,
+                        help="maximum amount of events to add")
+    parser.add_argument("min_magnitude", type=float,
+                        help="minimum magnitude off events to add")
+    parser.add_argument("max_magnitude", type=float,
+                        help="maximum magnitude off events to add")
+    parser.add_argument("min_distance", type=float,
+                        help="The minimum acceptable distance to the next "
+                            "closest event in km.")
+    parser.add_argument("--min_year", default=None, type=int,
+                        help="minimum year from which to add events")
+    parser.add_argument("--max_year", default=None, type=int,
+                        help="maximum year from which to add events")
+
+    p = parser.parse_args(args)
+
+    from lasif.tools.query_gcmt_catalog import add_new_events
+    comm = _find_project_comm(".")
+
+    add_new_events(comm=comm, count=p.count, min_magnitude=p.min_magnitude,
+                   max_magnitude=p.max_magnitude, min_year=p.min_year,
+                   max_year=p.max_year,
+                   threshold_distance_in_km=p.min_distance)
+
+
 @command_group("Project Management")
 def lasif_info(parser, args):
     """
