@@ -254,3 +254,18 @@ def greatcircle_points(point_1, point_2, max_extension=None,
     for i in xrange(npts + 1):
         line_point = line.Position(i * point["s12"] / float(npts))
         yield Point(line_point["lat2"], line_point["lon2"])
+
+
+def channel2station(value):
+    """
+    Helper function converting a channel id to a station id. Will not change
+    a passed station id.
+
+    :param value: The channel id as a string.
+
+    >>> channel2station("BW.FURT.00.BHZ")
+    'BW.FURT'
+    >>> channel2station("BW.FURT")
+    'BW.FURT'
+    """
+    return  ".".join(value.split(".")[:2])
