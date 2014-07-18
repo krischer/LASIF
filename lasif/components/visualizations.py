@@ -32,14 +32,17 @@ class VisualizationsComponent(Component):
 
         if plot_type == "map":
             domain = self.comm.project.domain
-            bounds = domain["bounds"]
-            map = visualization.plot_domain(
-                bounds["minimum_latitude"], bounds["maximum_latitude"],
-                bounds["minimum_longitude"], bounds["maximum_longitude"],
-                bounds["boundary_width_in_degree"],
-                rotation_axis=domain["rotation_axis"],
-                rotation_angle_in_degree=domain["rotation_angle"],
-                plot_simulation_domain=False, zoom=True)
+            if domain == "global":
+                map = visualization.plot_domain()
+            else:
+                bounds = domain["bounds"]
+                map = visualization.plot_domain(
+                    bounds["minimum_latitude"], bounds["maximum_latitude"],
+                    bounds["minimum_longitude"], bounds["maximum_longitude"],
+                    bounds["boundary_width_in_degree"],
+                    rotation_axis=domain["rotation_axis"],
+                    rotation_angle_in_degree=domain["rotation_angle"],
+                    plot_simulation_domain=False, zoom=True)
             visualization.plot_events(events, map_object=map, project=self)
         elif plot_type == "depth":
             visualization.plot_event_histogram(events, "depth")
@@ -61,14 +64,17 @@ class VisualizationsComponent(Component):
 
         # Plot the domain.
         domain = self.comm.project.domain
-        bounds = domain["bounds"]
-        map_object = visualization.plot_domain(
-            bounds["minimum_latitude"], bounds["maximum_latitude"],
-            bounds["minimum_longitude"], bounds["maximum_longitude"],
-            bounds["boundary_width_in_degree"],
-            rotation_axis=domain["rotation_axis"],
-            rotation_angle_in_degree=domain["rotation_angle"],
-            plot_simulation_domain=False, zoom=True)
+        if domain == "global":
+            map_object = visualization.plot_domain()
+        else:
+            bounds = domain["bounds"]
+            map_object = visualization.plot_domain(
+                bounds["minimum_latitude"], bounds["maximum_latitude"],
+                bounds["minimum_longitude"], bounds["maximum_longitude"],
+                bounds["boundary_width_in_degree"],
+                rotation_axis=domain["rotation_axis"],
+                rotation_angle_in_degree=domain["rotation_angle"],
+                plot_simulation_domain=False, zoom=True)
 
         # Get the event and extract information from it.
         event_info = self.comm.events.get(event_name)
@@ -94,14 +100,18 @@ class VisualizationsComponent(Component):
         from lasif import visualization
 
         domain = self.comm.project.domain
-        bounds = domain["bounds"]
-        visualization.plot_domain(
-            bounds["minimum_latitude"],
-            bounds["maximum_latitude"], bounds["minimum_longitude"],
-            bounds["maximum_longitude"], bounds["boundary_width_in_degree"],
-            rotation_axis=domain["rotation_axis"],
-            rotation_angle_in_degree=domain["rotation_angle"],
-            plot_simulation_domain=True, zoom=True)
+        if domain == "global":
+            visualization.plot_domain()
+        else:
+            bounds = domain["bounds"]
+            visualization.plot_domain(
+                bounds["minimum_latitude"],
+                bounds["maximum_latitude"], bounds["minimum_longitude"],
+                bounds["maximum_longitude"],
+                bounds["boundary_width_in_degree"],
+                rotation_axis=domain["rotation_axis"],
+                rotation_angle_in_degree=domain["rotation_angle"],
+                plot_simulation_domain=True, zoom=True)
 
     def plot_raydensity(self, save_plot=True):
         """

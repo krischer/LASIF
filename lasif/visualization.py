@@ -30,12 +30,26 @@ LINESTYLE = {
     "color": "#aaaaaa"}
 
 
-def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
-                boundary_buffer_in_degree=0.0, rotation_axis=[0.0, 0.0, 1.0],
-                rotation_angle_in_degree=0.0, plot_simulation_domain=False,
+def plot_domain(min_latitude=None, max_latitude=None, min_longitude=None,
+                max_longitude=None, boundary_buffer_in_degree=0.0,
+                rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
+                plot_simulation_domain=False,
                 zoom=False, resolution=None, ax=None):
     """
     """
+    # If all are None, the domain is considered to be global.
+    if [min_latitude, max_latitude, min_longitude, max_longitude] == \
+            [None, None, None, None]:
+        if resolution is None:
+            resolution = "c"
+        # Equal area mollweide projection.
+        m = Basemap(projection='moll', lon_0=0, resolution=resolution,
+                    ax=ax)
+        m.drawmapboundary(fill_color='#cccccc')
+        m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
+        plt.gcf().patch.set_alpha(0.0)
+        return m
+
     bounds = rotations.get_max_extention_of_domain(
         min_latitude, max_latitude, min_longitude, max_longitude,
         rotation_axis=rotation_axis,
@@ -48,7 +62,6 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
     extent_x = bounds["maximum_longitude"] - bounds["minimum_longitude"]
     extent_y = bounds["maximum_latitude"] - bounds["minimum_latitude"]
     max_extent = max(extent_x, extent_y)
-    print max_extent, center_lat, center_lng
 
     # Arbitrary threshold
     if max_extent > 160:
@@ -112,7 +125,6 @@ def plot_domain(min_latitude, max_latitude, min_longitude, max_longitude,
 
     m.drawmapboundary(fill_color='#cccccc')
     m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
-    # m.drawcoastlines()
 
     border = rotations.get_border_latlng_list(
         min_latitude, max_latitude, min_longitude, max_longitude,
