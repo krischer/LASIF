@@ -374,6 +374,21 @@ class QueryComponent(Component):
             all_files["synthetic"][it] = sorted(comps, reverse=True)
         return all_files
 
+    def point_in_domain(self, latitude, longitude):
+        """
+        Tests if the point is in the domain. Returns True/False
+
+        :param latitude: The latitude of the point.
+        :param longitude: The longitude of the point.
+        """
+        from lasif.utils import point_in_domain
+
+        domain = self.comm.project.domain
+        return point_in_domain(latitude, longitude, domain=domain["bounds"],
+                               rotation_axis=domain["rotation_axis"],
+                               rotation_angle_in_degree=domain[
+                                   "rotation_angle"])
+
     def what_is(self, path):
         """
         Debug function returning a string with information about the file.
