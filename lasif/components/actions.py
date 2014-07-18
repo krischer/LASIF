@@ -7,7 +7,7 @@ import numpy as np
 import os
 import warnings
 
-from lasif import LASIFError, LASIFWarning
+from lasif import LASIFError, LASIFWarning, LASIFNotFoundError
 from lasif import rotations
 from .component import Component
 
@@ -144,15 +144,85 @@ class ActionsComponent(Component):
         """
         Automatically select the windows for the given event and iteration.
 
+        Will only attempt to select windows for stations that have no
+        windows. Each station that has a window is assumed to have already
+        been picked in some fashion.
+
         :param event: The event.
         :param iteration: The iteration.
         """
+        from lasif.utils import channel2station
+
         event = self.comm.events.get(event)
         iteration = self.comm.iterations.get(iteration)
 
+        # All stations for the given iteration and event.
+        stations = set(iteration.events[event["event_name"]][
+            "stations"].keys())
 
-        from IPython.core.debugger import Tracer; Tracer(colors="Linux")()
+        # Get all stations that currently do not have windows.
+        windows = self.comm.windows.get(event, iteration).list()
+        stations_without_windows = \
+            stations - set(map(channel2station, windows))
 
+        for station in stations_without_windows:
+            self.select_windows_for_station(event, iteration, station)
+
+
+    def select_windows_for_station(self, event, iteration, station):
+        """
+        Selects windows for the given event, iteration, and station. Will
+        delete any previously existing windows for that station if any.
+
+        :param event: The event.
+        :param iteration: The iteration.
+        :param station: The station id in the form NET.STA.
+        """
+        from lasif.utils import select_component_from_stream
+        from lasif.window_selection import select_windows
+
+        event = self.comm.events.get(event)
+        iteration = self.comm.iterations.get(iteration)
+        data = self.comm.query.get_matching_waveforms(event, iteration,
+                                                      station)
+
+        process_params = iteration.get_process_params()
+        minimum_period = 1.0 / process_params["lowpass"]
+        maximum_period = 1.0 / process_params["highpass"]
+
+        window_group_manager = self.comm.windows.get(event, iteration)
+        # Delete the windows for this stations.
+        window_group_manager.delete_windows_for_station(station)
+
+        found_something = False
+        for component in ["E", "N", "Z"]:
+            try:
+                data_tr = select_component_from_stream(data.data, component)
+                synth_tr = select_component_from_stream(data.synthetics,
+                                                        component)
+            except LASIFNotFoundError:
+                continue
+            found_something = True
+
+            windows = select_windows(data_tr, synth_tr, event["latitude"],
+                                     event["longitude"], event["depth_in_km"],
+                                     data.coordinates["latitude"],
+                                     data.coordinates["longitude"],
+                                     minimum_period=minimum_period,
+                                     maximum_period=maximum_period)
+            if not windows:
+                continue
+
+            window_group = window_group_manager.get(data_tr.id)
+            for starttime, endtime in windows:
+                window_group.add_window(starttime=starttime, endtime=endtime)
+            window_group.write()
+
+        if found_something is False:
+            raise LASIFNotFoundError(
+                "No matching data found for event '%s', iteration '%s', and "
+                "station '%s'." % (event["event_name"], iteration.name,
+                                   station))
 
 
     def generate_input_files(self, iteration_name, event_name,

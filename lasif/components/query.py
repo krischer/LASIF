@@ -254,7 +254,7 @@ class QueryComponent(Component):
         seed_id = station_or_channel_id.split(".")
         if len(seed_id) == 2:
             channel = None
-            station_id = seed_id
+            station_id = station_or_channel_id
         elif len(seed_id) == 4:
             network, station, _, channel = seed_id
             station_id = ".".join((network, station))

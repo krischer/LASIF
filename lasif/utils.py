@@ -14,6 +14,8 @@ from geographiclib import geodesic
 from fnmatch import fnmatch
 from lxml.builder import E
 
+from lasif import LASIFNotFoundError
+
 
 def channel_in_parser(parser_object, channel_id, starttime, endtime):
     """
@@ -269,3 +271,22 @@ def channel2station(value):
     'BW.FURT'
     """
     return  ".".join(value.split(".")[:2])
+
+
+def select_component_from_stream(st, component):
+    """
+    Helper function selecting a compnent from a Stream an raising the proper
+    error if not found.
+
+    This is a bit more flexible then stream.select() as it works with single
+    letter channels and lowercase channels.
+    """
+    component = component.upper()
+    component = [tr for tr in st if tr.stats.channel[-1].upper() == component]
+    if not component:
+        raise LASIFNotFoundError("Component %s not found in Stream." %
+                                 component)
+    elif len(component) > 1:
+        raise LASIFNotFoundError("More than 1 Trace with component %s found "
+                                 "in Stream." % component)
+    return component[0]

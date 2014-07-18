@@ -143,7 +143,10 @@ class WindowGroupManager(object):
         """
         windowfile = self._get_window_filename(channel_id)
         if not os.path.exists(windowfile):
-            return {}
+            return WindowCollection(
+                filename=windowfile, comm=self.comm,
+                event_name=self._event_name, channel_id=channel_id,
+                synthetics_tag=self._synthetic_tag)
         return WindowCollection(filename=windowfile, comm=self.comm)
 
     def get_windows_for_station(self, station_id):
@@ -170,6 +173,20 @@ class WindowGroupManager(object):
         windowfile = self._get_window_filename(channel_id)
         if os.path.exists(windowfile):
             os.remove(windowfile)
+
+    def delete_windows_for_station(self, station_id):
+        """
+        Deletes all windows for a certain station by removing all window
+        files for the station.
+
+        :param station_id: The station id for the windows to delete in the
+            form NET.STA
+        """
+        channel_ids = [_i for _i in self.list()
+                       if _i.startswith(station_id + ".")]
+        for channel in channel_ids:
+            self.delete_windows_for_channel(channel)
+
 
     def _get_window_filename(self, channel_id):
         return os.path.join(self._directory, "window_%s.xml" % channel_id)
@@ -246,8 +263,8 @@ class WindowCollection(object):
             window.taper_percentage, window.misfit_type)
         return adsrc
 
-    def add_window(self, starttime, endtime, weight, taper,
-                   taper_percentage, misfit_type=None, misfit_value=None,
+    def add_window(self, starttime, endtime, weight=1.0, taper="cosine",
+                   taper_percentage=0.05, misfit_type=None, misfit_value=None,
                    misfit_details=None):
         """
         Adds a single window.
@@ -380,7 +397,7 @@ class WindowCollection(object):
                 # a recalculation of the adjoint source in case no taper
                 # percentage has been set before.
                 w["taper_percentage"]  if "taper_percentage" in w else "0.05",
-                w["misfit"],
+                w["misfit"] if "misfit" in w else None,
                 w["misfit_value"] if "misfit_value" in w else None)
 
     def write(self):

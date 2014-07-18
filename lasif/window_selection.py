@@ -164,6 +164,10 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # Maximum energy ratio between data and synthetics within a time window.
     max_energy_ratio = 3.0
 
+    data_starttime = data_trace.stats.starttime
+    data_delta = data_trace.stats.delta
+
+
     # =========================================================================
     # initialisations
     # =========================================================================
@@ -385,7 +389,14 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
 
     print "* autoselect done"
 
-    return final_windows
+    # Final step is to convert the index value windows to actual times.
+    windows = []
+    for start, stop in final_windows:
+        start = data_starttime + start * data_delta
+        stop = data_starttime + stop * data_delta
+        windows.append((start, stop))
+
+    return windows
 
 
 def plot_windows(data_trace, synthetic_trace, windows, dominant_period,
