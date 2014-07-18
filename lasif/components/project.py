@@ -188,32 +188,39 @@ class Project(Component):
 
         # Read the domain.
         domain = root.find("domain")
-        self.domain = {}
-        self.domain["bounds"] = {}
 
-        bounds = domain.find("domain_bounds")
-        self.domain["bounds"]["minimum_latitude"] = \
-            float(bounds.find("minimum_latitude").text)
-        self.domain["bounds"]["maximum_latitude"] = \
-            float(bounds.find("maximum_latitude").text)
-        self.domain["bounds"]["minimum_longitude"] = \
-            float(bounds.find("minimum_longitude").text)
-        self.domain["bounds"]["maximum_longitude"] = \
-            float(bounds.find("maximum_longitude").text)
-        self.domain["bounds"]["minimum_depth_in_km"] = \
-            float(bounds.find("minimum_depth_in_km").text)
-        self.domain["bounds"]["maximum_depth_in_km"] = \
-            float(bounds.find("maximum_depth_in_km").text)
-        self.domain["bounds"]["boundary_width_in_degree"] = \
-            float(bounds.find("boundary_width_in_degree").text)
+        # Check if the domain is global.
+        is_global = domain.find("global")
+        if is_global is not None and is_global.text.strip().lower() == "true":
+            self.domain = "global"
+        else:
+            self.domain = {}
+            self.domain["bounds"] = {}
 
-        rotation = domain.find("domain_rotation")
-        self.domain["rotation_axis"] = [
-            float(rotation.find("rotation_axis_x").text),
-            float(rotation.find("rotation_axis_y").text),
-            float(rotation.find("rotation_axis_z").text)]
-        self.domain["rotation_angle"] = \
-            float(rotation.find("rotation_angle_in_degree").text)
+
+            bounds = domain.find("domain_bounds")
+            self.domain["bounds"]["minimum_latitude"] = \
+                float(bounds.find("minimum_latitude").text)
+            self.domain["bounds"]["maximum_latitude"] = \
+                float(bounds.find("maximum_latitude").text)
+            self.domain["bounds"]["minimum_longitude"] = \
+                float(bounds.find("minimum_longitude").text)
+            self.domain["bounds"]["maximum_longitude"] = \
+                float(bounds.find("maximum_longitude").text)
+            self.domain["bounds"]["minimum_depth_in_km"] = \
+                float(bounds.find("minimum_depth_in_km").text)
+            self.domain["bounds"]["maximum_depth_in_km"] = \
+                float(bounds.find("maximum_depth_in_km").text)
+            self.domain["bounds"]["boundary_width_in_degree"] = \
+                float(bounds.find("boundary_width_in_degree").text)
+
+            rotation = domain.find("domain_rotation")
+            self.domain["rotation_axis"] = [
+                float(rotation.find("rotation_axis_x").text),
+                float(rotation.find("rotation_axis_y").text),
+                float(rotation.find("rotation_axis_z").text)]
+            self.domain["rotation_angle"] = \
+                float(rotation.find("rotation_angle_in_degree").text)
 
         # Write cache file.
         cf_cache = {}
