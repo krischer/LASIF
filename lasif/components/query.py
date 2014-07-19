@@ -384,6 +384,10 @@ class QueryComponent(Component):
         from lasif.utils import point_in_domain
 
         domain = self.comm.project.domain
+
+        if domain == "global":
+            return True
+
         return point_in_domain(latitude, longitude, domain=domain["bounds"],
                                rotation_axis=domain["rotation_axis"],
                                rotation_angle_in_degree=domain[

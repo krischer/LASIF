@@ -124,7 +124,6 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
         coordinates.append((org.latitude, org.longitude))
     cat = temp_cat
 
-
     chosen_events = []
 
     print("%i valid events remain. Starting selection process..." % len(cat))
