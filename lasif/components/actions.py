@@ -299,8 +299,8 @@ class ActionsComponent(Component):
             gen.config.event_tag = event_name
 
             # Time configuration.
-            npts = solver["simulate_parameters"]["number_of_time_steps"]
-            delta = solver["simulate_parameters"]["time_increment"]
+            npts = solver["simulation_parameters"]["number_of_time_steps"]
+            delta = solver["simulation_parameters"]["time_increment"]
             gen.config.number_of_time_steps = npts
             gen.config.time_increment_in_s = delta
 
@@ -318,7 +318,7 @@ class ActionsComponent(Component):
                     "sampling_rate_of_forward_field"]
 
             # Visco-elastic dissipation
-            diss = solver["simulate_parameters"]["is_dissipative"]
+            diss = solver["simulation_parameters"]["is_dissipative"]
             gen.config.is_dissipative = diss
 
             # Only SES3D 4.1 has the relaxation parameters.
@@ -363,9 +363,9 @@ class ActionsComponent(Component):
                 iteration.get_source_time_function()["data"]
         elif solver_format == "specfem3d_cartesian":
             gen.config.NSTEP = \
-                solver["simulate_parameters"]["number_of_time_steps"]
+                solver["simulation_parameters"]["number_of_time_steps"]
             gen.config.DT = \
-                solver["simulate_parameters"]["time_increment"]
+                solver["simulation_parameters"]["time_increment"]
             gen.config.NPROC = \
                 solver["computational_setup"]["number_of_processors"]
             if simulation_type == "normal simulation":

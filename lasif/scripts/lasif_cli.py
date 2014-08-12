@@ -698,6 +698,21 @@ def lasif_finalize_adjoint_sources(parser, args):
 
 
 @command_group("Iteration Management")
+def lasif_select_windows(parser, args):
+    """
+    Autoselect windows.
+    """
+    parser.add_argument("iteration_name", help="name of the iteration")
+    args = parser.parse_args(args)
+
+    iteration = args.iteration_name
+
+    comm = _find_project_comm(".")
+    for event in comm.events.list():
+        comm.actions.select_windows(event, iteration)
+
+
+@command_group("Iteration Management")
 def lasif_launch_misfit_gui(parser, args):
     """
     Launch the misfit GUI.
