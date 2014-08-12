@@ -108,7 +108,7 @@ about a certain event:
 
 .. code-block:: bash
 
-    $ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+    $ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 
     Earthquake with 4.9 Mwc at NORTHERN ITALY
