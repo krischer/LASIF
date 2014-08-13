@@ -47,6 +47,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 import argparse
 import difflib
+import itertools
 import shutil
 import sys
 import traceback
@@ -803,18 +804,14 @@ def lasif_create_successive_iteration(parser, args):
         raise LASIFCommandLineException(msg)
 
     # Get the old iteration
-    if not comm.iterations.has_iteration(existing_iteration_name):
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % \
-            existing_iteration_name
-        raise LASIFCommandLineException(msg)
     existing_iteration = comm.iterations.get(existing_iteration_name)
 
     # Clone the old iteration, delete any comments and change the name.
     existing_iteration.comments = []
     existing_iteration.iteration_name = new_iteration_name
 
-    existing_iteration.write(comm._get_iteration_filename(new_iteration_name))
+    existing_iteration.write(comm.iterations.get_filename_for_iteration(
+        new_iteration_name))
 
     print("Successfully created new iteration:")
     print(existing_iteration)
@@ -1020,120 +1017,39 @@ def lasif_migrate_windows(parser, args):
     """
     Migrates windows from one iteration to the next.
     """
-    from lasif.iteration_xml import Iteration
-
     parser.add_argument("from_iteration",
                         help="iteration containing windows")
     parser.add_argument("to_iteration", help="iteration windows will "
                                              "be migrated to")
     args = parser.parse_args(args)
+    comm = _find_project_comm(".")
 
-    from_iteration = args.from_iteration
-    to_iteration = args.to_iteration
-
-    proj = _find_project_comm(".")
-
-    # Get some information about the iteration.
-    iterations = proj.get_iteration_dict()
-    if from_iteration not in iterations:
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % from_iteration
-        raise LASIFCommandLineException(msg)
-    if to_iteration not in iterations:
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % to_iteration
-        raise LASIFCommandLineException(msg)
-
-    from_it = Iteration(iterations[from_iteration])
-    to_it = Iteration(iterations[to_iteration])
+    from_it = comm.iterations.get(args.from_iteration)
+    to_it = comm.iterations.get(args.to_iteration)
 
     print "Migrating windows from iteration '%s' to iteration '%s'..." % (
-        from_iteration, to_iteration
-    )
+        from_it.name, to_it.name)
 
-    # After all checks have passed, import the necessary modules.
-    from lasif.iteration_xml import Iteration
-    from lasif.window_manager import WindowGroupManager
-    from lasif.adjoint_src_manager import AdjointSourceManager
-    from lasif.temp import adjoint_src_for_window
+    for event_name, stations in to_it.events.items():
+        stations = stations["stations"].keys()
 
-    from_it = Iteration(iterations[from_iteration])
-    to_it = Iteration(iterations[to_iteration])
+        window_group_from = comm.windows.get(event_name, from_it.name)
+        window_group_to = comm.windows.get(event_name, to_it.name)
+        contents_to = set(window_group_to.list())
+        contents_from = set(window_group_from.list())
+        contents = contents_from - contents_to
 
-    long_iteration_name_from = "ITERATION_%s" % from_iteration
-    long_iteration_name_to = "ITERATION_%s" % to_iteration
+        # Remove all not part of this iterations station.
+        filtered_contents = itertools.ifilter(
+            lambda x: ".".join(x.split(".")[:2]) in stations,
+            contents)
 
-    # Get a list of windows that are in both, the new and the old iteration.
-    events = list(set(from_it.events.keys()).intersection(
-        set(to_it.events.keys())))
-
-    # Check that the new iteration actually has some synthetics.
-    filtered_events = []
-    for event_name in events:
-        folder_name = os.path.join(
-            proj.paths["synthetics"], event_name,
-            long_iteration_name_to)
-        if not os.path.exists(folder_name) or \
-                (len(os.listdir(folder_name)) == 0):
-            msg = ("Warning: No synthetics for iteration '%s' and event '%s'."
-                   % (to_iteration, event_name))
-            print(colorama.Fore.YELLOW + msg + colorama.Fore.RESET)
-            continue
-        filtered_events.append(event_name)
-
-    if not filtered_events:
-        msg = ("No events that could be migrated have synthetics in "
-               "iteration '%s'" % to_iteration)
-        raise LASIFCommandLineException(msg)
-
-    # Loop over events and migrate the windows.
-    for event_name in filtered_events:
-        print "Migrating windows for event '%s'." % event_name
-        # Managers from.
-        window_directory_from = os.path.join(
-            proj.paths["windows"], event_name, long_iteration_name_from)
-        window_manager_from = MisfitWindowManager(
-            window_directory_from, long_iteration_name_from, event_name)
-
-        # Managers to.
-        window_directory_to = os.path.join(
-            proj.paths["windows"], event_name, long_iteration_name_to)
-        ad_src_directory_to = os.path.join(
-            proj.paths["adjoint_sources"], event_name, long_iteration_name_to)
-        window_manager_to = WindowGroupManager(
-            window_directory_to, long_iteration_name_to, event_name)
-        adj_src_manager_to = AdjointSourceManager(ad_src_directory_to)
-
-        old_windows = window_manager_from.list_windows()
-        new_windows = window_manager_to.list_windows()
-
-        # Loop over all data.
-        data_iterator = proj.data_synthetic_iterator(event_name, to_iteration)
-        for data, synthetics, coordinates in data_iterator:
-            for data_trace in data:
-                synthetics_trace = synthetics.select(
-                    channel=data_trace.stats.channel[-1])
-                if not synthetics_trace:
-                    continue
-                synthetics_trace = synthetics_trace[0]
-                if data_trace.id not in old_windows:
-                    continue
-                # Check if window already exists.
-                if data_trace.id in new_windows:
-                    print("Window for event '%s' and channel '%s' already "
-                          "exists for iteration '%s'." % (
-                              event_name, data_trace.id, to_iteration))
-                    continue
-                # Get the existing window.
-                window = window_manager_from.get_windows(data_trace.id)
-
-                for w in window["windows"]:
-                    adjoint_src_for_window(
-                        data_trace, synthetics_trace, w["starttime"],
-                        w["endtime"], w["weight"], to_it.get_process_params(),
-                        window_manager_to, adj_src_manager_to)
-                    sys.stdout.write(".")
-                    sys.stdout.flush()
+        for channel_id in filtered_contents:
+            coll = window_group_from.get(channel_id)
+            coll.synthetics_tag = to_it.name
+            f = window_group_to._get_window_filename(channel_id)
+            coll.filename = f
+            coll.write()
 
 
 @command_group("Iteration Management")

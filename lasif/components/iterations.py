@@ -23,7 +23,7 @@ class IterationsComponent(Component):
         super(IterationsComponent, self).__init__(communicator,
                                                   component_name)
 
-    def _get_filename_for_iteration(self, iteration_name):
+    def get_filename_for_iteration(self, iteration_name):
         """
         Helper function returning the filename of an iteration.
         """
@@ -134,7 +134,7 @@ class IterationsComponent(Component):
         xml_string = create_iteration_xml_string(iteration_name,
                                                  solver_name, events_dict,
                                                  min_period, max_period)
-        with open(self._get_filename_for_iteration(iteration_name), "wt")\
+        with open(self.get_filename_for_iteration(iteration_name), "wt")\
                 as fh:
             fh.write(xml_string)
 
@@ -204,7 +204,7 @@ class IterationsComponent(Component):
         :param iteration:
         """
         name = iteration.iteration_name
-        filename = self._get_filename_for_iteration(name)
+        filename = self.get_filename_for_iteration(name)
         iteration.write(filename)
 
         # Remove the iteration from the cache so it is loaded anew the next

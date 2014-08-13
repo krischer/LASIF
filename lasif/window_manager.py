@@ -397,9 +397,6 @@ class WindowCollection(object):
         Writes the window group to the specified filename.
 
         Will delete a possibly exiting file if the collection has no windows.
-
-        :param filename: Path to save to. Will be overwritten if it already
-            exists.
         """
         # A window collection that has no windows will attempt to remove its
         # own file if it has no windows without emitting a warnings.
@@ -409,6 +406,10 @@ class WindowCollection(object):
             except OSError:
                 pass
             return
+
+        d = os.path.dirname(self.filename)
+        if not os.path.exists(d):
+            os.makedirs(d)
 
         windows = []
         for w in self.windows:
@@ -420,14 +421,7 @@ class WindowCollection(object):
             local_win.append(E.TaperPercentage(str(w.taper_percentage)))
             if w.misfit_type is not None:
                 local_win.append(E.Misfit(str(w.misfit_type)))
-            if w.misfit_value is not None:
-                local_win.append(E.MisfitValue(
-                    str(w.misfit_value)))
-            if w.misfit_details:
-                local_win.append(E.MisfitDetails(
-                    *[getattr(E, k)(v) for k, v in w.misfit_details.items()]
-                ))
-            windows.append(E.Window(*local_win, collection=self))
+            windows.append(E.Window(*local_win))
 
         doc = (
             E.MisfitWindow(
