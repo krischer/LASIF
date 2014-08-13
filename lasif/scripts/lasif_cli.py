@@ -46,6 +46,7 @@ from lasif import LASIFError
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 import argparse
+import collections
 import difflib
 import itertools
 import shutil
@@ -54,6 +55,7 @@ import traceback
 
 import colorama
 
+from lasif import LASIFNotFoundError
 from lasif.components.project import Project
 
 
@@ -824,179 +826,70 @@ def lasif_compare_misfits(parser, args):
     that are identical in both iterations as the comparision is otherwise
     meaningless.
     """
-    from lasif.iteration_xml import Iteration
     parser.add_argument("from_iteration",
                         help="past iteration")
     parser.add_argument("to_iteration", help="current iteration")
     args = parser.parse_args(args)
 
-    from_iteration = args.from_iteration
-    to_iteration = args.to_iteration
+    comm = _find_project_comm(".")
 
-    proj = _find_project_comm(".")
-
-    # Get some information about the iteration.
-    iterations = proj.get_iteration_dict()
-    if from_iteration not in iterations:
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % from_iteration
-        raise LASIFCommandLineException(msg)
-    if to_iteration not in iterations:
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % to_iteration
-        raise LASIFCommandLineException(msg)
-
-    from_it = Iteration(iterations[from_iteration])
-    to_it = Iteration(iterations[to_iteration])
+    from_it = comm.iterations.get(args.from_iteration)
+    to_it = comm.iterations.get(args.to_iteration)
 
     print "Calculating misfit change from iteration '%s' to iteration " \
-          "'%s'..." % (from_iteration, to_iteration)
+          "'%s'..." % (from_it.name, to_it.name)
 
-    # After all checks have passed, import the necessary modules.
-    from lasif.iteration_xml import Iteration
-    from lasif.window_manager import MisfitWindowManager
-    from lasif.adjoint_src_manager import AdjointSourceManager
-    from lasif.temp import adjoint_src_for_window
-    from collections import defaultdict
-
-    from_it = Iteration(iterations[from_iteration])
-    to_it = Iteration(iterations[to_iteration])
-
-    long_iteration_name_from = "ITERATION_%s" % from_iteration
-    long_iteration_name_to = "ITERATION_%s" % to_iteration
-
-    # Get a list of windows that are in both, the new and the old iteration.
+    # Get a list of events that are in both, the new and the old iteration.
     events = list(set(from_it.events.keys()).intersection(
         set(to_it.events.keys())))
 
-    # Check that the new iteration actually has some synthetics.
-    filtered_events = []
-    for event_name in events:
-        folder_name = os.path.join(
-            proj.paths["synthetics"], event_name,
-            long_iteration_name_to)
-        if not os.path.exists(folder_name) or \
-                (len(os.listdir(folder_name)) == 0):
-            continue
-        filtered_events.append(event_name)
+    all_events = collections.defaultdict(list)
 
-    if not filtered_events:
-        raise LASIFCommandLineException("No shared events.")
+    for event in events:
+        # Get the windows from both.
+        window_group_to = comm.windows.get(event, to_it)
+        window_group_from = comm.windows.get(event, from_it)
 
-    all_events = {}
-    # Loop over events and migrate the windows.
-    for event_name in filtered_events:
-        all_values = []
-        print "\nCalculating misfits for event '%s'." % event_name
-        # Managers from.
-        window_directory_from = os.path.join(
-            proj.paths["windows"], event_name, long_iteration_name_from)
-        ad_src_directory_from = os.path.join(
-            proj.paths["adjoint_sources"], event_name,
-            long_iteration_name_from)
-        window_manager_from = MisfitWindowManager(
-            window_directory_from, long_iteration_name_from, event_name)
-        adj_src_manager_from = AdjointSourceManager(ad_src_directory_from)
+        # Get a list of channels shared amongst both.
+        shared_channels = set(window_group_to.list()).intersection(
+            set(window_group_from.list()))
 
-        # Managers to.
-        window_directory_to = os.path.join(
-            proj.paths["windows"], event_name, long_iteration_name_to)
-        ad_src_directory_to = os.path.join(
-            proj.paths["adjoint_sources"], event_name, long_iteration_name_to)
-        window_manager_to = MisfitWindowManager(
-            window_directory_to, long_iteration_name_to, event_name)
-        adj_src_manager_to = AdjointSourceManager(ad_src_directory_to)
+        for channel in shared_channels:
+            window_collection_from = window_group_from.get(channel)
+            window_collection_to = window_group_to.get(channel)
 
-        old_windows = window_manager_from.list_windows()
-
-        # Loop over the data of the "new" iteration.
-        to_data = defaultdict(list)
-        data_iterator = proj.data_synthetic_iterator(event_name, to_iteration)
-        for data, synthetics, coordinates in data_iterator:
-            for data_trace in data:
-                synthetics_trace = synthetics.select(
-                    channel=data_trace.stats.channel[-1])
-                if not synthetics_trace:
-                    continue
-                synthetics_trace = synthetics_trace[0]
-                if data_trace.id not in old_windows:
-                    continue
-                # Get the existing window.
-                window = window_manager_to.get_windows(data_trace.id)
-                if not window:
+            for win_from in window_collection_from.windows:
+                try:
+                    idx = window_collection_to.windows.index(win_from)
+                    win_to = window_collection_to.windows[idx]
+                except ValueError:
                     continue
 
-                for w in window["windows"]:
-                    src = adjoint_src_for_window(
-                        data_trace, synthetics_trace, w["starttime"],
-                        w["endtime"], w["weight"], to_it.get_process_params(),
-                        window_manager_to, adj_src_manager_to,
-                        write_data=False)
-                    sys.stdout.write(".")
-                    sys.stdout.flush()
-                    w["misfit"] = src["misfit"]
-                    to_data[data_trace.id].append(w)
-
-        # Loop over the data of the "new" iteration.
-        from_data = defaultdict(list)
-        data_iterator = proj.data_synthetic_iterator(event_name, to_iteration)
-        for data, synthetics, coordinates in data_iterator:
-            for data_trace in data:
-                synthetics_trace = synthetics.select(
-                    channel=data_trace.stats.channel[-1])
-                if not synthetics_trace:
-                    continue
-                synthetics_trace = synthetics_trace[0]
-                if data_trace.id not in old_windows:
-                    continue
-                # Get the existing window.
-                window = window_manager_to.get_windows(data_trace.id)
-                if not window:
+                try:
+                    misfit_from = win_from.misfit_value
+                except LASIFNotFoundError as e:
+                    print str(e)
+                    pass
+                try:
+                    misfit_to = win_to.misfit_value
+                except LASIFNotFoundError as e:
+                    print str(e)
                     continue
 
-                for w in window["windows"]:
-                    src = adjoint_src_for_window(
-                        data_trace, synthetics_trace, w["starttime"],
-                        w["endtime"], w["weight"],
-                        from_it.get_process_params(),
-                        window_manager_from, adj_src_manager_from,
-                        write_data=False)
-                    sys.stdout.write(".")
-                    sys.stdout.flush()
-                    w["misfit"] = src["misfit"]
-                    from_data[data_trace.id].append(w)
+                all_events[event].append(misfit_from - misfit_to)
 
-        s_keys = sorted(to_data.keys())
-
-        for key in s_keys:
-            to_items = to_data[key]
-            try:
-                from_items = from_data[key]
-            except KeyError:
-                continue
-            for to_item in to_items:
-                # Try to find the correct item in the from_item list.
-                for from_item in from_items:
-                    if to_item["starttime"] == from_item["starttime"] and \
-                            to_item["endtime"] == from_item["endtime"] and \
-                            to_item["weight"] == from_item["weight"]:
-                        break
-                else:
-                    continue
-                rel_misfit = (to_item["misfit"] - from_item["misfit"]) / \
-                    from_item["misfit"] * to_item["weight"]
-                all_values.append(rel_misfit)
-        if all_values:
-            all_events[event_name] = all_values
+    if not all_events:
+        raise LASIFCommandLineException("No misfit values could be compared.")
 
     import matplotlib.pylab as plt
     import numpy as np
 
     plt.figure(figsize=(20, 3 * len(all_events)))
     plt.suptitle("Relative misfit change of measurements going from iteration"
-                 " '%s' to iteration '%s'" % (from_iteration, to_iteration))
+                 " '%s' to iteration '%s'" % (from_it.name, to_it.name))
     for i, event_name in enumerate(sorted(all_events.keys())):
         values = np.array(all_events[event_name])
+        values += np.random.random(len(values)) - 0.5
         colors = np.array(["green"] * len(values))
         colors[values > 0] = "red"
         plt.subplot(len(all_events), 1, i + 1)
@@ -1006,10 +899,11 @@ def lasif_compare_misfits(parser, args):
         plt.xticks([])
         plt.title("%i measurements with identical windows for event '%s'" %
                   (len(values), event_name))
-    output_folder = proj.get_output_folder("misfit_comparison")
+
+    output_folder = comm.project.get_output_folder("misfit_comparison")
     filename = os.path.join(output_folder, "misfit_comparision.pdf")
     plt.savefig(filename)
-    print "\nSaved figure to '%s'" % filename
+    print "\nSaved figure to '%s'" % os.path.relpath(filename)
 
 
 @command_group("Iteration Management")
