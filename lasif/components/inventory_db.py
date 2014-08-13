@@ -244,9 +244,20 @@ class InventoryDBComponent(Component):
 
         # Now simply find the coordinates.
         request_text = req.read()
-        lat = float(re.findall("<Latitude>(.*)</Latitude>", request_text)[0])
-        lng = float(re.findall("<Longitude>(.*)</Longitude>", request_text)[0])
-        ele = float(re.findall("<Elevation>(.*)</Elevation>", request_text)[0])
+        try:
+            lat = float(re.findall("<Latitude>(.*)</Latitude>", request_text)[0])
+        except ValueError:
+            lat = None
+
+        try:
+            lng = float(re.findall("<Longitude>(.*)</Longitude>", request_text)[0])
+        except ValueError:
+            lng = None
+
+        try:
+            ele = float(re.findall("<Elevation>(.*)</Elevation>", request_text)[0])
+        except ValueError:
+            ele = None
 
         # The local is not set at the station level.
         self.save_station_coordinates(station_id, lat, lng, ele, None)
