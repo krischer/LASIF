@@ -3,7 +3,9 @@
 from __future__ import absolute_import
 
 import copy
+import joblib
 import numpy as np
+import os
 
 from lasif import LASIFNotFoundError
 from .component import Component
@@ -48,18 +50,28 @@ class AdjointSourcesComponent(Component):
         :param ad_src_type: The type of adjoint source. Currently supported
             are ``"TimeFrequencyPhaseMisfitFichtner2008"`` and ``"L2Norm"``.
         """
+        iteration = self.comm.iterations.get(iteration_name)
+        iteration_name = iteration.long_name
+        event = self.comm.events.get(event_name)
+        event_name = event["event_name"]
+
+        folder = os.path.join(self._folder, event_name, iteration_name)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        filename = os.path.join(folder, "%s_%s_%s_%s_%.2f_%s" % (
+            channel_id, str(starttime), str(endtime), str(taper),
+            taper_percentage, ad_src_type))
+        if os.path.exists(filename):
+            return joblib.load(filename)
+
         if ad_src_type not in MISFIT_MAPPING:
             raise ValueError("Adjoint source type '%s' not supported. "
                              "Supported types: %s" % (
                 ad_src_type,  ", ".join(MISFIT_MAPPING.keys())))
-        net, sta, loc, cha = channel_id.split(".")
-        station_id = "%s.%s" % (net, sta)
-
-        iteration = self.comm.iterations.get(iteration_name)
 
         waveforms = self.comm.query.get_matching_waveforms(
-            iteration_name, event_name, station_id,
-            component=cha[-1])
+            event=event_name, iteration=iteration_name,
+            station_or_channel_id=channel_id)
         data = waveforms.data
         synth = waveforms.synthetics
 
@@ -75,12 +87,12 @@ class AdjointSourcesComponent(Component):
         synth = synth[0]
 
         # Make sure they are equal enough.
-        if abs(data.stats.starttime - synth.stats.starttime) > 0.001:
+        if abs(data.stats.starttime - synth.stats.starttime) > 0.1:
             raise ValueError("Starttime not similar enough")
         if data.stats.npts != synth.stats.npts:
             raise ValueError("Differing number of samples")
         if abs(data.stats.delta - synth.stats.delta) / data.stats.delta > \
-                0.001:
+                0.01:
             raise ValueError("Sampling rate not similar enough.")
 
         original_stats = copy.deepcopy(data.stats)
@@ -109,8 +121,10 @@ class AdjointSourcesComponent(Component):
             1.0 / process_parameters["highpass"])
 
         # Recreate dictionary for clarity.
-        return {
+        ret_val = {
             "adjoint_source": adsrc["adjoint_source"],
             "misfit_value": adsrc["misfit_value"],
             "details": adsrc["details"]
         }
+        joblib.dump(ret_val, filename)
+        return ret_val

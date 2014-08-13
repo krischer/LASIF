@@ -497,3 +497,120 @@ class ActionsComponent(Component):
 
         gen.write(format=solver_format, output_dir=output_dir)
         print "Written files to '%s'." % output_dir
+
+    def finalize_adjoint_sources(self, iteration_name, event_name):
+        """
+        Finalizes the adjoint sources.
+        """
+        from itertools import izip
+        import numpy as np
+
+        from lasif import rotations
+
+        all_coordinates = []
+        _i = 0
+
+        window_manager = self.comm.windows.get(event_name, iteration_name)
+        event = self.comm.events.get(event_name)
+        iteration = self.comm.iterations.get(iteration_name)
+        iteration_event_def = iteration.events[event["event_name"]]
+        iteration_stations = iteration_event_def["stations"]
+
+        event_weight = iteration_event_def["event_weight"]
+
+        output_folder = self.comm.project.get_output_folder(
+            "adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
+
+        l = sorted(window_manager.list())
+        for station, windows in itertools.groupby(
+                l, key=lambda x: ".".join(x.split(".")[:2])):
+            if station not in iteration_stations:
+                continue
+            station_weight = iteration_stations[station]["station_weight"]
+            channels = {}
+            for w in windows:
+                w = window_manager.get(w)
+                channel_weight = 0
+                srcs = []
+                for window in w:
+                    ad_src = window.adjoint_source
+                    if not ad_src["adjoint_source"].ptp():
+                        continue
+                    srcs.append(ad_src["adjoint_source"] * window.weight)
+                    channel_weight += window.weight
+                if not srcs:
+                    continue
+                # Final adjoint source for that channel and apply all weights.
+                adjoint_source = np.sum(srcs, axis=0) / channel_weight * \
+                    event_weight * station_weight
+                channels[w.channel_id[-1]] = adjoint_source
+            if not channels:
+                continue
+            # Now all adjoint sources of a window should have the same length.
+            length = set(len(v) for v in channels.values())
+            assert len(length) == 1
+            length = length.pop()
+            # All missing channels will be replaced with a zero array.
+            for c in ["Z", "N", "E"]:
+                if c in  channels:
+                    continue
+                channels[c] = np.zeros(length)
+
+            # Get the station coordinates
+            coords = self.comm.query.get_coordinates_for_station(event_name,
+                                                                 station)
+
+            # Rotate. if needed
+            rec_lat = coords["latitude"]
+            rec_lng = coords["longitude"]
+            domain = self.comm.project.domain
+
+            if domain["rotation_angle"]:
+                # Rotate the adjoint source location.
+                r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(
+                    rec_lat, rec_lng, domain["rotation_axis"],
+                    -domain["rotation_angle"])
+                # Rotate the adjoint sources.
+                channels["N"], channels["E"], channels["Z"] = \
+                    rotations.rotate_data(
+                        channels["N"], channels["E"],
+                        channels["Z"], rec_lat, rec_lng,
+                        domain["rotation_axis"],
+                        domain["rotation_angle"])
+            else:
+                r_rec_lat = rec_lat
+                r_rec_lng = rec_lng
+            r_rec_depth = 0.0
+            r_rec_colat = rotations.lat2colat(r_rec_lat)
+
+            CHANNEL_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
+
+            _i += 1
+
+            adjoint_src_filename = os.path.join(output_folder,
+                                                "ad_src_%i" % _i)
+
+            all_coordinates.append((r_rec_colat, r_rec_lng, r_rec_depth))
+
+            # Actually write the adjoint source file in SES3D specific format.
+            with open(adjoint_src_filename, "wt") as open_file:
+                open_file.write("-- adjoint source ------------------\n")
+                open_file.write("-- source coordinates (colat,lon,depth)\n")
+                open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng,
+                                                r_rec_depth))
+                open_file.write("-- source time function (x, y, z) --\n")
+                for x, y, z in izip(-1.0 * channels[CHANNEL_MAPPING["X"]],
+                                    channels[CHANNEL_MAPPING["Y"]],
+                                    -1.0 * channels[CHANNEL_MAPPING["Z"]]):
+                    open_file.write("%e %e %e\n" % (x, y, z))
+                open_file.write("\n")
+
+        # Write the final file.
+        with open(os.path.join(output_folder, "ad_srcfile"), "wt") as fh:
+            fh.write("%i\n" % _i)
+            for line in all_coordinates:
+                fh.write("%.6f %.6f %.6f\n" % (line[0], line[1], line[2]))
+            fh.write("\n")
+
+        print "Wrote %i adjoint sources to %s." % (
+            _i, os.path.relpath(output_folder))

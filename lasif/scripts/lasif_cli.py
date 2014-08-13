@@ -693,8 +693,8 @@ def lasif_finalize_adjoint_sources(parser, args):
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    proj = _find_project_comm(".")
-    proj.finalize_adjoint_sources(iteration_name, event_name)
+    comm = _find_project_comm(".")
+    comm.actions.finalize_adjoint_sources(iteration_name, event_name)
 
 
 @command_group("Iteration Management")

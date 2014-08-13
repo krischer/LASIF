@@ -88,6 +88,9 @@ from lxml import etree
 from lxml.builder import E
 import os
 
+# XXX: Change this!
+DEFAULT_AD_SRC_TYPE = "TimeFrequencyPhaseMisfitFichtner2008"
+
 
 class WindowGroupManager(object):
     """
@@ -241,6 +244,9 @@ class WindowCollection(object):
     def __len__(self):
         return len(self.windows)
 
+    def __iter__(self):
+        return iter(self.windows)
+
     def __str__(self):
         ret_str = ("Window group for channel '{channel_id}' with {count} "
                    "window(s):\n"
@@ -253,19 +259,8 @@ class WindowCollection(object):
                               windows="\n    ".join(
                                   ["* " + str(_i) for _i in self.windows]))
 
-    def get_adjoint_source_for_window(self, window):
-        if self.comm is None:
-            raise ValueError("Operation only possible with an active "
-                             "communicator instance.")
-        adsrc = self.comm.adjoint_sources.calculate_adjoint_source(
-            self.event_name, self.synthetics_tag, self.channel_id,
-            window.starttime, window.endtime, window.taper,
-            window.taper_percentage, window.misfit_type)
-        return adsrc
-
     def add_window(self, starttime, endtime, weight=1.0, taper="cosine",
-                   taper_percentage=0.05, misfit_type=None, misfit_value=None,
-                   misfit_details=None):
+                   taper_percentage=0.05, misfit_type=None):
         """
         Adds a single window.
 
@@ -285,8 +280,6 @@ class WindowCollection(object):
             taper=taper,
             taper_percentage=taper_percentage,
             misfit_type=misfit_type,
-            misfit_value=misfit_value,
-            misfit_details=misfit_details,
             collection=self))
 
     def plot(self, show=True, filename=None):
@@ -397,8 +390,7 @@ class WindowCollection(object):
                 # a recalculation of the adjoint source in case no taper
                 # percentage has been set before.
                 w["taper_percentage"]  if "taper_percentage" in w else "0.05",
-                w["misfit"] if "misfit" in w else None,
-                w["misfit_value"] if "misfit_value" in w else None)
+                w["misfit"] if "misfit" in w else None)
 
     def write(self):
         """
@@ -435,7 +427,7 @@ class WindowCollection(object):
                 local_win.append(E.MisfitDetails(
                     *[getattr(E, k)(v) for k, v in w.misfit_details.items()]
                 ))
-            windows.append(E.Window(*local_win))
+            windows.append(E.Window(*local_win, collection=self))
 
         doc = (
             E.MisfitWindow(
@@ -450,12 +442,10 @@ class WindowCollection(object):
 
 class Window(object):
     __slots__ = ["starttime", "endtime", "weight", "taper",
-                 "taper_percentage", "misfit_type", "__misfit_value",
-                 "__misfit_details", "__collection"]
+                 "taper_percentage", "misfit_type", "__collection", "comm"]
 
     def __init__(self, starttime, endtime, weight, taper,
                  taper_percentage, misfit_type=None,
-                 misfit_value=None, misfit_details=None,
                  collection=None):
         """
         Object representing one window.
@@ -474,10 +464,6 @@ class Window(object):
         :type taper_percentage: float
         :param misfit_type: The misfit (and adjoint source) type as a string.
         :type misfit_type: str, optional
-        :param misfit_value: The misfit value. Must be positive.
-        :type misfit_value: float, optional
-        :param misfit_details: Details about the calculated misfit.
-        :type misfit_details: dict, optional
         :param collection: The window collection object. Necessary for
             example to compute misfit values and adjoint sources on demand
             for a given window. The window itself does not have enough
@@ -503,38 +489,27 @@ class Window(object):
         # All other values are optional.
         self.misfit_type = str(misfit_type) \
             if misfit_type is not None else None
-        # Delegate misfit value and details to properties to be able to
-        # calculate them on demand.
-        self.__misfit_value = float(misfit_value) \
-            if misfit_value is not None else None
-        self.__misfit_details = misfit_details
-        if self.__misfit_details is None:
-            self.__misfit_details = {}
 
         # Reference to the window collection.
         self.__collection = collection
+        if collection is not None:
+            self.comm = collection.comm
+        else:
+            self.comm = None
 
-        # Force some sanity. If no misfit is specified, it can have no
-        # misfit details. Also if no misfit value is given, it can have no
-        # misfit details.
-        if self.misfit_type is None and \
-                (self.misfit_value or self.misfit_details):
-            raise ValueError("No misfit value or misfit details without "
-                             "misfit type.")
-        if (self.misfit_type is None or self.misfit_value is None) and \
-                self.__misfit_details:
-            raise ValueError("No misfit details allowed without a misfit "
-                             "type and value.")
-        elif self.misfit_value is None and self.__misfit_details:
-            raise ValueError("No misfit details allowed without a misfit "
-                             "value.")
-        # LASIF expects a positive misfit for a bunch of operations.
-        elif self.misfit_value is not None and self.misfit_value < 0.0:
-            raise ValueError("Misfit value must be positive.")
-        # 'value' is not a valid key for the misfit details.
-        if "value" in self.__misfit_details:
-            raise ValueError("The misfit details cannot contain a second "
-                             "'value' field.")
+    @property
+    def adjoint_source(self):
+        if self.comm is None:
+            raise ValueError("Operation only possible with an active "
+                             "communicator instance.")
+        if self.misfit_type is None:
+            self.misfit_type = DEFAULT_AD_SRC_TYPE
+        adsrc = self.comm.adjoint_sources.calculate_adjoint_source(
+            self.__collection.event_name, self.__collection.synthetics_tag,
+            self.__collection.channel_id,
+            self.starttime, self.endtime, self.taper,
+            self.taper_percentage, self.misfit_type)
+        return adsrc
 
     @property
     def misfit_details(self):
@@ -546,10 +521,7 @@ class Window(object):
 
     @property
     def misfit_value(self):
-        if self.__misfit_value is not None:
-            return self.__misfit_value
-        else:
-            return None
+        return self.adjoint_source["misfit_value"]
 
     def __eq__(self, other):
         if not isinstance(other, Window):
