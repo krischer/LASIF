@@ -168,6 +168,8 @@ def preprocess_file(processing_info):
     # =========================================================================
     station_file = processing_info["station_filename"]
 
+    print station_file
+
     # check if the station file actually exists ==============================
     if not processing_info["station_filename"]:
         msg = "No station file found for the relevant time span. File skipped"

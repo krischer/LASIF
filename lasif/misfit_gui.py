@@ -83,14 +83,11 @@ class MisfitGUI:
         self._current_app_mode = None
 
         # setup necessary info for plot layout and buttons --------------------
-
         self.__setup_plots()
         self.__connect_signals()
 
         # read seismograms, show the gui, print basic info on the screen ------
-
         self.next()
-        plt.tight_layout()
         plt.gcf().canvas.set_window_title("Misfit GUI - Press 'h' for help.")
         plt.show()
 
@@ -113,27 +110,23 @@ class MisfitGUI:
 
     def __setup_plots(self):
 
-        # Some actual plots.
-        self.plot_axis_z = plt.subplot2grid((6, 20), (0, 0), colspan=18)
-        self.plot_axis_n = plt.subplot2grid((6, 20), (1, 0), colspan=18)
-        self.plot_axis_e = plt.subplot2grid((6, 20), (2, 0), colspan=18)
+        # Some actual plots. [left, bottom, width, height]
+        self.plot_axis_z = plt.axes([0.10, 0.80, 0.70, 0.19])
+        self.plot_axis_n = plt.axes([0.10, 0.60, 0.70, 0.19])
+        self.plot_axis_e = plt.axes([0.10, 0.40, 0.70, 0.19])
 
-        # Append another attribute to the plot axis to be able to later on
-        # identify which component they belong to.
+
+        # Append another attribute to the plot axis to be able to later on identify which component they belong to.
         self.plot_axis_z.seismic_component = "Z"
         self.plot_axis_n.seismic_component = "N"
         self.plot_axis_e.seismic_component = "E"
 
         self._activate_multicursor()
 
-        self.misfit_axis = plt.subplot2grid((6, 20), (3, 0), colspan=11,
-                                            rowspan=3)
-        self.colorbar_axis = plt.subplot2grid((6, 20), (3, 12), colspan=1,
-                                              rowspan=3)
-        # self.adjoint_source_axis = plt.subplot2grid((6, 8), (4, 0),
-        # colspan=4, rowspan=1)
-        self.map_axis = plt.subplot2grid((6, 20), (3, 14), colspan=7,
-                                         rowspan=3)
+        self.misfit_axis = plt.axes([0.10, 0.05, 0.70, 0.30])
+        self.colorbar_axis = plt.axes([0.01, 0.05, 0.01, 0.30])
+        
+        self.map_axis = plt.axes([0.805, 0.40, 0.19, 0.19])
 
         # Plot the map and the beachball.
         bounds = self.project.domain["bounds"]
@@ -143,21 +136,21 @@ class MisfitGUI:
             bounds["boundary_width_in_degree"],
             rotation_axis=self.project.domain["rotation_axis"],
             rotation_angle_in_degree=self.project.domain["rotation_angle"],
-            plot_simulation_domain=False, zoom=True)
+            plot_simulation_domain=False, zoom=True, labels=False)
         visualization.plot_events([self.event], map_object=self.map_obj)
 
         # All kinds of buttons [left, bottom, width, height]
-        self.axnext = plt.axes([0.90, 0.95, 0.08, 0.03])
-        self.axprev = plt.axes([0.90, 0.90, 0.08, 0.03])
-        self.axreset = plt.axes([0.90, 0.85, 0.08, 0.03])
-        self.axautopick = plt.axes([0.90, 0.80, 0.08, 0.03])
+        self.axnext = plt.axes([0.85, 0.95, 0.08, 0.03])
+        self.axprev = plt.axes([0.85, 0.90, 0.08, 0.03])
+        self.axreset = plt.axes([0.85, 0.85, 0.08, 0.03])
+        self.axautopick = plt.axes([0.85, 0.80, 0.08, 0.03])
         self.bnext = Button(self.axnext, 'Next')
         self.bprev = Button(self.axprev, 'Prev')
         self.breset = Button(self.axreset, 'Reset Station')
         self.bautopick = Button(self.axautopick, 'Autoselect')
 
         # Axis displaying the current weight
-        self.axweight = plt.axes([0.90, 0.75, 0.08, 0.03])
+        self.axweight = plt.axes([0.85, 0.75, 0.08, 0.03])
         self._update_current_weight(1.0)
 
     def __connect_signals(self):
@@ -166,21 +159,13 @@ class MisfitGUI:
         self.breset.on_clicked(self.reset)
         self.bautopick.on_clicked(self.autoselect_windows)
 
-        self.plot_axis_z.figure.canvas.mpl_connect('button_press_event',
-                                                   self._onButtonPress)
-        self.plot_axis_n.figure.canvas.mpl_connect('button_press_event',
-                                                   self._onButtonPress)
-        self.plot_axis_e.figure.canvas.mpl_connect('button_press_event',
-                                                   self._onButtonPress)
+        self.plot_axis_z.figure.canvas.mpl_connect('button_press_event', self._onButtonPress)
+        self.plot_axis_n.figure.canvas.mpl_connect('button_press_event', self._onButtonPress)
+        self.plot_axis_e.figure.canvas.mpl_connect('button_press_event', self._onButtonPress)
 
-        self.plot_axis_e.figure.canvas.mpl_connect('key_release_event',
-                                                   self._onKeyRelease)
+        self.plot_axis_e.figure.canvas.mpl_connect('key_release_event', self._onKeyRelease)
 
-        self.plot_axis_z.figure.canvas.mpl_connect('resize_event',
-                                                   self._on_resize)
-
-        # Connect the picker. Connecting once is enough. It will still fire for
-        # all axes.
+        # Connect the picker. Connecting once is enough. It will still fire for all axes.
         self.plot_axis_z.figure.canvas.mpl_connect('pick_event', self._on_pick)
 
     def autoselect_windows(self, event):
@@ -225,11 +210,8 @@ class MisfitGUI:
             plt.draw()
 
         if event.mouseevent.button == 1:
-            self._onWindowSelected(artist.get_x(), artist.get_width(),
-                                   artist.axes, plot_only=True)
+            self._onWindowSelected(artist.get_x(), artist.get_width(), artist.axes, plot_only=True)
 
-    def _on_resize(self, *args):
-        plt.tight_layout()
 
     def next(self, *args):
         while True:
@@ -333,8 +315,7 @@ class MisfitGUI:
             s=str(window_weight), verticalalignment="top",
             horizontalalignment="left", color="0.4", weight=1000)
 
-        # Monkey patch to trigger text removal as soon as the rectangle is
-        # removed.
+        # Monkey patch to trigger text removal as soon as the rectangle is removed.
         def remove():
             super(Rectangle, rect).remove()
             attached_text.remove()
@@ -347,7 +328,6 @@ class MisfitGUI:
 
     def plot(self):
         self.misfit_axis.cla()
-        self.misfit_axis.set_xticks([])
         self.misfit_axis.set_yticks([])
         self.colorbar_axis.cla()
         try:
@@ -374,16 +354,19 @@ class MisfitGUI:
         self.plot_axis_e.yaxis.set_major_formatter(FormatStrFormatter("%.3g"))
 
         s_stats = self.data.synthetics[0].stats
-        self.time_axis = np.linspace(0, s_stats.npts * s_stats.delta,
-                                     s_stats.npts)
+        self.time_axis = np.linspace(0, s_stats.npts * s_stats.delta, s_stats.npts)
 
         def plot_trace(axis, component):
             real_trace = self.data.data.select(component=component)
             synth_trace = self.data.synthetics.select(channel=component)
             if real_trace:
                 axis.plot(self.time_axis, real_trace[0].data, color="black")
+                if component != "E":
+                    axis.set_xticks([])
             if synth_trace:
                 axis.plot(self.time_axis, synth_trace[0].data, color="red")
+                if component != "E":
+                    axis.set_xticks([])
 
             if real_trace:
                 text = real_trace[0].id
@@ -523,7 +506,7 @@ class MisfitGUI:
             for ax in self._axes_to_restore:
                 plt.gcf().add_axes(ax)
             del self._axes_to_restore
-            plt.tight_layout()
+
             self._activate_multicursor()
             plt.draw()
             self._current_app_mode = None
@@ -642,8 +625,7 @@ class MisfitGUI:
                            pad=True, fill_value=0.0)
 
         #  make time axis
-        t = np.linspace(0, synth.stats.npts * synth.stats.delta,
-                        synth.stats.npts)
+        t = np.linspace(0, synth.stats.npts * synth.stats.delta, synth.stats.npts)
 
         #  clear axes of misfit plot ------------------------------------------
 
@@ -659,10 +641,8 @@ class MisfitGUI:
         #  set data and synthetics, compute actual misfit ---------------------
 
         t = np.require(t, dtype="float64", requirements="C")
-        data_d = np.require(data_trimmed.data, dtype="float64",
-                            requirements="C")
-        synth_d = np.require(synth_trimmed.data, dtype="float64",
-                             requirements="C")
+        data_d = np.require(data_trimmed.data, dtype="float64", requirements="C")
+        synth_d = np.require(synth_trimmed.data, dtype="float64", requirements="C")
 
         #  compute misfit and adjoint source
         adsrc = adsrc_tf_phase_misfit(
@@ -676,16 +656,12 @@ class MisfitGUI:
 
         # Format all the axis.
         self.misfit_axis.yaxis.set_major_formatter(FormatStrFormatter("%.3f"))
-        self.misfit_axis.twin_axis.yaxis.set_major_formatter(
-            FormatStrFormatter("%.2g"))
-        self.colorbar_axis.yaxis.set_major_formatter(
-            FormatStrFormatter("%.1f"))
+        self.misfit_axis.twin_axis.yaxis.set_major_formatter(FormatStrFormatter("%.2g"))
+        self.colorbar_axis.yaxis.set_major_formatter(FormatStrFormatter("%.1f"))
 
-        plt.tight_layout()
         plt.draw()
 
         #  write adjoint source to file ---------------------------------------
 
         if plot_only is not True:
-            self.adjoint_source_manager.write_adjoint_src(
-                adsrc["adjoint_source"], trace.id, starttime, endtime)
+            self.adjoint_source_manager.write_adjoint_src(adsrc["adjoint_source"], trace.id, starttime, endtime)

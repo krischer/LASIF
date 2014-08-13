@@ -35,9 +35,6 @@ class AdjointSourceManager(object):
         """
         filename = os.path.join(self.directory, self._get_tag(
             channel_id, starttime, endtime))
-        if os.path.exists(filename):
-            return
-
         # Save as 64bit floats just to be able to handle any solver and what
         # not.
         np.save(filename, np.require(data, "float64"))
