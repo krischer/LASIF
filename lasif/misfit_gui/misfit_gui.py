@@ -54,6 +54,8 @@ class Window(QtGui.QMainWindow):
         self.ui = qt_window.Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.current_window_manager = None
+
         self.ui.status_label = QtGui.QLabel("")
         self.ui.statusbar.addPermanentWidget(self.ui.status_label)
 
@@ -76,6 +78,12 @@ class Window(QtGui.QMainWindow):
         self.ui.e_graph.plot([0], [0], pen="k", name="Data")
         self.ui.e_graph.plot([0], [0], pen="r", name="Synthetics")
         self.ui.e_graph.clear()
+
+    def _reset_all_plots(self):
+        for component in ["z", "n", "e"]:
+            p = getattr(self.ui, "%s_graph" % component)
+            p.clear()
+            p.autoRange()
 
     @property
     def current_iteration(self):
@@ -118,7 +126,14 @@ class Window(QtGui.QMainWindow):
         self.ui.stations_listWidget.addItems(
             sorted(it.events[value]["stations"].keys()))
 
-    def on_stations_listWidget_currentItemChanged(self, *args):
+        self.current_window_manager = self.comm.windows.get(
+            self.current_event, self.current_iteration)
+
+        self._reset_all_plots()
+
+    def on_stations_listWidget_currentItemChanged(self, current, previous):
+        if current is None:
+            return
         wave = self.comm.query.get_matching_waveforms(
             self.current_event, self.current_iteration, self.current_station)
 
@@ -130,9 +145,14 @@ class Window(QtGui.QMainWindow):
         tts = getTravelTimes(great_circle_distance, event["depth_in_km"],
                              model="ak135")
 
+        windows_for_station = \
+            self.current_window_manager.get_windows_for_station(
+                self.current_station)
+
+        self._reset_all_plots()
+
         for component in ["Z", "N", "E"]:
             plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-            plot_widget.clear()
             data_tr = [tr for tr in wave.data
                        if tr.stats.channel[-1].upper() == component]
             if data_tr:
@@ -155,6 +175,17 @@ class Window(QtGui.QMainWindow):
                     else:
                         pen = "#95000066"
                     plot_widget.addLine(x=tt["time"], pen=pen, z=-10)
+
+            window = [_i for _i in windows_for_station
+                      if _i.channel_id[-1].upper() == component]
+            if window:
+                for win in window[0].windows:
+                    start = win.starttime - event["origin_time"]
+                    end = win.endtime - event["origin_time"]
+                    lr = pg.LinearRegionItem([start,end])
+                    lr.setZValue(-5)
+                    plot_widget.addItem(lr)
+
 
             plot_widget.autoRange()
 
