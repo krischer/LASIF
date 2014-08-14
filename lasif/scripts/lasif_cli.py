@@ -819,6 +819,7 @@ def lasif_compare_misfits(parser, args):
     all_events = collections.defaultdict(list)
 
     for event in events:
+
         # Get the windows from both.
         window_group_to = comm.windows.get(event, to_it)
         window_group_from = comm.windows.get(event, from_it)
@@ -828,6 +829,9 @@ def lasif_compare_misfits(parser, args):
             set(window_group_from.list()))
 
         for channel in shared_channels:
+
+            print 'event ', event, 'channel ', channel
+
             window_collection_from = window_group_from.get(channel)
             window_collection_to = window_group_to.get(channel)
 
