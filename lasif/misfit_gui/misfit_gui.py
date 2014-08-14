@@ -201,10 +201,20 @@ class Window(QtGui.QMainWindow):
                     lr.event_starttime = event["origin_time"]
                     lr.window_object = win
 
-                    def mouseClicked(click_event):
-                        _win = click_event.currentItem.window_object
+                    def connect_dbclick():
+                        _win = win
+                        _lr = lr
+                        _p = plot_widget
+                        def mouseClicked(*args, **kwargs):
+                            c = _win._Window__collection
+                            c.delete_window(_win.starttime, _win.endtime)
+                            c.write()
+                            _p.removeItem(_lr)
+                        _lr.mouseDoubleClickEvent = mouseClicked
 
-                    lr.mouseClickEvent = mouseClicked
+                    # Double click delete event, use function to force a
+                    # closure. Python closures bind on function execution.
+                    connect_dbclick()
 
                     lr.setZValue(-5)
                     lr.sigRegionChangeFinished.connect(
