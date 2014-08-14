@@ -248,9 +248,9 @@ class IterationsComponent(Component):
         # Make it work with both the long and short version of the iteration
         # name, and existing iteration object.
         try:
-            iteration_name = iteration_name.iteration_name
+            iteration_name = str(iteration_name.iteration_name)
         except AttributeError:
-            pass
+            iteration_name = str(iteration_name)
         iteration_name = iteration_name.lstrip("ITERATION_")
 
         # Access cache.
