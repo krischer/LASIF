@@ -4,7 +4,7 @@ from PyQt4 import QtGui
 from PyQt4.QtCore import pyqtSlot
 import pyqtgraph as pg
 # Default to antialiased drawing.
-pg.setConfigOptions(antialias=True)
+pg.setConfigOptions(antialias=True, foreground=(50, 50, 50), background=None)
 
 
 from glob import iglob
@@ -64,9 +64,9 @@ class Window(QtGui.QMainWindow):
 
         for component in ["z", "n", "e"]:
             p = getattr(self.ui, "%s_graph" % component)
-            p.setBackground(None)
-            for d in ("left", "bottom", "top", "right"):
-                p.getAxis(d).setPen("#333")
+            # p.setBackground(None)
+            # for d in ("left", "bottom", "top", "right"):
+            #     p.getAxis(d).setPen("#333")
             p.setLabel("left", "Velocity", units="m/s")
             p.setLabel("bottom", "Time since event", units="s")
 
@@ -131,6 +131,18 @@ class Window(QtGui.QMainWindow):
 
         self._reset_all_plots()
 
+    def _window_region_callback(self, *args, **kwargs):
+        start, end = args[0].getRegion()
+        win = args[0].window_object
+        event_starttime = args[0].event_starttime
+        start = event_starttime + start
+        end = event_starttime + end
+
+        win.starttime = start
+        win.endtime = end
+        win._Window__collection.write()
+
+
     def on_stations_listWidget_currentItemChanged(self, current, previous):
         if current is None:
             return
@@ -182,10 +194,22 @@ class Window(QtGui.QMainWindow):
                 for win in window[0].windows:
                     start = win.starttime - event["origin_time"]
                     end = win.endtime - event["origin_time"]
-                    lr = pg.LinearRegionItem([start,end])
-                    lr.setZValue(-5)
-                    plot_widget.addItem(lr)
 
+                    lr = pg.LinearRegionItem([start,end])
+                    # Attach window and event starttime to be able to modify
+                    # the window in the callback.
+                    lr.event_starttime = event["origin_time"]
+                    lr.window_object = win
+
+                    def mouseClicked(click_event):
+                        _win = click_event.currentItem.window_object
+
+                    lr.mouseClickEvent = mouseClicked
+
+                    lr.setZValue(-5)
+                    lr.sigRegionChangeFinished.connect(
+                        self._window_region_callback)
+                    plot_widget.addItem(lr)
 
             plot_widget.autoRange()
 
