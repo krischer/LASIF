@@ -75,14 +75,14 @@ class AdjointSourcesComponent(Component):
         data = waveforms.data
         synth = waveforms.synthetics
 
-        if len(data) != 1:
-            raise LASIFNotFoundError(
-                "Data not found for event '%s', iteration '%s', and channel "
-                "'%s'." % (event_name, iteration_name, channel_id))
-        if len(synth) != 1:
-            raise LASIFNotFoundError(
-                "Synthetics not found for event '%s', iteration '%s', "
-                "and channel '%s'." % (event_name, iteration_name, channel_id))
+        #if len(data) != 1:
+        #    raise LASIFNotFoundError(
+        #        "Data not found for event '%s', iteration '%s', and channel "
+        #        "'%s'." % (event_name, iteration_name, channel_id))
+        #if len(synth) != 1:
+        #    raise LASIFNotFoundError(
+        #        "Synthetics not found for event '%s', iteration '%s', "
+        #        "and channel '%s'." % (event_name, iteration_name, channel_id))
         data = data[0]
         synth = synth[0]
 
