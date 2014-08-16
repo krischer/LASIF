@@ -861,7 +861,6 @@ def lasif_compare_misfits(parser, args):
                  " '%s' to iteration '%s'" % (from_it.name, to_it.name))
     for i, event_name in enumerate(sorted(all_events.keys())):
         values = np.array(all_events[event_name])
-        values += np.random.random(len(values)) - 0.5
         colors = np.array(["green"] * len(values))
         colors[values > 0] = "red"
         plt.subplot(len(all_events), 1, i + 1)
