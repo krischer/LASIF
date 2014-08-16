@@ -68,32 +68,29 @@ KEYMAP = {
 
 
 class MisfitGUI:
-    def __init__(self, event, seismogram_generator, project, window_manager,
-                 adjoint_source_manager, iteration):
-        # gather basic information --------------------------------------------
+    def __init__(self, comm, event, iteration, window_manager):
         plt.figure(figsize=(22, 12))
         self.event = event
-        self.project = project
+        self.comm = comm
         self.process_parameters = iteration.get_process_params()
-
-        self.adjoint_source_manager = adjoint_source_manager
-        self.seismogram_generator = seismogram_generator
         self.window_manager = window_manager
+
+        self.seismogram_generator = \
+            self.comm.query.get_data_and_synthetics_iterator(iteration, event)
 
         self._current_app_mode = None
 
-        # setup necessary info for plot layout and buttons --------------------
+        # setup necessary info for plot layout and buttons
         self.__setup_plots()
         self.__connect_signals()
 
-        # read seismograms, show the gui, print basic info on the screen ------
+        # read seismograms, show the gui, print basic info on the screen
         self.next()
         plt.gcf().canvas.set_window_title("Misfit GUI - Press 'h' for help.")
         plt.show()
 
     def _activate_multicursor(self):
-
-        self._deactivate_multicursor
+        self._deactivate_multicursor()
         self.multicursor = MultiCursor(plt.gcf().canvas, (
             self.plot_axis_z, self.plot_axis_n, self.plot_axis_e),
             color="blue", lw=1)
@@ -125,18 +122,19 @@ class MisfitGUI:
 
         self.misfit_axis = plt.axes([0.10, 0.05, 0.70, 0.30])
         self.colorbar_axis = plt.axes([0.01, 0.05, 0.01, 0.30])
-        
+
         self.map_axis = plt.axes([0.805, 0.40, 0.19, 0.19])
 
         # Plot the map and the beachball.
-        bounds = self.project.domain["bounds"]
+        domain = self.comm.project.domain
+        bounds = domain["bounds"]
         self.map_obj = visualization.plot_domain(
             bounds["minimum_latitude"], bounds["maximum_latitude"],
             bounds["minimum_longitude"], bounds["maximum_longitude"],
             bounds["boundary_width_in_degree"],
-            rotation_axis=self.project.domain["rotation_axis"],
-            rotation_angle_in_degree=self.project.domain["rotation_angle"],
-            plot_simulation_domain=False, zoom=True, labels=False)
+            rotation_axis=domain["rotation_axis"],
+            rotation_angle_in_degree=domain["rotation_angle"],
+            plot_simulation_domain=False, zoom=True)
         visualization.plot_events([self.event], map_object=self.map_obj)
 
         # All kinds of buttons [left, bottom, width, height]

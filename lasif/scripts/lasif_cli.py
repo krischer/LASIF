@@ -517,14 +517,13 @@ def lasif_plot_wavefield(parser, args):
 
     from lasif import ses3d_models
 
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
 
-    event_name = args.event_name
-    iteration_name = args.iteration_name
-    long_iteration_name = "ITERATION_%s" % iteration_name
+    event_name = comm.events.get(args.event_name)["event_name"]
+    iteration_name = comm.iterations.get(args.iteration_name).long_name
 
-    wavefield_dir = os.path.join(proj.paths["wavefields"], event_name,
-                                 long_iteration_name)
+    wavefield_dir = os.path.join(comm.project.paths["wavefields"], event_name,
+                                 iteration_name)
 
     if not os.path.exists(wavefield_dir) or not os.listdir(wavefield_dir):
         msg = "No data available for event and iteration combination."
@@ -532,8 +531,8 @@ def lasif_plot_wavefield(parser, args):
 
     handler = ses3d_models.RawSES3DModelHandler(
         wavefield_dir, model_type="wavefield")
-    handler.rotation_axis = proj.domain["rotation_axis"]
-    handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
+    handler.rotation_axis = comm.project.domain["rotation_axis"]
+    handler.rotation_angle_in_degree = comm.project.domain["rotation_angle"]
 
     while True:
         print(handler)
@@ -717,39 +716,12 @@ def lasif_launch_misfit_gui(parser, args):
     """
     Launch the misfit GUI.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("event_name", help="name of the event")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-    event_name = args.event_name
+    parser.parse_args(args)
 
     comm = _find_project_comm(".")
 
-    if not comm.events.has_event(event_name):
-        msg = "Event '%s' not found in project." % event_name
-        raise LASIFCommandLineException(msg)
-
-    from lasif.misfit_gui import MisfitGUI
-    from lasif.window_manager import WindowGroupManager
-    from lasif.adjoint_src_manager import AdjointSourceManager
-
-    iterator = comm.query.get_data_and_synthetics_iterator(
-        iteration_name, event_name)
-    event = comm.events.get(event_name)
-    iteration = comm.iterations.get(iteration_name)
-    long_iteration_name = comm.iterations.get_long_iteration_name(
-        iteration_name)
-
-    window_directory = os.path.join(comm.project.paths["windows"],
-                                    event_name, long_iteration_name)
-    ad_src_directory = os.path.join(comm.project.paths["adjoint_sources"],
-                                    event_name, long_iteration_name)
-    window_manager = WindowGroupManager(window_directory, long_iteration_name,
-                                        event_name)
-    adj_src_manager = AdjointSourceManager(ad_src_directory)
-
-    MisfitGUI(event, iterator, comm.project, window_manager,
-              adj_src_manager, iteration)
+    from lasif.misfit_gui.misfit_gui import launch
+    launch(comm)
 
 
 @command_group("Iteration Management")

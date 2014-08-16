@@ -3,3 +3,4 @@ lasif.egg-info/*
 *.pyc
 .coverage
 htmlcov
+lasif/misfit_gui/qt_window.py
