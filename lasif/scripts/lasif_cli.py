@@ -848,7 +848,9 @@ def lasif_compare_misfits(parser, args):
                     print str(e)
                     continue
 
-                all_events[event].append(misfit_from - misfit_to)
+                all_events[event].append(
+                    (misfit_to - misfit_from) /
+                    (misfit_from * win_from.weight))
 
     if not all_events:
         raise LASIFCommandLineException("No misfit values could be compared.")
