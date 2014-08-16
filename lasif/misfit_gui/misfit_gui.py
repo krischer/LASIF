@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from PyQt4 import QtGui
 from PyQt4.QtCore import pyqtSlot
 import pyqtgraph as pg
@@ -15,6 +17,8 @@ from obspy.core.util.geodetics import locations2degrees
 from obspy.taup.taup import getTravelTimes
 import os
 import sys
+
+from .window_region_item import WindowLinearRegionItem
 
 
 def compile_and_import_ui_files():
@@ -176,7 +180,7 @@ class Window(QtGui.QMainWindow):
             if synth_tr:
                 tr = synth_tr[0]
                 times = tr.times()
-                plot_widget.plot(times, tr.data, pen="r")
+                plot_widget.plot(times, tr.data, pen="r", )
 
             if data_tr or synth_tr:
                 for tt in tts:
@@ -192,33 +196,34 @@ class Window(QtGui.QMainWindow):
                       if _i.channel_id[-1].upper() == component]
             if window:
                 for win in window[0].windows:
-                    start = win.starttime - event["origin_time"]
-                    end = win.endtime - event["origin_time"]
+                    lr = WindowLinearRegionItem(win, event)
+                    # start = win.starttime - event["origin_time"]
+                    # end = win.endtime - event["origin_time"]
 
-                    lr = pg.LinearRegionItem([start,end])
-                    # Attach window and event starttime to be able to modify
-                    # the window in the callback.
-                    lr.event_starttime = event["origin_time"]
-                    lr.window_object = win
-
-                    def connect_dbclick():
-                        _win = win
-                        _lr = lr
-                        _p = plot_widget
-                        def mouseClicked(*args, **kwargs):
-                            c = _win._Window__collection
-                            c.delete_window(_win.starttime, _win.endtime)
-                            c.write()
-                            _p.removeItem(_lr)
-                        _lr.mouseDoubleClickEvent = mouseClicked
+                    # lr = pg.LinearRegionItem([start,end])
+                    # # Attach window and event starttime to be able to modify
+                    # # the window in the callback.
+                    # lr.event_starttime = event["origin_time"]
+                    # lr.window_object = win
+                    #
+                    # def connect_dbclick():
+                    #     _win = win
+                    #     _lr = lr
+                    #     _p = plot_widget
+                    #     def mouseClicked(*args, **kwargs):
+                    #         c = _win._Window__collection
+                    #         c.delete_window(_win.starttime, _win.endtime)
+                    #         c.write()
+                    #         _p.removeItem(_lr)
+                    #     _lr.mouseDoubleClickEvent = mouseClicked
 
                     # Double click delete event, use function to force a
                     # closure. Python closures bind on function execution.
-                    connect_dbclick()
+                    # connect_dbclick()
 
                     lr.setZValue(-5)
-                    lr.sigRegionChangeFinished.connect(
-                        self._window_region_callback)
+                    # lr.sigRegionChangeFinished.connect(
+                    #     self._window_region_callback)
                     plot_widget.addItem(lr)
 
             plot_widget.autoRange()

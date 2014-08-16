@@ -517,14 +517,13 @@ def lasif_plot_wavefield(parser, args):
 
     from lasif import ses3d_models
 
-    proj = _find_project_comm(".")
+    comm = _find_project_comm(".")
 
-    event_name = args.event_name
-    iteration_name = args.iteration_name
-    long_iteration_name = "ITERATION_%s" % iteration_name
+    event_name = comm.events.get(args.event_name)["event_name"]
+    iteration_name = comm.iterations.get(args.iteration_name).long_name
 
-    wavefield_dir = os.path.join(proj.paths["wavefields"], event_name,
-                                 long_iteration_name)
+    wavefield_dir = os.path.join(comm.project.paths["wavefields"], event_name,
+                                 iteration_name)
 
     if not os.path.exists(wavefield_dir) or not os.listdir(wavefield_dir):
         msg = "No data available for event and iteration combination."
@@ -532,8 +531,8 @@ def lasif_plot_wavefield(parser, args):
 
     handler = ses3d_models.RawSES3DModelHandler(
         wavefield_dir, model_type="wavefield")
-    handler.rotation_axis = proj.domain["rotation_axis"]
-    handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
+    handler.rotation_axis = comm.project.domain["rotation_axis"]
+    handler.rotation_angle_in_degree = comm.project.domain["rotation_angle"]
 
     while True:
         print(handler)
