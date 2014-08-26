@@ -24,6 +24,7 @@ from .actions import ActionsComponent
 from .adjoint_sources import AdjointSourcesComponent
 from .communicator import Communicator
 from .component import Component
+from .downloads import DownloadsComponent
 from .events import EventsComponent
 from .inventory_db import InventoryDBComponent
 from .iterations import IterationsComponent
@@ -163,6 +164,16 @@ class Project(Component):
         """
         Parse the config file.
         """
+        # Needed to transition from old config files to new config files.
+        default_download_settings = {
+            "seconds_before_event": 100.0,
+            "seconds_after_event": 3600.0,
+            "interstation_distance_in_m": 1000.0,
+            "channel_priorities": ["BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]",
+                                   "EH[Z,N,E]", "MH[Z,N,E]"],
+            "location_priorities": ["", "00", "10", "20", "01", "02"]
+        }
+
         # Attempt to read the cached config file. This might seem excessive but
         # since this file is read every single time a LASIF command is used it
         # makes difference at least in the perceived speed of LASIF.
@@ -172,7 +183,10 @@ class Project(Component):
                 cf_cache = cPickle.load(fh)
             last_m_time = int(os.path.getmtime(self.paths["config_file"]))
             if last_m_time == cf_cache["last_m_time"]:
+                default_download_settings.update(cf_cache["config"][
+                    "download_settings"])
                 self.config = cf_cache["config"]
+                self.config["download_settings"] = default_download_settings
                 self.domain = cf_cache["domain"]
                 return
 
@@ -186,12 +200,25 @@ class Project(Component):
         if self.config["description"] is None:
             self.config["description"] = ""
 
-        self.config["download_settings"] = {}
+        self.config["download_settings"] = default_download_settings
         dl_settings = root.find("download_settings")
         self.config["download_settings"]["seconds_before_event"] = \
             float(dl_settings.find("seconds_before_event").text)
         self.config["download_settings"]["seconds_after_event"] = \
             float(dl_settings.find("seconds_after_event").text)
+        # Only add if available, otherwise use defaults.
+        dist = dl_settings.find('interstation_distance_in_m')
+        if dist is not None:
+            self.config["download_settings"]["interstation_distance_in_m"] = \
+                float(dist.text)
+        c_p = dl_settings.find("channel_priorities")
+        if c_p is not None:
+            self.config["download_settings"]["channel_priorities"] = \
+                [str(_i.text) for _i in c_p.findall("priority")]
+        l_p = dl_settings.find("location_priorities")
+        if l_p is not None:
+            self.config["download_settings"]["location_priorities"] = \
+                [str(_i.text) for _i in l_p.findall("priority")]
 
         # Read the domain.
         domain = root.find("domain")
@@ -326,6 +353,10 @@ class Project(Component):
                                 communicator=self.comm,
                                 component_name="adjoint_sources")
 
+        # Data downloading component.
+        DownloadsComponent(communicator=self.comm,
+                           component_name="downloads")
+
     def __setup_paths(self, root_path):
         """
         Central place to define all paths.
@@ -402,7 +433,22 @@ class Project(Component):
             E.description(""),
             E.download_settings(
                 E.seconds_before_event(str(300)),
-                E.seconds_after_event(str(3600))),
+                E.seconds_after_event(str(3600)),
+                E.interstation_distance_in_m(str(1000.0)),
+                E.channel_priorities(
+                    E.priority("BH[Z,N,E]"),
+                    E.priority("LH[Z,N,E]"),
+                    E.priority("HH[Z,N,E]"),
+                    E.priority("EH[Z,N,E]"),
+                    E.priority("MH[Z,N,E]")),
+                E.location_priorities(
+                    E.priority(""),
+                    E.priority("00"),
+                    E.priority("10"),
+                    E.priority("20"),
+                    E.priority("01"),
+                    E.priority("02"))
+            ),
             E.domain(
                 getattr(E, "global")("false"),
                 E.domain_bounds(
