@@ -274,97 +274,15 @@ def lasif_info(parser, args):
 
 
 @command_group("Data Acquisition")
-def lasif_download_waveforms(parser, args):
+def lasif_download_data(parser, args):
     """
-    Download waveforms for one event.
-    """
-    parser.add_argument("event_name", help="name of the event")
-    event_name = parser.parse_args(args).event_name
-
-    proj = _find_project_comm(".")
-    if event_name not in proj.events:
-        msg = "Event '%s' not found." % event_name
-        raise LASIFCommandLineException(msg)
-
-    from lasif.download_helpers import downloader
-
-    time = proj.events[event_name]["origin_time"]
-    starttime = time - proj.config["download_settings"]["seconds_before_event"]
-    endtime = time + proj.config["download_settings"]["seconds_after_event"]
-
-    domain = proj.domain
-    min_lat, max_lat, min_lng, max_lng, buffer = (
-        domain["bounds"]["minimum_latitude"],
-        domain["bounds"]["maximum_latitude"],
-        domain["bounds"]["minimum_longitude"],
-        domain["bounds"]["maximum_longitude"],
-        domain["bounds"]["boundary_width_in_degree"])
-    min_lat += buffer
-    max_lat -= buffer
-    min_lng += buffer
-    max_lng -= buffer
-
-    download_folder = os.path.join(proj.paths["data"], event_name, "raw")
-    if not os.path.exists(download_folder):
-        os.makedirs(download_folder)
-
-    channel_priority_list = ["HH[Z,N,E]", "BH[Z,N,E]", "MH[Z,N,E]",
-                             "EH[Z,N,E]", "LH[Z,N,E]"]
-
-    logfile = os.path.join(proj.paths["logs"], "waveform_download_log.txt")
-
-    downloader.download_waveforms(
-        min_lat, max_lat, min_lng, max_lng,
-        domain["rotation_axis"], domain["rotation_angle"], starttime, endtime,
-        proj.config["download_settings"]["arclink_username"],
-        channel_priority_list=channel_priority_list, logfile=logfile,
-        download_folder=download_folder, waveform_format="mseed")
-
-
-@command_group("Data Acquisition")
-def lasif_download_stations(parser, args):
-    """
-    Download station files for one event.
+    Download waveform and station data for one event.
     """
     parser.add_argument("event_name", help="name of the event")
     event_name = parser.parse_args(args).event_name
 
-    proj = _find_project_comm(".")
-    if event_name not in proj.events:
-        msg = "Event '%s' not found." % event_name
-        raise LASIFCommandLineException(msg)
-
-    from lasif.download_helpers import downloader
-
-    # Fix the start- and endtime to ease download file grouping
-    event_info = proj.events[event_name]
-    starttime = event_info["origin_time"] - \
-        proj.config["download_settings"]["seconds_before_event"]
-    endtime = event_info["origin_time"] + \
-        proj.config["download_settings"]["seconds_after_event"]
-    time = starttime + (endtime - starttime) * 0.5
-
-    # Get all channels.
-    channels = proj._get_waveform_cache_file(event_name, "raw").get_values()
-    channels = [{
-        "channel_id": _i["channel_id"], "network": _i["network"],
-        "station": _i["station"], "location": _i["location"],
-        "channel": _i["channel"], "starttime": starttime, "endtime": endtime}
-        for _i in channels]
-    channels_to_download = []
-
-    # Filter for channel not actually available
-    for channel in channels:
-        if proj.has_station_file(channel["channel_id"], time):
-            continue
-        channels_to_download.append(channel)
-
-    downloader.download_stations(
-        channels_to_download, proj.paths["resp"],
-        proj.paths["station_xml"], proj.paths["dataless_seed"],
-        logfile=os.path.join(proj.paths["logs"], "station_download_log.txt"),
-        arclink_user=proj.config["download_settings"]["arclink_username"],
-        get_station_filename_fct=proj.get_station_filename)
+    comm = _find_project_comm(".")
+    comm.downloads.download_data(event_name)
 
 
 @command_group("Event Management")
