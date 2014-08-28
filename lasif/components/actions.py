@@ -576,7 +576,7 @@ class ActionsComponent(Component):
                         channels["N"], channels["E"],
                         channels["Z"], rec_lat, rec_lng,
                         domain["rotation_axis"],
-                        domain["rotation_angle"])
+                        -domain["rotation_angle"])
             else:
                 r_rec_lat = rec_lat
                 r_rec_lng = rec_lng
@@ -601,7 +601,7 @@ class ActionsComponent(Component):
                 open_file.write("-- source time function (x, y, z) --\n")
                 for x, y, z in izip(-1.0 * channels[CHANNEL_MAPPING["X"]],
                                     channels[CHANNEL_MAPPING["Y"]],
-                                    -1.0 * channels[CHANNEL_MAPPING["Z"]]):
+                                    channels[CHANNEL_MAPPING["Z"]]):
                     open_file.write("%e %e %e\n" % (x, y, z))
                 open_file.write("\n")
 
