@@ -165,24 +165,6 @@ def lasif_plot_event(parser, args):
 
 
 @command_group("Plotting")
-def lasif_plot_station(parser, args):
-    """
-    Plots data for a single station and event.
-
-    Useful for interactive data discovery.
-    """
-    import matplotlib.pyplot as plt
-    parser.add_argument("station_id", help="name of the station to plot")
-    parser.add_argument("event_name", help="name of the event to plot")
-    station_id = parser.parse_args(args).station_id
-    event_name = parser.parse_args(args).event_name
-
-    proj = _find_project_comm(".")
-    proj.plot_station(station_id, event_name)
-    plt.show()
-
-
-@command_group("Plotting")
 def lasif_plot_events(parser, args):
     """
     Plot all events.
