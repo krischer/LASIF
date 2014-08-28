@@ -1,42 +1,35 @@
-from PyQt4 import QtCore, QtGui
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import pyqtgraph
 
 
 class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
-    def __init__(self, window, event, **kwargs):
+    def __init__(self, window, event, parent,**kwargs):
         self.win = window
+        self.event_time = event["origin_time"]
         start = self.win.starttime - event["origin_time"]
         end = self.win.endtime - event["origin_time"]
 
         values = [start, end]
 
         super(WindowLinearRegionItem, self).__init__(values=values, **kwargs)
+        self._parent = parent
+        self._parent.addItem(self)
+        self.setZValue(-5)
 
-    def mouseClickEvent(self, ev):
-        if ev.button() != QtCore.Qt.LeftButton:
-            ev.accept()
-            return
-        if not hasattr(self, "menu"):
-            self.menu = QtGui.QMenu()
-            self.menu.setTitle("Window")
+        self.sigRegionChangeFinished.connect(self.on_region_change_finished)
 
-            green = QtGui.QAction("Delete", self.menu)
-            #green.triggered.connect(self.setGreen)
-            self.menu.addAction(green)
-            self.menu.green = green
+    def on_region_change_finished(self, *args, **kwargs):
+        start, end = args[0].getRegion()
+        start = self.event_time + start
+        end = self.event_time + end
 
-            alpha = QtGui.QWidgetAction(self.menu)
-            alphaSlider = QtGui.QSlider()
-            alphaSlider.setOrientation(QtCore.Qt.Horizontal)
-            alphaSlider.setMaximum(255)
-            alphaSlider.setValue(255)
-            #alphaSlider.valueChanged.connect(self.setAlpha)
-            alpha.setDefaultWidget(alphaSlider)
-            self.menu.addAction(alpha)
-            self.menu.alpha = alpha
-            self.menu.alphaSlider = alphaSlider
+        self.win.starttime = start
+        self.win.endtime = end
+        self.win._Window__collection.write()
 
-        pos = ev.screenPos()
-        self.menu.popup(QtCore.QPoint(pos.x(), pos.y()))
-        ev.accept()
+    def mouseDoubleClickEvent(self, *args):
+        coll = self.win._Window__collection
+        coll.delete_window(self.win.starttime, self.win.endtime)
+        coll.write()
+        self._parent.removeItem(self)

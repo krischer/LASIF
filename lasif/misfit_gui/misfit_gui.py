@@ -83,6 +83,7 @@ class Window(QtGui.QMainWindow):
         self.ui.e_graph.plot([0], [0], pen="r", name="Synthetics")
         self.ui.e_graph.clear()
 
+
     def _reset_all_plots(self):
         for component in ["z", "n", "e"]:
             p = getattr(self.ui, "%s_graph" % component)
@@ -173,8 +174,11 @@ class Window(QtGui.QMainWindow):
                        if tr.stats.channel[-1].upper() == component]
             if data_tr:
                 tr = data_tr[0]
+                plot_widget.data_id = tr.id
                 times = tr.times()
                 plot_widget.plot(times, tr.data, pen="k")
+            else:
+                plot_widget.data_id = None
             synth_tr = [tr for tr in wave.synthetics
                         if tr.stats.channel[-1].upper() == component]
             if synth_tr:
@@ -192,46 +196,48 @@ class Window(QtGui.QMainWindow):
                         pen = "#95000066"
                     plot_widget.addLine(x=tt["time"], pen=pen, z=-10)
 
+            plot_widget.autoRange()
+
             window = [_i for _i in windows_for_station
                       if _i.channel_id[-1].upper() == component]
             if window:
+                plot_widget.windows = window[0]
                 for win in window[0].windows:
-                    lr = WindowLinearRegionItem(win, event)
-                    # start = win.starttime - event["origin_time"]
-                    # end = win.endtime - event["origin_time"]
-
-                    # lr = pg.LinearRegionItem([start,end])
-                    # # Attach window and event starttime to be able to modify
-                    # # the window in the callback.
-                    # lr.event_starttime = event["origin_time"]
-                    # lr.window_object = win
-                    #
-                    # def connect_dbclick():
-                    #     _win = win
-                    #     _lr = lr
-                    #     _p = plot_widget
-                    #     def mouseClicked(*args, **kwargs):
-                    #         c = _win._Window__collection
-                    #         c.delete_window(_win.starttime, _win.endtime)
-                    #         c.write()
-                    #         _p.removeItem(_lr)
-                    #     _lr.mouseDoubleClickEvent = mouseClicked
-
-                    # Double click delete event, use function to force a
-                    # closure. Python closures bind on function execution.
-                    # connect_dbclick()
-
-                    lr.setZValue(-5)
-                    # lr.sigRegionChangeFinished.connect(
-                    #     self._window_region_callback)
-                    plot_widget.addItem(lr)
-
-            plot_widget.autoRange()
-
+                    WindowLinearRegionItem(win, event, parent=plot_widget)
 
     def on_reset_view_Button_released(self):
         for component in ["Z", "N", "E"]:
             getattr(self.ui, "%s_graph" % component.lower()).autoRange()
+
+    def on_z_new_Button_released(self):
+        self._new_window(component="z")
+
+    def on_e_new_Button_released(self):
+        self._new_window(component="e")
+
+    def on_n_new_Button_released(self):
+        self._new_window(component="n")
+
+    def _new_window(self, component):
+        plot_widget = getattr(self.ui, "%s_graph" % component.lower())
+
+        id = plot_widget.data_id
+        if id is None:
+            QtGui.QMessageBox.information(
+                self, "", "Can only create windows if data is available.")
+            return
+
+        event = self.comm.events.get(self.current_event)
+
+        window = self.current_window_manager.get(id)
+        window.add_window(
+            starttime=event["origin_time"],
+            endtime=event["origin_time"] + 60,
+            weight = 1.0
+        )
+        window.write()
+
+        self.on_stations_listWidget_currentItemChanged(True, False)
 
     def on_next_Button_released(self):
         st = self.ui.stations_listWidget
@@ -246,6 +252,31 @@ class Window(QtGui.QMainWindow):
         if idx < 0:
             return
         st.setCurrentRow(idx)
+
+    def on_delete_all_Button_released(self):
+        for component in ["Z", "N", "E"]:
+            plot_widget = getattr(self.ui, "%s_graph" % component.lower())
+            if not hasattr(plot_widget, "windows"):
+                continue
+            plot_widget.windows.windows[:] = []
+            plot_widget.windows.write()
+        self.on_stations_listWidget_currentItemChanged(True, False)
+
+    def on_autoselect_Button_released(self):
+        windows_for_station = \
+            self.current_window_manager.get_windows_for_station(
+                self.current_station)
+        if windows_for_station:
+            QtGui.QMessageBox.information(
+                self, "", "Autoselection only works if no windows exists for "
+                          "the station.")
+            return
+
+        self.comm.actions.select_windows_for_station(self.current_event,
+                                                     self.current_iteration,
+                                                     self.current_station)
+        self.on_stations_listWidget_currentItemChanged(True, False)
+
 
 
 def launch(comm):
