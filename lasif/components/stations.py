@@ -223,8 +223,8 @@ class StationsComponent(Component):
         u'/.../IRIS_single_channel_with_response.xml'
         """
         filename = self._station_cache.get_station_filename(channel_id, time)
-        if filename is None:
-            raise LASIFNotFoundError
+        #if filename is None:
+        #    raise LASIFNotFoundError
         return filename
 
     def get_station_filename(self, network, station, location, channel,

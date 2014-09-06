@@ -175,8 +175,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     dt = synthetic_trace.stats.delta
     npts = synthetic_trace.stats.npts
     dist_in_deg = geodetics.locations2degrees(st_lat, st_lng, ev_lat, ev_lng)
-    dist_in_km = geodetics.calcVincentyInverse(
-        st_lat, st_lng, ev_lat, ev_lng)[0] / 1000.0
+    dist_in_km = geodetics.calcVincentyInverse(st_lat, st_lng, ev_lat, ev_lng)[0] / 1000.0
     tts = getTravelTimes(dist_in_deg, ev_depth_in_km, model="ak135")
     first_tt_arrival = min([_i["time"] for _i in tts])
 
@@ -243,8 +242,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
         # Slice windows. Create a copy to be able to taper without affecting
         # the original time series.
         data_window = data_trace.data[start_idx: end_idx].copy() * taper
-        synthetic_window = \
-            synthetic_trace.data[start_idx: end_idx].copy() * taper
+        synthetic_window = synthetic_trace.data[start_idx: end_idx].copy() * taper
 
         # Skip windows that have essentially no energy to avoid instabilities.
         if synthetic_window.ptp() < synthetic_trace.data.ptp() * 0.001:
@@ -282,8 +280,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # Step 3: Mark everything more then half a dominant period after the
     # threshold arrival time - computed from the threshold velocity - as
     # negative.
-    time_windows.mask[int(np.floor(dist_in_km / min_velocity / dt)):] = \
-        True
+    time_windows.mask[int(np.floor(dist_in_km / min_velocity / dt)):] = True
 
     # Step 4: Mark everything with an absolute travel time shift of more than
     # threshold_shift times the dominant period as negative

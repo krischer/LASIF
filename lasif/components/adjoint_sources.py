@@ -71,11 +71,15 @@ class AdjointSourcesComponent(Component):
                              "Supported types: %s" % (
                 ad_src_type,  ", ".join(MISFIT_MAPPING.keys())))
 
-        waveforms = self.comm.query.get_matching_waveforms(
-            event=event_name, iteration=iteration_name,
-            station_or_channel_id=channel_id)
-        data = waveforms.data
-        synth = waveforms.synthetics
+        waveforms = self.comm.query.get_matching_waveforms(event=event_name, iteration=iteration_name,station_or_channel_id=channel_id)
+
+        if waveforms is not None:
+            data = waveforms.data
+            synth = waveforms.synthetics
+        #else:
+        #    raise LASIFNotFoundError
+            #return
+
 
         if len(data) != 1:
             raise LASIFNotFoundError(
