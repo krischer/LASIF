@@ -106,14 +106,9 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     dnu = nu[1, 0] - nu[0, 0]
     phase_misfit = np.sqrt(np.sum(weight ** 2 * DP ** 2) * dt_new * dnu)
 
-    # Sanity check. Should not occur.
-    if np.isnan(phase_misfit):
-        msg = "The phase misfit is NaN."
-        raise Exception(msg)
-
     # compute the adjoint source when no phase jump detected ------------------
 
-    if criterion <= 7.0:
+    if (criterion <= 7.0) and (np.isnan(phase_misfit) is False ):
         # Make kernel for the inverse tf transform
         idp = weight * weight * DP * tf_synth / (m + np.abs(tf_synth) *
                                                  np.abs(tf_synth))
