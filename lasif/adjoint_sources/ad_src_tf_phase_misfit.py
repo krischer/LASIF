@@ -105,6 +105,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # Compute the phase misfit
     dnu = nu[1, 0] - nu[0, 0]
     phase_misfit = np.sqrt(np.sum(weight ** 2 * DP ** 2) * dt_new * dnu)
+    
 
     # compute the adjoint source when no phase jump detected ------------------
 
