@@ -62,12 +62,12 @@ class QueryComponent(Component):
 
         # Collect information from all the different places.
         waveform_metadata = self.comm.waveforms.get_metadata_raw(event_name)
-        station_coordinates = self.comm.stations.get_all_channels_at_time(
-            event["origin_time"])
+        station_coordinates = self.comm.stations.get_all_channels_at_time(event["origin_time"])
         inventory_coordinates = self.comm.inventory_db.get_all_coordinates()
 
         stations = {}
         for waveform in waveform_metadata:
+
             station_id = "%s.%s" % (waveform["network"], waveform["station"])
             if station_id in stations:
                 continue
@@ -80,25 +80,29 @@ class QueryComponent(Component):
 
             # First attempt to retrieve from the station files.
             if stat_coords["latitude"] is not None:
+                #print waveform["channel_id"]
                 stations[station_id] = stat_coords
                 continue
             # Then from the waveform metadata in the case of a sac file.
             elif waveform["latitude"] is not None:
+                #print waveform["channel_id"]
                 stations[station_id] = waveform
                 continue
-            # If that still does not work, check if the inventory database
-            # has an entry.
+            # If that still does not work, check if the inventory database has an entry.
             elif station_id in inventory_coordinates:
+                #print waveform["channel_id"]
                 coords = inventory_coordinates[station_id]
                 # Otherwise already queried for, but no coordinates found.
                 if coords["latitude"]:
                     stations[station_id] = coords
                 continue
+        
 
             # The last resort is a new query via the inventory database.
             coords = self.comm.inventory_db.get_coordinates(station_id)
             if coords["latitude"]:
                 stations[station_id] = coords
+
         return stations
 
     def get_coordinates_for_station(self, event_name, station_id):
@@ -267,14 +271,15 @@ class QueryComponent(Component):
 
         # Get the metadata for the processed and synthetics for this
         # particular station.
-        data = self.comm.waveforms.get_waveforms_processed(
-            event["event_name"], station_id,
-            tag=iteration.processing_tag)
-        synthetics = self.comm.waveforms.get_waveforms_synthetic(
-            event["event_name"], station_id,
-            long_iteration_name=iteration.long_name)
-        coordinates = self.comm.query.get_coordinates_for_station(
-            event["event_name"], station_id)
+        data = self.comm.waveforms.get_waveforms_processed(event["event_name"], station_id, tag=iteration.processing_tag)
+        synthetics = self.comm.waveforms.get_waveforms_synthetic(event["event_name"], station_id, long_iteration_name=iteration.long_name)
+        coordinates = self.comm.query.get_coordinates_for_station(event["event_name"], station_id)
+
+        if synthetics is None:
+            return
+
+        if data is None:
+            return
 
         # Scale the data if required.
         if iteration.scale_data_to_synthetics:

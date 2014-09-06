@@ -39,86 +39,112 @@ class ActionsComponent(Component):
         process_params = iteration.get_process_params()
         processing_tag = iteration.processing_tag
 
-        logfile = os.path.join(
-            self.comm.project.get_output_folder("data_preprocessing"),
-            "log.txt")
+        logfile = os.path.join(self.comm.project.get_output_folder("data_preprocessing"), "log.txt")
 
         def processing_data_generator():
             """
             Generate a dictionary with information for processing for each
             waveform.
             """
+
             # Loop over the chosen events.
             for event_name, event in iteration.events.iteritems():
-                # None means to process all events, otherwise it will be a list
-                # of events.
+                # None means to process all events, otherwise it will be a list of events.
                 if not ((event_names is None) or (event_name in event_names)):
                     continue
 
                 output_folder = self.comm.waveforms.get_waveform_folder(
                     event_name=event_name, data_type="processed",
                     tag_or_iteration=processing_tag)
+                
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
 
                 # Get the event.
                 event = self.comm.events.get(event_name)
                 # Get the stations.
-                stations = self.comm.query\
-                    .get_all_stations_for_event(event_name)
+                #stations = self.comm.query.get_all_stations_for_event(event_name)
+
                 # Get the raw waveform data.
-                waveforms = \
-                    self.comm.waveforms.get_metadata_raw(event_name)
+                #waveforms = self.comm.waveforms.get_metadata_raw(event_name)
 
-                # Group by station name.
-                func = lambda x: ".".join(x["channel_id"].split(".")[:2])
-                for station_name, channels in  \
-                        itertools.groupby(waveforms, func):
-                    # Filter waveforms with no available station files
-                    # or coordinates.
-                    if station_name not in stations:
+                # Raw waveform metadata.
+                waveform_metadata = self.comm.waveforms.get_metadata_raw(event_name)
+
+                for waveform in waveform_metadata:
+
+                    input_filename = waveform["filename"]
+                    output_filename = os.path.join(output_folder, os.path.basename(input_filename))
+                    # Skip already processed files.
+                    if os.path.exists(output_filename):
                         continue
-                    # Group by location.
-                    locations = list(itertools.groupby(
-                        channels, lambda x: x["channel_id"].split(".")[2]))
-                    locations.sort(key=lambda x: x[0])
 
-                    if len(locations) > 1:
-                        msg = ("More than one location found for event "
-                               "'%s' at station '%s'. The alphabetically "
-                               "first one will be chosen." %
-                               (event_name, station_name))
-                        warnings.warn(msg, LASIFWarning)
-                    location = locations[0][1]
-
-                    # Loop over each found channel.
-                    for channel in location:
-                        channel.update(stations[station_name])
-                        input_filename = channel["filename"]
-                        output_filename = os.path.join(
-                            output_folder,
-                            os.path.basename(input_filename))
-                        # Skip already processed files.
-                        if os.path.exists(output_filename):
-                            continue
-
-                        ret_dict = {
+                    ret_dict = {
                             "process_params": process_params,
                             "input_filename": input_filename,
                             "output_filename": output_filename,
                             "station_coordinates": {
-                                "latitude": channel["latitude"],
-                                "longitude": channel["longitude"],
-                                "elevation_in_m": channel["elevation_in_m"],
-                                "local_depth_in_m": channel[
-                                    "local_depth_in_m"],
+                                "latitude": waveform["latitude"],
+                                "longitude": waveform["longitude"],
+                                "elevation_in_m": waveform["elevation_in_m"],
+                                "local_depth_in_m": waveform["local_depth_in_m"],
                             },
-                            "station_filename": self.comm.stations.
-                            get_channel_filename(channel["channel_id"],
-                                                 channel["starttime"]),
+                            "station_filename": self.comm.stations.get_channel_filename(waveform["channel_id"],waveform["starttime"]),
                             "event_information": event,
-                        }
-                        yield ret_dict
+                    }
+                    yield ret_dict
+
+
+                # Group by station name.
+#                func = lambda x: ".".join(x["channel_id"].split(".")[:2])
+
+#                for station_name, channels in itertools.groupby(waveforms, func):
+
+                    # Filter waveforms with no available station files or coordinates.
+#                    if station_name not in stations:
+#                        continue
+
+                    # Group by location.
+#                    locations = list(itertools.groupby(
+#                        channels, lambda x: x["channel_id"].split(".")[2]))
+#                    locations.sort(key=lambda x: x[0])
+
+#                    if len(locations) > 1:
+#                        msg = ("More than one location found for event "
+#                               "'%s' at station '%s'. The alphabetically "
+#                               "first one will be chosen." %
+#                               (event_name, station_name))
+#                        warnings.warn(msg, LASIFWarning)
+#                    location = locations[0][1]
+
+                    # Loop over each found channel.
+#                    for channel in location:
+#                        channel.update(stations[station_name])
+#                        input_filename = channel["filename"]
+#                        output_filename = os.path.join(
+#                            output_folder,
+#                            os.path.basename(input_filename))
+                        # Skip already processed files.
+#                        if os.path.exists(output_filename):
+#                            continue
+
+#                        ret_dict = {
+#                            "process_params": process_params,
+#                            "input_filename": input_filename,
+#                            "output_filename": output_filename,
+#                            "station_coordinates": {
+#                                "latitude": channel["latitude"],
+#                                "longitude": channel["longitude"],
+#                                "elevation_in_m": channel["elevation_in_m"],
+#                                "local_depth_in_m": channel[
+#                                    "local_depth_in_m"],
+#                            },
+#                            "station_filename": self.comm.stations.
+#                            get_channel_filename(channel["channel_id"],
+#                                                 channel["starttime"]),
+#                            "event_information": event,
+#                        }
+#                        yield ret_dict
 
         file_count = preprocessing.launch_processing(
             processing_data_generator(), log_filename=logfile,
@@ -183,8 +209,14 @@ class ActionsComponent(Component):
 
         event = self.comm.events.get(event)
         iteration = self.comm.iterations.get(iteration)
-        data = self.comm.query.get_matching_waveforms(event, iteration,
-                                                      station)
+        data = self.comm.query.get_matching_waveforms(event, iteration, station)
+
+        print "* ---------------------------"
+        print "* event " + event["event_name"]
+
+        if data is None:
+            windows = []
+            return
 
         process_params = iteration.get_process_params()
         minimum_period = 1.0 / process_params["lowpass"]
@@ -198,18 +230,17 @@ class ActionsComponent(Component):
         for component in ["E", "N", "Z"]:
             try:
                 data_tr = select_component_from_stream(data.data, component)
-                synth_tr = select_component_from_stream(data.synthetics,
-                                                        component)
-            except LASIFNotFoundError:
-                continue
-            found_something = True
-
-            windows = select_windows(data_tr, synth_tr, event["latitude"],
+                synth_tr = select_component_from_stream(data.synthetics, component)
+                windows = select_windows(data_tr, synth_tr, event["latitude"],
                                      event["longitude"], event["depth_in_km"],
                                      data.coordinates["latitude"],
                                      data.coordinates["longitude"],
                                      minimum_period=minimum_period,
                                      maximum_period=maximum_period)
+
+            except LASIFNotFoundError:
+                windows=[]
+
             if not windows:
                 continue
 
@@ -217,12 +248,6 @@ class ActionsComponent(Component):
             for starttime, endtime in windows:
                 window_group.add_window(starttime=starttime, endtime=endtime)
             window_group.write()
-
-        if found_something is False:
-            raise LASIFNotFoundError(
-                "No matching data found for event '%s', iteration '%s', and "
-                "station '%s'." % (event["event_name"], iteration.name,
-                                   station))
 
 
     def generate_input_files(self, iteration_name, event_name,

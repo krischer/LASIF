@@ -134,7 +134,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     """
 
     print "* ---------------------------"
-    print "* autoselect " + data_trace.stats.channel
+    print "* autoselect " + data_trace.stats.station + "." + data_trace.stats.channel
 
     # =========================================================================
     # set a couple of selection parameters - might become part of the input in
@@ -305,9 +305,12 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     #  Make the final window selection.
     # =========================================================================
 
-    min_length = min(
-        minimum_period / dt * min_length_period, maximum_period / dt)
+    min_length = min(minimum_period / dt * min_length_period, maximum_period / dt)
     final_windows = []
+
+    if np.ma.flatnotmasked_contiguous(time_windows) is None:
+        windows=[]
+        return
 
     #  loop through all the time windows
     for i in np.ma.flatnotmasked_contiguous(time_windows):

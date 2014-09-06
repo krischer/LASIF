@@ -124,8 +124,7 @@ class WaveformsComponent(Component):
         :param station_id: The id of the station in the form NET.STA.
         :param tag: The processing tag.
         """
-        return self._get_waveforms(event_name, station_id,
-                                   data_type="processed", tag_or_iteration=tag)
+        return self._get_waveforms(event_name, station_id, data_type="processed", tag_or_iteration=tag)
 
     def get_waveforms_synthetic(self, event_name, station_id,
                                 long_iteration_name):
@@ -139,9 +138,11 @@ class WaveformsComponent(Component):
         """
         from lasif import rotations
 
-        st = self._get_waveforms(event_name, station_id,
-                                 data_type="synthetic",
-                                 tag_or_iteration=long_iteration_name)
+        st = self._get_waveforms(event_name, station_id, data_type="synthetic", tag_or_iteration=long_iteration_name)
+
+        if st is None:
+            return
+
         network, station = station_id.split(".")
 
         iteration = self.comm.iterations.get(long_iteration_name)
@@ -187,30 +188,30 @@ class WaveformsComponent(Component):
 
         return st
 
-    def _get_waveforms(self, event_name, station_id, data_type,
-                       tag_or_iteration=None):
-        waveform_cache = self._get_waveform_cache_file(event_name,
-                                                       data_type,
-                                                       tag_or_iteration)
+    def _get_waveforms(self, event_name, station_id, data_type, tag_or_iteration=None):
+
+        waveform_cache = self._get_waveform_cache_file(event_name, data_type, tag_or_iteration)
+
         network, station = station_id.split(".")
         files = waveform_cache.get_files_for_station(network, station)
+
         if len(files) == 0:
-            raise LASIFNotFoundError("No '%s' waveform data found for event "
-                                     "'%s' and station '%s'." % (data_type,
-                                                                 event_name,
-                                                                 station_id))
+            print "No '%s' waveform data found for event '%s' and station '%s'." % (data_type, event_name, station_id)
+            return
+            #raise LASIFNotFoundError("No '%s' waveform data found for event '%s' and station '%s'." % (data_type, event_name, station_id))
+
         if data_type in ["raw", "processed"]:
             # Sort files by location.
             locations = {key: list(value) for key, value in itertools.groupby(
                 files, key=lambda x: x["location"])}
             keys = sorted(locations.keys())
-            if len(keys) != 1:
-                msg = ("Found %s waveform data from %i locations for event "
-                       "'%s' and station '%s': %s. Will only use data from "
-                       "location '%s'." % (
-                           data_type, len(keys), event_name, station_id,
-                           ", ".join(["'%s'" % _i for _i in keys]), keys[0]))
-                warnings.warn(LASIFWarning, msg)
+            #if len(keys) != 1:
+            #    msg = ("Found %s waveform data from %i locations for event "
+            #           "'%s' and station '%s': %s. Will only use data from "
+            #           "location '%s'." % (
+            #               data_type, len(keys), event_name, station_id,
+            #               ", ".join(["'%s'" % _i for _i in keys]), keys[0]))
+            #    warnings.warn(LASIFWarning, msg)
             files = locations[keys[0]]
         st = obspy.Stream()
         for single_file in files:

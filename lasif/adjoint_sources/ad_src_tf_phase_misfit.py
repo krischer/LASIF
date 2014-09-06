@@ -30,6 +30,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         * messages: A list of strings giving additional hints to what happened
             in the calculation.
     """
+
     messages = []
 
     # Compute time-frequency representations ----------------------------------
@@ -127,12 +128,11 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         if len(t) > len(new_time):
             ad_src = np.concatenate([ad_src, np.zeros(len(t) - len(new_time))])
 
-        # Divide by the misfit.
+        # Divide by the misfit and change sign
         ad_src /= (phase_misfit + eps)
-        ad_src = np.diff(ad_src) / (t[1] - t[0])
+        ad_src = -1.0*np.diff(ad_src) / (t[1] - t[0])
 
-        # Reverse time and add a leading zero so the adjoint source has the
-        # same length as the input time series.
+        # Reverse time and add a leading zero so the adjoint source has the same length as the input time series.
         ad_src = ad_src[::-1]
         ad_src = np.concatenate([[0.0], ad_src])
 
