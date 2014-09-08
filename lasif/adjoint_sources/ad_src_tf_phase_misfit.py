@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+8#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 An implementation of the time frequency phase misfit and adjoint source after
@@ -105,11 +105,10 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # Compute the phase misfit
     dnu = nu[1, 0] - nu[0, 0]
     phase_misfit = np.sqrt(np.sum(weight ** 2 * DP ** 2) * dt_new * dnu)
-    
 
     # compute the adjoint source when no phase jump detected ------------------
 
-    if (criterion <= 7.0) and (np.isnan(phase_misfit) is False ):
+    if (criterion <= 7.0) and (np.isnan(phase_misfit) == False ):
         # Make kernel for the inverse tf transform
         idp = weight * weight * DP * tf_synth / (m + np.abs(tf_synth) *
                                                  np.abs(tf_synth))
@@ -134,6 +133,9 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     else:
         ad_src = np.zeros(len(t))
+        print "Criteria failed. No misfit computed."
+        phase_misfit = 0.0
+
 
     # Plot if required. -------------------------------------------------------
 
