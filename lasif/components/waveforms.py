@@ -156,18 +156,18 @@ class WaveformsComponent(Component):
             tr.stats.station = station
             if tr.stats.channel in ["X"]:
                 tr.data *= -1.0
-            tr.stats.starttime = \
-                self.comm.events.get(event_name)["origin_time"]
-            tr.stats.channel = \
-                synthetic_coordinates_mapping[tr.stats.channel]
+            tr.stats.starttime = self.comm.events.get(event_name)["origin_time"]
+            tr.stats.channel = synthetic_coordinates_mapping[tr.stats.channel]
 
         if not "specfem" in iteration.solver_settings["solver"].lower():
             # Also need to be rotated.
             domain = self.comm.project.domain
 
             # Coordinates are required for the rotation.
-            coordinates = self.comm.query.get_coordinates_for_station(
-                event_name, station_id)
+            coordinates = self.comm.query.get_coordinates_for_station(event_name, station_id)
+
+            if coordinates is None:
+                return
 
             # First rotate the station back to see, where it was
             # recorded.

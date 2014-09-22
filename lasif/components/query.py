@@ -114,17 +114,16 @@ class QueryComponent(Component):
         event = self.comm.events.get(event_name)
 
         # Collect information from all the different places.
-        waveform = self.comm.waveforms.get_metadata_raw_for_station(
-            event_name, station_id)[0]
-        station_coordinates = self.comm.stations.get_all_channels_at_time(
-            event["origin_time"])
+        waveform = self.comm.waveforms.get_metadata_raw_for_station(event_name, station_id)[0]
+        station_coordinates = self.comm.stations.get_all_channels_at_time(event["origin_time"])
 
         try:
             stat_coords = station_coordinates[waveform["channel_id"]]
         except KeyError:
             # No station file for channel.
-            raise LASIFNotFoundError("Station '%s' has no available "
-                                     "station file." % station_id)
+            print "Station '%s' has no available station file." % station_id
+            return
+            #raise LASIFNotFoundError("Station '%s' has no available station file." % station_id)
 
         # First attempt to retrieve from the station files.
         if stat_coords["latitude"] is not None:
@@ -255,6 +254,7 @@ class QueryComponent(Component):
         return DataSyntheticIterator(self.comm, iteration, event)
 
     def get_matching_waveforms(self, event, iteration, station_or_channel_id):
+
         seed_id = station_or_channel_id.split(".")
         if len(seed_id) == 2:
             channel = None
@@ -269,8 +269,7 @@ class QueryComponent(Component):
         iteration = self.comm.iterations.get(iteration)
         event = self.comm.events.get(event)
 
-        # Get the metadata for the processed and synthetics for this
-        # particular station.
+        # Get the metadata for the processed and synthetics for this particular station.
         data = self.comm.waveforms.get_waveforms_processed(event["event_name"], station_id, tag=iteration.processing_tag)
         synthetics = self.comm.waveforms.get_waveforms_synthetic(event["event_name"], station_id, long_iteration_name=iteration.long_name)
         coordinates = self.comm.query.get_coordinates_for_station(event["event_name"], station_id)
@@ -282,17 +281,22 @@ class QueryComponent(Component):
             return
 
         # Scale the data if required.
+
         if iteration.scale_data_to_synthetics:
-            for data_tr in data:
-                synthetic_tr = [
-                    tr for tr in synthetics
-                    if tr.stats.channel[-1].lower() ==
-                    data_tr.stats.channel[-1].lower()][0]
-                scaling_factor = synthetic_tr.data.ptp() / \
-                                 data_tr.data.ptp()
-                # Store and apply the scaling.
-                data_tr.stats.scaling_factor = scaling_factor
-                data_tr.data *= scaling_factor
+            
+            try:
+
+                for data_tr in data:
+                    synthetic_tr = [
+                        tr for tr in synthetics
+                        if tr.stats.channel[-1].lower() == data_tr.stats.channel[-1].lower()][0]
+                    scaling_factor = synthetic_tr.data.ptp() / data_tr.data.ptp()
+                    # Store and apply the scaling.
+                    data_tr.stats.scaling_factor = scaling_factor
+                    data_tr.data *= scaling_factor
+
+            except IndexError:
+                return
 
         data.sort()
         synthetics.sort()
@@ -308,8 +312,7 @@ class QueryComponent(Component):
             synthetics.traces = [i for i in synthetics.traces
                                  if i.stats.channel[-1].upper() == component]
 
-        return DataTuple(data=data, synthetics=synthetics,
-                         coordinates=coordinates)
+        return DataTuple(data=data, synthetics=synthetics, coordinates=coordinates)
 
     def discover_available_data(self, event_name, station_id):
         """

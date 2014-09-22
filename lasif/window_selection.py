@@ -155,13 +155,13 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # minimum period.
     threshold_shift = 0.30
     # Minimum normalised correlation coeficient within a window.
-    threshold_correlation = 0.65
+    threshold_correlation = 0.75
     # Minimum length of the time windows relative to the minimum period.
     min_length_period = 1.5
     # Minimum number of extrema in an individual time window (excluding the edges).
     min_peaks_troughs = 2
     # Maximum energy ratio between data and synthetics within a time window.
-    max_energy_ratio = 3.0
+    max_energy_ratio = 2.0
 
     data_starttime = data_trace.stats.starttime
     data_delta = data_trace.stats.delta
@@ -207,12 +207,18 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
 
     #  estimate noise level from waveforms prior to the first arrival
     idx_end = int(np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
-    idx_start = int(np.ceil((first_tt_arrival - 2.5 * maximum_period) / dt))
+    idx_start = int(np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
     idx_start = max(10, idx_start)
 
-    noise_absolute = data[idx_start:idx_end].ptp()
+    try:
+        noise_absolute = data[idx_start:idx_end].ptp()
+        noise_relative = noise_absolute / data.ptp()
+
+    except ValueError:
+        noise_absolute = 1000.0
+        noise_relative = 1.0
     
-    noise_relative = noise_absolute / data.ptp()
+    
     print "** absolute noise level: " + str(noise_absolute) + " m/s"
     print "** relative noise level: " + str(noise_relative)
 
