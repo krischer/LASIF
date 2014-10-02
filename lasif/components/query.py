@@ -159,7 +159,7 @@ class QueryComponent(Component):
         :param iteration: The iteration which to query.
         :param events: If given, only the events of those events will be
             queried. Otherwise all will be queried.
-        :type events: list, optional
+        :type events: list
 
         Returns a dictionary of events, each containing the following keys:
         ``"missing_raw"``, ``"missing_processed"``,
