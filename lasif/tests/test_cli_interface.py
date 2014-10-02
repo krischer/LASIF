@@ -4,14 +4,14 @@
 Test cases for the CLI interface.
 
 Many of these test are very similar to the project tests. But this is what the
-CLI interface is supposed to provide: an easy way to interface with the project
-class.
+CLI interface is supposed to provide: an easy way to interface with the
+project's components.
 
 Furthermore many tests are simple mock tests only asserting that the proper
 methods are called.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013-2014
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
@@ -226,64 +226,61 @@ def test_project_init(cli):
     assert actual == expected
 
 
-# def test_plotting_functions(cli):
-#     """
-#     Tests if the correct plotting functions are called.
-#     """
-#     with mock.patch("lasif.project.Project.plot_domain") as patch:
-#         cli.run("lasif plot_domain")
-#         patch.assert_called_once_with()
-#
-#     with mock.patch("lasif.project.Project.plot_event") as patch:
-#         cli.run("lasif plot_event EVENT_NAME")
-#         patch.assert_called_once_with("EVENT_NAME")
-#
-#     # Test the different variations of the plot_events function.
-#     with mock.patch("lasif.project.Project.plot_events") as patch:
-#         cli.run("lasif plot_events")
-#         patch.assert_called_once_with("map")
-#
-#     with mock.patch("lasif.project.Project.plot_events") as patch:
-#         cli.run("lasif plot_events --type=map")
-#         patch.assert_called_once_with("map")
-#
-#     with mock.patch("lasif.project.Project.plot_events") as patch:
-#         cli.run("lasif plot_events --type=time")
-#         patch.assert_called_once_with("time")
-#
-#     with mock.patch("lasif.project.Project.plot_events") as patch:
-#         cli.run("lasif plot_events --type=depth")
-#         patch.assert_called_once_with("depth")
-#
-#     # Misc plotting functionality.
-#     with mock.patch("lasif.project.Project.plot_raydensity") as patch:
-#         cli.run("lasif plot_raydensity")
-#         patch.assert_called_once_with()
-#
-#
-# def test_download_utitlies(cli):
-#     """
-#     Testing the invocation of the downloaders.
-#     """
-#     # SPUD interface downloader.
-#     with mock.patch("lasif.scripts.iris2quakeml.iris2quakeml") as patch:
-#         cli.run("lasif add_spud_event https://test.org")
-#         patch.assert_called_once_with(
-#             "https://test.org", cli.communicator.paths["events"])
-#
-#     # Test the waveform downloader invocation.
-#     with mock.patch("lasif.download_helpers.downloader.download_waveforms") \
-#             as download_patch:
-#         cli.run("lasif download_waveforms "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-#         download_patch.assert_called_once()
-#
-#     # Test the station downloader invocation.
-#     with mock.patch("lasif.download_helpers.downloader.download_stations") \
-#             as download_patch:
-#         cli.run("lasif download_stations "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-#         download_patch.assert_called_once()
+def test_plotting_functions(cli):
+    """
+    Tests if the correct plotting functions are called.
+    """
+    vs = "lasif.components.visualizations.VisualizationsComponent."
+    with mock.patch(vs + "plot_domain") as patch:
+        cli.run("lasif plot_domain")
+    patch.assert_called_once_with()
+
+    with mock.patch(vs + "plot_event") as patch:
+        cli.run("lasif plot_event EVENT_NAME")
+    patch.assert_called_once_with("EVENT_NAME")
+
+    # Test the different variations of the plot_events function.
+    with mock.patch(vs + "plot_events") as patch:
+        cli.run("lasif plot_events")
+    patch.assert_called_once_with("map")
+
+    with mock.patch(vs + "plot_events") as patch:
+        cli.run("lasif plot_events --type=map")
+    patch.assert_called_once_with("map")
+
+    with mock.patch(vs + "plot_events") as patch:
+        cli.run("lasif plot_events --type=time")
+    patch.assert_called_once_with("time")
+
+    with mock.patch(vs + "plot_events") as patch:
+        cli.run("lasif plot_events --type=depth")
+    patch.assert_called_once_with("depth")
+
+    # Misc plotting functionality.
+    with mock.patch(vs + "plot_raydensity") as patch:
+        cli.run("lasif plot_raydensity")
+    patch.assert_called_once_with()
+
+
+def test_download_utitlies(cli):
+    """
+    Testing the invocation of the downloaders.
+    """
+    # SPUD interface downloader.
+    with mock.patch("lasif.scripts.iris2quakeml.iris2quakeml") as patch:
+        cli.run("lasif add_spud_event https://test.org")
+    patch.assert_called_once_with(
+        "https://test.org", cli.comm.project.paths["events"])
+
+    # Test the download data invocation.
+    with mock.patch("lasif.components.downloads.DownloadsComponent"
+                    ".download_data") \
+            as download_patch:
+        out = cli.run("lasif download_data "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert out.stderr == ""
+    download_patch.assert_called_once_with(
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
 
 
 def test_lasif_info(cli):
@@ -366,59 +363,67 @@ def test_lasif_event_info(cli):
     assert "available at 0 stations" in event_2
 
 
-# def test_input_file_generation(cli):
-#     """
-#     Mock test to see if the input file generation routine is called. The
-#     routine is tested partially by the event tests and more by the input file
-#     generation module.
-#     """
-#     # No solver specified.
-#     with mock.patch("lasif.project.Project.generate_input_files") as patch:
-#         cli.run("lasif generate_input_files 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-#         patch.assert_called_once_with(
-#             "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-#             "normal simulation")
-#
-#     # Normal simulation
-#     with mock.patch("lasif.project.Project.generate_input_files") as patch:
-#         cli.run("lasif generate_input_files 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
-#                 "--simulation_type=normal_simulation")
-#         patch.assert_called_once_with(
-#             "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-#             "normal simulation")
-#
-#     # Adjoint forward.
-#     with mock.patch("lasif.project.Project.generate_input_files") as patch:
-#         cli.run("lasif generate_input_files 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
-#                 "--simulation_type=adjoint_forward")
-#         patch.assert_called_once_with(
-#             "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-#             "adjoint forward")
-#
-#     # Adjoint reverse.
-#     with mock.patch("lasif.project.Project.generate_input_files") as patch:
-#         cli.run("lasif generate_input_files 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
-#                 "--simulation_type=adjoint_reverse")
-#         patch.assert_called_once_with(
-#             "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-#             "adjoint reverse")
-#
-#
-# def test_finalize_adjoint_sources(cli):
-#     """
-#     Simple mock test.
-#     """
-#     with mock.patch("lasif.project.Project.finalize_adjoint_sources") as p:
-#         cli.run("lasif generate_input_files 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-#         p.assert_calles_once_with(
-#             "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-#
-#
+def test_input_file_generation(cli):
+    """
+    Mock test to see if the input file generation routine is called. The
+    routine is tested partially by the event tests and more by the input file
+    generation module.
+    """
+    ac = "lasif.components.actions.ActionsComponent."
+    # No simluation type specified.
+    with mock.patch(ac + "generate_input_files") as patch:
+        out = cli.run("lasif generate_input_files 1 "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        assert out.stderr == ""
+        patch.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "normal simulation")
+
+    # Normal simulation
+    with mock.patch(ac + "generate_input_files") as patch:
+        out = cli.run("lasif generate_input_files 1 "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                      "--simulation_type=normal_simulation")
+        assert out.stderr == ""
+        patch.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "normal simulation")
+
+    # Adjoint forward.
+    with mock.patch(ac + "generate_input_files") as patch:
+        out = cli.run("lasif generate_input_files 1 "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                      "--simulation_type=adjoint_forward")
+        assert out.stderr == ""
+        patch.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "adjoint forward")
+
+    # Adjoint reverse.
+    with mock.patch(ac + "generate_input_files") as patch:
+        out = cli.run("lasif generate_input_files 1 "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                      "--simulation_type=adjoint_reverse")
+        assert out.stderr == ""
+
+        patch.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+            "adjoint reverse")
+
+
+def test_finalize_adjoint_sources(cli):
+    """
+    Simple mock test.
+    """
+    with mock.patch("lasif.components.actions.ActionsComponent"
+                    ".finalize_adjoint_sources") as p:
+        out = cli.run("lasif finalize_adjoint_sources 1 "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        assert out.stderr == ""
+        p.assert_called_once_with(
+            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+
+
 # def test_preprocessing_and_launch_misfit_gui(cli):
 #     """
 #     Tests the proprocessing and the launching of the misfit gui. Both are done
