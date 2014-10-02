@@ -1243,8 +1243,8 @@ def main():
                 match=close_matches[0]))
         elif close_matches:
             sys.stderr.write(
-                "\nDid you mean one of these?\n\t{matches}\n".format(
-                    matches="\n\t".join(close_matches)))
+                "\nDid you mean one of these?\n    {matches}\n".format(
+                    matches="\n    ".join(close_matches)))
 
         sys.exit(1)
 

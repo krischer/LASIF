@@ -124,10 +124,10 @@ def test_fuzzy_command_matching(cli):
     assert out.stderr == (
         "lasif: 'plot_eventos' is not a LASIF command. See 'lasif --help'.\n\n"
         "Did you mean one of these?\n"
-        "\tlist_events\n"
-        "\tplot_event\n"
-        "\tplot_events\n"
-        "\tplot_kernel\n")
+        "    list_events\n"
+        "    plot_event\n"
+        "    plot_events\n"
+        "    plot_windows\n")
 
 
 def test_cli_parsing_corner_cases(cli):
@@ -139,13 +139,91 @@ def test_cli_parsing_corner_cases(cli):
     assert out.stderr == "lasif: Invalid command. See 'lasif --help'.\n"
 
 
-def test_project_init(cli):
+def test_project_init_without_arguments(cli):
     """
-    Tests the project initialization with the CLI interface.
+    Tests the project initialization with the CLI interface without passed
+    arguments.
     """
     # Invocation without a folder path fails.
     log = cli.run("lasif init_project")
     assert "error: too few arguments" in log.stderr
+
+
+def test_project_init(cli):
+    """
+    Tests the project initialization.
+    """
+    # Delete all contents of directory to be able to start with a clean one.
+    root_path = cli.comm.project.paths["root"]
+    for filename in os.listdir(root_path):
+        file_path = os.path.join(root_path, filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        else:
+            shutil.rmtree(file_path)
+
+    # Initialize project.
+    out = cli.run("lasif init_project TestDummy")
+    assert out.stderr == ""
+    assert "Initialized project in" in out.stdout
+
+    # Make sure all the expected things are there.
+    project_dir = os.path.join(root_path, "TestDummy")
+    assert os.path.exists(project_dir)
+    contents = sorted(os.listdir(project_dir))
+    assert contents == sorted([
+        "ADJOINT_SOURCES_AND_WINDOWS", "CACHE", "config.xml", "DATA", "EVENTS",
+        "ITERATIONS", "KERNELS", "LOGS", "MODELS", "OUTPUT", "STATIONS",
+        "SYNTHETICS", "WAVEFIELDS"])
+
+    # Test the generated config file.
+    expected = "\n".join([
+        "<?xml version='1.0' encoding='UTF-8'?>",
+        "<lasif_project>",
+        "  <name>TestDummy</name>",
+        "  <description></description>",
+        "  <download_settings>",
+        "    <seconds_before_event>300</seconds_before_event>",
+        "    <seconds_after_event>3600</seconds_after_event>",
+        "    <interstation_distance_in_m>1000.0</interstation_distance_in_m>",
+        "    <channel_priorities>",
+        "      <priority>BH[Z,N,E]</priority>",
+        "      <priority>LH[Z,N,E]</priority>",
+        "      <priority>HH[Z,N,E]</priority>",
+        "      <priority>EH[Z,N,E]</priority>",
+        "      <priority>MH[Z,N,E]</priority>",
+        "    </channel_priorities>",
+        "    <location_priorities>",
+        "      <priority></priority>",
+        "      <priority>00</priority>",
+        "      <priority>10</priority>",
+        "      <priority>20</priority>",
+        "      <priority>01</priority>",
+        "      <priority>02</priority>",
+        "    </location_priorities>",
+        "  </download_settings>",
+        "  <domain>",
+        "    <global>false</global>",
+        "    <domain_bounds>",
+        "      <minimum_longitude>-20</minimum_longitude>",
+        "      <maximum_longitude>20</maximum_longitude>",
+        "      <minimum_latitude>-20</minimum_latitude>",
+        "      <maximum_latitude>20</maximum_latitude>",
+        "      <minimum_depth_in_km>0.0</minimum_depth_in_km>",
+        "      <maximum_depth_in_km>200.0</maximum_depth_in_km>",
+        "      <boundary_width_in_degree>3.0</boundary_width_in_degree>",
+        "    </domain_bounds>",
+        "    <domain_rotation>",
+        "      <rotation_axis_x>1.0</rotation_axis_x>",
+        "      <rotation_axis_y>1.0</rotation_axis_y>",
+        "      <rotation_axis_z>1.0</rotation_axis_z>",
+        "      <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>",
+        "    </domain_rotation>",
+        "  </domain>",
+        "</lasif_project>\n"])
+    with open(os.path.join(project_dir, "config.xml"), "rt") as fh:
+        actual = fh.read()
+    assert actual == expected
 
 
 # def test_plotting_functions(cli):
@@ -461,51 +539,51 @@ def test_iteration_info(cli):
 #         patch.assert_called_once_with("http://krischer.github.io/LASIF/")
 
 
-def test_iteration_status_command(cli):
-    """
-    The iteration status command returns the current state of any iteration. It
-    returns the number of already preprocessed data files, how many synthetics
-    are available, the windows and adjoint sources.
-    """
-    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-    out = cli.run("lasif iteration_status 1").stdout
-    assert out == (
-        "Iteration Name: 1\n"
-        "\tAll necessary files available.\n"
-        "\t4 out of 4 files still require preprocessing.\n"
-        "\tMissing synthetics for 1 event:\n"
-        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
-
-    cli.run("lasif preprocess_data 1")
-    out = cli.run("lasif iteration_status 1").stdout
-    assert out == (
-        "Iteration Name: 1\n"
-        "\tAll necessary files available.\n"
-        "\tAll files are preprocessed.\n"
-        "\tMissing synthetics for 1 event:\n"
-        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
-
-    # Copy the data for the first event to the second.
-    shutil.rmtree(os.path.join(
-        cli.project.paths["data"],
-        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
-    shutil.copytree(
-        os.path.join(cli.project.paths["data"],
-                     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
-        os.path.join(cli.project.paths["data"],
-                     "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
-    # The iteration has to be recreated.
-    os.remove(os.path.join(cli.project.paths["iterations"],
-                           "ITERATION_1.xml"))
-    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-    out = cli.run("lasif iteration_status 1").stdout
-    assert out == (
-        "Iteration Name: 1\n"
-        "\tAll necessary files available.\n"
-        "\tAll files are preprocessed.\n"
-        "\tMissing synthetics for 2 events:\n"
-        "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n"
-        "\t\tGCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 (for 4 stations)\n")
+# def test_iteration_status_command(cli):
+#     """
+#     The iteration status command returns the current state of any iteration. It
+#     returns the number of already preprocessed data files, how many synthetics
+#     are available, the windows and adjoint sources.
+#     """
+#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+#     out = cli.run("lasif iteration_status 1").stdout
+#     assert out == (
+#         "Iteration Name: 1\n"
+#         "\tAll necessary files available.\n"
+#         "\t4 out of 4 files still require preprocessing.\n"
+#         "\tMissing synthetics for 1 event:\n"
+#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
+#
+#     cli.run("lasif preprocess_data 1")
+#     out = cli.run("lasif iteration_status 1").stdout
+#     assert out == (
+#         "Iteration Name: 1\n"
+#         "\tAll necessary files available.\n"
+#         "\tAll files are preprocessed.\n"
+#         "\tMissing synthetics for 1 event:\n"
+#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
+#
+#     # Copy the data for the first event to the second.
+#     shutil.rmtree(os.path.join(
+#         cli.project.paths["data"],
+#         "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
+#     shutil.copytree(
+#         os.path.join(cli.project.paths["data"],
+#                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
+#         os.path.join(cli.project.paths["data"],
+#                      "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
+#     # The iteration has to be recreated.
+#     os.remove(os.path.join(cli.project.paths["iterations"],
+#                            "ITERATION_1.xml"))
+#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+#     out = cli.run("lasif iteration_status 1").stdout
+#     assert out == (
+#         "Iteration Name: 1\n"
+#         "\tAll necessary files available.\n"
+#         "\tAll files are preprocessed.\n"
+#         "\tMissing synthetics for 2 events:\n"
+#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n"
+#         "\t\tGCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 (for 4 stations)\n")
 
 
 # def test_Q_model_plotting(cli):
