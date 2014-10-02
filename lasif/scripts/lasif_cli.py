@@ -862,10 +862,8 @@ def lasif_remove_empty_coordinate_entries(parser, args):
     """
     parser.parse_args(args)
 
-    from lasif.tools.inventory_db import reset_coordinate_less_stations
-
-    proj = _find_project_comm(".")
-    reset_coordinate_less_stations(proj.paths["inv_db_file"])
+    comm = _find_project_comm(".")
+    comm.inventory_db.remove_coordinate_less_stations()
 
     print("SUCCESS")
 

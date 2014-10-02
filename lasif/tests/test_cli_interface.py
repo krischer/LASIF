@@ -10,6 +10,11 @@ project's components.
 Furthermore many tests are simple mock tests only asserting that the proper
 methods are called.
 
+In many cases ``patch.assert_called_once_with()`` and
+``assert patch.call_count == 1`` is used. That is because it is really easy
+to mistype the method and then mock just ignores it resulting in nothing
+being actually tested. So its just an additional design decision.
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013-2014
 :license:
@@ -19,7 +24,6 @@ methods are called.
 import matplotlib as mpl
 mpl.use("agg")
 
-import matplotlib.pyplot as plt
 import numpy as np
 import mock
 import os
@@ -27,7 +31,7 @@ import shutil
 
 from lasif.scripts import lasif_cli
 
-from lasif.tests.testing_helpers import communicator, cli  # NOQA
+from lasif.tests.testing_helpers import cli  # NOQA
 from lasif.tests.testing_helpers import reset_matplotlib
 
 # Get a list of all available commands.
@@ -86,15 +90,18 @@ def test_command_tolerance(cli):
     """
     with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
         cli.run("lasif info")
-        patch.assert_called_once()
+    patch.assert_called_once()
+    assert patch.call_count == 1
 
     with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
         cli.run("lasif INFO")
-        patch.assert_called_once()
+    patch.assert_called_once()
+    assert patch.call_count == 1
 
     with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
         cli.run("lasif InFo")
-        patch.assert_called_once()
+    patch.assert_called_once()
+    assert patch.call_count == 1
 
 
 def test_unknown_command(cli):
@@ -234,32 +241,39 @@ def test_plotting_functions(cli):
     with mock.patch(vs + "plot_domain") as patch:
         cli.run("lasif plot_domain")
     patch.assert_called_once_with()
+    assert patch.call_count == 1
 
     with mock.patch(vs + "plot_event") as patch:
         cli.run("lasif plot_event EVENT_NAME")
     patch.assert_called_once_with("EVENT_NAME")
+    assert patch.call_count == 1
 
     # Test the different variations of the plot_events function.
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events")
     patch.assert_called_once_with("map")
+    assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=map")
     patch.assert_called_once_with("map")
+    assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=time")
     patch.assert_called_once_with("time")
+    assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=depth")
     patch.assert_called_once_with("depth")
+    assert patch.call_count == 1
 
     # Misc plotting functionality.
     with mock.patch(vs + "plot_raydensity") as patch:
         cli.run("lasif plot_raydensity")
     patch.assert_called_once_with()
+    assert patch.call_count == 1
 
 
 def test_download_utitlies(cli):
@@ -271,6 +285,7 @@ def test_download_utitlies(cli):
         cli.run("lasif add_spud_event https://test.org")
     patch.assert_called_once_with(
         "https://test.org", cli.comm.project.paths["events"])
+    assert patch.call_count == 1
 
     # Test the download data invocation.
     with mock.patch("lasif.components.downloads.DownloadsComponent"
@@ -281,6 +296,7 @@ def test_download_utitlies(cli):
     assert out.stderr == ""
     download_patch.assert_called_once_with(
         "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert download_patch.call_count == 1
 
 
 def test_lasif_info(cli):
@@ -335,12 +351,13 @@ def test_iteration_creation_and_stf_plotting(cli):
 
     with mock.patch("lasif.visualization.plot_tf") as patch:
         cli.run("lasif plot_stf 1")
-        patch.assert_called_once()
-        data, delta = patch.call_args[0]
-        np.testing.assert_array_equal(
-            data,
-            cli.comm.iterations.get("1").get_source_time_function()["data"])
-        assert delta == 0.75
+    patch.assert_called_once()
+    assert patch.call_count == 1
+    data, delta = patch.call_args[0]
+    np.testing.assert_array_equal(
+        data,
+        cli.comm.iterations.get("1").get_source_time_function()["data"])
+    assert delta == 0.75
 
 
 def test_lasif_event_info(cli):
@@ -374,41 +391,44 @@ def test_input_file_generation(cli):
     with mock.patch(ac + "generate_input_files") as patch:
         out = cli.run("lasif generate_input_files 1 "
                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-        assert out.stderr == ""
-        patch.assert_called_once_with(
-            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-            "normal simulation")
+    assert out.stderr == ""
+    patch.assert_called_once_with(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "normal simulation")
+    assert patch.call_count == 1
 
     # Normal simulation
     with mock.patch(ac + "generate_input_files") as patch:
         out = cli.run("lasif generate_input_files 1 "
                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
                       "--simulation_type=normal_simulation")
-        assert out.stderr == ""
-        patch.assert_called_once_with(
-            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-            "normal simulation")
+    assert out.stderr == ""
+    patch.assert_called_once_with(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "normal simulation")
+    assert patch.call_count == 1
 
     # Adjoint forward.
     with mock.patch(ac + "generate_input_files") as patch:
         out = cli.run("lasif generate_input_files 1 "
                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
                       "--simulation_type=adjoint_forward")
-        assert out.stderr == ""
-        patch.assert_called_once_with(
-            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-            "adjoint forward")
+    assert out.stderr == ""
+    patch.assert_called_once_with(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "adjoint forward")
+    assert patch.call_count == 1
 
     # Adjoint reverse.
     with mock.patch(ac + "generate_input_files") as patch:
         out = cli.run("lasif generate_input_files 1 "
                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
                       "--simulation_type=adjoint_reverse")
-        assert out.stderr == ""
-
-        patch.assert_called_once_with(
-            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-            "adjoint reverse")
+    assert out.stderr == ""
+    patch.assert_called_once_with(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "adjoint reverse")
+    assert patch.call_count == 1
 
 
 def test_finalize_adjoint_sources(cli):
@@ -419,83 +439,73 @@ def test_finalize_adjoint_sources(cli):
                     ".finalize_adjoint_sources") as p:
         out = cli.run("lasif finalize_adjoint_sources 1 "
                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-        assert out.stderr == ""
-        p.assert_called_once_with(
-            "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert out.stderr == ""
+    p.assert_called_once_with(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert p.call_count == 1
 
 
-# def test_preprocessing_and_launch_misfit_gui(cli):
-#     """
-#     Tests the proprocessing and the launching of the misfit gui. Both are done
-#     together because the former is required by the later and takes a rather
-#     long time.
-#     """
-#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-#
-#     processing_tag = cli.project._get_iteration("1").processing_tag
-#     preprocessing_data = os.path.join(
-#         cli.project.paths["data"], "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-#         processing_tag)
-#     assert not os.path.exists(preprocessing_data)
-#     cli.run("lasif preprocess_data 1")
-#     assert os.path.exists(preprocessing_data)
-#     assert len(os.listdir(preprocessing_data)) == 4
-#
-#     # Assert it is called with the correct parameters.
-#     with mock.patch("lasif.misfit_gui.MisfitGUI") as patch:
-#         cli.run("lasif launch_misfit_gui 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-#         patch.assert_called_once()
-#         ev, tw, proj, wm, ad_m, it = patch.call_args[0]
-#         assert ev == cli.project.events[
-#             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
-#         assert proj.paths["root"] == cli.project.paths["root"]
-#         assert tw.__class__.__name__ == "DataSyntheticIterator"
-#         assert wm.__class__.__name__ == "WindowGroupManager"
-#         assert ad_m.__class__.__name__ == "AdjointSourceManager"
-#         assert it.__class__.__name__ == "Iteration"
-#
-#     # Assert it actually opens. Stop at the show() call.
-#     with mock.patch("matplotlib.pyplot.show") as patch:
-#         cli.run("lasif launch_misfit_gui 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-#         patch.assert_called_once()
-#     # Close the plot for future calls.
-#     plt.close()
-#
-#
-# def test_preprocessing_event_limiting_works(cli):
-#     """
-#     Asserts that the event parsing is correct.
-#     """
-#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-#
-#     # No event should result in None.
-#     with mock.patch("lasif.project.Project.preprocess_data") as patch:
-#         cli.run("lasif preprocess_data 1")
-#     patch.assert_called_once()
-#     patch.assert_called_once_with("1", None)
-#
-#     # One specified event should result in one event.
-#     with mock.patch("lasif.project.Project.preprocess_data") as patch:
-#         cli.run("lasif preprocess_data 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-#     patch.assert_called_once()
-#     patch.assert_called_once_with(
-#         "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"])
-#
-#     # Multiple result in multiple.
-#     with mock.patch("lasif.project.Project.preprocess_data") as patch:
-#         cli.run("lasif preprocess_data 1 "
-#                 "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
-#                 "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
-#     patch.assert_called_once()
-#     patch.assert_called_once_with(
-#         "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
-#               "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"])
-#
-#     out = cli.run("lasif preprocess_data 1 blub wub").stdout
-#     assert "Event 'blub' not found." in out
+def test_launch_misfit_gui(cli):
+    with mock.patch("lasif.misfit_gui.misfit_gui.launch") as patch:
+        cli.run("lasif launch_misfit_gui")
+
+    assert patch.call_count == 1
+
+
+def test_preprocessing(cli):
+    """
+    Tests the proprocessing.
+    """
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+
+    event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    data_path = cli.comm.project.paths["data"]
+    processing_tag = cli.comm.iterations.get("1").processing_tag
+    preprocessing_path = os.path.join(data_path, event, processing_tag)
+
+    # Nothing should exist yet.
+    assert not os.path.exists(preprocessing_path)
+
+    # Preprocess some data.
+    cli.run("lasif preprocess_data 1")
+
+    assert os.path.exists(preprocessing_path)
+    assert len(os.listdir(preprocessing_path)) == 4
+
+
+def test_preprocessing_event_limiting_works(cli):
+    """
+    Asserts that the event parsing is correct.
+    """
+    ac = "lasif.components.actions.ActionsComponent."
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+
+    # No event should result in None.
+    with mock.patch(ac + "preprocess_data") as patch:
+        cli.run("lasif preprocess_data 1")
+    assert patch.call_count == 1
+    patch.assert_called_once_with("1", None)
+
+    # One specified event should result in one event.
+    with mock.patch(ac + "preprocess_data") as patch:
+        cli.run("lasif preprocess_data 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert patch.call_count == 1
+    patch.assert_called_once_with(
+        "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"])
+
+    # Multiple result in multiple.
+    with mock.patch(ac + "preprocess_data") as patch:
+        cli.run("lasif preprocess_data 1 "
+                "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15")
+    assert patch.call_count == 1
+    patch.assert_called_once_with(
+        "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+              "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"])
+
+    out = cli.run("lasif preprocess_data 1 blub wub").stdout
+    assert "Event 'blub' not found." in out
 
 
 def test_iteration_info(cli):
@@ -510,139 +520,139 @@ def test_iteration_info(cli):
     assert "Solver: SES3D 4.1" in out
 
 
-# def test_remove_empty_coordinate_entries(cli):
-#     """
-#     Simple mock test.
-#     """
-#     with mock.patch("lasif.tools.inventory_db.reset_coordinate_less_stations")\
-#             as patch:
-#         cli.run("lasif remove_empty_coordinate_entires")
-#         assert patch.assert_run_once_with(cli.project.paths["inv_db_file"])
-#
-#
-# def test_validate_data(cli):
-#     """
-#     Simple mock test.
-#     """
-#     with mock.patch("lasif.project.Project.validate_data") as patch:
-#         cli.run("lasif validate_data")
-#         patch.assert_called_once_with(station_file_availability=False,
-#                                       raypaths=False, waveforms=False)
-#
-#     with mock.patch("lasif.project.Project.validate_data") as patch:
-#         cli.run("lasif validate_data --full")
-#         patch.assert_called_once_with(station_file_availability=True,
-#                                       raypaths=True, waveforms=True)
-#
-#
-# def test_open_tutorial(cli):
-#     """
-#     Simple mock test.
-#     """
-#     with mock.patch("webbrowser.open") as patch:
-#         cli.run("lasif tutorial")
-#         patch.assert_called_once_with("http://krischer.github.io/LASIF/")
+def test_remove_empty_coordinate_entries(cli):
+    """
+    Simple mock test.
+    """
+    with mock.patch("lasif.components.inventory_db.InventoryDBComponent"
+                    ".remove_coordinate_less_stations")\
+            as patch:
+        out = cli.run("lasif remove_empty_coordinate_entries")
+    assert out.stderr == ""
+    patch.assert_run_once_with()
+    assert patch.call_count == 1
 
 
-# def test_iteration_status_command(cli):
-#     """
-#     The iteration status command returns the current state of any iteration. It
-#     returns the number of already preprocessed data files, how many synthetics
-#     are available, the windows and adjoint sources.
-#     """
-#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-#     out = cli.run("lasif iteration_status 1").stdout
-#     assert out == (
-#         "Iteration Name: 1\n"
-#         "\tAll necessary files available.\n"
-#         "\t4 out of 4 files still require preprocessing.\n"
-#         "\tMissing synthetics for 1 event:\n"
-#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
-#
-#     cli.run("lasif preprocess_data 1")
-#     out = cli.run("lasif iteration_status 1").stdout
-#     assert out == (
-#         "Iteration Name: 1\n"
-#         "\tAll necessary files available.\n"
-#         "\tAll files are preprocessed.\n"
-#         "\tMissing synthetics for 1 event:\n"
-#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n")
-#
-#     # Copy the data for the first event to the second.
-#     shutil.rmtree(os.path.join(
-#         cli.project.paths["data"],
-#         "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
-#     shutil.copytree(
-#         os.path.join(cli.project.paths["data"],
-#                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
-#         os.path.join(cli.project.paths["data"],
-#                      "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
-#     # The iteration has to be recreated.
-#     os.remove(os.path.join(cli.project.paths["iterations"],
-#                            "ITERATION_1.xml"))
-#     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
-#     out = cli.run("lasif iteration_status 1").stdout
-#     assert out == (
-#         "Iteration Name: 1\n"
-#         "\tAll necessary files available.\n"
-#         "\tAll files are preprocessed.\n"
-#         "\tMissing synthetics for 2 events:\n"
-#         "\t\tGCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 (for 2 stations)\n"
-#         "\t\tGCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15 (for 4 stations)\n")
+def test_validate_data(cli):
+    """
+    Simple mock test.
+    """
+    vc = "lasif.components.validator.ValidatorComponent."
+    with mock.patch(vc + "validate_data") as patch:
+        cli.run("lasif validate_data")
+        patch.assert_called_once_with(station_file_availability=False,
+                                      raypaths=False, waveforms=False)
+
+    with mock.patch(vc + "validate_data") as patch:
+        cli.run("lasif validate_data --full")
+        patch.assert_called_once_with(station_file_availability=True,
+                                      raypaths=True, waveforms=True)
 
 
-# def test_Q_model_plotting(cli):
-#     """
-#     Tests the Q model plotting via mocking.
-#     """
-#     cli.run("lasif create_new_iteration 1 7.0 70.0 SES3D_4_1")
-#     with mock.patch("lasif.tools.Q_discrete.plot") as patch:
-#         cli.run("lasif plot_Q_model 1")
-#         patch.assert_called_once()
-#         kwargs = patch.call_args[1]
-#
-#     assert round(kwargs["f_min"] - 1.0 / 70.0, 5) == 0
-#     assert round(kwargs["f_max"] - 1.0 / 7.0, 5) == 0
-#
-#
-# def test_Q_model_calculating(cli):
-#     """
-#     Tests the Q model calculation via mocking.
-#     """
-#     with mock.patch("lasif.tools.Q_discrete.calculate_Q_model") as patch:
-#         patch.return_value = ([1, 2, 3], [4, 5, 6])
-#         out = cli.run("lasif calculate_constant_Q_model 12 234").stdout
-#         patch.assert_called_once()
-#         kwargs = patch.call_args[1]
-#
-#     assert round(kwargs["f_min"] - 1.0 / 234, 5) == 0
-#     assert round(kwargs["f_max"] - 1.0 / 12, 5) == 0
-#
-#     assert out == (
-#         "Weights: 1, 2, 3\n"
-#         "Relaxation Times: 1, 2, 3\n")
-#
-#
-# def test_debug_information(cli):
-#     """
-#     Tests the debugging information.
-#     """
-#     # Files not found.
-#     out = cli.run("lasif debug DUMMY_1 DUMMY_2").stdout
-#     assert "File 'DUMMY_1' does not exist." in out
-#     assert "File 'DUMMY_2' does not exist." in out
-#
-#     # Mock the actual debug function. It is tested in test_project.py.
-#     with mock.patch("lasif.project.Project.get_debug_information_for_file") \
-#             as patch:
-#         filename = os.path.join(
-#             cli.project.paths["data"],
-#             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "raw",
-#             "HL.ARG..BHZ.mseed")
-#         filename = os.path.relpath(filename, cli.comm.project.paths["root"])
-#         patch.return_value = "I CALLED THIS"
-#         out = cli.run("lasif debug %s" % filename).stdout
-#         patch.assert_called_once_with(filename)
-#
-#         assert filename in out
-#         assert "I CALLED THIS" in out
+def test_open_tutorial(cli):
+    """
+    Simple mock test.
+    """
+    with mock.patch("webbrowser.open") as patch:
+        cli.run("lasif tutorial")
+        patch.assert_called_once_with("http://krischer.github.io/LASIF/")
+
+
+def test_iteration_status_command(cli):
+    """
+    The iteration status command returns the current state of any iteration. It
+    returns the number of already preprocessed data files, how many synthetics
+    are available, the windows and adjoint sources.
+    """
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+    out = cli.run("lasif iteration_status 1").stdout.splitlines()
+    assert [_i.strip() for _i in out] == [
+        "Iteration 1 is defined for 1 events:",
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "0.00 % of the events stations have picked windows",
+        "Lacks processed data for 4 stations",
+        "Lacks synthetic data for 2 stations",
+    ]
+
+    cli.run("lasif preprocess_data 1")
+    out = cli.run("lasif iteration_status 1").stdout.splitlines()
+    assert [_i.strip() for _i in out] == [
+        "Iteration 1 is defined for 1 events:",
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "0.00 % of the events stations have picked windows",
+        "Lacks synthetic data for 2 stations",
+    ]
+
+    # Copy the data for the first event to the second.
+    shutil.rmtree(os.path.join(
+        cli.comm.project.paths["data"],
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
+    shutil.copytree(
+        os.path.join(cli.comm.project.paths["data"],
+                     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
+        os.path.join(cli.comm.project.paths["data"],
+                     "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"))
+    # The iteration has to be recreated.
+    os.remove(os.path.join(cli.comm.project.paths["iterations"],
+                           "ITERATION_1.xml"))
+
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+    out = cli.run("lasif iteration_status 1").stdout.splitlines()
+    assert [_i.strip() for _i in out] == [
+        "Iteration 1 is defined for 2 events:",
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "0.00 % of the events stations have picked windows",
+        "Lacks synthetic data for 2 stations",
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15",
+        "0.00 % of the events stations have picked windows",
+        "Lacks synthetic data for 4 stations",
+    ]
+
+
+def test_Q_model_plotting(cli):
+    """
+    Tests the Q model plotting via mocking.
+    """
+    cli.run("lasif create_new_iteration 1 7.0 70.0 SES3D_4_1")
+    with mock.patch("lasif.tools.Q_discrete.plot") as patch:
+        out = cli.run("lasif plot_Q_model 1")
+
+    assert out.stderr == ""
+    assert patch.call_count == 1
+    kwargs = patch.call_args[1]
+
+    assert round(kwargs["f_min"] - 1.0 / 70.0, 5) == 0
+    assert round(kwargs["f_max"] - 1.0 / 7.0, 5) == 0
+
+
+def test_Q_model_calculating(cli):
+    """
+    Tests the Q model calculation via mocking.
+    """
+    with mock.patch("lasif.tools.Q_discrete.calculate_Q_model") as patch:
+        patch.return_value = ([1, 2, 3], [4, 5, 6])
+        out = cli.run("lasif calculate_constant_Q_model 12 234").stdout
+    assert patch.call_count == 1
+    kwargs = patch.call_args[1]
+
+    assert round(kwargs["f_min"] - 1.0 / 234, 5) == 0
+    assert round(kwargs["f_max"] - 1.0 / 12, 5) == 0
+
+    assert out == (
+        "Weights: 1, 2, 3\n"
+        "Relaxation Times: 1, 2, 3\n")
+
+
+def test_debug_information(cli):
+    """
+    Tests the debugging information.
+    """
+    # Files not found.
+    out = cli.run("lasif debug DUMMY_1 DUMMY_2").stdout
+    assert "Path 'DUMMY_1' does not exist." in out
+    assert "Path 'DUMMY_2' does not exist." in out
+
+    # Check a file to make sure the binding works. Other file types are
+    # tested elsewhere.
+    out = cli.run("lasif debug " + cli.comm.project.paths["config_file"])
+    assert "The main project configuration file" in out.stdout
