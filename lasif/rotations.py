@@ -35,7 +35,11 @@ a spherical body, e.g. the Earth.
 :license: GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import math
 import numpy as np
+import sys
+
+eps = sys.float_info.epsilon
 
 
 def _get_vector(*args):
@@ -439,6 +443,52 @@ def get_border_latlng_list(
     borders = list(borders)
     borders = [tuple(_i) for _i in borders]
     return borders
+
+def get_center_angle(a, b):
+    """
+    Returns the angle of both angles on a sphere.
+
+    :param a: Angle A in degrees.
+    :param b: Angle B in degrees.
+
+    The examples use round() to guard against floating point inaccuracies.
+
+    >>> round(get_center_angle(350, 10), 9)
+    0.0
+    >>> round(get_center_angle(90, 270), 9)
+    0.0
+    >>> round(get_center_angle(-90, 90), 9)
+    0.0
+    >>> round(get_center_angle(350, 5), 9)
+    357.5
+    >>> round(get_center_angle(359, 10), 9)
+    4.5
+    >>> round(get_center_angle(10, 20), 9)
+    15.0
+    >>> round(get_center_angle(90, 180), 9)
+    135.0
+    >>> round(get_center_angle(0, 180), 9)
+    90.0
+    """
+    a = math.radians(a)
+    b = math.radians(b)
+
+    a = (math.cos(a), math.sin(a))
+    b = (math.cos(b), math.sin(b))
+
+    c = ((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+
+    if c[0] <= 10 * eps and c[1] <= 10 * eps:
+        result = math.degrees((math.acos(a[0]) + math.pi / 2.0) % math.pi)
+    else:
+        result = math.degrees(math.atan2(c[1], c[0]))
+
+    # Some predictability.
+    if abs(result) <= (10.0 * eps):
+        result = 0.0
+    result %= 360.0
+
+    return result
 
 
 def get_max_extention_of_domain(min_lat, max_lat, min_lng, max_lng,
