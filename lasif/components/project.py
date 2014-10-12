@@ -19,6 +19,7 @@ import cPickle
 import os
 
 from lasif import LASIFError
+import lasif.domain
 
 from .actions import ActionsComponent
 from .adjoint_sources import AdjointSourcesComponent
@@ -60,6 +61,8 @@ class Project(Component):
         self.__setup_paths(project_root_path)
 
         if init_project:
+            if not os.path.exists(project_root_path):
+                os.makedirs(project_root_path)
             self.__init_new_project(init_project)
 
         if not os.path.exists(self.paths["config_file"]):
@@ -179,16 +182,24 @@ class Project(Component):
         # makes difference at least in the perceived speed of LASIF.
         cfile = self.paths["config_file_cache"]
         if os.path.exists(cfile):
-            with open(cfile, "rb") as fh:
-                cf_cache = cPickle.load(fh)
-            last_m_time = int(os.path.getmtime(self.paths["config_file"]))
-            if last_m_time == cf_cache["last_m_time"]:
-                default_download_settings.update(cf_cache["config"][
-                    "download_settings"])
-                self.config = cf_cache["config"]
-                self.config["download_settings"] = default_download_settings
-                self.domain = cf_cache["domain"]
-                return
+            try:
+                with open(cfile, "rb") as fh:
+                    cf_cache = cPickle.load(fh)
+                last_m_time = int(os.path.getmtime(self.paths["config_file"]))
+                if last_m_time == cf_cache["last_m_time"]:
+                    default_download_settings.update(cf_cache["config"][
+                        "download_settings"])
+                    self.config = cf_cache["config"]
+                    self.config["download_settings"] = \
+                        default_download_settings
+                    self.domain = cf_cache["domain"]
+                    # XXX: Only until migration to new LASIF version happened.
+                    if isinstance(self.domain, dict):
+                        os.remove(cfile)
+                    else:
+                        return
+            except:
+                os.remove(cfile)
 
         from lxml import etree
         root = etree.parse(self.paths["config_file"]).getroot()
@@ -226,35 +237,25 @@ class Project(Component):
         # Check if the domain is global.
         is_global = domain.find("global")
         if is_global is not None and is_global.text.strip().lower() == "true":
-            self.domain = "global"
+            self.domain = lasif.domain.GlobalDomain()
         else:
-            self.domain = {}
-            self.domain["bounds"] = {}
-
-
             bounds = domain.find("domain_bounds")
-            self.domain["bounds"]["minimum_latitude"] = \
-                float(bounds.find("minimum_latitude").text)
-            self.domain["bounds"]["maximum_latitude"] = \
-                float(bounds.find("maximum_latitude").text)
-            self.domain["bounds"]["minimum_longitude"] = \
-                float(bounds.find("minimum_longitude").text)
-            self.domain["bounds"]["maximum_longitude"] = \
-                float(bounds.find("maximum_longitude").text)
-            self.domain["bounds"]["minimum_depth_in_km"] = \
-                float(bounds.find("minimum_depth_in_km").text)
-            self.domain["bounds"]["maximum_depth_in_km"] = \
-                float(bounds.find("maximum_depth_in_km").text)
-            self.domain["bounds"]["boundary_width_in_degree"] = \
-                float(bounds.find("boundary_width_in_degree").text)
-
             rotation = domain.find("domain_rotation")
-            self.domain["rotation_axis"] = [
-                float(rotation.find("rotation_axis_x").text),
-                float(rotation.find("rotation_axis_y").text),
-                float(rotation.find("rotation_axis_z").text)]
-            self.domain["rotation_angle"] = \
-                float(rotation.find("rotation_angle_in_degree").text)
+            self.domain = lasif.domain.RectangularSphericalSection(
+                min_longitude=float(bounds.find("minimum_longitude").text),
+                max_longitude=float(bounds.find("maximum_longitude").text),
+                min_latitude=float(bounds.find("minimum_latitude").text),
+                max_latitude=float(bounds.find("maximum_latitude").text),
+                min_depth_in_km=float(bounds.find("minimum_depth_in_km").text),
+                max_depth_in_km=float(bounds.find("maximum_depth_in_km").text),
+                rotation_axis= [
+                    float(rotation.find("rotation_axis_x").text),
+                    float(rotation.find("rotation_axis_y").text),
+                    float(rotation.find("rotation_axis_z").text)],
+                rotation_angle_in_degree=
+                float(rotation.find("rotation_angle_in_degree").text),
+                boundary_width_in_degree=
+                float(bounds.find("boundary_width_in_degree").text))
 
         # Write cache file.
         cf_cache = {}

@@ -40,22 +40,9 @@ def get_domain_geojson():
     Return the domain as GeoJSON multipath.
     """
     domain = app.comm.project.domain
-    bounds = domain["bounds"]
-    outer_border = lasif.rotations.get_border_latlng_list(
-        bounds["minimum_latitude"],
-        bounds["maximum_latitude"], bounds["minimum_longitude"],
-        bounds["maximum_longitude"], 25,
-        rotation_axis=domain["rotation_axis"],
-        rotation_angle_in_degree=domain["rotation_angle"])
 
-    buf = bounds["boundary_width_in_degree"]
-    inner_border = lasif.rotations.get_border_latlng_list(
-        bounds["minimum_latitude"] + buf,
-        bounds["maximum_latitude"] - buf,
-        bounds["minimum_longitude"] + buf,
-        bounds["maximum_longitude"] - buf, 25,
-        rotation_axis=domain["rotation_axis"],
-        rotation_angle_in_degree=domain["rotation_angle"])
+    outer_border = domain.border
+    inner_border = domain.inner_border
 
     border = geojson.MultiLineString([
         [(_i[1], _i[0]) for _i in inner_border],

@@ -31,6 +31,18 @@ IMAGES = os.path.join(os.path.dirname(os.path.abspath(
 DATA = os.path.join(os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe()))), "data")
 
+@pytest.fixture
+def dummy_project(tmpdir):
+    """
+    Fixture returning a communicator instance for a dummy project. The
+    fixture has a couple of convenience method to modify the project to test
+    different things.
+    """
+    # Create and empty project and get the communicator instance.
+    project_path = os.path.join(str(tmpdir), "DummyProject")
+    proj = Project(project_root_path=project_path, init_project="DummyProject")
+    return proj, proj.comm
+
 
 @pytest.fixture
 def communicator(tmpdir):

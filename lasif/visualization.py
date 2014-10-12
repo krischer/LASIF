@@ -11,170 +11,11 @@ Visualization scripts.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from itertools import izip
-import warnings
 from matplotlib import cm
 import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 import numpy as np
 from obspy.imaging.mopad_wrapper import Beach
 from obspy.signal.tf_misfit import plotTfr
-import os
-
-import rotations
-
-
-# Style for parallels and meridians.
-LINESTYLE = {
-    "linewidth": 0.5,
-    "dashes": [],
-    "color": "#aaaaaa"}
-
-
-def plot_domain(min_latitude=None, max_latitude=None, min_longitude=None,
-                max_longitude=None, boundary_buffer_in_degree=0.0,
-                rotation_axis=[0.0, 0.0, 1.0], rotation_angle_in_degree=0.0,
-                plot_simulation_domain=False,
-                zoom=False, resolution=None, ax=None):
-    """
-    """
-    # If all are None, the domain is considered to be global.
-    if [min_latitude, max_latitude, min_longitude, max_longitude] == \
-            [None, None, None, None]:
-        if resolution is None:
-            resolution = "c"
-        # Equal area mollweide projection.
-        m = Basemap(projection='moll', lon_0=0, resolution=resolution,
-                    ax=ax)
-        m.drawmapboundary(fill_color='#cccccc')
-        m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
-        plt.gcf().patch.set_alpha(0.0)
-        return m
-
-    bounds = rotations.get_max_extention_of_domain(
-        min_latitude, max_latitude, min_longitude, max_longitude,
-        rotation_axis=rotation_axis,
-        rotation_angle_in_degree=rotation_angle_in_degree)
-    center_lat = bounds["minimum_latitude"] + (
-        bounds["maximum_latitude"] - bounds["minimum_latitude"]) / 2.0
-    center_lng = bounds["minimum_longitude"] + (
-        bounds["maximum_longitude"] - bounds["minimum_longitude"]) / 2.0
-
-    extent_x = bounds["maximum_longitude"] - bounds["minimum_longitude"]
-    extent_y = bounds["maximum_latitude"] - bounds["minimum_latitude"]
-    max_extent = max(extent_x, extent_y)
-
-    # Arbitrary threshold
-    if max_extent > 160:
-        buffer = 15
-        if resolution is None:
-            resolution = "c"
-        m = Basemap(lon_0=center_lng,
-                    lat_0=center_lat,
-                    projection='cea', resolution=resolution,
-                    ax=ax,
-                    llcrnrlat=bounds["minimum_latitude"] - buffer,
-                    urcrnrlat=min(
-                        bounds["maximum_latitude"] + buffer * 2, 90.0),
-                    urcrnrlon=bounds["maximum_longitude"] + buffer,
-                    llcrnrlon=bounds["minimum_longitude"] - buffer)
-
-        # from IPython.core.debugger import Tracer; Tracer(colors="Linux")()
-        # m.llcrnrlat = 0
-
-        stepsize = 45.0
-    elif zoom is False or max_extent > 90 or plot_simulation_domain:
-        if resolution is None:
-            resolution = "c"
-        m = Basemap(projection='ortho', lon_0=center_lng, lat_0=center_lat,
-                    resolution=resolution, ax=ax)
-        stepsize = 10.0
-    else:
-        if resolution is None:
-            resolution = "l"
-        # Calculate approximate width and height in meters.
-        width = bounds["maximum_longitude"] - bounds["minimum_longitude"]
-        height = bounds["maximum_latitude"] - bounds["minimum_latitude"]
-
-        if width > 50.0:
-            stepsize = 10.0
-        elif 20.0 < width <= 50.0:
-            stepsize = 5.0
-        elif 5.0 < width <= 20.0:
-            stepsize = 2.0
-        else:
-            stepsize = 1.0
-
-        width *= 110000 * 1.1
-        height *= 110000 * 1.3
-        # Lambert azimuthal equal area projection. Equal area projections
-        # are useful for interpreting features and this particular one also
-        # does not distort features a lot on regional scales.
-        m = Basemap(projection='laea', resolution=resolution, width=width,
-                    height=height, lat_0=center_lat, lon_0=center_lng)
-
-    # Catch warning that no labels can be drawn with an orthographic
-    # projection.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        parallels = np.arange(-90.0, 90.0, stepsize)
-        m.drawparallels(parallels, labels=[False, True, False, False],
-                        **LINESTYLE)
-        meridians = np.arange(0.0, 360.0, stepsize)
-        m.drawmeridians(meridians, labels=[False, False, False, True],
-                        **LINESTYLE)
-
-    m.drawmapboundary(fill_color='#cccccc')
-    m.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
-
-    border = rotations.get_border_latlng_list(
-        min_latitude, max_latitude, min_longitude, max_longitude,
-        rotation_axis=rotation_axis,
-        rotation_angle_in_degree=rotation_angle_in_degree)
-    border = np.array(border)
-    lats = border[:, 0]
-    lngs = border[:, 1]
-    lngs, lats = m(lngs, lats)
-    m.plot(lngs, lats, color="black", lw=2, label="Physical Domain")
-
-    if boundary_buffer_in_degree:
-        border = rotations.get_border_latlng_list(
-            min_latitude + boundary_buffer_in_degree,
-            max_latitude - boundary_buffer_in_degree,
-            min_longitude + boundary_buffer_in_degree,
-            max_longitude - boundary_buffer_in_degree,
-            rotation_axis=rotation_axis,
-            rotation_angle_in_degree=rotation_angle_in_degree)
-        border = np.array(border)
-        lats = border[:, 0]
-        lngs = border[:, 1]
-        lngs, lats = m(lngs, lats)
-        m.plot(lngs, lats, color="black", lw=2, alpha=0.4)
-
-    if plot_simulation_domain is True:
-        simulation_domain = rotations.get_border_latlng_list(
-            min_latitude, max_latitude, min_longitude, max_longitude)
-        simulation_domain = np.array(simulation_domain)
-
-        lats = simulation_domain[:, 0]
-        lngs = simulation_domain[:, 1]
-        lngs, lats = m(lngs, lats)
-        m.plot(lngs, lats, color="red", lw=2, label="Simulation Domain")
-
-        if boundary_buffer_in_degree:
-            border = rotations.get_border_latlng_list(
-                min_latitude + boundary_buffer_in_degree,
-                max_latitude - boundary_buffer_in_degree,
-                min_longitude + boundary_buffer_in_degree,
-                max_longitude - boundary_buffer_in_degree)
-            border = np.array(border)
-            lats = border[:, 0]
-            lngs = border[:, 1]
-            lngs, lats = m(lngs, lats)
-            m.plot(lngs, lats, color="red", lw=2, alpha=0.4)
-        plt.legend()
-
-    plt.gcf().patch.set_alpha(0.0)
-    return m
 
 
 def plot_events(events, map_object, beachball_size=0.02, project=None):
@@ -190,24 +31,12 @@ def plot_events(events, map_object, beachball_size=0.02, project=None):
         width = max((map_object.xmax - map_object.xmin,
                      map_object.ymax - map_object.ymin)) * beachball_size
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
-        b._project = project
-        b._event_name = os.path.splitext(
-            os.path.basename(event["filename"]))[0]
-        b.detailed_event_description = (
-            "Event %.1f %s\n"
-            "Lat: %.1f, Lng: %.1f, Depth: %.1f km\n"
-            "Time: %s\n"
-            "%s"
-        ) % (event["magnitude"], event["magnitude_type"], event["latitude"],
-             event["longitude"], event["depth_in_km"], event["origin_time"],
-             event["event_name"])
 
         b.set_zorder(200000000)
         plt.gca().add_collection(b)
 
 
-def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
-                    max_lng, rot_axis, rot_angle):
+def plot_raydensity(map_object, station_events, domain):
     """
     Create a ray-density plot for all events and all stations.
 
@@ -221,9 +50,7 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     import progressbar
     from scipy.stats import scoreatpercentile
 
-    bounds = rotations.get_max_extention_of_domain(
-        min_lat, max_lat, min_lng, max_lng, rotation_axis=rot_axis,
-        rotation_angle_in_degree=rot_angle)
+    bounds = domain.get_max_extent()
 
     # Merge everything so that a list with coordinate pairs is created. This
     # list is then distributed among all processors.
@@ -338,7 +165,6 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     cmap._lut[:120, -1] = np.linspace(0, 1.0, 120) ** 2
 
     # Slightly change the appearance of the map so it suits the rays.
-    map_object.drawmapboundary(fill_color='#bbbbbb')
     map_object.fillcontinents(color='#dddddd', lake_color='#dddddd', zorder=0)
 
     lngs, lats = collected_bins.coordinates
@@ -348,8 +174,6 @@ def plot_raydensity(map_object, station_events, min_lat, max_lat, min_lng,
     # sometimes hard to see.
     map_object.drawcoastlines()
     map_object.drawcountries(linewidth=0.2)
-    map_object.drawmeridians(np.arange(0, 360, 30), **LINESTYLE)
-    map_object.drawparallels(np.arange(-90, 90, 30), **LINESTYLE)
 
 
 def plot_data_for_station(station, available_data, event, get_data_callback,
@@ -615,8 +439,7 @@ def plot_data_for_station(station, available_data, event, get_data_callback,
     plt.show()
 
 
-def plot_stations_for_event(map_object, station_dict, event_info,
-                            project=None):
+def plot_stations_for_event(map_object, station_dict, event_info):
     """
     Plots all stations for one event.
 

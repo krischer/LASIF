@@ -31,19 +31,8 @@ class VisualizationsComponent(Component):
         events = self.comm.events.get_all_events().values()
 
         if plot_type == "map":
-            domain = self.comm.project.domain
-            if domain == "global":
-                map = visualization.plot_domain()
-            else:
-                bounds = domain["bounds"]
-                map = visualization.plot_domain(
-                    bounds["minimum_latitude"], bounds["maximum_latitude"],
-                    bounds["minimum_longitude"], bounds["maximum_longitude"],
-                    bounds["boundary_width_in_degree"],
-                    rotation_axis=domain["rotation_axis"],
-                    rotation_angle_in_degree=domain["rotation_angle"],
-                    plot_simulation_domain=False, zoom=True)
-            visualization.plot_events(events, map_object=map, project=self)
+            m = self.comm.project.domain.plot()
+            visualization.plot_events(events, map_object=m)
         elif plot_type == "depth":
             visualization.plot_event_histogram(events, "depth")
         elif plot_type == "time":
@@ -60,21 +49,9 @@ class VisualizationsComponent(Component):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
-        from lasif import visualization
+        ax = self.comm.project.domain.plot()
 
-        # Plot the domain.
-        domain = self.comm.project.domain
-        if domain == "global":
-            map_object = visualization.plot_domain()
-        else:
-            bounds = domain["bounds"]
-            map_object = visualization.plot_domain(
-                bounds["minimum_latitude"], bounds["maximum_latitude"],
-                bounds["minimum_longitude"], bounds["maximum_longitude"],
-                bounds["boundary_width_in_degree"],
-                rotation_axis=domain["rotation_axis"],
-                rotation_angle_in_degree=domain["rotation_angle"],
-                plot_simulation_domain=False, zoom=True)
+        from lasif import visualization
 
         # Get the event and extract information from it.
         event_info = self.comm.events.get(event_name)
@@ -85,33 +62,16 @@ class VisualizationsComponent(Component):
 
         # Plot the stations. This will also plot raypaths.
         visualization.plot_stations_for_event(
-            map_object=map_object, station_dict=stations,
-            event_info=event_info, project=self)
+            map_object=ax, station_dict=stations, event_info=event_info)
 
         # Plot the beachball for one event.
-        visualization.plot_events([event_info], map_object=map_object)
+        visualization.plot_events([event_info], ax=ax)
 
     def plot_domain(self):
         """
         Plots the simulation domain and the actual physical domain.
-
-        Wrapper around one of the visualization routines.
         """
-        from lasif import visualization
-
-        domain = self.comm.project.domain
-        if domain == "global":
-            visualization.plot_domain()
-        else:
-            bounds = domain["bounds"]
-            visualization.plot_domain(
-                bounds["minimum_latitude"],
-                bounds["maximum_latitude"], bounds["minimum_longitude"],
-                bounds["maximum_longitude"],
-                bounds["boundary_width_in_degree"],
-                rotation_axis=domain["rotation_axis"],
-                rotation_angle_in_degree=domain["rotation_angle"],
-                plot_simulation_domain=True, zoom=True)
+        self.comm.project.domain.plot(plot_simulation_domain=True)
 
     def plot_raydensity(self, save_plot=True):
         """
@@ -122,16 +82,7 @@ class VisualizationsComponent(Component):
 
         plt.figure(figsize=(20, 21))
 
-        domain = self.comm.project.domain
-        bounds = domain["bounds"]
-        map_object = visualization.plot_domain(
-            bounds["minimum_latitude"], bounds["maximum_latitude"],
-            bounds["minimum_longitude"], bounds["maximum_longitude"],
-            bounds["boundary_width_in_degree"],
-            rotation_axis=domain["rotation_axis"],
-            rotation_angle_in_degree=domain["rotation_angle"],
-            plot_simulation_domain=False, zoom=True,
-            resolution="l")
+        ax = self.comm.project.domain.plot()
 
         event_stations = []
         for event_name, event_info in \
@@ -143,14 +94,11 @@ class VisualizationsComponent(Component):
                 stations = {}
             event_stations.append((event_info, stations))
 
-        visualization.plot_raydensity(
-            map_object, event_stations, bounds["minimum_latitude"],
-            bounds["maximum_latitude"], bounds["minimum_longitude"],
-            bounds["maximum_longitude"], domain["rotation_axis"],
-            domain["rotation_angle"])
+        visualization.plot_raydensity(ax, event_stations,
+                                      self.comm.project.domain)
 
         visualization.plot_events(self.comm.events.get_all_events().values(),
-                                  map_object=map_object)
+                                  ax=ax)
 
         plt.tight_layout()
 

@@ -1066,8 +1066,6 @@ def lasif_debug(parser, args):
     """
     Print information LASIF can gather from a list of files.
     """
-    from lasif.project import LASIFError
-
     parser.add_argument(
         "files", help="filenames to print debug information about", nargs="+")
     files = parser.parse_args(args).files

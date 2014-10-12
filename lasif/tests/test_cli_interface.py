@@ -31,7 +31,7 @@ import shutil
 
 from lasif.scripts import lasif_cli
 
-from lasif.tests.testing_helpers import cli  # NOQA
+from lasif.tests.testing_helpers import communicator, cli  # NOQA
 from lasif.tests.testing_helpers import reset_matplotlib
 
 # Get a list of all available commands.
