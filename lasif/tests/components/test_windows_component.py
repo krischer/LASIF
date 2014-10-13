@@ -76,7 +76,7 @@ def test_get(comm):
         comm.windows.get('GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
                          'RANDOM_ITERATION')
     assert "iteration" in str(error.value).lower()
-    assert "not known" in str(error.value).lower()
+    assert "not found" in str(error.value).lower()
 
     wm = comm.windows.get('GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11', '1')
     assert isinstance(wm, WindowGroupManager)
