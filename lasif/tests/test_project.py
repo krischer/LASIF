@@ -105,28 +105,6 @@ def test_config_file_caching(tmpdir):
     assert domain == pr.domain
 
 
-def test_domain_plotting(tmpdir):
-    """
-    Very simple domain plotting test.
-    """
-    pr = Project(str(tmpdir), init_project="TestProject")
-    pr.plot_domain()
-
-    images_are_identical("simple_test_domain", str(tmpdir))
-
-
-def test_event_handling(project):
-    """
-    Tests the event handling.
-    """
-    assert len(project.events) == 2
-    assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in project.events
-
-    assert project.events["GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"][
-        "filename"].endswith("GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml")
-    assert project.events["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"][
-        "filename"].endswith("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml")
-
 
 def test_event_plotting(project):
     """

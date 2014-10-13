@@ -66,6 +66,10 @@ class Domain(object):
         """
         pass
 
+    @abstractmethod
+    def __str__(self):
+        pass
+
 
 class RectangularSphericalSection(Domain):
     """
@@ -271,6 +275,34 @@ class RectangularSphericalSection(Domain):
             rotation_axis=self.rotation_axis,
             rotation_angle_in_degree=self.rotation_angle_in_degree)
 
+    def __str__(self):
+        ret_str = (
+            "{rotation} Spherical Section Domain\n"
+            u"\tLatitude: {min_lat:.2f}° - {max_lat:.2f}°\n"
+            u"\tLongitude: {min_lng:.2f}° - {max_lng:.2f}°\n"
+            "\tDepth: {min_depth:.1f}km - {max_depth:.1f}km"
+        )
+        if self.rotation_angle_in_degree:
+            rotation = "Rotated"
+            ret_str += (
+                "\n\tRotation Axis: {x:.1f} / {y:.1f} / {z:.1f}\n"
+                u"\tRotation Angle: {angle:.2f}°"
+            )
+        else:
+            rotation = "Unrotated"
+        return ret_str.format(
+            rotation=rotation,
+            min_lat=self.min_latitude,
+            max_lat=self.max_latitude,
+            min_lng=self.min_longitude,
+            max_lng=self.max_longitude,
+            min_depth=self.min_depth_in_km,
+            max_depth=self.max_depth_in_km,
+            x=self.rotation_axis[0],
+            y=self.rotation_axis[1],
+            z=self.rotation_axis[2],
+            angle=self.rotation_angle_in_degree).encode("utf-8")
+
 
 class GlobalDomain(Domain):
     def point_in_domain(self, longitude, latitude):
@@ -312,6 +344,9 @@ class GlobalDomain(Domain):
         """
         return {"minimum_latitude": -90.0, "maximum_latitude": 90.0,
                 "minimum_longitude": -180.0, "maximum_longitude": 180.0}
+
+    def __str__(self):
+        return "Global Domain"
 
 
 def _plot_features(map_object, stepsize):

@@ -123,45 +123,10 @@ class Project(Component):
         ret_str += "\tTotal project size: %s\n\n" % \
                    sizeof_fmt(project_filesize)
 
-        # Add information about the domain.
-        if self.domain == "global":
-            ret_str += u"\tGlobal domain"
-        else:
-            domain = {}
-            domain.update(self.domain["bounds"])
-            domain["latitude_extend"] = \
-                domain["maximum_latitude"] - domain["minimum_latitude"]
-            domain["latitude_extend_in_km"] = domain["latitude_extend"] \
-                                              * 111.32
-            domain["longitude_extend"] = \
-                domain["maximum_longitude"] - domain["minimum_longitude"]
-            domain["longitude_extend_in_km"] = domain["longitude_extend"] \
-                                               * 111.32
-            domain["depth_extend_in_km"] = \
-                domain["maximum_depth_in_km"] - domain["minimum_depth_in_km"]
-            ret_str += (
-                u"\tLatitude: {minimum_latitude:.2f}° - "
-                u"{maximum_latitude:.2f}°"
-                u" (total of {latitude_extend:.2f}° "
-                u"≅ {latitude_extend_in_km} km)\n"
-                u"\tLongitude: {minimum_longitude:.2f}° - "
-                u"{maximum_longitude:.2f}°"
-                u" (total of {longitude_extend:.2f}° "
-                u"≅ {longitude_extend_in_km} km)\n"
-                u"\tDepth: {minimum_depth_in_km}km - {maximum_depth_in_km}km"
-                u" (total of {depth_extend_in_km}km)\n") \
-                .format(**domain)
+        d = str(self.domain)
+        ret_str += "\n".join(["\t" + i for i in d.splitlines()])
 
-            # Add information about rotation axis.
-            if self.domain["rotation_angle"]:
-                a = self.domain["rotation_axis"]
-                ret_str += \
-                    u"\tDomain rotated around axis %.1f/%.1f/%.1f for %.2f°" \
-                    % (a[0], a[1], a[2], self.domain["rotation_angle"])
-            else:
-                ret_str += "\tDomain is not rotated."
-
-        return ret_str.encode("utf-8")
+        return ret_str
 
     def _read_config_file(self):
         """
