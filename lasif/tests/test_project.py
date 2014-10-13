@@ -40,35 +40,6 @@ def setup_function(function):
     reset_matplotlib()
 
 
-def test_config_file_creation_and_parsing(tmpdir):
-    """
-    Tests the creation of a default config file and the reading of the file.
-    """
-    # Create a new project.
-    pr = Project(str(tmpdir), init_project="TestProject")
-    del pr
-
-    # Init it once again.
-    pr = Project(str(tmpdir))
-
-    # Assert the config file will test the creation of the default file and the
-    # reading.
-    assert pr.config["name"] == "TestProject"
-    assert pr.config["description"] == ""
-    assert pr.config["download_settings"]["arclink_username"] is None
-    assert pr.config["download_settings"]["seconds_before_event"] == 300
-    assert pr.config["download_settings"]["seconds_after_event"] == 3600
-    assert pr.domain["bounds"]["minimum_longitude"] == -20
-    assert pr.domain["bounds"]["maximum_longitude"] == 20
-    assert pr.domain["bounds"]["minimum_latitude"] == -20
-    assert pr.domain["bounds"]["maximum_latitude"] == 20
-    assert pr.domain["bounds"]["minimum_depth_in_km"] == 0.0
-    assert pr.domain["bounds"]["maximum_depth_in_km"] == 200.0
-    assert pr.domain["bounds"]["boundary_width_in_degree"] == 3.0
-    assert pr.domain["rotation_axis"] == [1.0, 1.0, 1.0]
-    assert pr.domain["rotation_angle"] == -45.0
-
-
 def test_config_file_caching(tmpdir):
     """
     The config file is cached to read if faster as it is read is every single

@@ -242,6 +242,10 @@ class FileInfoCache(object):
         for filetype in self.filetypes:
             filecount += len(self.files[filetype])
 
+        # XXX: Check which files have the correct mtime outside the loop.
+        # Then the case when the caches already exist should be much faster
+        # (and the average case as well...)
+
         # Use a progressbar if the filecount is large so something appears on
         # screen.
         pbar = None
@@ -278,6 +282,8 @@ class FileInfoCache(object):
                     with open(filename, "rb") as open_file:
                         hash_value = crc32(open_file.read())
                     if hash_value == this_file[2]:
+                        # XXX: Update last modified times, otherwise it will
+                        # hash again and again.
                         continue
                     self._update_file(filename, filetype, this_file[0])
                 else:

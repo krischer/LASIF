@@ -190,11 +190,13 @@ class Project(Component):
         c_p = dl_settings.find("channel_priorities")
         if c_p is not None:
             self.config["download_settings"]["channel_priorities"] = \
-                [str(_i.text) for _i in c_p.findall("priority")]
+                [str(_i.text) if _i.text else ""
+                 for _i in c_p.findall("priority")]
         l_p = dl_settings.find("location_priorities")
         if l_p is not None:
             self.config["download_settings"]["location_priorities"] = \
-                [str(_i.text) for _i in l_p.findall("priority")]
+                [str(_i.text) if _i.text else ""
+                 for _i in l_p.findall("priority")]
 
         # Read the domain.
         domain = root.find("domain")
