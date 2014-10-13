@@ -58,91 +58,6 @@ def test_window_class_initialization():
                taper="cosine",
                taper_percentage=0.55)
 
-    # No misfit value without a misfit type.
-    with pytest.raises(ValueError):
-        Window(starttime=UTCDateTime(2012, 1, 1),
-               endtime=UTCDateTime(2012, 1, 1, 0, 1),
-               weight=1.0,
-               taper="cosine",
-               taper_percentage=0.05,
-               misfit_value=0.5)
-
-    # No misfit details without a misfit type.
-    with pytest.raises(ValueError):
-        Window(starttime=UTCDateTime(2012, 1, 1),
-               endtime=UTCDateTime(2012, 1, 1, 0, 1),
-               weight=1.0,
-               taper="cosine",
-               taper_percentage=0.05,
-               misfit_details={"Some details": 1})
-
-    # No misfit details without a misfit value.
-    with pytest.raises(ValueError):
-        Window(starttime=UTCDateTime(2012, 1, 1),
-               endtime=UTCDateTime(2012, 1, 1, 0, 1),
-               weight=1.0,
-               taper="cosine",
-               taper_percentage=0.05,
-               misfit_type="random misfit",
-               misfit_details={"Some details": 1})
-
-    # The value field in the misfit details.
-    with pytest.raises(ValueError):
-        Window(starttime=UTCDateTime(2012, 1, 1),
-               endtime=UTCDateTime(2012, 1, 1, 0, 1),
-               weight=1.0,
-               taper="cosine",
-               taper_percentage=0.05,
-               misfit_type="random misfit",
-               misfit_value=0.5,
-               misfit_details={"value": 0.5, "a": 1})
-
-    # The misfit value must be positive.
-    with pytest.raises(ValueError):
-        Window(starttime=UTCDateTime(2012, 1, 1),
-               endtime=UTCDateTime(2012, 1, 1, 0, 1),
-               weight=1.0,
-               taper="cosine",
-               taper_percentage=0.05,
-               misfit_type="random misfit",
-               misfit_value=-0.5)
-
-    # Otherwise it should work. Window without a misfit value.
-    win = Window(starttime=UTCDateTime(2012, 1, 1),
-                 endtime=UTCDateTime(2012, 1, 1, 0, 1),
-                 weight=1.0,
-                 taper="cosine",
-                 taper_percentage=0.05,
-                 misfit_type="random misfit")
-    assert win.misfit_type == "random misfit"
-    assert win.misfit_details == {}
-    assert win.misfit_value == None
-
-    # Window with a misfit value.
-    win = Window(starttime=UTCDateTime(2012, 1, 1),
-                 endtime=UTCDateTime(2012, 1, 1, 0, 1),
-                 weight=1.0,
-                 taper="cosine",
-                 taper_percentage=0.05,
-                 misfit_type="random misfit",
-                 misfit_value=0.5)
-    assert win.misfit_type == "random misfit"
-    assert win.misfit_details == {}
-    assert win.misfit_value == 0.5
-
-    # Window with some misfit details.
-    win = Window(starttime=UTCDateTime(2012, 1, 1),
-                 endtime=UTCDateTime(2012, 1, 1, 0, 1),
-                 weight=1.0,
-                 taper="cosine",
-                 taper_percentage=0.05,
-                 misfit_type="random misfit",
-                 misfit_value=0.5,
-                 misfit_details={1: 2, 3:4})
-    assert win.misfit_type == "random misfit"
-    assert win.misfit_details == {1: 2, 3: 4}
-    assert win.misfit_value == 0.5
-
 
 def test_window_class():
     """
@@ -201,7 +116,7 @@ def test_window_collection_i_o(tmpdir):
     wc.add_window(starttime=UTCDateTime(2012, 1, 1),
                   endtime=UTCDateTime(2012, 1, 1, 0, 1),
                   weight=0.5, taper="cosine", taper_percentage=0.08,
-                  misfit_type="some misfit", misfit_value=1E-5)
+                  misfit_type="some misfit")
     wc.write()
 
     # Hardcode an example to be sure the format is correct.
@@ -218,7 +133,6 @@ def test_window_collection_i_o(tmpdir):
         "    <Taper>cosine</Taper>\n"
         "    <TaperPercentage>0.08</TaperPercentage>\n"
         "    <Misfit>some misfit</Misfit>\n"
-        "    <MisfitValue>1e-05</MisfitValue>\n"
         "  </Window>\n"
         "</MisfitWindow>")
     with open(filename, "rb") as fh:
@@ -233,7 +147,7 @@ def test_window_collection_i_o(tmpdir):
     wc.add_window(starttime=UTCDateTime(2013, 1, 1),
                   endtime=UTCDateTime(2013, 1, 1, 0, 1),
                   weight=0.8, taper="hanning", taper_percentage=0.1,
-                  misfit_type="other misfit", misfit_value=0.0)
+                  misfit_type="other misfit")
     wc.write()
     reference = (
         "<?xml version='1.0' encoding='utf-8'?>\n"
@@ -248,7 +162,6 @@ def test_window_collection_i_o(tmpdir):
         "    <Taper>cosine</Taper>\n"
         "    <TaperPercentage>0.08</TaperPercentage>\n"
         "    <Misfit>some misfit</Misfit>\n"
-        "    <MisfitValue>1e-05</MisfitValue>\n"
         "  </Window>\n"
         "  <Window>\n"
         "    <Starttime>2013-01-01T00:00:00.000000Z</Starttime>\n"
@@ -257,7 +170,6 @@ def test_window_collection_i_o(tmpdir):
         "    <Taper>hanning</Taper>\n"
         "    <TaperPercentage>0.1</TaperPercentage>\n"
         "    <Misfit>other misfit</Misfit>\n"
-        "    <MisfitValue>0.0</MisfitValue>\n"
         "  </Window>\n"
         "</MisfitWindow>")
     with open(filename, "rb") as fh:
@@ -289,7 +201,6 @@ def test_window_i_o_missing_taper_percentage(tmpdir):
         "    <Weight>0.5</Weight>\n"
         "    <Taper>cosine</Taper>\n"
         "    <Misfit>some misfit</Misfit>\n"
-        "    <MisfitValue>1e-05</MisfitValue>\n"
         "  </Window>\n"
         "</MisfitWindow>")
     with open(filename, "wb") as fh:
@@ -316,7 +227,6 @@ def test_window_i_o_missing_taper_percentage(tmpdir):
         "    <Taper>cosine</Taper>\n"
         "    <TaperPercentage>0.05</TaperPercentage>\n"
         "    <Misfit>some misfit</Misfit>\n"
-        "    <MisfitValue>1e-05</MisfitValue>\n"
         "  </Window>\n"
         "</MisfitWindow>")
     assert reference == actual
@@ -337,8 +247,7 @@ def test_no_windows_will_remove_existing_file(tmpdir):
                           synthetics_tag="Iteration_A")
     wc.add_window(starttime=UTCDateTime(2012, 1, 1),
                   endtime=UTCDateTime(2012, 1, 1, 0, 1),
-                  weight=0.5, taper="cosine", taper_percentage=0.08,
-                  misfit_type="some misfit", misfit_value=1E-5)
+                  weight=0.5, taper="cosine", taper_percentage=0.08)
     wc.write()
 
     assert os.listdir(tmpdir) == [os.path.basename(filename)]
@@ -359,21 +268,17 @@ def test_delete_windows(tmpdir):
                           synthetics_tag="Iteration_A")
     wc.add_window(starttime=UTCDateTime(2012, 1, 1),
                   endtime=UTCDateTime(2012, 1, 1, 0, 1),
-                  weight=0.5, taper="cosine", taper_percentage=0.08,
-                  misfit_type="some misfit", misfit_value=1E-5)
+                  weight=0.5, taper="cosine", taper_percentage=0.08)
     # The last three windows differ by a second each.
     wc.add_window(starttime=UTCDateTime(2013, 1, 1),
                   endtime=UTCDateTime(2013, 1, 1, 0, 1),
-                  weight=0.5, taper="cosine", taper_percentage=0.08,
-                  misfit_type="some misfit", misfit_value=1E-5)
+                  weight=0.5, taper="cosine", taper_percentage=0.08)
     wc.add_window(starttime=UTCDateTime(2013, 1, 1),
                   endtime=UTCDateTime(2013, 1, 1, 0, 1, 1),
-                  weight=0.5, taper="cosine", taper_percentage=0.08,
-                  misfit_type="some misfit", misfit_value=1E-5)
+                  weight=0.5, taper="cosine", taper_percentage=0.08)
     wc.add_window(starttime=UTCDateTime(2013, 1, 1),
                   endtime=UTCDateTime(2013, 1, 1, 0, 1, 2),
-                  weight=0.5, taper="cosine", taper_percentage=0.08,
-                  misfit_type="some misfit", misfit_value=1E-5)
+                  weight=0.5, taper="cosine", taper_percentage=0.08)
 
     assert len(wc) == 4
 
