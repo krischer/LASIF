@@ -11,6 +11,8 @@ Test suite for the domain definitions in LASIF.
 """
 from __future__ import absolute_import
 
+import copy
+
 from lasif import domain
 from .testing_helpers import images_are_identical, reset_matplotlib
 
@@ -138,3 +140,29 @@ def test_domain_new_zealand(tmpdir):
         rotation_axis=[1.0, 1.0, 0.2],
         rotation_angle_in_degree=0.0).plot(plot_simulation_domain=True)
     images_are_identical("domain_new_zealand", str(tmpdir))
+
+
+def test_domain_equality(tmpdir):
+    d1 = domain.RectangularSphericalSection(
+        min_latitude=-70,
+        max_latitude=-10,
+        min_longitude=140,
+        max_longitude=200,
+        min_depth_in_km=0,
+        max_depth_in_km=1440,
+        boundary_width_in_degree=2.5,
+        rotation_axis=[1.0, 1.0, 0.2],
+        rotation_angle_in_degree=0.0)
+    d2 = domain.RectangularSphericalSection(
+        min_latitude=-70,
+        max_latitude=-10,
+        min_longitude=140,
+        max_longitude=200,
+        min_depth_in_km=0,
+        max_depth_in_km=1441,
+        boundary_width_in_degree=2.5,
+        rotation_axis=[1.0, 1.0, 0.2],
+        rotation_angle_in_degree=0.0)
+
+    assert d1 == copy.deepcopy(d1)
+    assert d1 != d2
