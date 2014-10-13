@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import copy
 import inspect
 import os
 import pytest
@@ -23,6 +24,7 @@ def comm(tmpdir):
 
     return project.comm
 
+
 def test_config_file_creation_and_parsing(tmpdir):
     """
     Tests the creation of a default config file and the reading of the file.
@@ -43,10 +45,9 @@ def test_config_file_creation_and_parsing(tmpdir):
     assert pr.config["download_settings"]["location_priorities"] == [
         "", "00", "10", "20", "01", "02"]
     assert pr.config["download_settings"]["interstation_distance_in_m"] == \
-           1000.0
+        1000.0
     assert pr.config["download_settings"]["seconds_after_event"] == 3600.0
     assert pr.config["download_settings"]["seconds_before_event"] == 300.0
-
 
     d = RectangularSphericalSection(
         min_latitude=-20.0, max_latitude=20.0, min_longitude=-20.0,
@@ -55,3 +56,39 @@ def test_config_file_creation_and_parsing(tmpdir):
         rotation_axis=[1.0, 1.0, 1.0],
         boundary_width_in_degree=3.0)
     assert pr.domain == d
+
+
+def test_config_file_caching(tmpdir):
+    """
+    The config file is cached to read if faster as it is read is every single
+    time a LASIF command is executed.
+    """
+    # Create a new project.
+    pr = Project(str(tmpdir), init_project="TestProject")
+    config = copy.deepcopy(pr.config)
+    domain = copy.deepcopy(pr.domain)
+    del pr
+
+    # Check that the config file cache has been created.
+    cache = os.path.join(str(tmpdir), "CACHE", "config.xml_cache.pickle")
+    assert os.path.exists(cache)
+
+    # Delete it.
+    os.remove(cache)
+    assert not os.path.exists(cache)
+
+    pr = Project(str(tmpdir), init_project="TestProject")
+
+    # Assert that everything is still the same.
+    assert config == pr.config
+    assert domain == pr.domain
+    del pr
+
+    # This should have created the cached file.
+    assert os.path.exists(cache)
+
+    pr = Project(str(tmpdir), init_project="TestProject")
+
+    # Assert that nothing changed.
+    assert config == pr.config
+    assert domain == pr.domain

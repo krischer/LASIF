@@ -40,41 +40,6 @@ def setup_function(function):
     reset_matplotlib()
 
 
-def test_config_file_caching(tmpdir):
-    """
-    The config file is cached to read if faster as it is read is every single
-    time a LASIF command is executed.
-    """
-    # Create a new project.
-    pr = Project(str(tmpdir), init_project="TestProject")
-    config = copy.deepcopy(pr.config)
-    domain = copy.deepcopy(pr.domain)
-    del pr
-
-    # Check that the config file cache has been created.
-    cache = os.path.join(str(tmpdir), "CACHE", "config.xml_cache.pickle")
-    assert os.path.exists(cache)
-
-    # Delete it.
-    os.remove(cache)
-    assert not os.path.exists(cache)
-
-    pr = Project(str(tmpdir), init_project="TestProject")
-
-    # Assert that everything is still the same.
-    assert config == pr.config
-    assert domain == pr.domain
-    del pr
-
-    # This should have created the cached file.
-    assert os.path.exists(cache)
-
-    pr = Project(str(tmpdir), init_project="TestProject")
-
-    # Assert that nothing changed.
-    assert config == pr.config
-    assert domain == pr.domain
-
 
 def test_event_plotting(project):
     """
