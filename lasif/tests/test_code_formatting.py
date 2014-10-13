@@ -26,6 +26,10 @@ def test_flake8():
     test_dir = os.path.dirname(os.path.abspath(inspect.getfile(
         inspect.currentframe())))
     lasif_dir = os.path.dirname(test_dir)
+
+    # Ignore automatically generated files.
+    ignore_files = [os.path.join("misfit_gui", "qt_window.py")]
+    ignore_files = [os.path.join(lasif_dir, _i) for _i in ignore_files]
     files = []
     for dirpath, _, filenames in os.walk(lasif_dir):
         filenames = [_i for _i in filenames if
@@ -34,6 +38,8 @@ def test_flake8():
             continue
         for py_file in filenames:
             full_path = os.path.join(dirpath, py_file)
+            if full_path in ignore_files:
+                continue
             files.append(full_path)
 
     # Get the style checker with the default style.
