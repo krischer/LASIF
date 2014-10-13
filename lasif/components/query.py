@@ -381,17 +381,8 @@ class QueryComponent(Component):
         :param latitude: The latitude of the point.
         :param longitude: The longitude of the point.
         """
-        from lasif.utils import point_in_domain
-
         domain = self.comm.project.domain
-
-        if domain == "global":
-            return True
-
-        return point_in_domain(latitude, longitude, domain=domain["bounds"],
-                               rotation_axis=domain["rotation_axis"],
-                               rotation_angle_in_degree=domain[
-                                   "rotation_angle"])
+        return domain.point_in_domain(longitude=longitude, latitude=latitude)
 
     def what_is(self, path):
         """
