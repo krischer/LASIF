@@ -4,7 +4,7 @@ import pyqtgraph
 
 
 class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
-    def __init__(self, window, event, parent,**kwargs):
+    def __init__(self, window, event, parent, **kwargs):
         self.win = window
         self.event_time = event["origin_time"]
         start = self.win.starttime - event["origin_time"]

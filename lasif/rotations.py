@@ -264,7 +264,7 @@ def _get_axis_and_angle_from_rotation_matrix(M):
     y = M[0, 2] - M[2, 0]
     z = M[1, 0] - M[0, 1]
 
-    r = np.sqrt(x**2 + y**2 + z**2)
+    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
     t = M[0, 0] + M[1, 1] + M[2, 2]
     theta = np.arctan2(r, t - 1)
     axis = [x, y, z]
@@ -443,6 +443,7 @@ def get_border_latlng_list(
     borders = list(borders)
     borders = [tuple(_i) for _i in borders]
     return borders
+
 
 def get_center_angle(a, b):
     """

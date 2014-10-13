@@ -12,7 +12,6 @@ pg.setConfigOptions(antialias=True, foreground=(50, 50, 50), background=None)
 from glob import iglob
 import imp
 import inspect
-import numpy as np
 from obspy.core.util.geodetics import locations2degrees
 from obspy.taup.taup import getTravelTimes
 import os
@@ -55,7 +54,7 @@ class Window(QtGui.QMainWindow):
     def __init__(self, comm):
         QtGui.QMainWindow.__init__(self)
         self.comm = comm
-        self.ui = qt_window.Ui_MainWindow()
+        self.ui = qt_window.Ui_MainWindow()  # NOQA
         self.ui.setupUi(self)
 
         self.current_window_manager = None
@@ -82,7 +81,6 @@ class Window(QtGui.QMainWindow):
         self.ui.e_graph.plot([0], [0], pen="k", name="Data")
         self.ui.e_graph.plot([0], [0], pen="r", name="Synthetics")
         self.ui.e_graph.clear()
-
 
     def _reset_all_plots(self):
         for component in ["z", "n", "e"]:
@@ -147,7 +145,6 @@ class Window(QtGui.QMainWindow):
         win.endtime = end
         win._Window__collection.write()
 
-
     def on_stations_listWidget_currentItemChanged(self, current, previous):
         if current is None:
             return
@@ -179,8 +176,8 @@ class Window(QtGui.QMainWindow):
                 plot_widget.plot(times, tr.data, pen="k")
             else:
                 plot_widget.data_id = None
-            synth_tr = [tr for tr in wave.synthetics
-                        if tr.stats.channel[-1].upper() == component]
+            synth_tr = [_i for _i in wave.synthetics
+                        if _i.stats.channel[-1].upper() == component]
             if synth_tr:
                 tr = synth_tr[0]
                 times = tr.times()
@@ -233,7 +230,7 @@ class Window(QtGui.QMainWindow):
         window.add_window(
             starttime=event["origin_time"],
             endtime=event["origin_time"] + 60,
-            weight = 1.0
+            weight=1.0
         )
         window.write()
 
@@ -276,7 +273,6 @@ class Window(QtGui.QMainWindow):
                                                      self.current_iteration,
                                                      self.current_station)
         self.on_stations_listWidget_currentItemChanged(True, False)
-
 
 
 def launch(comm):

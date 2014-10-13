@@ -18,7 +18,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import math
 import numpy as np
-import warnings
 
 from lasif import rotations
 
@@ -269,7 +268,7 @@ class RectangularSphericalSection(Domain):
             * minimum_longitude
             * maximum_longitude
         """
-        return  rotations.get_max_extention_of_domain(
+        return rotations.get_max_extention_of_domain(
             self.min_latitude, self.max_latitude, self.min_longitude,
             self.max_longitude,
             rotation_axis=self.rotation_axis,
@@ -370,7 +369,7 @@ def _plot_features(map_object, stepsize):
         label = False
     parallels = np.arange(-90.0, 90.0, stepsize)
     map_object.drawparallels(parallels, labels=[False, label, False, False],
-                                 zorder=200, **LINESTYLE)
+                             zorder=200, **LINESTYLE)
     # Meridians.
     if map_object.projection in ["laea"]:
         label = True

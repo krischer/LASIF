@@ -213,14 +213,14 @@ class Project(Component):
                 max_latitude=float(bounds.find("maximum_latitude").text),
                 min_depth_in_km=float(bounds.find("minimum_depth_in_km").text),
                 max_depth_in_km=float(bounds.find("maximum_depth_in_km").text),
-                rotation_axis= [
+                rotation_axis=[
                     float(rotation.find("rotation_axis_x").text),
                     float(rotation.find("rotation_axis_y").text),
                     float(rotation.find("rotation_axis_z").text)],
-                rotation_angle_in_degree=
-                float(rotation.find("rotation_angle_in_degree").text),
-                boundary_width_in_degree=
-                float(bounds.find("boundary_width_in_degree").text))
+                rotation_angle_in_degree=float(
+                    rotation.find("rotation_angle_in_degree").text),
+                boundary_width_in_degree=float(
+                    bounds.find("boundary_width_in_degree").text))
 
         # Write cache file.
         cf_cache = {}

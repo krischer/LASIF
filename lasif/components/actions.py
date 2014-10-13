@@ -168,7 +168,6 @@ class ActionsComponent(Component):
         for station in stations_without_windows:
             self.select_windows_for_station(event, iteration, station)
 
-
     def select_windows_for_station(self, event, iteration, station):
         """
         Selects windows for the given event, iteration, and station. Will
@@ -223,7 +222,6 @@ class ActionsComponent(Component):
                 "No matching data found for event '%s', iteration '%s', and "
                 "station '%s'." % (event["event_name"], iteration.name,
                                    station))
-
 
     def generate_input_files(self, iteration_name, event_name,
                              simulation_type):
@@ -424,7 +422,7 @@ class ActionsComponent(Component):
             lat_range = domain["bounds"]["maximum_latitude"] - \
                 domain["bounds"]["minimum_latitude"]
             lng_range = domain["bounds"]["maximum_longitude"] - \
-                        domain["bounds"]["minimum_longitude"]
+                domain["bounds"]["minimum_longitude"]
 
             c_lat = \
                 domain["bounds"]["minimum_latitude"] + lat_range / 2.0
@@ -465,7 +463,7 @@ class ActionsComponent(Component):
                 rotated_axis = rotations.xyz_to_lat_lon_radius(*axis)
 
             if abs(rotated_axis[0] - c_lat_1) >= 0.01 or \
-                        abs(rotated_axis[1] - c_lng_1) >= 0.01:
+                    abs(rotated_axis[1] - c_lng_1) >= 0.01:
                 msg = "Failed to describe the domain in terms that SPECFEM " \
                       "understands"
                 raise LASIFError(msg)
@@ -552,7 +550,7 @@ class ActionsComponent(Component):
             length = length.pop()
             # All missing channels will be replaced with a zero array.
             for c in ["Z", "N", "E"]:
-                if c in  channels:
+                if c in channels:
                     continue
                 channels[c] = np.zeros(length)
 

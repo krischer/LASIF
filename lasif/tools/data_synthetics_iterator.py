@@ -10,8 +10,6 @@ Two way data synthetics iterator.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-import collections
-
 from lasif import LASIFNotFoundError
 
 

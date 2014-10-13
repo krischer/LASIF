@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import obspy
-import os
 import pytest
 
 from lasif.components.iterations import IterationsComponent
@@ -25,11 +23,11 @@ def comm(tmpdir):
         component_name="iterations")
     # Create two iterations.
     comm.iterations.create_new_iteration(
-        "1", "ses3d_4_1",{"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]},
-         10.0, 20.0)
+        "1", "ses3d_4_1",
+        {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0)
     comm.iterations.create_new_iteration(
-        "2", "ses3d_4_1",{"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]},
-        10.0, 20.0)
+        "2", "ses3d_4_1",
+        {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0)
     it = comm.iterations.get("1")
     it.comments = ["Some", "random comments"]
     comm.iterations.save_iteration(it)

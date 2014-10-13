@@ -103,6 +103,7 @@ def test_window_collection_init_failures(tmpdir):
         WindowCollection(filename=filename, windows=[1, 2, 3])
     assert "existing file and new windows" in str(error.value).lower()
 
+
 def test_window_collection_i_o(tmpdir):
     """
     Reading and writing windows.

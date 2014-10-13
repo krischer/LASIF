@@ -17,8 +17,6 @@ import inspect
 import numpy as np
 import os
 
-import lasif
-
 
 WEBSERVER_DIRECTORY = os.path.dirname(os.path.abspath(inspect.getfile(
     inspect.currentframe())))

@@ -19,7 +19,6 @@ import numpy as np
 from lasif.file_handling.ses3d_file_parser import is_SES3D, read_SES3D
 
 
-
 # Most generic way to get the actual data directory.
 data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
     inspect.currentframe()))), "data")

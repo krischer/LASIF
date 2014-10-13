@@ -31,6 +31,7 @@ IMAGES = os.path.join(os.path.dirname(os.path.abspath(
 DATA = os.path.join(os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe()))), "data")
 
+
 @pytest.fixture
 def dummy_project(tmpdir):
     """

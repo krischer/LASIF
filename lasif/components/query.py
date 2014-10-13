@@ -228,7 +228,6 @@ class QueryComponent(Component):
                 missing_synthetic = set(stations)
             status[event_name]["missing_synthetic"] = missing_synthetic
 
-
             try:
                 windows = self.comm.windows.get(event_name, iteration)
             except LASIFNotFoundError:
@@ -236,7 +235,7 @@ class QueryComponent(Component):
             if windows:
                 # Get the windows per station.
                 windows = set(".".join(_i.split(".")[:2]) for _i in
-                                  windows.list())
+                              windows.list())
                 windows = stations.intersection(windows)
             status[event_name]["fraction_of_stations_that_have_windows"] = \
                 float(len(windows)) / float(len(stations))
@@ -284,7 +283,7 @@ class QueryComponent(Component):
                     if tr.stats.channel[-1].lower() ==
                     data_tr.stats.channel[-1].lower()][0]
                 scaling_factor = synthetic_tr.data.ptp() / \
-                                 data_tr.data.ptp()
+                    data_tr.data.ptp()
                 # Store and apply the scaling.
                 data_tr.stats.scaling_factor = scaling_factor
                 data_tr.data *= scaling_factor

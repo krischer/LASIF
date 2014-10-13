@@ -160,7 +160,7 @@ class WaveformsComponent(Component):
             tr.stats.channel = \
                 synthetic_coordinates_mapping[tr.stats.channel]
 
-        if not "specfem" in iteration.solver_settings["solver"].lower():
+        if "specfem" not in iteration.solver_settings["solver"].lower():
             # Also need to be rotated.
             domain = self.comm.project.domain
 

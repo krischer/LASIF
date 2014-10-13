@@ -105,7 +105,6 @@ def test_config_file_caching(tmpdir):
     assert domain == pr.domain
 
 
-
 def test_event_plotting(project):
     """
     Tests the plotting of all events.
@@ -415,16 +414,18 @@ def test_data_validation(project, capsys):
     """
     Attempt to test the data validation part in a simple manner.
     """
+    # def reset():
+    #     try:
+    #         project.events = EventPseudoDict(project.paths["events"])
+    #     except:
+    #         pass
+    #     try:
+    #         obspy.core.event.ResourceIdentifier\
+    #             ._ResourceIdentifier__resource_id_weak_dict.clear()
+    #     except:
+    #         pass
     def reset():
-        try:
-            project.events = EventPseudoDict(project.paths["events"])
-        except:
-            pass
-        try:
-            obspy.core.event.ResourceIdentifier\
-                ._ResourceIdentifier__resource_id_weak_dict.clear()
-        except:
-            pass
+        pass
 
     # The default output should be fully valid.
     project.validate_data()

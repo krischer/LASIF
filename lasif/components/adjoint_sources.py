@@ -65,9 +65,9 @@ class AdjointSourcesComponent(Component):
             return joblib.load(filename)
 
         if ad_src_type not in MISFIT_MAPPING:
-            raise ValueError("Adjoint source type '%s' not supported. "
-                             "Supported types: %s" % (
-                ad_src_type,  ", ".join(MISFIT_MAPPING.keys())))
+            raise ValueError(
+                "Adjoint source type '%s' not supported. Supported types: %s"
+                % (ad_src_type,  ", ".join(MISFIT_MAPPING.keys())))
 
         waveforms = self.comm.query.get_matching_waveforms(
             event=event_name, iteration=iteration_name,

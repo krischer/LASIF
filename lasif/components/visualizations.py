@@ -155,5 +155,3 @@ class VisualizationsComponent(Component):
             plt.close()
 
         return ax
-
-

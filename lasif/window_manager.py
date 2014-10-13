@@ -120,13 +120,13 @@ class WindowGroupManager(object):
         return len(self.list())
 
     def __str__(self):
-         return (
-             "WidowGroupManager containing windows for %i channels.\n"
-             "\tEvent name: %s\n"
-             "\tIteration: %s\n"
-             "\tWindow directory: %s\n" % (
-                 len(self), self._event_name, self._synthetic_tag,
-                 os.path.relpath(self._directory)))
+        return (
+            "WidowGroupManager containing windows for %i channels.\n"
+            "\tEvent name: %s\n"
+            "\tIteration: %s\n"
+            "\tWindow directory: %s\n" % (
+                len(self), self._event_name, self._synthetic_tag,
+                os.path.relpath(self._directory)))
 
     def list(self):
         """
@@ -189,7 +189,6 @@ class WindowGroupManager(object):
                        if _i.startswith(station_id + ".")]
         for channel in channel_ids:
             self.delete_windows_for_channel(channel)
-
 
     def _get_window_filename(self, channel_id):
         return os.path.join(self._directory, "window_%s.xml" % channel_id)
@@ -389,7 +388,7 @@ class WindowCollection(object):
                 # old format did not track it at all. This will also trigger
                 # a recalculation of the adjoint source in case no taper
                 # percentage has been set before.
-                w["taper_percentage"]  if "taper_percentage" in w else "0.05",
+                w["taper_percentage"] if "taper_percentage" in w else "0.05",
                 w["misfit"] if "misfit" in w else None)
 
     def write(self):
@@ -523,11 +522,11 @@ class Window(object):
         # No need to check the actual details as they by definition must be
         # identical if everything else is identical.
         return self.starttime == other.starttime and \
-               self.endtime == other.endtime and \
-               self.weight == other.weight and \
-               self.taper == other.taper and \
-               self.taper_percentage == other.taper_percentage and \
-               self.misfit_type == other.misfit_type
+            self.endtime == other.endtime and \
+            self.weight == other.weight and \
+            self.taper == other.taper and \
+            self.taper_percentage == other.taper_percentage and \
+            self.misfit_type == other.misfit_type
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -557,4 +556,3 @@ class Window(object):
         The length of the window in seconds.
         """
         return self.endtime - self.starttime
-

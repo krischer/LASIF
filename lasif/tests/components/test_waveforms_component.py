@@ -7,7 +7,6 @@ import os
 import pytest
 import shutil
 
-from lasif import LASIFNotFoundError, LASIFWarning
 from lasif.components.waveforms import WaveformsComponent
 from lasif.components.communicator import Communicator
 
@@ -33,5 +32,3 @@ def comm(tmpdir):
 def test_get_raw_metadata(comm):
     event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
     print comm.waveforms.get_metadata_raw(event_name)
-
-

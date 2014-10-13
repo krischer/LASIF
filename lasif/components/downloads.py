@@ -3,14 +3,12 @@
 from __future__ import absolute_import
 
 import copy
-import joblib
 import numpy as np
 import os
 
-from lasif import LASIFNotFoundError, rotations
+from lasif import rotations
 from ..utils import point_in_domain
 from .component import Component
-
 
 
 class DownloadsComponent(Component):
@@ -54,8 +52,8 @@ class DownloadsComponent(Component):
             starttime=starttime,
             endtime=endtime,
             network=None, station=None, location=None, channel=None,
-            minimum_interstation_distance_in_m=
-            ds["interstation_distance_in_m"],
+            minimum_interstation_distance_in_m=ds[
+                "interstation_distance_in_m"],
             location_priorities=ds["location_priorities"],
             channel_priorities=ds["channel_priorities"])
 

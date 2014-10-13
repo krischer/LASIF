@@ -259,8 +259,9 @@ class StationCache(FileInfoCache):
             ((end_date IS NULL) OR (end_date >= %i))
         LIMIT 1;
         """ % (channel_id, time, time)
+        # XXX: test
         result = self.db_cursor.execute(sql_query).fetchone()
-        from IPython.core.debugger import Tracer; Tracer(colors="Linux")()
+        return result
 
     def station_info_available(self, channel_id, time):
         """

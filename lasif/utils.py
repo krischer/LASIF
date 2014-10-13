@@ -173,8 +173,7 @@ def generate_specfem3d_globe_cem_template():
             E.simulate_rotation("true"),
             E.simulate_attenuation("true"),
             E.fast_undo_attenuation("false"),
-            E.use_gpu("false")
-            ))
+            E.use_gpu("false")))
 
     return doc
 
@@ -270,7 +269,7 @@ def channel2station(value):
     >>> channel2station("BW.FURT")
     'BW.FURT'
     """
-    return  ".".join(value.split(".")[:2])
+    return ".".join(value.split(".")[:2])
 
 
 def select_component_from_stream(st, component):
@@ -290,6 +289,7 @@ def select_component_from_stream(st, component):
         raise LASIFNotFoundError("More than 1 Trace with component %s found "
                                  "in Stream." % component)
     return component[0]
+
 
 def get_event_filename(event, prefix):
     """

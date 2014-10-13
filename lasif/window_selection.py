@@ -167,7 +167,6 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     data_starttime = data_trace.stats.starttime
     data_delta = data_trace.stats.delta
 
-
     # =========================================================================
     # initialisations
     # =========================================================================
