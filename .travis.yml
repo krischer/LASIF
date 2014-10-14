@@ -14,6 +14,9 @@ before_install:
   - ./miniconda.sh -b
   - export PATH=/home/travis/miniconda/bin:$PATH
   - conda update --yes conda
+  - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
+  - conda install --yes -n condaenv pip
+  - source activate condaenv
   # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
   - sudo rm -rf /dev/shm
   - sudo ln -s /run/shm /dev/shm
@@ -26,15 +29,14 @@ before_install:
   - pip install --use-mirrors geojson
   - pip install --use-mirrors future
   - pip install --use-mirrors "joblib>=0.8.0a3"
-  - pip install --use-mirrors matplotlib
-  - pip install pyqtgraph
+  - pip install --use-mirrors --no-deps pyqtgraph
   # The theme from the repository it also more up to date.
   - pip install --use-mirrors https://github.com/snide/sphinx_rtd_theme/archive/master.zip
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 
 install:
-  - pip install .
+  - pip install --no-deps .
 
 script:
   - cd $TRAVIS_BUILD_DIR; py.test

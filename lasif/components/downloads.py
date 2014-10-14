@@ -7,7 +7,7 @@ import numpy as np
 import os
 
 from lasif import rotations
-from ..utils import point_in_domain
+import lasif.domain
 from .component import Component
 
 
@@ -35,7 +35,7 @@ class DownloadsComponent(Component):
 
         proj = self.comm.project
 
-        if proj.domain == "global":
+        if isinstance(proj.domain, lasif.domain.GlobalDomain):
             domain = GlobalDomain()
         else:
             domain = self._get_spherical_section_domain(proj.domain)
@@ -94,13 +94,16 @@ class DownloadsComponent(Component):
         from obspy.fdsn.download_helpers import Domain
 
         # Make copies to assure the closure binds correctly.
-        d = copy.deepcopy(domain["bounds"])
-        rotation_angle = domain["rotation_angle"]
-        rotation_axis = copy.deepcopy(domain["rotation_axis"])
+        d = copy.deepcopy(domain)
+        min_lat = d.min_latitude
+        max_lat = d.max_latitude
+        min_lng = d.min_longitude
+        max_lng = d.max_longitude
+        rotation_angle = d.rotation_angle_in_degree
+        rotation_axis = d.rotation_axis
 
         min_lat, max_lat, min_lng, max_lng = self._get_maximum_bounds(
-            d["minimum_latitude"], d["maximum_latitude"],
-            d["minimum_longitude"], d["maximum_longitude"],
+            min_lat, max_lat, min_lng, max_lng,
             rotation_axis=rotation_axis,
             rotation_angle_in_degree=rotation_angle)
 
@@ -114,10 +117,8 @@ class DownloadsComponent(Component):
                 }
 
             def is_in_domain(self, latitude, longitude):
-                return point_in_domain(
-                    latitude=latitude, longitude=longitude, domain=d,
-                    rotation_axis=rotation_axis,
-                    rotation_angle_in_degree=rotation_angle)
+                return d.point_in_domain(latitude=latitude,
+                                         longitude=longitude)
 
         return SphericalSectionDomain()
 
