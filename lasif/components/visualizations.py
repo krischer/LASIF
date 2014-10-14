@@ -49,7 +49,7 @@ class VisualizationsComponent(Component):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
-        ax = self.comm.project.domain.plot()
+        map_object = self.comm.project.domain.plot()
 
         from lasif import visualization
 
@@ -62,10 +62,11 @@ class VisualizationsComponent(Component):
 
         # Plot the stations. This will also plot raypaths.
         visualization.plot_stations_for_event(
-            map_object=ax, station_dict=stations, event_info=event_info)
+            map_object=map_object, station_dict=stations,
+            event_info=event_info)
 
         # Plot the beachball for one event.
-        visualization.plot_events([event_info], ax=ax)
+        visualization.plot_events(events=[event_info], map_object=map_object)
 
     def plot_domain(self):
         """
@@ -82,7 +83,7 @@ class VisualizationsComponent(Component):
 
         plt.figure(figsize=(20, 21))
 
-        ax = self.comm.project.domain.plot()
+        map_object = self.comm.project.domain.plot()
 
         event_stations = []
         for event_name, event_info in \
@@ -94,11 +95,12 @@ class VisualizationsComponent(Component):
                 stations = {}
             event_stations.append((event_info, stations))
 
-        visualization.plot_raydensity(ax, event_stations,
-                                      self.comm.project.domain)
+        visualization.plot_raydensity(map_object=map_object,
+                                      station_events=event_stations,
+                                      domain=self.comm.project.domain)
 
         visualization.plot_events(self.comm.events.get_all_events().values(),
-                                  ax=ax)
+                                  map_object=map_object)
 
         plt.tight_layout()
 

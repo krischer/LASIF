@@ -33,29 +33,6 @@ from lasif.tests.testing_helpers import images_are_identical, \
     reset_matplotlib, DATA
 
 
-def setup_function(function):
-    """
-    Reset matplotlib.
-    """
-    reset_matplotlib()
-
-
-
-def test_event_plotting(project):
-    """
-    Tests the plotting of all events.
-
-    The commands supports three types of plots: Beachballs on a map and depth
-    and time distribution histograms.
-    """
-    project.plot_events(plot_type="map")
-    images_are_identical("two_events_plot_map", project.paths["root"])
-
-    project.plot_events(plot_type="depth")
-    images_are_identical("two_events_plot_depth", project.paths["root"])
-
-    project.plot_events(plot_type="time")
-    images_are_identical("two_events_plot_time", project.paths["root"])
 
 
 def test_event_info_retrieval(project):
@@ -268,23 +245,6 @@ def test_preprocessing_runs(project):
     assert os.path.exists(processing_dir)
     assert len(os.listdir(processing_dir)) == 4
 
-
-def test_single_event_plot(project):
-    """
-    Tests the plotting of a single event.
-    """
-    project.plot_event("GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
-    images_are_identical("single_event_plot", project.paths["root"])
-
-
-def test_simple_raydensity(project):
-    """
-    Tests the plotting of a single event.
-    """
-    project.plot_raydensity(save_plot=False)
-    # Use a low dpi to keep the test filesize in check.
-    images_are_identical("simple_raydensity_plot", project.paths["root"],
-                         dpi=25)
 
 
 def test_has_station_file(project):
@@ -596,20 +556,6 @@ def test_iteration_status(project):
     # HL.ARG has been remove before.
     assert sorted(status["synthetic_data_missing"][event]) == \
         ["HT.SIGR", "KO.KULA", "KO.RSDY"]
-
-
-def test_Q_model_plotting(project):
-    """
-    Tests the Q model plotting.
-    """
-    project.create_new_iteration("1", "ses3d_4_1", 11, 111)
-    with mock.patch("lasif.tools.Q_discrete.plot") as patch:
-        project.plot_Q_model("1")
-        patch.assert_called_once()
-        kwargs = patch.call_args[1]
-
-    assert round(kwargs["f_min"] - 1.0 / 111.0, 5) == 0
-    assert round(kwargs["f_max"] - 1.0 / 11.0, 5) == 0
 
 
 def test_get_debug_information_for_file(project):
