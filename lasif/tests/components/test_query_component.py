@@ -9,6 +9,7 @@ import shutil
 
 from lasif import LASIFError, LASIFNotFoundError
 from lasif.components.project import Project
+from ..testing_helpers import DATA
 
 
 @pytest.fixture()
@@ -97,6 +98,7 @@ def test_get_all_stations_for_event(comm):
     with pytest.raises(LASIFNotFoundError):
         comm.query.get_all_stations_for_event(event_2)
 
+
 def test_get_coordinates_for_station(comm):
     """
     Tests the get_coordiantes_for_station() method.
@@ -106,3 +108,63 @@ def test_get_coordinates_for_station(comm):
                                                      station_id="HL.ARG")
     assert station == {"latitude": 36.216, "local_depth_in_m": 0.0,
                        "elevation_in_m": 170.0, "longitude": 28.126}
+
+
+def test_get_debug_information_for_file(comm):
+    """
+    Test the what_is() method.
+    """
+    # Test for SEED files
+    info = comm.query.what_is(os.path.join(
+        comm.project.paths["dataless_seed"], "dataless.HL_ARG"))
+    assert info == (
+        "The SEED file contains information about 3 channels:\n"
+        "\tHL.ARG..BHE | 2003-03-04T00:00:00.000000Z - -- | Lat/Lng/Ele/Dep: "
+        "36.22/28.13/170.00/0.00\n"
+        "\tHL.ARG..BHN | 2003-03-04T00:00:00.000000Z - -- | Lat/Lng/Ele/Dep: "
+        "36.22/28.13/170.00/0.00\n"
+        "\tHL.ARG..BHZ | 2003-03-04T00:00:00.000000Z - -- | Lat/Lng/Ele/Dep: "
+        "36.22/28.13/170.00/0.00")
+
+    # Test a RESP file.
+    resp_file = os.path.join(comm.project.paths["resp"], "RESP.AF.DODT..BHE")
+    shutil.copy(os.path.join(DATA, "station_files", "resp",
+                             "RESP.AF.DODT..BHE"), resp_file)
+    # Manually reload the station cache.
+    comm.stations.force_cache_update()
+    info = comm.query.what_is(resp_file)
+    assert info == (
+        "The RESP file contains information about 1 channel:\n"
+        "\tAF.DODT..BHE | 2009-08-09T00:00:00.000000Z - -- | "
+        "Lat/Lng/Ele/Dep: --/--/--/--")
+
+    # Any other file should simply return an error.
+    with pytest.raises(LASIFError) as excinfo:
+        comm.query.what_is(os.path.join(DATA, "File_r"))
+    assert "is not part of the LASIF project." in excinfo.value.message
+    with pytest.raises(LASIFNotFoundError) as excinfo:
+        comm.query.what_is(os.path.join("random", "path"))
+    assert "does not exist" in excinfo.value.message
+
+    # Test a MiniSEED file.
+    info = comm.query.what_is(os.path.join(
+        comm.project.paths["data"],
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "raw", "HL.ARG..BHZ.mseed"))
+    assert info == (
+        "The MSEED file contains 1 channel:\n"
+        "	HL.ARG..BHZ | 2010-03-24T14:06:31.024999Z - "
+        "2010-03-24T15:11:30.974999Z | Lat/Lng/Ele/Dep: --/--/--/--")
+
+    # Testing a SAC file.
+    sac_file = os.path.join(
+        comm.project.paths["data"],
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "raw", "CA.CAVN..HHN.SAC_cut")
+    shutil.copy(os.path.join(DATA, "CA.CAVN..HHN.SAC_cut"), sac_file)
+    info = comm.query.what_is(sac_file)
+    assert info == (
+        "The SAC file contains 1 channel:\n"
+        "	CA.CAVN..HHN | 2008-02-20T18:28:02.997002Z - "
+        "2008-02-20T18:28:04.997002Z | Lat/Lng/Ele/Dep: "
+        "41.88/0.75/634.00/0.00")

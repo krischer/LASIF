@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import collections
 import os
 
-from lasif import LASIFNotFoundError
+from lasif import LASIFError, LASIFNotFoundError
 
 from .component import Component
 
@@ -397,6 +397,16 @@ class QueryComponent(Component):
         :param path: The path to the file.
         """
         path = os.path.normpath(os.path.abspath(path))
+
+        # File does not exist.
+        if not os.path.exists(path):
+            raise LASIFNotFoundError("Path '%s' does not exist." % path)
+        # File not part of the project.
+        if os.path.commonprefix([path, self.comm.project.paths["root"]]) \
+                != self.comm.project.paths["root"]:
+            raise LASIFError("File '%s' is not part of the LASIF project." %
+                             path)
+
         # Split in dir an folder to ease the rest.
         if os.path.isdir(path):
             return self.__what_is_this_folder(path)
@@ -442,6 +452,7 @@ class QueryComponent(Component):
     def __what_is_this_file(self, file_path):
         key = [_i[0] for _i in self.comm.project.paths.items() if _i[1] ==
                file_path]
+        # Deal with files defined by the project itsself.
         if key:
             key = key[0]
             info = {
@@ -455,5 +466,49 @@ class QueryComponent(Component):
             else:
                 ret_str = "Project file '%s'." % key
             return ret_str
+        # Deal with other files.
         else:
+            # Check if it is a subfolder of any of the other defined paths.
+            common_prefix = [_i for _i in self.comm.project.paths.items() if
+                             os.path.commonprefix([_i[1], file_path]) == _i[1]]
+            # Not a project file if nothing is found.
+            if not common_prefix:
+                return None
+            common_prefix.sort(key=lambda x: len(x[1]))
+            common_prefix = common_prefix[-1][0]
+            if common_prefix in ["dataless_seed", "resp", "stationxml"]:
+                return self.__what_is_this_station_file(file_path,
+                                                        filetype=common_prefix)
+            else:
+                raise NotImplementedError
             return None
+
+    def __what_is_this_station_file(self, file_path, filetype):
+        ft_map = {
+            "dataless_seed": "SEED", "resp": "RESP", "stationxml": "StationXML"
+        }
+        info = self.comm.stations.get_details_for_filename(file_path)
+        if info is None:
+            raise LASIFNotFoundError("File '%s' is not valid station file." %
+                                     file_path)
+
+        info = [
+            "\t%s | %s - %s | Lat/Lng/Ele/Dep: %s/%s/%s/%s" % (
+                _i["channel_id"],
+                str(_i["start_date"]),
+                str(_i["end_date"]) if _i["end_date"] else "--",
+                "%.2f" % _i["latitude"]
+                if _i["latitude"] is not None else "--",
+                "%.2f" % _i["longitude"]
+                if _i["longitude"] is not None else "--",
+                "%.2f" % _i["elevation_in_m"]
+                if _i["elevation_in_m"] is not None else "--",
+                "%.2f" % _i["local_depth_in_m"]
+                if _i["local_depth_in_m"] is not None else "--")
+            for _i in info]
+
+        return (
+            "The %s file contains information about %i channel%s:\n%s" % (
+                ft_map[filetype], len(info),
+                "s" if len(info) > 1 else "",
+                "\n".join(info)))
