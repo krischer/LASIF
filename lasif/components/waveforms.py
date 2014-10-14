@@ -56,7 +56,7 @@ class WaveformsComponent(Component):
                 c = self.get_waveform_cache(event, "raw")
             else:
                 c = self.get_waveform_cache(event, "processed",
-                                                  type_or_tag)
+                                            type_or_tag)
         elif os.path.commonprefix([absolute_filename, self._data_folder]) == \
                 self._synthetics_folder:
             relpath = os.path.relpath(absolute_filename,
@@ -185,7 +185,6 @@ class WaveformsComponent(Component):
                                  tag_or_iteration=iteration.long_name)
         network, station = station_id.split(".")
 
-
         # This maps the synthetic channels to ZNE.
         synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z",
                                          "E": "E", "N": "N"}
@@ -235,8 +234,8 @@ class WaveformsComponent(Component):
     def _get_waveforms(self, event_name, station_id, data_type,
                        tag_or_iteration=None):
         waveform_cache = self.get_waveform_cache(event_name,
-                                                       data_type,
-                                                       tag_or_iteration)
+                                                 data_type,
+                                                 tag_or_iteration)
         network, station = station_id.split(".")
         files = waveform_cache.get_files_for_station(network, station)
         if len(files) == 0:
@@ -315,7 +314,7 @@ class WaveformsComponent(Component):
         LASIFNotFoundError: ...
         """
         waveform_cache = self.get_waveform_cache(event_name,
-                                                       data_type="raw")
+                                                 data_type="raw")
         values = waveform_cache.get_values()
         if not values:
             msg = "No data for event '%s' found." % event_name
@@ -335,7 +334,7 @@ class WaveformsComponent(Component):
             at a particular point in time.
         """
         waveform_cache = self.get_waveform_cache(event_name,
-                                                       data_type="raw")
+                                                 data_type="raw")
         network_id, station_id = station_id.split(".")
         values = waveform_cache.get_files_for_station(network_id, station_id)
         if not values:
@@ -352,8 +351,8 @@ class WaveformsComponent(Component):
         :param tag: The processing tag.
         """
         waveform_cache = self.get_waveform_cache(event_name,
-                                                       data_type="processed",
-                                                       tag_or_iteration=tag)
+                                                 data_type="processed",
+                                                 tag_or_iteration=tag)
         values = waveform_cache.get_values()
         if not values:
             msg = "No data for event '%s' and processing tag '%s' found." % \
@@ -372,8 +371,8 @@ class WaveformsComponent(Component):
         :param station_id: The id of the station in the form NET.STA.
         """
         waveform_cache = self.get_waveform_cache(event_name,
-                                                       data_type="processed",
-                                                       tag_or_iteration=tag)
+                                                 data_type="processed",
+                                                 tag_or_iteration=tag)
         network_id, station_id = station_id.split(".")
         values = waveform_cache.get_files_for_station(network_id, station_id)
         if not values:

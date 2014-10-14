@@ -71,18 +71,17 @@ def test_iteration_handling(comm):
     comm.iterations.create_new_iteration(
         "2", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
     assert sorted(os.listdir(comm.project.paths["iterations"])) == \
-           sorted(["ITERATION_1.xml", "ITERATION_2.xml"])
+        sorted(["ITERATION_1.xml", "ITERATION_2.xml"])
 
     assert sorted(comm.iterations.list()) == sorted(["1", "2"])
-
 
     iteration = comm.iterations.get("1")
     # Assert that the aspects of the example project did get picked up by the
     # iteration. Only one event will be available as the other is empty.
     assert len(iteration.events) == 1
 
-    assert len(iteration.events["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"]
-    ["stations"]) == 4
+    assert len(iteration.events["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"][
+               "stations"]) == 4
     assert iteration.iteration_name == "1"
     assert iteration.source_time_function == "Filtered Heaviside"
     assert iteration.data_preprocessing["lowpass_period"] == 8.0

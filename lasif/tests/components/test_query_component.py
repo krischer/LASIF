@@ -188,19 +188,18 @@ def test_iteration_status(comm):
         set(["HL.ARG", "HT.SIGR", "KO.KULA", "KO.RSDY"])
     # The project only has synthetics for two stations.
     assert status[event]["missing_synthetic"] == \
-           set(["KO.KULA", "KO.RSDY"])
+        set(["KO.KULA", "KO.RSDY"])
     assert status[event]["missing_raw"] == set()
 
     # Preprocess some files.
-    comm.actions.preprocess_data("1", [event],
-                            waiting_time=0.0)
+    comm.actions.preprocess_data("1", [event], waiting_time=0.0)
 
     status = comm.query.get_iteration_status("1")
     assert [event] == status.keys()
     assert status[event]["fraction_of_stations_that_have_windows"] == 0.0
     assert status[event]["missing_processed"] == set()
     assert status[event]["missing_synthetic"] == \
-           set(["KO.KULA", "KO.RSDY"])
+        set(["KO.KULA", "KO.RSDY"])
     assert status[event]["missing_raw"] == set()
 
     # Remove one of the waveform files. This has the effect that the iteration
@@ -219,7 +218,7 @@ def test_iteration_status(comm):
     comm.waveforms.reset_cached_caches()
     status = comm.query.get_iteration_status("1")
     assert status[event]["missing_synthetic"] == \
-           set(["KO.KULA", "KO.RSDY"])
+        set(["KO.KULA", "KO.RSDY"])
     assert status[event]["missing_processed"] == set(["HL.ARG"])
     assert status[event]["missing_raw"] == set(["HL.ARG"])
 
@@ -230,7 +229,7 @@ def test_iteration_status(comm):
     comm.waveforms.reset_cached_caches()
     status = comm.query.get_iteration_status("1")
     assert status[event]["missing_synthetic"] == \
-           set(["KO.KULA", "KO.RSDY", "HT.SIGR", "HL.ARG"])
+        set(["KO.KULA", "KO.RSDY", "HT.SIGR", "HL.ARG"])
     assert status[event]["missing_processed"] == set(["HL.ARG"])
     assert status[event]["missing_raw"] == set(["HL.ARG"])
 
@@ -269,7 +268,7 @@ def test_data_synthetic_iterator(comm, recwarn):
     assert len(station_2.data) == 1
     assert len(station_2.synthetics) == 3
     assert set([".".join(tr.id.split(".")[:2]) for tr in station_2.data]) == \
-           set(["HT.SIGR"])
+        set(["HT.SIGR"])
     assert set([".".join(tr.id.split(".")[:2]) for tr in
                 station_2.synthetics]) == set(["HT.SIGR"])
 

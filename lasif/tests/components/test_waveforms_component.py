@@ -115,8 +115,8 @@ def test_waveform_cache_usage(comm):
     assert cache.cache_db_file == waveform_cache
     # Make sure the cache contains all files.
     assert sorted(cache.files["waveform"]) == \
-           sorted([os.path.join(waveform_folder, _i)
-                   for _i in os.listdir(waveform_folder)])
+        sorted([os.path.join(waveform_folder, _i)
+                for _i in os.listdir(waveform_folder)])
 
     # Tests an exemplary file.
     filename = os.path.join(comm.project.paths["data"], event_name, "raw",

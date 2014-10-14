@@ -8,7 +8,6 @@ import os
 import pytest
 import shutil
 
-from lasif.domain import RectangularSphericalSection
 from lasif.components.project import Project
 
 from ..testing_helpers import images_are_identical, reset_matplotlib

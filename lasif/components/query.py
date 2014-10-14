@@ -538,6 +538,5 @@ class QueryComponent(Component):
 
         return (
             "The %s file contains information about %i channel%s:\n%s" % (
-                ft_map[filetype], len(info),
-                "s" if len(info) > 1 else "",
+                ft_map[filetype], len(info), "s" if len(info) > 1 else "",
                 "\n".join(info)))

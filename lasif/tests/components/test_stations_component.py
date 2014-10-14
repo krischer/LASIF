@@ -131,6 +131,7 @@ def test_has_channel(comm):
             assert comm.stations.has_channel(channel["channel_id"],
                                              obspy.UTCDateTime(2030, 1, 1))
 
+
 def test_get_station_filename(comm):
     all_channels = comm.stations.get_all_channels()
     for channel in all_channels:
@@ -192,7 +193,7 @@ def test_station_filename_generator(project_comm):
     assert os.path.dirname(existing_seed_filename) == \
         os.path.dirname(new_seed_filename)
     assert os.path.dirname(new_seed_filename) == \
-           comm.project.paths["dataless_seed"]
+        comm.project.paths["dataless_seed"]
 
     # Test RESP file name generation.
     resp_filename_1 = comm.stations.get_station_filename(

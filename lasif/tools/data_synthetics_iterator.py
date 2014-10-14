@@ -28,7 +28,7 @@ class DataSyntheticIterator(object):
 
         # Get all stations defined for the given iteration and event.
         stations = set(self.iteration.events[self.event_name][
-           "stations"].keys())
+                       "stations"].keys())
 
         # Only use those stations that actually have processed and synthetic
         # data available! Especially synthetics might not always be available.

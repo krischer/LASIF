@@ -259,7 +259,6 @@ class ValidatorComponent(Component):
         import math
         from obspy import readEvents
         from obspy.core.quakeml import _validate as validate_quakeml
-        from lasif import utils
         from lxml import etree
 
         print "Validating %i event files ..." % self.comm.events.count()
