@@ -7,7 +7,7 @@ env:
   global:
     secure: GStdSQ10ql5pKTEH0HGpZsZjlQnX2CgRAccZ0Pr4aTk7KbaCpZyAJQXdBTSaM1qzZo5QFn5tmIwBXljI4nncdwhAMM5NIKSTZwY+wmpCrLvRI0WrJarfGuK8lwV4NrPWkfCd8qfKx/6MERgrCvCUviXLFZf3YamB5o8icuur7jo=
 before_install:
-  - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-lxml python-sqlalchemy libgeos-3.2.2 libgeos-dev python-matplotlib python-mpltoolkits.basemap python-mpltoolkits.basemap-data
+  - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-lxml python-sqlalchemy libgeos-3.2.2 libgeos-dev python-qt4
   - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
   - pip install --use-mirrors suds-jurko
   - pip install --use-mirrors geographiclib
@@ -20,6 +20,10 @@ before_install:
   - pip install --use-mirrors sphinx
   - pip install --use-mirrors future
   - pip install --use-mirrors "joblib>=0.8.0a3"
+  - pip install --use-mirrors matplotlib
+  - pip install --use-mirrors basemap
+  - pip install --user-mirrors basemap --allow-external basemap --allow-unverified basemap
+  - pip install pyqtgraph
   # The theme from the repository it also more up to date.
   - pip install --use-mirrors https://github.com/snide/sphinx_rtd_theme/archive/master.zip
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
