@@ -63,11 +63,20 @@ part of the project.
 
 .. plot::
 
+    from lasif import domain
     import lasif.visualization
     from obspy import UTCDateTime
-    bmap = lasif.visualization.plot_domain(-10.0, 10.0, -10.0, 10.0, 2.5,
-        rotation_axis=[1.0, 1.0, 0.2], rotation_angle_in_degree=-65.0,
-        plot_simulation_domain=False, zoom=True)
+
+    bmap = domain.RectangularSphericalSection(
+        min_latitude=-10,
+        max_latitude=10,
+        min_longitude=-10,
+        max_longitude=10,
+        min_depth_in_km=0,
+        max_depth_in_km=1440,
+        boundary_width_in_degree=2.5,
+        rotation_axis=[1.0, 1.0, 0.2],
+        rotation_angle_in_degree=-65.0).plot(plot_simulation_domain=True)
     events = [{
         'depth_in_km': 9.0,
         'event_name': 'GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2',
