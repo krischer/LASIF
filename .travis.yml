@@ -1,40 +1,45 @@
 language: python
+
 python:
   - "2.7"
-virtualenv:
-  system_site_packages: true
+
 env:
   global:
     secure: GStdSQ10ql5pKTEH0HGpZsZjlQnX2CgRAccZ0Pr4aTk7KbaCpZyAJQXdBTSaM1qzZo5QFn5tmIwBXljI4nncdwhAMM5NIKSTZwY+wmpCrLvRI0WrJarfGuK8lwV4NrPWkfCd8qfKx/6MERgrCvCUviXLFZf3YamB5o8icuur7jo=
+
 before_install:
-  - sudo apt-get install -qq gfortran python-dev python-numpy python-scipy python-lxml python-sqlalchemy libgeos-3.2.2 libgeos-dev python-qt4
+  - sudo apt-get install -qq gfortran
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
+  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
+  - sudo rm -rf /dev/shm
+  - sudo ln -s /run/shm /dev/shm
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose pytest flake8 colorama flask sphinx basemap
   - pip install https://github.com/yarikoptic/coveralls-python/archive/master.zip
   - pip install --use-mirrors suds-jurko
   - pip install --use-mirrors geographiclib
   - pip install --use-mirrors progressbar
-  - pip install --use-mirrors flake8
-  - pip install --use-mirrors colorama
-  - pip install --use-mirrors flask
   - pip install --use-mirrors flask-cache
   - pip install --use-mirrors geojson
-  - pip install --use-mirrors sphinx
   - pip install --use-mirrors future
   - pip install --use-mirrors "joblib>=0.8.0a3"
   - pip install --use-mirrors matplotlib
-  - pip install --use-mirrors basemap --allow-external basemap --allow-unverified basemap
   - pip install pyqtgraph
   # The theme from the repository it also more up to date.
   - pip install --use-mirrors https://github.com/snide/sphinx_rtd_theme/archive/master.zip
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
+
+install:
+  - pip install .
+
 script:
   - cd $TRAVIS_BUILD_DIR; py.test
   - cd $TRAVIS_BUILD_DIR/doc; make html
-install:
-  # Python's multiprocessing shared memory requires /dev/shm with r/w access.
-  # The VM's in travis do not offer this.
-  - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
-  - pip install  --no-deps .
+
 # Upload any potentially produced diffs and produced images to imgur after a test failure.
 after_failure:
   - wget "http://imgur.com/tools/imgurbash.sh"
