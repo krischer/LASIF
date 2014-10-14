@@ -142,13 +142,15 @@ class WaveformsComponent(Component):
         :param long_iteration_name: The long form of an iteration name.
         """
         from lasif import rotations
+        import lasif.domain
+
+        iteration = self.comm.iterations.get(long_iteration_name)
 
         st = self._get_waveforms(event_name, station_id,
                                  data_type="synthetic",
-                                 tag_or_iteration=long_iteration_name)
+                                 tag_or_iteration=iteration.long_name)
         network, station = station_id.split(".")
 
-        iteration = self.comm.iterations.get(long_iteration_name)
 
         # This maps the synthetic channels to ZNE.
         synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z",
@@ -164,9 +166,13 @@ class WaveformsComponent(Component):
             tr.stats.channel = \
                 synthetic_coordinates_mapping[tr.stats.channel]
 
-        if "specfem" not in iteration.solver_settings["solver"].lower():
+        # Rotate if needed.
+        domain = self.comm.project.domain
+        if "specfem" not in iteration.solver_settings["solver"].lower() and \
+                isinstance(domain,
+                           lasif.domain.RectangularSphericalSection) and \
+                domain.rotation_angle_in_degree:
             # Also need to be rotated.
-            domain = self.comm.project.domain
 
             # Coordinates are required for the rotation.
             coordinates = self.comm.query.get_coordinates_for_station(
@@ -176,15 +182,15 @@ class WaveformsComponent(Component):
             # recorded.
             lat, lng = rotations.rotate_lat_lon(
                 coordinates["latitude"], coordinates["longitude"],
-                domain["rotation_axis"], -domain["rotation_angle"])
+                domain.rotation_axis, domain.rotation_angle_in_degree)
             # Rotate the synthetics.
             n, e, z = rotations.rotate_data(
                 st.select(channel="N")[0].data,
                 st.select(channel="E")[0].data,
                 st.select(channel="Z")[0].data,
                 lat, lng,
-                domain["rotation_axis"],
-                domain["rotation_angle"])
+                domain.rotation_axis,
+                domain.rotation_angle)
             st.select(channel="N")[0].data = n
             st.select(channel="E")[0].data = e
             st.select(channel="Z")[0].data = z
@@ -219,6 +225,7 @@ class WaveformsComponent(Component):
         st = obspy.Stream()
         for single_file in files:
             st += obspy.read(single_file["filename"])
+        st.sort()
         return st
 
     def get_metadata_raw(self, event_name):

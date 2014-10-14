@@ -7,7 +7,7 @@ import os
 import pytest
 import shutil
 
-from lasif import LASIFError
+from lasif import LASIFError, LASIFNotFoundError
 from lasif.components.project import Project
 
 
@@ -75,3 +75,34 @@ def test_discover_available_data(comm):
         {"processed": {processing_tag: ["Z"]},
          "synthetic": {},
          "raw": {"raw": ["Z"]}}
+
+
+def test_get_all_stations_for_event(comm):
+    """
+    Tests the get_all_stations_for_event method.
+    """
+    event_1 = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    event_2 = "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"
+
+    # Get all stations for event_1.
+    stations_1 = comm.query.get_all_stations_for_event(event_1)
+    assert len(stations_1) == 4
+    assert sorted(stations_1.keys()) == sorted(["HL.ARG", "HT.SIGR", "KO.KULA",
+                                                "KO.RSDY"])
+    assert stations_1["HL.ARG"] == {
+        "latitude": 36.216, "local_depth_in_m": 0.0, "elevation_in_m": 170.0,
+        "longitude": 28.126}
+
+    # event_2 has no stations.
+    with pytest.raises(LASIFNotFoundError):
+        comm.query.get_all_stations_for_event(event_2)
+
+def test_get_coordinates_for_station(comm):
+    """
+    Tests the get_coordiantes_for_station() method.
+    """
+    event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    station = comm.query.get_coordinates_for_station(event,
+                                                     station_id="HL.ARG")
+    assert station == {"latitude": 36.216, "local_depth_in_m": 0.0,
+                       "elevation_in_m": 170.0, "longitude": 28.126}
