@@ -25,7 +25,7 @@ before_install:
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 script:
-  - cd $TRAVIS_BUILD_DIR/lasif; py.test
+  - cd $TRAVIS_BUILD_DIR; py.test
   - cd $TRAVIS_BUILD_DIR/doc; make html
 install:
   # Python's multiprocessing shared memory requires /dev/shm with r/w access.
