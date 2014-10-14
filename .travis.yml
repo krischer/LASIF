@@ -21,7 +21,7 @@ before_install:
   - pip install --use-mirrors future
   - pip install --use-mirrors "joblib>=0.8.0a3"
   - pip install --use-mirrors matplotlib
-  - pip install --user-mirrors basemap --allow-external basemap --allow-unverified basemap
+  - pip install --use-mirrors basemap --allow-external basemap --allow-unverified basemap
   - pip install pyqtgraph
   # The theme from the repository it also more up to date.
   - pip install --use-mirrors https://github.com/snide/sphinx_rtd_theme/archive/master.zip
