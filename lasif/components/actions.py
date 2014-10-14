@@ -339,22 +339,17 @@ class ActionsComponent(Component):
 
             # Configure the mesh.
             domain = self.comm.project.domain
-            gen.config.mesh_min_latitude = \
-                domain["bounds"]["minimum_latitude"]
-            gen.config.mesh_max_latitude = \
-                domain["bounds"]["maximum_latitude"]
-            gen.config.mesh_min_longitude = \
-                domain["bounds"]["minimum_longitude"]
-            gen.config.mesh_max_longitude = \
-                domain["bounds"]["maximum_longitude"]
-            gen.config.mesh_min_depth_in_km = \
-                domain["bounds"]["minimum_depth_in_km"]
-            gen.config.mesh_max_depth_in_km = \
-                domain["bounds"]["maximum_depth_in_km"]
+            gen.config.mesh_min_latitude = domain.min_latitude
+            gen.config.mesh_max_latitude = domain.max_latitude
+            gen.config.mesh_min_longitude = domain.min_longitude
+            gen.config.mesh_max_longitude = domain.max_longitude
+            gen.config.mesh_min_depth_in_km = domain.min_depth_in_km
+            gen.config.mesh_max_depth_in_km = domain.max_depth_in_km
 
             # Set the rotation parameters.
-            gen.config.rotation_angle_in_degree = domain["rotation_angle"]
-            gen.config.rotation_axis = domain["rotation_axis"]
+            gen.config.rotation_angle_in_degree = \
+                domain.rotation_angle_in_degree
+            gen.config.rotation_axis = domain.rotation_axis
 
             # Make source time function
             gen.config.source_time_function = \

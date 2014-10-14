@@ -15,7 +15,6 @@ from lasif import LASIFNotFoundError
 
 class DataSyntheticIterator(object):
     def __init__(self, comm, iteration, event):
-
         self.comm = comm
         self.event = self.comm.events.get(event)
         self.iteration = self.comm.iterations.get(iteration)
@@ -28,8 +27,21 @@ class DataSyntheticIterator(object):
             raise LASIFNotFoundError(msg)
 
         # Get all stations defined for the given iteration and event.
-        self.stations = tuple(sorted(
-            self.iteration.events[self.event_name]["stations"].keys()))
+        stations = set(self.iteration.events[self.event_name][
+           "stations"].keys())
+
+        # Only use those stations that actually have processed and synthetic
+        # data available! Especially synthetics might not always be available.
+        processed = comm.waveforms.get_metadata_processed(
+            self.event_name, self.iteration.processing_tag)
+        synthetics = comm.waveforms.get_metadata_synthetic(
+            self.event_name, self.iteration)
+        processed = set(["%s.%s" % (_i["network"], _i["station"]) for _i in
+                         processed])
+        synthetics = set(["%s.%s" % (_i["network"], _i["station"]) for _i in
+                         synthetics])
+        self.stations = tuple(sorted(stations.intersection(
+            processed).intersection(synthetics)))
 
         self._current_index = -1
 

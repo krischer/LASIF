@@ -470,8 +470,8 @@ class ValidatorComponent(Component):
             self._print_fail_message()
 
     def is_event_station_raypath_within_boundaries(
-            self, event_latitude, event_longitude, station_latitude,
-            station_longitude, raypath_steps=25):
+            self, event_name, station_latitude, station_longitude,
+            raypath_steps=25):
         """
         Checks if the full station-event raypath is within the project's domain
         boundaries.
@@ -490,18 +490,23 @@ class ValidatorComponent(Component):
         :param raypath_steps: The number of discrete points along the raypath
             that will be checked. Optional.
         """
-        from lasif.utils import greatcircle_points, Point, point_in_domain
+        from lasif.utils import greatcircle_points, Point
+        import lasif.domain
+
+        ev = self.comm.events.get(event_name)
 
         domain = self.comm.project.domain
 
+        # Shortcircuit.
+        if isinstance(domain, lasif.domain.GlobalDomain):
+            return True
+
         for point in greatcircle_points(
                 Point(station_latitude, station_longitude),
-                Point(event_latitude, event_longitude),
+                Point(ev["latitude"], ev["longitude"]),
                 max_npts=raypath_steps):
 
-            if not point_in_domain(
-                    point.lat, point.lng, domain["bounds"],
-                    rotation_axis=domain["rotation_axis"],
-                    rotation_angle_in_degree=domain["rotation_angle"]):
+            if not domain.point_in_domain(latitude=point.lat,
+                                          longitude=point.lng):
                 return False
         return True

@@ -24,6 +24,24 @@ def comm(tmpdir):
     return project.comm
 
 
+def test_get_metadata_synthetic(comm):
+    """
+    Tests the get metadata synthetic function.
+    """
+    ev = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    comm.iterations.create_new_iteration(
+        "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+    meta = comm.waveforms.get_metadata_synthetic(ev, "1")
+    channel_ids = sorted([_i["channel_id"] for _i in meta])
+    assert channel_ids == sorted([
+        "HL.ARG..X",
+        "HL.ARG..Y",
+        "HL.ARG..Z",
+        "HT.SIGR..X",
+        "HT.SIGR..Y",
+        "HT.SIGR..Z"])
+
+
 def test_reading_synthetics(comm):
     """
     Tests the reading of synthetic files..

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import glob
 import inspect
 import os
 import pytest
@@ -169,3 +170,107 @@ def test_get_debug_information_for_file(comm):
         "	CA.CAVN..HHN | 2008-02-20T18:28:02.997002Z - "
         "2008-02-20T18:28:04.997002Z | Lat/Lng/Ele/Dep: "
         "41.88/0.75/634.00/0.00")
+
+
+def test_iteration_status(comm):
+    """
+    Tests the iteration status commands.
+    """
+    comm.iterations.create_new_iteration(
+        "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+    event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+
+    # Currenty the project has 4 files, that are not preprocessed.
+    status = comm.query.get_iteration_status("1")
+    assert [event] == status.keys()
+    assert status[event]["fraction_of_stations_that_have_windows"] == 0.0
+    assert status[event]["missing_processed"] == \
+        set(["HL.ARG", "HT.SIGR", "KO.KULA", "KO.RSDY"])
+    # The project only has synthetics for two stations.
+    assert status[event]["missing_synthetic"] == \
+           set(["KO.KULA", "KO.RSDY"])
+    assert status[event]["missing_raw"] == set()
+
+    # Preprocess some files.
+    comm.actions.preprocess_data("1", [event],
+                            waiting_time=0.0)
+
+    status = comm.query.get_iteration_status("1")
+    assert [event] == status.keys()
+    assert status[event]["fraction_of_stations_that_have_windows"] == 0.0
+    assert status[event]["missing_processed"] == set()
+    assert status[event]["missing_synthetic"] == \
+           set(["KO.KULA", "KO.RSDY"])
+    assert status[event]["missing_raw"] == set()
+
+    # Remove one of the waveform files. This has the effect that the iteration
+    # contains a file that is not actually in existance. This should be
+    # detected.
+    proc_folder = os.path.join(
+        comm.project.paths["data"], event,
+        comm.iterations.get("1").processing_tag)
+    data_folder = os.path.join(comm.project.paths["data"], event, "raw")
+
+    data_file = sorted(glob.glob(os.path.join(data_folder, "*")))[0]
+    proc_file = sorted(glob.glob(os.path.join(proc_folder, "*")))[0]
+    os.remove(data_file)
+    os.remove(proc_file)
+
+    comm.waveforms.reset_cached_caches()
+    status = comm.query.get_iteration_status("1")
+    assert status[event]["missing_synthetic"] == \
+           set(["KO.KULA", "KO.RSDY"])
+    assert status[event]["missing_processed"] == set(["HL.ARG"])
+    assert status[event]["missing_raw"] == set(["HL.ARG"])
+
+    # Now remove all synthetics. This should have the result that all
+    # synthetics are missing.
+    for folder in os.listdir(comm.project.paths["synthetics"]):
+        shutil.rmtree(os.path.join(comm.project.paths["synthetics"], folder))
+    comm.waveforms.reset_cached_caches()
+    status = comm.query.get_iteration_status("1")
+    assert status[event]["missing_synthetic"] == \
+           set(["KO.KULA", "KO.RSDY", "HT.SIGR", "HL.ARG"])
+    assert status[event]["missing_processed"] == set(["HL.ARG"])
+    assert status[event]["missing_raw"] == set(["HL.ARG"])
+
+
+def test_data_synthetic_iterator(comm, recwarn):
+    """
+    Tests that the data synthetic iterator works as expected.
+    """
+    # It requires an existing iteration with processed data.
+    comm.iterations.create_new_iteration(
+        "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+    comm.actions.preprocess_data(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", waiting_time=0.0)
+
+    iterator = comm.query.get_data_and_synthetics_iterator(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+
+    # The example project only contains synthetics for two stations.
+    expected = {
+        "HL.ARG": {"latitude": 36.216, "local_depth_in_m": 0.0,
+                   "elevation_in_m": 170.0, "longitude": 28.126},
+        "HT.SIGR": {"latitude": 39.2114, "local_depth_in_m": 0.0,
+                    "elevation_in_m": 93.0, "longitude": 25.8553}}
+
+    station_1 = iterator.next()
+    assert station_1.coordinates == expected["HL.ARG"]
+    assert len(station_1.data) == 1
+    assert len(station_1.synthetics) == 3
+    assert set([".".join(tr.id.split(".")[:2]) for tr in station_1.data]) == \
+        set(["HL.ARG"])
+    assert set([".".join(tr.id.split(".")[:2]) for tr in
+                station_1.synthetics]) == set(["HL.ARG"])
+
+    station_2 = iterator.next()
+    assert station_2.coordinates == expected["HT.SIGR"]
+    assert len(station_2.data) == 1
+    assert len(station_2.synthetics) == 3
+    assert set([".".join(tr.id.split(".")[:2]) for tr in station_2.data]) == \
+           set(["HT.SIGR"])
+    assert set([".".join(tr.id.split(".")[:2]) for tr in
+                station_2.synthetics]) == set(["HT.SIGR"])
+
+    assert recwarn.list == []
