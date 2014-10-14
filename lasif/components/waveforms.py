@@ -53,16 +53,16 @@ class WaveformsComponent(Component):
             relpath = os.path.relpath(absolute_filename, self._data_folder)
             event, type_or_tag, filename = relpath.split(os.path.sep)
             if type_or_tag == "raw":
-                c = self._get_waveform_cache_file(event, "raw")
+                c = self.get_waveform_cache(event, "raw")
             else:
-                c = self._get_waveform_cache_file(event, "processed",
+                c = self.get_waveform_cache(event, "processed",
                                                   type_or_tag)
         elif os.path.commonprefix([absolute_filename, self._data_folder]) == \
                 self._synthetics_folder:
             relpath = os.path.relpath(absolute_filename,
                                       self._synthetics_folder)
             event, iteration, filename = relpath.split(os.path.sep)
-            c = self._get_waveform_cache_file(event, "synthetic", iteration)
+            c = self.get_waveform_cache(event, "synthetic", iteration)
         else:
             raise LASIFError("Invalid path.")
 
@@ -95,8 +95,7 @@ class WaveformsComponent(Component):
         else:
             raise ValueError("Invalid data type '%s'." % data_type)
 
-    def _get_waveform_cache_file(self, event_name, data_type,
-                                 tag_or_iteration=None):
+    def get_waveform_cache(self, event_name, data_type, tag_or_iteration=None):
         if data_type == "synthetic":
             tag_or_iteration = \
                 self.comm.iterations.get(tag_or_iteration).long_name
@@ -235,7 +234,7 @@ class WaveformsComponent(Component):
 
     def _get_waveforms(self, event_name, station_id, data_type,
                        tag_or_iteration=None):
-        waveform_cache = self._get_waveform_cache_file(event_name,
+        waveform_cache = self.get_waveform_cache(event_name,
                                                        data_type,
                                                        tag_or_iteration)
         network, station = station_id.split(".")
@@ -315,7 +314,7 @@ class WaveformsComponent(Component):
             ...
         LASIFNotFoundError: ...
         """
-        waveform_cache = self._get_waveform_cache_file(event_name,
+        waveform_cache = self.get_waveform_cache(event_name,
                                                        data_type="raw")
         values = waveform_cache.get_values()
         if not values:
@@ -335,7 +334,7 @@ class WaveformsComponent(Component):
         :returns: A list of dictionaries, each describing channel level data
             at a particular point in time.
         """
-        waveform_cache = self._get_waveform_cache_file(event_name,
+        waveform_cache = self.get_waveform_cache(event_name,
                                                        data_type="raw")
         network_id, station_id = station_id.split(".")
         values = waveform_cache.get_files_for_station(network_id, station_id)
@@ -352,7 +351,7 @@ class WaveformsComponent(Component):
         :param event_name: The name of the event.
         :param tag: The processing tag.
         """
-        waveform_cache = self._get_waveform_cache_file(event_name,
+        waveform_cache = self.get_waveform_cache(event_name,
                                                        data_type="processed",
                                                        tag_or_iteration=tag)
         values = waveform_cache.get_values()
@@ -372,7 +371,7 @@ class WaveformsComponent(Component):
         :param tag: The processing tag.
         :param station_id: The id of the station in the form NET.STA.
         """
-        waveform_cache = self._get_waveform_cache_file(event_name,
+        waveform_cache = self.get_waveform_cache(event_name,
                                                        data_type="processed",
                                                        tag_or_iteration=tag)
         network_id, station_id = station_id.split(".")
@@ -397,7 +396,7 @@ class WaveformsComponent(Component):
             raise LASIFNotFoundError(
                 "Iteration '%s' does not contain event '%s'." % (it.name,
                                                                  event_name))
-        waveform_cache = self._get_waveform_cache_file(
+        waveform_cache = self.get_waveform_cache(
             event_name, data_type="synthetic",
             tag_or_iteration=long_iteration_name)
         values = waveform_cache.get_values()
@@ -419,7 +418,7 @@ class WaveformsComponent(Component):
         :param long_iteration_name: The long form of the iteration name.
         :param station_id: The id of the station in the form NET.STA.
         """
-        waveform_cache = self._get_waveform_cache_file(
+        waveform_cache = self.get_waveform_cache(
             event_name, data_type="synthetic",
             tag_or_iteration=long_iteration_name)
         network_id, station_id = station_id.split(".")

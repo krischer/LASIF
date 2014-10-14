@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import glob
 import inspect
 import obspy
 import os
@@ -10,6 +11,7 @@ import pytest
 from lasif import LASIFNotFoundError
 from lasif.components.stations import StationsComponent
 from lasif.components.communicator import Communicator
+from .test_project_component import comm as project_comm  # NOQA
 
 
 @pytest.fixture
@@ -29,6 +31,29 @@ def comm(tmpdir):
         component_name="stations")
     comm.cache_dir = tmpdir
     return comm
+
+
+def test_has_channel(project):
+    """
+    Tests if the has_channel_method().
+    """
+    assert comm.has_channel(
+        "HL.ARG..BHZ", obspy.UTCDateTime(2010, 3, 24, 14, 30)) is True
+    assert comm.has_channel(
+        "HT.SIGR..HHZ", obspy.UTCDateTime(2010, 3, 24, 14, 30)) is True
+    assert comm.has_channel(
+        "KO.KULA..BHZ", obspy.UTCDateTime(2010, 3, 24, 14, 30)) is True
+    assert comm.has_channel(
+        "KO.RSDY..BHZ", obspy.UTCDateTime(2010, 3, 24, 14, 30)) is True
+
+    assert comm.has_channel(
+        "HL.ARG..BHZ", obspy.UTCDateTime(1970, 3, 24, 14, 30)) is False
+    assert comm.has_channel(
+        "HT.SIGR..HHZ", obspy.UTCDateTime(1970, 3, 24, 14, 30)) is False
+    assert comm.has_channel(
+        "KO.KULA..BHZ", obspy.UTCDateTime(1970, 3, 24, 14, 30)) is False
+    assert comm.has_channel(
+        "KO.RSDY..BHZ", obspy.UTCDateTime(1970, 3, 24, 14, 30)) is False
 
 
 def test_station_cache_update(comm):
@@ -106,7 +131,6 @@ def test_has_channel(comm):
             assert comm.stations.has_channel(channel["channel_id"],
                                              obspy.UTCDateTime(2030, 1, 1))
 
-
 def test_get_station_filename(comm):
     all_channels = comm.stations.get_all_channels()
     for channel in all_channels:
@@ -150,3 +174,36 @@ def test_all_coordinates_at_time(comm):
     assert sorted(channels.keys()) == sorted(
         ["G.FDF.00.BHZ", "G.FDF.00.BHN", "G.FDF.00.BHE", "AF.DODT..BHE",
          "BW.FURT..EHE", "BW.FURT..EHN", "BW.FURT..EHZ", "IU.ANMO.10.BHZ"])
+
+
+def test_station_filename_generator(project_comm):
+    """
+    Make sure existing stations are not overwritten by creating unique new
+    station filenames. This is used when downloading new station files.
+    """
+    comm = project_comm
+    new_seed_filename = comm.stations.get_station_filename(
+        "HL", "ARG", "", "BHZ", "datalessSEED")
+    existing_seed_filename = glob.glob(os.path.join(
+        comm.project.paths["dataless_seed"], "dataless.HL_*"))[0]
+
+    assert os.path.exists(existing_seed_filename)
+    assert existing_seed_filename != new_seed_filename
+    assert os.path.dirname(existing_seed_filename) == \
+        os.path.dirname(new_seed_filename)
+    assert os.path.dirname(new_seed_filename) == \
+           comm.project.paths["dataless_seed"]
+
+    # Test RESP file name generation.
+    resp_filename_1 = comm.stations.get_station_filename(
+        "A", "B", "C", "D", "RESP")
+    assert not os.path.exists(resp_filename_1)
+    assert os.path.dirname(resp_filename_1) == comm.project.paths["resp"]
+    with open(resp_filename_1, "wt") as fh:
+        fh.write("blub")
+    assert os.path.exists(resp_filename_1)
+
+    resp_filename_2 = comm.stations.get_station_filename(
+        "A", "B", "C", "D", "RESP")
+    assert resp_filename_1 != resp_filename_2
+    assert os.path.dirname(resp_filename_2) == comm.project.paths["resp"]

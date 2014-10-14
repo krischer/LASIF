@@ -35,6 +35,13 @@ class EventsComponent(Component):
 
         super(EventsComponent, self).__init__(communicator, component_name)
 
+    def clear_cache(self):
+        """
+        Clears the cached events. Events are only cached within one instance
+        of the the EventsComponent in any case.
+        """
+        self.__event_info_cache = {}
+
     def list(self):
         """
         List of all events.

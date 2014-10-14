@@ -90,3 +90,45 @@ def test_reading_synthetics(comm):
     assert st[1].stats.starttime == origin_time
     assert st[2].stats.starttime == origin_time
 
+
+def test_waveform_cache_usage(comm):
+    """
+    Tests the automatic creation and usage of the waveform caches.
+    """
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    waveform_cache = os.path.join(comm.project.paths["data"], event_name,
+                                  "raw_cache.sqlite")
+    waveform_folder = os.path.join(comm.project.paths["data"], event_name,
+                                   "raw")
+
+    # The example project does not yet have the cache.
+    assert not os.path.exists(waveform_cache)
+
+    # Create the cache.
+    cache = comm.waveforms.get_waveform_cache(event_name, "raw")
+
+    # Make sure it now exists.
+    assert os.path.exists(waveform_cache)
+
+    # The cache has to point to the correct folder and file.
+    assert cache.waveform_folder == waveform_folder
+    assert cache.cache_db_file == waveform_cache
+    # Make sure the cache contains all files.
+    assert sorted(cache.files["waveform"]) == \
+           sorted([os.path.join(waveform_folder, _i)
+                   for _i in os.listdir(waveform_folder)])
+
+    # Tests an exemplary file.
+    filename = os.path.join(comm.project.paths["data"], event_name, "raw",
+                            "HL.ARG..BHZ.mseed")
+    assert os.path.exists(filename)
+    info = cache.get_details(filename)[0]
+    assert info["network"] == "HL"
+    assert info["station"] == "ARG"
+    assert info["location"] == ""
+    assert info["channel"] == "BHZ"
+    # The file does not contain information about the location of the station.
+    assert info["latitude"] is None
+    assert info["longitude"] is None
+    assert info["elevation_in_m"] is None
+    assert info["local_depth_in_m"] is None

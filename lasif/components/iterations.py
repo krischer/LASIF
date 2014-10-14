@@ -128,7 +128,7 @@ class IterationsComponent(Component):
         iteration_name = str(iteration_name)
         if iteration_name in self.get_iteration_dict():
             msg = "Iteration %s already exists." % iteration_name
-            raise ValueError(msg)
+            raise LASIFError(msg)
 
         from lasif.iteration_xml import create_iteration_xml_string
         xml_string = create_iteration_xml_string(iteration_name,

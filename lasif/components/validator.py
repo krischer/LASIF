@@ -50,7 +50,7 @@ class ValidatorComponent(Component):
         Helper method adding a new error message.
         """
         self._reports.append(message)
-        self._total_error_count[0] += error_count
+        self._total_error_count += error_count
 
     def validate_data(self, station_file_availability=False, raypaths=False,
                       waveforms=False):
@@ -136,8 +136,7 @@ class ValidatorComponent(Component):
                 # Check if the whole path of the event-station pair is within
                 # the domain boundaries.
                 if self.is_event_station_raypath_within_boundaries(
-                        event["latitude"], event["longitude"],
-                        value["latitude"], value["longitude"],
+                        event_name, value["latitude"], value["longitude"],
                         raypath_steps=12):
                     continue
                 # Otherwise get all waveform files for that station.
@@ -453,11 +452,8 @@ class ValidatorComponent(Component):
         all_good = True
         domain = self.comm.project.domain
         for event in event_infos:
-            if utils.point_in_domain(
-                    event["latitude"],
-                    event["longitude"], domain["bounds"],
-                    domain["rotation_axis"],
-                    domain["rotation_angle"]) is True:
+            if domain.point_in_domain(latitude=event["latitude"],
+                                      longitude=event["longitude"]):
                 continue
             all_good = False
             self._add_report(
