@@ -92,3 +92,20 @@ def test_config_file_caching(tmpdir):
     # Assert that nothing changed.
     assert config == pr.config
     assert domain == pr.domain
+
+
+def test_output_folder_name(comm):
+    """
+    Silly test to safeguard against regressions.
+    """
+    import obspy
+    cur_time = obspy.UTCDateTime()
+
+    output_dir = comm.project.get_output_folder("some_string")
+
+    basename = os.path.basename(output_dir)
+    time, tag = basename.split("___")
+    time = obspy.UTCDateTime(time)
+
+    assert (time - cur_time) <= 0.1
+    assert tag == "some_string"

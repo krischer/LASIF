@@ -62,6 +62,10 @@ class WaveformsComponent(Component):
 
     def _get_waveform_cache_file(self, event_name, data_type,
                                  tag_or_iteration=None):
+        if data_type == "synthetic":
+            tag_or_iteration = \
+                self.comm.iterations.get(tag_or_iteration).long_name
+
         data_path = self.get_waveform_folder(event_name, data_type,
                                              tag_or_iteration)
         if data_type == "raw":
@@ -344,6 +348,12 @@ class WaveformsComponent(Component):
         :param long_iteration_name: The long form of the iteration name.
         :param station_id: The id of the station in the form NET.STA.
         """
+        # Assure the iteration actually contains the event.
+        it = self.comm.iterations.get(long_iteration_name)
+        if event_name not in it.events:
+            raise LASIFNotFoundError(
+                "Iteration '%s' does not contain event '%s'." % (it.name,
+                                                                 event_name))
         waveform_cache = self._get_waveform_cache_file(
             event_name, data_type="synthetic",
             tag_or_iteration=long_iteration_name)
@@ -413,4 +423,15 @@ class WaveformsComponent(Component):
                     or not fnmatch.fnmatch(folder, "ITERATION_*"):
                 continue
             iterations.append(folder)
-        return iterations
+
+        # Make sure the iterations also contain the event and the stations.
+        its = []
+        for iteration in iterations:
+            try:
+                it = self.comm.iterations.get(iteration)
+            except LASIFNotFoundError:
+                continue
+            if event_name not in it.events:
+                continue
+            its.append(it.name)
+        return its

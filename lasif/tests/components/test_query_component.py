@@ -7,12 +7,8 @@ import os
 import pytest
 import shutil
 
-from lasif.components.communicator import Communicator
-from lasif.components.events import EventsComponent
-from lasif.components.inventory_db import InventoryDBComponent
-from lasif.components.query import QueryComponent
-from lasif.components.stations import StationsComponent
-from lasif.components.waveforms import WaveformsComponent
+from lasif import LASIFError
+from lasif.components.project import Project
 
 
 @pytest.fixture()
@@ -23,34 +19,59 @@ def comm(tmpdir):
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
 
-    comm = Communicator()
+    project = Project(project_root_path=proj_dir, init_project=False)
 
-    # Init the Inventory DB component.
-    db_file = os.path.join(tmpdir, "inventory_db.sqlite")
-    InventoryDBComponent(
-        db_file=db_file,
-        communicator=comm,
-        component_name="inventory_db")
+    return project.comm
 
-    # Init the waveform component.
-    data_folder = os.path.join(proj_dir, "DATA")
-    synthetics_folder = os.path.join(proj_dir, "SYNTHETICS")
-    WaveformsComponent(data_folder, synthetics_folder, comm, "waveforms")
 
-    # Init the events component.
-    EventsComponent(os.path.join(proj_dir, "EVENTS"), comm, "events")
+def test_discover_available_data(comm):
+    """
+    Tests the discover available data method.
+    """
+    event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
 
-    # Init the stations component.
-    StationsComponent(
-        stationxml_folder=os.path.join(proj_dir, "STATIONS",
-                                       "StationXML"),
-        seed_folder=os.path.join(proj_dir, "STATIONS", "SEED"),
-        resp_folder=os.path.join(proj_dir, "STATIONS", "RESP"),
-        cache_folder=tmpdir,
-        communicator=comm,
-        component_name="stations")
+    # At the beginning it contains nothing, except a raw vertical component
+    assert comm.query.discover_available_data(event, "HL.ARG") == \
+        {"processed": {}, "synthetic": {}, "raw": {"raw": ["Z"]}}
 
-    # Finally init the query component.
-    QueryComponent(communicator=comm, component_name="query")
+    # Create a new iteration. At this point it should contain some synthetics.
+    comm.iterations.create_new_iteration(
+        "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+    assert comm.query.discover_available_data(event, "HL.ARG") == \
+        {"processed": {},
+         "synthetic": {"1": ["Z", "N", "E"]},
+         "raw": {"raw": ["Z"]}}
 
-    return comm
+    # A new iteration without data does not add anything.
+    comm.iterations.create_new_iteration(
+        "2", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+    assert comm.query.discover_available_data(event, "HL.ARG") == \
+        {"processed": {},
+         "synthetic": {"1": ["Z", "N", "E"]},
+         "raw": {"raw": ["Z"]}}
+
+    # Data is also available for a second station. But not for another one.
+    assert comm.query.discover_available_data(event, "HT.SIGR") == \
+        {"processed": {},
+         "synthetic": {"1": ["Z", "N", "E"]},
+         "raw": {"raw": ["Z"]}}
+    assert comm.query.discover_available_data(event, "KO.KULA") == \
+        {"processed": {},
+         "synthetic": {},
+         "raw": {"raw": ["Z"]}}
+
+    # Requesting data for a non-existent station raises.
+    with pytest.raises(LASIFError):
+        comm.query.discover_available_data(event, "NET.STA")
+
+    # Now preprocess some data that then should appear.
+    processing_tag = comm.iterations.get("1").processing_tag
+    comm.actions.preprocess_data("1", [event], waiting_time=0.0)
+    assert comm.query.discover_available_data(event, "HT.SIGR") == \
+        {"processed": {processing_tag: ["Z"]},
+         "synthetic": {"1": ["Z", "N", "E"]},
+         "raw": {"raw": ["Z"]}}
+    assert comm.query.discover_available_data(event, "KO.KULA") == \
+        {"processed": {processing_tag: ["Z"]},
+         "synthetic": {},
+         "raw": {"raw": ["Z"]}}

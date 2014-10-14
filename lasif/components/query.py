@@ -348,24 +348,30 @@ class QueryComponent(Component):
         # Get the available synthetic and processing tags.
         proc_tags = self.comm.waveforms.get_available_processing_tags(
             event_name)
-        iterations = self.comm.waveforms.get_available_synthetics(event_name)
 
         for tag in proc_tags:
-            procs = self.comm.waveforms.get_metadata_processed_for_station(
-                event_name, tag, station_id)
+            try:
+                procs = self.comm.waveforms.get_metadata_processed_for_station(
+                    event_name, tag, station_id)
+            except LASIFNotFoundError:
+                continue
             comps = get_components(procs)
             if not comps:
                 continue
             all_files["processed"][tag] = comps
 
+        iterations = self.comm.waveforms.get_available_synthetics(event_name)
         synthetic_coordinates_mapping = {"X": "N",
                                          "Y": "E",
                                          "Z": "Z",
                                          "N": "N",
                                          "E": "E"}
         for it in iterations:
-            its = self.comm.waveforms.get_metadata_synthetic_for_station(
-                event_name, it, station_id)
+            try:
+                its = self.comm.waveforms.get_metadata_synthetic_for_station(
+                    event_name, it, station_id)
+            except LASIFNotFoundError:
+                continue
             comps = get_components(its)
             if not comps:
                 continue
