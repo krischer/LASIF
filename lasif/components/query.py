@@ -479,9 +479,38 @@ class QueryComponent(Component):
             if common_prefix in ["dataless_seed", "resp", "stationxml"]:
                 return self.__what_is_this_station_file(file_path,
                                                         filetype=common_prefix)
+            elif common_prefix in ["data", "synthetics"]:
+                return self.__what_is_this_waveform_file(
+                    file_path, filetype=common_prefix)
             else:
                 raise NotImplementedError
             return None
+
+    def __what_is_this_waveform_file(self, file_path, filetype):
+        import obspy
+        info = self.comm.waveforms.get_metadata_for_file(file_path)
+        st = obspy.read(file_path)
+
+        info = [
+            "\t%s | %s - %s | Lat/Lng/Ele/Dep: %s/%s/%s/%s" % (
+                _i["channel_id"],
+                str(obspy.UTCDateTime(_i["starttime_timestamp"])),
+                str(obspy.UTCDateTime(_i["endtime_timestamp"])),
+                "%.2f" % _i["latitude"]
+                if _i["latitude"] is not None else "--",
+                "%.2f" % _i["longitude"]
+                if _i["longitude"] is not None else "--",
+                "%.2f" % _i["elevation_in_m"]
+                if _i["elevation_in_m"] is not None else "--",
+                "%.2f" % _i["local_depth_in_m"]
+                if _i["local_depth_in_m"] is not None else "--")
+            for _i in info]
+
+        return (
+            "The %s file contains information about %i channel%s:\n%s" % (
+                st[0].stats._format, len(info),
+                "s" if len(info) > 1 else "",
+                "\n".join(info)))
 
     def __what_is_this_station_file(self, file_path, filetype):
         ft_map = {

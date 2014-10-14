@@ -152,7 +152,7 @@ def test_get_debug_information_for_file(comm):
         "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
         "raw", "HL.ARG..BHZ.mseed"))
     assert info == (
-        "The MSEED file contains 1 channel:\n"
+        "The MSEED file contains information about 1 channel:\n"
         "	HL.ARG..BHZ | 2010-03-24T14:06:31.024999Z - "
         "2010-03-24T15:11:30.974999Z | Lat/Lng/Ele/Dep: --/--/--/--")
 
@@ -162,9 +162,10 @@ def test_get_debug_information_for_file(comm):
         "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
         "raw", "CA.CAVN..HHN.SAC_cut")
     shutil.copy(os.path.join(DATA, "CA.CAVN..HHN.SAC_cut"), sac_file)
+    comm.waveforms.reset_cached_caches()
     info = comm.query.what_is(sac_file)
     assert info == (
-        "The SAC file contains 1 channel:\n"
+        "The SAC file contains information about 1 channel:\n"
         "	CA.CAVN..HHN | 2008-02-20T18:28:02.997002Z - "
         "2008-02-20T18:28:04.997002Z | Lat/Lng/Ele/Dep: "
         "41.88/0.75/634.00/0.00")

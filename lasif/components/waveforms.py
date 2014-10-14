@@ -9,7 +9,7 @@ import warnings
 
 import obspy
 
-from lasif import LASIFNotFoundError, LASIFWarning
+from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 from ..tools.cache_helpers.waveform_cache import WaveformCache
 from .component import Component
 
@@ -32,6 +32,41 @@ class WaveformsComponent(Component):
         self.__cache = {}
 
         super(WaveformsComponent, self).__init__(communicator, component_name)
+
+    def reset_cached_caches(self):
+        """
+        The waveform component caches the actual waveform caches to make its
+        access instant. This is usually ok, but sometimes new data is added
+        while the same instance of LASIF is still active. Thus the cached
+        caches need to be reset at times.
+        """
+        self.__cache = {}
+
+    def get_metadata_for_file(self, absolute_filename):
+        """
+        Returns the metadata for a certain file.
+
+        :param absolute_filename: The absolute path of the file.
+        """
+        if os.path.commonprefix([absolute_filename, self._data_folder]) == \
+                self._data_folder:
+            relpath = os.path.relpath(absolute_filename, self._data_folder)
+            event, type_or_tag, filename = relpath.split(os.path.sep)
+            if type_or_tag == "raw":
+                c = self._get_waveform_cache_file(event, "raw")
+            else:
+                c = self._get_waveform_cache_file(event, "processed",
+                                                  type_or_tag)
+        elif os.path.commonprefix([absolute_filename, self._data_folder]) == \
+                self._synthetics_folder:
+            relpath = os.path.relpath(absolute_filename,
+                                      self._synthetics_folder)
+            event, iteration, filename = relpath.split(os.path.sep)
+            c = self._get_waveform_cache_file(event, "synthetic", iteration)
+        else:
+            raise LASIFError("Invalid path.")
+
+        return c.get_details(absolute_filename)
 
     def get_waveform_folder(self, event_name, data_type,
                             tag_or_iteration=None):
@@ -190,11 +225,12 @@ class WaveformsComponent(Component):
                 st.select(channel="Z")[0].data,
                 lat, lng,
                 domain.rotation_axis,
-                domain.rotation_angle)
+                domain.rotation_angle_in_degree)
             st.select(channel="N")[0].data = n
             st.select(channel="E")[0].data = e
             st.select(channel="Z")[0].data = z
 
+        st.sort()
         return st
 
     def _get_waveforms(self, event_name, station_id, data_type,
