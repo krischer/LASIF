@@ -29,6 +29,7 @@ import mock
 import os
 import shutil
 
+import lasif
 from lasif.scripts import lasif_cli
 
 from lasif.tests.testing_helpers import communicator, cli  # NOQA
@@ -656,3 +657,12 @@ def test_debug_information(cli):
     # tested elsewhere.
     out = cli.run("lasif debug " + cli.comm.project.paths["config_file"])
     assert "The main project configuration file" in out.stdout
+
+
+def test_version_str(cli):
+    """
+    Tests if the version is printed correctly.
+    """
+    out = cli.run("lasif --version")
+    assert out.stderr == ""
+    assert out.stdout.strip() == "LASIF version %s" % lasif.__version__

@@ -1141,18 +1141,20 @@ def _print_generic_help(fcts):
     """
     Small helper function printing a generic help message.
     """
-    print(80 * "#")
+    print(100 * "#")
     header = ("{default_style}LASIF - Large Scale Seismic "
               "{inverted_style}Inversion"
-              "{default_style} Framework{reset_style}".format(
+              "{default_style} Framework{reset_style}  [Version {version}]"
+              .format(
                   default_style=colorama.Style.BRIGHT + colorama.Fore.WHITE +
                   colorama.Back.BLACK,
                   inverted_style=colorama.Style.BRIGHT + colorama.Fore.BLACK +
                   colorama.Back.WHITE,
-                  reset_style=colorama.Style.RESET_ALL))
-    print("\t" + header)
-    print("\thttp://krischer.github.io/LASIF")
-    print(80 * "#")
+                  reset_style=colorama.Style.RESET_ALL,
+                  version=lasif.__version__))
+    print("    " + header)
+    print("    http://krischer.github.io/LASIF")
+    print(100 * "#")
     print("\n{cmd}usage: lasif [--help] COMMAND [ARGS]{reset}\n".format(
         cmd=colorama.Style.BRIGHT + colorama.Fore.RED,
         reset=colorama.Style.RESET_ALL))
