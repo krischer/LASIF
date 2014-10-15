@@ -199,8 +199,25 @@ def preprocess_file(processing_info):
                    "RESP file '%s'. Will be skipped.") \
                 % processing_info["station_filename"],
             raise LASIFError(msg)
+    elif "/StationXML/" in station_file:
+        try:
+            inv = obspy.read_inventory(station_file, format="stationxml")
+        except Exception as e:
+            msg = ("Could not open StationXML file '%s'. Due to %s. Will be "
+                   "skipped." % (station_file, str(e)))
+            raise LASIFError(msg)
+        tr.attach_response(inv)
+        try:
+            tr.remove_response()
+        except:
+            msg = ("File  could not be corrected with the help of the "
+                   "StationXML file '%s'. Will be skipped.") \
+                  % processing_info["station_filename"],
+            raise LASIFError(msg)
     else:
         raise NotImplementedError
+
+
 
     # =========================================================================
     # Step 4: Interpolation
