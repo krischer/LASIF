@@ -286,9 +286,7 @@ class Window(QtGui.QMainWindow):
     def on_n_new_Button_released(self):
         self._new_window(component="n")
 
-    def _new_window(self, component):
-        plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-
+    def __add_window_to_plot_widget(self, plot_widget, x_1, x_2):
         id = plot_widget.data_id
         if id is None:
             QtGui.QMessageBox.information(
@@ -299,13 +297,20 @@ class Window(QtGui.QMainWindow):
 
         window = self.current_window_manager.get(id)
         window.add_window(
-            starttime=event["origin_time"],
-            endtime=event["origin_time"] + 60,
+            starttime=event["origin_time"] + x_1,
+            endtime=event["origin_time"] + x_2,
             weight=1.0
         )
         window.write()
 
         self.on_stations_listWidget_currentItemChanged(True, False)
+
+    def _new_window(self, component):
+        plot_widget = getattr(self.ui, "%s_graph" % component.lower())
+        self.__add_window_to_plot_widget(plot_widget, 0, 60)
+
+    def _add_window(self, origin, min_x, max_x):
+        self.__add_window_to_plot_widget(origin, min_x, max_x)
 
     def on_next_Button_released(self):
         st = self.ui.stations_listWidget

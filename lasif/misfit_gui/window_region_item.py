@@ -28,8 +28,9 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         self.win.endtime = end
         self.win._Window__collection.write()
 
-    def mouseDoubleClickEvent(self, *args):
+    def mouseDoubleClickEvent(self, ev):
         coll = self.win._Window__collection
         coll.delete_window(self.win.starttime, self.win.endtime)
         coll.write()
         self._parent.removeItem(self)
+        ev.accept()
