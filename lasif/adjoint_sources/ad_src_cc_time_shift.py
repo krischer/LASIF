@@ -15,14 +15,13 @@ from scipy.interpolate import interp1d
 from scipy.interpolate import RectBivariateSpline
 import warnings
 
-from lasif import LASIFAdjointSourceCalculationError
 from lasif.adjoint_sources import time_frequency
 
 eps = np.spacing(1)
 
 
-def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
-                          axis=None, colorbar_axis=None):
+def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
+                        axis=None, colorbar_axis=None):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -31,6 +30,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         * messages: A list of strings giving additional hints to what happened
             in the calculation.
     """
+
     messages = []
 
     # Compute time-frequency representations ----------------------------------
@@ -109,7 +109,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # Sanity check. Should not occur.
     if np.isnan(phase_misfit):
         msg = "The phase misfit is NaN."
-        raise LASIFAdjointSourceCalculationError(msg)
+        raise Exception(msg)
 
     # compute the adjoint source when no phase jump detected ------------------
 
@@ -128,9 +128,9 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         if len(t) > len(new_time):
             ad_src = np.concatenate([ad_src, np.zeros(len(t) - len(new_time))])
 
-        # Divide by the misfit and change sign.
+        # Divide by the misfit.
         ad_src /= (phase_misfit + eps)
-        ad_src = -1.0 * np.diff(ad_src) / (t[1] - t[0])
+        ad_src = np.diff(ad_src) / (t[1] - t[0])
 
         # Reverse time and add a leading zero so the adjoint source has the
         # same length as the input time series.
@@ -138,9 +138,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         ad_src = np.concatenate([[0.0], ad_src])
 
     else:
-        # Criterion failed, no misfit and adjoint source calculated.
-        raise LASIFAdjointSourceCalculationError(
-            "Criterion failed, no misfit has been calculated.")
+        ad_src = np.zeros(len(t))
 
     # Plot if required. -------------------------------------------------------
 

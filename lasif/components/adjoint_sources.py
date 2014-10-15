@@ -11,12 +11,14 @@ from lasif import LASIFNotFoundError
 from .component import Component
 from ..adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 from ..adjoint_sources.ad_src_l2_norm_misfit import adsrc_l2_norm_misfit
+from ..adjoint_sources.ad_src_cc_time_shift import adsrc_cc_time_shift
 
 
 # Map the adjoint source type names to functions implementing them.
 MISFIT_MAPPING = {
     "TimeFrequencyPhaseMisfitFichtner2008": adsrc_tf_phase_misfit,
-    "L2Norm": adsrc_l2_norm_misfit
+    "L2Norm": adsrc_l2_norm_misfit,
+    "CCTimeShift": adsrc_cc_time_shift
 }
 
 

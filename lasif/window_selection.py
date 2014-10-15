@@ -134,7 +134,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     """
 
     print "* ---------------------------"
-    print "* autoselect " + data_trace.stats.channel
+    print "* autoselect " + data_trace.id
 
     # =========================================================================
     # set a couple of selection parameters - might become part of the input in
@@ -142,10 +142,10 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # =========================================================================
 
     # Minimum normalised correlation coefficient of the complete traces.
-    min_cc = 0.0
+    min_cc = 0.10
     # Maximum relative noise level for the whole trace. Measured from maximum
     # amplitudes before and after the first arrival.
-    max_noise = 0.3
+    max_noise = 0.10
     # Maximum relative noise level for individual windows.
     max_noise_window = 0.4
     # All arrivals later than those corresponding to the threshold velocity
@@ -153,16 +153,16 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     min_velocity = 2.4
     # Maximum allowable time shift within a window, as a fraction of the
     # minimum period.
-    threshold_shift = 0.2
+    threshold_shift = 0.30
     # Minimum normalised correlation coeficient within a window.
-    threshold_correlation = 0.5
+    threshold_correlation = 0.75
     # Minimum length of the time windows relative to the minimum period.
     min_length_period = 1.5
-    # Minimum number of extreme in an individual time window (excluding the
+    # Minimum number of extrema in an individual time window (excluding the
     # edges).
     min_peaks_troughs = 2
     # Maximum energy ratio between data and synthetics within a time window.
-    max_energy_ratio = 3.0
+    max_energy_ratio = 2.0
 
     data_starttime = data_trace.stats.starttime
     data_delta = data_trace.stats.delta
@@ -195,8 +195,8 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     taper = np.hanning(window_length)
 
     # =========================================================================
-    # check if whole seismograms are sufficiently correlated and estimate noise
-    # level
+    # check if whole seismograms are sufficiently correlated and estimate
+    # noise level
     # =========================================================================
 
     synth = synthetic_trace.data
@@ -208,28 +208,36 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     print "** correlation coefficient: " + str(cc)
 
     #  estimate noise level from waveforms prior to the first arrival
-    idx = int(np.ceil((first_tt_arrival - minimum_period * 0.5) / dt))
-    if idx > 10:
-        noise_absolute = data[10:idx].ptp()
-    else:
-        noise_absolute = data[:idx].ptp()
-    noise_relative = noise_absolute / data.ptp()
+    idx_end = int(np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
+    idx_start = int(np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
+    idx_start = max(10, idx_start)
+
+    try:
+        noise_absolute = data[idx_start:idx_end].ptp()
+        noise_relative = noise_absolute / data.ptp()
+
+    except ValueError:
+        noise_absolute = 1000.0
+        noise_relative = 1.0
+
     print "** absolute noise level: " + str(noise_absolute) + " m/s"
     print "** relative noise level: " + str(noise_relative)
 
     #  rejection criteria
     accept = True
-    if cc < min_cc:
-        print "** no windows selected, correlation " + str(cc) + \
-            " is below threshold value of " + str(min_cc)
+
+    if (cc < min_cc) and (noise_relative > max_noise / 3.0):
+        print "** correlation " + str(cc) + " is below threshold value of " + \
+            str(min_cc)
         accept = False
+
     if noise_relative > max_noise:
-        print "** no windows selected, noise level " + str(noise_relative) + \
+        print "** noise level " + str(noise_relative) + \
             " is above threshold value of " + str(max_noise)
         accept = False
 
     if accept is False:
-        print "* autoselect done"
+        print "* autoselect done, 0 windows selected"
         return []
 
     # =========================================================================
@@ -281,8 +289,7 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     # Step 3: Mark everything more then half a dominant period after the
     # threshold arrival time - computed from the threshold velocity - as
     # negative.
-    time_windows.mask[int(np.floor(dist_in_km / min_velocity / dt)):] = \
-        True
+    time_windows.mask[int(np.floor(dist_in_km / min_velocity / dt)):] = True
 
     # Step 4: Mark everything with an absolute travel time shift of more than
     # threshold_shift times the dominant period as negative
@@ -304,9 +311,13 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
     #  Make the final window selection.
     # =========================================================================
 
-    min_length = min(
-        minimum_period / dt * min_length_period, maximum_period / dt)
+    min_length = min(minimum_period / dt * min_length_period,
+                     maximum_period / dt)
     final_windows = []
+
+    if np.ma.flatnotmasked_contiguous(time_windows) is None:
+        windows = []
+        return
 
     #  loop through all the time windows
     for i in np.ma.flatnotmasked_contiguous(time_windows):
@@ -386,7 +397,8 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
 
             final_windows.append((i.start + j.start, i.start + j.stop))
 
-    print "* autoselect done"
+    print "* autoselect done, " + str(len(final_windows)) + \
+        " window(s) selected"
 
     # Final step is to convert the index value windows to actual times.
     windows = []

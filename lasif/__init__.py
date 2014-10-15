@@ -20,6 +20,13 @@ class LASIFNotFoundError(LASIFError):
     pass
 
 
+class LASIFAdjointSourceCalculationError(LASIFError):
+    """
+    Raised when something goes wrong when calculating an adjoint source.
+    """
+    pass
+
+
 class LASIFWarning(UserWarning):
     """
     Base warning class for LASIF.

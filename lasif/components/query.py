@@ -4,8 +4,9 @@ from __future__ import absolute_import
 
 import collections
 import os
+import warnings
 
-from lasif import LASIFError, LASIFNotFoundError
+from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 
 from .component import Component
 
@@ -274,6 +275,28 @@ class QueryComponent(Component):
             long_iteration_name=iteration.long_name)
         coordinates = self.comm.query.get_coordinates_for_station(
             event["event_name"], station_id)
+
+        # Make sure all data has the corresponding synthetics. It should not
+        # happen that one has three channels of data but only two channels
+        # of synthetics...in that case, discard the additional data and
+        # raise a warning.
+        temp_data = []
+        for data_tr in data:
+            component = data_tr.stats.channel[-1].upper()
+            synthetic_tr = [tr for tr in synthetics
+                            if tr.stats.channel[-1].upper() == component]
+            if not synthetic_tr:
+                warnings.warn(
+                    "Station '%s' has observed data for component '%s' but no "
+                    "matching synthetics." % (station_id, component),
+                    LASIFWarning)
+                continue
+            temp_data.append(data_tr)
+        data.traces = temp_data
+
+        if len(data) == 0:
+            raise LASIFError("No data remaining for station '%s'." %
+                             station_id)
 
         # Scale the data if required.
         if iteration.scale_data_to_synthetics:

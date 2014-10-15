@@ -279,7 +279,7 @@ def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
 
     for result in results:
         if result.exception is not None:
-            filename = result.func_args["file_info"]["data_path"]
+            filename = result.func_args["processing_info"]["input_filename"]
             msg = "Exception processing file '%s'. %s\n%s" % (
                 filename, result.exception, result.traceback)
             logger.error(msg)
