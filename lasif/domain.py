@@ -40,7 +40,7 @@ class Domain(object):
         pass
 
     @abstractmethod
-    def plot(self, plot_simulation_domain=False):
+    def plot(self, plot_simulation_domain=False, ax=None):
         """
         Plots the domain and attempts to choose a reasonable projection for
         all possible settings. Will likely break for some settings.
@@ -206,18 +206,18 @@ class RectangularSphericalSection(Domain):
 
         return True
 
-    def plot(self, plot_simulation_domain=False):
+    def plot(self, plot_simulation_domain=False, ax=None):
         plt.subplots_adjust(left=0.05, right=0.95)
 
         # Use a global plot for very large domains.
         if self.max_extent >= 180.0:
-            m = Basemap(projection='moll', lon_0=0, resolution="c")
+            m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
             stepsize = 45.0
         # Orthographic projection for 75.0 <= extent < 180.0
         elif self.max_extent >= 75.0 or (plot_simulation_domain is True and
                                          self.rotation_angle_in_degree):
             m = Basemap(projection="ortho", lon_0=self.center.longitude,
-                        lat_0=self.center.latitude, resolution="c")
+                        lat_0=self.center.latitude, resolution="c", ax=ax)
             stepsize = 10.0
         # Lambert azimuthal equal area projection. Equal area projections
         # are useful for interpreting features and this particular one also
@@ -242,7 +242,7 @@ class RectangularSphericalSection(Domain):
 
             m = Basemap(projection='laea', resolution="l", width=width,
                         height=height, lat_0=self.center.latitude,
-                        lon_0=self.center.longitude)
+                        lon_0=self.center.longitude, ax=ax)
 
         _plot_features(m, stepsize)
 
@@ -321,7 +321,7 @@ class GlobalDomain(Domain):
         """
         return True
 
-    def plot(self, plot_simulation_domain=False):
+    def plot(self, plot_simulation_domain=False, ax=None):
         """
         Global domain is plotted using an equal area Mollweide projection.
 
@@ -333,7 +333,7 @@ class GlobalDomain(Domain):
         plt.subplots_adjust(left=0.05, right=0.95)
 
         # Equal area mollweide projection.
-        m = Basemap(projection='moll', lon_0=0, resolution="c")
+        m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
         _plot_features(m, stepsize=45)
         return m
 

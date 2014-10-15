@@ -19,6 +19,8 @@ import sys
 
 from .window_region_item import WindowLinearRegionItem
 
+import lasif.visualization
+
 
 def compile_and_import_ui_files():
     """
@@ -57,6 +59,15 @@ class Window(QtGui.QMainWindow):
         self.ui = qt_window.Ui_MainWindow()  # NOQA
         self.ui.setupUi(self)
 
+        # Set up the map.
+        self.map_figure = self.ui.mapView.fig
+        self.map_ax = self.map_figure.add_axes([0.0, 0.0, 1.0, 1.0])
+        self.basemap = self.comm.project.domain.plot(ax=self.map_ax)
+        self._draw()
+
+        # State of the map objects.
+        self.current_mt_patches = []
+
         self.current_window_manager = None
 
         self.ui.status_label = QtGui.QLabel("")
@@ -64,7 +75,6 @@ class Window(QtGui.QMainWindow):
 
         self.ui.iteration_selection_comboBox.addItems(
             self.comm.iterations.list())
-
         for component in ["z", "n", "e"]:
             p = getattr(self.ui, "%s_graph" % component)
             # p.setBackground(None)
@@ -81,6 +91,9 @@ class Window(QtGui.QMainWindow):
         self.ui.e_graph.plot([0], [0], pen="k", name="Data")
         self.ui.e_graph.plot([0], [0], pen="r", name="Synthetics")
         self.ui.e_graph.clear()
+
+    def _draw(self):
+        self.map_figure.canvas.draw()
 
     def _reset_all_plots(self):
         for component in ["z", "n", "e"]:
@@ -115,9 +128,35 @@ class Window(QtGui.QMainWindow):
 
         if it.scale_data_to_synthetics:
             self.ui.status_label.setText("Data scaled to synthetics for "
-                                         "iteration")
+                                         "this iteration")
         else:
             self.ui.status_label.setText("")
+
+    def _update_event_map(self):
+        for i in self.current_mt_patches:
+            i.remove()
+
+        event = self.comm.events.get(self.current_event)
+
+        self.current_mt_patches = lasif.visualization.plot_events(
+            events=[event], map_object=self.basemap, beachball_size=0.04)
+
+        try:
+            self.current_station_scatter.remove()
+        except:
+            pass
+
+        stations = self.comm.query.get_all_stations_for_event(
+            self.current_event)
+
+        # Plot the stations. This will also plot raypaths.
+        self.current_station_scatter = lasif.visualization \
+            .plot_stations_for_event(map_object=self.basemap,
+                                     station_dict=stations,
+                                     event_info=event, raypaths=False)
+        self.map_ax.set_title("No matter the projection, North for the "
+                              "moment tensors is always up.")
+        self._draw()
 
     @pyqtSlot(str)
     def on_event_selection_comboBox_currentIndexChanged(self, value):
@@ -133,6 +172,7 @@ class Window(QtGui.QMainWindow):
             self.current_event, self.current_iteration)
 
         self._reset_all_plots()
+        self._update_event_map()
 
     def _window_region_callback(self, *args, **kwargs):
         start, end = args[0].getRegion()
@@ -148,8 +188,15 @@ class Window(QtGui.QMainWindow):
     def on_stations_listWidget_currentItemChanged(self, current, previous):
         if current is None:
             return
-        wave = self.comm.query.get_matching_waveforms(
-            self.current_event, self.current_iteration, self.current_station)
+
+        self._reset_all_plots()
+
+        try:
+            wave = self.comm.query.get_matching_waveforms(
+                self.current_event, self.current_iteration,
+                self.current_station)
+        except Exception as e:
+
 
         event = self.comm.events.get(self.current_event)
 
@@ -162,8 +209,6 @@ class Window(QtGui.QMainWindow):
         windows_for_station = \
             self.current_window_manager.get_windows_for_station(
                 self.current_station)
-
-        self._reset_all_plots()
 
         for component in ["Z", "N", "E"]:
             plot_widget = getattr(self.ui, "%s_graph" % component.lower())
@@ -201,6 +246,20 @@ class Window(QtGui.QMainWindow):
                 plot_widget.windows = window[0]
                 for win in window[0].windows:
                     WindowLinearRegionItem(win, event, parent=plot_widget)
+
+        self._update_raypath(wave.coordinates)
+
+    def _update_raypath(self, coordinates):
+        if hasattr(self, "_current_raypath") and self._current_raypath:
+            for _i in self._current_raypath:
+                _i.remove()
+
+        event_info = self.comm.events.get(self.current_event)
+        self._current_raypath = self.basemap.drawgreatcircle(
+            event_info["longitude"], event_info["latitude"],
+            coordinates["longitude"], coordinates["latitude"],
+            lw=2, alpha=0.6)
+        self._draw()
 
     def on_reset_view_Button_released(self):
         for component in ["Z", "N", "E"]:
@@ -283,6 +342,9 @@ def launch(comm):
     app = QtGui.QApplication(sys.argv, QtGui.QApplication.GuiClient)
     window = Window(comm)
 
+    # Move window to center of screen.
+    window.move(
+        app.desktop().screen().rect().center() - window.rect().center())
     # Show and bring window to foreground.
     window.show()
     window.raise_()

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>760</height>
+    <width>1463</width>
+    <height>813</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -29,7 +29,13 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="10,0,0">
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="10,1,1">
+    <property name="rightMargin">
+     <number>12</number>
+    </property>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
@@ -37,7 +43,7 @@
         <item>
          <widget class="PlotWidget" name="z_graph">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -75,7 +81,7 @@
         <item>
          <widget class="PlotWidget" name="n_graph">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -113,7 +119,7 @@
         <item>
          <widget class="PlotWidget" name="e_graph">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -235,11 +241,17 @@
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <widget class="QPushButton" name="reset_view_Button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Reset View (R)</string>
             </property>
@@ -250,6 +262,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="next_Button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Next (N)</string>
             </property>
@@ -260,6 +278,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="previous_Button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Previous (B)</string>
             </property>
@@ -270,6 +294,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="autoselect_Button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Autoselect (A)</string>
             </property>
@@ -280,6 +310,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="delete_all_Button">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Delete All (D)</string>
             </property>
@@ -303,8 +339,13 @@
           </item>
           <item>
            <widget class="QLabel" name="label_3">
+            <property name="font">
+             <font>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
             <property name="text">
-             <string>Double click to delete existing window.</string>
+             <string>Double click to delete an existing window.</string>
             </property>
             <property name="textFormat">
              <enum>Qt::PlainText</enum>
@@ -319,7 +360,7 @@
         <item>
          <widget class="QListWidget" name="stations_listWidget">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -335,33 +376,25 @@
        </layout>
       </item>
       <item>
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QWebView" name="webView">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
+       <widget class="Qt4MplCanvas" name="mapView">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="maximumSize">
+        <property name="minimumSize">
          <size>
-          <width>400</width>
-          <height>300</height>
+          <width>500</width>
+          <height>0</height>
          </size>
         </property>
-        <property name="url">
-         <url>
-          <string>http://brunob.github.io/leaflet.fullscreen/</string>
-         </url>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -373,14 +406,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
-  </customwidget>
-  <customwidget>
    <class>PlotWidget</class>
    <extends>QGraphicsView</extends>
    <header>pyqtgraph</header>
+  </customwidget>
+  <customwidget>
+   <class>Qt4MplCanvas</class>
+   <extends>QGraphicsView</extends>
+   <header>lasif.misfit_gui.qt4mplcanvas.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

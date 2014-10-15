@@ -18,9 +18,10 @@ from obspy.imaging.mopad_wrapper import Beach
 from obspy.signal.tf_misfit import plotTfr
 
 
-def plot_events(events, map_object, beachball_size=0.02, project=None):
+def plot_events(events, map_object, beachball_size=0.02):
     """
     """
+    beachballs = []
     for event in events:
         # Add beachball plot.
         x, y = map_object(event["longitude"], event["latitude"])
@@ -31,9 +32,10 @@ def plot_events(events, map_object, beachball_size=0.02, project=None):
         width = max((map_object.xmax - map_object.xmin,
                      map_object.ymax - map_object.ymin)) * beachball_size
         b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
-
         b.set_zorder(200000000)
-        plt.gca().add_collection(b)
+        map_object.ax.add_collection(b)
+        beachballs.append(b)
+    return beachballs
 
 
 def plot_raydensity(map_object, station_events, domain):
@@ -176,7 +178,8 @@ def plot_raydensity(map_object, station_events, domain):
     map_object.drawcountries(linewidth=0.2)
 
 
-def plot_stations_for_event(map_object, station_dict, event_info):
+def plot_stations_for_event(map_object, station_dict, event_info,
+                            raypaths=True):
     """
     Plots all stations for one event.
 
@@ -204,16 +207,18 @@ def plot_stations_for_event(map_object, station_dict, event_info):
     stations._edgecolors_original = "black"
 
     # Plot the ray paths.
-    for sta_lng, sta_lat in izip(lngs, lats):
-        map_object.drawgreatcircle(event_info["longitude"],
-                                   event_info["latitude"], sta_lng, sta_lat,
-                                   lw=2, alpha=0.3)
+    if raypaths:
+        for sta_lng, sta_lat in izip(lngs, lats):
+            map_object.drawgreatcircle(event_info["longitude"],
+                                       event_info["latitude"], sta_lng, sta_lat,
+                                       lw=2, alpha=0.3)
 
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
         event_info["region"], re.sub(
             r":\d{2}\.\d{6}Z", "", str(event_info["origin_time"])),
         event_info["magnitude"], len(station_dict))
-    plt.gca().set_title(title, size="large")
+    map_object.ax.set_title(title, size="large")
+    return stations
 
 
 def plot_tf(data, delta, freqmin=None, freqmax=None):
