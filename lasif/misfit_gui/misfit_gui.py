@@ -99,7 +99,8 @@ class Window(QtGui.QMainWindow):
         for component in ["z", "n", "e"]:
             p = getattr(self.ui, "%s_graph" % component)
             p.clear()
-            p.autoRange()
+            p.setXRange(-1, 1)
+            p.setYRange(-1, 1)
 
     @property
     def current_iteration(self):
@@ -132,6 +133,18 @@ class Window(QtGui.QMainWindow):
         else:
             self.ui.status_label.setText("")
 
+    def _update_raypath(self, coordinates):
+        if hasattr(self, "_current_raypath") and self._current_raypath:
+            for _i in self._current_raypath:
+                _i.remove()
+
+        event_info = self.comm.events.get(self.current_event)
+        self._current_raypath = self.basemap.drawgreatcircle(
+            event_info["longitude"], event_info["latitude"],
+            coordinates["longitude"], coordinates["latitude"],
+            lw=2, alpha=0.6)
+        self._draw()
+
     def _update_event_map(self):
         for i in self.current_mt_patches:
             i.remove()
@@ -156,6 +169,12 @@ class Window(QtGui.QMainWindow):
                                      event_info=event, raypaths=False)
         self.map_ax.set_title("No matter the projection, North for the "
                               "moment tensors is always up.")
+
+        if hasattr(self, "_current_raypath") and self._current_raypath:
+            for _i in self._current_raypath:
+                _i.remove()
+            self._current_raypath = []
+
         self._draw()
 
     @pyqtSlot(str)
@@ -196,7 +215,12 @@ class Window(QtGui.QMainWindow):
                 self.current_event, self.current_iteration,
                 self.current_station)
         except Exception as e:
-
+            for component in ["Z", "N", "E"]:
+                plot_widget = getattr(self.ui, "%s_graph" % component.lower())
+                plot_widget.addItem(pg.TextItem(
+                    text=str(e), anchor=(0.5, 0.5),
+                    color=(200, 0, 0)))
+            return
 
         event = self.comm.events.get(self.current_event)
 
@@ -248,18 +272,6 @@ class Window(QtGui.QMainWindow):
                     WindowLinearRegionItem(win, event, parent=plot_widget)
 
         self._update_raypath(wave.coordinates)
-
-    def _update_raypath(self, coordinates):
-        if hasattr(self, "_current_raypath") and self._current_raypath:
-            for _i in self._current_raypath:
-                _i.remove()
-
-        event_info = self.comm.events.get(self.current_event)
-        self._current_raypath = self.basemap.drawgreatcircle(
-            event_info["longitude"], event_info["latitude"],
-            coordinates["longitude"], coordinates["latitude"],
-            lw=2, alpha=0.6)
-        self._draw()
 
     def on_reset_view_Button_released(self):
         for component in ["Z", "N", "E"]:

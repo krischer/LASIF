@@ -37,7 +37,7 @@
      <number>12</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout_6">
+     <layout class="QVBoxLayout" name="graph_layout">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="10,0">
         <item>
