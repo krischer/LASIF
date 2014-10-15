@@ -44,7 +44,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> LASIF</a>
+        
+          <a href="index.html" class="fa fa-home"> LASIF</a>
+        
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -100,12 +102,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/components.html">API Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
@@ -141,7 +143,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="command-line-interface">
 <h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
@@ -152,16 +154,16 @@ paragraph whilst the remainder of this sections explains all subcommands in
 greater detail.</p>
 <p>The general help can be accessed with the <tt class="code docutils literal"><span class="pre">lasif</span> <span class="pre">help</span></tt> command.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif <span class="nb">help</span>
-<span class="c">################################################################################</span>
-	LASIF - Large Scale Seismic Inversion Framework
-	http://krischer.github.io/LASIF
-<span class="c">################################################################################</span>
+<span class="c">####################################################################################################</span>
+    LASIF - Large Scale Seismic Inversion Framework  <span class="o">[</span>Version <span class="o">]</span>
+    http://krischer.github.io/LASIF
+<span class="c">####################################################################################################</span>
 
 usage: lasif <span class="o">[</span>--help<span class="o">]</span> COMMAND <span class="o">[</span>ARGS<span class="o">]</span>
 
 <span class="o">========</span> Data Acquisition Functions
+                   add_gcmt_events: Selects and adds optimally distributed events from the GCMT catalog.
                     add_spud_event: Add an event from the IRIS SPUD webservice to the project.
-                 download_stations: Download station files <span class="k">for </span>one event.
 ...
 </pre></div>
 </div>
@@ -198,18 +200,19 @@ are grouped by functionality.</p>
 <p class="first admonition-title">Data Acquisition</p>
 <p class="last">These functions are used to acquire and archive different types of data usually from webservices.</p>
 </div>
-<div class="section" id="lasif-download-stations">
-<h3>lasif download_stations<a class="headerlink" href="#lasif-download-stations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="lasif-download-data">
+<h3>lasif download_data<a class="headerlink" href="#lasif-download-data" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif download_stations [-h] event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif download_data [-h] [--providers PROVIDERS [PROVIDERS ...]]
+                               event_name
 </pre></div>
 </div>
 </div></blockquote>
-<p>Download station files for one event.</p>
+<p>Download waveform and station data for one event.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="51%" />
 <col width="49%" />
+<col width="51%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -222,34 +225,59 @@ are grouped by functionality.</p>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
 <td>show this help
 message and exit</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--providers</span></tt></td>
+<td>FDSN providers to
+query. Will use all
+known ones if not
+set.</td>
 </tr>
 </tbody>
 </table>
 </div>
-<div class="section" id="lasif-download-waveforms">
-<h3>lasif download_waveforms<a class="headerlink" href="#lasif-download-waveforms" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="lasif-add-gcmt-events">
+<h3>lasif add_gcmt_events<a class="headerlink" href="#lasif-add-gcmt-events" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif download_waveforms [-h] event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif add_gcmt_events [-h] [--min_year MIN_YEAR] [--max_year MAX_YEAR]
+                                 count min_magnitude max_magnitude min_distance
 </pre></div>
 </div>
 </div></blockquote>
-<p>Download waveforms for one event.</p>
+<p>Selects and adds optimally distributed events from the GCMT catalog.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="51%" />
-<col width="49%" />
+<col width="31%" />
+<col width="69%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
-<td>name of the event</td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">count</span></tt></td>
+<td>maximum amount of events to add</td>
 </tr>
-<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min_magnitude</span></tt></td>
+<td>minimum magnitude off events to add</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">max_magnitude</span></tt></td>
+<td>maximum magnitude off events to add</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min_distance</span></tt></td>
+<td>The minimum acceptable distance to the next
+closest event in km.</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
 <td>show this help
 message and exit</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--min_year</span></tt></td>
+<td>minimum year from
+which to add events</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--max_year</span></tt></td>
+<td>maximum year from
+which to add events</td>
 </tr>
 </tbody>
 </table>
@@ -352,6 +380,37 @@ message and exit</td>
 <div class="admonition-iteration-management admonition">
 <p class="first admonition-title">Iteration Management</p>
 <p class="last">Functions dealing with one or more iterations inside a LASIF project.</p>
+</div>
+<div class="section" id="lasif-select-windows">
+<h3>lasif select_windows<a class="headerlink" href="#lasif-select-windows" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif select_windows [-h] iteration_name event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Autoselect windows for a given event and iteration combination.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="47%" />
+<col width="53%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="lasif-generate-input-files">
 <h3>lasif generate_input_files<a class="headerlink" href="#lasif-generate-input-files" title="Permalink to this headline">¶</a></h3>
@@ -458,37 +517,6 @@ message and exit</td>
 </tbody>
 </table>
 </div>
-<div class="section" id="lasif-migrate-windows">
-<h3>lasif migrate_windows<a class="headerlink" href="#lasif-migrate-windows" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif migrate_windows [-h] from_iteration to_iteration
-</pre></div>
-</div>
-</div></blockquote>
-<p>Migrates windows from one iteration to the next.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="34%" />
-<col width="66%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">from_iteration</span></tt></td>
-<td>iteration containing windows</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">to_iteration</span></tt></td>
-<td>iteration windows will be migrated to</td>
-</tr>
-<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
-<td>show this help
-message and exit</td>
-</tr>
-</tbody>
-</table>
-</div>
 <div class="section" id="lasif-create-successive-iteration">
 <h3>lasif create_successive_iteration<a class="headerlink" href="#lasif-create-successive-iteration" title="Permalink to this headline">¶</a></h3>
 <blockquote>
@@ -512,6 +540,39 @@ iteration. Any comments will be deleted.</p>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">new_iteration</span></tt></td>
 <td>name of the new iteration</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-compare-misfits">
+<h3>lasif compare_misfits<a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif compare_misfits [-h] from_iteration to_iteration
+</pre></div>
+</div>
+</div></blockquote>
+<p>Compares the misfit between two iterations. Will only consider windows
+that are identical in both iterations as the comparision is otherwise
+meaningless.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">from_iteration</span></tt></td>
+<td>past iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">to_iteration</span></tt></td>
+<td>current iteration</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
@@ -582,15 +643,15 @@ message and exit</td>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_new_iteration [-h]
                                       iteration_name min_period max_period
-                                      {SES3D_4_1,SES3D_2_0,SPECFEM3D_CARTESIAN}
+                                      {SES3D_4_1,SES3D_2_0,SPECFEM3D_CARTESIAN,SPECFEM3D_GLOBE_CEM}
 </pre></div>
 </div>
 </div></blockquote>
 <p>Create a new iteration.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="62%" />
-<col width="38%" />
+<col width="69%" />
+<col width="31%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
@@ -604,7 +665,7 @@ message and exit</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">max_period</span></tt></td>
 <td>the maximum period of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">solver_name</span> <span class="pre">{SES3D_4_1,</span> <span class="pre">SES3D_2_0,</span> <span class="pre">SPECFEM3D_CARTESIAN}</span></tt></td>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">solver_name</span> <span class="pre">{SES3D_4_1,</span> <span class="pre">SES3D_2_0,</span> <span class="pre">SPECFEM3D_CARTESIAN,</span> <span class="pre">SPECFEM3D_GLOBE_CEM}</span></tt></td>
 <td>name of the solver</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
@@ -616,29 +677,27 @@ message and exit</td>
 </tbody>
 </table>
 </div>
-<div class="section" id="lasif-compare-misfits">
-<h3>lasif compare_misfits<a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="lasif-migrate-windows">
+<h3>lasif migrate_windows<a class="headerlink" href="#lasif-migrate-windows" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif compare_misfits [-h] from_iteration to_iteration
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif migrate_windows [-h] from_iteration to_iteration
 </pre></div>
 </div>
 </div></blockquote>
-<p>Compares the misfit between two iterations. Will only consider windows
-that are identical in both iterations as the comparision is otherwise
-meaningless.</p>
+<p>Migrates windows from one iteration to the next.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="51%" />
-<col width="49%" />
+<col width="34%" />
+<col width="66%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">from_iteration</span></tt></td>
-<td>past iteration</td>
+<td>iteration containing windows</td>
 </tr>
 <tr class="row-odd"><td><tt class="docutils literal"><span class="pre">to_iteration</span></tt></td>
-<td>current iteration</td>
+<td>iteration windows will be migrated to</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
@@ -708,28 +767,20 @@ message and exit</td>
 <div class="section" id="lasif-launch-misfit-gui">
 <h3>lasif launch_misfit_gui<a class="headerlink" href="#lasif-launch-misfit-gui" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif launch_misfit_gui [-h] iteration_name event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif launch_misfit_gui [-h]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Launch the misfit GUI.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="47%" />
 <col width="53%" />
+<col width="47%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
-<td>name of the iteration</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
-<td>name of the event</td>
-</tr>
-<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
 <td>show this help
 message and exit</td>
 </tr>
@@ -763,6 +814,29 @@ message and exit</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">files</span></tt></td>
 <td>filenames to print debug information about</td>
 </tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-shell">
+<h3>lasif shell<a class="headerlink" href="#lasif-shell" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif shell [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Drops you into a shell with an communicator.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
@@ -998,38 +1072,6 @@ message and exit</td>
 </tbody>
 </table>
 </div>
-<div class="section" id="lasif-plot-station">
-<h3>lasif plot_station<a class="headerlink" href="#lasif-plot-station" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_station [-h] station_id event_name
-</pre></div>
-</div>
-</div></blockquote>
-<p>Plots data for a single station and event.</p>
-<p>Useful for interactive data discovery.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="41%" />
-<col width="59%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">station_id</span></tt></td>
-<td>name of the station to plot</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
-<td>name of the event to plot</td>
-</tr>
-<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
-<td>show this help
-message and exit</td>
-</tr>
-</tbody>
-</table>
-</div>
 <div class="section" id="lasif-plot-raydensity">
 <h3>lasif plot_raydensity<a class="headerlink" href="#lasif-plot-raydensity" title="Permalink to this headline">¶</a></h3>
 <blockquote>
@@ -1053,10 +1095,10 @@ message and exit</td>
 </tbody>
 </table>
 </div>
-<div class="section" id="lasif-plot-selected-windows">
-<h3>lasif plot_selected_windows<a class="headerlink" href="#lasif-plot-selected-windows" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="lasif-plot-windows">
+<h3>lasif plot_windows<a class="headerlink" href="#lasif-plot-windows" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_selected_windows [-h] iteration_name event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_windows [-h] event_name iteration_name
 </pre></div>
 </div>
 </div></blockquote>
@@ -1069,11 +1111,11 @@ message and exit</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
-<td>name of the iteration</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
 <td>name of the event</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
@@ -1174,6 +1216,29 @@ message and exit</td>
 <p class="first admonition-title">Project Management</p>
 <p class="last">Functions dealing with LASIF projects as a whole.</p>
 </div>
+<div class="section" id="lasif-info">
+<h3>lasif info<a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif info [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print a summary of the project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="lasif-init-project">
 <h3>lasif init_project<a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h3>
 <blockquote>
@@ -1193,29 +1258,6 @@ message and exit</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">folder_path</span></tt></td>
 <td>where to create the project</td>
 </tr>
-<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
-<td>show this help
-message and exit</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="lasif-info">
-<h3>lasif info<a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif info [-h]
-</pre></div>
-</div>
-</div></blockquote>
-<p>Print a summary of the project.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="53%" />
-<col width="47%" />
-</colgroup>
-<tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
@@ -1363,7 +1405,8 @@ message and exit</td>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>

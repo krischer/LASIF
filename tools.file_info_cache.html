@@ -30,7 +30,7 @@
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="API Documentation" href="api_doc.html"/>
-        <link rel="next" title="How LASIF Finds Coordinates" href="how_lasif_finds_coordinates.html"/>
+        <link rel="next" title="API Components" href="components/components.html"/>
         <link rel="prev" title="lasif.tools.parallel" href="tools.parallel.html"/> 
 
   
@@ -45,7 +45,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> LASIF</a>
+        
+          <a href="index.html" class="fa fa-home"> LASIF</a>
+        
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -101,12 +103,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api_doc.html">API Documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/components.html">API Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
@@ -144,10 +146,10 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
-  <div class="section" id="module-lasif.tools.file_info_cache">
-<span id="lasif-tools-file-info-cache"></span><h1>lasif.tools.file_info_cache<a class="headerlink" href="#module-lasif.tools.file_info_cache" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-lasif.tools.cache_helpers.file_info_cache">
+<span id="lasif-tools-file-info-cache"></span><h1>lasif.tools.file_info_cache<a class="headerlink" href="#module-lasif.tools.cache_helpers.file_info_cache" title="Permalink to this headline">¶</a></h1>
 <p>A file info cache class. Must be subclassed.</p>
 <p>The cache is able to monitor a bunch of (arbitrary) files and store some
 indexes information about each file. This is useful for keeping track of a
@@ -214,13 +216,13 @@ of flexibility as the data can be managed by some other means.</p>
 </tbody>
 </table>
 <dl class="class">
-<dt id="lasif.tools.file_info_cache.FileInfoCache">
-<em class="property">class </em><tt class="descclassname">lasif.tools.file_info_cache.</tt><tt class="descname">FileInfoCache</tt><big>(</big><em>cache_db_file</em>, <em>show_progress=True</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/file_info_cache.html#FileInfoCache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.file_info_cache.FileInfoCache" title="Permalink to this definition">¶</a></dt>
+<dt id="lasif.tools.cache_helpers.file_info_cache.FileInfoCache">
+<em class="property">class </em><tt class="descclassname">lasif.tools.cache_helpers.file_info_cache.</tt><tt class="descname">FileInfoCache</tt><big>(</big><em>cache_db_file</em>, <em>show_progress=True</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/cache_helpers/file_info_cache.html#FileInfoCache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.cache_helpers.file_info_cache.FileInfoCache" title="Permalink to this definition">¶</a></dt>
 <dd><p>Object able to cache information about arbitrary files on the filesystem.</p>
 <p>Intended to be subclassed.</p>
 <dl class="method">
-<dt id="lasif.tools.file_info_cache.FileInfoCache.get_details">
-<tt class="descname">get_details</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/file_info_cache.html#FileInfoCache.get_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.file_info_cache.FileInfoCache.get_details" title="Permalink to this definition">¶</a></dt>
+<dt id="lasif.tools.cache_helpers.file_info_cache.FileInfoCache.get_details">
+<tt class="descname">get_details</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/cache_helpers/file_info_cache.html#FileInfoCache.get_details"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.cache_helpers.file_info_cache.FileInfoCache.get_details" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the indexed information about one file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -233,15 +235,15 @@ of flexibility as the data can be managed by some other means.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lasif.tools.file_info_cache.FileInfoCache.get_values">
-<tt class="descname">get_values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/tools/file_info_cache.html#FileInfoCache.get_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.file_info_cache.FileInfoCache.get_values" title="Permalink to this definition">¶</a></dt>
+<dt id="lasif.tools.cache_helpers.file_info_cache.FileInfoCache.get_values">
+<tt class="descname">get_values</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/tools/cache_helpers/file_info_cache.html#FileInfoCache.get_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.cache_helpers.file_info_cache.FileInfoCache.get_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of dictionaries containing all indexed values for every
 file together with the filename.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="lasif.tools.file_info_cache.FileInfoCache.update">
-<tt class="descname">update</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/tools/file_info_cache.html#FileInfoCache.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.file_info_cache.FileInfoCache.update" title="Permalink to this definition">¶</a></dt>
+<dt id="lasif.tools.cache_helpers.file_info_cache.FileInfoCache.update">
+<tt class="descname">update</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/tools/cache_helpers/file_info_cache.html#FileInfoCache.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.cache_helpers.file_info_cache.FileInfoCache.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the database.</p>
 </dd></dl>
 
@@ -255,7 +257,7 @@ file together with the filename.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="how_lasif_finds_coordinates.html" class="btn btn-neutral float-right" title="How LASIF Finds Coordinates">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="components/components.html" class="btn btn-neutral float-right" title="API Components">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="tools.parallel.html" class="btn btn-neutral" title="lasif.tools.parallel"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -271,7 +273,8 @@ file together with the filename.</p>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>

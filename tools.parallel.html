@@ -45,7 +45,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> LASIF</a>
+        
+          <a href="index.html" class="fa fa-home"> LASIF</a>
+        
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -101,12 +103,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api_doc.html">API Documentation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/components.html">API Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
@@ -144,10 +146,10 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
-  <div class="section" id="module-lasif.tools.parallel">
-<span id="lasif-tools-parallel"></span><h1>lasif.tools.parallel<a class="headerlink" href="#module-lasif.tools.parallel" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-lasif.tools.parallel_helpers">
+<span id="lasif-tools-parallel"></span><h1>lasif.tools.parallel<a class="headerlink" href="#module-lasif.tools.parallel_helpers" title="Permalink to this headline">¶</a></h1>
 <p>Helpers for embarrassingly parallel calculations.</p>
 <p><strong>Important</strong>! Any users of NumPy linked against OpenBLAS must include these
 two lines before importing NumPy! Or just import this module first!</p>
@@ -167,16 +169,16 @@ two lines before importing NumPy! Or just import this module first!</p>
 </tbody>
 </table>
 <dl class="class">
-<dt id="lasif.tools.parallel.FunctionInfo">
-<em class="property">class </em><tt class="descclassname">lasif.tools.parallel.</tt><tt class="descname">FunctionInfo</tt><a class="reference internal" href="_modules/lasif/tools/parallel.html#FunctionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel.FunctionInfo" title="Permalink to this definition">¶</a></dt>
+<dt id="lasif.tools.parallel_helpers.FunctionInfo">
+<em class="property">class </em><tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">FunctionInfo</tt><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#FunctionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.FunctionInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Namedtuple used to collect information about a function execution.</p>
 <p>It has the following fields: <tt class="docutils literal"><span class="pre">func_args</span></tt>, <tt class="docutils literal"><span class="pre">result</span></tt>, <tt class="docutils literal"><span class="pre">warnings</span></tt>,
 <tt class="docutils literal"><span class="pre">exception</span></tt>, and <tt class="docutils literal"><span class="pre">traceback</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="lasif.tools.parallel.function_info">
-<tt class="descclassname">lasif.tools.parallel.</tt><tt class="descname">function_info</tt><big>(</big><em>traceback_limit=3</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel.html#function_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel.function_info" title="Permalink to this definition">¶</a></dt>
+<dt id="lasif.tools.parallel_helpers.function_info">
+<tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">function_info</tt><big>(</big><em>traceback_limit=3</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#function_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.function_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator collecting information during the execution of a function.</p>
 <p>This is useful for collecting information about a function runnning on a
 number of processes/machines.</p>
@@ -218,8 +220,8 @@ successfully.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="lasif.tools.parallel.parallel_map">
-<tt class="descclassname">lasif.tools.parallel.</tt><tt class="descname">parallel_map</tt><big>(</big><em>func</em>, <em>iterable</em>, <em>n_jobs=-1</em>, <em>verbose=1</em>, <em>pre_dispatch='1.5*n_jobs'</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel.html#parallel_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel.parallel_map" title="Permalink to this definition">¶</a></dt>
+<dt id="lasif.tools.parallel_helpers.parallel_map">
+<tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">parallel_map</tt><big>(</big><em>func</em>, <em>iterable</em>, <em>n_jobs=-1</em>, <em>verbose=1</em>, <em>pre_dispatch='1.5*n_jobs'</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#parallel_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.parallel_map" title="Permalink to this definition">¶</a></dt>
 <dd><p>Thin wrapper around joblib.Parallel.</p>
 <p>For one it takes care to use the threading backend if OSX&#8217;s Accelerate
 Framework is detected. And it also wraps all functions with the
@@ -228,7 +230,7 @@ function_info decorator in order to get a more meaningful output.</p>
 with a list of dictionaries, each dictionary containing one set of
 arguments. It will return a list FunctionInfo objects containing
 information about the execution of the function on each of the inputs.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">lasif.tools.parallel</span> <span class="kn">import</span> <span class="n">parallel_map</span> 
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">lasif.tools.parallel_helpers</span> <span class="kn">import</span> <span class="n">parallel_map</span> 
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">square</span><span class="p">(</span><span class="n">a</span><span class="p">):</span> 
 <span class="gp">... </span>    <span class="k">return</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">parallel_map</span><span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="p">[{</span><span class="s">&quot;a&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">3</span><span class="p">)]):</span>         
@@ -293,7 +295,8 @@ Same parameter as in joblib.Parallel.</li>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>

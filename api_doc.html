@@ -29,7 +29,7 @@
 
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="lasif.project" href="project.html"/>
+        <link rel="next" title="lasif.rotations" href="rotations.html"/>
         <link rel="prev" title="Web Interface" href="webinterface.html"/> 
 
   
@@ -44,7 +44,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="index.html" class="fa fa-home"> LASIF</a>
+        
+          <a href="index.html" class="fa fa-home"> LASIF</a>
+        
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -100,12 +102,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/components.html">API Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
@@ -141,22 +143,46 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="api-documentation">
 <h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<p><strong>Project wide exceptions and warnings.</strong></p>
+<dl class="class">
+<dt id="lasif.LASIFError">
+<em class="property">class </em><tt class="descclassname">lasif.</tt><tt class="descname">LASIFError</tt><a class="reference internal" href="_modules/lasif.html#LASIFError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.LASIFError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base exception class for LASIF.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lasif.LASIFNotFoundError">
+<em class="property">class </em><tt class="descclassname">lasif.</tt><tt class="descname">LASIFNotFoundError</tt><a class="reference internal" href="_modules/lasif.html#LASIFNotFoundError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.LASIFNotFoundError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised whenever something is not found inside the project.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="lasif.LASIFWarning">
+<em class="property">class </em><tt class="descclassname">lasif.</tt><tt class="descname">LASIFWarning</tt><a class="reference internal" href="_modules/lasif.html#LASIFWarning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.LASIFWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base warning class for LASIF.</p>
+</dd></dl>
+
+<p><strong>Contents:</strong></p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="project.html">lasif.project</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="project.html#exceptions">Exceptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="project.html#classes">Classes</a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components/components.html">API Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="components/events.html">EventsComponent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/inventory_db.html">InventoryDBComponent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/iterations.html">IterationsComponent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/stations.html">StationsComponent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/waveforms.html">WaveformsComponent</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/query.html">QueryComponent</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -169,7 +195,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="project.html" class="btn btn-neutral float-right" title="lasif.project">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="rotations.html" class="btn btn-neutral float-right" title="lasif.rotations">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="webinterface.html" class="btn btn-neutral" title="Web Interface"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -185,7 +211,8 @@
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>

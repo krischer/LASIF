@@ -36,8 +36,8 @@ For this tutorial you can generate input files for both events with
 
 .. code-block:: bash
 
-    $ lasif generate_input_files 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14 --simulation_type=adjoint_forward
-    $ lasif generate_input_files 1 GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2 --simulation_type=adjoint_forward
+    $ lasif generate_input_files 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17 --simulation_type=adjoint_forward
+    $ lasif generate_input_files 1 GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 --simulation_type=adjoint_forward
 
 
 This will place input files in the *OUTPUT* subdirectory of the project. In

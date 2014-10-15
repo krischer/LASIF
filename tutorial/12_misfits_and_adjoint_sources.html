@@ -45,7 +45,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
+          <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -101,12 +103,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../components/components.html">API Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
@@ -144,7 +146,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="misfit-and-adjoint-source-calculation">
 <h1>13. Misfit and Adjoint Source Calculation<a class="headerlink" href="#misfit-and-adjoint-source-calculation" title="Permalink to this headline">¶</a></h1>
@@ -184,7 +186,7 @@ the following formula:</p>
 correct windows.</p>
 <p>To launch it, execute the <strong>launch_misfit_gui</strong> together with the iteration
 name and the event name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif launch_misfit_gui 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif launch_misfit_gui 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 </pre></div>
 </div>
 <p>This will open a window akin to the following:</p>
@@ -228,7 +230,7 @@ stored separately. To combine them to, apply the weighting scheme and convert
 them to a format, that SES3D can actually use, run the
 <strong>finalize_adjoint_sources</strong> command with the iteration name and the event
 name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif finalize_adjoint_sources 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif finalize_adjoint_sources 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 </pre></div>
 </div>
 <p>This will also rotate the adjoint sources to the frame of reference used in the
@@ -265,7 +267,8 @@ it. Please refer to the SES3D manual for the necessary details.</p>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>

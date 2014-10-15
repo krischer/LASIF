@@ -45,7 +45,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
+          <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -101,12 +103,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../components/components.html">API Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
@@ -144,7 +146,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="defining-a-new-iteration">
 <h1>9. Defining a New Iteration<a class="headerlink" href="#defining-a-new-iteration" title="Permalink to this headline">¶</a></h1>
@@ -298,10 +300,27 @@ with the limits specified in the data preprocessing section.</li>
 part will be replaced by the actual event name. This means that the file
 does not have to be adjusted for every event.</li>
 </ul>
-<p>The file shown here has already been adjusted for the tutorial example. For
-this tutorial we will run a simulation on 4 cores (should be suitable for your
-Desktop PC/Laptop) for 2000 timesteps with a time delta of 0.3 seconds. Please
-also adjust the file.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The file shown here has already been adjusted for the tutorial example.
+For the tutorial we will run a simulation on 4 cores (should be suitable
+for your Desktop PC/Laptop) for 2000 timesteps with a time delta of 0.3
+seconds. Please make sure to also adjust the file. The following
+parameters are essential in almost all cases (shown here with the values
+for the tutorial):</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">number_of_time_steps</span></tt>: <tt class="docutils literal"><span class="pre">2000</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">time_increment</span></tt>: <tt class="docutils literal"><span class="pre">0.3</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">is_dissipative</span></tt>: <tt class="docutils literal"><span class="pre">false</span></tt> (in a real world application set this to <tt class="docutils literal"><span class="pre">true</span></tt>)</li>
+<li><tt class="docutils literal"><span class="pre">nx_global</span></tt>: <tt class="docutils literal"><span class="pre">24</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">ny_global</span></tt>: <tt class="docutils literal"><span class="pre">24</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">nz_global</span></tt>: <tt class="docutils literal"><span class="pre">15</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">px_processors_in_theta_direction</span></tt>: <tt class="docutils literal"><span class="pre">2</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">py_processors_in_phi_direction</span></tt>: <tt class="docutils literal"><span class="pre">2</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">pz_processors_in_r_direction</span></tt>: <tt class="docutils literal"><span class="pre">1</span></tt></li>
+</ul>
+<p class="last">Please refer to the SES3D documentation for more information.</p>
+</div>
 </div>
 <div class="section" id="source-time-functions">
 <h2>9.2. Source Time Functions<a class="headerlink" href="#source-time-functions" title="Permalink to this headline">¶</a></h2>
@@ -438,7 +457,8 @@ actually simulate anything and LASIF of course also assists in that regard.</p>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>

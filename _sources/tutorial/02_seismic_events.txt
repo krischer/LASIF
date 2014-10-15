@@ -27,8 +27,8 @@ These commands will download two event files and store them in the
 
     $ ls EVENTS
 
-    GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
-    GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+    GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml
+    GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
 
 A more convenient way to see which events are currently defined in the
 project is the ``lasif list_events`` command.
@@ -38,12 +38,12 @@ project is the ``lasif list_events`` command.
     $ lasif list_events
 
     2 events in project:
-    +--------------------------------------------------------------+-----------------------------+---------------------+
-    | Event Name                                                   |    Lat/Lng/Depth(km)/Mag    | # raw/preproc/synth |
-    +--------------------------------------------------------------+-----------------------------+---------------------+
-    | GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14            |   44.9 /    8.5 /  10 / 4.9 |    0 /     0 /    0 |
-    | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2 |   43.3 /   20.8 /   9 / 5.9 |    0 /     0 /    0 |
-    +--------------------------------------------------------------+-----------------------------+---------------------+
+    +------------------------------------------------------------+--------------------------+---------------------+
+    | Event Name                                                 |  Lat/Lng/Depth(km)/Mag   | # raw/preproc/synth |
+    +------------------------------------------------------------+--------------------------+---------------------+
+    | GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             |   44.9 / 8.5  / 10 / 4.9 |    0 /     0 /    0 |
+    | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 |   43.3 / 20.8 /  9 / 5.9 |    0 /     0 /    0 |
+    +------------------------------------------------------------+------------------------+-----------------------+
 
 You will notice that events are identified via their filename minus the
 extension. This is an easy and flexible solution enabling you to tag the events
@@ -63,11 +63,20 @@ part of the project.
 
 .. plot::
 
+    from lasif import domain
     import lasif.visualization
     from obspy import UTCDateTime
-    bmap = lasif.visualization.plot_domain(-10.0, 10.0, -10.0, 10.0, 2.5,
-        rotation_axis=[1.0, 1.0, 0.2], rotation_angle_in_degree=-65.0,
-        plot_simulation_domain=False, zoom=True)
+
+    bmap = domain.RectangularSphericalSection(
+        min_latitude=-10,
+        max_latitude=10,
+        min_longitude=-10,
+        max_longitude=10,
+        min_depth_in_km=0,
+        max_depth_in_km=1440,
+        boundary_width_in_degree=2.5,
+        rotation_axis=[1.0, 1.0, 0.2],
+        rotation_angle_in_degree=-65.0).plot(plot_simulation_domain=True)
     events = [{
         'depth_in_km': 9.0,
         'event_name': 'GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2',
@@ -108,7 +117,7 @@ about a certain event:
 
 .. code-block:: bash
 
-    $ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+    $ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 
     Earthquake with 4.9 Mwc at NORTHERN ITALY

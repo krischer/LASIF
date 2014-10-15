@@ -45,7 +45,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
+          <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -101,12 +103,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../components/components.html">API Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
@@ -144,7 +146,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="seismic-events">
 <h1>3. Seismic Events<a class="headerlink" href="#seismic-events" title="Permalink to this headline">¶</a></h1>
@@ -166,8 +168,8 @@ url and store an XML file in the correct folder.</p>
 <tt class="docutils literal"><span class="pre">EVENTS</span></tt> subfolder.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>ls EVENTS
 
-GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
-GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml
+GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
 </pre></div>
 </div>
 <p>A more convenient way to see which events are currently defined in the
@@ -175,12 +177,12 @@ project is the <tt class="docutils literal"><span class="pre">lasif</span> <span
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_events
 
 2 events in project:
-+--------------------------------------------------------------+-----------------------------+---------------------+
-| Event Name                                                   |    Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag    | <span class="c"># raw/preproc/synth |</span>
-+--------------------------------------------------------------+-----------------------------+---------------------+
-| GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14            |   44.9 /    8.5 /  10 / 4.9 |    0 /     0 /    0 |
-| GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2 |   43.3 /   20.8 /   9 / 5.9 |    0 /     0 /    0 |
-+--------------------------------------------------------------+-----------------------------+---------------------+
++------------------------------------------------------------+--------------------------+---------------------+
+| Event Name                                                 |  Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag   | <span class="c"># raw/preproc/synth |</span>
++------------------------------------------------------------+--------------------------+---------------------+
+| GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             |   44.9 / 8.5  / 10 / 4.9 |    0 /     0 /    0 |
+| GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 |   43.3 / 20.8 /  9 / 5.9 |    0 /     0 /    0 |
++------------------------------------------------------------+------------------------+-----------------------+
 </pre></div>
 </div>
 <p>You will notice that events are identified via their filename minus the
@@ -202,7 +204,7 @@ part of the project.</p>
 </div>
 <p>The <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></tt> command is your friend if you desire more information
 about a certain event:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 
 Earthquake with 4.9 Mwc at NORTHERN ITALY
@@ -249,7 +251,8 @@ actually happened during each iteration so the project gains
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>

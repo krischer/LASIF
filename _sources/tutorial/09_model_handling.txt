@@ -16,6 +16,16 @@ considered the true model for the tutorial. Download both models
 :download:`here <../downloads/models.tar.bz2>` and place them in the
 ``MODELS`` folder.
 
+
+.. note::
+
+    The true synthetic model is PREM with a small positive Gaussian anomaly  in
+    the center (latitude=longitude=0) at a depth of 70 km applied to the  P and
+    both S-wave velocities. The amplitude of the anomaly is 0.3 km/s with
+    the sigma being 200 km in horizontal and 50 km in the vertical direction.
+
+
+
 Now you are able to use the **list_models** commands.
 
 .. code-block:: bash

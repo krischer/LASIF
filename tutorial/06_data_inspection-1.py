@@ -1,12 +1,21 @@
 import matplotlib.pylab as plt
 from obspy import UTCDateTime
+from lasif import domain
 import lasif.visualization
-bmap = lasif.visualization.plot_domain(-10.0, 10.0, -10.0, 10.0, 2.5,
-    rotation_axis=[1.0, 1.0, 0.2], rotation_angle_in_degree=-65.0,
-    plot_simulation_domain=False, zoom=True)
+
+bmap = domain.RectangularSphericalSection(
+    min_latitude=-10,
+    max_latitude=10,
+    min_longitude=-10,
+    max_longitude=10,
+    min_depth_in_km=0,
+    max_depth_in_km=1440,
+    boundary_width_in_degree=2.5,
+    rotation_axis=[1.0, 1.0, 0.2],
+    rotation_angle_in_degree=-65.0).plot(plot_simulation_domain=False)
 event_info = {'depth_in_km': 10.0,
-    'event_name': 'GCMT_EVENT_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14',
-    'filename': 'GCMT_EVENT_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml',
+    'event_name': 'GCMT_EVENT_NORTHERN_ITALY_Mag_4.9_2000-8-21-17',
+    'filename': 'GCMT_EVENT_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml',
     'latitude': 44.87, 'longitude': 8.48, 'm_pp': 1.189e+16,
     'm_rp': -1600000000000000.0, 'm_rr': -2.271e+16,
     'm_rt': -100000000000000.0, 'm_tp': -2.075e+16, 'm_tt': 1.082e+16,

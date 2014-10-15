@@ -1,0 +1,517 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.components.stations &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="lasif" href="../../lasif.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../../../index.html" class="fa fa-home"> LASIF</a>
+        
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/14_next_iterations.html">15. Next Iterations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../components/components.html">API Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../../lasif.html">lasif</a> &raquo;</li>
+      
+    <li>lasif.components.stations</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for lasif.components.stations</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">obspy</span>
+
+<span class="kn">from</span> <span class="nn">lasif</span> <span class="kn">import</span> <span class="n">LASIFNotFoundError</span>
+<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+
+
+<div class="viewcode-block" id="StationsComponent"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent">[docs]</a><span class="k">class</span> <span class="nc">StationsComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Component responsible for dealing with station information in either</span>
+<span class="sd">    StationXML, SEED, or RESP formats. The information is always bound to a</span>
+<span class="sd">    specific channel and time and never to the whole station despite the</span>
+<span class="sd">    name of this component. Always use this component to get the required</span>
+<span class="sd">    station related information</span>
+<span class="sd">    and do not do it yourself.</span>
+
+<span class="sd">    StationXML files must adhere to the naming scheme ``*.xml``, SEED files</span>
+<span class="sd">    to ``dataless.*``, and RESP files to ``RESP.*``. They must be stored in</span>
+<span class="sd">    separate, non-nested folders.</span>
+
+<span class="sd">    The term ``channel_id`` always means the full SEED identifier,</span>
+<span class="sd">    e.g. network, station , location, and channel codes.</span>
+
+<span class="sd">    :param stationxml_folder: The StationXML folder.</span>
+<span class="sd">    :param seed_folder: The dataless SEED folder.</span>
+<span class="sd">    :param resp_folder: The RESP files folder.</span>
+<span class="sd">    :param cache_folder: The folder where the cache file should be</span>
+<span class="sd">        stored. The file will be named ``station_cache.sqlite``.</span>
+<span class="sd">    :param communicator: The communicator instance.</span>
+<span class="sd">    :param component_name: The name of this component for the</span>
+<span class="sd">        communicator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stationxml_folder</span><span class="p">,</span> <span class="n">seed_folder</span><span class="p">,</span> <span class="n">resp_folder</span><span class="p">,</span>
+                 <span class="n">cache_folder</span><span class="p">,</span> <span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_folder</span> <span class="o">=</span> <span class="n">cache_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stationxml_folder</span> <span class="o">=</span> <span class="n">stationxml_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed_folder</span> <span class="o">=</span> <span class="n">seed_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resp_folder</span> <span class="o">=</span> <span class="n">resp_folder</span>
+
+        <span class="c"># Attribute will store the station cache if it has been initialized.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">StationsComponent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_station_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cached access to the station cache.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_cache_update</span><span class="p">()</span>
+
+<div class="viewcode-block" id="StationsComponent.force_cache_update"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.force_cache_update">[docs]</a>    <span class="k">def</span> <span class="nf">force_cache_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the station cache.</span>
+
+<span class="sd">        The station cache is used to cache the information on stations so</span>
+<span class="sd">        LASIF does not constantly open files which would be very slow. This</span>
+<span class="sd">        method is only necessary if you change/add/remove a station file and</span>
+<span class="sd">        need it to be reflected immediatly. The next invocation of LASIF</span>
+<span class="sd">        will update the cache automatically.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">..tools.cache_helpers.station_cache</span> <span class="kn">import</span> <span class="n">StationCache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="o">=</span> <span class="n">StationCache</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_folder</span><span class="p">,</span> <span class="s">&quot;station_cache.sqlite&quot;</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seed_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resp_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stationxml_folder</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span>
+</div>
+<div class="viewcode-block" id="StationsComponent.get_details_for_filename"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.get_details_for_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_details_for_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the details for a single file. Each file can have more than</span>
+<span class="sd">        channel stored in it.</span>
+
+<span class="sd">        :param filename: The name of the station file.</span>
+<span class="sd">        :type filename: str</span>
+<span class="sd">        :rtype: list of dictionaries</span>
+
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;stations_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; filename = sorted(comm.stations.get_all_channels())[1][&quot;filename&quot;]</span>
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_details_for_filename(filename) \</span>
+<span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">        [{&#39;local_depth_in_m&#39;: 0.0, &#39;end_date&#39;: None, &#39;elevation_in_m&#39;: 565.0,</span>
+<span class="sd">          &#39;longitude&#39;: 11.2752, &#39;filename&#39;:  u&#39;/.../dataless.BW_FURT&#39;,</span>
+<span class="sd">          &#39;channel_id&#39;: u&#39;BW.FURT..EHZ&#39;, &#39;latitude&#39;: 48.162899,</span>
+<span class="sd">          &#39;start_date&#39;: UTCDateTime(2001, 1, 1, ...}, ...]</span>
+
+<span class="sd">        The values for ``end_date`` and ``local_depth_in_m`` can be ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">get_details</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+            <span class="n">value</span><span class="p">[</span><span class="s">&quot;start_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;start_date&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">[</span><span class="s">&quot;end_date&quot;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">value</span><span class="p">[</span><span class="s">&quot;end_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;end_date&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">values</span>
+</div>
+<div class="viewcode-block" id="StationsComponent.get_all_channels"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.get_all_channels">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_channels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get information about all available channels at all points in time.</span>
+
+<span class="sd">        :rtype: list of dictionaries</span>
+
+<span class="sd">        Mainly useful for testing and debugging. For real applications use</span>
+<span class="sd">        :meth:`.get_all_channels_at_time` which will return all channels</span>
+<span class="sd">        active at a certain point in time.</span>
+
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;stations_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_all_channels() \</span>
+<span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">        [{&#39;local_depth_in_m&#39;: 0.0, &#39;end_date&#39;: None, &#39;elevation_in_m&#39;: 565.0,</span>
+<span class="sd">          &#39;longitude&#39;: 11.2752, &#39;filename&#39;: u&#39;/.../dataless.BW_FURT&#39;,</span>
+<span class="sd">          &#39;channel_id&#39;: u&#39;BW.FURT..EHZ&#39;, &#39;latitude&#39;: 48.162899,</span>
+<span class="sd">          &#39;start_date&#39;: UTCDateTime(2001, ...)},</span>
+<span class="sd">         {...},</span>
+<span class="sd">          ...]</span>
+
+<span class="sd">        Returns a list of dictionaries, each with the following keys:</span>
+
+<span class="sd">        &gt;&gt;&gt; sorted(comm.stations.get_all_channels()[0].keys()) \</span>
+<span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">        [&#39;channel_id&#39;, &#39;elevation_in_m&#39;, &#39;end_date&#39;, &#39;filename&#39;, &#39;latitude&#39;,</span>
+<span class="sd">         &#39;local_depth_in_m&#39;, &#39;longitude&#39;, &#39;start_date&#39;]</span>
+
+<span class="sd">        The values for ``end_date`` and ``local_depth_in_m`` can be ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+            <span class="n">value</span><span class="p">[</span><span class="s">&quot;start_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;start_date&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">[</span><span class="s">&quot;end_date&quot;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">value</span><span class="p">[</span><span class="s">&quot;end_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;end_date&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">values</span>
+</div>
+<div class="viewcode-block" id="StationsComponent.get_all_channels_at_time"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.get_all_channels_at_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_channels_at_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary with coordinates for all channels available at</span>
+<span class="sd">        a certain point in time.</span>
+
+<span class="sd">        :param time: The time or timestamp at which to return available</span>
+<span class="sd">            channels.</span>
+<span class="sd">        :type time: ``int`` or :class:`~obspy.core.utcdatetime.UTCDateTime`</span>
+<span class="sd">        :returns: All available coordinates. The keys are the channel ids</span>
+<span class="sd">            and the values are dictionaries with the coordinates.</span>
+
+<span class="sd">        &gt;&gt;&gt; from obspy import UTCDateTime</span>
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;stations_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_all_channels_at_time(UTCDateTime(2012, 1, 1)) \</span>
+<span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">        {u&#39;BW.FURT..EHE&#39;: {&#39;latitude&#39;: 48.162899, &#39;elevation_in_m&#39;: 565.0,</span>
+<span class="sd">                           &#39;local_depth_in_m&#39;: 0.0, &#39;longitude&#39;: 11.2752},</span>
+<span class="sd">         ...}</span>
+
+<span class="sd">        It also works with timestamps.</span>
+
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_all_channels_at_time(1325376000) \</span>
+<span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">        {u&#39;BW.FURT..EHE&#39;: {&#39;latitude&#39;: 48.162899, &#39;elevation_in_m&#39;: 565.0,</span>
+<span class="sd">                           &#39;local_depth_in_m&#39;: 0.0, &#39;longitude&#39;: 11.2752},</span>
+<span class="sd">         ...}</span>
+
+<span class="sd">        The value for ``local_depth_in_m`` can be ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">get_all_channels_at_time</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StationsComponent.has_channel"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.has_channel">[docs]</a>    <span class="k">def</span> <span class="nf">has_channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Boolean test if information for the given channel and time is</span>
+<span class="sd">        available.</span>
+
+<span class="sd">        :param channel_id: The id of the channel.</span>
+<span class="sd">        :type channel_id: str</span>
+<span class="sd">        :param time: The time at which to retrieve the information.</span>
+<span class="sd">        :type time: ``int`` or :class:`~obspy.core.utcdatetime.UTCDateTime`</span>
+
+<span class="sd">        &gt;&gt;&gt; from obspy import UTCDateTime</span>
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;stations_comm&#39;)</span>
+
+<span class="sd">        It works with :class:`~obspy.core.utcdatetime.UTCDateTime` objects</span>
+
+<span class="sd">        &gt;&gt;&gt; comm.stations.has_channel(&#39;IU.ANMO.10.BHZ&#39;,</span>
+<span class="sd">        ...                           UTCDateTime(2012, 3, 14))</span>
+<span class="sd">        True</span>
+
+<span class="sd">        and timestamps.</span>
+
+<span class="sd">        &gt;&gt;&gt; comm.stations.has_channel(&#39;IU.ANMO.10.BHZ&#39;, 1331683200)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; comm.stations.has_channel(&#39;AA.BB.CC.DD&#39;, 1331683200)</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">station_info_available</span><span class="p">(</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="StationsComponent.get_channel_filename"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.get_channel_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_channel_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel_id</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the absolute path of the file storing the information for the</span>
+<span class="sd">        given channel and time combination.</span>
+
+<span class="sd">        :param channel_id: The id of the channel.</span>
+<span class="sd">        :type channel_id: str</span>
+<span class="sd">        :param time: The time at which to retrieve the information.</span>
+<span class="sd">        :type time: ``int`` or :class:`~obspy.core.utcdatetime.UTCDateTime`</span>
+
+<span class="sd">        &gt;&gt;&gt; import obspy</span>
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;stations_comm&#39;)</span>
+
+<span class="sd">        It works with :class:`~obspy.core.utcdatetime.UTCDateTime` objects</span>
+
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_channel_filename(  # doctest: +ELLIPSIS</span>
+<span class="sd">        ...     &quot;IU.ANMO.10.BHZ&quot;, obspy.UTCDateTime(2012, 3, 14))</span>
+<span class="sd">        u&#39;/.../IRIS_single_channel_with_response.xml&#39;</span>
+
+<span class="sd">        and timestamps.</span>
+
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_channel_filename(  # doctest: +ELLIPSIS</span>
+<span class="sd">        ...     &quot;IU.ANMO.10.BHZ&quot;, 1331683200)</span>
+<span class="sd">        u&#39;/.../IRIS_single_channel_with_response.xml&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span>
+        <span class="k">return</span> <span class="n">filename</span>
+</div>
+<div class="viewcode-block" id="StationsComponent.get_station_filename"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.get_station_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_station_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span>
+                             <span class="n">file_format</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function returning the filename a station file of a certain format</span>
+<span class="sd">        should be written to. Only useful as a callback function for</span>
+<span class="sd">        downloaders or other modules saving data to LASIF.</span>
+
+<span class="sd">        :type file_format: str</span>
+<span class="sd">        :param file_format: &#39;datalessSEED&#39;, &#39;StationXML&#39;, or &#39;RESP&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;stations_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_station_filename(</span>
+<span class="sd">        ...     &quot;BW&quot;, &quot;FURT&quot;, &quot;&quot;, &quot;BHZ&quot;, file_format=&quot;RESP&quot;)\</span>
+<span class="sd">        # doctest: +ELLIPSIS</span>
+<span class="sd">        &#39;/.../resp/RESP.BW.FURT..BHZ&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_station_filename(</span>
+<span class="sd">        ...     &quot;BW&quot;, &quot;ALTM&quot;, &quot;&quot;, &quot;BHZ&quot;, file_format=&quot;datalessSEED&quot;)\</span>
+<span class="sd">        # doctest: +ELLIPSIS</span>
+<span class="sd">        &#39;/.../seed/dataless.BW_ALTM&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; comm.stations.get_station_filename(</span>
+<span class="sd">        ...     &quot;BW&quot;, &quot;FURT&quot;, &quot;&quot;, &quot;BHZ&quot;, file_format=&quot;StationXML&quot;)\</span>
+<span class="sd">        # doctest: +ELLIPSIS</span>
+<span class="sd">        &#39;/.../stationxml/BW_FURT.xml&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">file_format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;datalessSEED&quot;</span><span class="p">,</span> <span class="s">&quot;StationXML&quot;</span><span class="p">,</span> <span class="s">&quot;RESP&quot;</span><span class="p">]:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Unknown format &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">file_format</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s">&quot;datalessSEED&quot;</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">seed_filename_generator</span><span class="p">():</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">seed_folder</span><span class="p">,</span>
+                        <span class="s">&quot;dataless.{network}_{station}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">i</span><span class="p">:</span>
+                        <span class="n">filename</span> <span class="o">+=</span> <span class="s">&quot;.</span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">yield</span> <span class="n">filename</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">seed_filename_generator</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="k">return</span> <span class="n">filename</span>
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s">&quot;RESP&quot;</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">resp_filename_generator</span><span class="p">():</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">resp_folder</span><span class="p">,</span>
+                        <span class="s">&quot;RESP.{network}.{station}.{location}.{channel}&quot;</span>
+                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">,</span>
+                                <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">i</span><span class="p">:</span>
+                        <span class="n">filename</span> <span class="o">+=</span> <span class="s">&quot;.</span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">i</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">yield</span> <span class="n">filename</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">resp_filename_generator</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="k">return</span> <span class="n">filename</span>
+        <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s">&quot;StationXML&quot;</span><span class="p">:</span>
+            <span class="k">def</span> <span class="nf">stationxml_filename_generator</span><span class="p">():</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">stationxml_folder</span><span class="p">,</span>
+                        <span class="s">&quot;{network}_{station}{i}.xml&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">,</span>
+                            <span class="n">i</span><span class="o">=</span><span class="s">&quot;.</span><span class="si">%i</span><span class="s">&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="k">else</span> <span class="s">&quot;&quot;</span><span class="p">))</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">yield</span> <span class="n">filename</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">stationxml_filename_generator</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                    <span class="k">break</span>
+            <span class="k">return</span> <span class="n">filename</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

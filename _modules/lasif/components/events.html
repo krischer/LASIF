@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.components.events &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../../../index.html"/>
+        <link rel="up" title="lasif" href="../../lasif.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../../../index.html" class="fa fa-home"> LASIF</a>
+        
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tutorial/14_next_iterations.html">15. Next Iterations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../components/components.html">API Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../../lasif.html">lasif</a> &raquo;</li>
+      
+    <li>lasif.components.events</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for lasif.components.events</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">lasif</span> <span class="kn">import</span> <span class="n">LASIFNotFoundError</span><span class="p">,</span> <span class="n">LASIFWarning</span>
+
+
+<div class="viewcode-block" id="EventsComponent"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent">[docs]</a><span class="k">class</span> <span class="nc">EventsComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Component managing a folder of QuakeML files.</span>
+
+<span class="sd">    Each file must adhere to the scheme ``*.xml``.</span>
+
+<span class="sd">    :param folder: Folder with QuakeML files.</span>
+<span class="sd">    :param communicator: The communicator instance.</span>
+<span class="sd">    :param component_name: The name of this component for the</span>
+<span class="sd">        communicator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">):</span>
+        <span class="c"># Build a dictionary with the keys being the names of all events and</span>
+        <span class="c"># the values the filenames.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__event_files</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s">&quot;*.xml&quot;</span><span class="p">)):</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">event_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__event_files</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">filename</span>
+
+        <span class="c"># Cache the event information so everything is only read once at max.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">EventsComponent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EventsComponent.clear_cache"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.clear_cache">[docs]</a>    <span class="k">def</span> <span class="nf">clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clears the cached events. Events are only cached within one instance</span>
+<span class="sd">        of the the EventsComponent in any case.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span> <span class="o">=</span> <span class="p">{}</span>
+</div>
+<div class="viewcode-block" id="EventsComponent.list"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        List of all events.</span>
+
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;events_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.events.list() #  doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">        [&#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;,</span>
+<span class="sd">         &#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__event_files</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="EventsComponent.count"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the number of events managed by this component.</span>
+
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;events_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.events.count()</span>
+<span class="sd">        2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__event_files</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EventsComponent.has_event"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.has_event">[docs]</a>    <span class="k">def</span> <span class="nf">has_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test for existence of an event.</span>
+
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param event_name: The name of the event.</span>
+
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;events_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.events.has_event(&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; comm.events.has_event(&#39;random&#39;)</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Make sure  it also works with existing event dictionaries. This</span>
+        <span class="c"># has the potential to simplify lots of code.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="p">[</span><span class="s">&quot;event_name&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_files</span>
+</div>
+<div class="viewcode-block" id="EventsComponent.get_all_events"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.get_all_events">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary with the key being the event names and the</span>
+<span class="sd">        values the information about each event, as would be returned by the</span>
+<span class="sd">        :meth:`~lasif.components.events.EventsComponent.get` method.</span>
+
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;events_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.events.get_all_events() \</span>
+<span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">        {&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;: {...},</span>
+<span class="sd">         &#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;: {...}}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_events</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_files</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">all_events</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_events</span>
+</div>
+<div class="viewcode-block" id="EventsComponent.get"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get information about one event.</span>
+
+<span class="sd">        This function caches the results and is thus very cheap.</span>
+
+<span class="sd">        :type event_name: str</span>
+<span class="sd">        :param event_name: The name of the event.</span>
+<span class="sd">        :rtype: dict</span>
+
+<span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;events_comm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.events.get(&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;) \</span>
+<span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">        {&#39;m_tp&#39;: -2.17e+17, &#39;m_tt&#39;: 8.92e+17, &#39;depth_in_km&#39;: 7.0,</span>
+<span class="sd">        &#39;event_name&#39;: &#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;,</span>
+<span class="sd">        &#39;magnitude_type&#39;: &#39;Mwc&#39;, &#39;m_rr&#39;: -8.07e+17, &#39;m_rp&#39;: -5.3e+16,</span>
+<span class="sd">        &#39;m_pp&#39;: -8.5e+16, &#39;m_rt&#39;: 2.8e+16, &#39;region&#39;: u&#39;TURKEY&#39;,</span>
+<span class="sd">        &#39;longitude&#39;: 29.1,</span>
+<span class="sd">        &#39;filename&#39;: &#39;/.../GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml&#39;,</span>
+<span class="sd">        &#39;magnitude&#39;: 5.9, &#39;latitude&#39;: 39.15,</span>
+<span class="sd">        &#39;origin_time&#39;: UTCDateTime(2011, 5, 19, 20, 15, 22, 900000)}</span>
+
+<span class="sd">        The moment tensor components are in ``Nm``. The dictionary will</span>
+<span class="sd">        contain the following keys:</span>
+
+<span class="sd">        &gt;&gt;&gt; sorted(comm.events.get(</span>
+<span class="sd">        ...     &#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;).keys()) \</span>
+<span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">         [&#39;depth_in_km&#39;, &#39;event_name&#39;, &#39;filename&#39;, &#39;latitude&#39;, &#39;longitude&#39;,</span>
+<span class="sd">          &#39;m_pp&#39;, &#39;m_rp&#39;, &#39;m_rr&#39;, &#39;m_rt&#39;, &#39;m_tp&#39;, &#39;m_tt&#39;, &#39;magnitude&#39;,</span>
+<span class="sd">          &#39;magnitude_type&#39;, &#39;origin_time&#39;, &#39;region&#39;]</span>
+
+<span class="sd">        It also works with an existing event dictionary. This eases calling</span>
+<span class="sd">        the function under certain circumstances.</span>
+
+<span class="sd">        &gt;&gt;&gt; ev = comm.events.get(&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; ev == comm.events.get(ev)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Make sure  it also works with existing event dictionaries. This</span>
+        <span class="c"># has the potential to simplify lots of code.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="p">[</span><span class="s">&quot;event_name&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="n">event_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_files</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="s">&quot;Event &#39;</span><span class="si">%s</span><span class="s">&#39; not known to LASIF.&quot;</span> <span class="o">%</span>
+                                     <span class="n">event_name</span><span class="p">)</span>
+
+        <span class="c"># Check if it already exists within the cache.</span>
+        <span class="k">if</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span>
+
+        <span class="c"># Import here so a simple class import does not yet require and ObsPy</span>
+        <span class="c"># import. Repeated imports are fast as they do nothing.</span>
+        <span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">readEvents</span>
+        <span class="kn">from</span> <span class="nn">obspy.core.util</span> <span class="kn">import</span> <span class="n">FlinnEngdahl</span>
+
+        <span class="c"># Get an ObsPy event object.</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_files</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span>
+        <span class="n">cat</span> <span class="o">=</span> <span class="n">readEvents</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cat</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;File &#39;</span><span class="si">%s</span><span class="s">&#39; has more than one event. Only the first one &quot;</span> \
+                  <span class="s">&quot;will be used&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span> <span class="o">%</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">LASIFWarning</span><span class="p">)</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">cat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c"># Extract information.</span>
+        <span class="n">mag</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">preferred_magnitude</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">magnitudes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">org</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">preferred_origin</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">origins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">org</span><span class="o">.</span><span class="n">depth</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Origin contains no depth. Will be assumed to be 0&quot;</span><span class="p">,</span>
+                          <span class="n">LASIFWarning</span><span class="p">)</span>
+            <span class="n">org</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">mag</span><span class="o">.</span><span class="n">magnitude_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;Magnitude has no specified type. Will be assumed &quot;</span>
+                          <span class="s">&quot;to be Mw&quot;</span><span class="p">,</span> <span class="n">LASIFWarning</span><span class="p">)</span>
+            <span class="n">mag</span><span class="o">.</span><span class="n">magnitude_type</span> <span class="o">=</span> <span class="s">&quot;Mw&quot;</span>
+
+        <span class="c"># Get the moment tensor.</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">preferred_focal_mechanism</span><span class="p">()</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">focal_mechanisms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">mt</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">moment_tensor</span><span class="o">.</span><span class="n">tensor</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&quot;event_name&quot;</span><span class="p">:</span> <span class="n">event_name</span><span class="p">,</span>
+            <span class="s">&quot;filename&quot;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span>
+            <span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">org</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">org</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="s">&quot;origin_time&quot;</span><span class="p">:</span> <span class="n">org</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+            <span class="s">&quot;depth_in_km&quot;</span><span class="p">:</span> <span class="n">org</span><span class="o">.</span><span class="n">depth</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">,</span>
+            <span class="s">&quot;magnitude&quot;</span><span class="p">:</span> <span class="n">mag</span><span class="o">.</span><span class="n">mag</span><span class="p">,</span>
+            <span class="s">&quot;region&quot;</span><span class="p">:</span> <span class="n">FlinnEngdahl</span><span class="p">()</span><span class="o">.</span><span class="n">get_region</span><span class="p">(</span><span class="n">org</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span> <span class="n">org</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+            <span class="s">&quot;magnitude_type&quot;</span><span class="p">:</span> <span class="n">mag</span><span class="o">.</span><span class="n">magnitude_type</span><span class="p">,</span>
+            <span class="s">&quot;m_rr&quot;</span><span class="p">:</span> <span class="n">mt</span><span class="o">.</span><span class="n">m_rr</span><span class="p">,</span>
+            <span class="s">&quot;m_tt&quot;</span><span class="p">:</span> <span class="n">mt</span><span class="o">.</span><span class="n">m_tt</span><span class="p">,</span>
+            <span class="s">&quot;m_pp&quot;</span><span class="p">:</span> <span class="n">mt</span><span class="o">.</span><span class="n">m_pp</span><span class="p">,</span>
+            <span class="s">&quot;m_rt&quot;</span><span class="p">:</span> <span class="n">mt</span><span class="o">.</span><span class="n">m_rt</span><span class="p">,</span>
+            <span class="s">&quot;m_rp&quot;</span><span class="p">:</span> <span class="n">mt</span><span class="o">.</span><span class="n">m_rp</span><span class="p">,</span>
+            <span class="s">&quot;m_tp&quot;</span><span class="p">:</span> <span class="n">mt</span><span class="o">.</span><span class="n">m_tp</span><span class="p">}</span>
+
+        <span class="c"># Store in cache and return.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span>
+        <span class="k">return</span> <span class="n">info</span></div></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

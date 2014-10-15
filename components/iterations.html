@@ -1,0 +1,457 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>IterationsComponent &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="API Components" href="components.html"/>
+        <link rel="next" title="StationsComponent" href="stations.html"/>
+        <link rel="prev" title="InventoryDBComponent" href="inventory_db.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/14_next_iterations.html">15. Next Iterations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="components.html">API Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
+      
+          <li><a href="components.html">API Components</a> &raquo;</li>
+      
+    <li>IterationsComponent</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/components/iterations.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="iterationscomponent">
+<h1>IterationsComponent<a class="headerlink" href="#iterationscomponent" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="lasif.components.iterations.IterationsComponent">
+<em class="property">class </em><tt class="descclassname">lasif.components.iterations.</tt><tt class="descname">IterationsComponent</tt><big>(</big><em>iterations_folder</em>, <em>communicator</em>, <em>component_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Component dealing with the iteration xml files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>iterations_folder</strong> &#8211; The folder with the iteration XML files.</li>
+<li><strong>communicator</strong> &#8211; The communicator instance.</li>
+<li><strong>component_name</strong> &#8211; The name of this component for the communicator.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.count">
+<tt class="descname">count</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of iterations managed by this component.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.create_new_iteration">
+<tt class="descname">create_new_iteration</tt><big>(</big><em>iteration_name</em>, <em>solver_name</em>, <em>events_dict</em>, <em>min_period</em>, <em>max_period</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.create_new_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.create_new_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new iteration XML file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>iteration_name</strong> &#8211; The name of the iteration.</li>
+<li><strong>solver_name</strong> &#8211; The name of the solver to be used for the new
+iteration.</li>
+<li><strong>events_dict</strong> &#8211; A dictionary specifying the used events.</li>
+<li><strong>min_period</strong> &#8211; The minimum period in seconds for the new iteration.</li>
+<li><strong>max_period</strong> &#8211; The maximum period in seconds for the new iteration.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="s">&quot;3&quot;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">create_new_iteration</span><span class="p">(</span><span class="s">&quot;3&quot;</span><span class="p">,</span> <span class="s">&quot;ses3d_4_1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s">&quot;EVENT_1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;AA.BB&quot;</span><span class="p">,</span> <span class="s">&quot;CC.DD&quot;</span><span class="p">],</span> <span class="s">&quot;EVENT_2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s">&quot;EE.FF&quot;</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="mf">10.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="s">&quot;3&quot;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()[</span><span class="s">&quot;3&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.create_successive_iteration">
+<tt class="descname">create_successive_iteration</tt><big>(</big><em>existing_iteration_name</em>, <em>new_iteration_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.create_successive_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.create_successive_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an iteration based on an existing one.</p>
+<p>It will take all settings in one iteration and transfers them to
+another iteration. Any comments will be deleted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>existing_iteration_name</strong> &#8211; Name of the iteration to be used as
+a template.</li>
+<li><strong>new_iteration_name</strong> &#8211; Name of the new iteration.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="s">&quot;3&quot;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">create_successive_iteration</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">,</span> <span class="s">&quot;3&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="s">&quot;3&quot;</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Comments of an iteration will be stripped.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">comments</span>
+<span class="go">[&#39;Some&#39;, &#39;random comments&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">comments</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()[</span><span class="s">&quot;3&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If the iteration template does not exist, a
+<a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><tt class="xref py py-class docutils literal"><span class="pre">LASIFNotFoundError</span></tt></a> will be raised.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">create_successive_iteration</span><span class="p">(</span><span class="s">&quot;99&quot;</span><span class="p">,</span> <span class="s">&quot;100&quot;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">LASIFNotFoundError</span>: <span class="n">...</span>
+</pre></div>
+</div>
+<p>A <tt class="docutils literal"><span class="pre">ValueError</span></tt> will be raised if the new iteration already exists.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">create_successive_iteration</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">,</span> <span class="s">&quot;2&quot;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">ValueError</span>: <span class="n">...</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.get">
+<tt class="descname">get</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iteration object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration_name</strong> &#8211; The name of the iteration to retrieve.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">)</span>  
+<span class="go">&lt;lasif.iteration_xml.Iteration object at ...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">)</span>          
+<span class="go">LASIF Iteration</span>
+<span class="go">    Name: 1</span>
+<span class="go">    ...</span>
+</pre></div>
+</div>
+<p>A <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><tt class="xref py py-class docutils literal"><span class="pre">LASIFNotFoundError</span></tt></a> will be raised, if the
+iteration is not known.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;99&quot;</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+    <span class="o">...</span>
+<span class="gr">LASIFNotFoundError</span>: <span class="n">...</span>
+</pre></div>
+</div>
+<p>It also works with the long iteration name and event an existing
+iteration object. This makes it simple to use, one path for all
+possibilities.
+&gt;&gt;&gt; it = comm.iterations.get(&#8220;ITERATION_1&#8221;)
+&gt;&gt;&gt; it  # doctest: +ELLIPSIS
+&lt;lasif.iteration_xml.Iteration object at ...&gt;
+&gt;&gt;&gt; comm.iterations.get(it)
+&lt;lasif.iteration_xml.Iteration object at ...&gt;</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.get_filename_for_iteration">
+<tt class="descname">get_filename_for_iteration</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.get_filename_for_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.get_filename_for_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function returning the filename of an iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.get_iteration_dict">
+<tt class="descname">get_iteration_dict</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.get_iteration_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.get_iteration_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with the keys being the iteration names and the
+values the iteration filenames.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">())</span>         
+<span class="go">{&#39;1&#39;: &#39;/.../ITERATION_1.xml&#39;,</span>
+<span class="go"> &#39;2&#39;: &#39;/.../ITERATION_2.xml&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.get_long_iteration_name">
+<tt class="descname">get_long_iteration_name</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.get_long_iteration_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.get_long_iteration_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the long form of an iteration from its short name.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">)</span>
+<span class="go">&#39;ITERATION_1&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.has_iteration">
+<tt class="descname">has_iteration</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.has_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.has_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test for existence of an iteration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the iteration.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">has_iteration</span><span class="p">(</span><span class="s">&quot;99&quot;</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.list">
+<tt class="descname">list</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of all iterations managed by this component.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;iterations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<span class="go">[&#39;1&#39;, &#39;2&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.plot_Q_model">
+<tt class="descname">plot_Q_model</tt><big>(</big><em>iteration_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.plot_Q_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.plot_Q_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the Q model for a given iteration. Will only work if the
+iteration uses SES3D as its solver.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.iterations.IterationsComponent.save_iteration">
+<tt class="descname">save_iteration</tt><big>(</big><em>iteration</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/iterations.html#IterationsComponent.save_iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.iterations.IterationsComponent.save_iteration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save an iteration object to disc.
+:param iteration:</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="stations.html" class="btn btn-neutral float-right" title="StationsComponent">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="inventory_db.html" class="btn btn-neutral" title="InventoryDBComponent"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

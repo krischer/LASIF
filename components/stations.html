@@ -1,0 +1,468 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>StationsComponent &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="API Components" href="components.html"/>
+        <link rel="next" title="WaveformsComponent" href="waveforms.html"/>
+        <link rel="prev" title="IterationsComponent" href="iterations.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/14_next_iterations.html">15. Next Iterations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="components.html">API Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
+      
+          <li><a href="components.html">API Components</a> &raquo;</li>
+      
+    <li>StationsComponent</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/components/stations.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="stationscomponent">
+<h1>StationsComponent<a class="headerlink" href="#stationscomponent" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="lasif.components.stations.StationsComponent">
+<em class="property">class </em><tt class="descclassname">lasif.components.stations.</tt><tt class="descname">StationsComponent</tt><big>(</big><em>stationxml_folder</em>, <em>seed_folder</em>, <em>resp_folder</em>, <em>cache_folder</em>, <em>communicator</em>, <em>component_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/stations.html#StationsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.stations.StationsComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Component responsible for dealing with station information in either
+StationXML, SEED, or RESP formats. The information is always bound to a
+specific channel and time and never to the whole station despite the
+name of this component. Always use this component to get the required
+station related information
+and do not do it yourself.</p>
+<p>StationXML files must adhere to the naming scheme <tt class="docutils literal"><span class="pre">*.xml</span></tt>, SEED files
+to <tt class="docutils literal"><span class="pre">dataless.*</span></tt>, and RESP files to <tt class="docutils literal"><span class="pre">RESP.*</span></tt>. They must be stored in
+separate, non-nested folders.</p>
+<p>The term <tt class="docutils literal"><span class="pre">channel_id</span></tt> always means the full SEED identifier,
+e.g. network, station , location, and channel codes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stationxml_folder</strong> &#8211; The StationXML folder.</li>
+<li><strong>seed_folder</strong> &#8211; The dataless SEED folder.</li>
+<li><strong>resp_folder</strong> &#8211; The RESP files folder.</li>
+<li><strong>cache_folder</strong> &#8211; The folder where the cache file should be
+stored. The file will be named <tt class="docutils literal"><span class="pre">station_cache.sqlite</span></tt>.</li>
+<li><strong>communicator</strong> &#8211; The communicator instance.</li>
+<li><strong>component_name</strong> &#8211; The name of this component for the
+communicator.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="lasif.components.stations.StationsComponent.force_cache_update">
+<tt class="descname">force_cache_update</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/stations.html#StationsComponent.force_cache_update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.stations.StationsComponent.force_cache_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the station cache.</p>
+<p>The station cache is used to cache the information on stations so
+LASIF does not constantly open files which would be very slow. This
+method is only necessary if you change/add/remove a station file and
+need it to be reflected immediatly. The next invocation of LASIF
+will update the cache automatically.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.stations.StationsComponent.get_all_channels">
+<tt class="descname">get_all_channels</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/stations.html#StationsComponent.get_all_channels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.stations.StationsComponent.get_all_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get information about all available channels at all points in time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list of dictionaries</td>
+</tr>
+</tbody>
+</table>
+<p>Mainly useful for testing and debugging. For real applications use
+<a class="reference internal" href="#lasif.components.stations.StationsComponent.get_all_channels_at_time" title="lasif.components.stations.StationsComponent.get_all_channels_at_time"><tt class="xref py py-meth docutils literal"><span class="pre">get_all_channels_at_time()</span></tt></a> which will return all channels
+active at a certain point in time.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;stations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">()</span>         
+<span class="go">[{&#39;local_depth_in_m&#39;: 0.0, &#39;end_date&#39;: None, &#39;elevation_in_m&#39;: 565.0,</span>
+<span class="go">  &#39;longitude&#39;: 11.2752, &#39;filename&#39;: u&#39;/.../dataless.BW_FURT&#39;,</span>
+<span class="go">  &#39;channel_id&#39;: u&#39;BW.FURT..EHZ&#39;, &#39;latitude&#39;: 48.162899,</span>
+<span class="go">  &#39;start_date&#39;: UTCDateTime(2001, ...)},</span>
+<span class="go"> {...},</span>
+<span class="go">  ...]</span>
+</pre></div>
+</div>
+<p>Returns a list of dictionaries, each with the following keys:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>         
+<span class="go">[&#39;channel_id&#39;, &#39;elevation_in_m&#39;, &#39;end_date&#39;, &#39;filename&#39;, &#39;latitude&#39;,</span>
+<span class="go"> &#39;local_depth_in_m&#39;, &#39;longitude&#39;, &#39;start_date&#39;]</span>
+</pre></div>
+</div>
+<p>The values for <tt class="docutils literal"><span class="pre">end_date</span></tt> and <tt class="docutils literal"><span class="pre">local_depth_in_m</span></tt> can be <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.stations.StationsComponent.get_all_channels_at_time">
+<tt class="descname">get_all_channels_at_time</tt><big>(</big><em>time</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/stations.html#StationsComponent.get_all_channels_at_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.stations.StationsComponent.get_all_channels_at_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with coordinates for all channels available at
+a certain point in time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<tt class="docutils literal"><span class="pre">int</span></tt> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></tt></a>) &#8211; The time or timestamp at which to return available
+channels.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">All available coordinates. The keys are the channel ids
+and the values are dictionaries with the coordinates.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">UTCDateTime</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;stations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels_at_time</span><span class="p">(</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>         
+<span class="go">{u&#39;BW.FURT..EHE&#39;: {&#39;latitude&#39;: 48.162899, &#39;elevation_in_m&#39;: 565.0,</span>
+<span class="go">                   &#39;local_depth_in_m&#39;: 0.0, &#39;longitude&#39;: 11.2752},</span>
+<span class="go"> ...}</span>
+</pre></div>
+</div>
+<p>It also works with timestamps.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels_at_time</span><span class="p">(</span><span class="mi">1325376000</span><span class="p">)</span>         
+<span class="go">{u&#39;BW.FURT..EHE&#39;: {&#39;latitude&#39;: 48.162899, &#39;elevation_in_m&#39;: 565.0,</span>
+<span class="go">                   &#39;local_depth_in_m&#39;: 0.0, &#39;longitude&#39;: 11.2752},</span>
+<span class="go"> ...}</span>
+</pre></div>
+</div>
+<p>The value for <tt class="docutils literal"><span class="pre">local_depth_in_m</span></tt> can be <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.stations.StationsComponent.get_channel_filename">
+<tt class="descname">get_channel_filename</tt><big>(</big><em>channel_id</em>, <em>time</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/stations.html#StationsComponent.get_channel_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.stations.StationsComponent.get_channel_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the absolute path of the file storing the information for the
+given channel and time combination.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channel_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The id of the channel.</li>
+<li><strong>time</strong> (<tt class="docutils literal"><span class="pre">int</span></tt> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></tt></a>) &#8211; The time at which to retrieve the information.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">obspy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;stations_comm&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It works with <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></tt></a> objects</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_channel_filename</span><span class="p">(</span>  
+<span class="gp">... </span>    <span class="s">&quot;IU.ANMO.10.BHZ&quot;</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
+<span class="go">u&#39;/.../IRIS_single_channel_with_response.xml&#39;</span>
+</pre></div>
+</div>
+<p>and timestamps.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_channel_filename</span><span class="p">(</span>  
+<span class="gp">... </span>    <span class="s">&quot;IU.ANMO.10.BHZ&quot;</span><span class="p">,</span> <span class="mi">1331683200</span><span class="p">)</span>
+<span class="go">u&#39;/.../IRIS_single_channel_with_response.xml&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.stations.StationsComponent.get_details_for_filename">
+<tt class="descname">get_details_for_filename</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/stations.html#StationsComponent.get_details_for_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.stations.StationsComponent.get_details_for_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the details for a single file. Each file can have more than
+channel stored in it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the station file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list of dictionaries</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;stations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filename</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">())[</span><span class="mi">1</span><span class="p">][</span><span class="s">&quot;filename&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_details_for_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>         
+<span class="go">[{&#39;local_depth_in_m&#39;: 0.0, &#39;end_date&#39;: None, &#39;elevation_in_m&#39;: 565.0,</span>
+<span class="go">  &#39;longitude&#39;: 11.2752, &#39;filename&#39;:  u&#39;/.../dataless.BW_FURT&#39;,</span>
+<span class="go">  &#39;channel_id&#39;: u&#39;BW.FURT..EHZ&#39;, &#39;latitude&#39;: 48.162899,</span>
+<span class="go">  &#39;start_date&#39;: UTCDateTime(2001, 1, 1, ...}, ...]</span>
+</pre></div>
+</div>
+<p>The values for <tt class="docutils literal"><span class="pre">end_date</span></tt> and <tt class="docutils literal"><span class="pre">local_depth_in_m</span></tt> can be <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.stations.StationsComponent.get_station_filename">
+<tt class="descname">get_station_filename</tt><big>(</big><em>network</em>, <em>station</em>, <em>location</em>, <em>channel</em>, <em>file_format</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/stations.html#StationsComponent.get_station_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.stations.StationsComponent.get_station_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function returning the filename a station file of a certain format
+should be written to. Only useful as a callback function for
+downloaders or other modules saving data to LASIF.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_format</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; &#8216;datalessSEED&#8217;, &#8216;StationXML&#8217;, or &#8216;RESP&#8217;</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;stations_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s">&quot;BW&quot;</span><span class="p">,</span> <span class="s">&quot;FURT&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;BHZ&quot;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s">&quot;RESP&quot;</span><span class="p">)</span>        
+<span class="go">&#39;/.../resp/RESP.BW.FURT..BHZ&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s">&quot;BW&quot;</span><span class="p">,</span> <span class="s">&quot;ALTM&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;BHZ&quot;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s">&quot;datalessSEED&quot;</span><span class="p">)</span>        
+<span class="go">&#39;/.../seed/dataless.BW_ALTM&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s">&quot;BW&quot;</span><span class="p">,</span> <span class="s">&quot;FURT&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;BHZ&quot;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s">&quot;StationXML&quot;</span><span class="p">)</span>        
+<span class="go">&#39;/.../stationxml/BW_FURT.xml&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.stations.StationsComponent.has_channel">
+<tt class="descname">has_channel</tt><big>(</big><em>channel_id</em>, <em>time</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/stations.html#StationsComponent.has_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.stations.StationsComponent.has_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean test if information for the given channel and time is
+available.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>channel_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The id of the channel.</li>
+<li><strong>time</strong> (<tt class="docutils literal"><span class="pre">int</span></tt> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></tt></a>) &#8211; The time at which to retrieve the information.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">UTCDateTime</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;stations_comm&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It works with <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></tt></a> objects</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s">&#39;IU.ANMO.10.BHZ&#39;</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>and timestamps.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s">&#39;IU.ANMO.10.BHZ&#39;</span><span class="p">,</span> <span class="mi">1331683200</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s">&#39;AA.BB.CC.DD&#39;</span><span class="p">,</span> <span class="mi">1331683200</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="waveforms.html" class="btn btn-neutral float-right" title="WaveformsComponent">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="iterations.html" class="btn btn-neutral" title="IterationsComponent"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,338 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>InventoryDBComponent &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="API Components" href="components.html"/>
+        <link rel="next" title="IterationsComponent" href="iterations.html"/>
+        <link rel="prev" title="EventsComponent" href="events.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorial/14_next_iterations.html">15. Next Iterations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="components.html">API Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
+      
+          <li><a href="components.html">API Components</a> &raquo;</li>
+      
+    <li>InventoryDBComponent</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/components/inventory_db.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="inventorydbcomponent">
+<h1>InventoryDBComponent<a class="headerlink" href="#inventorydbcomponent" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="lasif.components.inventory_db.InventoryDBComponent">
+<em class="property">class </em><tt class="descclassname">lasif.components.inventory_db.</tt><tt class="descname">InventoryDBComponent</tt><big>(</big><em>db_file</em>, <em>communicator</em>, <em>component_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/inventory_db.html#InventoryDBComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.inventory_db.InventoryDBComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Component dealing with station coordinates from web services or manual
+entry. This is used if station coordinates could not be retrieved by
+other means. The component will attempt to request the station
+coordinates from IRIS and ORFEUS. Each station will only be requested
+once and the result will be stored in the database instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>db_file</strong> &#8211; The full path of the inventory SQLITE file.</li>
+<li><strong>communicator</strong> &#8211; The communicator instance.</li>
+<li><strong>component_name</strong> &#8211; The name of this component for the communicator.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="lasif.components.inventory_db.InventoryDBComponent.get_all_coordinates">
+<tt class="descname">get_all_coordinates</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/inventory_db.html#InventoryDBComponent.get_all_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.inventory_db.InventoryDBComponent.get_all_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with all stations coordinates defined in the
+inventory database. All entries will be <tt class="docutils literal"><span class="pre">None</span></tt> if a webservice
+request has been attempted but returned nothing. This is to prevent
+successive requests.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>         
+<span class="go">{u&#39;AA.BB&#39;: {&#39;latitude&#39;: 1.0, &#39;elevation_in_m&#39;: 3.0,</span>
+<span class="go">            &#39;local_depth_in_m&#39;: 4.0, &#39;longitude&#39;: 2.0},</span>
+<span class="go"> u&#39;CC.DD&#39;: {&#39;latitude&#39;: 2.0, &#39;elevation_in_m&#39;: 2.0,</span>
+<span class="go">            &#39;local_depth_in_m&#39;: 2.0, &#39;longitude&#39;: 2.0},</span>
+<span class="go"> u&#39;EE.FF&#39;: {&#39;latitude&#39;: None, &#39;elevation_in_m&#39;: None,</span>
+<span class="go">            &#39;local_depth_in_m&#39;: None, &#39;longitude&#39;: None}}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.inventory_db.InventoryDBComponent.get_coordinates">
+<tt class="descname">get_coordinates</tt><big>(</big><em>station_id</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/inventory_db.html#InventoryDBComponent.get_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.inventory_db.InventoryDBComponent.get_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary containing <tt class="docutils literal"><span class="pre">latitude</span></tt>, <tt class="docutils literal"><span class="pre">longitude</span></tt>,
+<tt class="docutils literal"><span class="pre">elevation_in_m</span></tt>, and <tt class="docutils literal"><span class="pre">local_depth_in_m</span></tt> keys. If the station is
+not yet in the database, it will attempt to download the coordinates
+from the web services.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s">&quot;AA.BB&quot;</span><span class="p">)</span>         
+<span class="go">{&#39;latitude&#39;: 1.0, &#39;elevation_in_m&#39;: 3.0, &#39;local_depth_in_m&#39;: 4.0,</span>
+<span class="go"> &#39;longitude&#39;: 2.0}</span>
+</pre></div>
+</div>
+<p>A station whose coordinates have already been requested but whose
+request failed will have <tt class="docutils literal"><span class="pre">None</span></tt> for all coordinate values.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s">&quot;EE.FF&quot;</span><span class="p">)</span>         
+<span class="go">{&#39;latitude&#39;: None, &#39;elevation_in_m&#39;: None, &#39;local_depth_in_m&#39;: None,</span>
+<span class="go"> &#39;longitude&#39;: None}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.inventory_db.InventoryDBComponent.remove_coordinate_less_stations">
+<tt class="descname">remove_coordinate_less_stations</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/inventory_db.html#InventoryDBComponent.remove_coordinate_less_stations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.inventory_db.InventoryDBComponent.remove_coordinate_less_stations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple command removing all stations that have no associated
+coordinates. This means it will attempt to download them again on
+the next run.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>         
+<span class="go">{u&#39;AA.BB&#39;: {&#39;latitude&#39;: 1.0, &#39;elevation_in_m&#39;: 3.0,</span>
+<span class="go">            &#39;local_depth_in_m&#39;: 4.0, &#39;longitude&#39;: 2.0},</span>
+<span class="go"> u&#39;CC.DD&#39;: {&#39;latitude&#39;: 2.0, &#39;elevation_in_m&#39;: 2.0,</span>
+<span class="go">            &#39;local_depth_in_m&#39;: 2.0, &#39;longitude&#39;: 2.0},</span>
+<span class="go"> u&#39;EE.FF&#39;: {&#39;latitude&#39;: None, &#39;elevation_in_m&#39;: None,</span>
+<span class="go">            &#39;local_depth_in_m&#39;: None, &#39;longitude&#39;: None}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">remove_coordinate_less_stations</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>         
+<span class="go">{u&#39;AA.BB&#39;: {&#39;latitude&#39;: 1.0, &#39;elevation_in_m&#39;: 3.0,</span>
+<span class="go">            &#39;local_depth_in_m&#39;: 4.0, &#39;longitude&#39;: 2.0},</span>
+<span class="go"> u&#39;CC.DD&#39;: {&#39;latitude&#39;: 2.0, &#39;elevation_in_m&#39;: 2.0,</span>
+<span class="go">            &#39;local_depth_in_m&#39;: 2.0, &#39;longitude&#39;: 2.0}}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.inventory_db.InventoryDBComponent.save_station_coordinates">
+<tt class="descname">save_station_coordinates</tt><big>(</big><em>station_id</em>, <em>latitude</em>, <em>longitude</em>, <em>elevation_in_m</em>, <em>local_depth_in_m</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/inventory_db.html#InventoryDBComponent.save_station_coordinates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.inventory_db.InventoryDBComponent.save_station_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the coordinates for some station in the database.</p>
+<p>Used internally but can also be used to save coordinates from other
+sources in the project.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">save_station_coordinates</span><span class="p">(</span><span class="n">station_id</span><span class="o">=</span><span class="s">&quot;XX.YY&quot;</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">latitude</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="mf">11.0</span><span class="p">,</span> <span class="n">elevation_in_m</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">local_depth_in_m</span><span class="o">=</span><span class="mf">13.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s">&quot;XX.YY&quot;</span><span class="p">)</span>         
+<span class="go">{&#39;latitude&#39;: 10.0, &#39;elevation_in_m&#39;: 12.0, &#39;local_depth_in_m&#39;: 13.0,</span>
+<span class="go">&#39;longitude&#39;: 11.0}</span>
+</pre></div>
+</div>
+<p>Inserting once again will update the entry.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">save_station_coordinates</span><span class="p">(</span><span class="n">station_id</span><span class="o">=</span><span class="s">&quot;XX.YY&quot;</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">latitude</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="mf">21.0</span><span class="p">,</span> <span class="n">elevation_in_m</span><span class="o">=</span><span class="mf">22.0</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">local_depth_in_m</span><span class="o">=</span><span class="mf">23.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s">&quot;XX.YY&quot;</span><span class="p">)</span>         
+<span class="go">{&#39;latitude&#39;: 20.0, &#39;elevation_in_m&#39;: 22.0, &#39;local_depth_in_m&#39;: 23.0,</span>
+<span class="go"> &#39;longitude&#39;: 21.0}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="iterations.html" class="btn btn-neutral float-right" title="IterationsComponent">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="events.html" class="btn btn-neutral" title="EventsComponent"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

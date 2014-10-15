@@ -29,7 +29,7 @@
 
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="../../index.html"/>
-        <link rel="up" title="Module code" href="../index.html"/> 
+        <link rel="up" title="lasif" href="../lasif.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -43,7 +43,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../../index.html" class="fa fa-home"> LASIF</a>
+        
+          <a href="../../index.html" class="fa fa-home"> LASIF</a>
+        
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -99,12 +101,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_doc.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project.html">lasif.project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components.html">API Components</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
 </ul>
 </li>
@@ -133,6 +135,8 @@
       
           <li><a href="../index.html">Module code</a> &raquo;</li>
       
+          <li><a href="../lasif.html">lasif</a> &raquo;</li>
+      
     <li>lasif.rotations</li>
       <li class="wy-breadcrumbs-aside">
         
@@ -140,7 +144,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <h1>Source code for lasif.rotations</h1><div class="highlight"><pre>
 <span class="c">#!/usr/bin/env python</span>
@@ -180,7 +184,11 @@
 <span class="sd">:license: GNU General Public License, Version 3</span>
 <span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">eps</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">epsilon</span>
 
 
 <span class="k">def</span> <span class="nf">_get_vector</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
@@ -268,28 +276,10 @@
 <span class="sd">    :param rotation_axis: The axis to be rotating around given as [x, y, z].</span>
 <span class="sd">    :param angle: The rotation angle in degree.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Convert angle to radian.</span>
-    <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
-
-    <span class="c"># Normalize the rotation_axis</span>
-    <span class="n">rotation_axis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">)</span>
-    <span class="n">rotation_axis</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">)</span>
-
-    <span class="c"># Use c1, c2, and c3 as shortcuts for the rotation axis.</span>
-    <span class="n">c1</span> <span class="o">=</span> <span class="n">rotation_axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">c2</span> <span class="o">=</span> <span class="n">rotation_axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">c3</span> <span class="o">=</span> <span class="n">rotation_axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">rotation_matrix</span> <span class="o">=</span> <span class="n">_get_rotation_matrix</span><span class="p">(</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
 
     <span class="c"># Build a column vector.</span>
     <span class="n">vector</span> <span class="o">=</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
-
-    <span class="c"># Build the rotation matrix.</span>
-    <span class="n">rotation_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> \
-        <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)))</span> <span class="o">+</span> \
-        <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="n">c1</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">c3</span><span class="p">),</span>
-                                         <span class="p">(</span><span class="n">c2</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">c3</span><span class="p">),</span>
-                                         <span class="p">(</span><span class="n">c3</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c3</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span> <span class="o">*</span> <span class="n">c3</span><span class="p">)))</span> <span class="o">+</span> \
-        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c3</span><span class="p">,</span> <span class="n">c2</span><span class="p">),</span> <span class="p">(</span><span class="n">c3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">c2</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
 
     <span class="c"># Rotate the vector.</span>
     <span class="n">rotated_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">vector</span><span class="p">))</span>
@@ -301,6 +291,28 @@
         <span class="k">return</span> <span class="n">rotated_vector</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
 
 </div>
+<span class="k">def</span> <span class="nf">_get_rotation_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the rotation matrix for the specified axis and angle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+    <span class="c"># Use c1, c2, and c3 as shortcuts for the rotation axis.</span>
+    <span class="n">c1</span> <span class="o">=</span> <span class="n">axis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">c2</span> <span class="o">=</span> <span class="n">axis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">c3</span> <span class="o">=</span> <span class="n">axis</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c"># Build the rotation matrix.</span>
+    <span class="n">rotation_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> \
+        <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)))</span> <span class="o">+</span> \
+        <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="n">c1</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c1</span> <span class="o">*</span> <span class="n">c3</span><span class="p">),</span>
+                                         <span class="p">(</span><span class="n">c2</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c2</span> <span class="o">*</span> <span class="n">c3</span><span class="p">),</span>
+                                         <span class="p">(</span><span class="n">c3</span> <span class="o">*</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c3</span> <span class="o">*</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span> <span class="o">*</span> <span class="n">c3</span><span class="p">)))</span> <span class="o">+</span> \
+        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">(((</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c3</span><span class="p">,</span> <span class="n">c2</span><span class="p">),</span> <span class="p">(</span><span class="n">c3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">c1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">c2</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">rotation_matrix</span>
+
+
 <div class="viewcode-block" id="get_spherical_unit_vectors"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_spherical_unit_vectors">[docs]</a><span class="k">def</span> <span class="nf">get_spherical_unit_vectors</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the spherical unit vectors e_theta, e_phi and e_r for a point on</span>
@@ -388,6 +400,28 @@
     <span class="k">return</span> <span class="n">_get_vector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
 
 </div>
+<span class="k">def</span> <span class="nf">_get_axis_and_angle_from_rotation_matrix</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts the axis and angle from a rotation matrix.</span>
+
+<span class="sd">    &gt;&gt;&gt; M = _get_rotation_matrix([0.26726124, 0.53452248, 0.80178373], 40)</span>
+<span class="sd">    &gt;&gt;&gt; _get_axis_and_angle_from_rotation_matrix(M)  \</span>
+<span class="sd">    # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS</span>
+<span class="sd">    (array([ 0.26726124,  0.53452248,  0.80178373]), 40.00...)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">y</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">z</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">M</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]</span>
+    <span class="n">axis</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">axis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">_get_rotation_and_base_transfer_matrix</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rotation_axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generates a matrix that rotates a vector/tensor located at lat/lon and</span>
@@ -560,6 +594,53 @@
     <span class="k">return</span> <span class="n">borders</span>
 
 </div>
+<div class="viewcode-block" id="get_center_angle"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_center_angle">[docs]</a><span class="k">def</span> <span class="nf">get_center_angle</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the angle of both angles on a sphere.</span>
+
+<span class="sd">    :param a: Angle A in degrees.</span>
+<span class="sd">    :param b: Angle B in degrees.</span>
+
+<span class="sd">    The examples use round() to guard against floating point inaccuracies.</span>
+
+<span class="sd">    &gt;&gt;&gt; round(get_center_angle(350, 10), 9)</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; round(get_center_angle(90, 270), 9)</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; round(get_center_angle(-90, 90), 9)</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; round(get_center_angle(350, 5), 9)</span>
+<span class="sd">    357.5</span>
+<span class="sd">    &gt;&gt;&gt; round(get_center_angle(359, 10), 9)</span>
+<span class="sd">    4.5</span>
+<span class="sd">    &gt;&gt;&gt; round(get_center_angle(10, 20), 9)</span>
+<span class="sd">    15.0</span>
+<span class="sd">    &gt;&gt;&gt; round(get_center_angle(90, 180), 9)</span>
+<span class="sd">    135.0</span>
+<span class="sd">    &gt;&gt;&gt; round(get_center_angle(0, 180), 9)</span>
+<span class="sd">    90.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+
+    <span class="n">c</span> <span class="o">=</span> <span class="p">((</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">eps</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">eps</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">((</span><span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">%</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="c"># Some predictability.</span>
+    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mf">10.0</span> <span class="o">*</span> <span class="n">eps</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">result</span> <span class="o">%=</span> <span class="mf">360.0</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+</div>
 <div class="viewcode-block" id="get_max_extention_of_domain"><a class="viewcode-back" href="../../rotations.html#lasif.rotations.get_max_extention_of_domain">[docs]</a><span class="k">def</span> <span class="nf">get_max_extention_of_domain</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lng</span><span class="p">,</span> <span class="n">max_lng</span><span class="p">,</span>
                                 <span class="n">rotation_axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                                 <span class="n">rotation_angle_in_degree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -609,7 +690,8 @@
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
