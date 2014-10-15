@@ -277,15 +277,6 @@ class Window(QtGui.QMainWindow):
         for component in ["Z", "N", "E"]:
             getattr(self.ui, "%s_graph" % component.lower()).autoRange()
 
-    def on_z_new_Button_released(self):
-        self._new_window(component="z")
-
-    def on_e_new_Button_released(self):
-        self._new_window(component="e")
-
-    def on_n_new_Button_released(self):
-        self._new_window(component="n")
-
     def __add_window_to_plot_widget(self, plot_widget, x_1, x_2):
         id = plot_widget.data_id
         if id is None:
@@ -304,10 +295,6 @@ class Window(QtGui.QMainWindow):
         window.write()
 
         self.on_stations_listWidget_currentItemChanged(True, False)
-
-    def _new_window(self, component):
-        plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-        self.__add_window_to_plot_widget(plot_widget, 0, 60)
 
     def _add_window(self, origin, min_x, max_x):
         self.__add_window_to_plot_widget(origin, min_x, max_x)
