@@ -262,10 +262,16 @@ def lasif_download_data(parser, args):
     Download waveform and station data for one event.
     """
     parser.add_argument("event_name", help="name of the event")
-    event_name = parser.parse_args(args).event_name
+    parser.add_argument("--providers", default=None,
+                        type=str, nargs="+",
+                        help="FDSN providers to query. Will use all known "
+                             "ones if not set.")
+    p = parser.parse_args(args)
+    event_name = p.event_name
+    providers = p.providers
 
     comm = _find_project_comm(".")
-    comm.downloads.download_data(event_name)
+    comm.downloads.download_data(event_name, providers=providers)
 
 
 @command_group("Event Management")

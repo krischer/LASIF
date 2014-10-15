@@ -19,7 +19,7 @@ class DownloadsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def download_data(self, event):
+    def download_data(self, event, providers=None):
         """
         """
         event = self.comm.events.get(event)
@@ -59,7 +59,7 @@ class DownloadsComponent(Component):
 
         stationxml_path = self._get_stationxml_path_fct(starttime, endtime)
 
-        dlh = DownloadHelper()
+        dlh = DownloadHelper(providers=providers)
         report = dlh.download(domain=domain, restrictions=restrictions,
                               mseed_path=mseed_path,
                               stationxml_path=stationxml_path)
