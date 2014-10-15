@@ -41,6 +41,7 @@ should scale fairly well and makes it trivial to add new methods.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import os
+import lasif
 from lasif import LASIFError
 
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -1210,10 +1211,14 @@ def main():
     # Parse args.
     args = sys.argv[1:]
 
+    if len(args) == 1 and args[0] == "--version":
+        print("LASIF version %s" % lasif.__version__)
+        sys.exit(0)
+
     # Print the generic help/introduction.
     if not args or args == ["help"] or args == ["--help"]:
         _print_generic_help(fcts)
-        sys.exit(1)
+        sys.exit(0)
 
     # Use lowercase to increase tolerance.
     fct_name = args[0].lower()
