@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import collections
 import pyqtgraph
 import time
+
+from .window_region_item import WindowLinearRegionItem
 
 Click = collections.namedtuple("Click", ["ev", "time"])
 
@@ -17,9 +21,11 @@ class PlotWidget(pyqtgraph.PlotWidget):
         self.scene().sigMouseClicked.connect(self.sigMouseReleased)
 
     def sigMouseReleased(self, ev, *args):
-        print ev.currentItem, self
-        if ev.currentItem is not self:
+        # Avoid some issues with the other items.
+        if isinstance(ev.currentItem, WindowLinearRegionItem):
+            self.last_click = None
             return
+
         t = time.time()
         if self.click_active:
             self.click_active = False
@@ -38,7 +44,6 @@ class PlotWidget(pyqtgraph.PlotWidget):
         # A certain threshold to guard against double clicks.
         if abs(c_2.ev.pos().x() - c_1.ev.pos().x()) < 25:
             return
-        print c_1.ev.pos().x(), c_2.ev.pos().x()
         # Send to grandfather which is the Misfit GUI main window.
         x_1 = self.plotItem.vb.mapSceneToView(c_1.ev.scenePos()).x()
         x_2 = self.plotItem.vb.mapSceneToView(c_2.ev.scenePos()).x()
