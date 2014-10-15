@@ -296,7 +296,20 @@ def test_download_utitlies(cli):
                       "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
     assert out.stderr == ""
     download_patch.assert_called_once_with(
-        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", providers=None)
+    assert download_patch.call_count == 1
+
+    # Test setting the providers.
+    with mock.patch("lasif.components.downloads.DownloadsComponent"
+                    ".download_data") \
+            as download_patch:
+        out = cli.run("lasif download_data "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11 "
+                      "--providers IRIS ORFEUS")
+    assert out.stderr == ""
+    download_patch.assert_called_once_with(
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        providers=["IRIS", "ORFEUS"])
     assert download_patch.call_count == 1
 
 

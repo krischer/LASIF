@@ -278,8 +278,9 @@ class WaveformsComponent(Component):
 
         >>> import pprint
         >>> comm = getfixture('waveforms_comm')
-        >>> pprint.pprint(comm.waveforms.get_metadata_raw(
-        ...     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")) \
+        >>> pprint.pprint(sorted(comm.waveforms.get_metadata_raw(
+        ...     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
+        ...     key=lambda x: x["channel_id"])) \
         # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
         [{'channel': u'BHZ',
           'channel_id': u'HL.ARG..BHZ',

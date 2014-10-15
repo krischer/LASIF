@@ -209,9 +209,9 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     # Plot the ray paths.
     if raypaths:
         for sta_lng, sta_lat in izip(lngs, lats):
-            map_object.drawgreatcircle(event_info["longitude"],
-                                       event_info["latitude"], sta_lng, sta_lat,
-                                       lw=2, alpha=0.3)
+            map_object.drawgreatcircle(
+                event_info["longitude"], event_info["latitude"], sta_lng,
+                sta_lat, lw=2, alpha=0.3)
 
     title = "Event in %s, at %s, %.1f Mw, with %i stations." % (
         event_info["region"], re.sub(

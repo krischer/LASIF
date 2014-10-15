@@ -207,6 +207,8 @@ class RectangularSphericalSection(Domain):
         return True
 
     def plot(self, plot_simulation_domain=False, ax=None):
+        if ax is None:
+            ax = plt.gca()
         plt.subplots_adjust(left=0.05, right=0.95)
 
         # Use a global plot for very large domains.
@@ -330,6 +332,8 @@ class GlobalDomain(Domain):
 
         :return: The created GeoAxes instance.
         """
+        if ax is None:
+            ax = plt.gca()
         plt.subplots_adjust(left=0.05, right=0.95)
 
         # Equal area mollweide projection.
