@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import os
 
-from lasif import LASIFError
+from lasif import LASIFError, LASIFNotFoundError
 
 from .component import Component
 
@@ -58,12 +58,15 @@ class VisualizationsComponent(Component):
 
         # Get a dictionary containing all stations that have data for the
         # current event.
-        stations = self.comm.query.get_all_stations_for_event(event_name)
-
-        # Plot the stations. This will also plot raypaths.
-        visualization.plot_stations_for_event(
-            map_object=map_object, station_dict=stations,
-            event_info=event_info)
+        try:
+            stations = self.comm.query.get_all_stations_for_event(event_name)
+        except LASIFNotFoundError:
+            pass
+        else:
+            # Plot the stations if it has some. This will also plot raypaths.
+            visualization.plot_stations_for_event(
+                map_object=map_object, station_dict=stations,
+                event_info=event_info)
 
         # Plot the beachball for one event.
         visualization.plot_events(events=[event_info], map_object=map_object)
