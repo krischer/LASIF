@@ -262,7 +262,7 @@ def preprocess_file(processing_info):
     tr.write(processing_info["output_filename"], format=tr.stats._format)
 
 
-def launch_processing(data_generator, log_filename=None, waiting_time=4.0,
+def launch_processing(data_generator, log_filename=None, waiting_time=1.0,
                       process_params=None):
     """
     Launch the parallel processing.

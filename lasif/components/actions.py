@@ -21,7 +21,7 @@ class ActionsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
     def preprocess_data(self, iteration_name, event_names=None,
-                        waiting_time=4.0):
+                        waiting_time=1.0):
         """
         Preprocesses all data for a given iteration.
 
