@@ -211,13 +211,17 @@ will update the cache automatically.</p>
 <a class="reference internal" href="#lasif.components.stations.StationsComponent.get_all_channels_at_time" title="lasif.components.stations.StationsComponent.get_all_channels_at_time"><tt class="xref py py-meth docutils literal"><span class="pre">get_all_channels_at_time()</span></tt></a> which will return all channels
 active at a certain point in time.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;stations_comm&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">()</span>         
-<span class="go">[{&#39;local_depth_in_m&#39;: 0.0, &#39;end_date&#39;: None, &#39;elevation_in_m&#39;: 565.0,</span>
-<span class="go">  &#39;longitude&#39;: 11.2752, &#39;filename&#39;: u&#39;/.../dataless.BW_FURT&#39;,</span>
-<span class="go">  &#39;channel_id&#39;: u&#39;BW.FURT..EHZ&#39;, &#39;latitude&#39;: 48.162899,</span>
-<span class="go">  &#39;start_date&#39;: UTCDateTime(2001, ...)},</span>
-<span class="go"> {...},</span>
-<span class="go">  ...]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">(),</span>
+<span class="gp">... </span>                     <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s">&quot;channel_id&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>        
+<span class="go">[{&#39;channel_id&#39;: u&#39;IU.PAB.00.BHE&#39;,</span>
+<span class="go">  &#39;elevation_in_m&#39;: 950.0,</span>
+<span class="go">  &#39;end_date&#39;: UTCDateTime(2009, 8, 13, 19, 0),</span>
+<span class="go">  &#39;filename&#39;: u&#39;.../station_files/seed/dataless.IU_PAB&#39;,</span>
+<span class="go">  &#39;latitude&#39;: 39.5446,</span>
+<span class="go">  &#39;local_depth_in_m&#39;: 0.0,</span>
+<span class="go">  &#39;longitude&#39;: -4.349899,</span>
+<span class="go">  &#39;start_date&#39;: UTCDateTime(1999, 2, 18, 10, 0)}, {...}, ...]</span>
 </pre></div>
 </div>
 <p>Returns a list of dictionaries, each with the following keys:</p>

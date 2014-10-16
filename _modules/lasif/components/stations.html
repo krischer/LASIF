@@ -261,14 +261,18 @@
 <span class="sd">        active at a certain point in time.</span>
 
 <span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;stations_comm&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; comm.stations.get_all_channels() \</span>
+<span class="sd">        &gt;&gt;&gt; import pprint</span>
+<span class="sd">        &gt;&gt;&gt; pprint.pprint(sorted(comm.stations.get_all_channels(),</span>
+<span class="sd">        ...                      key=lambda x: x[&quot;channel_id&quot;], reverse=True))\</span>
 <span class="sd">        # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
-<span class="sd">        [{&#39;local_depth_in_m&#39;: 0.0, &#39;end_date&#39;: None, &#39;elevation_in_m&#39;: 565.0,</span>
-<span class="sd">          &#39;longitude&#39;: 11.2752, &#39;filename&#39;: u&#39;/.../dataless.BW_FURT&#39;,</span>
-<span class="sd">          &#39;channel_id&#39;: u&#39;BW.FURT..EHZ&#39;, &#39;latitude&#39;: 48.162899,</span>
-<span class="sd">          &#39;start_date&#39;: UTCDateTime(2001, ...)},</span>
-<span class="sd">         {...},</span>
-<span class="sd">          ...]</span>
+<span class="sd">        [{&#39;channel_id&#39;: u&#39;IU.PAB.00.BHE&#39;,</span>
+<span class="sd">          &#39;elevation_in_m&#39;: 950.0,</span>
+<span class="sd">          &#39;end_date&#39;: UTCDateTime(2009, 8, 13, 19, 0),</span>
+<span class="sd">          &#39;filename&#39;: u&#39;.../station_files/seed/dataless.IU_PAB&#39;,</span>
+<span class="sd">          &#39;latitude&#39;: 39.5446,</span>
+<span class="sd">          &#39;local_depth_in_m&#39;: 0.0,</span>
+<span class="sd">          &#39;longitude&#39;: -4.349899,</span>
+<span class="sd">          &#39;start_date&#39;: UTCDateTime(1999, 2, 18, 10, 0)}, {...}, ...]</span>
 
 <span class="sd">        Returns a list of dictionaries, each with the following keys:</span>
 
