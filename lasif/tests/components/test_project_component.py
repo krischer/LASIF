@@ -124,3 +124,22 @@ def test_string_representation(comm, capsys):
     assert "4 raw waveform files" in out
     assert "0 processed waveform files" in out
     assert "6 synthetic waveform files" in out
+
+
+def test_log_filename_creation(comm):
+    """
+    Tests the logfiles.
+    """
+    import obspy
+    cur_time = obspy.UTCDateTime()
+
+    log_file = comm.project.get_log_file("DOWNLOADS", "some_event")
+    log_dir = os.path.dirname(log_file)
+    assert log_dir == os.path.join(comm.project.paths["logs"], "DOWNLOADS")
+
+    basename = os.path.basename(log_file)
+    time, desc = basename.split("___")
+    time = obspy.UTCDateTime(time)
+
+    assert (time - cur_time) <= 0.1
+    assert desc == "some_event"

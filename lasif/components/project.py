@@ -449,3 +449,20 @@ class Project(Component):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         return output_dir
+
+    def get_log_file(self, log_type, description):
+        """
+        Returns the name of a log file. It will create all necessary
+        directories along the way but not the log file itsself.
+
+        :param log_type: The type of logging. Will result in a subfolder.
+            Examples for this are ``"PROCESSING"``, ``"DOWNLOADS"``, ...
+        :param description: Short description of what is being downloaded.
+            Will be used to derive the name of the logfile.
+        """
+        from obspy import UTCDateTime
+        log_dir = os.path.join(self.paths["logs"], log_type)
+        filename = ("%s___%s" % (str(UTCDateTime()), description))
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+        return os.path.join(log_dir, filename)
