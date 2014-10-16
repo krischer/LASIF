@@ -63,12 +63,19 @@ class ActionsComponent(Component):
 
                 # Get the event.
                 event = self.comm.events.get(event_name)
-                # Get the stations.
-                stations = self.comm.query\
-                    .get_all_stations_for_event(event_name)
-                # Get the raw waveform data.
-                waveforms = \
-                    self.comm.waveforms.get_metadata_raw(event_name)
+
+                try:
+                    # Get the stations.
+                    stations = self.comm.query\
+                        .get_all_stations_for_event(event_name)
+                    # Get the raw waveform data.
+                    waveforms = \
+                        self.comm.waveforms.get_metadata_raw(event_name)
+                except LASIFNotFoundError:
+                    warnings.warn(
+                        "No data found for event '%s'. Did you delete data "
+                        "after the iteration has been created?" % event_name)
+                    continue
 
                 # Group by station name.
                 func = lambda x: ".".join(x["channel_id"].split(".")[:2])
