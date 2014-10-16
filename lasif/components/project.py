@@ -463,6 +463,7 @@ class Project(Component):
         from obspy import UTCDateTime
         log_dir = os.path.join(self.paths["logs"], log_type)
         filename = ("%s___%s" % (str(UTCDateTime()), description))
+        filename += os.path.extsep + "log"
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
         return os.path.join(log_dir, filename)

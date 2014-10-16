@@ -142,4 +142,4 @@ def test_log_filename_creation(comm):
     time = obspy.UTCDateTime(time)
 
     assert (time - cur_time) <= 0.1
-    assert desc == "some_event"
+    assert desc == "some_event.log"
