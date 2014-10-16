@@ -212,12 +212,10 @@ def preprocess_file(processing_info):
         except:
             msg = ("File  could not be corrected with the help of the "
                    "StationXML file '%s'. Will be skipped.") \
-                  % processing_info["station_filename"],
+                % processing_info["station_filename"],
             raise LASIFError(msg)
     else:
         raise NotImplementedError
-
-
 
     # =========================================================================
     # Step 4: Interpolation

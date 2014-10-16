@@ -112,14 +112,18 @@ class StationsComponent(Component):
         active at a certain point in time.
 
         >>> comm = getfixture('stations_comm')
-        >>> comm.stations.get_all_channels() \
+        >>> import pprint
+        >>> pprint.pprint(sorted(comm.stations.get_all_channels(),
+        ...                      key=lambda x: x["channel_id"], reverse=True))\
         # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-        [{'local_depth_in_m': 0.0, 'end_date': None, 'elevation_in_m': 565.0,
-          'longitude': 11.2752, 'filename': u'/.../dataless.BW_FURT',
-          'channel_id': u'BW.FURT..EHZ', 'latitude': 48.162899,
-          'start_date': UTCDateTime(2001, ...)},
-         {...},
-          ...]
+        [{'channel_id': u'IU.PAB.00.BHE',
+          'elevation_in_m': 950.0,
+          'end_date': UTCDateTime(2009, 8, 13, 19, 0),
+          'filename': u'.../station_files/seed/dataless.IU_PAB',
+          'latitude': 39.5446,
+          'local_depth_in_m': 0.0,
+          'longitude': -4.349899,
+          'start_date': UTCDateTime(1999, 2, 18, 10, 0)}, {...}, ...]
 
         Returns a list of dictionaries, each with the following keys:
 
