@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import copy
+import logging
 import numpy as np
 import os
 
@@ -18,7 +19,6 @@ class DownloadsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
-
     def download_data(self, event, providers=None):
         """
         """
@@ -59,11 +59,21 @@ class DownloadsComponent(Component):
 
         stationxml_path = self._get_stationxml_path_fct(starttime, endtime)
 
+        # Also log to file for reasons of provenance and debugging.
+        logger = logging.getLogger("obspy-download-helper")
+        fh = logging.FileHandler(
+            self.comm.project.get_log_file("DOWNLOADS", event["event_name"]))
+        fh.setLevel(logging.INFO)
+        FORMAT = "[%(asctime)s] - %(name)s - %(levelname)s: %(message)s"
+        formatter = logging.Formatter(FORMAT)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
         dlh = DownloadHelper(providers=providers)
         report = dlh.download(domain=domain, restrictions=restrictions,
                               mseed_path=mseed_path,
                               stationxml_path=stationxml_path)
-        print format_report(report)
+        format_report(report)
 
     def _get_stationxml_path_fct(self, starttime, endtime):
         time_of_interest = starttime + 0.5 * (endtime - starttime)
