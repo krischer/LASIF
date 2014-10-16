@@ -143,7 +143,7 @@ def test_preprocessing_runs(comm):
     comm.actions.preprocess_data(
         "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"], waiting_time=0.0)
     assert os.path.exists(processing_dir)
-    assert len(os.listdir(processing_dir)) == 4
+    assert len(os.listdir(processing_dir)) == 6
 
     # Remove and try again, this time not specifying the event which will
     # simply use all events. Should have the same result.
@@ -151,4 +151,4 @@ def test_preprocessing_runs(comm):
     assert not os.path.exists(processing_dir)
     comm.actions.preprocess_data("1", waiting_time=0.0)
     assert os.path.exists(processing_dir)
-    assert len(os.listdir(processing_dir)) == 4
+    assert len(os.listdir(processing_dir)) == 6
