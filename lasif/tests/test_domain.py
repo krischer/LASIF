@@ -166,3 +166,20 @@ def test_domain_equality(tmpdir):
 
     assert d1 == copy.deepcopy(d1)
     assert d1 != d2
+
+
+def test_plotting_domain_japan(tmpdir):
+    """
+    Tests plotting of domain around Japan.
+    """
+    domain.RectangularSphericalSection(
+        min_latitude=15.5,
+        max_latitude=55,
+        min_longitude=115.5,
+        max_longitude=155.0,
+        min_depth_in_km=0,
+        max_depth_in_km=599.0,
+        boundary_width_in_degree=3.0,
+        rotation_axis=[1, 1, 1],
+        rotation_angle_in_degree=0.0).plot(plot_simulation_domain=True)
+    images_are_identical("domain_japan", str(tmpdir))
