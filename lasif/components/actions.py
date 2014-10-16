@@ -79,15 +79,22 @@ class ActionsComponent(Component):
 
                 # Group by station name.
                 func = lambda x: ".".join(x["channel_id"].split(".")[:2])
+                waveforms.sort(key=func)
                 for station_name, channels in  \
                         itertools.groupby(waveforms, func):
+                    channels = list(channels)
                     # Filter waveforms with no available station files
                     # or coordinates.
                     if station_name not in stations:
                         continue
+
                     # Group by location.
-                    locations = list(itertools.groupby(
-                        channels, lambda x: x["channel_id"].split(".")[2]))
+                    get_loc_id = lambda x: x["channel_id"].split(".")[2]
+                    channels.sort(key=get_loc_id)
+                    locations = []
+                    for loc_id, chans in itertools.groupby(channels,
+                                                           get_loc_id):
+                        locations.append((loc_id, list(chans)))
                     locations.sort(key=lambda x: x[0])
 
                     if len(locations) > 1:

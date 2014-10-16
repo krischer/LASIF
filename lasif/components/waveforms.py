@@ -282,11 +282,11 @@ class WaveformsComponent(Component):
         ...     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"),
         ...     key=lambda x: x["channel_id"])) \
         # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-        [{'channel': u'BHZ',
-          'channel_id': u'HL.ARG..BHZ',
+        [{'channel': u'BHE',
+          'channel_id': u'HL.ARG..BHE',
           'elevation_in_m': None,
           'endtime': UTCDateTime(2010, 3, 24, 15, 11, 30, 974999),
-          'filename': u'/.../HL.ARG..BHZ.mseed',
+          'filename': u'/.../HL.ARG..BHE.mseed',
           'latitude': None,
           'local_depth_in_m': None,
           'location': u'',

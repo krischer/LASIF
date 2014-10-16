@@ -322,7 +322,7 @@ def test_lasif_info(cli):
     assert "Toy Project used in the Test Suite" in out
     assert "2 events" in out
     assert "4 station files" in out
-    assert "4 raw waveform files" in out
+    assert "6 raw waveform files" in out
     assert "0 processed waveform files" in out
     assert "6 synthetic waveform files" in out
 
@@ -484,7 +484,7 @@ def test_preprocessing(cli):
     cli.run("lasif preprocess_data 1")
 
     assert os.path.exists(preprocessing_path)
-    assert len(os.listdir(preprocessing_path)) == 4
+    assert len(os.listdir(preprocessing_path)) == 6
 
 
 def test_preprocessing_event_limiting_works(cli):

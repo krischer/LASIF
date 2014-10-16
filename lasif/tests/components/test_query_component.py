@@ -34,7 +34,7 @@ def test_discover_available_data(comm):
 
     # At the beginning it contains nothing, except a raw vertical component
     assert comm.query.discover_available_data(event, "HL.ARG") == \
-        {"processed": {}, "synthetic": {}, "raw": {"raw": ["Z"]}}
+        {"processed": {}, "synthetic": {}, "raw": {"raw": ["Z", "N", "E"]}}
 
     # Create a new iteration. At this point it should contain some synthetics.
     comm.iterations.create_new_iteration(
@@ -42,7 +42,7 @@ def test_discover_available_data(comm):
     assert comm.query.discover_available_data(event, "HL.ARG") == \
         {"processed": {},
          "synthetic": {"1": ["Z", "N", "E"]},
-         "raw": {"raw": ["Z"]}}
+         "raw": {"raw": ["Z", "N", "E"]}}
 
     # A new iteration without data does not add anything.
     comm.iterations.create_new_iteration(
@@ -50,7 +50,7 @@ def test_discover_available_data(comm):
     assert comm.query.discover_available_data(event, "HL.ARG") == \
         {"processed": {},
          "synthetic": {"1": ["Z", "N", "E"]},
-         "raw": {"raw": ["Z"]}}
+         "raw": {"raw": ["Z", "N", "E"]}}
 
     # Data is also available for a second station. But not for another one.
     assert comm.query.discover_available_data(event, "HT.SIGR") == \
@@ -210,10 +210,10 @@ def test_iteration_status(comm):
         comm.iterations.get("1").processing_tag)
     data_folder = os.path.join(comm.project.paths["data"], event, "raw")
 
-    data_file = sorted(glob.glob(os.path.join(data_folder, "*")))[0]
-    proc_file = sorted(glob.glob(os.path.join(proc_folder, "*")))[0]
-    os.remove(data_file)
-    os.remove(proc_file)
+    for filename in glob.glob(os.path.join(data_folder, "HL.ARG*")):
+        os.remove(filename)
+    for filename in glob.glob(os.path.join(proc_folder, "HL.ARG*")):
+        os.remove(filename)
 
     comm.waveforms.reset_cached_caches()
     status = comm.query.get_iteration_status("1")
@@ -256,7 +256,7 @@ def test_data_synthetic_iterator(comm, recwarn):
 
     station_1 = iterator.next()
     assert station_1.coordinates == expected["HL.ARG"]
-    assert len(station_1.data) == 1
+    assert len(station_1.data) == 3
     assert len(station_1.synthetics) == 3
     assert set([".".join(tr.id.split(".")[:2]) for tr in station_1.data]) == \
         set(["HL.ARG"])
