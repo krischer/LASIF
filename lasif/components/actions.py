@@ -512,7 +512,7 @@ class ActionsComponent(Component):
         """
         from itertools import izip
         import numpy as np
-
+        import lasif
         from lasif import rotations
 
         all_coordinates = []
@@ -579,18 +579,19 @@ class ActionsComponent(Component):
             rec_lng = coords["longitude"]
             domain = self.comm.project.domain
 
-            if domain["rotation_angle"]:
+            if isinstance(domain, lasif.domain.RectangularSphericalSection) \
+                    and domain.rotation_angle_in_degree:
                 # Rotate the adjoint source location.
                 r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(
-                    rec_lat, rec_lng, domain["rotation_axis"],
-                    -domain["rotation_angle"])
+                    rec_lat, rec_lng, domain.rotation_axis,
+                    -domain.rotation_angle_in_degree)
                 # Rotate the adjoint sources.
                 channels["N"], channels["E"], channels["Z"] = \
                     rotations.rotate_data(
                         channels["N"], channels["E"],
                         channels["Z"], rec_lat, rec_lng,
-                        domain["rotation_axis"],
-                        -domain["rotation_angle"])
+                        domain.rotation_axis,
+                        -domain.rotation_angle_in_degree)
             else:
                 r_rec_lat = rec_lat
                 r_rec_lng = rec_lng

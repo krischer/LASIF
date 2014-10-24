@@ -139,7 +139,7 @@ def lasif_plot_domain(parser, args):
 @command_group("Misc")
 def lasif_shell(parser, args):
     """
-    Drops you into a shell with an communicator.
+    Drops you into a shell with an active communicator instance.
     """
     parser.parse_args(args)
 

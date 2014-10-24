@@ -252,4 +252,5 @@ def test_adjoint_source_finalization_unrotated_domain(comm, capsys):
     adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
     adj_src_dir = os.path.join(out, adj_src_dir)
     assert os.path.exists(adj_src_dir)
-    assert len(os.listdir(adj_src_dir)) == 1
+    assert sorted(os.listdir(adj_src_dir)) == sorted(["ad_srcfile",
+                                                      "ad_src_1"])
