@@ -7,7 +7,8 @@ import numpy as np
 import os
 import warnings
 
-from lasif import LASIFError, LASIFWarning, LASIFNotFoundError
+from lasif import LASIFError, LASIFWarning, LASIFNotFoundError, \
+    LASIFAdjointSourceCalculationError
 from lasif import rotations
 from .component import Component
 
@@ -535,22 +536,28 @@ class ActionsComponent(Component):
                 continue
             station_weight = iteration_stations[station]["station_weight"]
             channels = {}
-            for w in windows:
-                w = window_manager.get(w)
-                channel_weight = 0
-                srcs = []
-                for window in w:
-                    ad_src = window.adjoint_source
-                    if not ad_src["adjoint_source"].ptp():
+            try:
+                for w in windows:
+                    w = window_manager.get(w)
+                    channel_weight = 0
+                    srcs = []
+                    for window in w:
+                        ad_src = window.adjoint_source
+                        if not ad_src["adjoint_source"].ptp():
+                            continue
+                        srcs.append(ad_src["adjoint_source"] * window.weight)
+                        channel_weight += window.weight
+                    if not srcs:
                         continue
-                    srcs.append(ad_src["adjoint_source"] * window.weight)
-                    channel_weight += window.weight
-                if not srcs:
-                    continue
-                # Final adjoint source for that channel and apply all weights.
-                adjoint_source = np.sum(srcs, axis=0) / channel_weight * \
-                    event_weight * station_weight
-                channels[w.channel_id[-1]] = adjoint_source
+                    # Final adjoint source for that channel and apply all weights.
+                    adjoint_source = np.sum(srcs, axis=0) / channel_weight * \
+                        event_weight * station_weight
+                    channels[w.channel_id[-1]] = adjoint_source
+            except LASIFAdjointSourceCalculationError as e:
+                print("Could not calculate adjoint source for iteration %s "
+                      "and station %s. Repick windows? Reason: %s" % (
+                      iteration.name, station, str(e)))
+                continue
             if not channels:
                 continue
             # Now all adjoint sources of a window should have the same length.
@@ -612,12 +619,13 @@ class ActionsComponent(Component):
                     open_file.write("%e %e %e\n" % (x, y, z))
                 open_file.write("\n")
 
-        # Write the final file.
-        with open(os.path.join(output_folder, "ad_srcfile"), "wt") as fh:
-            fh.write("%i\n" % _i)
-            for line in all_coordinates:
-                fh.write("%.6f %.6f %.6f\n" % (line[0], line[1], line[2]))
-            fh.write("\n")
+        # Write the final file if adjoint sources actually could be calculated.
+        if _i:
+            with open(os.path.join(output_folder, "ad_srcfile"), "wt") as fh:
+                fh.write("%i\n" % _i)
+                for line in all_coordinates:
+                    fh.write("%.6f %.6f %.6f\n" % (line[0], line[1], line[2]))
+                fh.write("\n")
 
         print "Wrote %i adjoint sources to %s." % (
             _i, os.path.relpath(output_folder))

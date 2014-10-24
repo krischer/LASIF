@@ -7,7 +7,7 @@ import os
 import pytest
 import shutil
 
-from lasif import LASIFError
+from lasif import LASIFError, LASIFNotFoundError
 from lasif.components.project import Project
 
 
@@ -152,3 +152,49 @@ def test_preprocessing_runs(comm):
     comm.actions.preprocess_data("1", waiting_time=0.0)
     assert os.path.exists(processing_dir)
     assert len(os.listdir(processing_dir)) == 6
+
+
+def test_finalize_adjoint_sources_with_failing_adjoint_src_calculation(
+        comm, capsys):
+    """
+    Tests the finalization of adjoint sources with a failing adjoint source
+    calculation.
+    """
+    comm.iterations.create_new_iteration(
+        "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    event = comm.events.get(event_name)
+    t = event["origin_time"]
+
+    # Create iteration and preprocess some data.
+    it = comm.iterations.get("1")
+    # Make sure the settings match the synthetics.
+    it.solver_settings["solver_settings"]["simulation_parameters"][
+        "time_increment"] = 0.13
+    it.solver_settings["solver_settings"]["simulation_parameters"][
+        "number_of_time_steps"] = 4000
+    comm.actions.preprocess_data(it, waiting_time=0.0)
+
+    window_group_manager = comm.windows.get(event, it)
+
+    # Automatic window selection does not work for the terrible test data...
+    # Now add only windows that actually have data and synthetics but the
+    # data will be too bad to actually extract an adjoint source from.
+    for chan in ["HL.ARG..BHE", "HL.ARG..BHN", "HL.ARG..BHZ"]:
+        window_group = window_group_manager.get(chan)
+        window_group.add_window(starttime=t + 100, endtime=t + 200)
+        window_group.write()
+
+    capsys.readouterr()
+    comm.actions.finalize_adjoint_sources(it.name, event_name)
+    out, _ = capsys.readouterr()
+    assert "Could not calculate adjoint source for iteration 1" in out
+    assert "Wrote 0 adjoint sources" in out
+
+    # Make sure nothing is actually written.
+    out = comm.project.paths["output"]
+    adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
+    adj_src_dir = os.path.join(out, adj_src_dir)
+    assert os.path.exists(adj_src_dir)
+    assert len(os.listdir(adj_src_dir)) == 0
