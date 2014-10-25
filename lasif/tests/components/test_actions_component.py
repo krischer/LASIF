@@ -219,10 +219,11 @@ def test_adjoint_source_finalization_unrotated_domain(comm, capsys):
     # Fake preprocessed data by copying the synthetics and perturbing them a
     # bit...
     stations = ["HL.ARG", "HT.SIGR"]
+    np.random.seed(123456)
     for station in stations:
         s = comm.waveforms.get_waveforms_synthetic(event_name, station,
                                                    it.long_name)
-        # Perturb data.
+        # Perturb data a bit.
         for tr in s:
             tr.data += np.random.random(len(tr.data)) * 2E-8
         path = comm.waveforms.get_waveform_folder(event_name, "processed",
