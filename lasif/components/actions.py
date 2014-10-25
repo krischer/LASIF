@@ -580,8 +580,11 @@ class ActionsComponent(Component):
             rec_lng = coords["longitude"]
             domain = self.comm.project.domain
 
+            # Rotated domains with SES3D require rotations.
             if isinstance(domain, lasif.domain.RectangularSphericalSection) \
-                    and domain.rotation_angle_in_degree:
+                    and domain.rotation_angle_in_degree \
+                    and iteration.solver_settings["solver"].lower()\
+                    .startswith('ses3d'):
                 # Rotate the adjoint source location.
                 r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(
                     rec_lat, rec_lng, domain.rotation_axis,
