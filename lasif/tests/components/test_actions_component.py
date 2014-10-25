@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import inspect
+import mock
 import numpy as np
 import os
 import pytest
@@ -243,7 +244,12 @@ def test_adjoint_source_finalization_unrotated_domain(comm, capsys):
         window_group.write()
 
     capsys.readouterr()
-    comm.actions.finalize_adjoint_sources(it.name, event_name)
+
+    # Make sure nothing is rotated as the domain is not rotated.
+    with mock.patch("lasif.rotations.rotate_data") as patch:
+        comm.actions.finalize_adjoint_sources(it.name, event_name)
+    assert patch.call_count == 0
+
     out, _ = capsys.readouterr()
     assert "Wrote 1 adjoint sources" in out
 
