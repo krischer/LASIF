@@ -8,7 +8,7 @@ import os
 import pytest
 import shutil
 
-from lasif import LASIFError, LASIFNotFoundError
+from lasif import LASIFError
 from lasif.components.project import Project
 
 
@@ -214,7 +214,6 @@ def test_adjoint_source_finalization_unrotated_domain(comm, capsys):
 
     # Create iteration.
     it = comm.iterations.get("1")
-
 
     # Fake preprocessed data by copying the synthetics and perturbing them a
     # bit...

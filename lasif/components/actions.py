@@ -549,14 +549,15 @@ class ActionsComponent(Component):
                         channel_weight += window.weight
                     if not srcs:
                         continue
-                    # Final adjoint source for that channel and apply all weights.
+                    # Final adjoint source for that channel and apply all
+                    # weights.
                     adjoint_source = np.sum(srcs, axis=0) / channel_weight * \
                         event_weight * station_weight
                     channels[w.channel_id[-1]] = adjoint_source
             except LASIFAdjointSourceCalculationError as e:
                 print("Could not calculate adjoint source for iteration %s "
                       "and station %s. Repick windows? Reason: %s" % (
-                      iteration.name, station, str(e)))
+                          iteration.name, station, str(e)))
                 continue
             if not channels:
                 continue
