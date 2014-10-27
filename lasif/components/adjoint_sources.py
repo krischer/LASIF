@@ -7,7 +7,7 @@ import joblib
 import numpy as np
 import os
 
-from lasif import LASIFNotFoundError
+from lasif import LASIFNotFoundError, LASIFAdjointSourceCalculationError
 from .component import Component
 from ..adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 from ..adjoint_sources.ad_src_l2_norm_misfit import adsrc_l2_norm_misfit
@@ -63,11 +63,16 @@ class AdjointSourcesComponent(Component):
         filename = os.path.join(folder, "%s_%s_%s_%s_%.2f_%s" % (
             channel_id, str(starttime), str(endtime), str(taper),
             taper_percentage, ad_src_type))
+
         if os.path.exists(filename):
-            return joblib.load(filename)
+            adsrc = joblib.load(filename)
+            if not self._validate_return_value(adsrc):
+                os.remove(filename)
+            else:
+                return adsrc
 
         if ad_src_type not in MISFIT_MAPPING:
-            raise ValueError(
+            raise LASIFAdjointSourceCalculationError(
                 "Adjoint source type '%s' not supported. Supported types: %s"
                 % (ad_src_type,  ", ".join(MISFIT_MAPPING.keys())))
 
@@ -90,12 +95,15 @@ class AdjointSourcesComponent(Component):
 
         # Make sure they are equal enough.
         if abs(data.stats.starttime - synth.stats.starttime) > 0.1:
-            raise ValueError("Starttime not similar enough")
+            raise LASIFAdjointSourceCalculationError(
+                "Starttime not similar enough")
         if data.stats.npts != synth.stats.npts:
-            raise ValueError("Differing number of samples")
+            raise LASIFAdjointSourceCalculationError(
+                "Differing number of samples")
         if abs(data.stats.delta - synth.stats.delta) / data.stats.delta > \
                 0.01:
-            raise ValueError("Sampling rate not similar enough.")
+            raise LASIFAdjointSourceCalculationError(
+                "Sampling rate not similar enough.")
 
         original_stats = copy.deepcopy(data.stats)
 
@@ -128,5 +136,24 @@ class AdjointSourcesComponent(Component):
             "misfit_value": adsrc["misfit_value"],
             "details": adsrc["details"]
         }
+
+        if not self._validate_return_value(ret_val):
+            raise LASIFAdjointSourceCalculationError(
+                "Could not calculate adjoint source due to mismatching types.")
+
         joblib.dump(ret_val, filename)
         return ret_val
+
+    def _validate_return_value(self, adsrc):
+        if not isinstance(adsrc, dict):
+            return False
+        elif sorted(adsrc.keys()) != ["adjoint_source", "details",
+                                      "misfit_value"]:
+            return False
+        elif not isinstance(adsrc["adjoint_source"], np.ndarray):
+            return False
+        elif not isinstance(adsrc["misfit_value"], float):
+            return False
+        elif not isinstance(adsrc["details"], dict):
+            return False
+        return True

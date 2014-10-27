@@ -7,8 +7,7 @@ import numpy as np
 import os
 import warnings
 
-from lasif import LASIFError, LASIFWarning, LASIFNotFoundError, \
-    LASIFAdjointSourceCalculationError
+from lasif import LASIFError, LASIFWarning, LASIFNotFoundError
 from lasif import rotations
 from .component import Component
 
@@ -554,7 +553,7 @@ class ActionsComponent(Component):
                     adjoint_source = np.sum(srcs, axis=0) / channel_weight * \
                         event_weight * station_weight
                     channels[w.channel_id[-1]] = adjoint_source
-            except LASIFAdjointSourceCalculationError as e:
+            except LASIFError as e:
                 print("Could not calculate adjoint source for iteration %s "
                       "and station %s. Repick windows? Reason: %s" % (
                           iteration.name, station, str(e)))
