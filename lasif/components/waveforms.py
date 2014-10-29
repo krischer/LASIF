@@ -254,7 +254,7 @@ class WaveformsComponent(Component):
                        "location '%s'." % (
                            data_type, len(keys), event_name, station_id,
                            ", ".join(["'%s'" % _i for _i in keys]), keys[0]))
-                warnings.warn(LASIFWarning, msg)
+                warnings.warn(msg, LASIFWarning)
             files = locations[keys[0]]
         st = obspy.Stream()
         for single_file in files:
