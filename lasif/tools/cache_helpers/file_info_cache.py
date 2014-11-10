@@ -249,7 +249,7 @@ class FileInfoCache(object):
         # Use a progressbar if the filecount is large so something appears on
         # screen.
         pbar = None
-        update_interval = None
+        update_interval = 1
         current_file_count = 0
         start_time = time.time()
         # Now update all filetypes separately.
@@ -263,7 +263,7 @@ class FileInfoCache(object):
                                progressbar.Bar(), "", progressbar.ETA()]
                     pbar = progressbar.ProgressBar(widgets=widgets,
                                                    maxval=filecount).start()
-                    update_interval = int(filecount / 100)
+                    update_interval = max(int(filecount / 100), 1)
                     pbar.update(current_file_count)
                 if pbar and not current_file_count % update_interval:
                     pbar.update(current_file_count)
