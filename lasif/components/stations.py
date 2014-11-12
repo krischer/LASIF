@@ -228,7 +228,9 @@ class StationsComponent(Component):
         """
         filename = self._station_cache.get_station_filename(channel_id, time)
         if filename is None:
-            raise LASIFNotFoundError
+            raise LASIFNotFoundError(
+                "Could not find a station file for channel '%s' at %s." % (
+                    channel_id, str(time)))
         return filename
 
     def get_station_filename(self, network, station, location, channel,
