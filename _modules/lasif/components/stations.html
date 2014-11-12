@@ -377,7 +377,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
+                <span class="s">&quot;Could not find a station file for channel &#39;</span><span class="si">%s</span><span class="s">&#39; at </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">channel_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">filename</span>
 </div>
 <div class="viewcode-block" id="StationsComponent.get_station_filename"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.get_station_filename">[docs]</a>    <span class="k">def</span> <span class="nf">get_station_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span>
