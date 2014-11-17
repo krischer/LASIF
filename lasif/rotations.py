@@ -437,6 +437,11 @@ def get_border_latlng_list(
                 border[_i, 0], border[_i, 1], rotation_axis,
                 rotation_angle_in_degree)
 
+    # Fix dateline wraparounds.
+    for border in [north_border, south_border, east_border, west_border]:
+        lngs = border[:, 1]
+        lngs[lngs < min_lng] += 360.0
+
     # Take care to only use every corner once.
     borders = np.concatenate([north_border, east_border[1:], south_border[1:],
                               west_border[1:]])
