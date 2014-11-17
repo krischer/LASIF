@@ -586,6 +586,11 @@
                 <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">rotation_axis</span><span class="p">,</span>
                 <span class="n">rotation_angle_in_degree</span><span class="p">)</span>
 
+    <span class="c"># Fix dateline wraparounds.</span>
+    <span class="k">for</span> <span class="n">border</span> <span class="ow">in</span> <span class="p">[</span><span class="n">north_border</span><span class="p">,</span> <span class="n">south_border</span><span class="p">,</span> <span class="n">east_border</span><span class="p">,</span> <span class="n">west_border</span><span class="p">]:</span>
+        <span class="n">lngs</span> <span class="o">=</span> <span class="n">border</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">lngs</span><span class="p">[</span><span class="n">lngs</span> <span class="o">&lt;</span> <span class="n">min_lng</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">360.0</span>
+
     <span class="c"># Take care to only use every corner once.</span>
     <span class="n">borders</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">north_border</span><span class="p">,</span> <span class="n">east_border</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">south_border</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
                               <span class="n">west_border</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
