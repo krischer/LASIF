@@ -46,11 +46,17 @@ def plot_raydensity(map_object, station_events, domain):
     Does require geographiclib to be installed.
     """
     import ctypes as C
+    from lasif.domain import RectangularSphericalSection
     from lasif.tools.great_circle_binner import GreatCircleBinner
     from lasif.utils import Point
     import multiprocessing
     import progressbar
     from scipy.stats import scoreatpercentile
+
+    if not isinstance(domain, RectangularSphericalSection):
+        raise NotImplementedError(
+            "Raydensity currently only implemented for rectangular domains. "
+            "Should be easy to implement for other domains. Let me know.")
 
     bounds = domain.get_max_extent()
 
