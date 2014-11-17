@@ -142,6 +142,25 @@ def test_domain_new_zealand(tmpdir):
     images_are_identical("domain_new_zealand", str(tmpdir))
 
 
+def test_domain_new_zealand_regional_dateline_wraparound(tmpdir):
+    """
+    This is a much smaller domain but still having a dateline wraparound.
+    Make sure this works with basemap.
+    """
+    domain.RectangularSphericalSection(
+        min_latitude=-55.0,
+        max_latitude=-28.0,
+        min_longitude=155.0,
+        max_longitude=200.0,
+        min_depth_in_km=0,
+        max_depth_in_km=200,
+        boundary_width_in_degree=1.0,
+        rotation_axis=[1.0, 1.0, 1.0],
+        rotation_angle_in_degree=0.0).plot(plot_simulation_domain=False)
+    images_are_identical("domain_new_zealand_regional_dateline_wrap",
+                         str(tmpdir))
+
+
 def test_domain_equality(tmpdir):
     d1 = domain.RectangularSphericalSection(
         min_latitude=-70,
