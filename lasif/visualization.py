@@ -46,6 +46,7 @@ def plot_raydensity(map_object, station_events, domain):
     Does require geographiclib to be installed.
     """
     import ctypes as C
+    from lasif import rotations
     from lasif.domain import RectangularSphericalSection
     from lasif.tools.great_circle_binner import GreatCircleBinner
     from lasif.utils import Point
@@ -58,16 +59,27 @@ def plot_raydensity(map_object, station_events, domain):
             "Raydensity currently only implemented for rectangular domains. "
             "Should be easy to implement for other domains. Let me know.")
 
-    bounds = domain.get_max_extent()
-
     # Merge everything so that a list with coordinate pairs is created. This
     # list is then distributed among all processors.
     station_event_list = []
     for event, stations in station_events:
-        e_point = Point(event["latitude"], event["longitude"])
+        if domain.rotation_angle_in_degree:
+            # Rotate point to the non-rotated domain.
+            e_point = Point(*rotations.rotate_lat_lon(
+                event["latitude"], event["longitude"], domain.rotation_axis,
+                -1.0 * domain.rotation_angle_in_degree))
+        else:
+            e_point = Point(event["latitude"], event["longitude"])
         for station in stations.itervalues():
-            station_event_list.append((e_point, Point(station["latitude"],
-                                                      station["longitude"])))
+            # Rotate point to the non-rotated domain if necessary.
+            if domain.rotation_angle_in_degree:
+                p = Point(*rotations.rotate_lat_lon(
+                    station["latitude"], station["longitude"],
+                    domain.rotation_axis,
+                    -1.0 * domain.rotation_angle_in_degree))
+            else:
+                p = Point(station["latitude"], station["longitude"])
+            station_event_list.append((e_point, p))
 
     circle_count = len(station_event_list)
 
@@ -99,9 +111,9 @@ def plot_raydensity(map_object, station_events, domain):
     def great_circle_binning(sta_evs, bin_data_buffer, bin_data_shape,
                              lock, counter):
         new_bins = GreatCircleBinner(
-            bounds["minimum_latitude"], bounds["maximum_latitude"],
-            lat_lng_count, bounds["minimum_longitude"],
-            bounds["maximum_longitude"], lat_lng_count)
+            domain.min_latitude, domain.max_latitude,
+            lat_lng_count, domain.min_longitude,
+            domain.max_longitude, lat_lng_count)
         for event, station in sta_evs:
             with lock:
                 counter.value += 1
@@ -126,9 +138,9 @@ def plot_raydensity(map_object, station_events, domain):
 
     # One instance that collects everything.
     collected_bins = GreatCircleBinner(
-        bounds["minimum_latitude"], bounds["maximum_latitude"], lat_lng_count,
-        bounds["minimum_longitude"], bounds["maximum_longitude"],
-        lat_lng_count)
+        domain.min_latitude, domain.max_latitude,
+        lat_lng_count, domain.min_longitude,
+        domain.max_longitude, lat_lng_count)
 
     # Use a multiprocessing shared memory array and map it to a numpy view.
     collected_bins_data = multiprocessing.Array(C.c_uint32,
@@ -176,6 +188,12 @@ def plot_raydensity(map_object, station_events, domain):
     map_object.fillcontinents(color='#dddddd', lake_color='#dddddd', zorder=0)
 
     lngs, lats = collected_bins.coordinates
+    # Rotate back if necessary!
+    if domain.rotation_angle_in_degree:
+        for lat, lng in zip(lats, lngs):
+            lat[:], lng[:] = rotations.rotate_lat_lon(
+                lat, lng, domain.rotation_axis,
+                domain.rotation_angle_in_degree)
     ln, la = map_object(lngs, lats)
     map_object.pcolormesh(ln, la, data, cmap=cmap, vmin=0, vmax=max_val)
     # Draw the coastlines so they appear over the rays. Otherwise things are
