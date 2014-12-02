@@ -48,13 +48,13 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 import argparse
 import collections
+import colorama
 import difflib
 import itertools
 import shutil
 import sys
 import traceback
 
-import colorama
 
 from lasif import LASIFNotFoundError
 from lasif.components.project import Project

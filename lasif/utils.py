@@ -17,6 +17,16 @@ from lxml.builder import E
 from lasif import LASIFNotFoundError
 
 
+def is_mpi_env():
+    """
+    Returns True if currently in an MPI environment.
+    """
+    import mpi4py
+    if mpi4py.MPI.COMM_WORLD.size == 1 and mpi4py.MPI.COMM_WORLD.rank == 0:
+        return False
+    return True
+
+
 def channel_in_parser(parser_object, channel_id, starttime, endtime):
     """
     Simply function testing if a given channel is part of a Parser object.
