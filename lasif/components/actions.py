@@ -180,7 +180,10 @@ class ActionsComponent(Component):
             stations - set(map(channel2station, windows))
 
         for station in stations_without_windows:
-            self.select_windows_for_station(event, iteration, station)
+            try:
+                self.select_windows_for_station(event, iteration, station)
+            except LASIFNotFoundError as e:
+                warnings.warn(str(e), LASIFWarning)
 
     def select_windows_for_station(self, event, iteration, station):
         """
