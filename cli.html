@@ -1160,7 +1160,7 @@ message and exit</td>
 <div class="section" id="lasif-plot-kernel">
 <h3>lasif plot_kernel<a class="headerlink" href="#lasif-plot-kernel" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_kernel [-h] event_name iteration_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_kernel [-h] iteration_name event_name
 </pre></div>
 </div>
 </div></blockquote>
@@ -1173,11 +1173,11 @@ message and exit</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
-<td>name of the event</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
 <td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
@@ -1242,42 +1242,14 @@ message and exit</td>
 </tbody>
 </table>
 </div>
-<div class="section" id="lasif-init-project">
-<h3>lasif init_project<a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="lasif-list-kernels">
+<h3>lasif list_kernels<a class="headerlink" href="#lasif-list-kernels" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif init_project [-h] folder_path
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_kernels [-h]
 </pre></div>
 </div>
 </div></blockquote>
-<p>Create a new project.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="41%" />
-<col width="59%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">folder_path</span></tt></td>
-<td>where to create the project</td>
-</tr>
-<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
-<td>show this help
-message and exit</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="lasif-list-models">
-<h3>lasif list_models<a class="headerlink" href="#lasif-list-models" title="Permalink to this headline">¶</a></h3>
-<blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_models [-h]
-</pre></div>
-</div>
-</div></blockquote>
-<p>Print a list of all models in the project.</p>
+<p>Print a list of all kernels in this project.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="53%" />
@@ -1355,6 +1327,57 @@ channel type. Fast.</td>
 </tr>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">--full</span></tt></td>
 <td>run all validations.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-init-project">
+<h3>lasif init_project<a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif init_project [-h] folder_path
+</pre></div>
+</div>
+</div></blockquote>
+<p>Create a new project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="41%" />
+<col width="59%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">folder_path</span></tt></td>
+<td>where to create the project</td>
+</tr>
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-list-models">
+<h3>lasif list_models<a class="headerlink" href="#lasif-list-models" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_models [-h]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Print a list of all models in the project.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
 </tr>
 </tbody>
 </table>
