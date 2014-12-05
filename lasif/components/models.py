@@ -43,10 +43,8 @@ class ModelsComponent(Component):
 
         model_dir = self.get(model_name)
 
-        handler = ses3d_models.RawSES3DModelHandler(model_dir)
-        domain = self.comm.project.domain
-        handler.rotation_axis = domain["rotation_axis"]
-        handler.rotation_angle_in_degree = domain["rotation_angle"]
+        handler = ses3d_models.RawSES3DModelHandler(
+            model_dir, domain=self.comm.project.domain)
 
         while True:
             print handler

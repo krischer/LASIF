@@ -25,6 +25,7 @@ from mpl_toolkits.basemap import Basemap
 import numpy as np
 
 from lasif import rotations
+import lasif.domain
 
 
 # Pretty units for some components.
@@ -96,7 +97,7 @@ class RawSES3DModelHandler(object):
         * vy_[xx]_[timestep]
         * vz_[xx]_[timestep]
     """
-    def __init__(self, directory, model_type="earth_model"):
+    def __init__(self, directory, domain, model_type="earth_model"):
         """
         The init function.
 
@@ -117,9 +118,7 @@ class RawSES3DModelHandler(object):
         # Read the boxfile.
         self.setup = self._read_boxfile()
 
-        self.rotation_axis = None
-        self.rotation_angle_in_degree = None
-
+        self.domain = domain
         self.model_type = model_type
 
         if model_type == "earth_model":
@@ -434,13 +433,16 @@ class RawSES3DModelHandler(object):
             lat_bounds[0], lat_bounds[1], data.shape[0])
 
         lon, lat = np.meshgrid(lngs, lats)
-        if self.rotation_axis and self.rotation_angle_in_degree:
+        if hasattr(self.domain, "rotation_axis") and \
+                self.domain.rotation_axis and \
+                self.domain.rotation_angle_in_degree:
             lon_shape = lon.shape
             lat_shape = lat.shape
             lon.shape = lon.size
             lat.shape = lat.size
-            lat, lon = rotations.rotate_lat_lon(lat, lon, self.rotation_axis,
-                                                self.rotation_angle_in_degree)
+            lat, lon = rotations.rotate_lat_lon(
+                lat, lon, self.domain.rotation_axis,
+                self.domain.rotation_angle_in_degree)
             lon.shape = lon_shape
             lat.shape = lat_shape
 
@@ -448,33 +450,7 @@ class RawSES3DModelHandler(object):
         lon_0 = lon.min() + lon.ptp() / 2.0
         lat_0 = lat.min() + lat.ptp() / 2.0
 
-        plt.figure(0)
-
-        # Attempt to zoom into the region of interest.
-        max_extend = max(lon.ptp(), lat.ptp())
-        extend_used = max_extend / 180.0
-        if extend_used < 0.5:
-            # Calculate approximate width and height in meters.
-            width = lon.ptp()
-            height = lat.ptp()
-            width *= 110000 * 1.1
-            height *= 110000 * 1.1
-            # Lambert azimuthal equal area projection. Equal area projections
-            # are useful for interpreting features and this particular one also
-            # does not distort features a lot on regional scales.
-            m = Basemap(projection='laea', resolution="l",
-                        width=width, height=height,
-                        lat_0=lat_0, lon_0=lon_0)
-        else:
-            m = Basemap(projection='ortho', lon_0=lon_0, lat_0=lat_0,
-                        resolution="c")
-
-        m.drawcoastlines()
-        m.fillcontinents("0.9", zorder=0)
-        m.drawmapboundary(fill_color="white")
-        m.drawparallels(np.arange(-80.0, 80.0, 10.0), labels=[1, 0, 0, 0])
-        m.drawmeridians(np.arange(-170.0, 170.0, 10.0), labels=[0, 0, 0, 1])
-        m.drawcountries()
+        m = self.domain.plot()
 
         x, y = m(lon, lat)
         depth_data = data[::-1, :, depth_index]
@@ -499,19 +475,23 @@ class RawSES3DModelHandler(object):
         plt.suptitle("Depth slice of %s at %i km" % (
             component, int(round(actual_depth))), size="large")
 
-        border = rotations.get_border_latlng_list(
-            rotations.colat2lat(self.setup["physical_boundaries_x"][0]),
-            rotations.colat2lat(self.setup["physical_boundaries_x"][1]),
-            self.setup["physical_boundaries_y"][0],
-            self.setup["physical_boundaries_y"][1],
-            rotation_axis=self.rotation_axis,
-            rotation_angle_in_degree=self.rotation_angle_in_degree)
-        border = np.array(border)
-        lats = border[:, 0]
-        lngs = border[:, 1]
-        lngs, lats = m(lngs, lats)
-        m.plot(lngs, lats, color="black", lw=2, path_effects=[
-            PathEffects.withStroke(linewidth=4, foreground="white")])
+        # Only a global domain does not have a border. Probably not
+        # necessary as this script here can only plot SES3D models but it
+        # cannot hurt.
+        if not isinstance(self.domain, lasif.domain.GlobalDomain):
+            border = rotations.get_border_latlng_list(
+                rotations.colat2lat(self.setup["physical_boundaries_x"][0]),
+                rotations.colat2lat(self.setup["physical_boundaries_x"][1]),
+                self.setup["physical_boundaries_y"][0],
+                self.setup["physical_boundaries_y"][1],
+                rotation_axis=self.domain.rotation_axis,
+                rotation_angle_in_degree=self.domain.rotation_angle_in_degree)
+            border = np.array(border)
+            lats = border[:, 0]
+            lngs = border[:, 1]
+            lngs, lats = m(lngs, lats)
+            m.plot(lngs, lats, color="black", lw=2, path_effects=[
+                PathEffects.withStroke(linewidth=4, foreground="white")])
 
         def _on_button_press(event):
             if event.button != 1 or not event.inaxes:
