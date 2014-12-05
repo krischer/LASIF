@@ -21,7 +21,6 @@ import warnings
 from matplotlib.colors import LinearSegmentedColormap
 import matplotlib.patheffects as PathEffects
 import matplotlib.pylab as plt
-from mpl_toolkits.basemap import Basemap
 import numpy as np
 
 from lasif import rotations
@@ -445,10 +444,6 @@ class RawSES3DModelHandler(object):
                 self.domain.rotation_angle_in_degree)
             lon.shape = lon_shape
             lat.shape = lat_shape
-
-        # Get the center of the map.
-        lon_0 = lon.min() + lon.ptp() / 2.0
-        lat_0 = lat.min() + lat.ptp() / 2.0
 
         m = self.domain.plot()
 

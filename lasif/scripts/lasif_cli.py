@@ -326,11 +326,11 @@ def lasif_list_kernels(parser, args):
 
     comm = _find_project_comm(".")
     kernels = comm.kernels.list()
-    print("%i kernel%s in project:" % (len(kernels), "s" if len(kernels) != 1
-    else ""))
+    print("%i kernel%s in project:" % (
+        len(kernels), "s" if len(kernels) != 1 else ""))
     for kernel in kernels:
         print("\tIteration %3s and Event %s" % (kernel["iteration"],
-                                                  kernel["event"]))
+                                                kernel["event"]))
 
 
 @command_group("Plotting")
@@ -338,23 +338,23 @@ def lasif_plot_kernel(parser, args):
     """
     Work in progress.
     """
-    parser.add_argument("event_name", help="name of the event")
+    from glob import glob
+
     parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("event_name", help="name of the event")
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    from glob import glob
-    from lasif import ses3d_models
+    comm = _find_project_comm(".")
 
-    proj = _find_project_comm(".")
-
-    kernel_dir = proj.get_kernel_dir(iteration_name, event_name)
+    kernel_dir = comm.kernels.get(iteration_name, event_name)
 
     # Check if the kernel directory contains a boxfile,
     # if not search all model directories for one that fits. If none is
     # found, raise an error.
-    model_directories = proj.get_model_dict().values()
+    # This is just a convenience functionality but nice to have.
+    model_directories = [comm.models.get(_i) for _i in comm.models.list()]
     boxfile = os.path.join(kernel_dir, "boxfile")
     if not os.path.exists(boxfile):
         boxfile_found = False
@@ -392,29 +392,7 @@ def lasif_plot_kernel(parser, args):
             raise LASIFCommandLineException(msg)
         shutil.copyfile(boxfile, os.path.join(kernel_dir, "boxfile"))
 
-    handler = ses3d_models.RawSES3DModelHandler(kernel_dir,
-                                                model_type="kernel")
-    handler.rotation_axis = proj.domain["rotation_axis"]
-    handler.rotation_angle_in_degree = proj.domain["rotation_angle"]
-
-    while True:
-        print(handler)
-        print("")
-
-        inp = raw_input("Enter 'COMPONENT DEPTH' "
-                        "('quit/exit' to exit): ").strip()
-        if inp.lower() in ["quit", "q", "exit", "leave"]:
-            break
-        try:
-            component, depth = inp.split()
-        except:
-            continue
-
-        try:
-            handler.parse_component(component)
-        except:
-            continue
-        handler.plot_depth_slice(component, int(depth))
+    comm.kernels.plot(iteration_name, event_name)
 
 
 @command_group("Plotting")

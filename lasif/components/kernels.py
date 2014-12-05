@@ -5,6 +5,7 @@ from __future__ import absolute_import
 import os
 
 from .component import Component
+from lasif import LASIFNotFoundError
 
 
 class KernelsComponent(Component):
@@ -40,3 +41,42 @@ class KernelsComponent(Component):
                 kernels.append({"iteration": iteration.strip("ITERATION_"),
                                 "event": event})
         return kernels
+
+    def get(self, iteration, event):
+        iteration = self.comm.iterations.get(iteration)
+        event = self.comm.events.get(event)
+        kernel_dir = os.path.join(self._folder, iteration.long_name,
+                                  event["event_name"])
+        if not os.path.exists(kernel_dir) or not os.path.isdir(kernel_dir):
+            raise LASIFNotFoundError("Kernel for iteration %s and event %s "
+                                     "not found" % (iteration.long_name,
+                                                    event["event_name"]))
+        return kernel_dir
+
+    def plot(self, iteration, event):
+        from lasif import ses3d_models
+
+        model_dir = self.get(iteration, event)
+
+        handler = ses3d_models.RawSES3DModelHandler(
+            model_dir, domain=self.comm.project.domain,
+            model_type="kernel")
+
+        while True:
+            print handler
+            print ""
+
+            inp = raw_input("Enter 'COMPONENT DEPTH' "
+                            "('quit/exit' to exit): ").strip()
+            if inp.lower() in ["quit", "q", "exit", "leave"]:
+                break
+            try:
+                component, depth = inp.split()
+            except:
+                continue
+
+            try:
+                handler.parse_component(component)
+            except:
+                continue
+            handler.plot_depth_slice(component, float(depth))
