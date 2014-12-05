@@ -24,7 +24,19 @@ class KernelsComponent(Component):
         """
         Get a list of all kernels managed by this component.
         """
+        kernels = []
+        # Get the iterations first.
         contents = os.listdir(self._folder)
         contents = [_i for _i in contents if os.path.isdir(os.path.join(
             self._folder, _i))]
-        return sorted(contents)
+        contents = [_i for _i in contents if _i.startswith("ITERATION_")]
+        contents = sorted(contents)
+        for iteration in contents:
+            events = os.listdir(os.path.join(self._folder, iteration))
+            events = [_i for _i in events if os.path.isdir(os.path.join(
+                self._folder, iteration, _i))]
+            events = sorted(events)
+            for event in events:
+                kernels.append({"iteration": iteration.strip("ITERATION_"),
+                                "event": event})
+        return kernels

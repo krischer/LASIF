@@ -317,6 +317,22 @@ def lasif_list_models(parser, args):
         print ("\t%s" % model)
 
 
+@command_group("Project Management")
+def lasif_list_kernels(parser, args):
+    """
+    Print a list of all kernels in this project.
+    """
+    parser.parse_args(args)
+
+    comm = _find_project_comm(".")
+    kernels = comm.kernels.list()
+    print("%i kernel%s in project:" % (len(kernels), "s" if len(kernels) != 1
+    else ""))
+    for kernel in kernels:
+        print("\tIteration %3s and Event %s" % (kernel["iteration"],
+                                                  kernel["event"]))
+
+
 @command_group("Plotting")
 def lasif_plot_kernel(parser, args):
     """
