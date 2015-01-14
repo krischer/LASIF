@@ -273,7 +273,12 @@ def test_plotting_functions(cli):
     # Misc plotting functionality.
     with mock.patch(vs + "plot_raydensity") as patch:
         cli.run("lasif plot_raydensity")
-    patch.assert_called_once_with()
+    patch.assert_called_once_with(plot_stations=False)
+    assert patch.call_count == 1
+
+    with mock.patch(vs + "plot_raydensity") as patch:
+        cli.run("lasif plot_raydensity --plot_stations")
+    patch.assert_called_once_with(plot_stations=True)
     assert patch.call_count == 1
 
 

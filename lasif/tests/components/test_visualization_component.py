@@ -64,12 +64,22 @@ def test_single_event_plot(comm):
 
 def test_simple_raydensity(comm):
     """
-    Tests the plotting of a single event.
+    Test plotting a simple raydensity map.
     """
     comm.visualizations.plot_raydensity(save_plot=False)
     # Use a low dpi to keep the test filesize in check.
     images_are_identical("simple_raydensity_plot", comm.project.paths["root"],
                          dpi=25)
+
+
+def test_simple_raydensity_with_stations(comm):
+    """
+    Test plotting a simple raydensity map with stations.
+    """
+    comm.visualizations.plot_raydensity(save_plot=False, plot_stations=True)
+    # Use a low dpi to keep the test filesize in check.
+    images_are_identical("simple_raydensity_plot_with_stations",
+                         comm.project.paths["root"], dpi=25)
 
 
 def test_Q_model_plotting(comm):

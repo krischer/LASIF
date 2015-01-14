@@ -195,10 +195,12 @@ def lasif_plot_raydensity(parser, args):
     """
     Plot a binned raycoverage plot for all events.
     """
-    parser.parse_args(args)
+    parser.add_argument("--plot_stations", help="also plot the stations",
+                        action="store_true")
+    args = parser.parse_args(args)
 
     comm = _find_project_comm(".")
-    comm.visualizations.plot_raydensity()
+    comm.visualizations.plot_raydensity(plot_stations=args.plot_stations)
 
 
 @command_group("Data Acquisition")

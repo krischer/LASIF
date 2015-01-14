@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import itertools
 import os
 
 from lasif import LASIFError, LASIFNotFoundError
@@ -77,7 +78,7 @@ class VisualizationsComponent(Component):
         """
         self.comm.project.domain.plot(plot_simulation_domain=True)
 
-    def plot_raydensity(self, save_plot=True):
+    def plot_raydensity(self, save_plot=True, plot_stations=False):
         """
         Plots the raydensity.
         """
@@ -104,6 +105,18 @@ class VisualizationsComponent(Component):
 
         visualization.plot_events(self.comm.events.get_all_events().values(),
                                   map_object=map_object)
+
+        if plot_stations:
+            stations = itertools.chain.from_iterable((
+                _i[1].values() for _i in event_stations if _i[1]))
+            # Remove duplicates
+            stations = [(_i["latitude"], _i["longitude"]) for _i in stations]
+            stations = set(stations)
+            x, y = map_object([_i[1] for _i in stations],
+                              [_i[0] for _i in stations])
+            map_object.scatter(x, y, s=14 ** 2, color="#333333",
+                               edgecolor="#111111", alpha=0.6, zorder=200,
+                               marker="v")
 
         plt.tight_layout()
 
