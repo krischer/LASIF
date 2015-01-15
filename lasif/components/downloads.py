@@ -26,7 +26,6 @@ class DownloadsComponent(Component):
         try:
             from obspy.fdsn.download_helpers import DownloadHelper, \
                 GlobalDomain, Restrictions
-            from obspy.fdsn.download_helpers.utils import format_report
         except ImportError:
             raise ImportError("Currently requires the "
                               "krischer/download_helpers branch of ObsPy. "
@@ -70,10 +69,9 @@ class DownloadsComponent(Component):
         logger.addHandler(fh)
 
         dlh = DownloadHelper(providers=providers)
-        report = dlh.download(domain=domain, restrictions=restrictions,
-                              mseed_path=mseed_path,
-                              stationxml_path=stationxml_path)
-        format_report(report)
+        dlh.download(domain=domain, restrictions=restrictions,
+                     mseed_storage=mseed_path,
+                     stationxml_storage=stationxml_path)
 
     def _get_stationxml_path_fct(self, starttime, endtime):
         time_of_interest = starttime + 0.5 * (endtime - starttime)

@@ -202,3 +202,20 @@ def test_plotting_domain_japan(tmpdir):
         rotation_axis=[1, 1, 1],
         rotation_angle_in_degree=0.0).plot(plot_simulation_domain=True)
     images_are_identical("domain_japan", str(tmpdir))
+
+
+def test_plotting_domain_iberia(tmpdir):
+    """
+    Tests plotting a domain around Iberia.
+    """
+    domain.RectangularSphericalSection(
+        min_latitude=-33.0,
+        max_latitude=-3,
+        min_longitude=-20.0,
+        max_longitude=27.0,
+        min_depth_in_km=0,
+        max_depth_in_km=599.0,
+        boundary_width_in_degree=2.0,
+        rotation_axis=[0, 1, 0],
+        rotation_angle_in_degree=-57.5).plot(plot_simulation_domain=False)
+    images_are_identical("domain_iberia", str(tmpdir))

@@ -163,16 +163,32 @@ class RectangularSphericalSection(Domain):
     @property
     def extent(self):
         lats, lngs = zip(*self.border)
+        lats, lngs = np.array(lats), np.array(lngs)
+
+        # One has to be careful with longitudes as they wrap around.
+        x, y = np.cos(np.deg2rad(lngs)), np.sin(np.deg2rad(lngs))
+        mean_lng = np.rad2deg(np.arctan2(y.mean(), x.mean()))
+
+        # Custom mod function NOT returning a value with the same sign as
+        # the divident.
+        def _mod(a, n):
+            return (a % n + n) % n
+
+        a = lngs - mean_lng
+        dist_to_mean = _mod(a + 180, 360.0) - 180
+        longitudinal_extent = dist_to_mean.ptp()
+
         Extent = collections.namedtuple(
             "Extent", ["max_latitude", "min_latitude", "max_longitude",
                        "min_longitude", "latitudinal_extent",
                        "longitudinal_extent"])
-        return Extent(max_latitude=max(lats),
-                      min_latitude=min(lats),
-                      max_longitude=max(lngs),
-                      min_longitude=min(lngs),
-                      latitudinal_extent=abs(max(lats) - min(lats)),
-                      longitudinal_extent=abs(max(lngs) - min(lngs)))
+
+        return Extent(max_latitude=lats.max(),
+                      min_latitude=lats.min(),
+                      max_longitude=mean_lng - longitudinal_extent / 2.0,
+                      min_longitude=mean_lng + longitudinal_extent / 2.0,
+                      latitudinal_extent=lats.ptp(),
+                      longitudinal_extent=longitudinal_extent)
 
     def point_in_domain(self, longitude, latitude):
         """
