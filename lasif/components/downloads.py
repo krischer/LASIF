@@ -44,19 +44,25 @@ class DownloadsComponent(Component):
         starttime = event_time - ds["seconds_before_event"]
         endtime = event_time + ds["seconds_after_event"]
 
-        mseed_path = os.path.join(
-            proj.paths["data"], event["event_name"], "raw",
-            "{network}.{station}.{location}.{channel}.mseed")
+        mseed_storage = os.path.join(proj.paths["data"], event["event_name"],
+                                     "raw")
         restrictions = Restrictions(
             starttime=starttime,
             endtime=endtime,
+            # Go back 10 years.
+            station_starttime=starttime - 86400 * 365.25 * 10,
+            # Advance 10 years.
+            station_endtime=endtime + 86400 * 365.25 * 10,
             network=None, station=None, location=None, channel=None,
             minimum_interstation_distance_in_m=ds[
                 "interstation_distance_in_m"],
+            reject_channels_with_gaps=True,
+            minimum_length=0.95,
             location_priorities=ds["location_priorities"],
             channel_priorities=ds["channel_priorities"])
 
-        stationxml_path = self._get_stationxml_path_fct(starttime, endtime)
+        stationxml_storage = self._get_stationxml_storage_fct(starttime,
+                                                              endtime)
 
         # Also log to file for reasons of provenance and debugging.
         logger = logging.getLogger("obspy-download-helper")
@@ -70,22 +76,24 @@ class DownloadsComponent(Component):
 
         dlh = DownloadHelper(providers=providers)
         dlh.download(domain=domain, restrictions=restrictions,
-                     mseed_storage=mseed_path,
-                     stationxml_storage=stationxml_path)
+                     mseed_storage=mseed_storage,
+                     stationxml_storage=stationxml_storage)
 
-    def _get_stationxml_path_fct(self, starttime, endtime):
+    def _get_stationxml_storage_fct(self, starttime, endtime):
+        # Get the stationxml storage function required by the download helpers.
         time_of_interest = starttime + 0.5 * (endtime - starttime)
         root_path = self.comm.project.paths["station_xml"]
 
-        def stationxml_path(network, station, channels):
-            for chan in channels:
+        def stationxml_storage(network, station, channels, startime, endtime):
+            missing_channels = []
+            available_channels = []
+            for loc_code, cha_code in channels:
                 if not self.comm.stations.has_channel(
-                    "%s.%s.%s.%s" % (network, station, chan.location,
-                                     chan.channel), time_of_interest):
-                    break
-            else:
-                # All channels are available.
-                return None
+                    "%s.%s.%s.%s" % (network, station, loc_code,
+                                     cha_code), time_of_interest):
+                    missing_channels.append((loc_code, cha_code))
+                else:
+                    available_channels.append((loc_code, cha_code))
             _i = 0
             while True:
                 path = os.path.join(root_path, "%s.%s%s.xml" % (
@@ -94,9 +102,14 @@ class DownloadsComponent(Component):
                     _i += 1
                     continue
                 break
-            return path
 
-        return stationxml_path
+            return {
+                "available_channels": available_channels,
+                "missing_channels": missing_channels,
+                "filename": path
+            }
+
+        return stationxml_storage
 
     def _get_spherical_section_domain(self, domain):
         from obspy.fdsn.download_helpers import Domain
