@@ -95,7 +95,7 @@ def _read_GCMT_catalog(min_year=None, max_year=None):
         print("\tReading year %s ..." % year)
         for filename in glob.glob(os.path.join(data_dir, str(year),
                                                "*.ndk*")):
-            cat += obspy.readEvents(filename)
+            cat += obspy.readEvents(filename, format="ndk")
 
     return cat
 
