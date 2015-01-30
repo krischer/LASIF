@@ -8,6 +8,7 @@ import os
 import sys
 
 from .component import Component
+from .. import LASIFNotFoundError
 
 
 class ValidatorComponent(Component):
@@ -127,7 +128,10 @@ class ValidatorComponent(Component):
         all_good = True
 
         for event_name, event in self.comm.events.get_all_events().iteritems():
-            waveforms = self.comm.waveforms.get_metadata_raw(event_name)
+            try:
+                waveforms = self.comm.waveforms.get_metadata_raw(event_name)
+            except LASIFNotFoundError:
+                continue
             self._flush_point()
             for station_id, value in \
                     self.comm.query.get_all_stations_for_event(
@@ -172,9 +176,10 @@ class ValidatorComponent(Component):
         for event_name in self.comm.events.list():
             self._flush_point()
             # Get all waveform files for the current event.
-            waveform_info = self.comm.waveforms.get_metadata_raw(event_name)
-            # If there are none, skip.
-            if not waveform_info:
+            try:
+                waveform_info = self.comm.waveforms.get_metadata_raw(event_name)
+            except LASIFNotFoundError:
+                # If there are none, skip.
                 continue
             # Now loop over all channels.
             for channel in waveform_info:
@@ -210,7 +215,10 @@ class ValidatorComponent(Component):
         # Loop over all events.
         for event_name in self.comm.events.list():
             self._flush_point()
-            waveforms = self.comm.waveforms.get_metadata_raw(event_name)
+            try:
+                waveforms = self.comm.waveforms.get_metadata_raw(event_name)
+            except LASIFNotFoundError:
+                continue
             # Groupby network_id.station_id
             for key, stations in itertools.groupby(
                     waveforms,
