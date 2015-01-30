@@ -175,13 +175,6 @@ communicator.</li>
 </tbody>
 </table>
 <dl class="method">
-<dt id="lasif.components.events.EventsComponent.clear_cache">
-<tt class="descname">clear_cache</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.clear_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.clear_cache" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clears the cached events. Events are only cached within one instance
-of the the EventsComponent in any case.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="lasif.components.events.EventsComponent.count">
 <tt class="descname">count</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.count" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the number of events managed by this component.</p>
@@ -196,7 +189,8 @@ of the the EventsComponent in any case.</p>
 <dt id="lasif.components.events.EventsComponent.get">
 <tt class="descname">get</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get information about one event.</p>
-<p>This function caches the results and is thus very cheap.</p>
+<p>This function uses multiple cache layers and is thus very cheap to
+call.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -210,13 +204,13 @@ of the the EventsComponent in any case.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;</span><span class="p">)</span>         
 <span class="go">{&#39;m_tp&#39;: -2.17e+17, &#39;m_tt&#39;: 8.92e+17, &#39;depth_in_km&#39;: 7.0,</span>
-<span class="go">&#39;event_name&#39;: &#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;,</span>
-<span class="go">&#39;magnitude_type&#39;: &#39;Mwc&#39;, &#39;m_rr&#39;: -8.07e+17, &#39;m_rp&#39;: -5.3e+16,</span>
-<span class="go">&#39;m_pp&#39;: -8.5e+16, &#39;m_rt&#39;: 2.8e+16, &#39;region&#39;: u&#39;TURKEY&#39;,</span>
-<span class="go">&#39;longitude&#39;: 29.1,</span>
-<span class="go">&#39;filename&#39;: &#39;/.../GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml&#39;,</span>
-<span class="go">&#39;magnitude&#39;: 5.9, &#39;latitude&#39;: 39.15,</span>
-<span class="go">&#39;origin_time&#39;: UTCDateTime(2011, 5, 19, 20, 15, 22, 900000)}</span>
+<span class="go">&#39;event_name&#39;: u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;,</span>
+<span class="go">&#39;region&#39;: u&#39;TURKEY&#39;, &#39;longitude&#39;: 29.1,</span>
+<span class="go">&#39;filename&#39;: u&#39;/.../GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml&#39;,</span>
+<span class="go">&#39;m_rr&#39;: -8.07e+17, &#39;magnitude&#39;: 5.9, &#39;magnitude_type&#39;: u&#39;Mwc&#39;,</span>
+<span class="go">&#39;latitude&#39;: 39.15,</span>
+<span class="go">&#39;origin_time&#39;: UTCDateTime(2011, 5, 19, 20, 15, 22, 900000),</span>
+<span class="go">&#39;m_rp&#39;: -5.3e+16, &#39;m_pp&#39;: -8.5e+16, &#39;m_rt&#39;: 2.8e+16}</span>
 </pre></div>
 </div>
 <p>The moment tensor components are in <tt class="docutils literal"><span class="pre">Nm</span></tt>. The dictionary will
@@ -245,8 +239,8 @@ values the information about each event, as would be returned by the
 <a class="reference internal" href="#lasif.components.events.EventsComponent.get" title="lasif.components.events.EventsComponent.get"><tt class="xref py py-meth docutils literal"><span class="pre">get()</span></tt></a> method.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get_all_events</span><span class="p">()</span>         
-<span class="go">{&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;: {...},</span>
-<span class="go"> &#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;: {...}}</span>
+<span class="go">{u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;: {...},</span>
+<span class="go"> u&#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;: {...}}</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -278,10 +272,17 @@ values the information about each event, as would be returned by the
 <dd><p>List of all events.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span> 
-<span class="go">[&#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;,</span>
-<span class="go"> &#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;]</span>
+<span class="go">[u&#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;,</span>
+<span class="go"> u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;]</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.components.events.EventsComponent.update_cache">
+<tt class="descname">update_cache</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.update_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.update_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears the cached events. Events are only cached within one instance
+of the the EventsComponent in any case.</p>
 </dd></dl>
 
 </dd></dl>

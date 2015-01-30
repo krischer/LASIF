@@ -264,11 +264,33 @@
             <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
                 <span class="k">pass</span>
 
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FileInfoCache.file_count"><a class="viewcode-back" href="../../../../tools.file_info_cache.html#lasif.tools.cache_helpers.file_info_cache.FileInfoCache.file_count">[docs]</a>    <span class="k">def</span> <span class="nf">file_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns number of files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QUERY</span> <span class="o">=</span> <span class="s">&quot;SELECT COUNT(*) FROM files;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">QUERY</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FileInfoCache.index_count"><a class="viewcode-back" href="../../../../tools.file_info_cache.html#lasif.tools.cache_helpers.file_info_cache.FileInfoCache.index_count">[docs]</a>    <span class="k">def</span> <span class="nf">index_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns number of indices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QUERY</span> <span class="o">=</span> <span class="s">&quot;SELECT COUNT(*) FROM indices;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">QUERY</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</div>
     <span class="k">def</span> <span class="nf">_init_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inits the database connects, turns on foreign key support and creates</span>
 <span class="sd">        the tables if they do not already exist.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Make sure the folder of the database file exists and otherwise</span>
+        <span class="c"># raise a descriptive error message.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s">&quot;The folder &#39;</span><span class="si">%s</span><span class="s">&#39; does not exist. Cannot create database in &quot;</span>
+                <span class="s">&quot;it.&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">))</span>
         <span class="c"># Check if the file exists. If it exists, try to use it, otherwise</span>
         <span class="c"># delete and create a new one. This should take care that a new</span>
         <span class="c"># database is created in the case of DB corruption due to a power</span>
