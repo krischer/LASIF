@@ -177,7 +177,8 @@ class ValidatorComponent(Component):
             self._flush_point()
             # Get all waveform files for the current event.
             try:
-                waveform_info = self.comm.waveforms.get_metadata_raw(event_name)
+                waveform_info = self.comm.waveforms.get_metadata_raw(
+                    event_name)
             except LASIFNotFoundError:
                 # If there are none, skip.
                 continue
