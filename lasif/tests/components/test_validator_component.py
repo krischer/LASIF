@@ -110,7 +110,7 @@ def test_data_validation(comm, capsys):
         fh.write(original_contents.replace(
             "2010-03-24T14:11:31.000000Z",
             "2011-05-19T20:15:22.900000Z"))
-    comm.events.clear_cache()
+    comm.events.update_cache()
     comm.validator.validate_data()
     out = capsys.readouterr()[0]
     line = [_i.strip() for _i in out.split("\n")
@@ -120,11 +120,20 @@ def test_data_validation(comm, capsys):
 
     # Create an event outside of the chosen domain.
 
+    # One either has to wait for a bit or delete the current event cache
+    # manually. We'll just delete the cache...
+    c_filename = os.path.join(comm.project.paths["cache"],
+                              "event_cache.sqlite")
+    try:
+        os.remove(c_filename)
+    except:
+        pass
+
     with open(filename, "wt") as fh:
         fh.write(original_contents.replace(
             "<value>40.14</value>",
             "<value>-100.0</value>"))
-    comm.events.clear_cache()
+    comm.events.update_cache()
     comm.validator.validate_data()
     out = capsys.readouterr()[0]
     line = [_i.strip() for _i in out.split("\n")

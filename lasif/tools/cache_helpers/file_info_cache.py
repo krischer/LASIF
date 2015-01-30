@@ -133,6 +133,12 @@ class FileInfoCache(object):
         Inits the database connects, turns on foreign key support and creates
         the tables if they do not already exist.
         """
+        # Make sure the folder of the database file exists and otherwise
+        # raise a descriptive error message.
+        if not os.path.exists(os.path.dirname(self.cache_db_file)):
+            raise ValueError(
+                "The folder '%s' does not exist. Cannot create database in "
+                "it." % os.path.dirname(self.cache_db_file))
         # Check if the file exists. If it exists, try to use it, otherwise
         # delete and create a new one. This should take care that a new
         # database is created in the case of DB corruption due to a power

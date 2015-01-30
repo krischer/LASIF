@@ -73,7 +73,11 @@ class Project(Component):
         # Setup the communicator and register this component.
         self.__comm = Communicator()
         super(Project, self).__init__(self.__comm, "project")
-        # Setup the different components.
+
+        # Setup the different components. The CACHE folder must already be
+        # present.
+        if not os.path.exists(self.paths["cache"]):
+            os.makedirs(self.paths["cache"])
         self.__setup_components()
 
         # Finally update the folder structure.

@@ -4,10 +4,10 @@ from __future__ import absolute_import
 
 import inspect
 import io
+import mock
 import obspy
 import os
 import pytest
-import time
 import re
 
 from lasif import LASIFNotFoundError, LASIFWarning
@@ -24,6 +24,9 @@ def comm():
         inspect.getfile(inspect.currentframe())))), "data", "ExampleProject",
         "EVENTS")
     comm = Communicator()
+    # Add project comm with paths to this fake component.
+    comm.project = mock.MagicMock()
+    comm.project.paths = {"cache": data_dir}
     EventsComponent(data_dir, comm, "events")
     return comm
 
@@ -98,25 +101,6 @@ def test_get_all_events(comm):
     assert events == comm.events.get_all_events()
 
 
-def test_event_caching(comm):
-    """
-    Tests that the caching actually does something. In my tests the caching
-    results in a speedup of 1000 so testing for a 10 times speedup should be
-    ok. If not, remove this test.
-    """
-    a = time.time()
-    comm.events.get_all_events()
-    b = time.time()
-    first_run = b - a
-
-    a = time.time()
-    comm.events.get_all_events()
-    b = time.time()
-    second_run = b - a
-
-    assert (second_run * 10) <= first_run
-
-
 def test_faulty_events(tmpdir, recwarn):
     tmpdir = str(tmpdir)
     file_1 = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
@@ -140,10 +124,13 @@ def test_faulty_events(tmpdir, recwarn):
         fh.write(temp)
 
     comm = Communicator()
+    comm.project = mock.MagicMock()
+    comm.project.paths = {"cache": tmpdir}
     EventsComponent(tmpdir, comm, "events")
 
     event = comm.events.get('random')
-    assert "more than one event" in str(recwarn.pop(LASIFWarning).message)
+    assert "QuakeML file must have exactly one event." in str(
+        recwarn.pop(LASIFWarning).message)
     assert "contains no depth" in str(recwarn.pop(LASIFWarning).message)
     assert "Magnitude has no specified type" in str(
         recwarn.pop(LASIFWarning).message)
