@@ -112,6 +112,22 @@ class FileInfoCache(object):
             except sqlite3.Error:
                 pass
 
+    @property
+    def file_count(self):
+        """
+        Returns number of files.
+        """
+        QUERY = "SELECT COUNT(*) FROM files;"
+        return self.db_cursor.execute(QUERY).fetchone()[0]
+
+    @property
+    def index_count(self):
+        """
+        Returns number of indices.
+        """
+        QUERY = "SELECT COUNT(*) FROM indices;"
+        return self.db_cursor.execute(QUERY).fetchone()[0]
+
     def _init_database(self):
         """
         Inits the database connects, turns on foreign key support and creates
