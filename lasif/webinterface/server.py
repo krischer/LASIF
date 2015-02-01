@@ -304,11 +304,26 @@ def index():
     return data
 
 
-def serve(comm, port=8008, debug=False):
+def serve(comm, port=8008, debug=False, open_to_outside=False):
+    """
+    Start the server.
+
+    :param comm: LASIF communicator instance.
+    :param port: The port to launch on.
+    :param debug: Debug on/off.
+    :param open_to_outside: By default it only serves on localhost thus the
+        server cannot be accessed from other PCs. Set this to True to enable
+        access from other computers.
+    """
     cache.init_app(app, config={
         "CACHE_TYPE": "filesystem",
         "CACHE_DIR": os.path.join(comm.project.paths["cache"],
                                   "webapp_cache")})
 
+    if open_to_outside is True:
+        host = "0.0.0.0"
+    else:
+        host = None
+
     app.comm = comm
-    app.run(port=port, debug=debug)
+    app.run(port=port, debug=debug, host=host)

@@ -684,3 +684,68 @@ def test_version_str(cli):
     out = cli.run("lasif --version")
     assert out.stderr == ""
     assert out.stdout.strip() == "LASIF version %s" % lasif.__version__
+
+
+def test_lasif_serve(cli):
+    """
+    Tests that the correct serve functions are called.
+    """
+    # The lambda function in the timer is never executed, thus does not
+    # require to be mocked.
+    with mock.patch("lasif.webinterface.server.serve") as serve_patch:
+        with mock.patch("threading.Timer") as timer_patch:
+            cli.run("lasif serve")
+            assert serve_patch.call_count == 1
+            assert timer_patch.call_count == 1
+            assert len(serve_patch.call_args[0]) == 1
+            assert len(serve_patch.call_args[1]) == 3
+            assert serve_patch.call_args[1]["port"] == 8008
+            assert serve_patch.call_args[1]["debug"] is False
+            assert serve_patch.call_args[1]["open_to_outside"] is False
+            serve_patch.reset_mock()
+            timer_patch.reset_mock()
+
+            cli.run("lasif serve --port=9999")
+            assert serve_patch.call_count == 1
+            assert timer_patch.call_count == 1
+            assert len(serve_patch.call_args[0]) == 1
+            assert len(serve_patch.call_args[1]) == 3
+            assert serve_patch.call_args[1]["port"] == 9999
+            assert serve_patch.call_args[1]["debug"] is False
+            assert serve_patch.call_args[1]["open_to_outside"] is False
+            serve_patch.reset_mock()
+            timer_patch.reset_mock()
+
+            cli.run("lasif serve --port=9999 --debug")
+            assert serve_patch.call_count == 1
+            # Debug settings turn of opening the browser.
+            assert timer_patch.call_count == 0
+            assert len(serve_patch.call_args[0]) == 1
+            assert len(serve_patch.call_args[1]) == 3
+            assert serve_patch.call_args[1]["port"] == 9999
+            assert serve_patch.call_args[1]["debug"] is True
+            assert serve_patch.call_args[1]["open_to_outside"] is False
+            serve_patch.reset_mock()
+            timer_patch.reset_mock()
+
+            cli.run("lasif serve --port=9999 --nobrowser")
+            assert serve_patch.call_count == 1
+            assert timer_patch.call_count == 0
+            assert len(serve_patch.call_args[0]) == 1
+            assert len(serve_patch.call_args[1]) == 3
+            assert serve_patch.call_args[1]["port"] == 9999
+            assert serve_patch.call_args[1]["debug"] is False
+            assert serve_patch.call_args[1]["open_to_outside"] is False
+            serve_patch.reset_mock()
+            timer_patch.reset_mock()
+
+            cli.run("lasif serve --port=9999 --nobrowser --open_to_outside")
+            assert serve_patch.call_count == 1
+            assert timer_patch.call_count == 0
+            assert len(serve_patch.call_args[0]) == 1
+            assert len(serve_patch.call_args[1]) == 3
+            assert serve_patch.call_args[1]["port"] == 9999
+            assert serve_patch.call_args[1]["debug"] is False
+            assert serve_patch.call_args[1]["open_to_outside"] is True
+            serve_patch.reset_mock()
+            timer_patch.reset_mock()

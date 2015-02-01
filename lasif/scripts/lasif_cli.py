@@ -1108,10 +1108,17 @@ def lasif_serve(parser, args):
     parser.add_argument("--debug", help="Turn on debugging. Implies "
                                         "'--nobrowser'.",
                         action="store_true")
+    parser.add_argument(
+        "--open_to_outside",
+        help="By default the website can only be opened from the current "
+             "computer. Use this argument to access it from any other "
+             "computer on the network.",
+        action="store_true")
     args = parser.parse_args(args)
     port = args.port
     nobrowser = args.nobrowser
     debug = args.debug
+    open_to_outside = args.open_to_outside
 
     if debug:
         nobrowser = True
@@ -1126,7 +1133,7 @@ def lasif_serve(parser, args):
             1.0, lambda: webbrowser.open("http://localhost:%i" % port)).start()
 
     from lasif.webinterface.server import serve
-    serve(comm, port=port, debug=debug)
+    serve(comm, port=port, debug=debug, open_to_outside=open_to_outside)
 
 
 def _get_cmd_description(fct):
