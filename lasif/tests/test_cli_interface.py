@@ -16,7 +16,7 @@ to mistype the method and then mock just ignores it resulting in nothing
 being actually tested. So its just an additional design decision.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013-2014
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013-2015
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)

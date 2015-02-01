@@ -8,6 +8,7 @@ import os
 import sys
 
 from .component import Component
+from ..domain import GlobalDomain
 from .. import LASIFNotFoundError
 
 
@@ -94,10 +95,16 @@ class ValidatorComponent(Component):
         # self._validate_coordinate_deduction(ok_string, fail_string,
         # flush_point, add_report)
 
+        files_failing_raypath_test = []
         if raypaths:
-            self._validate_raypaths_in_domain()
+            if isinstance(self.comm.project.domain, GlobalDomain):
+                print("%sSkipping raypath checks for global domain...%s" % (
+                    colorama.Fore.YELLOW, colorama.Fore.RESET))
+            else:
+                files_failing_raypath_test = \
+                    self._validate_raypaths_in_domain()
         else:
-            print("%sSkipping raypath check.%s" % (
+            print("%sSkipping raypath checks.%s" % (
                 colorama.Fore.YELLOW, colorama.Fore.RESET))
 
         # Depending on whether or not the tests passed, report it accordingly.
@@ -107,8 +114,9 @@ class ValidatorComponent(Component):
                   "contact the developers." % (colorama.Fore.GREEN,
                                                colorama.Fore.RESET))
         else:
-            filename = os.path.join(self.comm.project.get_output_folder(
-                "DATA_INTEGRITY_REPORT"), "report.txt")
+            folder = \
+                self.comm.project.get_output_folder("DATA_INTEGRITY_REPORT")
+            filename = os.path.join(folder, "report.txt")
             seperator_string = "\n" + 80 * "=" + "\n" + 80 * "=" + "\n"
             with open(filename, "wt") as fh:
                 for report in self._reports:
@@ -118,14 +126,30 @@ class ValidatorComponent(Component):
                   "A report has been created at '%s'.\n" %
                   (colorama.Fore.RED, colorama.Fore.RESET,
                    self._total_error_count, os.path.relpath(filename)))
+            if files_failing_raypath_test:
+                filename = os.path.join(folder,
+                                        "delete_raypath_violating_files.sh")
+                with open(filename, "wt") as fh:
+                    fh.write("# CHECK THIS FILE BEFORE EXECUTING!!!\n")
+                    fh.write("rm ")
+                    fh.write("\nrm ".join(files_failing_raypath_test))
+                print("\nSome files failed the raypath in domain checks. A "
+                      "script which deletes the violating files has been "
+                      "created. Please check and execute it if necessary:\n"
+                      "'%s'" % filename)
 
     def _validate_raypaths_in_domain(self):
         """
         Checks that all raypaths are within the specified domain boundaries.
+
+        Returns a list of waveform files violating that assumtion.
         """
         print "Making sure raypaths are within boundaries ",
 
         all_good = True
+
+        # Collect list of files to be deleted.
+        files_to_be_deleted = []
 
         for event_name, event in self.comm.events.get_all_events().iteritems():
             try:
@@ -152,6 +176,7 @@ class ValidatorComponent(Component):
                     continue
                 all_good = False
                 for filename in waveform_files:
+                    files_to_be_deleted.append(filename)
                     self._add_report(
                         "WARNING: "
                         "The event-station raypath for the file\n\t'{f}'\n "
@@ -162,6 +187,8 @@ class ValidatorComponent(Component):
             self._print_ok_message()
         else:
             self._print_fail_message()
+
+        return files_to_be_deleted
 
     def _validate_station_files_availability(self):
         """
