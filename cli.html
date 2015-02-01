@@ -853,14 +853,15 @@ message and exit</td>
 <h3>lasif serve<a class="headerlink" href="#lasif-serve" title="Permalink to this headline">¶</a></h3>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif serve [-h] [--port PORT] [--nobrowser] [--debug]
+                       [--open_to_outside]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Launches the LASIF webinterface.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col width="51%" />
+<col width="49%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
@@ -881,6 +882,16 @@ webbrowser.</td>
 <td>Turn on debugging.
 Implies &#8216;&#8211;
 nobrowser&#8217;.</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--open_to_outside</span></tt></td>
+<td>By default the
+website can only be
+opened from the
+current computer.
+Use this argument to
+access it from any
+other computer on
+the network.</td>
 </tr>
 </tbody>
 </table>
