@@ -289,16 +289,25 @@ class Project(Component):
         p_tags = self.comm.waveforms.get_available_processing_tags(event_name)
         s_tags = self.comm.waveforms.get_available_synthetics(event_name)
 
-        raw_data_count = self.comm.waveforms.get_waveform_cache(
-            event_name, "raw").file_count
+        try:
+            raw_data_count = self.comm.waveforms.get_waveform_cache(
+                event_name, "raw").file_count
+        except LASIFNotFoundError:
+            raw_data_count = 0
         processed_data_count = 0
         synthetic_data_count = 0
         for tag in p_tags:
-            processed_data_count += self.comm.waveforms.get_waveform_cache(
-                event_name, "processed", tag).file_count
+            try:
+                processed_data_count += self.comm.waveforms.get_waveform_cache(
+                    event_name, "processed", tag).file_count
+            except LASIFNotFoundError:
+                pass
         for tag in s_tags:
-            synthetic_data_count += self.comm.waveforms.get_waveform_cache(
-                event_name, "synthetic", tag).file_count
+            try:
+                synthetic_data_count += self.comm.waveforms.get_waveform_cache(
+                    event_name, "synthetic", tag).file_count
+            except LASIFNotFoundError:
+                pass
 
         return {
             "raw_waveform_file_count": raw_data_count,
