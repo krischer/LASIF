@@ -224,6 +224,11 @@ class FileInfoCache(object):
         # databases are just created from the data and can be recreated at any
         # time.
         self.db_cursor.execute("PRAGMA synchronous = OFF;")
+
+        # This greatly speeds up deleting files. Data corruptions is again
+        # not a really big issue.
+        self.db_cursor.execute("PRAGMA SECURE_DELETE = OFF;")
+
         self.db_conn.commit()
         # Make sure that foreign key support has been turned on.
         if self.db_cursor.execute("PRAGMA foreign_keys;").fetchone()[0] != 1:
@@ -394,12 +399,17 @@ class FileInfoCache(object):
             pbar.finish()
 
         # Remove all files no longer part of the cache DB.
-        for filename in db_files:
-            self.db_cursor.execute("DELETE FROM files WHERE filename='%s';" %
-                                   filename)
+        if db_files:
+            if len(db_files) > 100:
+                print("Removing %i no longer existing files from the "
+                      "cache database. This might take a while ..." %
+                      len(db_files))
+            query = "DELETE FROM files WHERE filename IN (%s);" % \
+                ",".join(["'%s'" % _i for _i in db_files])
+            self.db_cursor.execute(query)
         self.db_conn.commit()
 
-        # Update the self.files dictionary, this fime from the database.
+        # Update the self.files dictionary, this time from the database.
         self._get_all_files_from_database()
 
     def get_values(self):
