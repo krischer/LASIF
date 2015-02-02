@@ -84,6 +84,17 @@ import warnings
 from lasif import LASIFWarning
 
 
+# Table definition of the 'files' table. Used for creating and validating
+# the table.
+FILES_TABLE_DEFINITION = (
+    (u"id", u"INTEGER"),
+    (u"filename", u"TEXT"),
+    (u"filesize", u"INTEGER"),
+    (u"last_modified", u"REAL"),
+    (u"crc32_hash", u"INTEGER")
+)
+
+
 class FileInfoCache(object):
     """
     Object able to cache information about arbitrary files on the filesystem.
@@ -128,6 +139,32 @@ class FileInfoCache(object):
         QUERY = "SELECT COUNT(*) FROM indices;"
         return self.db_cursor.execute(QUERY).fetchone()[0]
 
+    def _validate_database(self):
+        """
+        Validates the tables and database scheme.
+
+        Useful for migrations in which the database is simply deleted and
+        build anew.
+        """
+        query = "SELECT name FROM sqlite_master WHERE type = 'table';"
+        tables = [_i[0] for _i in self.db_cursor.execute(query).fetchall()]
+        if sorted(tables) != sorted(["files", "sqlite_sequence", "indices"]):
+            return False
+
+        # Check the indices table.
+        i_t = self.db_cursor.execute("PRAGMA table_info(indices);").fetchall()
+        i_t = [(_i[1], _i[2]) for _i in i_t]
+        if i_t[1: -1] != self.index_values:
+            return False
+
+        # Check the files table.
+        f_t = self.db_cursor.execute("PRAGMA table_info(files);").fetchall()
+        f_t = tuple([(_i[1], _i[2]) for _i in f_t])
+        if f_t != FILES_TABLE_DEFINITION:
+            return False
+
+        return True
+
     def _init_database(self):
         """
         Inits the database connects, turns on foreign key support and creates
@@ -146,12 +183,31 @@ class FileInfoCache(object):
         if os.path.exists(self.cache_db_file):
             try:
                 self.db_conn = sqlite3.connect(self.cache_db_file)
+                self.db_cursor = self.db_conn.cursor()
+                # Make sure the database is still valid. This automatically
+                # enables migrations to newer database schema definition in
+                # newer LASIF versions.
+                valid = self._validate_database()
+                if not valid:
+                    self.db_conn.close()
+                    print("Cache '%s' is not valid anymore. This is most "
+                          "likely due to some recent LASIF update. Don't "
+                          "worry, LASIF will built it anew. Hang on..." %
+                          self.cache_db_file)
+                    try:
+                        os.remove(self.cache_db_file)
+                    except:
+                        pass
+                    self.db_conn = sqlite3.connect(self.cache_db_file)
+                    self.db_cursor = self.db_conn.cursor()
             except sqlite3.Error:
                 os.remove(self.cache_db_file)
                 self.db_conn = sqlite3.connect(self.cache_db_file)
+                self.db_cursor = self.db_conn.cursor()
         else:
             self.db_conn = sqlite3.connect(self.cache_db_file)
-        self.db_cursor = self.db_conn.cursor()
+            self.db_cursor = self.db_conn.cursor()
+
         # Enable foreign key support.
         self.db_cursor.execute("PRAGMA foreign_keys = ON;")
 
@@ -175,11 +231,10 @@ class FileInfoCache(object):
         sql_create_files_table = """
             CREATE TABLE IF NOT EXISTS files (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                filename TEXT,
-                last_modified REAL,
-                crc32_hash INTEGER
+                %s
             );
-        """
+        """ % ",".join("%s %s" % (_i[0], _i[1]) for _i in
+                       FILES_TABLE_DEFINITION[1:])
         self.db_cursor.execute(sql_create_files_table)
 
         sql_create_index_table = """
@@ -280,7 +335,7 @@ class FileInfoCache(object):
                 current_file_count += 1
                 # Only show the progressbar if more then 5 seconds have passed.
                 if not pbar and self.show_progress and \
-                        (time.time() - start_time > 5):
+                        (time.time() - start_time > 2.0):
                     widgets = ["Updating cache: ", progressbar.Percentage(),
                                progressbar.Bar(), "", progressbar.ETA()]
                     pbar = progressbar.ProgressBar(widgets=widgets,
@@ -423,14 +478,18 @@ class FileInfoCache(object):
         if filepath_id is not None:
             self.db_cursor.execute(
                 "UPDATE files SET last_modified=%f, "
+                "filesize=%i, "
                 "crc32_hash=%i WHERE id=%i;" % (os.path.getmtime(filename),
+                                                os.path.getsize(filename),
                                                 filehash, filepath_id))
             self.db_conn.commit()
         else:
             self.db_cursor.execute(
-                "INSERT into files(filename, last_modified,"
-                " crc32_hash) VALUES('%s', %f, %i);" % (
-                    filename, os.path.getmtime(filename), filehash))
+                "INSERT into files(filename, last_modified, filesize, "
+                " crc32_hash) VALUES"
+                "('%s', %f, %i, %i);" % (
+                    filename, os.path.getmtime(filename),
+                    os.path.getsize(filename), filehash))
             self.db_conn.commit()
             filepath_id = self.db_cursor.lastrowid
 
