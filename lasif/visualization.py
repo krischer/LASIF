@@ -10,7 +10,7 @@ Visualization scripts.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from itertools import izip
+from itertools import izip, chain
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -165,17 +165,22 @@ def plot_raydensity(map_object, station_events, domain):
 
     pbar.finish()
 
-    title = "%i Events with %i recorded 3 component waveforms" % (
-        len(station_events), circle_count)
-    # plt.gca().set_title(title, size="large")
+    stations = chain.from_iterable((
+        _i[1].values() for _i in station_events if _i[1]))
+    # Remove duplicates
+    stations = [(_i["latitude"], _i["longitude"]) for _i in stations]
+    stations = set(stations)
+    title = "%i Events, %i unique raypaths, "\
+            "%i unique stations" % (len(station_events), circle_count,
+                                    len(stations))
     plt.title(title, size="xx-large")
 
     data = collected_bins.bins.transpose()
 
     if data.max() >= 10:
-        data = np.log10(data)
-        data += 0.1
-        data[np.isinf(data)] = 0.0
+        data = np.log10(np.clip(data, a_min=0.5, a_max=data.max()))
+        data[data >= 0.0] += 0.1
+        data[data < 0.0] = 0.0
         max_val = scoreatpercentile(data.ravel(), 99)
     else:
         max_val = data.max()
