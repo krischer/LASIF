@@ -705,6 +705,20 @@ def test_version_str(cli):
     assert out.stdout.strip() == "LASIF version %s" % lasif.__version__
 
 
+def test_building_all_cached(cli):
+    """
+    Tests the build all caches routine.
+    """
+    out = cli.run("lasif build_all_caches")
+    assert out.stderr == ""
+
+    assert "Building/updating station cache" in out.stdout
+    assert ("Building/updating data cache for event "
+            "'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11'") in out.stdout
+    assert ("Building/updating data cache for event "
+            "'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15'") in out.stdout
+
+
 def test_lasif_serve(cli):
     """
     Tests that the correct serve functions are called.

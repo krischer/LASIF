@@ -18,7 +18,7 @@ from __future__ import absolute_import
 import cPickle
 import os
 
-from lasif import LASIFError
+from lasif import LASIFError, LASIFNotFoundError
 import lasif.domain
 
 from .actions import ActionsComponent
@@ -249,15 +249,24 @@ class Project(Component):
         for event in self.comm.events.list():
             print("Building/updating data cache for event '%s'..." % event)
             # Get all caches which will build them.
+            try:
+                self.comm.waveforms.get_waveform_cache(event, "raw")
+            except LASIFNotFoundError:
+                pass
             p_tags = self.comm.waveforms.get_available_processing_tags(event)
             s_tags = self.comm.waveforms.get_available_synthetics(event)
-            self.comm.waveforms.get_waveform_cache(event, "raw")
             for tag in p_tags:
-                self.comm.waveforms.get_waveform_cache(
-                    event, "processed", tag)
+                try:
+                    self.comm.waveforms.get_waveform_cache(
+                        event, "processed", tag)
+                except LASIFNotFoundError:
+                    pass
             for tag in s_tags:
-                self.comm.waveforms.get_waveform_cache(
-                    event, "synthetic", tag)
+                try:
+                    self.comm.waveforms.get_waveform_cache(
+                        event, "synthetic", tag)
+                except LASIFNotFoundError:
+                    pass
 
     def get_filecounts_for_event(self, event_name):
         """
