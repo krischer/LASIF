@@ -554,7 +554,7 @@ def test_remove_empty_coordinate_entries(cli):
 
 def test_validate_data(cli):
     """
-    Simple mock test.
+    Tests the validate_data command with mock and some real tests.
     """
     vc = "lasif.components.validator.ValidatorComponent."
     with mock.patch(vc + "validate_data") as patch:
@@ -566,6 +566,25 @@ def test_validate_data(cli):
         cli.run("lasif validate_data --full")
         patch.assert_called_once_with(station_file_availability=True,
                                       raypaths=True, waveforms=True)
+
+    # Have the raypath check fail.
+    with mock.patch('lasif.components.validator.ValidatorComponent'
+                    '.is_event_station_raypath_within_boundaries') as p:
+        p.return_value = False
+        out = cli.run("lasif validate_data --full")
+        assert "Some files failed the raypath in domain checks." in out.stdout
+        # Created script that deletes the extraneous files.
+        filename = out.stdout.splitlines()[-1].strip().strip("'")
+        assert os.path.exists(filename)
+        assert filename.endswith("delete_raypath_violating_files.sh")
+        lines = []
+        with open(filename, "rt") as fh:
+            for line in fh.readlines():
+                if not line.startswith("rm"):
+                    continue
+                lines.append(line)
+        # Make sure all 6 files are actually deleted.
+        assert len(lines) == 6
 
 
 def test_open_tutorial(cli):

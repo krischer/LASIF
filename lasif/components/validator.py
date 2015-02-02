@@ -20,6 +20,11 @@ class ValidatorComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
+    def __init__(self, *args, **kwargs):
+        super(ValidatorComponent, self).__init__(*args, **kwargs)
+        self._reports = []
+        self._total_error_count = 0
+
     def _print_ok_message(self):
         """
         Prints a colored OK message when a certain test has been passed.
@@ -102,7 +107,7 @@ class ValidatorComponent(Component):
                     colorama.Fore.YELLOW, colorama.Fore.RESET))
             else:
                 files_failing_raypath_test = \
-                    self._validate_raypaths_in_domain()
+                    self.validate_raypaths_in_domain()
         else:
             print("%sSkipping raypath checks.%s" % (
                 colorama.Fore.YELLOW, colorama.Fore.RESET))
@@ -141,7 +146,7 @@ class ValidatorComponent(Component):
                       "created. Please check and execute it if necessary:\n"
                       "'%s'" % filename)
 
-    def _validate_raypaths_in_domain(self):
+    def validate_raypaths_in_domain(self):
         """
         Checks that all raypaths are within the specified domain boundaries.
 

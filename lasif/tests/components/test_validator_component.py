@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import inspect
+import mock
 import os
 import pytest
 import shutil
@@ -37,35 +38,39 @@ def test_is_event_station_raypath_within_boundaries(comm):
         event, 38.92, 140.0)
 
 
+def test_data_validation_raypath_in_domain(comm):
+    """
+    Tests the raypath in domain checker and associated output.
+    """
+    # Initially everything is ok.
+    assert comm.validator.validate_raypaths_in_domain() == []
+    event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    folder = os.path.join(comm.project.paths["data"], event, "raw")
+    filenames = sorted([os.path.join(folder, _i) for _i in os.listdir(folder)])
+
+    # Have the raypath check fail.
+    with mock.patch('lasif.components.validator.ValidatorComponent'
+                    '.is_event_station_raypath_within_boundaries') as p:
+        p.return_value = False
+        assert sorted(comm.validator.validate_raypaths_in_domain()) == \
+            filenames
+        # 4 stations, 4 calls
+        assert p.call_count == 4
+
+
 def test_data_validation(comm, capsys):
     """
     Attempt to test the data validation part in a simple manner.
     """
-    # def reset():
-    #     try:
-    #         project.events = EventPseudoDict(project.paths["events"])
-    #     except:
-    #         pass
-    #     try:
-    #         obspy.core.event.ResourceIdentifier\
-    #             ._ResourceIdentifier__resource_id_weak_dict.clear()
-    #     except:
-    #         pass
-    def reset():
-        pass
-
     # The default output should be fully valid.
     comm.validator.validate_data()
     out = capsys.readouterr()[0]
     assert "ALL CHECKS PASSED" in out
-    reset()
 
     filename = os.path.join(comm.project.paths["events"],
                             "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11.xml")
     with open(filename, "rt") as fh:
         original_contents = fh.read()
-
-    reset()
 
     # Now make a faulty QuakeML file. Removing a public id will trigger an
     # error int he QuakeML validation.
@@ -77,7 +82,6 @@ def test_data_validation(comm, capsys):
     line = [_i.strip() for _i in out.split("\n")
             if _i.strip().startswith("Validating against ")][0]
     assert "FAIL" in line
-    reset()
 
     # Now duplicate an id.
     with open(filename, "wt") as fh:
@@ -90,7 +94,6 @@ def test_data_validation(comm, capsys):
     line = [_i.strip() for _i in out.split("\n")
             if _i.strip().startswith("Checking for duplicate ")][0]
     assert "FAIL" in line
-    reset()
 
     # Now make the file have an insane depth. This should trigger a sanity
     # check error.
@@ -103,7 +106,6 @@ def test_data_validation(comm, capsys):
     line = [_i.strip() for _i in out.split("\n")
             if _i.strip().startswith("Performing some basic sanity ")][0]
     assert "FAIL" in line
-    reset()
 
     # Trigger an error that two events are too close in time.
     with open(filename, "wt") as fh:
@@ -116,7 +118,6 @@ def test_data_validation(comm, capsys):
     line = [_i.strip() for _i in out.split("\n")
             if _i.strip().startswith("Checking for duplicates and ")][0]
     assert "FAIL" in line
-    reset()
 
     # Create an event outside of the chosen domain.
 
