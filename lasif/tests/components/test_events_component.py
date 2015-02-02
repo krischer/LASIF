@@ -26,7 +26,7 @@ def comm():
     comm = Communicator()
     # Add project comm with paths to this fake component.
     comm.project = mock.MagicMock()
-    comm.project.paths = {"cache": data_dir}
+    comm.project.paths = {"cache": data_dir, "root": data_dir}
     EventsComponent(data_dir, comm, "events")
     return comm
 
@@ -125,7 +125,7 @@ def test_faulty_events(tmpdir, recwarn):
 
     comm = Communicator()
     comm.project = mock.MagicMock()
-    comm.project.paths = {"cache": tmpdir}
+    comm.project.paths = {"cache": tmpdir, "root": tmpdir}
     EventsComponent(tmpdir, comm, "events")
 
     event = comm.events.get('random')

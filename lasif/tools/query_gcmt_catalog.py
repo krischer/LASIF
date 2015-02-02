@@ -81,7 +81,7 @@ def _read_GCMT_catalog(min_year=None, max_year=None):
         inspect.getfile(inspect.currentframe())))), "data", "GCMT_Catalog")
     available_years = [_i for _i in os.listdir(data_dir) if _i.isdigit()]
     available_years.sort()
-    print("LASIF currently has GCMT data from %s to %s/%i." % (
+    print("LASIF currently contains GCMT data from %s to %s/%i." % (
         available_years[0], available_years[-1],
         len(glob.glob(os.path.join(data_dir, available_years[-1], "*.ndk*")))))
 

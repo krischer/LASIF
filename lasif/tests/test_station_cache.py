@@ -48,8 +48,8 @@ def test_station_cache(tmpdir):
                 os.path.join(seed_directory, "dataless.IU_PAB"))
 
     # Init the station cache.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there. Right now the folder only
@@ -64,8 +64,8 @@ def test_station_cache(tmpdir):
     # Copy one more SEED file and check if the changes are reflected.
     shutil.copy(os.path.join(data_dir, "seed", "dataless.BW_FURT"), seed_file)
     # Init the station cache once more.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     # Get the list of available channels. It should not contain 4 channels.
     channels = station_cache.get_channels()
     assert len(channels) == 4
@@ -87,8 +87,8 @@ def test_station_cache(tmpdir):
     # Delete the file, and check if everything else is removed as well. It
     # should not only contain one channel.
     os.remove(seed_file)
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -98,8 +98,8 @@ def test_station_cache(tmpdir):
     # Add the file once again...
     del station_cache
     shutil.copy(os.path.join(data_dir, "seed", "dataless.BW_FURT"), seed_file)
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     # It should now again contain 4 channels.
     channels = station_cache.get_channels()
     assert len(channels) == 4
@@ -113,8 +113,8 @@ def test_station_cache(tmpdir):
     shutil.copy(os.path.join(data_dir, "seed", "channelless_datalessSEED"),
                 seed_file)
     # Init the station cache once more.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -128,8 +128,8 @@ def test_station_cache(tmpdir):
     shutil.copy(os.path.join(data_dir, "resp", os.path.basename(resp_file)),
                 resp_file)
     # Init the station cache once more.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -150,8 +150,8 @@ def test_station_cache(tmpdir):
     shutil.copy(os.path.join(data_dir, "resp", "RESP.G.FDF.00.BHZ"),
                 os.path.join(resp_directory, "RESP.G.FDF.00.BHZ"))
     # Init the station cache once more.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -171,7 +171,6 @@ def test_station_cache(tmpdir):
     all_values = station_cache.get_values()
     assert len(all_values) == 5
 
-    # Test the retrieval of only a single record by its filename.
     single_value = station_cache.get_details(all_values[0]["filename"])[0]
     assert single_value == all_values[0]
 
@@ -202,8 +201,8 @@ def test_station_xml(tmpdir):
                              "IRIS_single_channel_with_response.xml"))
 
     # Init station cache.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     stations = station_cache.get_stations()
     channels = station_cache.get_channels()
     filename = station_cache.get_station_filename(
@@ -252,7 +251,7 @@ def test_exception_handling(tmpdir, recwarn):
                              "RESP.file"))
 
     recwarn.clear()
-    StationCache(cache_file, seed_directory, resp_directory,
+    StationCache(cache_file, directory, seed_directory, resp_directory,
                  stationxml_directory)
     w = recwarn.pop(LASIFWarning)
     assert "Failed to index" in str(w.message)
@@ -297,8 +296,8 @@ def test_exception_handling(tmpdir, recwarn):
               format="stationxml")
 
     # Clear all warnings and init a new StationCache.
-    station_cache = StationCache(cache_file, seed_directory, resp_directory,
-                                 stationxml_directory)
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory)
     # It should still have indexed all three files and thus three channels
     # should be present.
     assert len(station_cache.get_channels()) == 3

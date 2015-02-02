@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import glob
 import inspect
+import mock
 import obspy
 import os
 import pytest
@@ -21,6 +22,9 @@ def comm(tmpdir):
     data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         inspect.getfile(inspect.currentframe())))), "data")
     comm = Communicator()
+    proj_mock = mock.MagicMock()
+    proj_mock.paths = {"root": data_dir}
+    comm.register("project", proj_mock)
     StationsComponent(
         stationxml_folder=os.path.join(data_dir, "station_files",
                                        "stationxml"),

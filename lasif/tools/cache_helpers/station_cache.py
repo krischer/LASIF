@@ -43,7 +43,7 @@ class StationCache(FileInfoCache):
     RESP files: RESP.*
     StationXML: *.xml
     """
-    def __init__(self, cache_db_file, seed_folder, resp_folder,
+    def __init__(self, cache_db_file, root_folder, seed_folder, resp_folder,
                  stationxml_folder, show_progress=True):
         self.index_values = [
             ("channel_id", "TEXT"),
@@ -64,6 +64,7 @@ class StationCache(FileInfoCache):
         self.__cache_station_coordinates = {}
 
         super(StationCache, self).__init__(cache_db_file=cache_db_file,
+                                           root_folder=root_folder,
                                            show_progress=show_progress)
 
     def _find_files_seed(self):
@@ -242,7 +243,7 @@ class StationCache(FileInfoCache):
         if result is None:
             return None
         else:
-            return result[0]
+            return os.path.normpath(os.path.join(self.root_folder, result[0]))
 
     def get_channel_info(self, channel_id, time):
         """

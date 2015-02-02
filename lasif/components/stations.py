@@ -84,7 +84,10 @@ class StationsComponent(Component):
         from ..tools.cache_helpers.station_cache import StationCache
         self.__cached_station_cache = StationCache(
             os.path.join(self.cache_folder, "station_cache.sqlite"),
-            self.seed_folder, self.resp_folder, self.stationxml_folder)
+            root_folder=self.comm.project.paths["root"],
+            seed_folder=self.seed_folder,
+            resp_folder=self.resp_folder,
+            stationxml_folder=self.stationxml_folder)
         return self.__cached_station_cache
 
     def get_details_for_filename(self, filename):

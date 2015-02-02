@@ -113,8 +113,10 @@ def test_waveform_cache_usage(comm):
     # The cache has to point to the correct folder and file.
     assert cache.waveform_folder == waveform_folder
     assert cache.cache_db_file == waveform_cache
-    # Make sure the cache contains all files.
-    assert sorted(cache.files["waveform"]) == \
+    # Make sure the cache contains all files. The files attribute contains
+    # relative paths inside the cache.
+    assert sorted([os.path.join(cache.root_folder, _i) for _i in
+                   cache.files["waveform"]]) == \
         sorted([os.path.join(waveform_folder, _i)
                 for _i in os.listdir(waveform_folder)])
 

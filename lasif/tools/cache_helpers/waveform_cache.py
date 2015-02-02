@@ -26,7 +26,9 @@ class WaveformCache(FileInfoCache):
 
     Supports all waveform files readable with ObsPy.
     """
-    def __init__(self, cache_db_file, waveform_folder, show_progress=True):
+
+    def __init__(self, cache_db_file, root_folder, waveform_folder,
+                 show_progress=True):
         self.index_values = [
             ("network", "TEXT"),
             ("station", "TEXT"),
@@ -45,6 +47,7 @@ class WaveformCache(FileInfoCache):
         self.waveform_folder = waveform_folder
 
         super(WaveformCache, self).__init__(cache_db_file=cache_db_file,
+                                            root_folder=root_folder,
                                             show_progress=show_progress)
 
     def get_files_for_station(self, network, station):
@@ -70,7 +73,8 @@ class WaveformCache(FileInfoCache):
 
         for _i in self.db_cursor.execute(query, (network, station)):
             values = {key: value for (key, value) in izip(indices, _i)}
-            values["filename"] = _i[-1]
+            values["filename"] = os.path.abspath(os.path.join(
+                self.root_folder, _i[-1]))
             all_values.append(values)
 
         return all_values

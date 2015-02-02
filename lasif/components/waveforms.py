@@ -129,6 +129,7 @@ class WaveformsComponent(Component):
         if waveform_db_file in self.__cache:
             return self.__cache[waveform_db_file]
         cache = WaveformCache(cache_db_file=waveform_db_file,
+                              root_folder=self.comm.project.paths["root"],
                               waveform_folder=data_path)
         self.__cache[waveform_db_file] = cache
         return cache

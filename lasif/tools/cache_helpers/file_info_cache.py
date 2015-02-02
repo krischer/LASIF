@@ -64,7 +64,6 @@ Example implementation:
             return [[400, 300, "jpeg"]]
 
 
-
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
 :license:
@@ -101,8 +100,9 @@ class FileInfoCache(object):
 
     Intended to be subclassed.
     """
-    def __init__(self, cache_db_file, show_progress=True):
+    def __init__(self, cache_db_file, root_folder, show_progress=True):
         self.cache_db_file = cache_db_file
+        self.root_folder = root_folder
         self.show_progress = show_progress
 
         # Will be filled in _init_database() method.
@@ -292,7 +292,10 @@ class FileInfoCache(object):
         self.files = {}
         for filetype in self.filetypes:
             get_file_fct = "_find_files_%s" % filetype
-            self.files[filetype] = getattr(self, get_file_fct)()
+            # Paths are relative to the root folder.
+            self.files[filetype] = [
+                os.path.relpath(_i, self.root_folder) for _i in
+                getattr(self, get_file_fct)()]
 
     def _get_all_files_from_database(self):
         """
@@ -337,42 +340,56 @@ class FileInfoCache(object):
         update_interval = 1
         current_file_count = 0
         start_time = time.time()
-        # Now update all filetypes separately.
-        for filetype in self.filetypes:
-            for filename in self.files[filetype]:
-                current_file_count += 1
-                # Only show the progressbar if more then 5 seconds have passed.
-                if not pbar and self.show_progress and \
-                        (time.time() - start_time > 2.0):
-                    widgets = ["Updating cache: ", progressbar.Percentage(),
-                               progressbar.Bar(), "", progressbar.ETA()]
-                    pbar = progressbar.ProgressBar(widgets=widgets,
-                                                   maxval=filecount).start()
-                    update_interval = max(int(filecount / 100), 1)
-                    pbar.update(current_file_count)
-                if pbar and not current_file_count % update_interval:
-                    pbar.update(current_file_count)
-                if filename in db_files:
-                    # Delete the file from the list of files to keep track of
-                    # files no longer available.
-                    this_file = db_files[filename]
-                    del db_files[filename]
-                    last_modified = os.path.getmtime(filename)
-                    # If the last modified time is identical to a tenth of
-                    # second, nothing to do.
-                    if int(round(last_modified * 10)) == \
-                            int(round(this_file[1] * 10)):
-                        continue
-                    # Otherwise check the hash.
-                    with open(filename, "rb") as open_file:
-                        hash_value = crc32(open_file.read())
-                    if hash_value == this_file[2]:
-                        # XXX: Update last modified times, otherwise it will
-                        # hash again and again.
-                        continue
-                    self._update_file(filename, filetype, this_file[0])
-                else:
-                    self._update_file(filename, filetype)
+        try:
+            # Store the old working directory and change to the root folder
+            # to get relative pathnames.
+            org_directory = os.getcwd()
+            os.chdir(self.root_folder)
+
+            # Now update all filetypes separately.
+            for filetype in self.filetypes:
+                for filename in self.files[filetype]:
+                    current_file_count += 1
+                    # Only show the progressbar if more then 2 seconds have
+                    # passed.
+                    if not pbar and self.show_progress and \
+                            (time.time() - start_time > 2.0):
+                        widgets = [
+                            "Updating cache: ", progressbar.Percentage(),
+                            progressbar.Bar(), "", progressbar.ETA()]
+                        pbar = progressbar.ProgressBar(
+                            widgets=widgets, maxval=filecount).start()
+                        update_interval = max(int(filecount / 100), 1)
+                        pbar.update(current_file_count)
+                    if pbar and not current_file_count % update_interval:
+                        pbar.update(current_file_count)
+                    if filename in db_files:
+                        # Delete the file from the list of files to keep
+                        # track of files no longer available.
+                        this_file = db_files[filename]
+                        del db_files[filename]
+                        abs_filename = os.path.abspath(filename)
+
+                        last_modified = os.path.getmtime(abs_filename)
+                        # If the last modified time is identical to a tenth of
+                        # second, nothing to do.
+                        if int(round(last_modified * 10)) == \
+                                int(round(this_file[1] * 10)):
+                            continue
+                        # Otherwise check the hash.
+                        with open(abs_filename, "rb") as open_file:
+                            hash_value = crc32(open_file.read())
+                        if hash_value == this_file[2]:
+                            # XXX: Update last modified times, otherwise it
+                            # will hash again and again.
+                            continue
+                        self._update_file(abs_filename, filetype,
+                                          this_file[0])
+                    else:
+                        self._update_file(os.path.abspath(filename),
+                                          filetype)
+        finally:
+            os.chdir(org_directory)
         if pbar:
             pbar.finish()
 
@@ -390,21 +407,27 @@ class FileInfoCache(object):
         Returns a list of dictionaries containing all indexed values for every
         file together with the filename.
         """
-        # Assemble the query. Use a simple join statement.
-        sql_query = """
-        SELECT %s, files.filename
-        FROM indices
-        INNER JOIN files
-        ON indices.filepath_id=files.id
-        """ % ", ".join(["indices.%s" % _i[0] for _i in self.index_values])
+        try:
+            org_directory = os.getcwd()
+            os.chdir(self.root_folder)
 
-        all_values = []
-        indices = [_i[0] for _i in self.index_values]
+            # Assemble the query. Use a simple join statement.
+            sql_query = """
+            SELECT %s, files.filename
+            FROM indices
+            INNER JOIN files
+            ON indices.filepath_id=files.id
+            """ % ", ".join(["indices.%s" % _i[0] for _i in self.index_values])
 
-        for _i in self.db_cursor.execute(sql_query):
-            values = {key: value for (key, value) in izip(indices, _i)}
-            values["filename"] = _i[-1]
-            all_values.append(values)
+            all_values = []
+            indices = [_i[0] for _i in self.index_values]
+
+            for _i in self.db_cursor.execute(sql_query):
+                values = {key: value for (key, value) in izip(indices, _i)}
+                values["filename"] = os.path.abspath(_i[-1])
+                all_values.append(values)
+        finally:
+            os.chdir(org_directory)
 
         return all_values
 
@@ -414,7 +437,8 @@ class FileInfoCache(object):
 
         :param filename: The filename for which to request information.
         """
-        filename = os.path.abspath(filename)
+        filename = os.path.relpath(os.path.abspath(filename),
+                                   self.root_folder)
 
         # Assemble the query. Use a simple join statement.
         sql_query = """
@@ -431,7 +455,8 @@ class FileInfoCache(object):
 
         for _i in self.db_cursor.execute(sql_query):
             values = {key: value for (key, value) in izip(indices, _i)}
-            values["filename"] = _i[-1]
+            values["filename"] = os.path.abspath(os.path.join(
+                self.root_folder, _i[-1]))
             all_values.append(values)
 
         return all_values
@@ -441,6 +466,8 @@ class FileInfoCache(object):
         Updates or creates a new entry for the given file. If id is given, it
         will be interpreted as an update, otherwise as a fresh record.
         """
+        abs_filename = filename
+        rel_filename = os.path.relpath(abs_filename, self.root_folder)
         # Remove all old indices for the file if it is an update.
         if filepath_id is not None:
             self.db_cursor.execute("DELETE FROM indices WHERE "
@@ -450,36 +477,36 @@ class FileInfoCache(object):
         # Get all indices from the file.
         try:
             indices = getattr(self, "_extract_index_values_%s" %
-                                    filetype)(filename)
+                                    filetype)(abs_filename)
         except Exception as e:
             msg = "Failed to index '%s' of type '%s' due to: %s" % (
-                filename, filetype, str(e)
+                abs_filename, filetype, str(e)
             )
             warnings.warn(msg, LASIFWarning)
 
             # If it is an update, also remove the file from the file list.
             if filepath_id is not None:
                 self.db_cursor.execute(
-                    "DELETE FROM files WHERE filename='%s';" % filename)
+                    "DELETE FROM files WHERE filename='%s';" % rel_filename)
                 self.db_conn.commit()
 
             return
 
         if not indices:
             msg = ("Could not extract any index from file '%s' of type '%s'. "
-                   "The file will be skipped." % (filename, filetype))
+                   "The file will be skipped." % (abs_filename, filetype))
             warnings.warn(msg, LASIFWarning)
 
             # If it is an update, also remove the file from the file list.
             if filepath_id is not None:
                 self.db_cursor.execute(
-                    "DELETE FROM files WHERE filename='%s';" % filename)
+                    "DELETE FROM files WHERE filename='%s';" % rel_filename)
                 self.db_conn.commit()
 
             return
 
         # Get the hash
-        with open(filename, "rb") as open_file:
+        with open(abs_filename, "rb") as open_file:
             filehash = crc32(open_file.read())
 
         # Add or update the file.
@@ -487,8 +514,8 @@ class FileInfoCache(object):
             self.db_cursor.execute(
                 "UPDATE files SET last_modified=%f, "
                 "filesize=%i, "
-                "crc32_hash=%i WHERE id=%i;" % (os.path.getmtime(filename),
-                                                os.path.getsize(filename),
+                "crc32_hash=%i WHERE id=%i;" % (os.path.getmtime(abs_filename),
+                                                os.path.getsize(abs_filename),
                                                 filehash, filepath_id))
             self.db_conn.commit()
         else:
@@ -496,8 +523,8 @@ class FileInfoCache(object):
                 "INSERT into files(filename, last_modified, filesize, "
                 " crc32_hash) VALUES"
                 "('%s', %f, %i, %i);" % (
-                    filename, os.path.getmtime(filename),
-                    os.path.getsize(filename), filehash))
+                    rel_filename, os.path.getmtime(abs_filename),
+                    os.path.getsize(abs_filename), filehash))
             self.db_conn.commit()
             filepath_id = self.db_cursor.lastrowid
 
