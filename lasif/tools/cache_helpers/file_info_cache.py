@@ -188,7 +188,7 @@ class FileInfoCache(object):
                 # enables migrations to newer database schema definition in
                 # newer LASIF versions.
                 valid = self._validate_database()
-                if not valid:
+                if valid is not True:
                     self.db_conn.close()
                     print("Cache '%s' is not valid anymore. This is most "
                           "likely due to some recent LASIF update. Don't "
@@ -312,7 +312,7 @@ class FileInfoCache(object):
         # dictionary. The dictionary key is the filename and the value a tuple
         # of (id, last_modified, crc32 hash).
         db_files = self.db_cursor.execute("SELECT * FROM files").fetchall()
-        db_files = {_i[1]: (_i[0], _i[2], _i[3]) for _i in db_files}
+        db_files = {_i[1]: (_i[0], _i[3], _i[4]) for _i in db_files}
 
         # Count all files
         filecount = 0
