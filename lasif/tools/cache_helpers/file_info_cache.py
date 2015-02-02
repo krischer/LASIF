@@ -139,6 +139,14 @@ class FileInfoCache(object):
         QUERY = "SELECT COUNT(*) FROM indices;"
         return self.db_cursor.execute(QUERY).fetchone()[0]
 
+    @property
+    def total_size(self):
+        """
+        Returns the total file size in bytes.
+        """
+        QUERY = "SELECT SUM(filesize) FROM files;"
+        return self.db_cursor.execute(QUERY).fetchone()[0]
+
     def _validate_database(self):
         """
         Validates the tables and database scheme.

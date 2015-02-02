@@ -77,6 +77,11 @@ def test_station_cache(tmpdir):
     stations = station_cache.get_stations()
     assert len(stations) == 2
 
+    # Test the file_count, index_count, and total_size properties.
+    assert station_cache.file_count == 2
+    assert station_cache.index_count == 4
+    assert station_cache.total_size == 12288 + 28672
+
     del station_cache
 
     # Delete the file, and check if everything else is removed as well. It
