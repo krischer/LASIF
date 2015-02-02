@@ -364,9 +364,9 @@ def _recursive_etree(dictionary):
                 *[getattr(E, i[0])(str(i[1][1]), number=str(i[1][0]))
                   for i in itertools.chain(*itertools.izip(
                       itertools.izip_longest(
-                          [], enumerate(value["tau"]),  fillvalue="tau"),
+                          [], enumerate(value["tau"]), fillvalue="tau"),
                       itertools.izip_longest(
-                          [], enumerate(value["w"]),  fillvalue="w")))]
+                          [], enumerate(value["w"]), fillvalue="w")))]
             ))
             continue
         if isinstance(value, OrderedDict):

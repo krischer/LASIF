@@ -57,6 +57,20 @@ class StationsComponent(Component):
         else:
             return self.force_cache_update()
 
+    @property
+    def file_count(self):
+        """
+        Returns the total number of station files.
+        """
+        return self._station_cache.file_count
+
+    @property
+    def total_file_size(self):
+        """
+        Returns the filesize sum of all station files.
+        """
+        return self._station_cache.total_size
+
     def force_cache_update(self):
         """
         Update the station cache.

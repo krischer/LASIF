@@ -305,6 +305,20 @@ def lasif_list_events(parser, args):
 
 
 @command_group("Project Management")
+def lasif_build_all_caches(parser, args):
+    """
+    Build all caches to speed up subsequent operations.
+
+    This is optional and might take a while. Otherwise the caches are built
+    on demand which works fine but might impede on some workflows.
+    """
+    parser.parse_args(args)
+
+    comm = _find_project_comm(".")
+    comm.project.build_all_caches()
+
+
+@command_group("Project Management")
 def lasif_list_models(parser, args):
     """
     Print a list of all models in the project.

@@ -237,6 +237,28 @@ class Project(Component):
         with open(cfile, "wb") as fh:
             cPickle.dump(cf_cache, fh, protocol=2)
 
+    def build_all_caches(self):
+        """
+        Command to build/update all caches.
+        """
+        # The event cache is always up to date and does not have to be updated.
+        # Update the station cache.
+        print("Building/updating station cache...")
+        # This triggers the cache to be build/updated.
+        self.comm.stations.file_count
+        for event in self.comm.events.list():
+            print("Building/updating data cache for event '%s'..." % event)
+            # Get all caches which will build them.
+            p_tags = self.comm.waveforms.get_available_processing_tags(event)
+            s_tags = self.comm.waveforms.get_available_synthetics(event)
+            self.comm.waveforms.get_waveform_cache(event, "raw")
+            for tag in p_tags:
+                self.comm.waveforms.get_waveform_cache(
+                    event, "processed", tag)
+            for tag in s_tags:
+                self.comm.waveforms.get_waveform_cache(
+                    event, "synthetic", tag)
+
     def get_filecounts_for_event(self, event_name):
         """
         Gets the number of files associated with the current event.
