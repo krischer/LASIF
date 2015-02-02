@@ -255,18 +255,20 @@ class Project(Component):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
 
-        data_path = os.path.join(self.paths["data"], event_name)
-        synth_path = os.path.join(self.paths["synthetics"], event_name)
-        raw_data_count = 0
+        p_tags = self.comm.waveforms.get_available_processing_tags(event_name)
+        s_tags = self.comm.waveforms.get_available_synthetics(event_name)
+
+        raw_data_count = self.comm.waveforms.get_waveform_cache(
+            event_name, "raw").file_count
         processed_data_count = 0
         synthetic_data_count = 0
-        for dirpath, _, filenames in os.walk(data_path):
-            if dirpath.endswith("raw"):
-                raw_data_count += len(filenames)
-            elif "preprocessed" in dirpath:
-                processed_data_count += len(filenames)
-        for dirpath, _, filenames in os.walk(synth_path):
-            synthetic_data_count += len(filenames)
+        for tag in p_tags:
+            processed_data_count += self.comm.waveforms.get_waveform_cache(
+                event_name, "processed", tag).file_count
+        for tag in s_tags:
+            synthetic_data_count += self.comm.waveforms.get_waveform_cache(
+                event_name, "synthetic", tag).file_count
+
         return {
             "raw_waveform_file_count": raw_data_count,
             "synthetic_waveform_file_count": synthetic_data_count,
