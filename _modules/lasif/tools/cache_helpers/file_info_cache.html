@@ -236,6 +236,17 @@
 <span class="kn">from</span> <span class="nn">lasif</span> <span class="kn">import</span> <span class="n">LASIFWarning</span>
 
 
+<span class="c"># Table definition of the &#39;files&#39; table. Used for creating and validating</span>
+<span class="c"># the table.</span>
+<span class="n">FILES_TABLE_DEFINITION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s">u&quot;id&quot;</span><span class="p">,</span> <span class="s">u&quot;INTEGER&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">u&quot;filename&quot;</span><span class="p">,</span> <span class="s">u&quot;TEXT&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">u&quot;filesize&quot;</span><span class="p">,</span> <span class="s">u&quot;INTEGER&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">u&quot;last_modified&quot;</span><span class="p">,</span> <span class="s">u&quot;REAL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">u&quot;crc32_hash&quot;</span><span class="p">,</span> <span class="s">u&quot;INTEGER&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+
 <div class="viewcode-block" id="FileInfoCache"><a class="viewcode-back" href="../../../../tools.file_info_cache.html#lasif.tools.cache_helpers.file_info_cache.FileInfoCache">[docs]</a><span class="k">class</span> <span class="nc">FileInfoCache</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object able to cache information about arbitrary files on the filesystem.</span>
@@ -280,6 +291,40 @@
         <span class="n">QUERY</span> <span class="o">=</span> <span class="s">&quot;SELECT COUNT(*) FROM indices;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">QUERY</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 </div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="FileInfoCache.total_size"><a class="viewcode-back" href="../../../../tools.file_info_cache.html#lasif.tools.cache_helpers.file_info_cache.FileInfoCache.total_size">[docs]</a>    <span class="k">def</span> <span class="nf">total_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the total file size in bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">QUERY</span> <span class="o">=</span> <span class="s">&quot;SELECT SUM(filesize) FROM files;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">QUERY</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">_validate_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates the tables and database scheme.</span>
+
+<span class="sd">        Useful for migrations in which the database is simply deleted and</span>
+<span class="sd">        build anew.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;SELECT name FROM sqlite_master WHERE type = &#39;table&#39;;&quot;</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tables</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">sorted</span><span class="p">([</span><span class="s">&quot;files&quot;</span><span class="p">,</span> <span class="s">&quot;sqlite_sequence&quot;</span><span class="p">,</span> <span class="s">&quot;indices&quot;</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="c"># Check the indices table.</span>
+        <span class="n">i_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;PRAGMA table_info(indices);&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">i_t</span> <span class="o">=</span> <span class="p">[(</span><span class="n">_i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">_i</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">i_t</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i_t</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_values</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="c"># Check the files table.</span>
+        <span class="n">f_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;PRAGMA table_info(files);&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">f_t</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="n">_i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">_i</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">f_t</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">f_t</span> <span class="o">!=</span> <span class="n">FILES_TABLE_DEFINITION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">return</span> <span class="bp">True</span>
+
     <span class="k">def</span> <span class="nf">_init_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inits the database connects, turns on foreign key support and creates</span>
@@ -298,12 +343,31 @@
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+                <span class="c"># Make sure the database is still valid. This automatically</span>
+                <span class="c"># enables migrations to newer database schema definition in</span>
+                <span class="c"># newer LASIF versions.</span>
+                <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_database</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">valid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">True</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Cache &#39;</span><span class="si">%s</span><span class="s">&#39; is not valid anymore. This is most &quot;</span>
+                          <span class="s">&quot;likely due to some recent LASIF update. Don&#39;t &quot;</span>
+                          <span class="s">&quot;worry, LASIF will built it anew. Hang on...&quot;</span> <span class="o">%</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
             <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
         <span class="c"># Enable foreign key support.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;PRAGMA foreign_keys = ON;&quot;</span><span class="p">)</span>
 
@@ -327,11 +391,10 @@
         <span class="n">sql_create_files_table</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">            CREATE TABLE IF NOT EXISTS files (</span>
 <span class="s">                id INTEGER PRIMARY KEY AUTOINCREMENT,</span>
-<span class="s">                filename TEXT,</span>
-<span class="s">                last_modified REAL,</span>
-<span class="s">                crc32_hash INTEGER</span>
+<span class="s">                </span><span class="si">%s</span><span class="s"></span>
 <span class="s">            );</span>
-<span class="s">        &quot;&quot;&quot;</span>
+<span class="s">        &quot;&quot;&quot;</span> <span class="o">%</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_i</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
+                       <span class="n">FILES_TABLE_DEFINITION</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_create_files_table</span><span class="p">)</span>
 
         <span class="n">sql_create_index_table</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
@@ -409,7 +472,7 @@
         <span class="c"># dictionary. The dictionary key is the filename and the value a tuple</span>
         <span class="c"># of (id, last_modified, crc32 hash).</span>
         <span class="n">db_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT * FROM files&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-        <span class="n">db_files</span> <span class="o">=</span> <span class="p">{</span><span class="n">_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">(</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_i</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">_i</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">db_files</span><span class="p">}</span>
+        <span class="n">db_files</span> <span class="o">=</span> <span class="p">{</span><span class="n">_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">(</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_i</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">_i</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">db_files</span><span class="p">}</span>
 
         <span class="c"># Count all files</span>
         <span class="n">filecount</span> <span class="o">=</span> <span class="mi">0</span>
@@ -432,7 +495,7 @@
                 <span class="n">current_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="c"># Only show the progressbar if more then 5 seconds have passed.</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">pbar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_progress</span> <span class="ow">and</span> \
-                        <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">):</span>
+                        <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">):</span>
                     <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Updating cache: &quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">Percentage</span><span class="p">(),</span>
                                <span class="n">progressbar</span><span class="o">.</span><span class="n">Bar</span><span class="p">(),</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ETA</span><span class="p">()]</span>
                     <span class="n">pbar</span> <span class="o">=</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">(</span><span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">,</span>
@@ -575,14 +638,18 @@
         <span class="k">if</span> <span class="n">filepath_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="s">&quot;UPDATE files SET last_modified=</span><span class="si">%f</span><span class="s">, &quot;</span>
+                <span class="s">&quot;filesize=</span><span class="si">%i</span><span class="s">, &quot;</span>
                 <span class="s">&quot;crc32_hash=</span><span class="si">%i</span><span class="s"> WHERE id=</span><span class="si">%i</span><span class="s">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                                                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
                                                 <span class="n">filehash</span><span class="p">,</span> <span class="n">filepath_id</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s">&quot;INSERT into files(filename, last_modified,&quot;</span>
-                <span class="s">&quot; crc32_hash) VALUES(&#39;</span><span class="si">%s</span><span class="s">&#39;, </span><span class="si">%f</span><span class="s">, </span><span class="si">%i</span><span class="s">);&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                    <span class="n">filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">filehash</span><span class="p">))</span>
+                <span class="s">&quot;INSERT into files(filename, last_modified, filesize, &quot;</span>
+                <span class="s">&quot; crc32_hash) VALUES&quot;</span>
+                <span class="s">&quot;(&#39;</span><span class="si">%s</span><span class="s">&#39;, </span><span class="si">%f</span><span class="s">, </span><span class="si">%i</span><span class="s">, </span><span class="si">%i</span><span class="s">);&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="n">filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">filehash</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
             <span class="n">filepath_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">lastrowid</span>
 

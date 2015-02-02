@@ -209,6 +209,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_cache_update</span><span class="p">()</span>
 
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="StationsComponent.file_count"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.file_count">[docs]</a>    <span class="k">def</span> <span class="nf">file_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the total number of station files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">file_count</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="StationsComponent.total_file_size"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.total_file_size">[docs]</a>    <span class="k">def</span> <span class="nf">total_file_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the filesize sum of all station files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">total_size</span>
+</div>
 <div class="viewcode-block" id="StationsComponent.force_cache_update"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent.force_cache_update">[docs]</a>    <span class="k">def</span> <span class="nf">force_cache_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the station cache.</span>
