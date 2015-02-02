@@ -3,6 +3,8 @@
 """
 Classes handling the domain definition and associated functionality for LASIF.
 
+Matplotlib is imported lazily to avoid heavy startup costs.
+
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014
 
@@ -13,9 +15,6 @@ Classes handling the domain definition and associated functionality for LASIF.
 from abc import ABCMeta, abstractmethod
 
 import collections
-import matplotlib.patheffects as PathEffects
-import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
 import math
 import numpy as np
 
@@ -223,6 +222,9 @@ class RectangularSphericalSection(Domain):
         return True
 
     def plot(self, plot_simulation_domain=False, ax=None):
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.basemap import Basemap
+
         if ax is None:
             ax = plt.gca()
         plt.subplots_adjust(left=0.05, right=0.95)
@@ -348,6 +350,9 @@ class GlobalDomain(Domain):
 
         :return: The created GeoAxes instance.
         """
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.basemap import Basemap
+
         if ax is None:
             ax = plt.gca()
         plt.subplots_adjust(left=0.05, right=0.95)
@@ -378,6 +383,8 @@ def _plot_features(map_object, stepsize):
     """
     Helper function aiding in consistent plot styling.
     """
+    import matplotlib.pyplot as plt
+
     map_object.drawmapboundary(fill_color='#bbbbbb')
     map_object.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
     plt.gcf().patch.set_alpha(0.0)
@@ -412,6 +419,8 @@ def _plot_features(map_object, stepsize):
 
 def _plot_lines(map_object, lines, color, lw, alpha=1.0, label=None,
                 effects=False):
+    import matplotlib.patheffects as PathEffects
+
     lines = np.array(lines)
     lats = lines[:, 0]
     lngs = lines[:, 1]
