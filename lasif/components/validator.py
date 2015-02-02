@@ -127,6 +127,9 @@ class ValidatorComponent(Component):
                   (colorama.Fore.RED, colorama.Fore.RESET,
                    self._total_error_count, os.path.relpath(filename)))
             if files_failing_raypath_test:
+                # Put quotes around the filenames
+                files_failing_raypath_test = ['"%s"' % _i for _i in
+                                              files_failing_raypath_test]
                 filename = os.path.join(folder,
                                         "delete_raypath_violating_files.sh")
                 with open(filename, "wt") as fh:
