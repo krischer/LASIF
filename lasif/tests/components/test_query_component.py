@@ -243,6 +243,8 @@ def test_data_synthetic_iterator(comm, recwarn):
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
     comm.actions.preprocess_data(
         "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", waiting_time=0.0)
+    # Might raise numpy warning.
+    recwarn.clear()
 
     iterator = comm.query.get_data_and_synthetics_iterator(
         "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
