@@ -216,7 +216,6 @@
 <span class="sd">            return [[400, 300, &quot;jpeg&quot;]]</span>
 
 
-
 <span class="sd">:copyright:</span>
 <span class="sd">    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013</span>
 <span class="sd">:license:</span>
@@ -253,8 +252,9 @@
 
 <span class="sd">    Intended to be subclassed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_db_file</span><span class="p">,</span> <span class="n">show_progress</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_db_file</span><span class="p">,</span> <span class="n">root_folder</span><span class="p">,</span> <span class="n">show_progress</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span> <span class="o">=</span> <span class="n">cache_db_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span> <span class="o">=</span> <span class="n">root_folder</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show_progress</span> <span class="o">=</span> <span class="n">show_progress</span>
 
         <span class="c"># Will be filled in _init_database() method.</span>
@@ -376,6 +376,11 @@
         <span class="c"># databases are just created from the data and can be recreated at any</span>
         <span class="c"># time.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;PRAGMA synchronous = OFF;&quot;</span><span class="p">)</span>
+
+        <span class="c"># This greatly speeds up deleting files. Data corruptions is again</span>
+        <span class="c"># not a really big issue.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;PRAGMA SECURE_DELETE = OFF;&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="c"># Make sure that foreign key support has been turned on.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;PRAGMA foreign_keys;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
@@ -444,7 +449,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">filetype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filetypes</span><span class="p">:</span>
             <span class="n">get_file_fct</span> <span class="o">=</span> <span class="s">&quot;_find_files_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filetype</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">filetype</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_file_fct</span><span class="p">)()</span>
+            <span class="c"># Paths are relative to the root folder.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">filetype</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">_i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">get_file_fct</span><span class="p">)()]</span>
 
     <span class="k">def</span> <span class="nf">_get_all_files_from_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -489,52 +497,71 @@
         <span class="n">update_interval</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">current_file_count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="c"># Now update all filetypes separately.</span>
-        <span class="k">for</span> <span class="n">filetype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filetypes</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">filetype</span><span class="p">]:</span>
-                <span class="n">current_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="c"># Only show the progressbar if more then 5 seconds have passed.</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">pbar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_progress</span> <span class="ow">and</span> \
-                        <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">):</span>
-                    <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Updating cache: &quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">Percentage</span><span class="p">(),</span>
-                               <span class="n">progressbar</span><span class="o">.</span><span class="n">Bar</span><span class="p">(),</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ETA</span><span class="p">()]</span>
-                    <span class="n">pbar</span> <span class="o">=</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">(</span><span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">,</span>
-                                                   <span class="n">maxval</span><span class="o">=</span><span class="n">filecount</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-                    <span class="n">update_interval</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">filecount</span> <span class="o">/</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">current_file_count</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">pbar</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">current_file_count</span> <span class="o">%</span> <span class="n">update_interval</span><span class="p">:</span>
-                    <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">current_file_count</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">db_files</span><span class="p">:</span>
-                    <span class="c"># Delete the file from the list of files to keep track of</span>
-                    <span class="c"># files no longer available.</span>
-                    <span class="n">this_file</span> <span class="o">=</span> <span class="n">db_files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
-                    <span class="k">del</span> <span class="n">db_files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
-                    <span class="n">last_modified</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-                    <span class="c"># If the last modified time is identical to a tenth of</span>
-                    <span class="c"># second, nothing to do.</span>
-                    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">last_modified</span> <span class="o">*</span> <span class="mi">10</span><span class="p">))</span> <span class="o">==</span> \
-                            <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">this_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)):</span>
-                        <span class="k">continue</span>
-                    <span class="c"># Otherwise check the hash.</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
-                        <span class="n">hash_value</span> <span class="o">=</span> <span class="n">crc32</span><span class="p">(</span><span class="n">open_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-                    <span class="k">if</span> <span class="n">hash_value</span> <span class="o">==</span> <span class="n">this_file</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
-                        <span class="c"># XXX: Update last modified times, otherwise it will</span>
-                        <span class="c"># hash again and again.</span>
-                        <span class="k">continue</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filetype</span><span class="p">,</span> <span class="n">this_file</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_update_file</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filetype</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c"># Store the old working directory and change to the root folder</span>
+            <span class="c"># to get relative pathnames.</span>
+            <span class="n">org_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">)</span>
+
+            <span class="c"># Now update all filetypes separately.</span>
+            <span class="k">for</span> <span class="n">filetype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filetypes</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">filetype</span><span class="p">]:</span>
+                    <span class="n">current_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c"># Only show the progressbar if more then 2 seconds have</span>
+                    <span class="c"># passed.</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">pbar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_progress</span> <span class="ow">and</span> \
+                            <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">):</span>
+                        <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="s">&quot;Updating cache: &quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">Percentage</span><span class="p">(),</span>
+                            <span class="n">progressbar</span><span class="o">.</span><span class="n">Bar</span><span class="p">(),</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ETA</span><span class="p">()]</span>
+                        <span class="n">pbar</span> <span class="o">=</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ProgressBar</span><span class="p">(</span>
+                            <span class="n">widgets</span><span class="o">=</span><span class="n">widgets</span><span class="p">,</span> <span class="n">maxval</span><span class="o">=</span><span class="n">filecount</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                        <span class="n">update_interval</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">filecount</span> <span class="o">/</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">current_file_count</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">pbar</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">current_file_count</span> <span class="o">%</span> <span class="n">update_interval</span><span class="p">:</span>
+                        <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">current_file_count</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">db_files</span><span class="p">:</span>
+                        <span class="c"># Delete the file from the list of files to keep</span>
+                        <span class="c"># track of files no longer available.</span>
+                        <span class="n">this_file</span> <span class="o">=</span> <span class="n">db_files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+                        <span class="k">del</span> <span class="n">db_files</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+                        <span class="n">abs_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+                        <span class="n">last_modified</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">)</span>
+                        <span class="c"># If the last modified time is identical to a tenth of</span>
+                        <span class="c"># second, nothing to do.</span>
+                        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">last_modified</span> <span class="o">*</span> <span class="mi">10</span><span class="p">))</span> <span class="o">==</span> \
+                                <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">this_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)):</span>
+                            <span class="k">continue</span>
+                        <span class="c"># Otherwise check the hash.</span>
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
+                            <span class="n">hash_value</span> <span class="o">=</span> <span class="n">crc32</span><span class="p">(</span><span class="n">open_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                        <span class="k">if</span> <span class="n">hash_value</span> <span class="o">==</span> <span class="n">this_file</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                            <span class="c"># XXX: Update last modified times, otherwise it</span>
+                            <span class="c"># will hash again and again.</span>
+                            <span class="k">continue</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_update_file</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">,</span> <span class="n">filetype</span><span class="p">,</span>
+                                          <span class="n">this_file</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_update_file</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                                          <span class="n">filetype</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">org_directory</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pbar</span><span class="p">:</span>
             <span class="n">pbar</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
 
         <span class="c"># Remove all files no longer part of the cache DB.</span>
-        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">db_files</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;DELETE FROM files WHERE filename=&#39;</span><span class="si">%s</span><span class="s">&#39;;&quot;</span> <span class="o">%</span>
-                                   <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">db_files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">db_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">&quot;Removing </span><span class="si">%i</span><span class="s"> no longer existing files from the &quot;</span>
+                      <span class="s">&quot;cache database. This might take a while ...&quot;</span> <span class="o">%</span>
+                      <span class="nb">len</span><span class="p">(</span><span class="n">db_files</span><span class="p">))</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;DELETE FROM files WHERE filename IN (</span><span class="si">%s</span><span class="s">);&quot;</span> <span class="o">%</span> \
+                <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">db_files</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
-        <span class="c"># Update the self.files dictionary, this fime from the database.</span>
+        <span class="c"># Update the self.files dictionary, this time from the database.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_files_from_database</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="FileInfoCache.get_values"><a class="viewcode-back" href="../../../../tools.file_info_cache.html#lasif.tools.cache_helpers.file_info_cache.FileInfoCache.get_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -542,21 +569,27 @@
 <span class="sd">        Returns a list of dictionaries containing all indexed values for every</span>
 <span class="sd">        file together with the filename.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Assemble the query. Use a simple join statement.</span>
-        <span class="n">sql_query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">        SELECT </span><span class="si">%s</span><span class="s">, files.filename</span>
-<span class="s">        FROM indices</span>
-<span class="s">        INNER JOIN files</span>
-<span class="s">        ON indices.filepath_id=files.id</span>
-<span class="s">        &quot;&quot;&quot;</span> <span class="o">%</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;indices.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_values</span><span class="p">])</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">org_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">)</span>
 
-        <span class="n">all_values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_values</span><span class="p">]</span>
+            <span class="c"># Assemble the query. Use a simple join statement.</span>
+            <span class="n">sql_query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">            SELECT </span><span class="si">%s</span><span class="s">, files.filename</span>
+<span class="s">            FROM indices</span>
+<span class="s">            INNER JOIN files</span>
+<span class="s">            ON indices.filepath_id=files.id</span>
+<span class="s">            &quot;&quot;&quot;</span> <span class="o">%</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s">&quot;indices.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_values</span><span class="p">])</span>
 
-        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">_i</span><span class="p">)}</span>
-            <span class="n">values</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">all_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">all_values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_values</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
+                <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">_i</span><span class="p">)}</span>
+                <span class="n">values</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">_i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">all_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">org_directory</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">all_values</span>
 </div>
@@ -566,7 +599,8 @@
 
 <span class="sd">        :param filename: The filename for which to request information.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">)</span>
 
         <span class="c"># Assemble the query. Use a simple join statement.</span>
         <span class="n">sql_query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
@@ -583,7 +617,8 @@
 
         <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql_query</span><span class="p">):</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">izip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">_i</span><span class="p">)}</span>
-            <span class="n">values</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">values</span><span class="p">[</span><span class="s">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="n">_i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
             <span class="n">all_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">all_values</span>
@@ -593,6 +628,8 @@
 <span class="sd">        Updates or creates a new entry for the given file. If id is given, it</span>
 <span class="sd">        will be interpreted as an update, otherwise as a fresh record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">abs_filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="n">rel_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">)</span>
         <span class="c"># Remove all old indices for the file if it is an update.</span>
         <span class="k">if</span> <span class="n">filepath_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;DELETE FROM indices WHERE &quot;</span>
@@ -602,36 +639,36 @@
         <span class="c"># Get all indices from the file.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">indices</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;_extract_index_values_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
-                                    <span class="n">filetype</span><span class="p">)(</span><span class="n">filename</span><span class="p">)</span>
+                                    <span class="n">filetype</span><span class="p">)(</span><span class="n">abs_filename</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Failed to index &#39;</span><span class="si">%s</span><span class="s">&#39; of type &#39;</span><span class="si">%s</span><span class="s">&#39; due to: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="n">filename</span><span class="p">,</span> <span class="n">filetype</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="n">abs_filename</span><span class="p">,</span> <span class="n">filetype</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">LASIFWarning</span><span class="p">)</span>
 
             <span class="c"># If it is an update, also remove the file from the file list.</span>
             <span class="k">if</span> <span class="n">filepath_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="s">&quot;DELETE FROM files WHERE filename=&#39;</span><span class="si">%s</span><span class="s">&#39;;&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+                    <span class="s">&quot;DELETE FROM files WHERE filename=&#39;</span><span class="si">%s</span><span class="s">&#39;;&quot;</span> <span class="o">%</span> <span class="n">rel_filename</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">indices</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Could not extract any index from file &#39;</span><span class="si">%s</span><span class="s">&#39; of type &#39;</span><span class="si">%s</span><span class="s">&#39;. &quot;</span>
-                   <span class="s">&quot;The file will be skipped.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">filetype</span><span class="p">))</span>
+                   <span class="s">&quot;The file will be skipped.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">abs_filename</span><span class="p">,</span> <span class="n">filetype</span><span class="p">))</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">LASIFWarning</span><span class="p">)</span>
 
             <span class="c"># If it is an update, also remove the file from the file list.</span>
             <span class="k">if</span> <span class="n">filepath_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                    <span class="s">&quot;DELETE FROM files WHERE filename=&#39;</span><span class="si">%s</span><span class="s">&#39;;&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+                    <span class="s">&quot;DELETE FROM files WHERE filename=&#39;</span><span class="si">%s</span><span class="s">&#39;;&quot;</span> <span class="o">%</span> <span class="n">rel_filename</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
             <span class="k">return</span>
 
         <span class="c"># Get the hash</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
             <span class="n">filehash</span> <span class="o">=</span> <span class="n">crc32</span><span class="p">(</span><span class="n">open_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
         <span class="c"># Add or update the file.</span>
@@ -639,8 +676,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
                 <span class="s">&quot;UPDATE files SET last_modified=</span><span class="si">%f</span><span class="s">, &quot;</span>
                 <span class="s">&quot;filesize=</span><span class="si">%i</span><span class="s">, &quot;</span>
-                <span class="s">&quot;crc32_hash=</span><span class="si">%i</span><span class="s"> WHERE id=</span><span class="si">%i</span><span class="s">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
-                                                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                <span class="s">&quot;crc32_hash=</span><span class="si">%i</span><span class="s"> WHERE id=</span><span class="si">%i</span><span class="s">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">),</span>
+                                                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">),</span>
                                                 <span class="n">filehash</span><span class="p">,</span> <span class="n">filepath_id</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -648,8 +685,8 @@
                 <span class="s">&quot;INSERT into files(filename, last_modified, filesize, &quot;</span>
                 <span class="s">&quot; crc32_hash) VALUES&quot;</span>
                 <span class="s">&quot;(&#39;</span><span class="si">%s</span><span class="s">&#39;, </span><span class="si">%f</span><span class="s">, </span><span class="si">%i</span><span class="s">, </span><span class="si">%i</span><span class="s">);&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                    <span class="n">filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">filehash</span><span class="p">))</span>
+                    <span class="n">rel_filename</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">),</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">),</span> <span class="n">filehash</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
             <span class="n">filepath_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">lastrowid</span>
 
