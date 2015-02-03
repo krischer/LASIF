@@ -355,10 +355,10 @@ class FileInfoCache(object):
             for filetype in self.filetypes:
                 for filename in self.files[filetype]:
                     current_file_count += 1
-                    # Only show the progressbar if more then 2 seconds have
+                    # Only show the progressbar if more then 3.5 seconds have
                     # passed.
                     if not pbar and self.show_progress and \
-                            (time.time() - start_time > 2.0):
+                            (time.time() - start_time > 3.5):
                         widgets = [
                             "Updating cache: ", progressbar.Percentage(),
                             progressbar.Bar(), "", progressbar.ETA()]
@@ -376,10 +376,9 @@ class FileInfoCache(object):
                         abs_filename = os.path.abspath(filename)
 
                         last_modified = os.path.getmtime(abs_filename)
-                        # If the last modified time is identical to a tenth of
-                        # second, nothing to do.
-                        if int(round(last_modified * 10)) == \
-                                int(round(this_file[1] * 10)):
+                        # If the last modified time is identical to a
+                        # second, do nothing.
+                        if abs(last_modified - this_file[1]) < 1.0:
                             continue
                         # Otherwise check the hash.
                         with open(abs_filename, "rb") as open_file:
