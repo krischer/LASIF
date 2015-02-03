@@ -17,6 +17,7 @@ from __future__ import absolute_import
 
 import cPickle
 import glob
+import imp
 import inspect
 import platform
 import os
@@ -73,6 +74,8 @@ class Project(Component):
             msg = ("Could not find the project's config file. Wrong project "
                    "path or uninitialized project?")
             raise LASIFError(msg)
+
+        self.__project_function_cache = {}
 
         # Setup the communicator and register this component.
         self.__comm = Communicator()
@@ -139,6 +142,15 @@ class Project(Component):
         return ret_str
 
     def __copy_fct_templates(self, init_project):
+        """
+        Copies the function templates to the project folder if they do not
+        yet exist.
+
+        :param init_project: Flag if this is called during the project
+            initialization or not. If not called during project initialization
+            this function will raise a warning to make users aware of the
+            changes in LASIF.
+        """
         directory = os.path.abspath(os.path.join(
             os.path.dirname(inspect.getfile(
                 inspect.currentframe())),
@@ -543,6 +555,48 @@ class Project(Component):
 
         with open(self.paths["config_file"], "wt") as open_file:
             open_file.write(string_doc)
+
+    def get_project_function(self, fct_type):
+        """
+        Helper importing the project specific function.
+
+        :param fct_type: The desired function.
+        """
+        # Cache to avoid repeated imports.
+        if fct_type in self.__project_function_cache:
+            return self.__project_function_cache[fct_type]
+
+        # type / filename map
+        fct_type_map = {
+            "window_picking_function": "window_picking_function.py",
+            "preprocessing_function": "preprocessing_function.py"
+        }
+
+        if fct_type not in fct_type:
+            msg = "Function '%s' not found. Available types: %s" % (
+                fct_type, str(list(fct_type_map.keys())))
+            raise LASIFNotFoundError(msg)
+
+        filename = os.path.join(self.paths["functions"],
+                                fct_type_map[fct_type])
+        if not os.path.exists(filename):
+            msg = "No file '%s' in existence." % filename
+            raise LASIFNotFoundError(msg)
+
+        fct_template = imp.load_source("_lasif_fct_template", filename)
+        try:
+            fct = getattr(fct_template, fct_type)
+        except AttributeError:
+            raise LASIFNotFoundError("Could not find function %s in file '%s'"
+                                     % (fct_type, filename))
+
+        if not callable(fct):
+            raise LASIFError("Attribute %s in file '%s' is not a function."
+                             % (fct_type, filename))
+
+        # Add to cache.
+        self.__project_function_cache[fct_type] = fct
+        return fct
 
     def get_output_folder(self, tag):
         """

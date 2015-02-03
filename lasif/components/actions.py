@@ -195,7 +195,10 @@ class ActionsComponent(Component):
         :param station: The station id in the form NET.STA.
         """
         from lasif.utils import select_component_from_stream
-        from lasif.window_selection import select_windows
+
+        # Load project specific window selection function.
+        select_windows = self.comm.project.get_project_function(
+            "window_picking_function")
 
         event = self.comm.events.get(event)
         iteration = self.comm.iterations.get(iteration)
@@ -225,7 +228,8 @@ class ActionsComponent(Component):
                                      data.coordinates["latitude"],
                                      data.coordinates["longitude"],
                                      minimum_period=minimum_period,
-                                     maximum_period=maximum_period)
+                                     maximum_period=maximum_period,
+                                     iteration=iteration)
             if not windows:
                 continue
 
