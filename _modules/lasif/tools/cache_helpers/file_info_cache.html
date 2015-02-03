@@ -105,6 +105,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
@@ -507,10 +508,10 @@
             <span class="k">for</span> <span class="n">filetype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filetypes</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">filetype</span><span class="p">]:</span>
                     <span class="n">current_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
-                    <span class="c"># Only show the progressbar if more then 2 seconds have</span>
+                    <span class="c"># Only show the progressbar if more then 3.5 seconds have</span>
                     <span class="c"># passed.</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">pbar</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_progress</span> <span class="ow">and</span> \
-                            <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">):</span>
+                            <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span> <span class="o">&gt;</span> <span class="mf">3.5</span><span class="p">):</span>
                         <span class="n">widgets</span> <span class="o">=</span> <span class="p">[</span>
                             <span class="s">&quot;Updating cache: &quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">Percentage</span><span class="p">(),</span>
                             <span class="n">progressbar</span><span class="o">.</span><span class="n">Bar</span><span class="p">(),</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">.</span><span class="n">ETA</span><span class="p">()]</span>
@@ -528,10 +529,9 @@
                         <span class="n">abs_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
                         <span class="n">last_modified</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">)</span>
-                        <span class="c"># If the last modified time is identical to a tenth of</span>
-                        <span class="c"># second, nothing to do.</span>
-                        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">last_modified</span> <span class="o">*</span> <span class="mi">10</span><span class="p">))</span> <span class="o">==</span> \
-                                <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">this_file</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)):</span>
+                        <span class="c"># If the last modified time is identical to a</span>
+                        <span class="c"># second, do nothing.</span>
+                        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">last_modified</span> <span class="o">-</span> <span class="n">this_file</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
                             <span class="k">continue</span>
                         <span class="c"># Otherwise check the hash.</span>
                         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_filename</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>

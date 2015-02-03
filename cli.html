@@ -106,6 +106,7 @@
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
@@ -356,15 +357,15 @@ contained events.</td>
 <div class="section" id="lasif-list-events">
 <h3>lasif list_events<a class="headerlink" href="#lasif-list-events" title="Permalink to this headline">¶</a></h3>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_events [-h]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_events [-h] [--details]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Print a list of all events in the project.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="53%" />
-<col width="47%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
@@ -372,6 +373,11 @@ contained events.</td>
 <tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
 <td>show this help
 message and exit</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--details</span></tt></td>
+<td>print details of
+filecounts for all
+events</td>
 </tr>
 </tbody>
 </table>

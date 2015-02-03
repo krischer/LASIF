@@ -18,6 +18,7 @@ API Documentation
 
     rotations
     iris2quakeml
+    ses3d_setup_helper
     tools
     tools.parallel
     tools.file_info_cache

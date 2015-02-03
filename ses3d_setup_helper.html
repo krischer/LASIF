@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>lasif.scripts.iris2quakeml &mdash; LASIF 0.0.1 documentation</title>
+  <title>SES3D Setup Assistant &mdash; LASIF 0.0.1 documentation</title>
   
 
   
@@ -30,8 +30,8 @@
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="API Documentation" href="api_doc.html"/>
-        <link rel="next" title="SES3D Setup Assistant" href="ses3d_setup_helper.html"/>
-        <link rel="prev" title="lasif.rotations" href="rotations.html"/> 
+        <link rel="next" title="lasif.tools" href="tools.html"/>
+        <link rel="prev" title="lasif.scripts.iris2quakeml" href="iris2quakeml.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -106,8 +106,8 @@
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="api_doc.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">lasif.scripts.iris2quakeml</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">SES3D Setup Assistant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
@@ -141,10 +141,10 @@
       
           <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
       
-    <li>lasif.scripts.iris2quakeml</li>
+    <li>SES3D Setup Assistant</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/iris2quakeml.txt" rel="nofollow"> View page source</a>
+          <a href="_sources/ses3d_setup_helper.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -152,40 +152,121 @@
 </div>
           <div role="main" class="document">
             
-  <div class="section" id="module-lasif.scripts.iris2quakeml">
-<span id="lasif-scripts-iris2quakeml"></span><h1>lasif.scripts.iris2quakeml<a class="headerlink" href="#module-lasif.scripts.iris2quakeml" title="Permalink to this headline">¶</a></h1>
-<p>Download and fix the QuakeML files provided by the IRIS SPUD momenttensor
-service:</p>
-<p><a class="reference external" href="http://www.iris.edu/spud/momenttensor">http://www.iris.edu/spud/momenttensor</a></p>
-<p>Downloads the files and saves them as a QuakeML file. You can either
-refer to the site displaying the event or the quakeml url.</p>
-<p><strong>Usage:</strong></p>
-<p>Use the SPUD webinterface to search for an event and copy the URL for one
-event. Now execute the <strong>iris2quakeml</strong> command with that URL. The file will be
-downloaded and stored as a QuakeML 1.2 file in the current folder.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>iris2quakeml http://www.iris.edu/spud/momenttensor/1055532
-Downloading http://www.iris.edu/spudservice/momenttensor/1055532/quakeml...
-Written file GCMT_event_NEAR_EAST_COAST_OF_HONSHU,_JAPAN_Mag_5.5_2013-1-8-7-51.xml
+  <div class="section" id="ses3d-setup-assistant">
+<h1>SES3D Setup Assistant<a class="headerlink" href="#ses3d-setup-assistant" title="Permalink to this headline">¶</a></h1>
+<p>This is a simple script that assists you in determining optimal SES3D
+settings. To use it just pass the number of elements and the size of the
+simulation domain.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python -m lasif.scripts.ses3d_setup_helper --help
+usage: python -m lasif.scripts.ses3d_setup_helper <span class="o">[</span>-h<span class="o">]</span> dx dy dz nx ny nz
+
+Script assisting in determining suitable SES3D settings.
+
+positional arguments:
+  dx          latitudinal extent in degrees
+  dy          longitudinal extent in degrees
+  dz          depth extent in km
+  nx          elements in latitudinal direction
+  ny          elements in longitudinal direction
+  nz          elements in depth direction
+
+optional arguments:
+  -h, --help  show this <span class="nb">help </span>message and <span class="nb">exit</span>
 </pre></div>
 </div>
-<dl class="docutils">
-<dt>Requirements:</dt>
-<dd><ul class="first last simple">
-<li><a class="reference external" href="http://obspy.org">ObsPy</a> &gt;= 0.8.3</li>
-</ul>
-</dd>
-</dl>
+<p>Exemplary output is</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python -m lasif.scripts.ses3d_setup_helper 30 47 1171 108 168 64
+SES3D Setup Assistant
+
+All calculations are <span class="k">done </span>quick and dirty so take them with a grain of salt.
+
+Extent in latitudinal <span class="o">(</span>X<span class="o">)</span> direction: 3339.6 km, 31 km/element
+Extent in longitudinal <span class="o">(</span>Y<span class="o">)</span> direction: 5232.0 km, 31 km/element
+Extent in depth <span class="o">(</span>Z<span class="o">)</span> direction: 1171.0 km , 18.3 km/element
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="section" id="module-lasif.scripts.ses3d_setup_helper">
+<span id="internal-function-documentation"></span><h2>Internal Function Documentation<a class="headerlink" href="#module-lasif.scripts.ses3d_setup_helper" title="Permalink to this headline">¶</a></h2>
+<p>Script assisting in determining suitable SES3D settings.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2013</td>
+<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2015</td>
 </tr>
 <tr class="field-even field"><th class="field-name">license:</th><td class="field-body">GNU General Public License, Version 3
 (<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</td>
 </tr>
 </tbody>
 </table>
+<dl class="function">
+<dt id="lasif.scripts.ses3d_setup_helper.get_divisors">
+<tt class="descclassname">lasif.scripts.ses3d_setup_helper.</tt><tt class="descname">get_divisors</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_divisors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_divisors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all divisors for a certain number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number for which to get divisors.</td>
+</tr>
+</tbody>
+</table>
+<p>Adapted from <a class="reference external" href="http://stackoverflow.com/a/171784/1657047">http://stackoverflow.com/a/171784/1657047</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lasif.scripts.ses3d_setup_helper.get_domain_decompositions">
+<tt class="descclassname">lasif.scripts.ses3d_setup_helper.</tt><tt class="descname">get_domain_decompositions</tt><big>(</big><em>nx</em>, <em>ny</em>, <em>nz</em>, <em>max_recommendations=5</em><big>)</big><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_domain_decompositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_domain_decompositions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempt to get reasonable domain decomposition recommendations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>nx</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Elements in x direction.</li>
+<li><strong>ny</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Elements in y direction.</li>
+<li><strong>nz</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Elements in z direction.</li>
+<li><strong>max_recommendations</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of recommendations to
+return.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="lasif.scripts.ses3d_setup_helper.get_factors_and_multiplicity">
+<tt class="descclassname">lasif.scripts.ses3d_setup_helper.</tt><tt class="descname">get_factors_and_multiplicity</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_factors_and_multiplicity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_factors_and_multiplicity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get prime factors and their multiplicity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number for which to get factors and multiplicity.</td>
+</tr>
+</tbody>
+</table>
+<p>Adapted from <a class="reference external" href="http://stackoverflow.com/a/24545330/1657047">http://stackoverflow.com/a/24545330/1657047</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="lasif.scripts.ses3d_setup_helper.get_primes">
+<tt class="descclassname">lasif.scripts.ses3d_setup_helper.</tt><tt class="descname">get_primes</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_primes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_primes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all prime numbers 2 &lt;= x &lt;= number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number for which to generate primes.</td>
+</tr>
+</tbody>
+</table>
+<p>Adapted from <a class="reference external" href="http://stackoverflow.com/a/15347389/1657047">http://stackoverflow.com/a/15347389/1657047</a></p>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -194,10 +275,10 @@ Written file GCMT_event_NEAR_EAST_COAST_OF_HONSHU,_JAPAN_Mag_5.5_2013-1-8-7-51.x
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="ses3d_setup_helper.html" class="btn btn-neutral float-right" title="SES3D Setup Assistant">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tools.html" class="btn btn-neutral float-right" title="lasif.tools">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="rotations.html" class="btn btn-neutral" title="lasif.rotations"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="iris2quakeml.html" class="btn btn-neutral" title="lasif.scripts.iris2quakeml"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
