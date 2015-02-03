@@ -16,10 +16,13 @@ needed.
 from __future__ import absolute_import
 
 import cPickle
+import glob
+import inspect
 import platform
 import os
+import warnings
 
-from lasif import LASIFError, LASIFNotFoundError
+from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 import lasif.domain
 
 from .actions import ActionsComponent
@@ -86,6 +89,8 @@ class Project(Component):
 
         self._read_config_file()
 
+        self.__copy_fct_templates(init_project=init_project)
+
     def __str__(self):
         """
         Pretty string representation.
@@ -132,6 +137,25 @@ class Project(Component):
         ret_str += "\n".join(["\t" + i for i in d.splitlines()])
 
         return ret_str
+
+    def __copy_fct_templates(self, init_project):
+        directory = os.path.abspath(os.path.join(
+            os.path.dirname(inspect.getfile(
+                inspect.currentframe())),
+            os.path.pardir,
+            "function_templates"))
+        for template_filename in glob.glob(os.path.join(directory, "*.py")):
+            filename = os.path.basename(template_filename)
+            new_filename = os.path.join(self.paths["functions"], filename)
+            if not os.path.exists(new_filename):
+                if init_project is not True:
+                    warnings.warn(
+                        "Function template '%s' did not exist. It does now. "
+                        "Did you update a later LASIF version? Please make "
+                        "sure you are aware of the changes." % filename,
+                        LASIFWarning)
+                import shutil
+                shutil.copy(src=template_filename, dst=new_filename)
 
     def _read_config_file(self):
         """
@@ -424,6 +448,8 @@ class Project(Component):
         self.paths["kernels"] = os.path.join(root_path, "KERNELS")
         self.paths["stations"] = os.path.join(root_path, "STATIONS")
         self.paths["output"] = os.path.join(root_path, "OUTPUT")
+        # Path for the custom functions.
+        self.paths["functions"] = os.path.join(root_path, "FUNCTIONS")
 
         self.paths["windows"] = os.path.join(
             root_path, "ADJOINT_SOURCES_AND_WINDOWS", "WINDOWS")

@@ -182,7 +182,7 @@ def test_project_init(cli):
     assert contents == sorted([
         "ADJOINT_SOURCES_AND_WINDOWS", "CACHE", "config.xml", "DATA", "EVENTS",
         "ITERATIONS", "KERNELS", "LOGS", "MODELS", "OUTPUT", "STATIONS",
-        "SYNTHETICS", "WAVEFIELDS"])
+        "SYNTHETICS", "WAVEFIELDS", "FUNCTIONS"])
 
     # Test the generated config file.
     expected = "\n".join([

@@ -35,13 +35,14 @@ def find_local_extrema(data, start_index=0):
     Will also find local extrema at the domain borders.
 
     :param data: A 1D array over which the search will be performed.
-    :type data: np.ndarray
+    :type data: :class:`numpy.ndarray`
     :param start_index: The minimum index at which extrema will be detected.
     :return: Returns a tuple with three arrays:
         * [0]: The indices of all found peaks
         * [1]: The indices of all found troughs
         * [2]: The indices of all found extreme points (peaks and troughs)
 
+    >>> import numpy as np
     >>> data = np.array([0, 1, 2, 1, 0, 1, 2, 1])
     >>> peaks, troughs, extrema = find_local_extrema(data)
     >>> peaks
@@ -81,9 +82,9 @@ def find_closest(ref_array, target):
     from http://stackoverflow.com/a/8929827/1657047
 
     :param ref_array: The reference array. Must be sorted!
-    :type ref_array: np.ndarray
+    :type ref_array: :class:`numpy.ndarray`
     :param target: The target array.
-    :type target: np.ndarray
+    :type target: :class:`numpy.ndarray`
 
     >>> ref_array = np.arange(0, 20.)
     >>> target = np.array([-2, 100., 2., 2.4, 2.5, 2.6])
@@ -116,53 +117,66 @@ def _window_generator(data_length, window_width):
         window_start += 1
 
 
-def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
-                   st_lat, st_lng, minimum_period, maximum_period):
+def select_windows(data_trace, synthetic_trace, event_latitude,
+                   event_longitude, event_depth_in_km,
+                   station_latitude, station_longitude, minimum_period,
+                   maximum_period,
+                   min_cc=0.10, max_noise=0.10, max_noise_window=0.4,
+                   min_velocity=2.4, threshold_shift=0.30,
+                   threshold_correlation=0.75, min_length_period=1.5,
+                   min_peaks_troughs=2, max_energy_ratio=2.0):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.
 
-    :param data_trace:
-    :param synthetic_trace:
-    :param ev_lat:
-    :param ev_lng:
-    :param ev_depth_in_km:
-    :param st_lat:
-    :param st_lng:
-    :param minimum_period:
-    :param maximum_period:
+    :param data_trace: The data trace.
+    :type data_trace: :class:`~obspy.core.trace.Trace`
+    :param synthetic_trace: The synthetic trace.
+    :type synthetic_trace: :class:`~obspy.core.trace.Trace`
+    :param event_latitude: The event latitude.
+    :type event_latitude: float
+    :param event_longitude: The event longitude.
+    :type event_longitude: float
+    :param event_depth_in_km: The event depth in km.
+    :type event_depth_in_km: float
+    :param station_latitude: The station latitude.
+    :type station_latitude: float
+    :param station_longitude: The station longitude.
+    :type station_longitude: float
+    :param minimum_period: The minimum period of the data in seconds.
+    :type minimum_period: float
+    :param maximum_period: The maximum period of the data in seconds.
+    :type maximum_period: float
+    :param min_cc: Minimum normalised correlation coefficient of the
+        complete traces.
+    :type min_cc: float
+    :param max_noise: Maximum relative noise level for the whole trace.
+        Measured from maximum amplitudes before and after the first arrival.
+    :type max_noise: float
+    :param max_noise_window: Maximum relative noise level for individual
+        windows.
+    :type max_noise_window: float
+    :param min_velocity: All arrivals later than those corresponding to the
+        threshold velocity [km/s] will be excluded.
+    :type min_velocity: float
+    :param threshold_shift: Maximum allowable time shift within a window,
+        as a fraction of the minimum period.
+    :type threshold_shift: float
+    :param threshold_correlation: Minimum normalised correlation coeficient
+        within a window.
+    :type threshold_correlation: float
+    :param min_length_period: Minimum length of the time windows relative to
+        the minimum period.
+    :type min_length_period: float
+    :param min_peaks_troughs: Minimum number of extrema in an individual
+        time window (excluding the edges).
+    :type min_peaks_troughs: float
+    :param max_energy_ratio: Maximum energy ratio between data and
+        synthetics within a time window.
+    :type max_energy_ratio: float
     """
-
     print "* ---------------------------"
     print "* autoselect " + data_trace.id
-
-    # =========================================================================
-    # set a couple of selection parameters - might become part of the input in
-    # future versions
-    # =========================================================================
-
-    # Minimum normalised correlation coefficient of the complete traces.
-    min_cc = 0.10
-    # Maximum relative noise level for the whole trace. Measured from maximum
-    # amplitudes before and after the first arrival.
-    max_noise = 0.10
-    # Maximum relative noise level for individual windows.
-    max_noise_window = 0.4
-    # All arrivals later than those corresponding to the threshold velocity
-    # [km/s] will be excluded.
-    min_velocity = 2.4
-    # Maximum allowable time shift within a window, as a fraction of the
-    # minimum period.
-    threshold_shift = 0.30
-    # Minimum normalised correlation coeficient within a window.
-    threshold_correlation = 0.75
-    # Minimum length of the time windows relative to the minimum period.
-    min_length_period = 1.5
-    # Minimum number of extrema in an individual time window (excluding the
-    # edges).
-    min_peaks_troughs = 2
-    # Maximum energy ratio between data and synthetics within a time window.
-    max_energy_ratio = 2.0
 
     data_starttime = data_trace.stats.starttime
     data_delta = data_trace.stats.delta
@@ -173,10 +187,13 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
 
     dt = synthetic_trace.stats.delta
     npts = synthetic_trace.stats.npts
-    dist_in_deg = geodetics.locations2degrees(st_lat, st_lng, ev_lat, ev_lng)
+    dist_in_deg = geodetics.locations2degrees(station_latitude,
+                                              station_longitude,
+                                              event_latitude, event_longitude)
     dist_in_km = geodetics.calcVincentyInverse(
-        st_lat, st_lng, ev_lat, ev_lng)[0] / 1000.0
-    tts = getTravelTimes(dist_in_deg, ev_depth_in_km, model="ak135")
+        station_latitude, station_longitude, event_latitude,
+        event_longitude)[0] / 1000.0
+    tts = getTravelTimes(dist_in_deg, event_depth_in_km, model="ak135")
     first_tt_arrival = min([_i["time"] for _i in tts])
 
     # Number of samples in the sliding window. Currently, the length of the
@@ -408,148 +425,6 @@ def select_windows(data_trace, synthetic_trace, ev_lat, ev_lng, ev_depth_in_km,
         windows.append((start, stop))
 
     return windows
-
-
-def plot_windows(data_trace, synthetic_trace, windows, dominant_period,
-                 filename=None, debug=False):
-    """
-    Helper function plotting the picked windows in some variants. Useful for
-    debugging and checking what's actually going on.
-
-    If using the debug option, please use the same data_trace and
-    synthetic_trace as you used for the select_windows() function. They will
-    be augmented with certain values used for the debugging plots.
-
-    :param data_trace: The data trace.
-    :type data_trace: obspy.core.trace.Trace
-    :param synthetic_trace: The synthetic trace.
-    :type synthetic_trace: obspy.core.trace.Trace
-    :param windows: The windows, as returned by select_windows()
-    :type windows: list
-    :param dominant_period: The dominant period of the data. Used for the
-        tapering.
-    :type dominant_period: float
-    :param filename: If given, a file will be written. Otherwise the plot
-        will be shown.
-    :type filename: basestring
-    :param debug: Toggle plotting debugging information. Optional. Defaults
-        to False.
-    :type debug: bool
-    """
-    import matplotlib.pylab as plt
-    from obspy.signal.invsim import cosTaper
-
-    plt.figure(figsize=(16, 10))
-    plt.subplots_adjust(hspace=0.3)
-
-    npts = synthetic_trace.stats.npts
-
-    # Plot the raw data.
-    time_array = np.linspace(0, (npts - 1) * synthetic_trace.stats.delta, npts)
-    plt.subplot(411)
-    plt.plot(time_array, data_trace.data, color="black", label="data")
-    plt.plot(time_array, synthetic_trace.data, color="red",
-             label="synthetics")
-    plt.xlim(0, time_array[-1])
-    plt.title("Raw data")
-
-    # Plot the chosen windows.
-    bottom = np.ones(npts) * -10.0
-    top = np.ones(npts) * 10.0
-    for left_idx, right_idx in windows:
-        top[left_idx: right_idx + 1] = -10.0
-    plt.subplot(412)
-    plt.plot(time_array, data_trace.data, color="black", label="data")
-    plt.plot(time_array, synthetic_trace.data, color="red",
-             label="synthetics")
-    ymin, ymax = plt.ylim()
-    plt.fill_between(time_array, bottom, top, color="red", alpha="0.5")
-    plt.xlim(0, time_array[-1])
-    plt.ylim(ymin, ymax)
-    plt.title("Chosen windows")
-
-    # Plot the tapered data.
-    final_data = np.zeros(npts)
-    final_data_scaled = np.zeros(npts)
-    synth_data = np.zeros(npts)
-    synth_data_scaled = np.zeros(npts)
-
-    for left_idx, right_idx in windows:
-        right_idx += 1
-        length = right_idx - left_idx
-
-        # Setup the taper.
-        p = (dominant_period / synthetic_trace.stats.delta / length) / 2.0
-        if p >= 0.5:
-            p = 0.49
-        elif p < 0.1:
-            p = 0.1
-        taper = cosTaper(length, p=p)
-
-        data_window = taper * data_trace.data[left_idx: right_idx].copy()
-        synth_window = taper * synthetic_trace.data[left_idx: right_idx].copy()
-
-        data_window_scaled = data_window / data_window.ptp() * 2.0
-        synth_window_scaled = synth_window / synth_window.ptp() * 2.0
-
-        final_data[left_idx: right_idx] = data_window
-        synth_data[left_idx: right_idx] = synth_window
-        final_data_scaled[left_idx: right_idx] = data_window_scaled
-        synth_data_scaled[left_idx: right_idx] = synth_window_scaled
-
-    plt.subplot(413)
-    plt.plot(time_array, final_data, color="black")
-    plt.plot(time_array, synth_data, color="red")
-    plt.xlim(0, time_array[-1])
-    plt.title("Tapered windows")
-
-    plt.subplot(414)
-    plt.plot(time_array, final_data_scaled, color="black")
-    plt.plot(time_array, synth_data_scaled, color="red")
-    plt.xlim(0, time_array[-1])
-    plt.title("Tapered windows, scaled to same amplitude")
-
-    if debug:
-        first_valid_index = data_trace.stats.first_valid_index * \
-            synthetic_trace.stats.delta
-        noise_level = data_trace.stats.noise_level
-
-        data_p, data_t, data_e = find_local_extrema(
-            data_trace.data, start_index=first_valid_index)
-        synth_p, synth_t, synth_e = find_local_extrema(
-            synthetic_trace.data, start_index=first_valid_index)
-
-        for _i in xrange(1, 3):
-            plt.subplot(4, 1, _i)
-            ymin, ymax = plt.ylim()
-            xmin, xmax = plt.xlim()
-            plt.vlines(first_valid_index, ymin, ymax, color="green",
-                       label="Theoretical First Arrival")
-            plt.hlines(noise_level, xmin, xmax, color="0.5",
-                       label="Noise Level", linestyles="--")
-            plt.hlines(-noise_level, xmin, xmax, color="0.5", linestyles="--")
-
-            plt.hlines(noise_level * 5, xmin, xmax, color="0.8",
-                       label="Minimal acceptable amplitude", linestyles="--")
-            plt.hlines(-noise_level * 5, xmin, xmax, color="0.8",
-                       linestyles="--")
-            if _i == 2:
-                plt.scatter(time_array[data_e], data_trace.data[data_e],
-                            color="black", s=10)
-                plt.scatter(time_array[synth_e], synthetic_trace.data[synth_e],
-                            color="red", s=10)
-            plt.ylim(ymin, ymax)
-            plt.xlim(xmin, xmax)
-
-        plt.subplot(411)
-        plt.legend(prop={"size": "small"})
-
-    plt.suptitle(data_trace.id)
-
-    if filename:
-        plt.savefig(filename)
-    else:
-        plt.show()
 
 
 if __name__ == '__main__':

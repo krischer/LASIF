@@ -16,9 +16,10 @@ API Documentation
 .. toctree::
     :maxdepth: 2
 
-    rotations
     iris2quakeml
     ses3d_setup_helper
+    rotations
+    window_selection
     tools
     tools.parallel
     tools.file_info_cache
