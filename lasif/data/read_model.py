@@ -16,7 +16,7 @@ import os
 data_dir = \
     os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
-MODELS = {"ak135-F": os.path.join(data_dir, "ak135f.txt")}
+MODELS = {"ak135-f": os.path.join(data_dir, "ak135f.txt")}
 
 EXPOSED_VALUES = ["depth_in_km", "density", "vp", "vs", "Q_kappa", "Q_mu"]
 
@@ -30,7 +30,7 @@ class OneDimensionalModel(object):
         :param model_name: The name of the used model. Possible names are:
             'ak135-F'
         """
-        if model_name.lower() == "ak135-F":
+        if model_name.lower() == "ak135-f":
             self._read_ak135f()
         else:
             msg = "Unknown model '%s'. Possible models: %s" % (
@@ -47,7 +47,7 @@ class OneDimensionalModel(object):
         self._Q_kappa = data[:, 4]
         self._Q_mu = data[:, 5]
 
-    def get_value(value_name, depth):
+    def get_value(self, value_name, depth):
         """
         Returns a value at a requested depth. Currently does a simple linear
         interpolation between the two closest values.
@@ -56,3 +56,5 @@ class OneDimensionalModel(object):
             msg = "'%s' is not a valid value name. Valid names: %s" % \
                 (value_name, ", ".join(EXPOSED_VALUES))
             raise ValueError(msg)
+        return np.interp(depth, self._depth_in_km,
+                         getattr(self, "_" + value_name))
