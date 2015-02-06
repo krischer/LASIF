@@ -1,0 +1,646 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.window_selection &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="lasif" href="../lasif.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../../index.html" class="fa fa-home"> LASIF</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/14_next_iterations.html">15. Next Iterations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../window_selection.html">lasif.window_selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components.html">API Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../lasif.html">lasif</a> &raquo;</li>
+      
+    <li>lasif.window_selection</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for lasif.window_selection</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Window selection algorithm.</span>
+
+<span class="sd">This module aims to provide a window selection algorithm suitable for</span>
+<span class="sd">calculating phase misfits between two seismic waveforms.</span>
+
+<span class="sd">The main function is the select_windoes() function. The selection process is a</span>
+<span class="sd">multi-stage process. Initially all time steps are considered to be valid in</span>
+<span class="sd">the sense as being suitable for window selection. Then a number of selectors</span>
+<span class="sd">is applied, progressively excluding more and more time steps.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013</span>
+
+<span class="sd">:license:</span>
+<span class="sd">    GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">obspy.core.util</span> <span class="kn">import</span> <span class="n">geodetics</span>
+<span class="kn">from</span> <span class="nn">obspy.taup</span> <span class="kn">import</span> <span class="n">getTravelTimes</span>
+
+
+<div class="viewcode-block" id="find_local_extrema"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_local_extrema">[docs]</a><span class="k">def</span> <span class="nf">find_local_extrema</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">start_index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A simplistic 1D local peak (and trough) detection algorithm.</span>
+
+<span class="sd">    It is only useful for smooth data and will find ALL local extrema. A local</span>
+<span class="sd">    minimum is defined as having larger values as its immediate neighbours. A</span>
+<span class="sd">    local maximum is consequently defined as having smaller values in its</span>
+<span class="sd">    immediate vicinity.</span>
+
+<span class="sd">    Will also find local extrema at the domain borders.</span>
+
+<span class="sd">    :param data: A 1D array over which the search will be performed.</span>
+<span class="sd">    :type data: :class:`numpy.ndarray`</span>
+<span class="sd">    :param start_index: The minimum index at which extrema will be detected.</span>
+<span class="sd">    :return: Returns a tuple with three arrays:</span>
+<span class="sd">        * [0]: The indices of all found peaks</span>
+<span class="sd">        * [1]: The indices of all found troughs</span>
+<span class="sd">        * [2]: The indices of all found extreme points (peaks and troughs)</span>
+
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; data = np.array([0, 1, 2, 1, 0, 1, 2, 1])</span>
+<span class="sd">    &gt;&gt;&gt; peaks, troughs, extrema = find_local_extrema(data)</span>
+<span class="sd">    &gt;&gt;&gt; peaks</span>
+<span class="sd">    array([2, 6])</span>
+<span class="sd">    &gt;&gt;&gt; troughs</span>
+<span class="sd">    array([0, 4, 7])</span>
+<span class="sd">    &gt;&gt;&gt; extrema</span>
+<span class="sd">    array([0, 2, 4, 6, 7])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Detect peaks.</span>
+    <span class="n">peaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">&gt;</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&amp;</span> \
+        <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">True</span><span class="p">]</span>
+    <span class="n">peaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">peaks</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">peaks</span> <span class="o">=</span> <span class="n">peaks</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">peaks</span> <span class="o">&gt;=</span> <span class="n">start_index</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="n">troughs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&amp;</span> \
+        <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">True</span><span class="p">]</span>
+    <span class="n">troughs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">troughs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">troughs</span> <span class="o">=</span> <span class="n">troughs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">troughs</span> <span class="o">&gt;=</span> <span class="n">start_index</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+
+    <span class="c"># Now create a merged version.</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">troughs</span><span class="p">,</span> <span class="n">assume_unique</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Error. Peak and troughs should not be identical! Something &quot;</span> \
+            <span class="s">&quot;went wrong. Please fix it or contact the developers.&quot;</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">extrema</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">peaks</span><span class="p">,</span> <span class="n">troughs</span><span class="p">])</span>
+    <span class="n">extrema</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">peaks</span><span class="p">,</span> <span class="n">troughs</span><span class="p">,</span> <span class="n">extrema</span>
+
+</div>
+<div class="viewcode-block" id="find_closest"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_closest">[docs]</a><span class="k">def</span> <span class="nf">find_closest</span><span class="p">(</span><span class="n">ref_array</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For every value in target, find the index of ref_array to which</span>
+<span class="sd">    the value is closest.</span>
+
+<span class="sd">    from http://stackoverflow.com/a/8929827/1657047</span>
+
+<span class="sd">    :param ref_array: The reference array. Must be sorted!</span>
+<span class="sd">    :type ref_array: :class:`numpy.ndarray`</span>
+<span class="sd">    :param target: The target array.</span>
+<span class="sd">    :type target: :class:`numpy.ndarray`</span>
+
+<span class="sd">    &gt;&gt;&gt; ref_array = np.arange(0, 20.)</span>
+<span class="sd">    &gt;&gt;&gt; target = np.array([-2, 100., 2., 2.4, 2.5, 2.6])</span>
+<span class="sd">    &gt;&gt;&gt; find_closest(ref_array, target)</span>
+<span class="sd">    array([ 0, 19,  2,  2,  3,  3])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># A must be sorted</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">ref_array</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ref_array</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">ref_array</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">right</span> <span class="o">=</span> <span class="n">ref_array</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">idx</span> <span class="o">-=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span> <span class="o">-</span> <span class="n">target</span>
+    <span class="k">return</span> <span class="n">idx</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_window_generator</span><span class="p">(</span><span class="n">data_length</span><span class="p">,</span> <span class="n">window_width</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simple generator yielding start and stop indices for sliding windows.</span>
+
+<span class="sd">    :param data_length: The complete length of the data series over which to</span>
+<span class="sd">        slide the window.</span>
+<span class="sd">    :param window_width: The desired window width.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">window_start</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">window_end</span> <span class="o">=</span> <span class="n">window_start</span> <span class="o">+</span> <span class="n">window_width</span>
+        <span class="k">if</span> <span class="n">window_end</span> <span class="o">&gt;</span> <span class="n">data_length</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="n">window_start</span><span class="p">,</span> <span class="n">window_end</span><span class="p">,</span> <span class="n">window_start</span> <span class="o">+</span> <span class="n">window_width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">window_start</span> <span class="o">+=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="select_windows"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.select_windows">[docs]</a><span class="k">def</span> <span class="nf">select_windows</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
+                   <span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span>
+                   <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span> <span class="n">minimum_period</span><span class="p">,</span>
+                   <span class="n">maximum_period</span><span class="p">,</span>
+                   <span class="n">min_cc</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">max_noise</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">max_noise_window</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+                   <span class="n">min_velocity</span><span class="o">=</span><span class="mf">2.4</span><span class="p">,</span> <span class="n">threshold_shift</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
+                   <span class="n">threshold_correlation</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">min_length_period</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+                   <span class="n">min_peaks_troughs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_energy_ratio</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Window selection algorithm for picking windows suitable for misfit</span>
+<span class="sd">    calculation based on phase differences.</span>
+
+<span class="sd">    :param data_trace: The data trace.</span>
+<span class="sd">    :type data_trace: :class:`~obspy.core.trace.Trace`</span>
+<span class="sd">    :param synthetic_trace: The synthetic trace.</span>
+<span class="sd">    :type synthetic_trace: :class:`~obspy.core.trace.Trace`</span>
+<span class="sd">    :param event_latitude: The event latitude.</span>
+<span class="sd">    :type event_latitude: float</span>
+<span class="sd">    :param event_longitude: The event longitude.</span>
+<span class="sd">    :type event_longitude: float</span>
+<span class="sd">    :param event_depth_in_km: The event depth in km.</span>
+<span class="sd">    :type event_depth_in_km: float</span>
+<span class="sd">    :param station_latitude: The station latitude.</span>
+<span class="sd">    :type station_latitude: float</span>
+<span class="sd">    :param station_longitude: The station longitude.</span>
+<span class="sd">    :type station_longitude: float</span>
+<span class="sd">    :param minimum_period: The minimum period of the data in seconds.</span>
+<span class="sd">    :type minimum_period: float</span>
+<span class="sd">    :param maximum_period: The maximum period of the data in seconds.</span>
+<span class="sd">    :type maximum_period: float</span>
+<span class="sd">    :param min_cc: Minimum normalised correlation coefficient of the</span>
+<span class="sd">        complete traces.</span>
+<span class="sd">    :type min_cc: float</span>
+<span class="sd">    :param max_noise: Maximum relative noise level for the whole trace.</span>
+<span class="sd">        Measured from maximum amplitudes before and after the first arrival.</span>
+<span class="sd">    :type max_noise: float</span>
+<span class="sd">    :param max_noise_window: Maximum relative noise level for individual</span>
+<span class="sd">        windows.</span>
+<span class="sd">    :type max_noise_window: float</span>
+<span class="sd">    :param min_velocity: All arrivals later than those corresponding to the</span>
+<span class="sd">        threshold velocity [km/s] will be excluded.</span>
+<span class="sd">    :type min_velocity: float</span>
+<span class="sd">    :param threshold_shift: Maximum allowable time shift within a window,</span>
+<span class="sd">        as a fraction of the minimum period.</span>
+<span class="sd">    :type threshold_shift: float</span>
+<span class="sd">    :param threshold_correlation: Minimum normalised correlation coeficient</span>
+<span class="sd">        within a window.</span>
+<span class="sd">    :type threshold_correlation: float</span>
+<span class="sd">    :param min_length_period: Minimum length of the time windows relative to</span>
+<span class="sd">        the minimum period.</span>
+<span class="sd">    :type min_length_period: float</span>
+<span class="sd">    :param min_peaks_troughs: Minimum number of extrema in an individual</span>
+<span class="sd">        time window (excluding the edges).</span>
+<span class="sd">    :type min_peaks_troughs: float</span>
+<span class="sd">    :param max_energy_ratio: Maximum energy ratio between data and</span>
+<span class="sd">        synthetics within a time window.</span>
+<span class="sd">    :type max_energy_ratio: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;* ---------------------------&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;* autoselect &quot;</span> <span class="o">+</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span>
+
+    <span class="n">data_starttime</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span>
+    <span class="n">data_delta</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span>
+
+    <span class="c"># =========================================================================</span>
+    <span class="c"># initialisations</span>
+    <span class="c"># =========================================================================</span>
+
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span>
+    <span class="n">npts</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span>
+    <span class="n">dist_in_deg</span> <span class="o">=</span> <span class="n">geodetics</span><span class="o">.</span><span class="n">locations2degrees</span><span class="p">(</span><span class="n">station_latitude</span><span class="p">,</span>
+                                              <span class="n">station_longitude</span><span class="p">,</span>
+                                              <span class="n">event_latitude</span><span class="p">,</span> <span class="n">event_longitude</span><span class="p">)</span>
+    <span class="n">dist_in_km</span> <span class="o">=</span> <span class="n">geodetics</span><span class="o">.</span><span class="n">calcVincentyInverse</span><span class="p">(</span>
+        <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
+        <span class="n">event_longitude</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.0</span>
+    <span class="n">tts</span> <span class="o">=</span> <span class="n">getTravelTimes</span><span class="p">(</span><span class="n">dist_in_deg</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s">&quot;ak135&quot;</span><span class="p">)</span>
+    <span class="n">first_tt_arrival</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">_i</span><span class="p">[</span><span class="s">&quot;time&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">tts</span><span class="p">])</span>
+
+    <span class="c"># Number of samples in the sliding window. Currently, the length of the</span>
+    <span class="c"># window is set to a multiple of the dominant period of the synthetics.</span>
+    <span class="c"># Make sure it is an uneven number; just to have a trivial midpoint</span>
+    <span class="c"># definition.</span>
+    <span class="n">window_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">minimum_period</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">window_length</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">window_length</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c"># Allocate arrays to collect the time dependent values.</span>
+    <span class="n">sliding_time_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">max_cc_coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float32&quot;</span><span class="p">)</span>
+
+    <span class="n">taper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="n">window_length</span><span class="p">)</span>
+
+    <span class="c"># =========================================================================</span>
+    <span class="c"># check if whole seismograms are sufficiently correlated and estimate</span>
+    <span class="c"># noise level</span>
+    <span class="c"># =========================================================================</span>
+
+    <span class="n">synth</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="c">#  compute correlation coefficient</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">synth</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">cc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span> <span class="o">*</span> <span class="n">synth</span><span class="p">)</span> <span class="o">/</span> <span class="n">norm</span>
+    <span class="k">print</span> <span class="s">&quot;** correlation coefficient: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cc</span><span class="p">)</span>
+
+    <span class="c">#  estimate noise level from waveforms prior to the first arrival</span>
+    <span class="n">idx_end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">minimum_period</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="n">idx_start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">minimum_period</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="n">idx_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">idx_start</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">noise_absolute</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idx_start</span><span class="p">:</span><span class="n">idx_end</span><span class="p">]</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
+        <span class="n">noise_relative</span> <span class="o">=</span> <span class="n">noise_absolute</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
+
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">noise_absolute</span> <span class="o">=</span> <span class="mf">1000.0</span>
+        <span class="n">noise_relative</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">print</span> <span class="s">&quot;** absolute noise level: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_absolute</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; m/s&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;** relative noise level: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_relative</span><span class="p">)</span>
+
+    <span class="c">#  rejection criteria</span>
+    <span class="n">accept</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">cc</span> <span class="o">&lt;</span> <span class="n">min_cc</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">noise_relative</span> <span class="o">&gt;</span> <span class="n">max_noise</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;** correlation &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cc</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; is below threshold value of &quot;</span> <span class="o">+</span> \
+            <span class="nb">str</span><span class="p">(</span><span class="n">min_cc</span><span class="p">)</span>
+        <span class="n">accept</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">if</span> <span class="n">noise_relative</span> <span class="o">&gt;</span> <span class="n">max_noise</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;** noise level &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_relative</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="s">&quot; is above threshold value of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_noise</span><span class="p">)</span>
+        <span class="n">accept</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">if</span> <span class="n">accept</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;* autoselect done, 0 windows selected&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="c"># =========================================================================</span>
+    <span class="c"># compute sliding time shifts and correlation coefficients</span>
+    <span class="c"># =========================================================================</span>
+
+    <span class="k">for</span> <span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">,</span> <span class="n">midpoint_idx</span> <span class="ow">in</span> <span class="n">_window_generator</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span>
+                                                              <span class="n">window_length</span><span class="p">):</span>
+
+        <span class="c"># Slice windows. Create a copy to be able to taper without affecting</span>
+        <span class="c"># the original time series.</span>
+        <span class="n">data_window</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">taper</span>
+        <span class="n">synthetic_window</span> <span class="o">=</span> \
+            <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">taper</span>
+
+        <span class="c"># Skip windows that have essentially no energy to avoid instabilities.</span>
+        <span class="k">if</span> <span class="n">synthetic_window</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c"># Calculate the time shift. Here this is defined as the shift of the</span>
+        <span class="c"># synthetics relative to the data. So a value of 2, for instance, means</span>
+        <span class="c"># that the synthetics are 2 timesteps later then the data.</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">correlate</span><span class="p">(</span><span class="n">data_window</span><span class="p">,</span> <span class="n">synthetic_window</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;full&quot;</span><span class="p">)</span>
+
+        <span class="n">time_shift</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span> <span class="o">-</span> <span class="n">window_length</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="c"># Express the time shift in fraction of the minimum period.</span>
+        <span class="n">sliding_time_shift</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_shift</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span> <span class="o">/</span> <span class="n">minimum_period</span>
+
+        <span class="c"># Normalized cross correlation.</span>
+        <span class="n">max_cc_value</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">synthetic_window</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span>
+                                          <span class="p">(</span><span class="n">data_window</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">max_cc_coeff</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_cc_value</span>
+
+    <span class="c"># =========================================================================</span>
+    <span class="c"># compute the initial mask, i.e. intervals (windows) where no measurements</span>
+    <span class="c"># are made.</span>
+    <span class="c"># =========================================================================</span>
+
+    <span class="c"># Step 1: Initialise masked arrays. The mask will be set to True where no</span>
+    <span class="c"># windows are chosen.</span>
+    <span class="n">time_windows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
+
+    <span class="c"># Step 2: Mark everything more then half a dominant period before the first</span>
+    <span class="c"># theoretical arrival as positive.</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span>
+                      <span class="p">(</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="n">minimum_period</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))]</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># Step 3: Mark everything more then half a dominant period after the</span>
+    <span class="c"># threshold arrival time - computed from the threshold velocity - as</span>
+    <span class="c"># negative.</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">dist_in_km</span> <span class="o">/</span> <span class="n">min_velocity</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)):]</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># Step 4: Mark everything with an absolute travel time shift of more than</span>
+    <span class="c"># threshold_shift times the dominant period as negative</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold_shift</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># Step 5: Mark the area around every &quot;travel time shift jump&quot; (based on</span>
+    <span class="c"># the traveltime time difference) negative. The width of the area is</span>
+    <span class="c"># currently chosen to be a tenth of a dominant period to each side.</span>
+    <span class="n">sample_buffer</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">))</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="n">sample_buffer</span><span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">sample_buffer</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># Step 6: Mark all areas where the normalized cross correlation coefficient</span>
+    <span class="c"># is under threshold_correlation as negative</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_cc_coeff</span> <span class="o">&lt;</span> <span class="n">threshold_correlation</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="c"># =========================================================================</span>
+    <span class="c">#  Make the final window selection.</span>
+    <span class="c"># =========================================================================</span>
+
+    <span class="n">min_length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">min_length_period</span><span class="p">,</span>
+                     <span class="n">maximum_period</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">final_windows</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">windows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span>
+
+    <span class="c">#  loop through all the time windows</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">):</span>
+
+        <span class="c"># Step 7: Throw away all windows with a length of less then</span>
+        <span class="c"># min_length_period the dominant period.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">window_npts</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span>
+        <span class="n">synthetic_window</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
+        <span class="n">data_window</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
+
+        <span class="c"># Step 8: Exclude windows without a real peak or trough (except for the</span>
+        <span class="c"># edges).</span>
+        <span class="n">data_p</span><span class="p">,</span> <span class="n">data_t</span><span class="p">,</span> <span class="n">data_extrema</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">data_window</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">synth_p</span><span class="p">,</span> <span class="n">synth_t</span><span class="p">,</span> <span class="n">synth_extrema</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">synthetic_window</span><span class="p">,</span>
+                                                             <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">synth_p</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">synth_t</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_p</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_t</span><span class="p">)])</span> <span class="o">&lt;</span> \
+                <span class="n">min_peaks_troughs</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c"># Step 9: Peak and trough matching algorithm</span>
+        <span class="n">window_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">window_npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;bool&quot;</span><span class="p">)</span>
+
+        <span class="n">closest_peaks</span> <span class="o">=</span> <span class="n">find_closest</span><span class="p">(</span><span class="n">data_p</span><span class="p">,</span> <span class="n">synth_p</span><span class="p">)</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">closest_peaks</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diffs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">synth_p</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">synth_p</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">synth_p</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">window_mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="n">closest_troughs</span> <span class="o">=</span> <span class="n">find_closest</span><span class="p">(</span><span class="n">data_t</span><span class="p">,</span> <span class="n">synth_t</span><span class="p">)</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">closest_troughs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diffs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">synth_t</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">synth_t</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">synth_t</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">window_mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="n">window_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">window_mask</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">window_mask</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">window_mask</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">continue</span>
+
+        <span class="c"># Step 10: Check if the time windows have sufficiently similar energy</span>
+        <span class="c"># and are above the noise</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">window_mask</span><span class="p">):</span>
+
+            <span class="c"># Again assert a certain minimal length.</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c"># Compare the energy in the data window and the synthetic window.</span>
+            <span class="n">data_energy</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_window</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">synth_energy</span> <span class="o">=</span> <span class="p">(</span><span class="n">synthetic_window</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">energies</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">data_energy</span><span class="p">,</span> <span class="n">synth_energy</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_energy_ratio</span> <span class="o">*</span> <span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="k">continue</span>
+
+            <span class="c"># Check that amplitudes in the data are above the noise</span>
+            <span class="k">if</span> <span class="n">noise_absolute</span> <span class="o">/</span> <span class="n">data_window</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">&gt;</span> \
+                    <span class="n">max_noise_window</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">final_windows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
+
+    <span class="k">print</span> <span class="s">&quot;* autoselect done, &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">final_windows</span><span class="p">))</span> <span class="o">+</span> \
+        <span class="s">&quot; window(s) selected&quot;</span>
+
+    <span class="c"># Final step is to convert the index value windows to actual times.</span>
+    <span class="n">windows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="n">final_windows</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">data_starttime</span> <span class="o">+</span> <span class="n">start</span> <span class="o">*</span> <span class="n">data_delta</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="n">data_starttime</span> <span class="o">+</span> <span class="n">stop</span> <span class="o">*</span> <span class="n">data_delta</span>
+        <span class="n">windows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">windows</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
