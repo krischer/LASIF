@@ -335,7 +335,7 @@ def lasif_build_all_caches(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".", read_only_caches=False)
     comm.project.build_all_caches()
 
 

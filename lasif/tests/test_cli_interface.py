@@ -749,6 +749,20 @@ def test_read_only_cache_flag_passed_on(cli):
     assert p.call_args[1]["read_only"] is True
 
 
+def test_read_only_option_not_working_for_certain_commands(cli):
+    """
+    The read-only option should not work for certain function. Mainly the
+    "build_all_caches" option right now. It makes little sense to have it
+    for this function...
+    """
+    err = cli.run("lasif build_all_caches").stderr
+    assert err.strip() == ""
+
+    # Should raise here.
+    err = cli.run("lasif build_all_caches --read_only_caches").stderr
+    assert "unrecognized arguments: --read_only_caches" in err
+
+
 def test_lasif_serve(cli):
     """
     Tests that the correct serve functions are called.
