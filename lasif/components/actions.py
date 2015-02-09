@@ -138,8 +138,15 @@ class ActionsComponent(Component):
                         }
                         yield ret_dict
 
+        # Load project specific window selection function.
+        preprocessing_function = self.comm.project.get_project_function(
+            "preprocessing_function")
+
         file_count = preprocessing.launch_processing(
-            processing_data_generator(), log_filename=logfile,
+            processing_data_generator(),
+            preprocessing_function,
+            iteration=iteration,
+            log_filename=logfile,
             waiting_time=waiting_time, process_params=process_params)
 
         print("\nFinished processing %i files." %
