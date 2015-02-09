@@ -254,9 +254,11 @@
 
 <span class="sd">    Intended to be subclassed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_db_file</span><span class="p">,</span> <span class="n">root_folder</span><span class="p">,</span> <span class="n">show_progress</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_db_file</span><span class="p">,</span> <span class="n">root_folder</span><span class="p">,</span>
+                 <span class="n">read_only</span><span class="p">,</span> <span class="n">show_progress</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span> <span class="o">=</span> <span class="n">cache_db_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span> <span class="o">=</span> <span class="n">root_folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_only</span> <span class="o">=</span> <span class="n">read_only</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show_progress</span> <span class="o">=</span> <span class="n">show_progress</span>
 
         <span class="c"># Will be filled in _init_database() method.</span>
@@ -266,14 +268,46 @@
         <span class="c"># Will be filled once database has been updated.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_init_database</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_indices</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="c"># Readonly mode disable updates and the creation of new databases.</span>
+        <span class="c"># This is useful for scenarios where multiple processes access the</span>
+        <span class="c"># same file cache database concurrently which otherwise can result</span>
+        <span class="c"># in locked databases. Of course the cache database must already be</span>
+        <span class="c"># built for that to work.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_only</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cache DB &#39;</span><span class="si">%s</span><span class="s">&#39; does not exists and cannot &quot;</span>
+                                 <span class="s">&quot;be created as it has been requested in &quot;</span>
+                                 <span class="s">&quot;read-only mode.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
+            <span class="c"># Open in read-only mode (seen in</span>
+            <span class="c"># http://stackoverflow.com/a/28302809/1657047)</span>
+            <span class="c"># I am not sure this actually works as it opens the file in</span>
+            <span class="c"># read-only mode but not necessarily the database. It will work</span>
+            <span class="c"># if SQLite3 notices the file pointer is in read-only mode and</span>
+            <span class="c"># adjusts accordingly which might very well be the case.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDONLY</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;/dev/fd/</span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fd</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_database</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&quot;Cache DB &#39;</span><span class="si">%s</span><span class="s">&#39; did not validate and cannot be created &quot;</span>
+                    <span class="s">&quot;anew as it has been requested in read-only mode.&quot;</span> <span class="o">%</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cache_db_file</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_only</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_database</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_indices</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db_conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;_fd&quot;</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fd</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
                 <span class="k">pass</span>
 
