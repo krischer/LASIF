@@ -19,7 +19,6 @@ import cPickle
 import glob
 import imp
 import inspect
-import platform
 import os
 import warnings
 
@@ -73,12 +72,15 @@ class Project(Component):
         self.__setup_paths(project_root_path)
 
         if init_project:
+            if read_only_caches:
+                raise ValueError("Cannot initialize a project with disabled "
+                                 "cache-writes.")
             if not os.path.exists(project_root_path):
                 os.makedirs(project_root_path)
             self.__init_new_project(init_project)
 
         # Project wide flag if the caches are read_only.
-        self.read_only_caches = read_only_caches
+        self.read_only_caches = bool(read_only_caches)
 
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
@@ -338,55 +340,25 @@ class Project(Component):
         synthetic_data_count = 0
         processed_data_count = 0
 
-        if platform.platform().lower() == "windows":
+        try:
+            raw_data_count = self.comm.waveforms.get_waveform_cache(
+                event_name, "raw").file_count
+        except LASIFNotFoundError:
+            raw_data_count = 0
+        for tag in p_tags:
             try:
-                raw_data_count = self.comm.waveforms.get_waveform_cache(
-                    event_name, "raw").file_count
+                processed_data_count += \
+                    self.comm.waveforms.get_waveform_cache(
+                        event_name, "processed", tag).file_count
             except LASIFNotFoundError:
-                raw_data_count = 0
-            for tag in p_tags:
-                try:
-                    processed_data_count += \
-                        self.comm.waveforms.get_waveform_cache(
-                            event_name, "processed", tag).file_count
-                except LASIFNotFoundError:
-                    pass
-            for tag in s_tags:
-                try:
-                    synthetic_data_count += \
-                        self.comm.waveforms.get_waveform_cache(
-                            event_name, "synthetic", tag).file_count
-                except LASIFNotFoundError:
-                    pass
-        # Pretty much the fastest way to count files on Unix like systems
-        # outside of going all the way to custom system specific C code.
-        else:
-            def get_filecount(folder):
-                count = os.popen(r'\ls -afq "%s" | wc -l' % folder).read()
-                # The -a counts the '.', and '..' directories.
-                return int(count.strip()) - 2
-
-            data_dir = os.path.join(self.comm.project.paths["data"],
-                                    event_name)
-            syn_dir = os.path.join(self.comm.project.paths["data"], event_name)
-
-            raw_data_dir = os.path.join(data_dir, "raw")
-            if os.path.exists(raw_data_dir):
-                raw_data_count = get_filecount(raw_data_dir)
-            else:
-                raw_data_count = 0
-
-            for tag in p_tags:
-                folder = os.path.join(data_dir, tag)
-                if not os.path.exists(folder):
-                    continue
-                synthetic_data_count += get_filecount(folder)
-
-            for tag in s_tags:
-                folder = os.path.join(syn_dir, tag)
-                if not os.path.exists(folder):
-                    continue
-                synthetic_data_count += get_filecount(folder)
+                pass
+        for tag in s_tags:
+            try:
+                synthetic_data_count += \
+                    self.comm.waveforms.get_waveform_cache(
+                        event_name, "synthetic", tag).file_count
+            except LASIFNotFoundError:
+                pass
 
         return {
             "raw_waveform_file_count": raw_data_count,
