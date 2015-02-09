@@ -187,48 +187,57 @@ class WaveformsComponent(Component):
                                  tag_or_iteration=iteration.long_name)
         network, station = station_id.split(".")
 
-        # This maps the synthetic channels to ZNE.
-        synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z",
-                                         "E": "E", "N": "N"}
+        formats = list(set([tr.stats._format for tr in st]))
+        if len(formats) != 1:
+            raise ValueError(
+                "The synthetics for one Earthquake must all have the same "
+                "data format under the assumption that they all originate "
+                "from the same solver. Found formats: %s" % (str(formats)))
+        format = formats[0].lower()
 
-        for tr in st:
-            tr.stats.network = network
-            tr.stats.station = station
-            if tr.stats.channel in ["X"]:
-                tr.data *= -1.0
-            tr.stats.starttime = \
-                self.comm.events.get(event_name)["origin_time"]
-            tr.stats.channel = \
-                synthetic_coordinates_mapping[tr.stats.channel]
+        # In the case of data coming from SES3D the components must be
+        # mapped to ZNE as it works in XYZ.
+        if format == "ses3d":
+            # This maps the synthetic channels to ZNE.
+            synthetic_coordinates_mapping = {"X": "N", "Y": "E", "Z": "Z"}
 
-        # Rotate if needed.
-        domain = self.comm.project.domain
-        if "specfem" not in iteration.solver_settings["solver"].lower() and \
-                isinstance(domain,
-                           lasif.domain.RectangularSphericalSection) and \
-                domain.rotation_angle_in_degree:
-            # Also need to be rotated.
+            for tr in st:
+                tr.stats.network = network
+                tr.stats.station = station
+                # SES3D X points south. Reverse it to arrive at ZNE.
+                if tr.stats.channel in ["X"]:
+                    tr.data *= -1.0
+                # SES3D files have no starttime. Set to the event time.
+                tr.stats.starttime = \
+                    self.comm.events.get(event_name)["origin_time"]
+                tr.stats.channel = \
+                    synthetic_coordinates_mapping[tr.stats.channel]
 
-            # Coordinates are required for the rotation.
-            coordinates = self.comm.query.get_coordinates_for_station(
-                event_name, station_id)
+            # Rotate if needed. Again only SES3D synthetics need to be rotated.
+            domain = self.comm.project.domain
+            if isinstance(domain, lasif.domain.RectangularSphericalSection) \
+                    and domain.rotation_angle_in_degree and \
+                    "ses3d" in iteration.solver_settings["solver"].lower():
+                # Coordinates are required for the rotation.
+                coordinates = self.comm.query.get_coordinates_for_station(
+                    event_name, station_id)
 
-            # First rotate the station back to see, where it was
-            # recorded.
-            lat, lng = rotations.rotate_lat_lon(
-                coordinates["latitude"], coordinates["longitude"],
-                domain.rotation_axis, domain.rotation_angle_in_degree)
-            # Rotate the synthetics.
-            n, e, z = rotations.rotate_data(
-                st.select(channel="N")[0].data,
-                st.select(channel="E")[0].data,
-                st.select(channel="Z")[0].data,
-                lat, lng,
-                domain.rotation_axis,
-                domain.rotation_angle_in_degree)
-            st.select(channel="N")[0].data = n
-            st.select(channel="E")[0].data = e
-            st.select(channel="Z")[0].data = z
+                # First rotate the station back to see, where it was
+                # recorded.
+                lat, lng = rotations.rotate_lat_lon(
+                    coordinates["latitude"], coordinates["longitude"],
+                    domain.rotation_axis, domain.rotation_angle_in_degree)
+                # Rotate the synthetics.
+                n, e, z = rotations.rotate_data(
+                    st.select(channel="N")[0].data,
+                    st.select(channel="E")[0].data,
+                    st.select(channel="Z")[0].data,
+                    lat, lng,
+                    domain.rotation_axis,
+                    domain.rotation_angle_in_degree)
+                st.select(channel="N")[0].data = n
+                st.select(channel="E")[0].data = e
+                st.select(channel="Z")[0].data = z
 
         st.sort()
         return st

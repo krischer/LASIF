@@ -396,9 +396,9 @@ def test_adjoint_source_finalization_rotated_domain(comm, capsys):
 
 def test_adjoint_source_finalization_rotated_domain_specfem(comm, capsys):
     """
-    Tests the adjoint source finalization with a rotated domain with specfem.
-    The difference here is that specfem does not require rotations of the
-    synthetics, and the adjoints sources..
+    Tests the adjoint source finalization with a rotated domain with SPECFEM.
+    The difference here is that SPECFEM does not require rotations of the
+    synthetics, and the adjoint sources..
     """
     # Set some rotation angle to actually get some rotated things.
     comm.project.domain.rotation_angle_in_degree = 0.1
