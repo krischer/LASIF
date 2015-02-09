@@ -333,3 +333,45 @@ def test_exception_handling(tmpdir, recwarn):
         "File has no channels."
     ])
     assert messages == test_strings
+
+
+def test_station_cache_readonly_mode(tmpdir):
+    """
+    Tests the readonly mode of the station cache.
+
+    There appears to be no simple way to check if the database is actually
+    opened in read-only mode without using a different database wrapper. So
+    this will have to do for now.
+    """
+    # Most generic way to get the actual data directory.
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
+        inspect.currentframe()))), "data", "station_files")
+
+    # Create a temporary directory.
+    directory = str(tmpdir)
+
+    cache_file = os.path.join(directory, "cache.sqlite")
+    seed_directory = os.path.join(directory, "SEED")
+    resp_directory = os.path.join(directory, "RESP")
+    stationxml_directory = os.path.join(directory, "StationXML")
+    os.makedirs(resp_directory)
+
+    # Add some more RESP files.
+    shutil.copy(os.path.join(data_dir, "resp", "RESP.AF.DODT..BHE"),
+                os.path.join(resp_directory, "RESP.AF.DODT..BHE"))
+    shutil.copy(os.path.join(data_dir, "resp", "RESP.G.FDF.00.BHN"),
+                os.path.join(resp_directory, "RESP.G.FDF.00.BHN"))
+    shutil.copy(os.path.join(data_dir, "resp", "RESP.G.FDF.00.BHZ"),
+                os.path.join(resp_directory, "RESP.G.FDF.00.BHZ"))
+    # Init the station cache once more.
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
+    original = station_cache.get_values()
+
+    # Now open the same database in read_only mode.
+    station_cache = StationCache(cache_file, directory, seed_directory,
+                                 resp_directory, stationxml_directory,
+                                 read_only=True)
+    new = station_cache.get_values()
+    assert original == new

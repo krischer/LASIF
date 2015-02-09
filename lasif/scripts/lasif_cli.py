@@ -1237,9 +1237,12 @@ def _get_argument_parser(fct):
         prog="lasif %s" % fct.func_name.replace("lasif_", ""),
         description=_get_cmd_description(fct))
 
-    # Two exceptions. If any are missed, its not mission critical but just
+    # Exceptions. If any are missed, its not mission critical but just
     # less nice.
-    if fct.func_name in ["lasif_tutorial", "lasif_init_project"]:
+    exceptions = ["lasif_tutorial", "lasif_init_project",
+                  "lasif_build_all_caches"]
+
+    if fct.func_name in exceptions:
         return parser
 
     # Otherwise add the option to add caches in read-only mode.
