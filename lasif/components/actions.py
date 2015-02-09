@@ -522,17 +522,27 @@ class ActionsComponent(Component):
         """
         from itertools import izip
         import numpy as np
-        import lasif
         from lasif import rotations
-
-        all_coordinates = []
-        _i = 0
 
         window_manager = self.comm.windows.get(event_name, iteration_name)
         event = self.comm.events.get(event_name)
         iteration = self.comm.iterations.get(iteration_name)
         iteration_event_def = iteration.events[event["event_name"]]
         iteration_stations = iteration_event_def["stations"]
+
+        # For now assume that the adjoint sources have the same
+        # sampling rate as the synthetics which in LASIF's workflow
+        # actually has to be true.
+        dt = iteration.get_process_params()["dt"]
+
+        # Current domain and solver.
+        domain = self.comm.project.domain
+        solver = iteration.solver_settings["solver"].lower()
+
+        adj_src_count = 0
+
+        if "ses3d" in solver:
+            ses3d_all_coordinates = []
 
         event_weight = iteration_event_def["event_weight"]
 
@@ -588,59 +598,82 @@ class ActionsComponent(Component):
             # Rotate. if needed
             rec_lat = coords["latitude"]
             rec_lng = coords["longitude"]
-            domain = self.comm.project.domain
 
-            # Rotated domains with SES3D require rotations.
-            if isinstance(domain, lasif.domain.RectangularSphericalSection) \
-                    and domain.rotation_angle_in_degree \
-                    and iteration.solver_settings["solver"].lower()\
-                    .startswith('ses3d'):
-                # Rotate the adjoint source location.
-                r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(
-                    rec_lat, rec_lng, domain.rotation_axis,
-                    -domain.rotation_angle_in_degree)
-                # Rotate the adjoint sources.
-                channels["N"], channels["E"], channels["Z"] = \
-                    rotations.rotate_data(
-                        channels["N"], channels["E"],
-                        channels["Z"], rec_lat, rec_lng,
-                        domain.rotation_axis,
+            # The adjoint sources depend on the solver.
+            if "ses3d" in solver:
+                # Rotate if needed.
+                if domain.rotation_angle_in_degree:
+                    # Rotate the adjoint source location.
+                    r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(
+                        rec_lat, rec_lng, domain.rotation_axis,
                         -domain.rotation_angle_in_degree)
+                    # Rotate the adjoint sources.
+                    channels["N"], channels["E"], channels["Z"] = \
+                        rotations.rotate_data(
+                            channels["N"], channels["E"],
+                            channels["Z"], rec_lat, rec_lng,
+                            domain.rotation_axis,
+                            -domain.rotation_angle_in_degree)
+                else:
+                    r_rec_lat = rec_lat
+                    r_rec_lng = rec_lng
+                r_rec_depth = 0.0
+                r_rec_colat = rotations.lat2colat(r_rec_lat)
+
+                # Now once again map from ZNE to the XYZ of SES3D.
+                CHANNEL_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
+                adj_src_count += 1
+                adjoint_src_filename = os.path.join(
+                    output_folder, "ad_src_%i" % adj_src_count)
+                ses3d_all_coordinates.append(
+                    (r_rec_colat, r_rec_lng, r_rec_depth))
+
+                # Actually write the adjoint source file in SES3D specific
+                # format.
+                with open(adjoint_src_filename, "wt") as open_file:
+                    open_file.write("-- adjoint source ------------------\n")
+                    open_file.write(
+                        "-- source coordinates (colat,lon,depth)\n")
+                    open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng,
+                                                    r_rec_depth))
+                    open_file.write("-- source time function (x, y, z) --\n")
+                    # Revert the X component as it has to point south in SES3D.
+                    for x, y, z in izip(-1.0 * channels[CHANNEL_MAPPING["X"]],
+                                        channels[CHANNEL_MAPPING["Y"]],
+                                        channels[CHANNEL_MAPPING["Z"]]):
+                        open_file.write("%e %e %e\n" % (x, y, z))
+                    open_file.write("\n")
+            elif "specfem" in solver:
+                adj_src_count += 1
+                # Write all components. The adjoint sources right now are
+                # not time shifted.
+                for component in ["Z", "N", "E"]:
+                    adjoint_src_filename = os.path.join(
+                        output_folder, "%s..%s" % (station, component))
+                    adj_src = channels[component]
+                    l = len(adj_src)
+                    to_write = np.empty((l, 2))
+                    to_write[:, 0] = np.linspace(0, (l - 1) * dt, l)
+
+                    # SPECFEM expects non-time reversed adjoint sources.
+                    to_write[:, 1] += adj_src[::-1]
+
+                    np.savetxt(adjoint_src_filename, to_write)
             else:
-                r_rec_lat = rec_lat
-                r_rec_lng = rec_lng
-            r_rec_depth = 0.0
-            r_rec_colat = rotations.lat2colat(r_rec_lat)
+                raise NotImplementedError(
+                    "Adjoint source writing for solver '%s' not yet "
+                    "implemented." % iteration.solver_settings["solver"])
 
-            CHANNEL_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
+        if not adj_src_count:
+            print("Could not create a single adjoint source.")
+            return
 
-            _i += 1
-
-            adjoint_src_filename = os.path.join(output_folder,
-                                                "ad_src_%i" % _i)
-
-            all_coordinates.append((r_rec_colat, r_rec_lng, r_rec_depth))
-
-            # Actually write the adjoint source file in SES3D specific format.
-            with open(adjoint_src_filename, "wt") as open_file:
-                open_file.write("-- adjoint source ------------------\n")
-                open_file.write("-- source coordinates (colat,lon,depth)\n")
-                open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng,
-                                                r_rec_depth))
-                open_file.write("-- source time function (x, y, z) --\n")
-                for x, y, z in izip(-1.0 * channels[CHANNEL_MAPPING["X"]],
-                                    channels[CHANNEL_MAPPING["Y"]],
-                                    channels[CHANNEL_MAPPING["Z"]]):
-                    open_file.write("%e %e %e\n" % (x, y, z))
-                open_file.write("\n")
-
-        # Write the final file if adjoint sources actually could be calculated.
-        if _i:
+        if "ses3d" in solver:
             with open(os.path.join(output_folder, "ad_srcfile"), "wt") as fh:
-                fh.write("%i\n" % _i)
-                for line in all_coordinates:
+                fh.write("%i\n" % adj_src_count)
+                for line in ses3d_all_coordinates:
                     fh.write("%.6f %.6f %.6f\n" % (line[0], line[1], line[2]))
                 fh.write("\n")
 
-        print "Wrote %i adjoint sources to %s." % (
-            _i, os.path.relpath(output_folder))
+        print "Wrote adjoint sources for %i station(s) to %s." % (
+            adj_src_count, os.path.relpath(output_folder))

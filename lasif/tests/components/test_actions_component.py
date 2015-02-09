@@ -193,7 +193,7 @@ def test_finalize_adjoint_sources_with_failing_adjoint_src_calculation(
     comm.actions.finalize_adjoint_sources(it.name, event_name)
     out, _ = capsys.readouterr()
     assert "Could not calculate adjoint source for iteration 1" in out
-    assert "Wrote 0 adjoint sources" in out
+    assert "Could not create a single adjoint source." in out
 
     # Make sure nothing is actually written.
     out = comm.project.paths["output"]
@@ -252,7 +252,7 @@ def test_adjoint_source_finalization_unrotated_domain(comm, capsys):
     assert patch.call_count == 0
 
     out, _ = capsys.readouterr()
-    assert "Wrote 1 adjoint sources" in out
+    assert "Wrote adjoint sources for 1 station(s)" in out
 
     # Make sure nothing is actually written.
     out = comm.project.paths["output"]
@@ -316,15 +316,15 @@ def test_adjoint_source_finalization_global_domain(comm, capsys):
     assert patch.call_count == 0
 
     out, _ = capsys.readouterr()
-    assert "Wrote 1 adjoint sources" in out
+    assert "Wrote adjoint sources for 1 station(s)" in out
 
     # Make sure nothing is actually written.
     out = comm.project.paths["output"]
     adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
     adj_src_dir = os.path.join(out, adj_src_dir)
     assert os.path.exists(adj_src_dir)
-    assert sorted(os.listdir(adj_src_dir)) == sorted(["ad_srcfile",
-                                                      "ad_src_1"])
+    assert sorted(os.listdir(adj_src_dir)) == sorted(
+        ["HL.ARG..E", "HL.ARG..N", "HL.ARG..Z"])
 
 
 def test_adjoint_source_finalization_rotated_domain(comm, capsys):
@@ -383,7 +383,7 @@ def test_adjoint_source_finalization_rotated_domain(comm, capsys):
     assert patch.call_count == 4
 
     out, _ = capsys.readouterr()
-    assert "Wrote 1 adjoint sources" in out
+    assert "Wrote adjoint sources for 1 station(s)" in out
 
     # Make sure nothing is actually written.
     out = comm.project.paths["output"]
@@ -453,12 +453,12 @@ def test_adjoint_source_finalization_rotated_domain_specfem(comm, capsys):
     assert patch.call_count == 0
 
     out, _ = capsys.readouterr()
-    assert "Wrote 1 adjoint sources" in out
+    assert "Wrote adjoint sources for 1 station(s) to" in out
 
     # Make sure nothing is actually written.
     out = comm.project.paths["output"]
     adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
     adj_src_dir = os.path.join(out, adj_src_dir)
     assert os.path.exists(adj_src_dir)
-    assert sorted(os.listdir(adj_src_dir)) == sorted(["ad_srcfile",
-                                                      "ad_src_1"])
+    assert sorted(os.listdir(adj_src_dir)) == sorted(
+        ["HL.ARG..E", "HL.ARG..N", "HL.ARG..Z"])
