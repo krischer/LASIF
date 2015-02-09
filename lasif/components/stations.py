@@ -87,7 +87,8 @@ class StationsComponent(Component):
             root_folder=self.comm.project.paths["root"],
             seed_folder=self.seed_folder,
             resp_folder=self.resp_folder,
-            stationxml_folder=self.stationxml_folder)
+            stationxml_folder=self.stationxml_folder,
+            read_only=self.comm.project.read_only_caches)
         return self.__cached_station_cache
 
     def get_details_for_filename(self, filename):

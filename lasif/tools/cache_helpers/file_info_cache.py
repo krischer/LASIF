@@ -104,7 +104,7 @@ class FileInfoCache(object):
                  read_only, show_progress=True):
         self.cache_db_file = cache_db_file
         self.root_folder = root_folder
-        self.read_only = self.read_only
+        self.read_only = read_only
         self.show_progress = show_progress
 
         # Will be filled in _init_database() method.
@@ -119,7 +119,7 @@ class FileInfoCache(object):
         # same file cache database concurrently which otherwise can result
         # in locked databases. Of course the cache database must already be
         # built for that to work.
-        if self.read_only:
+        if self.read_only is True:
             if not os.path.exists(self.cache_db_file):
                 raise ValueError("Cache DB '%s' does not exists and cannot "
                                  "be created as it has been requested in "
@@ -138,10 +138,12 @@ class FileInfoCache(object):
                     "Cache DB '%s' did not validate and cannot be created "
                     "anew as it has been requested in read-only mode." %
                     self.cache_db_file)
-        else:
+        elif self.read_only is False:
             self._init_database()
             self._update_indices()
             self.update()
+        else:
+            raise NotImplementedError
 
     def __del__(self):
         if self.db_conn:

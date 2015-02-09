@@ -49,7 +49,8 @@ def test_station_cache(tmpdir):
 
     # Init the station cache.
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there. Right now the folder only
@@ -65,7 +66,8 @@ def test_station_cache(tmpdir):
     shutil.copy(os.path.join(data_dir, "seed", "dataless.BW_FURT"), seed_file)
     # Init the station cache once more.
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     # Get the list of available channels. It should not contain 4 channels.
     channels = station_cache.get_channels()
     assert len(channels) == 4
@@ -88,7 +90,8 @@ def test_station_cache(tmpdir):
     # should not only contain one channel.
     os.remove(seed_file)
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -99,7 +102,8 @@ def test_station_cache(tmpdir):
     del station_cache
     shutil.copy(os.path.join(data_dir, "seed", "dataless.BW_FURT"), seed_file)
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     # It should now again contain 4 channels.
     channels = station_cache.get_channels()
     assert len(channels) == 4
@@ -114,7 +118,8 @@ def test_station_cache(tmpdir):
                 seed_file)
     # Init the station cache once more.
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -129,7 +134,8 @@ def test_station_cache(tmpdir):
                 resp_file)
     # Init the station cache once more.
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -151,7 +157,8 @@ def test_station_cache(tmpdir):
                 os.path.join(resp_directory, "RESP.G.FDF.00.BHZ"))
     # Init the station cache once more.
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     # Get the list of available channels.
     channels = station_cache.get_channels()
     # Check that the correct station is in there.
@@ -202,7 +209,8 @@ def test_station_xml(tmpdir):
 
     # Init station cache.
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     stations = station_cache.get_stations()
     channels = station_cache.get_channels()
     filename = station_cache.get_station_filename(
@@ -252,7 +260,7 @@ def test_exception_handling(tmpdir, recwarn):
 
     recwarn.clear()
     StationCache(cache_file, directory, seed_directory, resp_directory,
-                 stationxml_directory)
+                 stationxml_directory, read_only=False)
     w = recwarn.pop(LASIFWarning)
     assert "Failed to index" in str(w.message)
     assert "Not a valid RESP file?" in str(w.message)
@@ -297,7 +305,8 @@ def test_exception_handling(tmpdir, recwarn):
 
     # Clear all warnings and init a new StationCache.
     station_cache = StationCache(cache_file, directory, seed_directory,
-                                 resp_directory, stationxml_directory)
+                                 resp_directory, stationxml_directory,
+                                 read_only=False)
     # It should still have indexed all three files and thus three channels
     # should be present.
     assert len(station_cache.get_channels()) == 3

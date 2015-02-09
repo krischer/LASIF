@@ -50,7 +50,8 @@ class Project(Component):
 
     It represents the heart of LASIF.
     """
-    def __init__(self, project_root_path, init_project=False):
+    def __init__(self, project_root_path, init_project=False,
+                 read_only_caches=False):
         """
         Upon intialization, set the paths and read the config file.
 
@@ -61,6 +62,12 @@ class Project(Component):
             project, e.g. create the necessary folder structure. If a string is
             passed, the project will be given this name. Otherwise a default
             name will be chosen. Defaults to False.
+        :param read_only_caches: If True, all caches are read-only. This is
+            important for concurrent access as otherwise you might end up
+            with race conditions. Make sure to build all necessary caches
+            before enabling this, otherwise LASIF will not find all files it
+            requires to work.
+        :type read_only_caches: bool
         """
         # Setup the paths.
         self.__setup_paths(project_root_path)
@@ -69,6 +76,9 @@ class Project(Component):
             if not os.path.exists(project_root_path):
                 os.makedirs(project_root_path)
             self.__init_new_project(init_project)
+
+        # Project wide flag if the caches are read_only.
+        self.read_only_caches = read_only_caches
 
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "

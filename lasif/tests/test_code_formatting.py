@@ -45,7 +45,7 @@ def test_flake8():
     # Get the style checker with the default style.
     flake8_style = flake8.engine.get_style_guide(
         parse_argv=False, config_file=flake8.main.DEFAULT_CONFIG)
-    flake8_style.options.ignore = ("F811",)
+    flake8_style.options.ignore = ("F811", "E402")
 
     report = flake8_style.check_files(files)
 

@@ -23,6 +23,7 @@ def comm(tmpdir):
         inspect.getfile(inspect.currentframe())))), "data")
     comm = Communicator()
     proj_mock = mock.MagicMock()
+    proj_mock.read_only_caches = False
     proj_mock.paths = {"root": data_dir}
     comm.register("project", proj_mock)
     StationsComponent(

@@ -35,7 +35,7 @@ class EventCache(FileInfoCache):
     RESP files: RESP.*
     StationXML: *.xml
     """
-    def __init__(self, cache_db_file, event_folder, root_folder):
+    def __init__(self, cache_db_file, event_folder, root_folder, read_only):
         self.index_values = [
             ("filename", "TEXT"),
             ("event_name", "TEXT"),
@@ -59,6 +59,7 @@ class EventCache(FileInfoCache):
 
         super(EventCache, self).__init__(cache_db_file=cache_db_file,
                                          root_folder=root_folder,
+                                         read_only=read_only,
                                          show_progress=False)
 
     def _find_files_quakeml(self):

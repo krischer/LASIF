@@ -78,7 +78,9 @@ class ActionsComponent(Component):
                     continue
 
                 # Group by station name.
-                func = lambda x: ".".join(x["channel_id"].split(".")[:2])
+                def func(x):
+                    return ".".join(x["channel_id"].split(".")[:2])
+
                 waveforms.sort(key=func)
                 for station_name, channels in  \
                         itertools.groupby(waveforms, func):
@@ -89,7 +91,9 @@ class ActionsComponent(Component):
                         continue
 
                     # Group by location.
-                    get_loc_id = lambda x: x["channel_id"].split(".")[2]
+                    def get_loc_id(x):
+                        return x["channel_id"].split(".")[2]
+
                     channels.sort(key=get_loc_id)
                     locations = []
                     for loc_id, chans in itertools.groupby(channels,
