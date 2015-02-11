@@ -68,7 +68,7 @@ def test_discover_available_data(comm):
 
     # Now preprocess some data that then should appear.
     processing_tag = comm.iterations.get("1").processing_tag
-    comm.actions.preprocess_data("1", [event], waiting_time=0.0)
+    comm.actions.preprocess_data("1", [event])
     assert comm.query.discover_available_data(event, "HT.SIGR") == \
         {"processed": {processing_tag: ["Z"]},
          "synthetic": {"1": ["Z", "N", "E"]},
@@ -192,7 +192,7 @@ def test_iteration_status(comm):
     assert status[event]["missing_raw"] == set()
 
     # Preprocess some files.
-    comm.actions.preprocess_data("1", [event], waiting_time=0.0)
+    comm.actions.preprocess_data("1", [event])
 
     status = comm.query.get_iteration_status("1")
     assert [event] == status.keys()
@@ -242,7 +242,7 @@ def test_data_synthetic_iterator(comm, recwarn):
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
     comm.actions.preprocess_data(
-        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", waiting_time=0.0)
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
     # Might raise numpy warning.
     recwarn.clear()
 

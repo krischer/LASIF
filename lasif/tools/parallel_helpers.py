@@ -225,3 +225,5 @@ def distribute_across_ranks(function, items, get_name, logfile):
                colorama.Fore.RESET))
 
         print("\nLogfile written to '%s'." % os.path.relpath(logfile))
+
+    return results

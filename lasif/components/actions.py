@@ -20,16 +20,12 @@ class ActionsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
-    def preprocess_data(self, iteration_name, event_names=None,
-                        waiting_time=1.0):
+    def preprocess_data(self, iteration_name, event_names=None):
         """
         Preprocesses all data for a given iteration.
 
         This function works with and without MPI.
 
-        :param waiting_time: The time spent sleeping after the initial message
-            has been printed. Useful if the user should be given the chance to
-            cancel the processing.
         :param event_names: event_ids is a list of events to process in this
             run. It will process all events if not given.
         """

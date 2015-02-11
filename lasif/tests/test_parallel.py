@@ -9,8 +9,10 @@ Test suite for the parallel helper methods.
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
-from lasif.tools.parallel_helpers import function_info, parallel_map
+import os
 import warnings
+
+from lasif.tools.parallel_helpers import function_info, distribute_across_ranks
 
 
 def test_function_info_decorator():
@@ -107,9 +109,10 @@ def __random_fct(a, b, c=0):
     return a / b
 
 
-def test_parallel_map():
+def test_distribute_across_ranks(tmpdir):
     """
-    Test the parallel mapping method.
+    Test the distribute across ranks method at least a bit. This test
+    naturally only runs without MPI.
     """
     def input_generator():
         yield {"a": 2, "b": 1}  # results in 2
@@ -118,7 +121,13 @@ def test_parallel_map():
         yield {"a": 1, "b": 1, "c": 1}  # results in 1 and two warnings.
         raise StopIteration
 
-    results = parallel_map(__random_fct, input_generator())
+    logfile = os.path.join(str(tmpdir), "log.txt")
+
+    results = distribute_across_ranks(
+        function=__random_fct, items=list(input_generator()),
+        get_name=lambda x: str(x), logfile=logfile)
+
+    assert os.path.exists(logfile)
 
     # Sort them with the expected result to be able to compare them. The order
     # is not guaranteed when using multiple processes.
@@ -145,27 +154,3 @@ def test_parallel_map():
     assert results[2].warnings == []
     assert results[2].exception is None
     assert results[2].traceback is None
-
-
-def __random_fct_2(*args):
-    """
-    Helper function as functions need to be importable for multiprocessing to
-    work.
-    """
-    import obspy
-    st = obspy.read()
-    st += st.copy()
-    # This triggers a call to numpy.linalg and thus a BLAS routine.
-    st.detrend("linear")
-
-
-def test_BLAS():
-    """
-    Simple test asserting that it works with BLAS which is problematic for a
-    number of reasons.
-
-    If this test returns it gives some confidence that the machine is able to
-    run the type of parallel processing implemented in LASIF.
-    """
-    results = parallel_map(__random_fct_2, [{}] * 4, n_jobs=2)
-    assert len(results) == 4

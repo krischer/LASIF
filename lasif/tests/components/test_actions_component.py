@@ -144,7 +144,7 @@ def test_preprocessing_runs(comm):
     assert not os.path.exists(processing_dir)
     # This will process only one event.
     comm.actions.preprocess_data(
-        "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"], waiting_time=0.0)
+        "1", ["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"])
     assert os.path.exists(processing_dir)
     assert len(os.listdir(processing_dir)) == 6
 
@@ -152,7 +152,7 @@ def test_preprocessing_runs(comm):
     # simply use all events. Should have the same result.
     shutil.rmtree(processing_dir)
     assert not os.path.exists(processing_dir)
-    comm.actions.preprocess_data("1", waiting_time=0.0)
+    comm.actions.preprocess_data("1")
     assert os.path.exists(processing_dir)
     assert len(os.listdir(processing_dir)) == 6
 
@@ -177,7 +177,7 @@ def test_finalize_adjoint_sources_with_failing_adjoint_src_calculation(
         "time_increment"] = 0.13
     it.solver_settings["solver_settings"]["simulation_parameters"][
         "number_of_time_steps"] = 4000
-    comm.actions.preprocess_data(it, waiting_time=0.0)
+    comm.actions.preprocess_data(it)
 
     window_group_manager = comm.windows.get(event, it)
 
