@@ -131,12 +131,11 @@ def distribute_across_ranks(function, items, get_name, logfile):
     It will be distributed across MPI ranks if launched with MPI.
 
     :param function: The function to be executed for each item.
-    :type function: function
     :param items: The function will be executed once for each item. It
-        expects a list of dictionaries so that function(**item) can work.
+        expects a list of dictionaries so that ``function(**item)`` can work.
         Only rank 0 needs to pass this. It will be ignored coming from other
         ranks.
-    :type items: list of dictionaries.
+    :type items: list
     :param get_name: Function to extract a name for each item to be able to
         produce better logfiles.
     :param logfile: The logfile to write.
