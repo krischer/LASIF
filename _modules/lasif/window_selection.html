@@ -380,16 +380,15 @@
 
     <span class="c">#  estimate noise level from waveforms prior to the first arrival</span>
     <span class="n">idx_end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">minimum_period</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="n">idx_end</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">idx_end</span><span class="p">)</span>
     <span class="n">idx_start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">minimum_period</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
     <span class="n">idx_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">idx_start</span><span class="p">)</span>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">noise_absolute</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idx_start</span><span class="p">:</span><span class="n">idx_end</span><span class="p">]</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
-        <span class="n">noise_relative</span> <span class="o">=</span> <span class="n">noise_absolute</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">idx_start</span> <span class="o">&gt;=</span> <span class="n">idx_end</span><span class="p">:</span>
+        <span class="n">idx_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">idx_end</span> <span class="o">-</span> <span class="mi">10</span><span class="p">)</span>
 
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="n">noise_absolute</span> <span class="o">=</span> <span class="mf">1000.0</span>
-        <span class="n">noise_relative</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">noise_absolute</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idx_start</span><span class="p">:</span><span class="n">idx_end</span><span class="p">]</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
+    <span class="n">noise_relative</span> <span class="o">=</span> <span class="n">noise_absolute</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
 
     <span class="k">print</span> <span class="s">&quot;** absolute noise level: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_absolute</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; m/s&quot;</span>
     <span class="k">print</span> <span class="s">&quot;** relative noise level: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_relative</span><span class="p">)</span>
