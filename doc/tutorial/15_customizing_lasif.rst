@@ -24,8 +24,8 @@ launch any LASIF command.
     └── window_picking_function.py
 
 
-Common Features
-^^^^^^^^^^^^^^^
+Common Features of the Custom Functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. warning::
 
