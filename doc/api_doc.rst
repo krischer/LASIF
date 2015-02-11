@@ -18,6 +18,7 @@ API Documentation
 
     iris2quakeml
     ses3d_setup_helper
+    iteration_xml
     rotations
     window_selection
     tools
