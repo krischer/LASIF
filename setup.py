@@ -59,6 +59,7 @@ setup_config = dict(
         "numpy",
         "colorama",
         "matplotlib",
+        "mpi4py",
         "joblib",
         "lxml",
         "nose",

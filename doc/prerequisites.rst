@@ -21,6 +21,7 @@ Dependencies
 * geographiclib
 * colorama
 * joblib
+* mpi4py
 
 For the webinterface, you additionally need
 
