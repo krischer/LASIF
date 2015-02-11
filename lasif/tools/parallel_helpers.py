@@ -1,31 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Helpers for embarrassingly parallel calculations.
-
-**Important**! Any users of NumPy linked against OpenBLAS must include these
-two lines before importing NumPy! Or just import this module first!
-
->>> import os  # doctest: +SKIP
->>> os.environ["OPENBLAS_NUM_THREADS"] = "1"
+Helpers for embarrassingly parallel calculations using MPI. All functions
+works just fine when running on one core and not started with MPI.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014-2015
 :license:
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
 """
-import os
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-
 import collections
+import colorama
 import functools
 import inspect
-import joblib
-import numpy as np
+import itertools
+import os
 import sys
 import traceback
 import warnings
+
+from mpi4py import MPI
 
 
 class FunctionInfo(collections.namedtuple(
@@ -40,7 +35,7 @@ class FunctionInfo(collections.namedtuple(
     pass
 
 
-def function_info(traceback_limit=3):
+def function_info(traceback_limit=10):
     """
     Decorator collecting information during the execution of a function.
 
@@ -118,7 +113,7 @@ def function_info(traceback_limit=3):
     return _function_info
 
 
-def __execute_wrapped_function(func, parameters):
+def _execute_wrapped_function(func, parameters):
     """
     Helper function to execute the same function but wrapper with the
     function_info decorator.
@@ -129,68 +124,104 @@ def __execute_wrapped_function(func, parameters):
     return function_info()(func)(**parameters)
 
 
-def parallel_map(func, iterable, n_jobs=-1, verbose=1,
-                 pre_dispatch="1.5*n_jobs"):
+def distribute_across_ranks(function, items, get_name, logfile):
     """
-    Thin wrapper around joblib.Parallel.
+    Calls a function once for each item.
 
-    For one it takes care to use the threading backend if OSX's Accelerate
-    Framework is detected. And it also wraps all functions with the
-    function_info decorator in order to get a more meaningful output.
+    It will be distributed across MPI ranks if launched with MPI.
 
-    To use, first import ``parallel_map``, then define a function and feed it
-    with a list of dictionaries, each dictionary containing one set of
-    arguments. It will return a list FunctionInfo objects containing
-    information about the execution of the function on each of the inputs.
-
-    >>> from lasif.tools.parallel_helpers import parallel_map #doctest: +SKIP
-    >>> def square(a): #doctest: +SKIP
-    ...     return a ** 2
-    >>> for result in parallel_map(square, [{"a": i} for i in xrange(3)]): \
-        #doctest: +SKIP
-    ...     print result
-    FunctionInfo(func_args={'a': 0}, result=0, warnings=[], exception=None,
-                 traceback=None)
-    FunctionInfo(func_args={'a': 1}, result=1, warnings=[], exception=None,
-                 traceback=None)
-    FunctionInfo(func_args={'a': 2}, result=4, warnings=[], exception=None,
-                 traceback=None)
-
-    :param func: The function to execute in parallel.
-    :param iterable: Iterator yielding the parameters. The function will be
-        called once for each set of arguments.
-    :type n_jobs: int
-    :param n_jobs: The number of jobs to use for the computation. If -1 all
-        CPUs are used. If 1 is given, no parallel computing code is used at
-        all, which is useful for debugging. For n_jobs below -1,
-        (n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all CPUs but one
-        are used. Same parameter as in joblib.Parallel.
-    :type verbose: int
-    :param verbose: The verbosity level: if non zero, progress messages are
-        printed. Above 50, the output is sent to stdout. The frequency of the
-        messages increases with the verbosity level. If it more than 10, all
-        iterations are reported.  Defaults to 1.
-        Same parameter as in joblib.Parallel.
-    :param pre_dispatch: The amount of jobs to be pre-dispatched. Default is
-        ``1.5*n_jobs``.
-        Same parameter as in joblib.Parallel.
+    :param function: The function to be executed for each item.
+    :type function: function
+    :param items: The function will be executed once for each item. It
+        expects a list of dictionaries so that function(**item) can work.
+        Only rank 0 needs to pass this. It will be ignored coming from other
+        ranks.
+    :type items: list of dictionaries.
+    :param get_name: Function to extract a name for each item to be able to
+        produce better logfiles.
+    :param logfile: The logfile to write.
     """
-    backend = "multiprocessing"
+    def split(container, count):
+        """
+        Simple and elegant function splitting a container into count
+        equal chunks.
 
-    config_info = str([value for key, value in
-                       np.__config__.__dict__.iteritems()
-                       if key.endswith("_info")]).lower()
+        Order is not preserved but for the use case at hand this is
+        potentially an advantage as data sitting in the same folder thus
+        have a higher at being processed at the same time thus the disc
+        head does not have to jump around so much. Of course very
+        architecture dependent.
+        """
+        return [container[_i::count] for _i in range(count)]
 
-    if "accelerate" in config_info or "veclib" in config_info:
-        msg = ("NumPy linked against 'Accelerate.framework'. Multiprocessing "
-               "will be disabled. See "
-               "https://github.com/obspy/obspy/wiki/Notes-on-Parallel-"
-               "Processing-with-Python-and-ObsPy for more information.")
-        warnings.warn(msg)
-        backend = "threading"
-        n_jobs = 1
+    # Rank zero collects what needs to be done and distributes it across
+    # all cores.
+    if MPI.COMM_WORLD.rank == 0:
+        total_length = len(items)
+        items = split(items, MPI.COMM_WORLD.size)
+    else:
+        items = None
 
-    return joblib.Parallel(n_jobs=n_jobs, verbose=verbose,
-                           pre_dispatch=pre_dispatch, backend=backend,
-                           )(joblib.delayed(__execute_wrapped_function)(
-                             func, i) for i in iterable)
+    # Now each rank knows what it has to process. This still works
+    # nicely with only one core, the overhead is negligible.
+    items = MPI.COMM_WORLD.scatter(items, root=0)
+
+    results = []
+
+    for _i, item in enumerate(items):
+        results.append(_execute_wrapped_function(function, item))
+
+        if MPI.COMM_WORLD.rank == 0:
+            print("Approximately %i of %i items have been processed." % (
+                min((_i + 1) * MPI.COMM_WORLD.size, total_length),
+                total_length))
+
+    results = MPI.COMM_WORLD.gather(results, root=0)
+
+    if MPI.COMM_WORLD.rank != 0:
+        return
+
+    results = list(itertools.chain.from_iterable(results))
+
+    successful_file_count = 0
+    warning_file_count = 0
+    failed_file_count = 0
+    total_file_count = len(results)
+
+    # Log the results.
+    with open(logfile, "wt") as fh:
+        for result in results:
+            fh.write("\n============\nItem: %s" % get_name(result.func_args))
+            has_exception = False
+            has_warning = False
+            if result.exception:
+                has_exception = True
+                fh.write("\n")
+                fh.write(result.traceback)
+            elif result.warnings:
+                has_warning = True
+                for w in result.warnings:
+                    fh.write("\nWarning: %s\n" % str(w))
+            else:
+                fh.write(" - SUCCESS")
+
+            if has_exception:
+                failed_file_count += 1
+            elif has_warning:
+                warning_file_count += 1
+            else:
+                successful_file_count += 1
+
+        print("\nFinished processing %i items. See the logfile for "
+              "details.\n" % total_file_count)
+        print("\t%s%i files failed being processed.%s" %
+              (colorama.Fore.RED, failed_file_count,
+               colorama.Fore.RESET))
+        print("\t%s%i files raised warnings while being processed.%s" %
+              (colorama.Fore.YELLOW, warning_file_count,
+               colorama.Fore.RESET))
+        print("\t%s%i files have been processed without errors or warnings%s" %
+              (colorama.Fore.GREEN, successful_file_count,
+               colorama.Fore.RESET))
+
+        print("\nLogfile written to '%s'." % os.path.relpath(logfile))

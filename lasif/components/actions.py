@@ -25,23 +25,21 @@ class ActionsComponent(Component):
         """
         Preprocesses all data for a given iteration.
 
+        This function works with and without MPI.
+
         :param waiting_time: The time spent sleeping after the initial message
             has been printed. Useful if the user should be given the chance to
             cancel the processing.
         :param event_names: event_ids is a list of events to process in this
             run. It will process all events if not given.
         """
-        import colorama
-        from lasif import preprocessing
+        from mpi4py import MPI
+        from lasif.tools.parallel_helpers import distribute_across_ranks
 
         iteration = self.comm.iterations.get(iteration_name)
 
         process_params = iteration.get_process_params()
         processing_tag = iteration.processing_tag
-
-        logfile = os.path.join(
-            self.comm.project.get_output_folder("data_preprocessing"),
-            "log.txt")
 
         def processing_data_generator():
             """
@@ -138,32 +136,25 @@ class ActionsComponent(Component):
                         }
                         yield ret_dict
 
+        # Only rank 0 needs to know what has to be processsed.
+        if MPI.COMM_WORLD.rank == 0:
+            to_be_processed = [{"processing_info": _i, "iteration": iteration}
+                               for _i in processing_data_generator()]
+        else:
+            to_be_processed = None
+
         # Load project specific window selection function.
         preprocessing_function = self.comm.project.get_project_function(
             "preprocessing_function")
 
-        file_count = preprocessing.launch_processing(
-            processing_data_generator(),
-            preprocessing_function,
-            iteration=iteration,
-            log_filename=logfile,
-            waiting_time=waiting_time, process_params=process_params)
+        logfile = os.path.join(
+            self.comm.project.get_output_folder("data_preprocessing"),
+            "log.txt")
 
-        print("\nFinished processing %i files." %
-              file_count["total_file_count"])
-        if file_count["failed_file_count"]:
-            print("\t%s%i files failed being processed.%s" %
-                  (colorama.Fore.RED, file_count["failed_file_count"],
-                   colorama.Fore.RESET))
-        if file_count["warning_file_count"]:
-            print("\t%s%i files raised warnings while being processed.%s" %
-                  (colorama.Fore.YELLOW, file_count["warning_file_count"],
-                   colorama.Fore.RESET))
-        print("\t%s%i files have been processed without errors or warnings%s" %
-              (colorama.Fore.GREEN, file_count["successful_file_count"],
-               colorama.Fore.RESET))
-
-        print("Logfile written to '%s'." % os.path.relpath(logfile))
+        distribute_across_ranks(
+            function=preprocessing_function, items=to_be_processed,
+            get_name=lambda x: x["processing_info"]["input_filename"],
+            logfile=logfile)
 
     def select_windows(self, event, iteration):
         """

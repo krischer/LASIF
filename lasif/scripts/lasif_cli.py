@@ -55,7 +55,6 @@ import shutil
 import sys
 import traceback
 
-
 from lasif import LASIFNotFoundError
 from lasif.components.project import Project
 
@@ -915,6 +914,10 @@ def lasif_remove_empty_coordinate_entries(parser, args):
 def lasif_preprocess_data(parser, args):
     """
     Launch data preprocessing.
+
+    This function works with MPI. Don't use too many cores, I\O quickly
+    becomes the limiting factor. It also works without MPI but then only one
+    core actually does any work.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument(
@@ -924,19 +927,38 @@ def lasif_preprocess_data(parser, args):
     iteration_name = args.iteration_name
     events = args.events if args.events else None
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    from mpi4py import MPI
 
-    if not comm.iterations.has_iteration(iteration_name):
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % iteration_name
-        raise LASIFCommandLineException(msg)
+    exceptions = []
 
-    # Check if the event ids are valid.
-    if events:
-        for event_name in events:
-            if not comm.events.has_event(event_name):
-                msg = "Event '%s' not found." % event_name
-                raise LASIFCommandLineException(msg)
+    if MPI.COMM_WORLD.rank == 0:
+        # Rank 0 can write the caches, the others cannot. The
+        # "--read_only_caches" flag overwrites this behaviour.
+        comm = _find_project_comm(".", args.read_only_caches)
+
+        if not comm.iterations.has_iteration(iteration_name):
+            msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to "
+                   "get a list of all available iterations.") % iteration_name
+            exceptions.append(msg)
+
+        # Check if the event ids are valid.
+        if not exceptions and events:
+            for event_name in events:
+                if not comm.events.has_event(event_name):
+                    msg = "Event '%s' not found." % event_name
+                    exceptions.append(msg)
+                    break
+
+    # Open the caches for the other ranks after rank zero has opened it to
+    # allow for the initial caches to be written.
+    MPI.COMM_WORLD.barrier()
+    if MPI.COMM_WORLD.rank != 0:
+        comm = _find_project_comm(".", read_only_caches=True)
+
+    # Raise any exceptions on all ranks if necessary.
+    exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
+    if exceptions:
+        raise LASIFCommandLineException(exceptions[0])
 
     comm.actions.preprocess_data(iteration_name, events)
 

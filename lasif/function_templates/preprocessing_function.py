@@ -160,7 +160,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     # Step 1: Detrend and taper.
     # =========================================================================
     tr.detrend("linear")
-    tr.taper(0.05, type="hann")
+    tr.taper(max_percentage=0.05, type="hann")
 
     # =========================================================================
     # Step 2: Decimation
@@ -188,8 +188,6 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     # Correct seismograms to velocity in m/s.
     # =========================================================================
     station_file = processing_info["station_filename"]
-
-    print station_file
 
     # check if the station file actually exists ==============================
     if not processing_info["station_filename"]:
@@ -224,16 +222,16 @@ def preprocessing_function(processing_info, iteration):  # NOQA
         try:
             inv = obspy.read_inventory(station_file, format="stationxml")
         except Exception as e:
-            msg = ("Could not open StationXML file '%s'. Due to %s. Will be "
+            msg = ("Could not open StationXML file '%s'. Due to: %s. Will be "
                    "skipped." % (station_file, str(e)))
             raise LASIFError(msg)
         tr.attach_response(inv)
         try:
             tr.remove_response()
-        except:
+        except Exception as e:
             msg = ("File  could not be corrected with the help of the "
-                   "StationXML file '%s'. Will be skipped.") \
-                % processing_info["station_filename"],
+                   "StationXML file '%s'. Due to: '%s'  Will be skipped.") \
+                % (processing_info["station_filename"], e.__repr__()),
             raise LASIFError(msg)
     else:
         raise NotImplementedError
@@ -243,7 +241,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     # =========================================================================
     # Apply one more taper to avoid high frequency contributions from sudden
     # steps at the beginning/end if padded with zeros.
-    tr.taper(0.05, type="hann")
+    tr.taper(max_percentage=0.05, type="hann")
     # Make sure that the data array is at least as long as the
     # synthetics array. Also add some buffer sample for the
     # spline interpolation to work in any case.

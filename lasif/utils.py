@@ -21,8 +21,8 @@ def is_mpi_env():
     """
     Returns True if currently in an MPI environment.
     """
-    import mpi4py
-    if mpi4py.MPI.COMM_WORLD.size == 1 and mpi4py.MPI.COMM_WORLD.rank == 0:
+    from mpi4py import MPI
+    if MPI.COMM_WORLD.size == 1 and MPI.COMM_WORLD.rank == 0:
         return False
     return True
 
@@ -194,7 +194,7 @@ def point_in_domain(latitude, longitude, domain,
     """
     Simple function checking if a geographic point is placed inside a
     rotated spherical section. It simple rotates the point and checks if it
-    is inside the unrotated domain.
+    is inside the non-rotated domain.
 
     Domain is a dictionary containing at least the following keys:
         * "minimum_latitude"
@@ -284,7 +284,7 @@ def channel2station(value):
 
 def select_component_from_stream(st, component):
     """
-    Helper function selecting a compnent from a Stream an raising the proper
+    Helper function selecting a component from a Stream an raising the proper
     error if not found.
 
     This is a bit more flexible then stream.select() as it works with single
