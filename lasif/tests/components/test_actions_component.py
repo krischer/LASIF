@@ -462,3 +462,111 @@ def test_adjoint_source_finalization_rotated_domain_specfem(comm, capsys):
     assert os.path.exists(adj_src_dir)
     assert sorted(os.listdir(adj_src_dir)) == sorted(
         ["HL.ARG..E", "HL.ARG..N", "HL.ARG..Z"])
+
+
+def test_calculate_all_adjoint_sources_with_failing_adjoint_src_calculation(
+        comm, capsys):
+    """
+    Tests the calculates of adjoint sources with a failing adjoint source
+    calculation.
+    """
+    comm.iterations.create_new_iteration(
+        "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    event = comm.events.get(event_name)
+    t = event["origin_time"]
+
+    # Create iteration and preprocess some data.
+    it = comm.iterations.get("1")
+    # Make sure the settings match the synthetics.
+    it.solver_settings["solver_settings"]["simulation_parameters"][
+        "time_increment"] = 0.13
+    it.solver_settings["solver_settings"]["simulation_parameters"][
+        "number_of_time_steps"] = 4000
+    comm.actions.preprocess_data(it)
+
+    window_group_manager = comm.windows.get(event, it)
+
+    # Automatic window selection does not work for the terrible test data...
+    # Now add only windows that actually have data and synthetics but the
+    # data will be too bad to actually extract an adjoint source from.
+    for chan in ["HL.ARG..BHE", "HL.ARG..BHN", "HL.ARG..BHZ"]:
+        window_group = window_group_manager.get(chan)
+        window_group.add_window(starttime=t + 100, endtime=t + 200)
+        window_group.write()
+
+    capsys.readouterr()
+    comm.actions.calculate_all_adjoint_sources(it.name, event_name)
+    out, _ = capsys.readouterr()
+    assert "Could not calculate adjoint source for iteration 1" in out
+
+    # Make sure nothing is actually written.
+    out = os.path.join(comm.project.paths["adjoint_sources"], event_name,
+                       it.long_name)
+    assert os.listdir(out) == []
+
+
+def test_calculate_all_adjoint_sources_rotated_domain(comm, capsys):
+    """
+    Tests the adjoint source calculation with a rotated domain.
+    """
+    # Set some rotation angle to actually get some rotated things.
+    comm.project.domain.rotation_angle_in_degree = 0.1
+
+    comm.iterations.create_new_iteration(
+        "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    event = comm.events.get(event_name)
+    t = event["origin_time"]
+
+    # Create iteration.
+    it = comm.iterations.get("1")
+
+    # Fake preprocessed data by copying the synthetics and perturbing them a
+    # bit...
+    stations = ["HL.ARG", "HT.SIGR"]
+    np.random.seed(123456)
+    for station in stations:
+        s = comm.waveforms.get_waveforms_synthetic(event_name, station,
+                                                   it.long_name)
+        # Perturb data a bit.
+        for tr in s:
+            tr.data += np.random.random(len(tr.data)) * 2E-8
+        path = comm.waveforms.get_waveform_folder(event_name, "processed",
+                                                  it.processing_tag)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        for tr in s:
+            tr.write(os.path.join(path, tr.id), format="mseed")
+
+    window_group_manager = comm.windows.get(event, it)
+
+    # Automatic window selection does not work for the terrible test data...
+    # Now add only windows that actually have data and synthetics but the
+    # data will be too bad to actually extract an adjoint source from.
+    for chan in ["HL.ARG..BHE", "HL.ARG..BHN", "HL.ARG..BHZ"]:
+        window_group = window_group_manager.get(chan)
+        window_group.add_window(starttime=t + 100, endtime=t + 200)
+        window_group.write()
+
+    capsys.readouterr()
+
+    # Make sure nothing is rotated as the domain is not rotated.
+    rotate_data = rotations.rotate_data
+    with mock.patch("lasif.rotations.rotate_data") as patch:
+        patch.side_effect = \
+            lambda *args, **kwargs: rotate_data(*args, **kwargs)
+        comm.actions.calculate_all_adjoint_sources(it.name, event_name)
+    # Once for each synthetic.
+    assert patch.call_count == 3
+
+    out, _ = capsys.readouterr()
+    assert out == ""
+
+    # Make sure that three adjoint sources are written in the end.
+    out = os.path.join(comm.project.paths["adjoint_sources"], event_name,
+                       it.long_name)
+    # Joblib dumps two files per written array.
+    assert len(os.listdir(out)) == 2 * 3

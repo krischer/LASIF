@@ -663,6 +663,21 @@ def lasif_finalize_adjoint_sources(parser, args):
 
 
 @command_group("Iteration Management")
+def lasif_calculate_all_adjoint_sources(parser, args):
+    """
+    Calculates all adjoint sources for a given iteration and event.
+    """
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("event_name", help="name of the event")
+    args = parser.parse_args(args)
+    iteration_name = args.iteration_name
+    event_name = args.event_name
+
+    comm = _find_project_comm(".", args.read_only_caches)
+    comm.actions.calculate_all_adjoint_sources(iteration_name, event_name)
+
+
+@command_group("Iteration Management")
 def lasif_select_windows(parser, args):
     """
     Autoselect windows for a given event and iteration combination.

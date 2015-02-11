@@ -6,7 +6,7 @@ Window selection algorithm.
 This module aims to provide a window selection algorithm suitable for
 calculating phase misfits between two seismic waveforms.
 
-The main function is the select_windoes() function. The selection process is a
+The main function is the select_windows() function. The selection process is a
 multi-stage process. Initially all time steps are considered to be valid in
 the sense as being suitable for window selection. Then a number of selectors
 is applied, progressively excluding more and more time steps.

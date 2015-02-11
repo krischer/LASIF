@@ -450,6 +450,20 @@ def test_input_file_generation(cli):
     assert patch.call_count == 1
 
 
+def test_calculate_all_adjoint_sources(cli):
+    """
+    Simple mock test.
+    """
+    with mock.patch("lasif.components.actions.ActionsComponent"
+                    ".calculate_all_adjoint_sources") as p:
+        out = cli.run("lasif calculate_all_adjoint_sources 1 "
+                      "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert out.stderr == ""
+    p.assert_called_once_with(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")
+    assert p.call_count == 1
+
+
 def test_finalize_adjoint_sources(cli):
     """
     Simple mock test.

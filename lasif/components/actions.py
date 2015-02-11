@@ -542,6 +542,34 @@ class ActionsComponent(Component):
         gen.write(format=solver_format, output_dir=output_dir)
         print "Written files to '%s'." % output_dir
 
+    def calculate_all_adjoint_sources(self, iteration_name, event_name):
+        """
+        Function to calculate all adjoint sources for a certain iteration
+        and event.
+        """
+        window_manager = self.comm.windows.get(event_name, iteration_name)
+        event = self.comm.events.get(event_name)
+        iteration = self.comm.iterations.get(iteration_name)
+        iteration_event_def = iteration.events[event["event_name"]]
+        iteration_stations = iteration_event_def["stations"]
+
+        l = sorted(window_manager.list())
+        for station, windows in itertools.groupby(
+                l, key=lambda x: ".".join(x.split(".")[:2])):
+            if station not in iteration_stations:
+                continue
+            try:
+                for w in windows:
+                    w = window_manager.get(w)
+                    for window in w:
+                        # Access the property will trigger an adjoint source
+                        # calculation.
+                        window.adjoint_source
+            except LASIFError as e:
+                print("Could not calculate adjoint source for iteration %s "
+                      "and station %s. Repick windows? Reason: %s" % (
+                          iteration.name, station, str(e)))
+
     def finalize_adjoint_sources(self, iteration_name, event_name):
         """
         Finalizes the adjoint sources.
