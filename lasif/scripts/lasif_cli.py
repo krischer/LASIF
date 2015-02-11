@@ -984,8 +984,8 @@ def lasif_plot_windows(parser, args):
     """
     Plot the selected windows.
     """
-    parser.add_argument("event_name", help="name of the event")
     parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("event_name", help="name of the event")
     args = parser.parse_args(args)
 
     iteration_name = args.iteration_name

@@ -226,16 +226,15 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
 
     #  estimate noise level from waveforms prior to the first arrival
     idx_end = int(np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
+    idx_end = max(10, idx_end)
     idx_start = int(np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
     idx_start = max(10, idx_start)
 
-    try:
-        noise_absolute = data[idx_start:idx_end].ptp()
-        noise_relative = noise_absolute / data.ptp()
+    if idx_start >= idx_end:
+        idx_start = max(0, idx_end - 10)
 
-    except ValueError:
-        noise_absolute = 1000.0
-        noise_relative = 1.0
+    noise_absolute = data[idx_start:idx_end].ptp()
+    noise_relative = noise_absolute / data.ptp()
 
     print "** absolute noise level: " + str(noise_absolute) + " m/s"
     print "** relative noise level: " + str(noise_relative)
