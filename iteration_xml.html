@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to LASIF &mdash; LASIF 0.0.1 documentation</title>
+  <title>lasif.iteration_xml &mdash; LASIF 0.0.1 documentation</title>
   
 
   
@@ -28,8 +28,10 @@
   
 
   
-    <link rel="top" title="LASIF 0.0.1 documentation" href="#"/>
-        <link rel="next" title="Installation, Testing &amp; DevInfo" href="prerequisites.html"/> 
+    <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
+        <link rel="up" title="API Documentation" href="api_doc.html"/>
+        <link rel="next" title="lasif.rotations" href="rotations.html"/>
+        <link rel="prev" title="SES3D Setup Assistant" href="ses3d_setup_helper.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -44,7 +46,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="#" class="fa fa-home"> LASIF</a>
+          <a href="index.html" class="fa fa-home"> LASIF</a>
         
         
 <div role="search">
@@ -60,7 +62,7 @@
         
           
           
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="prerequisites.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prerequisites.html#testing">Testing</a></li>
@@ -103,10 +105,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="api_doc.html">API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
-<li class="toctree-l2"><a class="reference internal" href="iteration_xml.html">lasif.iteration_xml</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">lasif.iteration_xml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="window_selection.html">lasif.window_selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
@@ -129,7 +131,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="#">LASIF</a>
+        <a href="index.html">LASIF</a>
       </nav>
 
 
@@ -138,12 +140,14 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="#">Docs</a> &raquo;</li>
+    <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>Welcome to LASIF</li>
+          <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
+      
+    <li>lasif.iteration_xml</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/index.txt" rel="nofollow"> View page source</a>
+          <a href="_sources/iteration_xml.txt" rel="nofollow"> View page source</a>
         
       </li>
   </ul>
@@ -151,33 +155,89 @@
 </div>
           <div role="main" class="document">
             
-  <div class="section" id="welcome-to-lasif">
-<h1>Welcome to LASIF<a class="headerlink" href="#welcome-to-lasif" title="Permalink to this headline">¶</a></h1>
-<a class="reference internal image-reference" href="_images/lasif_logo.svg"><div align="center" class="align-center"><img src="_images/lasif_logo.svg" width="80%" /></div>
-</a>
-<p>LASIF (<strong>LA</strong>rge-scale <strong>S</strong>eismic <strong>I</strong>nversion <strong>F</strong>ramework) is a
-data-driven end-to-end workflow tool to perform adjoint full seismic waveform
-inversions.</p>
-<p>Dealing with the large amounts of data present in modern full seismic waveform
-inversions in an organized, reproducible and shareable way continues to be a
-major difficulty potentially even hindering actual research. LASIF improves the
-speed, reliability, and ease with which such inversion can be carried out.</p>
-<p>Full seismic waveform inversion using adjoint methods evolved into a well
-established tool in recent years that has seen many applications. While the
-procedures employed are (to a certain extent) well understood, large scale
-applications to real-world problems are often hindered by practical issues.</p>
-<p>The inversions use an iterative approach and thus by their very nature
-encompass many repetitive, arduous, and error-prone tasks. Amongst these are
-data acquisition and management, quality checks, preprocessing, selecting time
-windows suitable for misfit calculations, the derivation of adjoint sources,
-model updates, and interfacing with numerical wave propagation codes.</p>
-<p>The LASIF workflow framework is designed to tackle these problems. One major
-focus of the package is to handle vast amount of data in an organized way while
-also efficiently utilizing modern HPC systems. The use of a unified framework
-enables reproducibility and an efficient collaboration on and exchange of
-tomographic images.</p>
-<div class="toctree-wrapper compound">
-</div>
+  <div class="section" id="module-lasif.iteration_xml">
+<span id="lasif-iteration-xml"></span><h1>lasif.iteration_xml<a class="headerlink" href="#module-lasif.iteration_xml" title="Permalink to this headline">¶</a></h1>
+<p>Functionality to deal with Iteration XML files.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2013</td>
+</tr>
+<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">GNU General Public License, Version 3
+(<a class="reference external" href="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</a>)</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="lasif.iteration_xml.create_iteration_xml_string">
+<tt class="descclassname">lasif.iteration_xml.</tt><tt class="descname">create_iteration_xml_string</tt><big>(</big><em>iteration_name</em>, <em>solver_name</em>, <em>events</em>, <em>min_period</em>, <em>max_period</em><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#create_iteration_xml_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.create_iteration_xml_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new iteration string.</p>
+<p>Returns a string containing the XML representation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>iteration_name</strong> &#8211; The iteration name. Should start with a number.</li>
+<li><strong>solver_name</strong> &#8211; The name of the solver to be used for this iteration.</li>
+<li><strong>events</strong> &#8211; A dictionary. The key is the event name, and the value a
+list of station ids for this event.</li>
+<li><strong>min_period</strong> &#8211; The minimum period for the iteration.</li>
+<li><strong>max_period</strong> &#8211; The maximum period for the iteration.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="lasif.iteration_xml.Iteration">
+<em class="property">class </em><tt class="descclassname">lasif.iteration_xml.</tt><tt class="descname">Iteration</tt><big>(</big><em>iteration_xml_filename</em><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="lasif.iteration_xml.Iteration.get_process_params">
+<tt class="descname">get_process_params</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.get_process_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.get_process_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small helper function retrieving the most important iteration
+parameters.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.iteration_xml.Iteration.get_source_time_function">
+<tt class="descname">get_source_time_function</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.get_source_time_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.get_source_time_function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the source time function for the given iteration.</p>
+<dl class="docutils">
+<dt>Will return a dictionary with the following keys:</dt>
+<dd><ul class="first last simple">
+<li>&#8220;delta&#8221;: The time increment of the data.</li>
+<li>&#8220;data&#8221;: The actual source time function as an array.</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lasif.iteration_xml.Iteration.processing_tag">
+<tt class="descname">processing_tag</tt><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.processing_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.processing_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the processing tag for this iteration.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="lasif.iteration_xml.Iteration.write">
+<tt class="descname">write</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialized the Iteration structure once again.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; The path that will be written to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -186,8 +246,10 @@ tomographic images.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="prerequisites.html" class="btn btn-neutral float-right" title="Installation, Testing &amp; DevInfo">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="rotations.html" class="btn btn-neutral float-right" title="lasif.rotations">Next <span class="fa fa-arrow-circle-right"></span></a>
       
+      
+        <a href="ses3d_setup_helper.html" class="btn btn-neutral" title="SES3D Setup Assistant"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

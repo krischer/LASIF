@@ -34,3 +34,4 @@ inversion with LASIF and SES3D on a simple toy example.
     tutorial/12_misfits_and_adjoint_sources
     tutorial/13_model_update
     tutorial/14_next_iterations
+    tutorial/15_customizing_lasif

@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>16. Customizing LASIF &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorial" href="../tutorial.html"/>
+        <link rel="next" title="Command Line Interface" href="../cli.html"/>
+        <link rel="prev" title="15. Next Iterations" href="14_next_iterations.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../index.html" class="fa fa-home"> LASIF</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_next_iterations.html">15. Next Iterations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">16. Customizing LASIF</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../iteration_xml.html">lasif.iteration_xml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../window_selection.html">lasif.window_selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../components/components.html">API Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+      
+    <li>16. Customizing LASIF</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/tutorial/15_customizing_lasif.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="customizing-lasif">
+<h1>16. Customizing LASIF<a class="headerlink" href="#customizing-lasif" title="Permalink to this headline">¶</a></h1>
+<p>Sometimes the built-in configuration possibilities of LASIF just don&#8217;t cut
+it and you need to change things in a more profound way. To this end LASIF
+offers per-project functions that will be called by LASIF on different
+occasions.</p>
+<p><strong>If you still feel the need to modify LASIF directly, please contact the
+developers.</strong> LASIF aims to be a common tool for full waveform inversions
+and if everyone has a custom LASIF version that is not possible. If
+necessary we will make it more flexible.</p>
+<p>In any case, the per-project functions are stored in the <tt class="docutils literal"><span class="pre">FUNCTION</span></tt>
+subfolder of an active LASIF project. If you ever want to update these
+function to the latest official version of LASIF just delete the files and
+launch any LASIF command.</p>
+<div class="highlight-none"><div class="highlight"><pre>FUNCTIONS
+├── preprocessing_function.py
+├── process_synthetics.py
+└── window_picking_function.py
+</pre></div>
+</div>
+<div class="section" id="common-features">
+<h2>16.1. Common Features<a class="headerlink" href="#common-features" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">LASIF does not keep track of which function has been called for which
+iteration. This is a choice to make customizing it reasonably easy but it
+does hurt reproducibility and provenance. It is your responsibility to
+store the used functions and make a copy if necessary.
+A simple way to keep track of the differences in these function is to
+branch based on the current iteration.</p>
+</div>
+<p>All of the custom function are passed an
+<a class="reference internal" href="../iteration_xml.html#lasif.iteration_xml.Iteration" title="lasif.iteration_xml.Iteration"><tt class="xref py py-class docutils literal"><span class="pre">Iteration</span></tt></a> object, thus code like the following
+is the preferred way to handle differences in these function per iterations.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">custom_function</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+    <span class="c"># Assumes iteration names are numeric. You might need a more</span>
+    <span class="c"># complicated setup depending on your project.</span>
+    <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">iteration</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">do_this</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">do_that</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To figure out what these iteration objects can do, launch an interactive lasif
+session and play around a bit.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif shell
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">iteration</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">)</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">iteration</span><span class="o">.</span><span class="n">name</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="s">&#39;1&#39;</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">iteration</span><span class="o">.</span><span class="n">get_process_params</span><span class="p">()</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
+<span class="p">{</span><span class="s">&#39;dt&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+ <span class="s">&#39;highpass&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+ <span class="s">&#39;lowpass&#39;</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span>
+ <span class="s">&#39;npts&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+ <span class="s">&#39;stf&#39;</span><span class="p">:</span> <span class="s">&#39;Filtered Heaviside&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-preprocessing">
+<h2>16.2. Custom Preprocessing<a class="headerlink" href="#custom-preprocessing" title="Permalink to this headline">¶</a></h2>
+<p>The preprocessing function is used to preprocess all the data. It has the
+following function signature:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">preprocessing_function</span><span class="p">(</span><span class="n">processing_info</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>It is supposed to read the <tt class="docutils literal"><span class="pre">procesing_info[&quot;input_filename&quot;]</span></tt> file, apply
+the defined processing, and write it to <tt class="docutils literal"><span class="pre">processing_info[&quot;output_filename&quot;]</span></tt>.
+It does not have to return anything; raise an error if something does not
+work as expected.</p>
+<p>The <tt class="docutils literal"><span class="pre">processing_info</span></tt> object also contains event and station information.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;event_information&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;depth_in_km&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
+    <span class="s">&#39;event_name&#39;</span><span class="p">:</span> <span class="s">&#39;GCMT_event_VANCOUVER_ISLAND...&#39;</span><span class="p">,</span>
+    <span class="s">&#39;filename&#39;</span><span class="p">:</span> <span class="s">&#39;/.../GCMT_event_VANCOUVER_ISLAND....xml&#39;</span><span class="p">,</span>
+    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">49.53</span><span class="p">,</span>
+    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">126.89</span><span class="p">,</span>
+    <span class="s">&#39;m_pp&#39;</span><span class="p">:</span> <span class="mf">2.22e+18</span><span class="p">,</span>
+    <span class="s">&#39;m_rp&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.78e+18</span><span class="p">,</span>
+    <span class="s">&#39;m_rr&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">6.15e+17</span><span class="p">,</span>
+    <span class="s">&#39;m_rt&#39;</span><span class="p">:</span> <span class="mf">1.98e+17</span><span class="p">,</span>
+    <span class="s">&#39;m_tp&#39;</span><span class="p">:</span> <span class="mf">5.14e+18</span><span class="p">,</span>
+    <span class="s">&#39;m_tt&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.61e+18</span><span class="p">,</span>
+    <span class="s">&#39;magnitude&#39;</span><span class="p">:</span> <span class="mf">6.5</span><span class="p">,</span>
+    <span class="s">&#39;magnitude_type&#39;</span><span class="p">:</span> <span class="s">&#39;Mwc&#39;</span><span class="p">,</span>
+    <span class="s">&#39;origin_time&#39;</span><span class="p">:</span> <span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">200000</span><span class="p">),</span>
+    <span class="s">&#39;region&#39;</span><span class="p">:</span> <span class="s">u&#39;VANCOUVER ISLAND, CANADA REGION&#39;</span><span class="p">},</span>
+ <span class="s">&#39;input_filename&#39;</span><span class="p">:</span> <span class="s">u&#39;/.../raw/7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
+ <span class="s">&#39;output_filename&#39;</span><span class="p">:</span> <span class="s">u&#39;/.../processed_.../7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
+ <span class="s">&#39;process_params&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;dt&#39;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+    <span class="s">&#39;highpass&#39;</span><span class="p">:</span> <span class="mf">0.007142857142857143</span><span class="p">,</span>
+    <span class="s">&#39;lowpass&#39;</span><span class="p">:</span> <span class="mf">0.0125</span><span class="p">,</span>
+    <span class="s">&#39;npts&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+    <span class="s">&#39;stf&#39;</span><span class="p">:</span> <span class="s">&#39;Filtered Heaviside&#39;</span><span class="p">},</span>
+ <span class="s">&#39;station_coordinates&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">&#39;elevation_in_m&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">54.0</span><span class="p">,</span>
+    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">46.882</span><span class="p">,</span>
+    <span class="s">&#39;local_depth_in_m&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">124.3337</span><span class="p">},</span>
+ <span class="s">&#39;station_filename&#39;</span><span class="p">:</span> <span class="s">u&#39;/.../STATIONS/RESP/RESP.7D.FN01A..HH*&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-synthetic-data-processing">
+<h2>16.3. Custom Synthetic Data Processing<a class="headerlink" href="#custom-synthetic-data-processing" title="Permalink to this headline">¶</a></h2>
+<p>LASIF, by default, does not apply any processing (except rotations and
+component flips to get them to ZNE) to the synthetics but just
+uses them as is. If your workflow requires the synthetics to be processed,
+please do it in this function. It will be applied on the fly to each
+up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">Stream</span></tt></a> object of synthetic
+data.</p>
+<p>The default implementation is this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">st</span>
+</pre></div>
+</div>
+<p>This is very useful for processing the synthetics in any fashion or to shift
+them time and similar endeavours. Make sure it returns a
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">Stream</span></tt></a> object.</p>
+</div>
+<div class="section" id="customize-window-picking">
+<h2>16.4. Customize Window Picking<a class="headerlink" href="#customize-window-picking" title="Permalink to this headline">¶</a></h2>
+<p>Use this function to customize the window picking of LASIF, or even use a
+completely different window picking algorithm. Its function signature is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">window_picking_function</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
+                            <span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span>
+                            <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span>
+                            <span class="n">minimum_period</span><span class="p">,</span> <span class="n">maximum_period</span><span class="p">,</span>
+                            <span class="n">iteration</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="c"># Make sure it return a list of tuples, each denoting start and</span>
+    <span class="c"># endtime for each picked window.</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="o">...</span><span class="p">)),</span>
+            <span class="p">(</span><span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="o">...</span><span class="p">))]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../cli.html" class="btn btn-neutral float-right" title="Command Line Interface">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="14_next_iterations.html" class="btn btn-neutral" title="15. Next Iterations"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

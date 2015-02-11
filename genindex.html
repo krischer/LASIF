@@ -90,6 +90,7 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/13_model_update.html">14. Model Update</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial/14_next_iterations.html">15. Next Iterations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial/15_customizing_lasif.html">16. Customizing LASIF</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a><ul>
@@ -105,6 +106,7 @@
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="iteration_xml.html">lasif.iteration_xml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rotations.html">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="window_selection.html">lasif.window_selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
@@ -186,6 +188,10 @@
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="iteration_xml.html#lasif.iteration_xml.create_iteration_xml_string">create_iteration_xml_string() (in module lasif.iteration_xml)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -356,12 +362,12 @@
   <dt><a href="components/iterations.html#lasif.components.iterations.IterationsComponent.get_filename_for_iteration">get_filename_for_iteration() (lasif.components.iterations.IterationsComponent method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="components/iterations.html#lasif.components.iterations.IterationsComponent.get_iteration_dict">get_iteration_dict() (lasif.components.iterations.IterationsComponent method)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="components/query.html#lasif.components.query.QueryComponent.get_iteration_status">get_iteration_status() (lasif.components.query.QueryComponent method)</a>
   </dt>
@@ -404,6 +410,14 @@
 
       
   <dt><a href="ses3d_setup_helper.html#lasif.scripts.ses3d_setup_helper.get_primes">get_primes() (in module lasif.scripts.ses3d_setup_helper)</a>
+  </dt>
+
+      
+  <dt><a href="iteration_xml.html#lasif.iteration_xml.Iteration.get_process_params">get_process_params() (lasif.iteration_xml.Iteration method)</a>
+  </dt>
+
+      
+  <dt><a href="iteration_xml.html#lasif.iteration_xml.Iteration.get_source_time_function">get_source_time_function() (lasif.iteration_xml.Iteration method)</a>
   </dt>
 
       
@@ -475,6 +489,10 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="iteration_xml.html#lasif.iteration_xml.Iteration">Iteration (class in lasif.iteration_xml)</a>
+  </dt>
+
+      
   <dt><a href="components/iterations.html#lasif.components.iterations.IterationsComponent">IterationsComponent (class in lasif.components.iterations)</a>
   </dt>
 
@@ -484,6 +502,10 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="iteration_xml.html#module-lasif.iteration_xml">lasif.iteration_xml (module)</a>
+  </dt>
+
       
   <dt><a href="rotations.html#module-lasif.rotations">lasif.rotations (module)</a>
   </dt>
@@ -508,12 +530,12 @@
   <dt><a href="tools.parallel.html#module-lasif.tools.parallel_helpers">lasif.tools.parallel_helpers (module)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="window_selection.html#module-lasif.window_selection">lasif.window_selection (module)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="api_doc.html#lasif.LASIFError">LASIFError (class in lasif)</a>
   </dt>
@@ -554,10 +576,14 @@
   <dt><a href="components/iterations.html#lasif.components.iterations.IterationsComponent.plot_Q_model">plot_Q_model() (lasif.components.iterations.IterationsComponent method)</a>
   </dt>
 
+      
+  <dt><a href="components/query.html#lasif.components.query.QueryComponent.point_in_domain">point_in_domain() (lasif.components.query.QueryComponent method)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="components/query.html#lasif.components.query.QueryComponent.point_in_domain">point_in_domain() (lasif.components.query.QueryComponent method)</a>
+  <dt><a href="iteration_xml.html#lasif.iteration_xml.Iteration.processing_tag">processing_tag (lasif.iteration_xml.Iteration attribute)</a>
   </dt>
 
   </dl></td>
@@ -668,10 +694,14 @@
   <dt><a href="components/waveforms.html#lasif.components.waveforms.WaveformsComponent">WaveformsComponent (class in lasif.components.waveforms)</a>
   </dt>
 
+      
+  <dt><a href="components/query.html#lasif.components.query.QueryComponent.what_is">what_is() (lasif.components.query.QueryComponent method)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="components/query.html#lasif.components.query.QueryComponent.what_is">what_is() (lasif.components.query.QueryComponent method)</a>
+  <dt><a href="iteration_xml.html#lasif.iteration_xml.Iteration.write">write() (lasif.iteration_xml.Iteration method)</a>
   </dt>
 
   </dl></td>

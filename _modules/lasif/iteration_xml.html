@@ -1,0 +1,702 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>lasif.iteration_xml &mdash; LASIF 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="LASIF 0.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="lasif" href="../lasif.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+          <a href="../../index.html" class="fa fa-home"> LASIF</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../prerequisites.html">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../prerequisites.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../prerequisites.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../prerequisites.html#developer-information">Developer Information</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#further-information">Further Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#supported-data-formats">Supported Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#further-notes">Further Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/09_model_handling.html">10. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/11_synthetic_waveforms.html">12. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/13_model_update.html">14. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/14_next_iterations.html">15. Next Iterations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorial/15_customizing_lasif.html">16. Customizing LASIF</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command Line Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#event-management-functions">Event Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#iteration-management-functions">Iteration Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#misc-functions">Misc Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#plotting-functions">Plotting Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli.html#project-management-functions">Project Management Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_doc.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../iteration_xml.html">lasif.iteration_xml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../rotations.html">lasif.rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../window_selection.html">lasif.window_selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tools.html">lasif.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tools.parallel.html">lasif.tools.parallel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../components/components.html">API Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../how_lasif_finds_coordinates.html">How LASIF Finds Coordinates</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+          <li><a href="../lasif.html">lasif</a> &raquo;</li>
+      
+    <li>lasif.iteration_xml</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for lasif.iteration_xml</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functionality to deal with Iteration XML files.</span>
+
+<span class="sd">:copyright:</span>
+<span class="sd">    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013</span>
+<span class="sd">:license:</span>
+<span class="sd">    GNU General Public License, Version 3</span>
+<span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+<span class="kn">from</span> <span class="nn">lxml.builder</span> <span class="kn">import</span> <span class="n">E</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">scipy.signal.filter_design</span> <span class="kn">import</span> <span class="n">BadCoefficients</span> \
+    <span class="k">as</span> <span class="n">BadCoefficientsWarning</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">lasif</span> <span class="kn">import</span> <span class="n">LASIFError</span>
+
+
+<div class="viewcode-block" id="Iteration"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration">[docs]</a><span class="k">class</span> <span class="nc">Iteration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_xml_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Init function takes a Iteration XML file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;File &#39;</span><span class="si">%s</span><span class="s">&#39; not found.&quot;</span> <span class="o">%</span> <span class="n">iteration_xml_filename</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parse_iteration_xml</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parse_iteration_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_xml_filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses the given iteration xml file and stores the information with the</span>
+<span class="sd">        class instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">iteration_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;iteration_name&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;iteration_description&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;source_time_function&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;scale_data_to_synthetics&quot;</span><span class="p">)</span>
+
+        <span class="c"># Defaults to True.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;false&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Value &#39;</span><span class="si">%s</span><span class="s">&#39; invalid for &quot;</span>
+                             <span class="s">&quot;&#39;scale_data_to_synthetics&#39;.&quot;</span> <span class="o">%</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">prep</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;data_preprocessing&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="s">&quot;highpass_period&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="s">&quot;lowpass_period&quot;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">crits</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;rejection_criteria&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;minimum_trace_length_in_s&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">crits</span><span class="p">,</span> <span class="s">&quot;minimum_trace_length_in_s&quot;</span><span class="p">))</span>
+        <span class="n">s_n</span> <span class="o">=</span> <span class="n">crits</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;signal_to_noise&quot;</span><span class="p">)</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">temp</span><span class="p">[</span><span class="s">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">s_n</span><span class="p">,</span> <span class="s">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">))</span>
+        <span class="n">temp</span><span class="p">[</span><span class="s">&quot;max_amplitude_ratio&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">s_n</span><span class="p">,</span> <span class="s">&quot;max_amplitude_ratio&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;signal_to_noise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span> <span class="o">=</span> \
+            <span class="n">_recursive_dict</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;solver_parameters&quot;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;event&quot;</span><span class="p">):</span>
+            <span class="n">event_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s">&quot;event_name&quot;</span><span class="p">)</span>
+            <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;event_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s">&quot;event_weight&quot;</span><span class="p">)),</span>
+                <span class="s">&quot;time_correction_in_s&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s">&quot;time_correction_in_s&quot;</span><span class="p">)),</span>
+                <span class="s">&quot;stations&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
+                <span class="s">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;station&quot;</span><span class="p">):</span>
+                <span class="n">station_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s">&quot;station_id&quot;</span><span class="p">)</span>
+                <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span>
+                            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s">&quot;stations&quot;</span><span class="p">][</span><span class="n">station_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s">&quot;station_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span>
+                                            <span class="s">&quot;station_weight&quot;</span><span class="p">)),</span>
+                    <span class="s">&quot;time_correction_in_s&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s">&quot;time_correction_in_s&quot;</span><span class="p">)),</span>
+                    <span class="s">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
+
+<div class="viewcode-block" id="Iteration.get_source_time_function"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration.get_source_time_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_source_time_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the source time function for the given iteration.</span>
+
+<span class="sd">        Will return a dictionary with the following keys:</span>
+<span class="sd">            * &quot;delta&quot;: The time increment of the data.</span>
+<span class="sd">            * &quot;data&quot;: The actual source time function as an array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">STFS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Filtered Heaviside&quot;</span><span class="p">]</span>
+        <span class="n">stfs_l</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">STFS</span><span class="p">]</span>
+
+        <span class="n">stf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;time_increment&quot;</span><span class="p">])</span>
+        <span class="n">npts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;number_of_time_steps&quot;</span><span class="p">])</span>
+
+        <span class="n">freqmin</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">]</span>
+        <span class="n">freqmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">stf</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stfs_l</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Source time function &#39;</span><span class="si">%s</span><span class="s">&#39; not known. Available STFs: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">STFS</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">ret_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">}</span>
+
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">&quot;always&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">stf</span> <span class="o">==</span> <span class="s">&quot;filtered heaviside&quot;</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">lasif.source_time_functions</span> <span class="kn">import</span> <span class="n">filtered_heaviside</span>
+                <span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">filtered_heaviside</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Should not happen. Contact the developers or fix it.&quot;</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">w</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">warning</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="n">BadCoefficientsWarning</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;The filter for creating the source time function &quot;</span>
+                           <span class="s">&quot;is potentially unstable! Please change its &quot;</span>
+                           <span class="s">&quot;settings!&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ret_dict</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_get_if_available</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="Iteration.get_process_params"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration.get_process_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_process_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Small helper function retrieving the most important iteration</span>
+<span class="sd">        parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">]</span>
+        <span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]</span>
+
+        <span class="n">npts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;number_of_time_steps&quot;</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;time_increment&quot;</span><span class="p">]</span>
+        <span class="n">stf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s">&quot;highpass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">highpass</span><span class="p">),</span>
+            <span class="s">&quot;lowpass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">lowpass</span><span class="p">),</span>
+            <span class="s">&quot;npts&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">npts</span><span class="p">),</span>
+            <span class="s">&quot;dt&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">dt</span><span class="p">),</span>
+            <span class="s">&quot;stf&quot;</span><span class="p">:</span> <span class="n">stf</span><span class="p">}</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="Iteration.processing_tag"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration.processing_tag">[docs]</a>    <span class="k">def</span> <span class="nf">processing_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the processing tag for this iteration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Generate a preprocessing tag. This will identify the used</span>
+        <span class="c"># preprocessing so that duplicates can be avoided.</span>
+        <span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
+                          <span class="s">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span>\
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_process_params</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">processing_tag</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">long_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;ITERATION_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">iteration_name</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pretty printing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret_str</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s">&quot;LASIF Iteration</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Name: {self.iteration_name}</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Description: {self.description}</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;{comments}&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Source Time Function: {self.source_time_function}</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Preprocessing Settings:</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Highpass Period: {hp:.3f} s</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Lowpass Period: {lp:.3f} s</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Solver: {solver} | {timesteps} timesteps (dt: {dt}s)</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">{event_count} events recorded at {station_count} &quot;</span>
+            <span class="s">&quot;unique stations</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">{pair_count} event-station pairs (</span><span class="se">\&quot;</span><span class="s">rays</span><span class="se">\&quot;</span><span class="s">)&quot;</span><span class="p">)</span>
+
+        <span class="n">comments</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Comment: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                             <span class="n">comment</span> <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">comments</span><span class="p">:</span>
+            <span class="n">comments</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+
+        <span class="n">all_stations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="n">all_stations</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ev</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">ret_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="n">comments</span><span class="p">,</span>
+            <span class="n">hp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">],</span>
+            <span class="n">lp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">],</span>
+            <span class="n">solver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver&quot;</span><span class="p">],</span>
+            <span class="n">timesteps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
+                <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;number_of_time_steps&quot;</span><span class="p">],</span>
+            <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
+                <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;time_increment&quot;</span><span class="p">],</span>
+            <span class="n">event_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">),</span>
+            <span class="n">pair_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">all_stations</span><span class="p">),</span>
+            <span class="n">station_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_stations</span><span class="p">)))</span>
+
+<div class="viewcode-block" id="Iteration.write"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialized the Iteration structure once again.</span>
+
+<span class="sd">        :param filename: The path that will be written to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">solver_settings</span> <span class="o">=</span> <span class="n">_recursive_etree</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">])</span>
+
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">iteration_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iteration_name</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+            <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">iteration_description</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">:</span>
+            <span class="n">contents</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">])</span>
+
+        <span class="n">contents</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">(</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">highpass_period</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">])),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">lowpass_period</span><span class="p">(</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]))</span>
+            <span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">(</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">minimum_trace_length_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;minimum_trace_length_in_s&quot;</span><span class="p">]</span>
+                <span class="p">)),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">signal_to_noise</span><span class="p">(</span>
+                    <span class="n">E</span><span class="o">.</span><span class="n">test_interval_from_origin_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;signal_to_noise&quot;</span><span class="p">][</span>
+                            <span class="s">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">]</span>
+                    <span class="p">)),</span>
+                    <span class="n">E</span><span class="o">.</span><span class="n">max_amplitude_ratio</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;signal_to_noise&quot;</span><span class="p">][</span>
+                            <span class="s">&quot;max_amplitude_ratio&quot;</span><span class="p">]</span>
+                    <span class="p">))</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">source_time_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">solver_parameters</span><span class="p">(</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver&quot;</span><span class="p">]),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">(</span><span class="o">*</span><span class="n">solver_settings</span><span class="p">)</span>
+            <span class="p">),</span>
+        <span class="p">])</span>
+
+        <span class="c"># Add all events.</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">event</span><span class="p">(</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">event_name</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">event_weight</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;event_weight&quot;</span><span class="p">])),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;time_correction_in_s&quot;</span><span class="p">])),</span>
+                <span class="o">*</span><span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s">&quot;comments&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_i</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">station_value</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">station</span><span class="p">(</span>
+                    <span class="n">E</span><span class="o">.</span><span class="n">station_id</span><span class="p">(</span><span class="n">station_id</span><span class="p">),</span>
+                    <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">station_value</span><span class="p">[</span><span class="s">&quot;station_weight&quot;</span><span class="p">])),</span>
+                    <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
+                        <span class="n">station_value</span><span class="p">[</span><span class="s">&quot;time_correction_in_s&quot;</span><span class="p">])),</span>
+                    <span class="o">*</span><span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
+                      <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station_value</span><span class="p">[</span><span class="s">&quot;comments&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_i</span><span class="p">]</span>
+                <span class="p">))</span>
+            <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">iteration</span><span class="p">(</span><span class="o">*</span><span class="n">contents</span><span class="p">)</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">getroottree</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                                <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_recursive_dict</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to create a dictionary from an etree element.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;relaxation_parameter_list&quot;</span><span class="p">:</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;tau&quot;</span><span class="p">)]</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;w&quot;</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="s">&quot;relaxation_parameter_list&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;tau&quot;</span><span class="p">:</span> <span class="n">tau</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">}</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">text</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;false&quot;</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">elif</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> \
+        <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_recursive_dict</span><span class="p">,</span> <span class="n">element</span><span class="p">))</span> <span class="ow">or</span> <span class="n">text</span>
+
+
+<span class="k">def</span> <span class="nf">_recursive_etree</span><span class="p">(</span><span class="n">dictionary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function to create a list of etree elements from a dict.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+    <span class="kn">import</span> <span class="nn">itertools</span>
+
+    <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&quot;relaxation_parameter_list&quot;</span><span class="p">:</span>
+            <span class="c"># Wild iterator to arrive at the desired etree. If somebody else</span>
+            <span class="c"># ever reads this just look at the output and do it some other</span>
+            <span class="c"># way...</span>
+            <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">relaxation_parameter_list</span><span class="p">(</span>
+                <span class="o">*</span><span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="n">number</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
+                  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">itertools</span><span class="o">.</span><span class="n">izip</span><span class="p">(</span>
+                      <span class="n">itertools</span><span class="o">.</span><span class="n">izip_longest</span><span class="p">(</span>
+                          <span class="p">[],</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;tau&quot;</span><span class="p">]),</span> <span class="n">fillvalue</span><span class="o">=</span><span class="s">&quot;tau&quot;</span><span class="p">),</span>
+                      <span class="n">itertools</span><span class="o">.</span><span class="n">izip_longest</span><span class="p">(</span>
+                          <span class="p">[],</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;w&quot;</span><span class="p">]),</span> <span class="n">fillvalue</span><span class="o">=</span><span class="s">&quot;w&quot;</span><span class="p">)))]</span>
+            <span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">):</span>
+            <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">key</span><span class="p">)(</span><span class="o">*</span><span class="n">_recursive_etree</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;true&quot;</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;false&quot;</span>
+        <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">key</span><span class="p">)(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">contents</span>
+
+
+<div class="viewcode-block" id="create_iteration_xml_string"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.create_iteration_xml_string">[docs]</a><span class="k">def</span> <span class="nf">create_iteration_xml_string</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">,</span> <span class="n">solver_name</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span>
+                                <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a new iteration string.</span>
+
+<span class="sd">    Returns a string containing the XML representation.</span>
+
+<span class="sd">    :param iteration_name: The iteration name. Should start with a number.</span>
+<span class="sd">    :param solver_name: The name of the solver to be used for this iteration.</span>
+<span class="sd">    :param events: A dictionary. The key is the event name, and the value a</span>
+<span class="sd">        list of station ids for this event.</span>
+<span class="sd">    :param min_period: The minimum period for the iteration.</span>
+<span class="sd">    :param max_period: The maximum period for the iteration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">solver_doc</span> <span class="o">=</span> <span class="n">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver_name</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span>
+                                              <span class="n">max_period</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_4_1&quot;</span><span class="p">:</span>
+        <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SES3D 4.1&quot;</span>
+    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
+        <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SES3D 2.0&quot;</span>
+    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;specfem3d_cartesian&quot;</span><span class="p">:</span>
+        <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SPECFEM3D CARTESIAN&quot;</span>
+    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;specfem3d_globe_cem&quot;</span><span class="p">:</span>
+        <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SPECFEM3D GLOBE CEM&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">if</span> <span class="n">min_period</span> <span class="o">&gt;=</span> <span class="n">max_period</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;min_period needs to be smaller than max_period.&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c"># Loop over all events.</span>
+    <span class="n">events_doc</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c"># Also over all stations.</span>
+    <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">stations</span> <span class="ow">in</span> <span class="n">events</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+        <span class="n">stations_doc</span> <span class="o">=</span> <span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">station</span><span class="p">(</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">station_id</span><span class="p">(</span><span class="n">station</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="s">&quot;1.0&quot;</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="s">&quot;0.0&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">]</span>
+        <span class="n">events_doc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">event</span><span class="p">(</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">event_name</span><span class="p">(</span><span class="n">event_name</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">event_weight</span><span class="p">(</span><span class="s">&quot;1.0&quot;</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="s">&quot;0.0&quot;</span><span class="p">),</span>
+            <span class="o">*</span><span class="n">stations_doc</span><span class="p">))</span>
+
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">iteration</span><span class="p">(</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">iteration_name</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">iteration_description</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="p">(</span><span class="s">&quot;true&quot;</span><span class="p">),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">(</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">highpass_period</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">max_period</span><span class="p">)),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">lowpass_period</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">min_period</span><span class="p">))),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">(</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">minimum_trace_length_in_s</span><span class="p">(</span><span class="s">&quot;500.0&quot;</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">signal_to_noise</span><span class="p">(</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">test_interval_from_origin_in_s</span><span class="p">(</span><span class="s">&quot;100.0&quot;</span><span class="p">),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">max_amplitude_ratio</span><span class="p">(</span><span class="s">&quot;100.0&quot;</span><span class="p">))),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">source_time_function</span><span class="p">(</span><span class="s">&quot;Filtered Heaviside&quot;</span><span class="p">),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">solver_parameters</span><span class="p">(</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">solver_name</span><span class="p">),</span>
+            <span class="n">solver_doc</span><span class="p">),</span>
+        <span class="o">*</span><span class="n">events_doc</span><span class="p">)</span>
+
+    <span class="n">string_doc</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                                <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">string_doc</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function returning etree representation of a solver&#39;s default</span>
+<span class="sd">    settings.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">known_solvers</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ses3d_4_1&quot;</span><span class="p">,</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">,</span> <span class="s">&quot;specfem3d_cartesian&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;specfem3d_globe_cem&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_4_1&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">lasif.tools</span> <span class="kn">import</span> <span class="n">Q_discrete</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_ses3d_4_1_template</span>
+
+        <span class="c"># Generate the relaxation weights for SES3D.</span>
+        <span class="n">w_p</span><span class="p">,</span> <span class="n">tau_p</span> <span class="o">=</span> <span class="n">Q_discrete</span><span class="o">.</span><span class="n">calculate_Q_model</span><span class="p">(</span>
+            <span class="n">N</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="c"># These are suitable for the default frequency range.</span>
+            <span class="n">f_min</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">max_period</span><span class="p">,</span>
+            <span class="n">f_max</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">min_period</span><span class="p">,</span>
+            <span class="n">iterations</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+            <span class="n">initial_temperature</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">cooling_factor</span><span class="o">=</span><span class="mf">0.9998</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">generate_ses3d_4_1_template</span><span class="p">(</span><span class="n">w_p</span><span class="p">,</span> <span class="n">tau_p</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_ses3d_2_0_template</span>
+        <span class="k">return</span> <span class="n">generate_ses3d_2_0_template</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;specfem3d_cartesian&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_specfem3d_cartesian_template</span>
+        <span class="k">return</span> <span class="n">generate_specfem3d_cartesian_template</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;specfem3d_globe_cem&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_specfem3d_globe_cem_template</span>
+        <span class="k">return</span> <span class="n">generate_specfem3d_globe_cem_template</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Solver &#39;</span><span class="si">%s</span><span class="s">&#39; not known. Known solvers: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">solver</span><span class="p">,</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">known_solvers</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
+    </p>
+  </div>
+
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
