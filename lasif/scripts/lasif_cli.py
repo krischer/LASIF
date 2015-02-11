@@ -123,6 +123,32 @@ def _find_project_comm(folder, read_only_caches):
     raise LASIFCommandLineException(msg)
 
 
+def _find_project_comm_mpi(folder, read_only_caches):
+    """
+    Parallel version. Will open the caches for rank 0 with write access,
+    caches from the other ranks can only read.
+
+    :param folder: The folder were to start the search.
+    :param read_only_caches: Read-only caches for rank 0. All others will
+        always be read-only.
+    """
+    from mpi4py import MPI
+
+    if MPI.COMM_WORLD.rank == 0:
+        # Rank 0 can write the caches, the others cannot. The
+        # "--read_only_caches" flag overwrites this behaviour.
+        comm = _find_project_comm(folder, read_only_caches=read_only_caches)
+
+    # Open the caches for the other ranks after rank zero has opened it to
+    # allow for the initial caches to be written.
+    MPI.COMM_WORLD.barrier()
+
+    if MPI.COMM_WORLD.rank != 0:
+        comm = _find_project_comm(folder, read_only_caches=True)
+
+    return comm
+
+
 @command_group("Plotting")
 def lasif_plot_domain(parser, args):
     """
@@ -648,7 +674,8 @@ def lasif_select_windows(parser, args):
     iteration = args.iteration_name
     event = args.event_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm_mpi(".", args.read_only_caches)
+
     comm.actions.select_windows(event, iteration)
 
 
@@ -927,15 +954,13 @@ def lasif_preprocess_data(parser, args):
     iteration_name = args.iteration_name
     events = args.events if args.events else None
 
+    comm = _find_project_comm_mpi(".", args.read_only_caches)
+
     from mpi4py import MPI
 
+    # No need to perform these checks on all ranks.
     exceptions = []
-
     if MPI.COMM_WORLD.rank == 0:
-        # Rank 0 can write the caches, the others cannot. The
-        # "--read_only_caches" flag overwrites this behaviour.
-        comm = _find_project_comm(".", args.read_only_caches)
-
         if not comm.iterations.has_iteration(iteration_name):
             msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to "
                    "get a list of all available iterations.") % iteration_name
@@ -948,12 +973,6 @@ def lasif_preprocess_data(parser, args):
                     msg = "Event '%s' not found." % event_name
                     exceptions.append(msg)
                     break
-
-    # Open the caches for the other ranks after rank zero has opened it to
-    # allow for the initial caches to be written.
-    MPI.COMM_WORLD.barrier()
-    if MPI.COMM_WORLD.rank != 0:
-        comm = _find_project_comm(".", read_only_caches=True)
 
     # Raise any exceptions on all ranks if necessary.
     exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)

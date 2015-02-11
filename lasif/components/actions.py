@@ -160,28 +160,60 @@ class ActionsComponent(Component):
         windows. Each station that has a window is assumed to have already
         been picked in some fashion.
 
+        Function can be called with and without MPI.
+
         :param event: The event.
         :param iteration: The iteration.
         """
         from lasif.utils import channel2station
+        from mpi4py import MPI
 
         event = self.comm.events.get(event)
         iteration = self.comm.iterations.get(iteration)
 
-        # All stations for the given iteration and event.
-        stations = set(iteration.events[event["event_name"]][
-            "stations"].keys())
+        def split(container, count):
+            """
+            Simple and elegant function splitting a container into count
+            equal chunks.
 
-        # Get all stations that currently do not have windows.
-        windows = self.comm.windows.get(event, iteration).list()
-        stations_without_windows = \
-            stations - set(map(channel2station, windows))
+            Order is not preserved but for the use case at hand this is
+            potentially an advantage as data sitting in the same folder thus
+            have a higher at being processed at the same time thus the disc
+            head does not have to jump around so much. Of course very
+            architecture dependent.
+            """
+            return [container[_i::count] for _i in range(count)]
 
-        for station in stations_without_windows:
+        # Only rank 0 needs to know what has to be processsed.
+        if MPI.COMM_WORLD.rank == 0:
+            # All stations for the given iteration and event.
+            stations = \
+                set(iteration.events[event["event_name"]]["stations"].keys())
+
+            # Get all stations that currently do not have windows.
+            windows = self.comm.windows.get(event, iteration).list()
+            stations_without_windows = \
+                stations - set(map(channel2station, windows))
+            total_size = len(stations_without_windows)
+            stations_without_windows = split(list(stations_without_windows),
+                                             MPI.COMM_WORLD.size)
+        else:
+            stations_without_windows = None
+
+        # Distribute on a per-station basis.
+        stations_without_windows = MPI.COMM_WORLD.scatter(
+            stations_without_windows, root=0)
+
+        for _i, station in enumerate(stations_without_windows):
             try:
                 self.select_windows_for_station(event, iteration, station)
             except LASIFNotFoundError as e:
                 warnings.warn(str(e), LASIFWarning)
+            if MPI.COMM_WORLD.rank == 0:
+                print("Window picking process: Picked windows for approx. %i "
+                      "of %i stations." % (
+                          min(_i * MPI.COMM_WORLD.size, total_size),
+                          total_size))
 
     def select_windows_for_station(self, event, iteration, station):
         """
@@ -657,7 +689,7 @@ class ActionsComponent(Component):
                     l = len(adj_src)
                     to_write = np.empty((l, 2))
                     to_write[:, 0] = \
-                        np.linspace(0, (l - 1) * dt,  l) + src_time_shift
+                        np.linspace(0, (l - 1) * dt, l) + src_time_shift
 
                     # SPECFEM expects non-time reversed adjoint sources.
                     to_write[:, 1] += adj_src[::-1]

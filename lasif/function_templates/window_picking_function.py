@@ -121,7 +121,7 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
         threshold_correlation=THRESHOLD_CORRELATION,
         min_length_period=MIN_LENGTH_PERIOD,
         min_peaks_troughs=MIN_PEAKS_TROUGHS,
-        max_energy_ratio=MAX_ENERGY_RATIO
-    )
+        max_energy_ratio=MAX_ENERGY_RATIO,
+        quiet=True)
 
     return windows

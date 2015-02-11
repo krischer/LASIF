@@ -124,7 +124,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                    min_cc=0.10, max_noise=0.10, max_noise_window=0.4,
                    min_velocity=2.4, threshold_shift=0.30,
                    threshold_correlation=0.75, min_length_period=1.5,
-                   min_peaks_troughs=2, max_energy_ratio=2.0):
+                   min_peaks_troughs=2, max_energy_ratio=2.0, quiet=True):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.
@@ -174,9 +174,12 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     :param max_energy_ratio: Maximum energy ratio between data and
         synthetics within a time window.
     :type max_energy_ratio: float
+    :param quiet: Be quiet and don't print anything.
+    :type quiet: bool
     """
-    print "* ---------------------------"
-    print "* autoselect " + data_trace.id
+    if not quiet:
+        print "* ---------------------------"
+        print "* autoselect " + data_trace.id
 
     data_starttime = data_trace.stats.starttime
     data_delta = data_trace.stats.delta
@@ -222,7 +225,8 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     #  compute correlation coefficient
     norm = np.sqrt(np.sum(data ** 2)) * np.sqrt(np.sum(synth ** 2))
     cc = np.sum(data * synth) / norm
-    print "** correlation coefficient: " + str(cc)
+    if not quiet:
+        print "** correlation coefficient: " + str(cc)
 
     #  estimate noise level from waveforms prior to the first arrival
     idx_end = int(np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
@@ -236,24 +240,28 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     noise_absolute = data[idx_start:idx_end].ptp()
     noise_relative = noise_absolute / data.ptp()
 
-    print "** absolute noise level: " + str(noise_absolute) + " m/s"
-    print "** relative noise level: " + str(noise_relative)
+    if not quiet:
+        print "** absolute noise level: " + str(noise_absolute) + " m/s"
+        print "** relative noise level: " + str(noise_relative)
 
     #  rejection criteria
     accept = True
 
     if (cc < min_cc) and (noise_relative > max_noise / 3.0):
-        print "** correlation " + str(cc) + " is below threshold value of " + \
-            str(min_cc)
+        if not quiet:
+            print "** correlation " + str(cc) + \
+                " is below threshold value of " + str(min_cc)
         accept = False
 
     if noise_relative > max_noise:
-        print "** noise level " + str(noise_relative) + \
-            " is above threshold value of " + str(max_noise)
+        if not quiet:
+            print "** noise level " + str(noise_relative) + \
+                " is above threshold value of " + str(max_noise)
         accept = False
 
     if accept is False:
-        print "* autoselect done, 0 windows selected"
+        if not quiet:
+            print "* autoselect done, 0 windows selected"
         return []
 
     # =========================================================================
@@ -413,8 +421,9 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
 
             final_windows.append((i.start + j.start, i.start + j.stop))
 
-    print "* autoselect done, " + str(len(final_windows)) + \
-        " window(s) selected"
+    if not quiet:
+        print "* autoselect done, " + str(len(final_windows)) + \
+            " window(s) selected"
 
     # Final step is to convert the index value windows to actual times.
     windows = []
