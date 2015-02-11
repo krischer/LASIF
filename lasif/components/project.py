@@ -551,7 +551,8 @@ class Project(Component):
         # type / filename map
         fct_type_map = {
             "window_picking_function": "window_picking_function.py",
-            "preprocessing_function": "preprocessing_function.py"
+            "preprocessing_function": "preprocessing_function.py",
+            "process_synthetics": "process_synthetics.py"
         }
 
         if fct_type not in fct_type:

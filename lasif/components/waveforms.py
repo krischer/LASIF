@@ -240,7 +240,10 @@ class WaveformsComponent(Component):
                 st.select(channel="Z")[0].data = z
 
         st.sort()
-        return st
+
+        # Apply the project function that modifies synthetics on the fly.
+        fct = self.comm.project.get_project_function("process_synthetics")
+        return fct(st, iteration=iteration)
 
     def _get_waveforms(self, event_name, station_id, data_type,
                        tag_or_iteration=None):
