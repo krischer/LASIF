@@ -169,6 +169,7 @@ def generate_specfem3d_globe_cem_template():
             E.time_increment("0.1")),
         E.local_path("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
         E.local_temp_path("../OUTPUT/CHANGE_ME/{{EVENT_NAME}}"),
+        E.adjoint_source_time_shift("-10"),
         E.computational_setup(
             E.number_of_processors_xi("5"),
             E.number_of_processors_eta("5"),

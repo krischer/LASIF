@@ -638,6 +638,15 @@ class ActionsComponent(Component):
                         open_file.write("%e %e %e\n" % (x, y, z))
                     open_file.write("\n")
             elif "specfem" in solver:
+                s_set = iteration.solver_settings["solver_settings"]
+                if "adjoint_source_time_shift" not in s_set:
+                    warnings.warn("No <adjoint_source_time_shift> tag in the "
+                                  "iteration XML file. No time shift for the "
+                                  "adjoint sources will be applied.",
+                                  LASIFWarning)
+                    src_time_shift = 0
+                else:
+                    src_time_shift = float(s_set["adjoint_source_time_shift"])
                 adj_src_count += 1
                 # Write all components. The adjoint sources right now are
                 # not time shifted.
@@ -647,7 +656,8 @@ class ActionsComponent(Component):
                     adj_src = channels[component]
                     l = len(adj_src)
                     to_write = np.empty((l, 2))
-                    to_write[:, 0] = np.linspace(0, (l - 1) * dt, l)
+                    to_write[:, 0] = \
+                        np.linspace(0, (l - 1) * dt,  l) + src_time_shift
 
                     # SPECFEM expects non-time reversed adjoint sources.
                     to_write[:, 1] += adj_src[::-1]
