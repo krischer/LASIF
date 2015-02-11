@@ -155,18 +155,13 @@
             
   <div class="section" id="module-lasif.tools.parallel_helpers">
 <span id="lasif-tools-parallel"></span><h1>lasif.tools.parallel<a class="headerlink" href="#module-lasif.tools.parallel_helpers" title="Permalink to this headline">¶</a></h1>
-<p>Helpers for embarrassingly parallel calculations.</p>
-<p><strong>Important</strong>! Any users of NumPy linked against OpenBLAS must include these
-two lines before importing NumPy! Or just import this module first!</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>  
-<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;1&quot;</span>
-</pre></div>
-</div>
+<p>Helpers for embarrassingly parallel calculations using MPI. All functions
+works just fine when running on one core and not started with MPI.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2014</td>
+<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2014-2015</td>
 </tr>
 <tr class="field-even field"><th class="field-name">license:</th><td class="field-body">GNU Lesser General Public License, Version 3
 (<a class="reference external" href="http://www.gnu.org/copyleft/lesser.html">http://www.gnu.org/copyleft/lesser.html</a>)</td>
@@ -182,8 +177,33 @@ two lines before importing NumPy! Or just import this module first!</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="lasif.tools.parallel_helpers.distribute_across_ranks">
+<tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">distribute_across_ranks</tt><big>(</big><em>function</em>, <em>items</em>, <em>get_name</em>, <em>logfile</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#distribute_across_ranks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.distribute_across_ranks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls a function once for each item.</p>
+<p>It will be distributed across MPI ranks if launched with MPI.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>function</strong> &#8211; The function to be executed for each item.</li>
+<li><strong>items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; The function will be executed once for each item. It
+expects a list of dictionaries so that <tt class="docutils literal"><span class="pre">function(**item)</span></tt> can work.
+Only rank 0 needs to pass this. It will be ignored coming from other
+ranks.</li>
+<li><strong>get_name</strong> &#8211; Function to extract a name for each item to be able to
+produce better logfiles.</li>
+<li><strong>logfile</strong> &#8211; The logfile to write.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="lasif.tools.parallel_helpers.function_info">
-<tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">function_info</tt><big>(</big><em>traceback_limit=3</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#function_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.function_info" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">function_info</tt><big>(</big><em>traceback_limit=10</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#function_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.function_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator collecting information during the execution of a function.</p>
 <p>This is useful for collecting information about a function runnning on a
 number of processes/machines.</p>
@@ -222,58 +242,6 @@ successfully.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">traceback</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="function">
-<dt id="lasif.tools.parallel_helpers.parallel_map">
-<tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">parallel_map</tt><big>(</big><em>func</em>, <em>iterable</em>, <em>n_jobs=-1</em>, <em>verbose=1</em>, <em>pre_dispatch='1.5*n_jobs'</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#parallel_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.parallel_map" title="Permalink to this definition">¶</a></dt>
-<dd><p>Thin wrapper around joblib.Parallel.</p>
-<p>For one it takes care to use the threading backend if OSX&#8217;s Accelerate
-Framework is detected. And it also wraps all functions with the
-function_info decorator in order to get a more meaningful output.</p>
-<p>To use, first import <tt class="docutils literal"><span class="pre">parallel_map</span></tt>, then define a function and feed it
-with a list of dictionaries, each dictionary containing one set of
-arguments. It will return a list FunctionInfo objects containing
-information about the execution of the function on each of the inputs.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">lasif.tools.parallel_helpers</span> <span class="kn">import</span> <span class="n">parallel_map</span> 
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">square</span><span class="p">(</span><span class="n">a</span><span class="p">):</span> 
-<span class="gp">... </span>    <span class="k">return</span> <span class="n">a</span> <span class="o">**</span> <span class="mi">2</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">parallel_map</span><span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="p">[{</span><span class="s">&quot;a&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="mi">3</span><span class="p">)]):</span>         
-<span class="gp">... </span>    <span class="k">print</span> <span class="n">result</span>
-<span class="go">FunctionInfo(func_args={&#39;a&#39;: 0}, result=0, warnings=[], exception=None,</span>
-<span class="go">             traceback=None)</span>
-<span class="go">FunctionInfo(func_args={&#39;a&#39;: 1}, result=1, warnings=[], exception=None,</span>
-<span class="go">             traceback=None)</span>
-<span class="go">FunctionInfo(func_args={&#39;a&#39;: 2}, result=4, warnings=[], exception=None,</span>
-<span class="go">             traceback=None)</span>
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>func</strong> &#8211; The function to execute in parallel.</li>
-<li><strong>iterable</strong> &#8211; Iterator yielding the parameters. The function will be
-called once for each set of arguments.</li>
-<li><strong>n_jobs</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number of jobs to use for the computation. If -1 all
-CPUs are used. If 1 is given, no parallel computing code is used at
-all, which is useful for debugging. For n_jobs below -1,
-(n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all CPUs but one
-are used. Same parameter as in joblib.Parallel.</li>
-<li><strong>verbose</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The verbosity level: if non zero, progress messages are
-printed. Above 50, the output is sent to stdout. The frequency of the
-messages increases with the verbosity level. If it more than 10, all
-iterations are reported.  Defaults to 1.
-Same parameter as in joblib.Parallel.</li>
-<li><strong>pre_dispatch</strong> &#8211; The amount of jobs to be pre-dispatched. Default is
-<tt class="docutils literal"><span class="pre">1.5*n_jobs</span></tt>.
-Same parameter as in joblib.Parallel.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 </div>

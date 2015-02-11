@@ -732,6 +732,9 @@ read-only</td>
 </div>
 </div></blockquote>
 <p>Launch data preprocessing.</p>
+<p>This function works with MPI. Don&#8217;t use too many cores, IO quickly
+becomes the limiting factor. It also works without MPI but then only one
+core actually does any work.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="33%" />

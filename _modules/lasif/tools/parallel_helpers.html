@@ -155,31 +155,26 @@
 <span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Helpers for embarrassingly parallel calculations.</span>
-
-<span class="sd">**Important**! Any users of NumPy linked against OpenBLAS must include these</span>
-<span class="sd">two lines before importing NumPy! Or just import this module first!</span>
-
-<span class="sd">&gt;&gt;&gt; import os  # doctest: +SKIP</span>
-<span class="sd">&gt;&gt;&gt; os.environ[&quot;OPENBLAS_NUM_THREADS&quot;] = &quot;1&quot;</span>
+<span class="sd">Helpers for embarrassingly parallel calculations using MPI. All functions</span>
+<span class="sd">works just fine when running on one core and not started with MPI.</span>
 
 <span class="sd">:copyright:</span>
-<span class="sd">    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014</span>
+<span class="sd">    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2014-2015</span>
 <span class="sd">:license:</span>
 <span class="sd">    GNU Lesser General Public License, Version 3</span>
 <span class="sd">    (http://www.gnu.org/copyleft/lesser.html)</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;OPENBLAS_NUM_THREADS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;1&quot;</span>
-
 <span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">colorama</span>
 <span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">joblib</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
 
 
 <div class="viewcode-block" id="FunctionInfo"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel_helpers.FunctionInfo">[docs]</a><span class="k">class</span> <span class="nc">FunctionInfo</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span>
@@ -194,7 +189,7 @@
     <span class="k">pass</span>
 
 </div>
-<div class="viewcode-block" id="function_info"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel_helpers.function_info">[docs]</a><span class="k">def</span> <span class="nf">function_info</span><span class="p">(</span><span class="n">traceback_limit</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="function_info"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel_helpers.function_info">[docs]</a><span class="k">def</span> <span class="nf">function_info</span><span class="p">(</span><span class="n">traceback_limit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator collecting information during the execution of a function.</span>
 
@@ -272,7 +267,7 @@
     <span class="k">return</span> <span class="n">_function_info</span>
 
 </div>
-<span class="k">def</span> <span class="nf">__execute_wrapped_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_execute_wrapped_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to execute the same function but wrapper with the</span>
 <span class="sd">    function_info decorator.</span>
@@ -283,71 +278,108 @@
     <span class="k">return</span> <span class="n">function_info</span><span class="p">()(</span><span class="n">func</span><span class="p">)(</span><span class="o">**</span><span class="n">parameters</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="parallel_map"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel_helpers.parallel_map">[docs]</a><span class="k">def</span> <span class="nf">parallel_map</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">iterable</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-                 <span class="n">pre_dispatch</span><span class="o">=</span><span class="s">&quot;1.5*n_jobs&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="distribute_across_ranks"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel_helpers.distribute_across_ranks">[docs]</a><span class="k">def</span> <span class="nf">distribute_across_ranks</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">items</span><span class="p">,</span> <span class="n">get_name</span><span class="p">,</span> <span class="n">logfile</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Thin wrapper around joblib.Parallel.</span>
+<span class="sd">    Calls a function once for each item.</span>
 
-<span class="sd">    For one it takes care to use the threading backend if OSX&#39;s Accelerate</span>
-<span class="sd">    Framework is detected. And it also wraps all functions with the</span>
-<span class="sd">    function_info decorator in order to get a more meaningful output.</span>
+<span class="sd">    It will be distributed across MPI ranks if launched with MPI.</span>
 
-<span class="sd">    To use, first import ``parallel_map``, then define a function and feed it</span>
-<span class="sd">    with a list of dictionaries, each dictionary containing one set of</span>
-<span class="sd">    arguments. It will return a list FunctionInfo objects containing</span>
-<span class="sd">    information about the execution of the function on each of the inputs.</span>
-
-<span class="sd">    &gt;&gt;&gt; from lasif.tools.parallel_helpers import parallel_map #doctest: +SKIP</span>
-<span class="sd">    &gt;&gt;&gt; def square(a): #doctest: +SKIP</span>
-<span class="sd">    ...     return a ** 2</span>
-<span class="sd">    &gt;&gt;&gt; for result in parallel_map(square, [{&quot;a&quot;: i} for i in xrange(3)]): \</span>
-<span class="sd">        #doctest: +SKIP</span>
-<span class="sd">    ...     print result</span>
-<span class="sd">    FunctionInfo(func_args={&#39;a&#39;: 0}, result=0, warnings=[], exception=None,</span>
-<span class="sd">                 traceback=None)</span>
-<span class="sd">    FunctionInfo(func_args={&#39;a&#39;: 1}, result=1, warnings=[], exception=None,</span>
-<span class="sd">                 traceback=None)</span>
-<span class="sd">    FunctionInfo(func_args={&#39;a&#39;: 2}, result=4, warnings=[], exception=None,</span>
-<span class="sd">                 traceback=None)</span>
-
-<span class="sd">    :param func: The function to execute in parallel.</span>
-<span class="sd">    :param iterable: Iterator yielding the parameters. The function will be</span>
-<span class="sd">        called once for each set of arguments.</span>
-<span class="sd">    :type n_jobs: int</span>
-<span class="sd">    :param n_jobs: The number of jobs to use for the computation. If -1 all</span>
-<span class="sd">        CPUs are used. If 1 is given, no parallel computing code is used at</span>
-<span class="sd">        all, which is useful for debugging. For n_jobs below -1,</span>
-<span class="sd">        (n_cpus + 1 + n_jobs) are used. Thus for n_jobs = -2, all CPUs but one</span>
-<span class="sd">        are used. Same parameter as in joblib.Parallel.</span>
-<span class="sd">    :type verbose: int</span>
-<span class="sd">    :param verbose: The verbosity level: if non zero, progress messages are</span>
-<span class="sd">        printed. Above 50, the output is sent to stdout. The frequency of the</span>
-<span class="sd">        messages increases with the verbosity level. If it more than 10, all</span>
-<span class="sd">        iterations are reported.  Defaults to 1.</span>
-<span class="sd">        Same parameter as in joblib.Parallel.</span>
-<span class="sd">    :param pre_dispatch: The amount of jobs to be pre-dispatched. Default is</span>
-<span class="sd">        ``1.5*n_jobs``.</span>
-<span class="sd">        Same parameter as in joblib.Parallel.</span>
+<span class="sd">    :param function: The function to be executed for each item.</span>
+<span class="sd">    :param items: The function will be executed once for each item. It</span>
+<span class="sd">        expects a list of dictionaries so that ``function(**item)`` can work.</span>
+<span class="sd">        Only rank 0 needs to pass this. It will be ignored coming from other</span>
+<span class="sd">        ranks.</span>
+<span class="sd">    :type items: list</span>
+<span class="sd">    :param get_name: Function to extract a name for each item to be able to</span>
+<span class="sd">        produce better logfiles.</span>
+<span class="sd">    :param logfile: The logfile to write.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">backend</span> <span class="o">=</span> <span class="s">&quot;multiprocessing&quot;</span>
+    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Simple and elegant function splitting a container into count</span>
+<span class="sd">        equal chunks.</span>
 
-    <span class="n">config_info</span> <span class="o">=</span> <span class="nb">str</span><span class="p">([</span><span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span>
-                       <span class="n">np</span><span class="o">.</span><span class="n">__config__</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()</span>
-                       <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;_info&quot;</span><span class="p">)])</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+<span class="sd">        Order is not preserved but for the use case at hand this is</span>
+<span class="sd">        potentially an advantage as data sitting in the same folder thus</span>
+<span class="sd">        have a higher at being processed at the same time thus the disc</span>
+<span class="sd">        head does not have to jump around so much. Of course very</span>
+<span class="sd">        architecture dependent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">container</span><span class="p">[</span><span class="n">_i</span><span class="p">::</span><span class="n">count</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span>
 
-    <span class="k">if</span> <span class="s">&quot;accelerate&quot;</span> <span class="ow">in</span> <span class="n">config_info</span> <span class="ow">or</span> <span class="s">&quot;veclib&quot;</span> <span class="ow">in</span> <span class="n">config_info</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;NumPy linked against &#39;Accelerate.framework&#39;. Multiprocessing &quot;</span>
-               <span class="s">&quot;will be disabled. See &quot;</span>
-               <span class="s">&quot;https://github.com/obspy/obspy/wiki/Notes-on-Parallel-&quot;</span>
-               <span class="s">&quot;Processing-with-Python-and-ObsPy for more information.&quot;</span><span class="p">)</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="n">backend</span> <span class="o">=</span> <span class="s">&quot;threading&quot;</span>
-        <span class="n">n_jobs</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c"># Rank zero collects what needs to be done and distributes it across</span>
+    <span class="c"># all cores.</span>
+    <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">total_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="bp">None</span>
 
-    <span class="k">return</span> <span class="n">joblib</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
-                           <span class="n">pre_dispatch</span><span class="o">=</span><span class="n">pre_dispatch</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
-                           <span class="p">)(</span><span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">__execute_wrapped_function</span><span class="p">)(</span>
-                             <span class="n">func</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iterable</span><span class="p">)</span></div>
+    <span class="c"># Now each rank knows what it has to process. This still works</span>
+    <span class="c"># nicely with only one core, the overhead is negligible.</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_execute_wrapped_function</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Approximately </span><span class="si">%i</span><span class="s"> of </span><span class="si">%i</span><span class="s"> items have been processed.&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="nb">min</span><span class="p">((</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">total_length</span><span class="p">),</span>
+                <span class="n">total_length</span><span class="p">))</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+
+    <span class="n">successful_file_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">warning_file_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">failed_file_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_file_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="c"># Log the results.</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">============</span><span class="se">\n</span><span class="s">Item: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">get_name</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">func_args</span><span class="p">))</span>
+            <span class="n">has_exception</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">has_warning</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">exception</span><span class="p">:</span>
+                <span class="n">has_exception</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">traceback</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">warnings</span><span class="p">:</span>
+                <span class="n">has_warning</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">warnings</span><span class="p">:</span>
+                    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Warning: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot; - SUCCESS&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">has_exception</span><span class="p">:</span>
+                <span class="n">failed_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">has_warning</span><span class="p">:</span>
+                <span class="n">warning_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">successful_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Finished processing </span><span class="si">%i</span><span class="s"> items. See the logfile for &quot;</span>
+              <span class="s">&quot;details.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">total_file_count</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s"> files failed being processed.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span><span class="p">,</span> <span class="n">failed_file_count</span><span class="p">,</span>
+               <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s"> files raised warnings while being processed.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span> <span class="n">warning_file_count</span><span class="p">,</span>
+               <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s"> files have been processed without errors or warnings</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">successful_file_count</span><span class="p">,</span>
+               <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Logfile written to &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">logfile</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
 </pre></div>
 
           </div>
