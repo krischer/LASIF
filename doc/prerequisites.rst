@@ -69,23 +69,6 @@ After the installation one should run the tests to ensure everything is
 installed correctly and works as intended on your machine.
 
 
-Parallel Processing in LASIF
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-LASIF is parallel in parts to speed up some computations. This unfortunately
-is troublesome with Python and NumPy due to incompatbilities with the
-employed linear algebra packages and forked processes. LASIF should be smart
-enough to protect you from any failures but this potentially means that it
-will only be able to use a single processor.
-
-If you experience this, read these `notes on parallel processing with Python
-and ObsPy
-<https://github.com/obspy/obspy/wiki/Notes-on-Parallel-Processing
--with-Python-and-ObsPy>`_ for some more details and information on how to
-fix it.
-
-
-
 Testing
 -------
 

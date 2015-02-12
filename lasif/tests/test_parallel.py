@@ -100,8 +100,7 @@ def test_traceback_limiting_for_function_info_decorator():
 
 def __random_fct(a, b, c=0):
     """
-    Helper function as functions need to be importable for multiprocessing to
-    work.
+    Helper function.
     """
     if c == 1:
         warnings.warn("First Warning", SyntaxWarning)
