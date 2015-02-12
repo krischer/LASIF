@@ -366,7 +366,7 @@ def lasif_build_all_caches(parser, args):
     This is optional and might take a while. Otherwise the caches are built
     on demand which works fine but might impede on some workflows.
     """
-    args = parser.parse_args(args)
+    parser.parse_args(args)
 
     comm = _find_project_comm(".", read_only_caches=False)
     comm.project.build_all_caches()

@@ -197,6 +197,21 @@ class ActionsComponent(Component):
             total_size = len(stations_without_windows)
             stations_without_windows = split(list(stations_without_windows),
                                              MPI.COMM_WORLD.size)
+
+            # Initialize station cache on rank 0.
+            self.comm.stations.file_count
+            # Also initialize the processed and synthetic data caches. They
+            # have to exist before the other ranks can access them.
+            try:
+                self.comm.waveforms.get_waveform_cache(
+                    event["event_name"], "processed", iteration.processing_tag)
+            except LASIFNotFoundError:
+                pass
+            try:
+                self.comm.waveforms.get_waveform_cache(
+                    event["event_name"], "synthetic", iteration)
+            except LASIFNotFoundError:
+                pass
         else:
             stations_without_windows = None
 
