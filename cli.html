@@ -95,12 +95,8 @@
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Command Line Interface</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#data-acquisition-functions">Data Acquisition Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#event-management-functions">Event Management Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#iteration-management-functions">Iteration Management Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#misc-functions">Misc Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#plotting-functions">Plotting Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-management-functions">Project Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mpi">MPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-documentation">Command Documentation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
@@ -153,7 +149,7 @@
           <div role="main" class="document">
             
   <div class="section" id="command-line-interface">
-<h1><a class="toc-backref" href="#id1">Command Line Interface</a><a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
+<h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
 <p>The recommended way to interact with <strong>LASIF</strong> projects is to use the
 command line interface. It consists of a number of subcommands grouped below
 the main <tt class="code docutils literal"><span class="pre">lasif</span></tt> command. The general usage is quickly explained in this
@@ -213,26 +209,43 @@ parallel to the cash databases which will crash LASIF. Use this flag if you
 need to but best run <tt class="docutils literal"><span class="pre">$</span> <span class="pre">lasif</span> <span class="pre">build_all_caches</span></tt> beforehand and be
 aware of what it means.</p>
 </div>
+<div class="section" id="mpi">
+<h2>MPI<a class="headerlink" href="#mpi" title="Permalink to this headline">¶</a></h2>
+<p>Some commands can be executed with MPI to speed up their execution. Don&#8217;t
+use too many cores as the problem quickly becomes I/O bounds. For example to
+run the preprocessing on 16 cores, do</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>mpirun -n 16 lasif preprocess_data 1 GCMT_event_AZORES_ISLANDS
+</pre></div>
+</div>
+<p>The following commands are MPI-enabled. Attempting to run any other command
+with MPI will result in an error.:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#lasif-preprocess-data">lasif preprocess_data</a></li>
+<li><a class="reference internal" href="#lasif-select-windows">lasif select_windows</a></li>
+</ul>
+</div>
+<div class="section" id="command-documentation">
+<h2>Command Documentation<a class="headerlink" href="#command-documentation" title="Permalink to this headline">¶</a></h2>
 <p>In the following all subcommands are documented in detail. The commands
 are grouped by functionality.</p>
-<div class="contents topic" id="available-commands">
+<div class="contents local topic" id="available-commands">
 <p class="topic-title first">Available Commands</p>
 <ul class="simple">
-<li><a class="reference internal" href="#command-line-interface" id="id1">Command Line Interface</a><ul>
-<li><a class="reference internal" href="#data-acquisition-functions" id="id2">Data Acquisition Functions</a><ul>
-<li><a class="reference internal" href="#lasif-download-data" id="id3">lasif download_data</a></li>
-<li><a class="reference internal" href="#lasif-add-gcmt-events" id="id4">lasif add_gcmt_events</a></li>
-<li><a class="reference internal" href="#lasif-add-spud-event" id="id5">lasif add_spud_event</a></li>
+<li><a class="reference internal" href="#data-acquisition-functions" id="id1">Data Acquisition Functions</a><ul>
+<li><a class="reference internal" href="#lasif-download-data" id="id2">lasif download_data</a></li>
+<li><a class="reference internal" href="#lasif-add-gcmt-events" id="id3">lasif add_gcmt_events</a></li>
+<li><a class="reference internal" href="#lasif-add-spud-event" id="id4">lasif add_spud_event</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#event-management-functions" id="id6">Event Management Functions</a><ul>
-<li><a class="reference internal" href="#lasif-event-info" id="id7">lasif event_info</a></li>
-<li><a class="reference internal" href="#lasif-list-events" id="id8">lasif list_events</a></li>
+<li><a class="reference internal" href="#event-management-functions" id="id5">Event Management Functions</a><ul>
+<li><a class="reference internal" href="#lasif-event-info" id="id6">lasif event_info</a></li>
+<li><a class="reference internal" href="#lasif-list-events" id="id7">lasif list_events</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#iteration-management-functions" id="id9">Iteration Management Functions</a><ul>
-<li><a class="reference internal" href="#lasif-select-windows" id="id10">lasif select_windows</a></li>
-<li><a class="reference internal" href="#lasif-generate-input-files" id="id11">lasif generate_input_files</a></li>
+<li><a class="reference internal" href="#iteration-management-functions" id="id8">Iteration Management Functions</a><ul>
+<li><a class="reference internal" href="#lasif-select-windows" id="id9">lasif select_windows</a></li>
+<li><a class="reference internal" href="#lasif-generate-input-files" id="id10">lasif generate_input_files</a></li>
+<li><a class="reference internal" href="#lasif-calculate-all-adjoint-sources" id="id11">lasif calculate_all_adjoint_sources</a></li>
 <li><a class="reference internal" href="#lasif-finalize-adjoint-sources" id="id12">lasif finalize_adjoint_sources</a></li>
 <li><a class="reference internal" href="#lasif-iteration-status" id="id13">lasif iteration_status</a></li>
 <li><a class="reference internal" href="#lasif-create-successive-iteration" id="id14">lasif create_successive_iteration</a></li>
@@ -277,18 +290,16 @@ are grouped by functionality.</p>
 </ul>
 </li>
 </ul>
-</li>
-</ul>
 </div>
 <hr class="docutils" />
 <div class="section" id="data-acquisition-functions">
-<h2><a class="toc-backref" href="#id2">Data Acquisition Functions</a><a class="headerlink" href="#data-acquisition-functions" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id1">Data Acquisition Functions</a><a class="headerlink" href="#data-acquisition-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-data-acquisition admonition">
 <p class="first admonition-title">Data Acquisition</p>
 <p class="last">These functions are used to acquire and archive different types of data usually from webservices.</p>
 </div>
 <div class="section" id="lasif-download-data">
-<h3><a class="toc-backref" href="#id3">lasif download_data</a><a class="headerlink" href="#lasif-download-data" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id2">lasif download_data</a><a class="headerlink" href="#lasif-download-data" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif download_data [-h] [--read_only_caches]
                                [--providers PROVIDERS [PROVIDERS ...]]
@@ -328,7 +339,7 @@ set.</td>
 </table>
 </div>
 <div class="section" id="lasif-add-gcmt-events">
-<h3><a class="toc-backref" href="#id4">lasif add_gcmt_events</a><a class="headerlink" href="#lasif-add-gcmt-events" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id3">lasif add_gcmt_events</a><a class="headerlink" href="#lasif-add-gcmt-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif add_gcmt_events [-h] [--read_only_caches] [--min_year MIN_YEAR]
                                  [--max_year MAX_YEAR]
@@ -380,7 +391,7 @@ which to add events</td>
 </table>
 </div>
 <div class="section" id="lasif-add-spud-event">
-<h3><a class="toc-backref" href="#id5">lasif add_spud_event</a><a class="headerlink" href="#lasif-add-spud-event" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id4">lasif add_spud_event</a><a class="headerlink" href="#lasif-add-spud-event" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif add_spud_event [-h] [--read_only_caches] url
 </pre></div>
@@ -414,13 +425,13 @@ read-only</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="event-management-functions">
-<h2><a class="toc-backref" href="#id6">Event Management Functions</a><a class="headerlink" href="#event-management-functions" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id5">Event Management Functions</a><a class="headerlink" href="#event-management-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-event-management admonition">
 <p class="first admonition-title">Event Management</p>
 <p class="last">Function helping in organzing the earthquakes inside a LASIF project.</p>
 </div>
 <div class="section" id="lasif-event-info">
-<h3><a class="toc-backref" href="#id7">lasif event_info</a><a class="headerlink" href="#lasif-event-info" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id6">lasif event_info</a><a class="headerlink" href="#lasif-event-info" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif event_info [-h] [--read_only_caches] [-v] event_name
 </pre></div>
@@ -456,7 +467,7 @@ contained events.</td>
 </table>
 </div>
 <div class="section" id="lasif-list-events">
-<h3><a class="toc-backref" href="#id8">lasif list_events</a><a class="headerlink" href="#lasif-list-events" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id7">lasif list_events</a><a class="headerlink" href="#lasif-list-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_events [-h] [--read_only_caches] [--details]
 </pre></div>
@@ -490,13 +501,14 @@ events</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="iteration-management-functions">
-<h2><a class="toc-backref" href="#id9">Iteration Management Functions</a><a class="headerlink" href="#iteration-management-functions" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id8">Iteration Management Functions</a><a class="headerlink" href="#iteration-management-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-iteration-management admonition">
 <p class="first admonition-title">Iteration Management</p>
 <p class="last">Functions dealing with one or more iterations inside a LASIF project.</p>
 </div>
 <div class="section" id="lasif-select-windows">
-<h3><a class="toc-backref" href="#id10">lasif select_windows</a><a class="headerlink" href="#lasif-select-windows" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id9">lasif select_windows</a><a class="headerlink" href="#lasif-select-windows" title="Permalink to this headline">¶</a></h4>
+<p><strong>This function can be used with MPI</strong></p>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif select_windows [-h] [--read_only_caches]
                                 iteration_name event_name
@@ -504,6 +516,9 @@ events</td>
 </div>
 </div></blockquote>
 <p>Autoselect windows for a given event and iteration combination.</p>
+<p>This function works with MPI. Don&#8217;t use too many cores, I/O quickly
+becomes the limiting factor. It also works without MPI but then only one
+core actually does any work.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="51%" />
@@ -532,7 +547,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-generate-input-files">
-<h3><a class="toc-backref" href="#id11">lasif generate_input_files</a><a class="headerlink" href="#lasif-generate-input-files" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id10">lasif generate_input_files</a><a class="headerlink" href="#lasif-generate-input-files" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif generate_input_files [-h] [--read_only_caches]
                                       [--simulation_type {normal_simulation,adjoint_forward,adjoint_reverse}]
@@ -581,8 +596,44 @@ to run</td>
 </tbody>
 </table>
 </div>
+<div class="section" id="lasif-calculate-all-adjoint-sources">
+<h4><a class="toc-backref" href="#id11">lasif calculate_all_adjoint_sources</a><a class="headerlink" href="#lasif-calculate-all-adjoint-sources" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif calculate_all_adjoint_sources [-h] [--read_only_caches]
+                                               iteration_name event_name
+</pre></div>
+</div>
+</div></blockquote>
+<p>Calculates all adjoint sources for a given iteration and event.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<td>name of the iteration</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<td>name of the event</td>
+</tr>
+<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<td>sets all caches to
+read-only</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div class="section" id="lasif-finalize-adjoint-sources">
-<h3><a class="toc-backref" href="#id12">lasif finalize_adjoint_sources</a><a class="headerlink" href="#lasif-finalize-adjoint-sources" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id12">lasif finalize_adjoint_sources</a><a class="headerlink" href="#lasif-finalize-adjoint-sources" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif finalize_adjoint_sources [-h] [--read_only_caches]
                                           iteration_name event_name
@@ -618,7 +669,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-iteration-status">
-<h3><a class="toc-backref" href="#id13">lasif iteration_status</a><a class="headerlink" href="#lasif-iteration-status" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id13">lasif iteration_status</a><a class="headerlink" href="#lasif-iteration-status" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif iteration_status [-h] [--read_only_caches] iteration_name
 </pre></div>
@@ -650,7 +701,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-create-successive-iteration">
-<h3><a class="toc-backref" href="#id14">lasif create_successive_iteration</a><a class="headerlink" href="#lasif-create-successive-iteration" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id14">lasif create_successive_iteration</a><a class="headerlink" href="#lasif-create-successive-iteration" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_successive_iteration [-h] [--read_only_caches]
                                              existing_iteration new_iteration
@@ -688,7 +739,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-compare-misfits">
-<h3><a class="toc-backref" href="#id15">lasif compare_misfits</a><a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id15">lasif compare_misfits</a><a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif compare_misfits [-h] [--read_only_caches]
                                  from_iteration to_iteration
@@ -726,7 +777,8 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-preprocess-data">
-<h3><a class="toc-backref" href="#id16">lasif preprocess_data</a><a class="headerlink" href="#lasif-preprocess-data" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id16">lasif preprocess_data</a><a class="headerlink" href="#lasif-preprocess-data" title="Permalink to this headline">¶</a></h4>
+<p><strong>This function can be used with MPI</strong></p>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif preprocess_data [-h] [--read_only_caches]
                                  iteration_name [events [events ...]]
@@ -734,7 +786,7 @@ read-only</td>
 </div>
 </div></blockquote>
 <p>Launch data preprocessing.</p>
-<p>This function works with MPI. Don&#8217;t use too many cores, IO quickly
+<p>This function works with MPI. Don&#8217;t use too many cores, I/O quickly
 becomes the limiting factor. It also works without MPI but then only one
 core actually does any work.</p>
 <table border="1" class="docutils">
@@ -766,7 +818,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-list-iterations">
-<h3><a class="toc-backref" href="#id17">lasif list_iterations</a><a class="headerlink" href="#lasif-list-iterations" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id17">lasif list_iterations</a><a class="headerlink" href="#lasif-list-iterations" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_iterations [-h] [--read_only_caches]
 </pre></div>
@@ -793,7 +845,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-create-new-iteration">
-<h3><a class="toc-backref" href="#id18">lasif create_new_iteration</a><a class="headerlink" href="#lasif-create-new-iteration" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id18">lasif create_new_iteration</a><a class="headerlink" href="#lasif-create-new-iteration" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_new_iteration [-h] [--read_only_caches]
                                       iteration_name min_period max_period
@@ -836,7 +888,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-migrate-windows">
-<h3><a class="toc-backref" href="#id19">lasif migrate_windows</a><a class="headerlink" href="#lasif-migrate-windows" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id19">lasif migrate_windows</a><a class="headerlink" href="#lasif-migrate-windows" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif migrate_windows [-h] [--read_only_caches]
                                  from_iteration to_iteration
@@ -872,7 +924,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-q-model">
-<h3><a class="toc-backref" href="#id20">lasif plot_q_model</a><a class="headerlink" href="#lasif-plot-q-model" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id20">lasif plot_q_model</a><a class="headerlink" href="#lasif-plot-q-model" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_q_model [-h] [--read_only_caches] iteration_name
 </pre></div>
@@ -904,7 +956,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-iteration-info">
-<h3><a class="toc-backref" href="#id21">lasif iteration_info</a><a class="headerlink" href="#lasif-iteration-info" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id21">lasif iteration_info</a><a class="headerlink" href="#lasif-iteration-info" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif iteration_info [-h] [--read_only_caches] iteration_name
 </pre></div>
@@ -936,7 +988,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-launch-misfit-gui">
-<h3><a class="toc-backref" href="#id22">lasif launch_misfit_gui</a><a class="headerlink" href="#lasif-launch-misfit-gui" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id22">lasif launch_misfit_gui</a><a class="headerlink" href="#lasif-launch-misfit-gui" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif launch_misfit_gui [-h] [--read_only_caches]
 </pre></div>
@@ -965,13 +1017,13 @@ read-only</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="misc-functions">
-<h2><a class="toc-backref" href="#id23">Misc Functions</a><a class="headerlink" href="#misc-functions" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id23">Misc Functions</a><a class="headerlink" href="#misc-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-misc admonition">
 <p class="first admonition-title">Misc</p>
 <p class="last">All functions that do not fit in one of the other categories.</p>
 </div>
 <div class="section" id="lasif-debug">
-<h3><a class="toc-backref" href="#id24">lasif debug</a><a class="headerlink" href="#lasif-debug" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id24">lasif debug</a><a class="headerlink" href="#lasif-debug" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif debug [-h] [--read_only_caches] files [files ...]
 </pre></div>
@@ -1003,7 +1055,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-shell">
-<h3><a class="toc-backref" href="#id25">lasif shell</a><a class="headerlink" href="#lasif-shell" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id25">lasif shell</a><a class="headerlink" href="#lasif-shell" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif shell [-h] [--read_only_caches]
 </pre></div>
@@ -1030,7 +1082,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-serve">
-<h3><a class="toc-backref" href="#id26">lasif serve</a><a class="headerlink" href="#lasif-serve" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id26">lasif serve</a><a class="headerlink" href="#lasif-serve" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif serve [-h] [--read_only_caches] [--port PORT] [--nobrowser]
                        [--debug] [--open_to_outside]
@@ -1081,7 +1133,7 @@ the network.</td>
 </table>
 </div>
 <div class="section" id="lasif-tutorial">
-<h3><a class="toc-backref" href="#id27">lasif tutorial</a><a class="headerlink" href="#lasif-tutorial" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id27">lasif tutorial</a><a class="headerlink" href="#lasif-tutorial" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif tutorial [-h]
 </pre></div>
@@ -1104,7 +1156,7 @@ message and exit</td>
 </table>
 </div>
 <div class="section" id="lasif-calculate-constant-q-model">
-<h3><a class="toc-backref" href="#id28">lasif calculate_constant_q_model</a><a class="headerlink" href="#lasif-calculate-constant-q-model" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id28">lasif calculate_constant_q_model</a><a class="headerlink" href="#lasif-calculate-constant-q-model" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif calculate_constant_q_model [-h] [--read_only_caches]
                                             min_period max_period
@@ -1142,13 +1194,13 @@ read-only</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="plotting-functions">
-<h2><a class="toc-backref" href="#id29">Plotting Functions</a><a class="headerlink" href="#plotting-functions" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id29">Plotting Functions</a><a class="headerlink" href="#plotting-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-plotting admonition">
 <p class="first admonition-title">Plotting</p>
 <p class="last">Functions producing pictures.</p>
 </div>
 <div class="section" id="lasif-plot-events">
-<h3><a class="toc-backref" href="#id30">lasif plot_events</a><a class="headerlink" href="#lasif-plot-events" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id30">lasif plot_events</a><a class="headerlink" href="#lasif-plot-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_events [-h] [--read_only_caches] [--type {map,depth,time}]
 </pre></div>
@@ -1193,7 +1245,7 @@ histogram</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-event">
-<h3><a class="toc-backref" href="#id31">lasif plot_event</a><a class="headerlink" href="#lasif-plot-event" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id31">lasif plot_event</a><a class="headerlink" href="#lasif-plot-event" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_event [-h] [--read_only_caches] event_name
 </pre></div>
@@ -1225,7 +1277,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-model">
-<h3><a class="toc-backref" href="#id32">lasif plot_model</a><a class="headerlink" href="#lasif-plot-model" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id32">lasif plot_model</a><a class="headerlink" href="#lasif-plot-model" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_model [-h] [--read_only_caches] model_name
 </pre></div>
@@ -1257,7 +1309,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-wavefield">
-<h3><a class="toc-backref" href="#id33">lasif plot_wavefield</a><a class="headerlink" href="#lasif-plot-wavefield" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id33">lasif plot_wavefield</a><a class="headerlink" href="#lasif-plot-wavefield" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_wavefield [-h] [--read_only_caches]
                                 iteration_name event_name
@@ -1293,7 +1345,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-raydensity">
-<h3><a class="toc-backref" href="#id34">lasif plot_raydensity</a><a class="headerlink" href="#lasif-plot-raydensity" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id34">lasif plot_raydensity</a><a class="headerlink" href="#lasif-plot-raydensity" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_raydensity [-h] [--read_only_caches] [--plot_stations]
 </pre></div>
@@ -1324,7 +1376,7 @@ stations</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-windows">
-<h3><a class="toc-backref" href="#id35">lasif plot_windows</a><a class="headerlink" href="#lasif-plot-windows" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id35">lasif plot_windows</a><a class="headerlink" href="#lasif-plot-windows" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_windows [-h] [--read_only_caches] iteration_name event_name
 </pre></div>
@@ -1359,7 +1411,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-stf">
-<h3><a class="toc-backref" href="#id36">lasif plot_stf</a><a class="headerlink" href="#lasif-plot-stf" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id36">lasif plot_stf</a><a class="headerlink" href="#lasif-plot-stf" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_stf [-h] [--read_only_caches] iteration_name
 </pre></div>
@@ -1391,7 +1443,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-kernel">
-<h3><a class="toc-backref" href="#id37">lasif plot_kernel</a><a class="headerlink" href="#lasif-plot-kernel" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id37">lasif plot_kernel</a><a class="headerlink" href="#lasif-plot-kernel" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_kernel [-h] [--read_only_caches] iteration_name event_name
 </pre></div>
@@ -1426,7 +1478,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-plot-domain">
-<h3><a class="toc-backref" href="#id38">lasif plot_domain</a><a class="headerlink" href="#lasif-plot-domain" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id38">lasif plot_domain</a><a class="headerlink" href="#lasif-plot-domain" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_domain [-h] [--read_only_caches]
 </pre></div>
@@ -1455,13 +1507,13 @@ read-only</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="project-management-functions">
-<h2><a class="toc-backref" href="#id39">Project Management Functions</a><a class="headerlink" href="#project-management-functions" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id39">Project Management Functions</a><a class="headerlink" href="#project-management-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-project-management admonition">
 <p class="first admonition-title">Project Management</p>
 <p class="last">Functions dealing with LASIF projects as a whole.</p>
 </div>
 <div class="section" id="lasif-info">
-<h3><a class="toc-backref" href="#id40">lasif info</a><a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id40">lasif info</a><a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif info [-h] [--read_only_caches]
 </pre></div>
@@ -1488,7 +1540,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-list-kernels">
-<h3><a class="toc-backref" href="#id41">lasif list_kernels</a><a class="headerlink" href="#lasif-list-kernels" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id41">lasif list_kernels</a><a class="headerlink" href="#lasif-list-kernels" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_kernels [-h] [--read_only_caches]
 </pre></div>
@@ -1515,7 +1567,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-validate-data">
-<h3><a class="toc-backref" href="#id42">lasif validate_data</a><a class="headerlink" href="#lasif-validate-data" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id42">lasif validate_data</a><a class="headerlink" href="#lasif-validate-data" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif validate_data [-h] [--read_only_caches]
                                [--station_file_availability] [--raypaths]
@@ -1586,7 +1638,7 @@ channel type. Fast.</td>
 </table>
 </div>
 <div class="section" id="lasif-init-project">
-<h3><a class="toc-backref" href="#id43">lasif init_project</a><a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id43">lasif init_project</a><a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif init_project [-h] folder_path
 </pre></div>
@@ -1614,7 +1666,7 @@ message and exit</td>
 </table>
 </div>
 <div class="section" id="lasif-list-models">
-<h3><a class="toc-backref" href="#id44">lasif list_models</a><a class="headerlink" href="#lasif-list-models" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id44">lasif list_models</a><a class="headerlink" href="#lasif-list-models" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_models [-h] [--read_only_caches]
 </pre></div>
@@ -1641,7 +1693,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-remove-empty-coordinate-entries">
-<h3><a class="toc-backref" href="#id45">lasif remove_empty_coordinate_entries</a><a class="headerlink" href="#lasif-remove-empty-coordinate-entries" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id45">lasif remove_empty_coordinate_entries</a><a class="headerlink" href="#lasif-remove-empty-coordinate-entries" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif remove_empty_coordinate_entries [-h] [--read_only_caches]
 </pre></div>
@@ -1669,7 +1721,7 @@ read-only</td>
 </table>
 </div>
 <div class="section" id="lasif-build-all-caches">
-<h3><a class="toc-backref" href="#id46">lasif build_all_caches</a><a class="headerlink" href="#lasif-build-all-caches" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id46">lasif build_all_caches</a><a class="headerlink" href="#lasif-build-all-caches" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif build_all_caches [-h]
 </pre></div>
@@ -1692,6 +1744,7 @@ message and exit</td>
 </tr>
 </tbody>
 </table>
+</div>
 </div>
 </div>
 </div>

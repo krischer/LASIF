@@ -96,12 +96,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="cli.html#data-acquisition-functions">Data Acquisition Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli.html#event-management-functions">Event Management Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli.html#iteration-management-functions">Iteration Management Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli.html#misc-functions">Misc Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli.html#plotting-functions">Plotting Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli.html#project-management-functions">Project Management Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#mpi">MPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli.html#command-documentation">Command Documentation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
@@ -160,7 +156,7 @@
 <p>Window selection algorithm.</p>
 <p>This module aims to provide a window selection algorithm suitable for
 calculating phase misfits between two seismic waveforms.</p>
-<p>The main function is the select_windoes() function. The selection process is a
+<p>The main function is the select_windows() function. The selection process is a
 multi-stage process. Initially all time steps are considered to be valid in
 the sense as being suitable for window selection. Then a number of selectors
 is applied, progressively excluding more and more time steps.</p>
@@ -243,7 +239,7 @@ immediate vicinity.</p>
 
 <dl class="function">
 <dt id="lasif.window_selection.select_windows">
-<tt class="descclassname">lasif.window_selection.</tt><tt class="descname">select_windows</tt><big>(</big><em>data_trace</em>, <em>synthetic_trace</em>, <em>event_latitude</em>, <em>event_longitude</em>, <em>event_depth_in_km</em>, <em>station_latitude</em>, <em>station_longitude</em>, <em>minimum_period</em>, <em>maximum_period</em>, <em>min_cc=0.1</em>, <em>max_noise=0.1</em>, <em>max_noise_window=0.4</em>, <em>min_velocity=2.4</em>, <em>threshold_shift=0.3</em>, <em>threshold_correlation=0.75</em>, <em>min_length_period=1.5</em>, <em>min_peaks_troughs=2</em>, <em>max_energy_ratio=2.0</em><big>)</big><a class="reference internal" href="_modules/lasif/window_selection.html#select_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.select_windows" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">lasif.window_selection.</tt><tt class="descname">select_windows</tt><big>(</big><em>data_trace</em>, <em>synthetic_trace</em>, <em>event_latitude</em>, <em>event_longitude</em>, <em>event_depth_in_km</em>, <em>station_latitude</em>, <em>station_longitude</em>, <em>minimum_period</em>, <em>maximum_period</em>, <em>min_cc=0.1</em>, <em>max_noise=0.1</em>, <em>max_noise_window=0.4</em>, <em>min_velocity=2.4</em>, <em>threshold_shift=0.3</em>, <em>threshold_correlation=0.75</em>, <em>min_length_period=1.5</em>, <em>min_peaks_troughs=2</em>, <em>max_energy_ratio=2.0</em>, <em>quiet=True</em><big>)</big><a class="reference internal" href="_modules/lasif/window_selection.html#select_windows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.window_selection.select_windows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Window selection algorithm for picking windows suitable for misfit
 calculation based on phase differences.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -278,6 +274,7 @@ the minimum period.</li>
 time window (excluding the edges).</li>
 <li><strong>max_energy_ratio</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Maximum energy ratio between data and
 synthetics within a time window.</li>
+<li><strong>quiet</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Be quiet and don&#8217;t print anything.</li>
 </ul>
 </td>
 </tr>
