@@ -15,6 +15,7 @@ from docutils.statemachine import ViewList
 import itertools
 from sphinx.util.compat import Directive
 import textwrap
+import warnings
 
 from lasif.scripts import lasif_cli
 
@@ -113,9 +114,6 @@ class LasifCLIDirective(Directive):
                     result.append("    " + line,
                                   "<lasif_cli_list>")
 
-            #self.state.nested_parse(result, 0, node, match_titles=1)
-            #all_nodes.extend(node.children)
-
             for fct_name, fct in fcts.iteritems():
                 parser = lasif_cli._get_argument_parser(fct)
 
@@ -146,9 +144,16 @@ class LasifCLIDirective(Directive):
                     result.append("", "<lasif_cli_list>")
 
                     result.append(title, "<lasif_cli_list>")
-                    result.append("^" * len(title), "<lasif_cli_list>")
-
+                    result.append("*" * len(title), "<lasif_cli_list>")
                     result.append("", "<lasif_cli_list>")
+
+                    if hasattr(fct, "_is_mpi_enabled") and fct._is_mpi_enabled:
+                        result.append(
+                            "**This function can be used with MPI**",
+                            "<lasif_cli_list>")
+                        result.append("", "<lasif_cli_list>")
+
+
                     result.append(" .. code-block:: none", "<lasif_cli_list>")
                     result.append("", "<lasif_cli_list>")
                     result.append("    " + "\n    ".join(usage.splitlines()),
@@ -232,6 +237,32 @@ class LasifCLINode(nodes.General, nodes.Element):
     pass
 
 
+class LasifMPICLIDirective(Directive):
+    def run(self):
+        fcts = lasif_cli._get_functions()
+
+        all_nodes = []
+
+        node = nodes.section()
+        node.document = self.state.document
+        result = ViewList()
+
+        mpi_enabled = []
+        # Find function that have MPI.
+        for fct_name, fct in fcts.iteritems():
+            if not hasattr(fct, "_is_mpi_enabled") or not fct._is_mpi_enabled:
+                continue
+            mpi_enabled.append(fct_name)
+        for fct_name in sorted(mpi_enabled):
+            result.append("* `lasif %s`_" % fct_name, "<lasif_cli_list>")
+
+        self.state.nested_parse(result, 0, node, match_titles=1)
+        all_nodes.extend(node.children)
+
+        return all_nodes
+
+
 def setup(app):
     app.add_node(LasifCLINode)
     app.add_directive("include_lasif_cli_commands", LasifCLIDirective)
+    app.add_directive("include_lasif_mpi_cli_commands", LasifMPICLIDirective)

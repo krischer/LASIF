@@ -56,10 +56,32 @@ while optional arguments can be passed if needed.
     need to but best run ``$ lasif build_all_caches`` beforehand and be
     aware of what it means.
 
+MPI
+^^^
+
+Some commands can be executed with MPI to speed up their execution. Don't
+use too many cores as the problem quickly becomes I/O bounds. For example to
+run the preprocessing on 16 cores, do
+
+.. code-block:: bash
+
+    $ mpirun -n 16 lasif preprocess_data 1 GCMT_event_AZORES_ISLANDS
+
+
+The following commands are MPI-enabled. Attempting to run any other command
+with MPI will result in an error.:
+
+.. include_lasif_mpi_cli_commands::
+
+
+Command Documentation
+^^^^^^^^^^^^^^^^^^^^^
 
 In the following all subcommands are documented in detail. The commands
 are grouped by functionality.
 
 .. contents:: Available Commands
+    :local:
+    :depth: 2
 
 .. include_lasif_cli_commands::

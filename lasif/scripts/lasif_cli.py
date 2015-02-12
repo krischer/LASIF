@@ -690,6 +690,10 @@ def lasif_calculate_all_adjoint_sources(parser, args):
 def lasif_select_windows(parser, args):
     """
     Autoselect windows for a given event and iteration combination.
+
+    This function works with MPI. Don't use too many cores, I/O quickly
+    becomes the limiting factor. It also works without MPI but then only one
+    core actually does any work.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
@@ -967,7 +971,7 @@ def lasif_preprocess_data(parser, args):
     """
     Launch data preprocessing.
 
-    This function works with MPI. Don't use too many cores, I\O quickly
+    This function works with MPI. Don't use too many cores, I/O quickly
     becomes the limiting factor. It also works without MPI but then only one
     core actually does any work.
     """
