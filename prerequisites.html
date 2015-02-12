@@ -65,6 +65,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="">Installation, Testing &amp; DevInfo</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-the-documentation">Building the Documentation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#developer-information">Developer Information</a></li>
 </ul>
 </li>
@@ -150,47 +151,60 @@
             
   <div class="section" id="installation-testing-devinfo">
 <h1>Installation, Testing &amp; DevInfo<a class="headerlink" href="#installation-testing-devinfo" title="Permalink to this headline">¶</a></h1>
+<p>This page details installation instructions, how to run the tests, and some
+additional information if you want to develop new features for <strong>LASIF</strong>. If
+you encounter any issues, please don&#8217;t hesitate to contact us or
+<a class="reference external" href="https://github.com/krischer/LASIF/issues/new">open an issue on GitHub</a>.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p><strong>LASIF</strong> is written for Python 2.7.x, support for Python 3 will follow soon. A
-working Python installation with the most common scientific libraries installed
-will be assumed for the following instructions.</p>
-<div class="section" id="dependencies">
-<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
-<p><strong>LASIF</strong> depends on a number of third-party libraries.</p>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h3>
+<p><strong>LASIF</strong> is a Python based program and has a number of dependencies which
+are listed here. It might well work with other versions but only the versions
+listed here have been tested and are officially supported. It has been
+tested on Linux and Mac OS X but should also run just fine on Windows.</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.obspy.org/">ObsPy</a> (in a recent repository version - the version will be fixed at a certain point in the future)</li>
-<li>The <a class="reference external" href="http://matplotlib.org/basemap/">matplotlib basemap toolkit</a></li>
-<li><a class="reference external" href="http://github.com/krischer/wfs_input_generator">wfs_input_generator</a></li>
-<li>progressbar</li>
-<li>geographiclib</li>
-<li>colorama</li>
-<li>joblib</li>
-<li>mpi4py</li>
+<li><tt class="docutils literal"><span class="pre">obspy</span></tt> (<a class="reference external" href="http://www.obspy.org/">www.obspy.org</a> - in a recent
+respository version)</li>
+<li><tt class="docutils literal"><span class="pre">numpy</span> <span class="pre">&gt;=</span> <span class="pre">1.8</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">matplotlib</span> <span class="pre">&gt;=</span> <span class="pre">1.3</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">basemap</span> <span class="pre">&gt;=</span> <span class="pre">1.0.7</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">wfs_input_generator</span></tt> (<a class="reference external" href="http://github.com/krischer/wfs_input_generator">website</a>)</li>
+<li><tt class="docutils literal"><span class="pre">geographiclib</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">progressbar</span></tt> and <tt class="docutils literal"><span class="pre">colorama</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">mpi4py</span></tt> and <tt class="docutils literal"><span class="pre">joblib</span></tt></li>
+<li><em>For the webinterface, you additionally need:</em> <tt class="docutils literal"><span class="pre">flask</span></tt>, <tt class="docutils literal"><span class="pre">flask-cache</span></tt>,
+<em>and</em> <tt class="docutils literal"><span class="pre">geojson</span></tt>.</li>
+<li><em>The misfit GUI requires</em> <tt class="docutils literal"><span class="pre">pyqt</span></tt> <em>and</em> <tt class="docutils literal"><span class="pre">pyqtgraph</span></tt>.</li>
+<li><em>And for running the tests you need</em> <tt class="docutils literal"><span class="pre">pytest</span></tt>, <tt class="docutils literal"><span class="pre">mock</span></tt>, <tt class="docutils literal"><span class="pre">nose</span></tt>, <em>and</em>
+<tt class="docutils literal"><span class="pre">flake8</span></tt>.</li>
 </ul>
-<p>For the webinterface, you additionally need</p>
-<ul class="simple">
-<li>Flask</li>
-<li>Flask-Cache</li>
-<li>geojson</li>
-</ul>
-<p>And for running the tests you need</p>
-<ul class="simple">
-<li>pytest</li>
-<li>mock</li>
-<li>nose</li>
-<li>flake8</li>
-</ul>
-<p>ObsPy and basemap might prove complicated to install. Please refer to the
-projects` websites for more detailed instructions.</p>
-<p>The <em>wfs_input_generator</em> module currently has to be checked out via git:</p>
+<p>If you know what you are doing, just make sure these dependencies are
+available, otherwise please do yourself a favor and download the
+<a class="reference external" href="https://store.continuum.io/cshop/anaconda/">Anaconda</a> Python
+distribution, a free package containing almost all dependencies. Make sure
+to choose the Python 2.7 version. Install ObsPy according to
+<a class="reference external" href="https://github.com/obspy/obspy/wiki/Installation-via-Anaconda">these instructions</a>
+but do not execute <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">obspy</span></tt>. Instead install via git:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/obspy/obspy.git
+<span class="nv">$ </span><span class="nb">cd </span>obspy
+<span class="nv">$ </span>pip install -v -e .
+</pre></div>
+</div>
+<p>This will install the latest repository version of ObsPy. At some point in
+the future the latest stable ObsPy version will also be sufficient but right
+now <strong>LASIF</strong> depends on features not yet in the latest stable ObsPy version.
+Install the remaining dependencies with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>conda install numpy matplotlib basemap mpi4py flask pyqt pytest mock nose flake8
+<span class="nv">$ </span>pip install geographiclib progressbar colorama joblib flask-cache geojson pyqtgraph
+</pre></div>
+</div>
+<p>Finally install the <em>wfs_input_generator</em> module again via git:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>git clone https://github.com/krischer/wfs_input_generator.git
 <span class="nv">$ </span><span class="nb">cd </span>wfs_input_generator
 <span class="nv">$ </span>pip install -v -e .
 </pre></div>
 </div>
-<p>Make sure <strong>ObsPy</strong>, <strong>basemap</strong>, and the <strong>wfs_input_generator</strong> are
-installed before proceeding.</p>
 </div>
 <div class="section" id="installing-lasif">
 <h3>Installing LASIF<a class="headerlink" href="#installing-lasif" title="Permalink to this headline">¶</a></h3>
@@ -200,79 +214,56 @@ installed before proceeding.</p>
 <span class="nv">$ </span>pip install -v -e .
 </pre></div>
 </div>
-<p>This will also install all further dependencies.</p>
 <p>After the installation one should run the tests to ensure everything is
 installed correctly and works as intended on your machine.</p>
 </div>
 </div>
 <div class="section" id="testing">
 <h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="requirements-and-rational">
-<h3>Requirements and Rational<a class="headerlink" href="#requirements-and-rational" title="Permalink to this headline">¶</a></h3>
 <p><strong>LASIF</strong> evolved into a fairly complex piece of code and extensive testing is
 required to assure that it works as expected.</p>
-<p>To run the tests, you need to install four additional modules:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install pytest mock nose flake8
-</pre></div>
-</div>
-<p>The <a class="reference external" href="http://pytest.org">pytest</a> module is an alternative testing framework
-for Python offering powerful test discovery features and a no-boilerplate
-approach to syntax. It furthermore provides a nice functional approach to
-writing tests for complex environments facilitating proper tests for <strong>LASIF</strong>.</p>
-<p>Many operations in <strong>LASIF</strong> are computationally expensive or have side effects
-like requiring online access making them not particularly well suited to being
-testing. In order to verify some of the complex interactions within <strong>LASIF</strong>
-dummy objects are used. These are provided by the
-<a class="reference external" href="http://www.voidspace.org.uk/python/mock/">mock</a> package.</p>
-<p><strong>LASIF</strong> contains some graphical functionality outputting maps and other
-plots.  matplotlib&#8217;s testing facilities are reused in <strong>LASIF</strong> which in turn
-require the <a class="reference external" href="http://nose.readthedocs.org/en/latest/">nose</a> testing framework
-to be installed.</p>
-<p>The <a class="reference external" href="http://flake8.readthedocs.org/en/2.0/">flake8</a> package is used to make
-sure that <strong>LASIF</strong>&#8216;s code base adhere to the
-<a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP8</a> standard.</p>
-</div>
 <div class="section" id="running-the-tests">
 <h3>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h3>
-<p>To run the tests, cd somewhere into the <strong>LASIF</strong> code base and type</p>
+<p>To run the tests, cd into the toplevel <tt class="docutils literal"><span class="pre">LASIF</span></tt> directory and execute:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>py.test
 </pre></div>
 </div>
 <p>This will recursively find and execute all tests below the current working
 directory.</p>
-<p>The py.test command accepts a large number of additional parameters, e.g.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="c"># Execute only tests within test_project.py.</span>
-<span class="nv">$ </span>py.test test_project.py
-
-<span class="c"># Print stdout and stderr and do not capture it.</span>
-<span class="nv">$ </span>py.test -s
-
-<span class="c"># Execute only tests whose name contains the string &#39;some_string&#39;.</span>
-<span class="nv">$ </span>py.test -k some_string
-</pre></div>
-</div>
 <p>If your machine has multiple cores, the processing can also be sped up
-quite a bit by using <cite>pytest-xdist</cite> which can be installed via pip.</p>
+quite a bit by using <tt class="docutils literal"><span class="pre">pytest-xdist</span></tt> which can be installed via pip.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install pytest-xdist
 </pre></div>
 </div>
-<p>It enables to distribute the test across cores. To run on, for example, eight
+<p>It enables to distribute the tests across cores. To run on, for example, eight
 cores, use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>py.test -n 8
 </pre></div>
 </div>
-<p>For more information please read the
-<a class="reference external" href="http://pytest.org/">pytest documentation</a>.</p>
 </div>
+</div>
+<div class="section" id="building-the-documentation">
+<h2>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">sphinx</span></tt> is used to build the documentation so it needs to be installed. The
+theme is the standalone <strong>readthedocs</strong> theme. We will use the most up-to-date
+repository version here.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install sphinx
+<span class="nv">$ </span>pip install https://github.com/snide/sphinx_rtd_theme/archive/master.zip
+</pre></div>
+</div>
+<p>To actually build the documentation (in this case in the HTML format), run</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>doc
+<span class="nv">$ </span>make html
+</pre></div>
+</div>
+<p>This might take a while if run for the first time. Subsequent runs are faster.</p>
 </div>
 <div class="section" id="developer-information">
 <h2>Developer Information<a class="headerlink" href="#developer-information" title="Permalink to this headline">¶</a></h2>
 <p>The following rules should be followed when developing for <strong>LASIF</strong>:</p>
 <ul>
-<li><p class="first"><strong>LASIF</strong> is written entirely in Python.</p>
-</li>
-<li><p class="first">C/Fortran code with proper bindings can be used to improve performance where
-necessary. Cython is also an accepted alternative.</p>
+<li><p class="first"><strong>LASIF</strong> is written entirely in Python 2.7. Adding support for 3.x would
+not be a big issue if necessary.</p>
 </li>
 <li><p class="first"><a class="reference external" href="http://lukeplant.me.uk/blog/posts/docs-or-it-doesnt-exist/">Document</a> the
 code.</p>
@@ -293,22 +284,6 @@ in case her/his commit breaks <strong>LASIF</strong>.</li>
 </div></blockquote>
 </li>
 </ul>
-<div class="section" id="building-the-documentation">
-<h3>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h3>
-<p><cite>sphinx</cite> is used to build the documentation so it needs to be installed. The
-theme is the standalone readthedocs theme. We will use the most up-to-date
-repository version here.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>pip install sphinx
-<span class="nv">$ </span>pip install https://github.com/snide/sphinx_rtd_theme/archive/master.zip
-</pre></div>
-</div>
-<p>To actually build the documentation (in this case in the HTML format), run</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span><span class="nb">cd </span>doc
-<span class="nv">$ </span>make html
-</pre></div>
-</div>
-<p>This might take a while if run for the first time. Subsequent runs are faster.</p>
-</div>
 <div class="section" id="terminology">
 <h3>Terminology<a class="headerlink" href="#terminology" title="Permalink to this headline">¶</a></h3>
 <p>In order to ease development, a consistent terminology should be used
