@@ -1,55 +1,70 @@
 Installation, Testing & DevInfo
 ===============================
 
+This page details installation instructions, how to run the tests, and some
+additional information if you want to develop new features for **LASIF**. If
+you encounter any issues, please don't hesitate to contact us or
+`open an issue on GitHub <https://github.com/krischer/LASIF/issues/new>`_.
+
+
 Installation
 ------------
 
-**LASIF** is written for Python 2.7.x, support for Python 3 will follow soon. A
-working Python installation with the most common scientific libraries installed
-will be assumed for the following instructions.
-
-
-Dependencies
+Requirements
 ^^^^^^^^^^^^
 
-**LASIF** depends on a number of third-party libraries.
+**LASIF** is a Python based program and has a number of dependencies which
+are listed here. It might well work with other versions but only the versions
+listed here have been tested and are officially supported. It has been
+tested on Linux and Mac OS X but should also run just fine on Windows.
 
-* `ObsPy <http://www.obspy.org/>`_ (in a recent repository version - the version will be fixed at a certain point in the future)
-* The `matplotlib basemap toolkit <http://matplotlib.org/basemap/>`_
-* `wfs_input_generator <http://github.com/krischer/wfs_input_generator>`_
-* progressbar
-* geographiclib
-* colorama
-* joblib
-* mpi4py
-
-For the webinterface, you additionally need
-
-* Flask
-* Flask-Cache
-* geojson
-
-And for running the tests you need
-
-* pytest
-* mock
-* nose
-* flake8
+* ``obspy`` (`www.obspy.org <http://www.obspy.org/>`_ - in a recent
+  respository version)
+* ``numpy >= 1.8``
+* ``matplotlib >= 1.3``
+* ``basemap >= 1.0.7``
+* ``wfs_input_generator`` (`website <http://github.com/krischer/wfs_input_generator>`_)
+* ``geographiclib``
+* ``progressbar`` and ``colorama``
+* ``mpi4py`` and ``joblib``
+* *For the webinterface, you additionally need:* ``flask``, ``flask-cache``,
+  *and* ``geojson``.
+* *The misfit GUI requires* ``pyqt`` *and* ``pyqtgraph``.
+* *And for running the tests you need* ``pytest``, ``mock``, ``nose``, *and*
+  ``flake8``.
 
 
-ObsPy and basemap might prove complicated to install. Please refer to the
-projects` websites for more detailed instructions.
+If you know what you are doing, just make sure these dependencies are
+available, otherwise please do yourself a favor and download the
+`Anaconda <https://store.continuum.io/cshop/anaconda/>`_ Python
+distribution, a free package containing almost all dependencies. Make sure
+to choose the Python 2.7 version. Install ObsPy according to
+`these instructions <https://github.com/obspy/obspy/wiki/Installation-via-Anaconda>`_
+but do not execute ``pip install obspy``. Instead install via git:
 
-The *wfs_input_generator* module currently has to be checked out via git:
+.. code-block:: bash
+
+    $ git clone https://github.com/obspy/obspy.git
+    $ cd obspy
+    $ pip install -v -e .
+
+This will install the latest repository version of ObsPy. At some point in
+the future the latest stable ObsPy version will also be sufficient but right
+now **LASIF** depends on features not yet in the latest stable ObsPy version.
+Install the remaining dependencies with
+
+.. code-block:: bash
+
+    $ conda install numpy matplotlib basemap mpi4py flask pyqt pytest mock nose flake8
+    $ pip install geographiclib progressbar colorama joblib flask-cache geojson pyqtgraph
+
+Finally install the *wfs_input_generator* module again via git:
 
 .. code-block:: bash
 
     $ git clone https://github.com/krischer/wfs_input_generator.git
     $ cd wfs_input_generator
     $ pip install -v -e .
-
-Make sure **ObsPy**, **basemap**, and the **wfs_input_generator** are
-installed before proceeding.
 
 
 Installing LASIF
@@ -63,8 +78,6 @@ The actual **LASIF** module can then be installed with
     $ cd LASIF
     $ pip install -v -e .
 
-This will also install all further dependencies.
-
 After the installation one should run the tests to ensure everything is
 installed correctly and works as intended on your machine.
 
@@ -72,42 +85,13 @@ installed correctly and works as intended on your machine.
 Testing
 -------
 
-Requirements and Rational
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
 **LASIF** evolved into a fairly complex piece of code and extensive testing is
 required to assure that it works as expected.
-
-To run the tests, you need to install four additional modules:
-
-.. code-block:: bash
-
-    $ pip install pytest mock nose flake8
-
-The `pytest <http://pytest.org>`_ module is an alternative testing framework
-for Python offering powerful test discovery features and a no-boilerplate
-approach to syntax. It furthermore provides a nice functional approach to
-writing tests for complex environments facilitating proper tests for **LASIF**.
-
-Many operations in **LASIF** are computationally expensive or have side effects
-like requiring online access making them not particularly well suited to being
-testing. In order to verify some of the complex interactions within **LASIF**
-dummy objects are used. These are provided by the
-`mock <http://www.voidspace.org.uk/python/mock/>`_ package.
-
-**LASIF** contains some graphical functionality outputting maps and other
-plots.  matplotlib's testing facilities are reused in **LASIF** which in turn
-require the `nose <http://nose.readthedocs.org/en/latest/>`_ testing framework
-to be installed.
-
-The `flake8 <http://flake8.readthedocs.org/en/2.0/>`_ package is used to make
-sure that **LASIF**'s code base adhere to the
-`PEP8 <http://www.python.org/dev/peps/pep-0008/>`_ standard.
 
 Running the Tests
 ^^^^^^^^^^^^^^^^^
 
-To run the tests, cd somewhere into the **LASIF** code base and type
+To run the tests, cd into the toplevel ``LASIF`` directory and execute:
 
 
 .. code-block:: bash
@@ -117,28 +101,15 @@ To run the tests, cd somewhere into the **LASIF** code base and type
 This will recursively find and execute all tests below the current working
 directory.
 
-The py.test command accepts a large number of additional parameters, e.g.
-
-.. code-block:: bash
-
-    # Execute only tests within test_project.py.
-    $ py.test test_project.py
-
-    # Print stdout and stderr and do not capture it.
-    $ py.test -s
-
-    # Execute only tests whose name contains the string 'some_string'.
-    $ py.test -k some_string
-
 
 If your machine has multiple cores, the processing can also be sped up
-quite a bit by using `pytest-xdist` which can be installed via pip.
+quite a bit by using ``pytest-xdist`` which can be installed via pip.
 
 .. code-block:: bash
 
     $ pip install pytest-xdist
 
-It enables to distribute the test across cores. To run on, for example, eight
+It enables to distribute the tests across cores. To run on, for example, eight
 cores, use
 
 .. code-block:: bash
@@ -146,39 +117,11 @@ cores, use
     $ py.test -n 8
 
 
-For more information please read the
-`pytest documentation <http://pytest.org/>`_.
-
-
-
-
-Developer Information
----------------------
-
-
-The following rules should be followed when developing for **LASIF**:
-
-* **LASIF** is written entirely in Python.
-* C/Fortran code with proper bindings can be used to improve performance where
-  necessary. Cython is also an accepted alternative.
-* `Document <http://lukeplant.me.uk/blog/posts/docs-or-it-doesnt-exist/>`_ the
-  code.
-* Adhere to `PEP8 <http://www.python.org/dev/peps/pep-0008/>`_.
-* All contributed code must be contributed under the GPLv3.
-* Write tests where reasonable.
-
-    * **LASIF** utilizes `Travis CI <https://travis-ci.org/krischer/LASIF>`_
-      for continuous integration testing. This means that every commit will be
-      automatically tested and the responsible developer will receive an email
-      in case her/his commit breaks **LASIF**.
-    * The tests also verify the PEP8 conformance of the entire code base.
-
-
 Building the Documentation
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
-`sphinx` is used to build the documentation so it needs to be installed. The
-theme is the standalone readthedocs theme. We will use the most up-to-date
+``sphinx`` is used to build the documentation so it needs to be installed. The
+theme is the standalone **readthedocs** theme. We will use the most up-to-date
 repository version here.
 
 .. code-block:: bash
@@ -194,6 +137,27 @@ To actually build the documentation (in this case in the HTML format), run
     $ make html
 
 This might take a while if run for the first time. Subsequent runs are faster.
+
+
+Developer Information
+---------------------
+
+
+The following rules should be followed when developing for **LASIF**:
+
+* **LASIF** is written entirely in Python 2.7. Adding support for 3.x would
+  not be a big issue if necessary.
+* `Document <http://lukeplant.me.uk/blog/posts/docs-or-it-doesnt-exist/>`_ the
+  code.
+* Adhere to `PEP8 <http://www.python.org/dev/peps/pep-0008/>`_.
+* All contributed code must be contributed under the GPLv3.
+* Write tests where reasonable.
+
+    * **LASIF** utilizes `Travis CI <https://travis-ci.org/krischer/LASIF>`_
+      for continuous integration testing. This means that every commit will be
+      automatically tested and the responsible developer will receive an email
+      in case her/his commit breaks **LASIF**.
+    * The tests also verify the PEP8 conformance of the entire code base.
 
 
 Terminology
