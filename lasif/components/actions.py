@@ -143,9 +143,9 @@ class ActionsComponent(Component):
         preprocessing_function = self.comm.project.get_project_function(
             "preprocessing_function")
 
-        logfile = os.path.join(
-            self.comm.project.get_output_folder("data_preprocessing"),
-            "log.txt")
+        logfile = self.comm.project.get_log_file(
+            "DATA_PREPROCESSING", "processing_iteration_%s" % (str(
+                iteration.name)))
 
         distribute_across_ranks(
             function=preprocessing_function, items=to_be_processed,
