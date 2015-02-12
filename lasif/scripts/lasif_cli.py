@@ -55,6 +55,8 @@ import shutil
 import sys
 import traceback
 
+from mpi4py import MPI
+
 from lasif import LASIFNotFoundError
 from lasif.components.project import Project
 
@@ -102,6 +104,14 @@ def command_group(group_name):
     return wrapper
 
 
+def mpi_enabled(func):
+    """
+    Decorator to mark function with mpi capabilities.
+    """
+    func._is_mpi_enabled = True
+    return func
+
+
 class LASIFCommandLineException(Exception):
     pass
 
@@ -132,8 +142,6 @@ def _find_project_comm_mpi(folder, read_only_caches):
     :param read_only_caches: Read-only caches for rank 0. All others will
         always be read-only.
     """
-    from mpi4py import MPI
-
     if MPI.COMM_WORLD.rank == 0:
         # Rank 0 can write the caches, the others cannot. The
         # "--read_only_caches" flag overwrites this behaviour.
@@ -677,6 +685,7 @@ def lasif_calculate_all_adjoint_sources(parser, args):
     comm.actions.calculate_all_adjoint_sources(iteration_name, event_name)
 
 
+@mpi_enabled
 @command_group("Iteration Management")
 def lasif_select_windows(parser, args):
     """
@@ -952,6 +961,7 @@ def lasif_remove_empty_coordinate_entries(parser, args):
     print("SUCCESS")
 
 
+@mpi_enabled
 @command_group("Iteration Management")
 def lasif_preprocess_data(parser, args):
     """
@@ -970,8 +980,6 @@ def lasif_preprocess_data(parser, args):
     events = args.events if args.events else None
 
     comm = _find_project_comm_mpi(".", args.read_only_caches)
-
-    from mpi4py import MPI
 
     # No need to perform these checks on all ranks.
     exceptions = []
@@ -1370,12 +1378,24 @@ def main():
 
         sys.exit(1)
 
+    func = fcts[fct_name]
+
+    # Make sure that only MPI enabled functions are called with MPI.
+    if MPI.COMM_WORLD.size > 1:
+        if not hasattr(func, "_is_mpi_enabled") or \
+                func._is_mpi_enabled is not True:
+            if MPI.COMM_WORLD.rank != 0:
+                return
+            sys.stderr.write("'lasif %s' must not be called with MPI.\n" %
+                             fct_name)
+            return
+
     # Create a parser and pass it to the single function.
-    parser = _get_argument_parser(fcts[fct_name])
+    parser = _get_argument_parser(func)
 
     # Now actually call the function.
     try:
-        fcts[fct_name](parser, further_args)
+        func(parser, further_args)
     except LASIFCommandLineException as e:
         print(colorama.Fore.YELLOW + ("Error: %s\n" % str(e)) +
               colorama.Style.RESET_ALL)
