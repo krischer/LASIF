@@ -89,7 +89,9 @@ class Window(QtGui.QMainWindow):
         # Keeping track of random plotted stuff.
         self.plot_state = {
             "depth_markers": [],
-            "depth_marker_count": 0
+            "depth_marker_count": 0,
+            "actual_depth": 0,
+            "depth_profile_line": []
         }
 
         # Setup the figures.
@@ -194,14 +196,11 @@ class Window(QtGui.QMainWindow):
 
     def plot_depths(self, depths, values, color):
         ax = self.axes["depth_profile"]
-        ax.plot(values, depths, color=color, lw=3, alpha=0.8)
+        ax.plot(values, depths, color=color, lw=3, alpha=0.8, zorder=10)
         ax.set_xlabel(self._gui_component)
         ax.set_ylabel("Depth [km]")
         ax.grid(True)
         ax.set_ylim(sorted(self.model.depth_bounds, reverse=True))
-        # if self.current_actual_depth is not None:
-        #     a, b = self.depth_profile_ax.get_xlim()
-        #     ax.hlines(self.current_actual_depth, a, b, color="red")
         self.figures["depth_profile"].canvas.draw()
 
     def _is_state_still_valid(self):
@@ -249,6 +248,8 @@ class Window(QtGui.QMainWindow):
         self.ui.depth_label.setText("Desired Depth: %.1f km" % depth)
         self.ui.plotted_depth_label.setText("Plotted Depth: %.1f km" %
                                             ret_val["depth"])
+        self.plot_state["actual_depth"] = depth
+        self.set_depth_profile_line()
 
         self.axes["colorbar"].clear()
         cm = self.figures["colorbar"].colorbar(
@@ -267,6 +268,20 @@ class Window(QtGui.QMainWindow):
         ax.set_yticks([])
 
         self._draw()
+
+    def set_depth_profile_line(self):
+        for _i in self.plot_state["depth_profile_line"]:
+            _i.remove()
+            del _i
+        self.plot_state["depth_profile_line"] = []
+
+        if self.plot_state["actual_depth"] is not None:
+            ax= self.axes["depth_profile"]
+            a, b = ax.get_xlim()
+            self.plot_state["depth_profile_line"].extend(
+                ax.hlines(self.plot_state["actual_depth"], a, b, color="0.2"))
+
+        self.figures["depth_profile"].canvas.draw()
 
     def _load_new_model(self):
         """
@@ -329,6 +344,7 @@ class Window(QtGui.QMainWindow):
             del m
         self.plot_state["depth_markers"] = []
         self.axes["depth_profile"].clear()
+        self.set_depth_profile_line()
         self._draw()
 
 
