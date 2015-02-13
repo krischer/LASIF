@@ -26,6 +26,15 @@ import matplotlib.patheffects as PathEffects
 
 from lasif import ses3d_models
 
+# Pretty units for some components.
+UNIT_DICT = {
+    "vp": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
+    "vsv": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
+    "vsh": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
+    "rho": r"$\frac{\mathrm{kg}}{\mathrm{m}^3}$",
+    "rhoinv": r"$\frac{\mathrm{m}^3}{\mathrm{kg}}$",
+    }
+
 
 def compile_and_import_ui_files():
     """
@@ -102,7 +111,7 @@ class Window(QtGui.QMainWindow):
         # Colorbar
         self.figures["colorbar"] = self.ui.colorbar.fig
         self.axes["colorbar"] = self.figures["colorbar"].add_axes(
-            [0.05, 0.1, 0.45, 0.89], axisbg="none")
+            [0.02, 0.05, 0.40, 0.94], axisbg="none")
 
         # Histogram.
         self.figures["histogram"] = self.ui.histogram.fig
@@ -160,17 +169,19 @@ class Window(QtGui.QMainWindow):
 
         lon, lat = self.basemap(event.xdata, event.ydata, inverse=True)
 
-        self.basemap.scatter([lon], [lat], marker="x", s=100, latlon=True,
-                             color="0.2", zorder=200, path_effects=[
-                PathEffects.withStroke(linewidth=4,
-                                       foreground="white")])
-        self.figures["map"].canvas.draw()
 
-        print(lon, lat)
         if self.model:
-            depths, values = self.model.get_depth_profile(
+            ret_val = self.model.get_depth_profile(
                 self._gui_component, longitude=lon, latitude=lat)
-            self.plot_depths(depths, values)
+            self.plot_depths(ret_val["depths"], ret_val["values"])
+
+            # Plot the marker at the correct position.
+            self.basemap.scatter(
+                [ret_val["longitude"]], [ret_val["latitude"]],
+                marker="x", s=100, latlon=True, color="0.2", zorder=200,
+                path_effects=[PathEffects.withStroke(linewidth=4,
+                                                     foreground="white")])
+            self.figures["map"].canvas.draw()
 
     def plot_depths(self, depths, values):
         ax = self.axes["depth_profile"]
@@ -232,7 +243,9 @@ class Window(QtGui.QMainWindow):
                                             actual_depth)
 
         self.axes["colorbar"].clear()
-        self.figures["colorbar"].colorbar(im, cax=self.axes["colorbar"])
+        cm = self.figures["colorbar"].colorbar(im, cax=self.axes["colorbar"])
+        if component in UNIT_DICT:
+            cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
 
         # Plot the histogram.
         ax = self.axes["histogram"]

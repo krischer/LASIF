@@ -500,30 +500,6 @@ class RawSES3DModelHandler(object):
 
         return actual_depth, im, depth_data
 
-        # if component in UNIT_DICT:
-        #     cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
-        #et       #
-        # plt.suptitle("Depth slice of %s at %i km" % (
-        #     component, int(round(actual_depth))), size="large")
-
-        # Only a global domain does not have a border. Probably not
-        # necessary as this script here can only plot SES3D models but it
-        # cannot hurt.
-        # if not isinstance(self.domain, lasif.domain.GlobalDomain):
-        #     border = rotations.get_border_latlng_list(
-        #         rotations.colat2lat(self.setup["physical_boundaries_x"][0]),
-        #         rotations.colat2lat(self.setup["physical_boundaries_x"][1]),
-        #         self.setup["physical_boundaries_y"][0],
-        #         self.setup["physical_boundaries_y"][1],
-        #         rotation_axis=self.domain.rotation_axis,
-        #         rotation_angle_in_degree=self.domain.rotation_angle_in_degree)
-        #     border = np.array(border)
-        #     lats = border[:, 0]
-        #     lngs = border[:, 1]
-        #     lngs, lats = m(lngs, lats)
-        #     m.plot(lngs, lats, color="black", lw=2, path_effects=[
-        #         PathEffects.withStroke(linewidth=4, foreground="white")])
-
     def get_depth_profile(self, component, latitude, longitude):
 
         # Need to rotate latitude and longitude.
@@ -541,7 +517,22 @@ class RawSES3DModelHandler(object):
         depths = self.collocation_points_depth
         values = data[x_index, y_index, :]
 
-        return depths, values
+        lat = self.collocation_points_lats[::-1][x_index]
+        lng = self.collocation_points_lngs[y_index]
+
+        # Rotate back.
+        if hasattr(self.domain, "rotation_axis") and \
+                self.domain.rotation_axis and \
+                self.domain.rotation_angle_in_degree:
+            lat, lng = rotations.rotate_lat_lon(
+                lat, lng, self.domain.rotation_axis,
+                self.domain.rotation_angle_in_degree)
+
+        return {
+            "depths": depths,
+            "values": values,
+            "latitude": lat,
+            "longitude": lng}
 
 
     def __str__(self):

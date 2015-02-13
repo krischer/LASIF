@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/lion/workspace/code/LASIF/lasif/ses3d_model_gui/ses3d_model_gui.ui'
 #
-# Created: Fri Feb 13 18:42:53 2015
+# Created: Fri Feb 13 18:47:27 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -67,8 +67,8 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.colorbar.sizePolicy().hasHeightForWidth())
         self.colorbar.setSizePolicy(sizePolicy)
-        self.colorbar.setMinimumSize(QtCore.QSize(85, 0))
-        self.colorbar.setMaximumSize(QtCore.QSize(85, 16777215))
+        self.colorbar.setMinimumSize(QtCore.QSize(100, 0))
+        self.colorbar.setMaximumSize(QtCore.QSize(100, 16777215))
         self.colorbar.setObjectName(_fromUtf8("colorbar"))
         self.horizontalLayout.addWidget(self.colorbar)
         self.line_2 = QtGui.QFrame(self.centralwidget)
