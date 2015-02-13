@@ -21,6 +21,7 @@ import warnings
 
 import lasif.colors
 from lasif import rotations
+from lasif.data.read_model import OneDimensionalModel
 
 
 # Pretty units for some components.
@@ -86,6 +87,8 @@ class RawSES3DModelHandler(object):
 
         self.domain = domain
         self.model_type = model_type
+
+        self.one_d_model = OneDimensionalModel("ak135-f")
 
         if model_type == "earth_model":
             # Now check what different models are available in the directory.
@@ -398,7 +401,8 @@ class RawSES3DModelHandler(object):
             return np.argmin(np.abs(self.collocation_points_lats[::-1] -
                                     value))
 
-    def plot_depth_slice(self, component, depth_in_km, m):
+    def plot_depth_slice(self, component, depth_in_km, m,
+                         absolute_values=True):
         """
         Plots a depth slice.
 
@@ -417,7 +421,7 @@ class RawSES3DModelHandler(object):
         if hasattr(m, "_plotted_depth_slice"):
             # Use a tuple of relevant parameters.
             if m._plotted_depth_slice == (self.directory, depth_index,
-                                          component):
+                                          component, absolute_values):
                 return None
 
         data = self.parsed_components[component]
@@ -444,15 +448,55 @@ class RawSES3DModelHandler(object):
         x, y = m(lon, lat)
         depth_data = data[::-1, :, depth_index]
 
-        vmin, vmax = depth_data[depth_data != 0].min(), depth_data.max()
-        vmedian = np.median(depth_data)
-        offset = max(abs(vmax - vmedian), abs(vmedian - vmin))
+        # Plot values relative to AK135.
+        if not absolute_values:
+            cmp_map = {
+                "rho": "density",
+                "vp": "vp",
+                "vsh": "vs",
+                "vsv": "vs"
+            }
 
-        if vmax - vmin == 0:
-            offset = 0.01
+            factor = {
+                "rho": 1000.0,
+                "vp": 1.0,
+                "vsh": 1.0,
+                "vsv": 1.0,
+            }
 
-        vmin = vmedian - offset
-        vmax = vmedian + offset
+            if component not in cmp_map:
+                vmin, vmax = depth_data[depth_data != 0].min(), depth_data.max()
+                vmedian = np.median(depth_data)
+                offset = max(abs(vmax - vmedian), abs(vmedian - vmin))
+
+                if vmax - vmin == 0:
+                    offset = 0.01
+
+                vmin = vmedian - offset
+                vmax = vmedian + offset
+            else:
+                reference_value = self.one_d_model.get_value(
+                    cmp_map[component], depth) * factor[component]
+
+                depth_data = (depth_data - reference_value) / reference_value
+                depth_data *= 100.0
+                offset = np.abs(depth_data)
+                try:
+                    offset = offset[offset < 50].max()
+                except:
+                    offset = offset.max()
+                vmin = -offset
+                vmax = offset
+        else:
+            vmin, vmax = depth_data[depth_data != 0].min(), depth_data.max()
+            vmedian = np.median(depth_data)
+            offset = max(abs(vmax - vmedian), abs(vmedian - vmin))
+
+            if vmax - vmin == 0:
+                offset = 0.01
+
+            vmin = vmedian - offset
+            vmax = vmedian + offset
 
         # Remove an existing pcolormesh if it exists. This does not hurt in
         # any case but is useful for interactive use.
@@ -465,7 +509,8 @@ class RawSES3DModelHandler(object):
         m._depth_slice = im
 
         # Store what is currently plotted.
-        m._plotted_depth_slice = (self.directory, depth_index, component)
+        m._plotted_depth_slice = (self.directory, depth_index, component,
+                                  absolute_values)
 
         return {
             "depth": depth,

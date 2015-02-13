@@ -82,7 +82,8 @@ class Window(QtGui.QMainWindow):
         self.current_state = {
             "component": None,
             "depth": None,
-            "model": None
+            "model": None,
+            "style": None,
         }
         self.model = None
 
@@ -210,7 +211,8 @@ class Window(QtGui.QMainWindow):
         state = {
             "component": self._gui_component,
             "depth": self._gui_depth,
-            "model": self._gui_model
+            "model": self._gui_model,
+            "style": self._gui_style
         }
         return state == self.current_state
 
@@ -225,6 +227,7 @@ class Window(QtGui.QMainWindow):
         model = self._gui_model
         depth = self._gui_depth
         component = self._gui_component
+        style = self._gui_style
 
         # Now figure out what changed.
         if self.current_state["model"] != model:
@@ -232,6 +235,7 @@ class Window(QtGui.QMainWindow):
 
         self.current_state["component"] = component
         self.current_state["depth"] = depth
+        self.current_state["style"] = style
 
         if None in self.current_state.values():
             return
@@ -239,7 +243,9 @@ class Window(QtGui.QMainWindow):
         self.model.parse_component(component)
 
         # Plot model and colorbar.
-        ret_val = self.model.plot_depth_slice(component, depth, self.basemap)
+        ret_val = self.model.plot_depth_slice(
+            component, depth, self.basemap,
+            absolute_values=True if style=="absolute" else False)
 
         if ret_val is None:
             self.ui.depth_label.setText("Desired Depth: %.1f km" % depth)
@@ -248,13 +254,15 @@ class Window(QtGui.QMainWindow):
         self.ui.depth_label.setText("Desired Depth: %.1f km" % depth)
         self.ui.plotted_depth_label.setText("Plotted Depth: %.1f km" %
                                             ret_val["depth"])
-        self.plot_state["actual_depth"] = depth
+        self.plot_state["actual_depth"] = ret_val["depth"]
         self.set_depth_profile_line()
 
         self.axes["colorbar"].clear()
         cm = self.figures["colorbar"].colorbar(
             ret_val["mesh"], cax=self.axes["colorbar"])
-        if component in UNIT_DICT:
+        if style == "relative" and component in ["rho", "vsv", "vsh", "vp"]:
+            cm.set_label("% diff to AK135", fontsize="small", rotation=270)
+        elif component in UNIT_DICT:
             cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
 
         # Plot a histogram of the value distribution for the current depth
@@ -271,14 +279,17 @@ class Window(QtGui.QMainWindow):
 
     def set_depth_profile_line(self):
         for _i in self.plot_state["depth_profile_line"]:
-            _i.remove()
+            try:
+                _i.remove()
+            except:
+                pass
             del _i
         self.plot_state["depth_profile_line"] = []
 
         if self.plot_state["actual_depth"] is not None:
             ax= self.axes["depth_profile"]
             a, b = ax.get_xlim()
-            self.plot_state["depth_profile_line"].extend(
+            self.plot_state["depth_profile_line"].append(
                 ax.hlines(self.plot_state["actual_depth"], a, b, color="0.2"))
 
         self.figures["depth_profile"].canvas.draw()
@@ -324,6 +335,20 @@ class Window(QtGui.QMainWindow):
     def _gui_model(self):
         mod = str(self.ui.model_selection_comboBox.currentText()).strip()
         return mod if mod else None
+
+    @property
+    def _gui_style(self):
+        if self.ui.radio_button_absolute.isChecked():
+            return "absolute"
+        return "relative"
+
+    @pyqtSlot()
+    def on_radio_button_absolute_clicked(self):
+        self._update()
+
+    @pyqtSlot()
+    def on_radio_button_relative_clicked(self):
+        self._update()
 
     @pyqtSlot(int)
     def on_depth_slider_valueChanged(self, value):
