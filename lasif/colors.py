@@ -13,11 +13,17 @@ from matplotlib.colors import LinearSegmentedColormap
 
 # Pretty colors shamelessly stolen from seaborn.
 COLORS = [
+    # Dark Blue
     "#4C72B0",
+    # Grass Green
     "#55A868",
+    # Reddish
     "#C44E52",
+    # Purple
     "#8172B2",
+    # Dark Yellow
     "#CCB974",
+    # Turquoise
     "#64B5CD"
 ]
 

@@ -218,6 +218,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="clear_profiles_button">
+        <property name="text">
+         <string>Clear all Profiles</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="Qt4MplCanvas" name="depth_profile">

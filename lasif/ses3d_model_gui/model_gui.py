@@ -24,6 +24,7 @@ import os
 import sys
 import matplotlib.patheffects as PathEffects
 
+from lasif.colors import COLORS
 from lasif import ses3d_models
 
 # Pretty units for some components.
@@ -84,6 +85,12 @@ class Window(QtGui.QMainWindow):
             "model": None
         }
         self.model = None
+
+        # Keeping track of random plotted stuff.
+        self.plot_state = {
+            "depth_markers": [],
+            "depth_marker_count": 0
+        }
 
         # Setup the figures.
         self._setup_figures()
@@ -169,27 +176,29 @@ class Window(QtGui.QMainWindow):
 
         lon, lat = self.basemap(event.xdata, event.ydata, inverse=True)
 
-
         if self.model:
             ret_val = self.model.get_depth_profile(
                 self._gui_component, longitude=lon, latitude=lat)
-            self.plot_depths(ret_val["depths"], ret_val["values"])
+            color = COLORS[self.plot_state["depth_marker_count"] % len(COLORS)]
+            self.plot_depths(ret_val["depths"], ret_val["values"], color=color)
 
             # Plot the marker at the correct position.
-            self.basemap.scatter(
+            self.plot_state["depth_markers"].extend(self.basemap.plot(
                 [ret_val["longitude"]], [ret_val["latitude"]],
-                marker="x", s=100, latlon=True, color="0.2", zorder=200,
-                path_effects=[PathEffects.withStroke(linewidth=4,
-                                                     foreground="white")])
+                marker="x", ms=15, mew=3, latlon=True,
+                color=color,
+                zorder=200, path_effects=[PathEffects.withStroke(
+                    linewidth=5, foreground="white")]))
             self.figures["map"].canvas.draw()
+            self.plot_state["depth_marker_count"] += 1
 
-    def plot_depths(self, depths, values):
+    def plot_depths(self, depths, values, color):
         ax = self.axes["depth_profile"]
-        ax.clear()
-        ax.plot(values, depths, color="#55A868", lw=3)
+        ax.plot(values, depths, color=color, lw=3, alpha=0.8)
         ax.set_xlabel(self._gui_component)
         ax.set_ylabel("Depth [km]")
         ax.grid(True)
+        ax.set_ylim(sorted(self.model.depth_bounds, reverse=True))
         # if self.current_actual_depth is not None:
         #     a, b = self.depth_profile_ax.get_xlim()
         #     ax.hlines(self.current_actual_depth, a, b, color="red")
@@ -251,7 +260,7 @@ class Window(QtGui.QMainWindow):
         # slice.
         ax = self.axes["histogram"]
         ax.clear()
-        ax.hist(ret_val["data"].ravel(), bins=150, color="#C44E52")
+        ax.hist(ret_val["data"].ravel(), bins=150, color=COLORS[2])
         min, max = ret_val["data"].min(), ret_val["data"].max()
         v_range = max - min
         ax.set_xlim(min - v_range * 0.1, max + v_range * 0.1)
@@ -285,7 +294,7 @@ class Window(QtGui.QMainWindow):
             self.model.components.keys()))
 
         depths = sorted(self.model.depth_bounds)
-        self.ui.depth_slider.setRange(*sorted(depths))
+        self.ui.depth_slider.setRange(*depths)
 
     @property
     def _gui_component(self):
@@ -312,6 +321,15 @@ class Window(QtGui.QMainWindow):
     @pyqtSlot(str)
     def on_model_selection_comboBox_currentIndexChanged(self, value):
         self._update()
+
+    @pyqtSlot()
+    def on_clear_profiles_button_clicked(self):
+        for m in self.plot_state["depth_markers"]:
+            m.remove()
+            del m
+        self.plot_state["depth_markers"] = []
+        self.axes["depth_profile"].clear()
+        self._draw()
 
 
 def launch(comm):

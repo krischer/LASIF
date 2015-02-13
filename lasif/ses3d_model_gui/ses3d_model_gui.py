@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/lion/workspace/code/LASIF/lasif/ses3d_model_gui/ses3d_model_gui.ui'
 #
-# Created: Fri Feb 13 18:47:27 2015
+# Created: Fri Feb 13 22:50:52 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -137,6 +137,9 @@ class Ui_MainWindow(object):
         self.depth_label = QtGui.QLabel(self.centralwidget)
         self.depth_label.setObjectName(_fromUtf8("depth_label"))
         self.verticalLayout_2.addWidget(self.depth_label)
+        self.clear_profiles_button = QtGui.QPushButton(self.centralwidget)
+        self.clear_profiles_button.setObjectName(_fromUtf8("clear_profiles_button"))
+        self.verticalLayout_2.addWidget(self.clear_profiles_button)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         self.depth_profile = Qt4MplCanvas(self.centralwidget)
@@ -170,5 +173,6 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Variable", None))
         self.plotted_depth_label.setText(_translate("MainWindow", "Plotted Depth", None))
         self.depth_label.setText(_translate("MainWindow", "Desired Depth", None))
+        self.clear_profiles_button.setText(_translate("MainWindow", "Clear all Profiles", None))
 
 from lasif.misfit_gui.qt4mplcanvas import Qt4MplCanvas
