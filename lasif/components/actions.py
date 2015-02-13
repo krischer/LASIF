@@ -735,7 +735,7 @@ class ActionsComponent(Component):
                         np.linspace(0, (l - 1) * dt, l) + src_time_shift
 
                     # SPECFEM expects non-time reversed adjoint sources.
-                    to_write[:, 1] += adj_src[::-1]
+                    to_write[:, 1] = adj_src[::-1]
 
                     np.savetxt(adjoint_src_filename, to_write)
             else:
