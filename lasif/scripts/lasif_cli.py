@@ -720,6 +720,19 @@ def lasif_launch_misfit_gui(parser, args):
     launch(comm)
 
 
+@command_group("Plotting")
+def lasif_launch_model_gui(parser, args):
+    """
+    Launch the model GUI.
+    """
+    args = parser.parse_args(args)
+
+    comm = _find_project_comm(".", args.read_only_caches)
+
+    from lasif.ses3d_model_gui.model_gui import launch
+    launch(comm)
+
+
 @command_group("Iteration Management")
 def lasif_create_new_iteration(parser, args):
     """

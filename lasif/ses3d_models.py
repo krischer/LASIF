@@ -223,6 +223,25 @@ class RawSES3DModelHandler(object):
 
         self._calculate_final_dimensions()
 
+        # Setup the boundaries.
+        self.lat_bounds = [
+            rotations.colat2lat(_i)
+            for _i in self.setup["physical_boundaries_x"][::-1]]
+        self.lng_bounds = self.setup["physical_boundaries_y"]
+        self.depth_bounds =  [
+            6371 - _i / 1000.0 for _i in self.setup["physical_boundaries_z"]]
+
+        self.collocation_points_lngs = self._get_collocation_points_along_axis(
+            self.lng_bounds[0], self.lng_bounds[1],
+            self.setup["point_count_in_y"])
+        self.collocation_points_lats = self._get_collocation_points_along_axis(
+            self.lat_bounds[0], self.lat_bounds[1],
+            self.setup["point_count_in_x"])
+        self.collocation_points_depth = \
+            self._get_collocation_points_along_axis(
+                self.depth_bounds[1], self.depth_bounds[0],
+                self.setup["point_count_in_z"])[::-1]
+
     def _read_single_box(self, component, file_number):
         """
         This function reads Ses3ds raw binary files, e.g. 3d velocity field
@@ -244,7 +263,6 @@ class RawSES3DModelHandler(object):
         with open(filename, "rb") as open_file:
             field = np.ndarray(shape, buffer=open_file.read()[4:-4],
                                dtype="float32", order="F")
-        # field = np.require(field, requirements="C")
 
         # Calculate the new shape by multiplying every dimension with lpd + 1
         # value for every dimension.
@@ -404,7 +422,16 @@ class RawSES3DModelHandler(object):
         points += min_value
         return points
 
-    def plot_depth_slice(self, component, depth_in_km):
+    def get_closest_gll_index(self, coord, value):
+        if coord == "depth":
+            return np.argmin(np.abs(self.collocation_points_depth - value))
+        elif coord == "longitude":
+            return np.argmin(np.abs(self.collocation_points_lngs - value))
+        elif coord == "latitude":
+            return np.argmin(np.abs(self.collocation_points_lats[::-1] -
+                                    value))
+
+    def plot_depth_slice(self, component, depth_in_km, m):
         """
         Plots a depth slice.
 
@@ -414,22 +441,22 @@ class RawSES3DModelHandler(object):
              not exists, the nearest neighbour will be plotted.
         :type depth_in_km: integer or float
         """
-        lat_bounds = [rotations.colat2lat(_i)
-                      for _i in self.setup["physical_boundaries_x"][::-1]]
-        lng_bounds = self.setup["physical_boundaries_y"]
-        depth_bounds = [6371 - _i / 1000.0
-                        for _i in self.setup["physical_boundaries_z"]]
+        depth_index = self.get_closest_gll_index("depth", depth_in_km)
+
+        # No need to do anything if the currently plotted slice is already
+        # plotted. This is useful for interactive use when the desired depth
+        # is changed but closest GLL collocation point is still the same.
+        if hasattr(m, "_plotted_depth_slice"):
+            if m._plotted_depth_slice == (self.directory, depth_index,
+                                          component):
+                return None, None, None
 
         data = self.parsed_components[component]
 
-        available_depths = np.linspace(*depth_bounds, num=data.shape[2])
-        depth_index = np.argmin(np.abs(available_depths - depth_in_km))
-        actual_depth = available_depths[depth_index]
+        actual_depth = self.collocation_points_depth[depth_index]
 
-        lngs = self._get_collocation_points_along_axis(
-            lng_bounds[0], lng_bounds[1], data.shape[1])
-        lats = self._get_collocation_points_along_axis(
-            lat_bounds[0], lat_bounds[1], data.shape[0])
+        lngs = self.collocation_points_lngs
+        lats = self.collocation_points_lats
 
         lon, lat = np.meshgrid(lngs, lats)
         if hasattr(self.domain, "rotation_axis") and \
@@ -445,11 +472,10 @@ class RawSES3DModelHandler(object):
             lon.shape = lon_shape
             lat.shape = lat_shape
 
-        m = self.domain.plot()
-
         x, y = m(lon, lat)
         depth_data = data[::-1, :, depth_index]
-        vmin, vmax = depth_data.min(), depth_data.max()
+
+        vmin, vmax = depth_data[depth_data != 0].min(), depth_data.max()
         vmedian = np.median(depth_data)
         offset = max(abs(vmax - vmedian), abs(vmedian - vmin))
 
@@ -459,68 +485,64 @@ class RawSES3DModelHandler(object):
         vmin = vmedian - offset
         vmax = vmedian + offset
 
+        # Remove an existing pcolormesh if it exists. This does not hurt in
+        # any case but is useful for interactive use.
+        if hasattr(m, "_depth_slice"):
+            m._depth_slice.remove()
+            del m._depth_slice
+
         im = m.pcolormesh(x, y, depth_data, cmap=tomo_colormap, vmin=vmin,
-                          vmax=vmax)
+                    vmax=vmax)
+        m._depth_slice = im
 
-        # Add colorbar and potentially unit.
-        cm = m.colorbar(im, "right", size="3%", pad='2%')
-        if component in UNIT_DICT:
-            cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
+        # Store what is currently plotted.
+        m._plotted_depth_slice = (self.directory, depth_index, component)
 
-        plt.suptitle("Depth slice of %s at %i km" % (
-            component, int(round(actual_depth))), size="large")
+        return actual_depth, im, depth_data
+
+        # if component in UNIT_DICT:
+        #     cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
+        #et       #
+        # plt.suptitle("Depth slice of %s at %i km" % (
+        #     component, int(round(actual_depth))), size="large")
 
         # Only a global domain does not have a border. Probably not
         # necessary as this script here can only plot SES3D models but it
         # cannot hurt.
-        if not isinstance(self.domain, lasif.domain.GlobalDomain):
-            border = rotations.get_border_latlng_list(
-                rotations.colat2lat(self.setup["physical_boundaries_x"][0]),
-                rotations.colat2lat(self.setup["physical_boundaries_x"][1]),
-                self.setup["physical_boundaries_y"][0],
-                self.setup["physical_boundaries_y"][1],
-                rotation_axis=self.domain.rotation_axis,
-                rotation_angle_in_degree=self.domain.rotation_angle_in_degree)
-            border = np.array(border)
-            lats = border[:, 0]
-            lngs = border[:, 1]
-            lngs, lats = m(lngs, lats)
-            m.plot(lngs, lats, color="black", lw=2, path_effects=[
-                PathEffects.withStroke(linewidth=4, foreground="white")])
+        # if not isinstance(self.domain, lasif.domain.GlobalDomain):
+        #     border = rotations.get_border_latlng_list(
+        #         rotations.colat2lat(self.setup["physical_boundaries_x"][0]),
+        #         rotations.colat2lat(self.setup["physical_boundaries_x"][1]),
+        #         self.setup["physical_boundaries_y"][0],
+        #         self.setup["physical_boundaries_y"][1],
+        #         rotation_axis=self.domain.rotation_axis,
+        #         rotation_angle_in_degree=self.domain.rotation_angle_in_degree)
+        #     border = np.array(border)
+        #     lats = border[:, 0]
+        #     lngs = border[:, 1]
+        #     lngs, lats = m(lngs, lats)
+        #     m.plot(lngs, lats, color="black", lw=2, path_effects=[
+        #         PathEffects.withStroke(linewidth=4, foreground="white")])
 
-        def _on_button_press(event):
-            if event.button != 1 or not event.inaxes:
-                return
-            lon, lat = m(event.xdata, event.ydata, inverse=True)
-            # Convert to colat to ease indexing.
-            colat = rotations.lat2colat(lat)
+    def get_depth_profile(self, component, latitude, longitude):
 
-            x_range = (self.setup["physical_boundaries_x"][1] -
-                       self.setup["physical_boundaries_x"][0])
-            x_frac = (colat - self.setup["physical_boundaries_x"][0]) / x_range
-            x_index = int(((self.setup["boundaries_x"][1] -
-                            self.setup["boundaries_x"][0]) * x_frac) +
-                          self.setup["boundaries_x"][0])
-            y_range = (self.setup["physical_boundaries_y"][1] -
-                       self.setup["physical_boundaries_y"][0])
-            y_frac = (lon - self.setup["physical_boundaries_y"][0]) / y_range
-            y_index = int(((self.setup["boundaries_y"][1] -
-                            self.setup["boundaries_y"][0]) * y_frac) +
-                          self.setup["boundaries_y"][0])
+        # Need to rotate latitude and longitude.
+        if hasattr(self.domain, "rotation_axis") and \
+                   self.domain.rotation_axis and \
+                   self.domain.rotation_angle_in_degree:
+            latitude, longitude = rotations.rotate_lat_lon(
+                latitude, longitude, self.domain.rotation_axis,
+                -1.0 * self.domain.rotation_angle_in_degree)
 
-            plt.figure(1, figsize=(3, 8))
-            depths = available_depths
-            values = data[x_index, y_index, :]
-            plt.plot(values, depths)
-            plt.grid()
-            plt.ylim(depths[-1], depths[0])
-            plt.show()
-            plt.close()
-            plt.figure(0)
+        x_index = self.get_closest_gll_index("latitude", latitude)
+        y_index = self.get_closest_gll_index("longitude", longitude)
 
-        plt.gcf().canvas.mpl_connect('button_press_event', _on_button_press)
+        data = self.parsed_components[component]
+        depths = self.collocation_points_depth
+        values = data[x_index, y_index, :]
 
-        plt.show()
+        return depths, values
+
 
     def __str__(self):
         """
