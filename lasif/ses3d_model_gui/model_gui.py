@@ -231,27 +231,28 @@ class Window(QtGui.QMainWindow):
         self.model.parse_component(component)
 
         # Plot model and colorbar.
-        actual_depth, im, depth_data = self.model.plot_depth_slice(
-            component, depth, self.basemap)
+        ret_val = self.model.plot_depth_slice(component, depth, self.basemap)
 
-        if actual_depth is None:
+        if ret_val is None:
             self.ui.depth_label.setText("Desired Depth: %.1f km" % depth)
             return
 
         self.ui.depth_label.setText("Desired Depth: %.1f km" % depth)
         self.ui.plotted_depth_label.setText("Plotted Depth: %.1f km" %
-                                            actual_depth)
+                                            ret_val["depth"])
 
         self.axes["colorbar"].clear()
-        cm = self.figures["colorbar"].colorbar(im, cax=self.axes["colorbar"])
+        cm = self.figures["colorbar"].colorbar(
+            ret_val["mesh"], cax=self.axes["colorbar"])
         if component in UNIT_DICT:
             cm.set_label(UNIT_DICT[component], fontsize="x-large", rotation=0)
 
-        # Plot the histogram.
+        # Plot a histogram of the value distribution for the current depth
+        # slice.
         ax = self.axes["histogram"]
         ax.clear()
-        ax.hist(depth_data.ravel(), bins=150, color="#C44E52")
-        min, max = depth_data.min(), depth_data.max()
+        ax.hist(ret_val["data"].ravel(), bins=150, color="#C44E52")
+        min, max = ret_val["data"].min(), ret_val["data"].max()
         v_range = max - min
         ax.set_xlim(min - v_range * 0.1, max + v_range * 0.1)
         ax.set_yticks([])

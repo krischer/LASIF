@@ -14,17 +14,13 @@ A set of classes dealing with SES3D 4.1 Models
 import collections
 import glob
 import math
+import numpy as np
 import os
 import re
 import warnings
 
-from matplotlib.colors import LinearSegmentedColormap
-import matplotlib.patheffects as PathEffects
-import matplotlib.pylab as plt
-import numpy as np
-
+import lasif.colors
 from lasif import rotations
-import lasif.domain
 
 
 # Pretty units for some components.
@@ -36,37 +32,8 @@ UNIT_DICT = {
     "rhoinv": r"$\frac{\mathrm{m}^3}{\mathrm{kg}}$",
 }
 
-
-def _get_colormap(colors, colormap_name):
-    """
-    A simple helper function facilitating linear colormap creation.
-    """
-    # Sort and normalize from 0 to 1.
-    indices = np.array(sorted(colors.iterkeys()))
-    normalized_indices = (indices - indices.min()) / indices.ptp()
-
-    # Create the colormap dictionary and return the colormap.
-    cmap_dict = {"red": [], "green": [], "blue": []}
-    for _i, index in enumerate(indices):
-        color = colors[index]
-        cmap_dict["red"].append((normalized_indices[_i], color[0], color[0]))
-        cmap_dict["green"].append((normalized_indices[_i], color[1], color[1]))
-        cmap_dict["blue"].append((normalized_indices[_i], color[2], color[2]))
-    return LinearSegmentedColormap(colormap_name, cmap_dict)
-
-
-# A pretty colormap for use in tomography.
-tomo_colormap = _get_colormap({
-    0.0: [0.1, 0.0, 0.0],     # Reddish black
-    0.2: [0.8, 0.0, 0.0],
-    0.3: [1.0, 0.7, 0.0],
-    0.48: [0.92, 0.92, 0.92],
-    0.5: [0.92, 0.92, 0.92],  # Light gray
-    0.52: [0.92, 0.92, 0.92],
-    0.7: [0.0, 0.6, 0.7],
-    0.8: [0.0, 0.0, 0.8],
-    1.0: [0.0, 0.0, 0.1]},
-    "seismic_tomography")     # Blueish black
+tomo_colormap = lasif.colors.get_colormap(
+    "tomo_full_scale_linear_lightness")
 
 
 class RawSES3DModelHandler(object):
@@ -440,24 +407,26 @@ class RawSES3DModelHandler(object):
         :param depth_in_km: The depth in km to plot. If the exact depth does
              not exists, the nearest neighbour will be plotted.
         :type depth_in_km: integer or float
+        :param m: Basemap instance.
         """
         depth_index = self.get_closest_gll_index("depth", depth_in_km)
 
         # No need to do anything if the currently plotted slice is already
         # plotted. This is useful for interactive use when the desired depth
-        # is changed but closest GLL collocation point is still the same.
+        # is changed but the closest GLL collocation point is still the same.
         if hasattr(m, "_plotted_depth_slice"):
+            # Use a tuple of relevant parameters.
             if m._plotted_depth_slice == (self.directory, depth_index,
                                           component):
-                return None, None, None
+                return None
 
         data = self.parsed_components[component]
 
-        actual_depth = self.collocation_points_depth[depth_index]
-
+        depth = self.collocation_points_depth[depth_index]
         lngs = self.collocation_points_lngs
         lats = self.collocation_points_lats
 
+        # Rotate data if needed.
         lon, lat = np.meshgrid(lngs, lats)
         if hasattr(self.domain, "rotation_axis") and \
                 self.domain.rotation_axis and \
@@ -498,10 +467,21 @@ class RawSES3DModelHandler(object):
         # Store what is currently plotted.
         m._plotted_depth_slice = (self.directory, depth_index, component)
 
-        return actual_depth, im, depth_data
+        return {
+            "depth": depth,
+            "mesh": im,
+            "data": depth_data
+        }
 
     def get_depth_profile(self, component, latitude, longitude):
+        """
+        Returns a depth profile of the model at the requested at the
+        GLL points closest do latitude and longitude.
 
+        :param component: The component of the model.
+        :param latitude: The latitude.
+        :param longitude: The longitude.
+        """
         # Need to rotate latitude and longitude.
         if hasattr(self.domain, "rotation_axis") and \
                    self.domain.rotation_axis and \
@@ -533,7 +513,6 @@ class RawSES3DModelHandler(object):
             "values": values,
             "latitude": lat,
             "longitude": lng}
-
 
     def __str__(self):
         """
