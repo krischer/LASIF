@@ -121,7 +121,7 @@ class Window(QtGui.QMainWindow):
         # Colorbar
         self.figures["colorbar"] = self.ui.colorbar.fig
         self.axes["colorbar"] = self.figures["colorbar"].add_axes(
-            [0.02, 0.05, 0.40, 0.94], axisbg="none")
+            [0.02, 0.05, 0.40, 0.90], axisbg="none")
 
         # Histogram.
         self.figures["histogram"] = self.ui.histogram.fig

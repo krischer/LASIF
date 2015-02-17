@@ -465,7 +465,7 @@ class RawSES3DModelHandler(object):
             }
 
             if component not in cmp_map:
-                vmin, vmax = depth_data[depth_data != 0].min(), depth_data.max()
+                vmin, vmax = depth_data.min(), depth_data.max()
                 vmedian = np.median(depth_data)
                 offset = max(abs(vmax - vmedian), abs(vmedian - vmin))
 
@@ -488,7 +488,7 @@ class RawSES3DModelHandler(object):
                 vmin = -offset
                 vmax = offset
         else:
-            vmin, vmax = depth_data[depth_data != 0].min(), depth_data.max()
+            vmin, vmax = depth_data.min(), depth_data.max()
             vmedian = np.median(depth_data)
             offset = max(abs(vmax - vmedian), abs(vmedian - vmin))
 
