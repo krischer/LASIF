@@ -141,14 +141,14 @@ def get_domain_decompositions(nx, ny, nz, max_recommendations=5):
                   key=lambda x: np.array(x).prod())
 
 
-def get_ses3d_settings(dx, dy, dz, nx, ny, nz):
+def get_ses3d_settings(dx, dy, dz, nx, ny, nz, max_recommendations):
     print("SES3D Setup Assistant\n")
 
     print("All calculations are done quick and dirty so take them with a "
           "grain of salt.\n")
 
-    decompositions = get_domain_decompositions(nx, ny, nz,
-                                               max_recommendations=20)
+    decompositions = get_domain_decompositions(
+        nx, ny, nz, max_recommendations=max_recommendations)
     if not decompositions:
         print("Could not calculate recommended domain decompositions.")
         return
@@ -219,15 +219,18 @@ def main():
     parser.add_argument("dy", type=float, help="longitudinal extent in "
                                                "degrees")
     parser.add_argument("dz", type=float, help="depth extent in km")
-    parser.add_argument("nx", type=int, help="elements in latitudinal "
-                                             "direction")
-    parser.add_argument("ny", type=int, help="elements in longitudinal "
-                                             "direction")
-    parser.add_argument("nz", type=int, help="elements in depth "
-                                             "direction")
+    parser.add_argument("nx", type=int, help="~ element count in "
+                        "latitudinal dir. Same as nx_global.")
+    parser.add_argument("ny", type=int, help="~ element count in "
+                        "longitudinal dir. Same as ny_global.")
+    parser.add_argument("nz", type=int, help="~ element count in depth "
+                        "dir. Same as nz_global.")
+    parser.add_argument("--recommendations", type=int, default=3,
+                        help="number of recommendations to provide")
     args = parser.parse_args()
     get_ses3d_settings(dx=args.dx, dy=args.dy, dz=args.dz, nx=args.nx,
-                       ny=args.ny, nz=args.nz)
+                       ny=args.ny, nz=args.nz,
+                       max_recommendations=args.recommendations)
 
 
 if __name__ == "__main__":
