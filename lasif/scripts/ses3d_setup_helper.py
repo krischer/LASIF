@@ -10,6 +10,7 @@ Script assisting in determining suitable SES3D settings.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import argparse
+import colorama
 import itertools
 import numpy as np
 
@@ -146,57 +147,68 @@ def get_ses3d_settings(dx, dy, dz, nx, ny, nz):
     print("All calculations are done quick and dirty so take them with a "
           "grain of salt.\n")
 
-    x_extent = dx * 111.32
-    y_extent = dy * 111.32
-    z_extent = dz
-    elem_size_x = x_extent / nx
-    elem_size_y = y_extent / ny
-    elem_size_z = z_extent / nz
-
-    print("Extent in latitudinal (X) direction: %.1f km, %1.f km/element" %
-          (x_extent, elem_size_x))
-    print("Extent in longitudinal (Y) direction: %.1f km, %1.f km/element" %
-          (y_extent, elem_size_y))
-    print("Extent in depth (Z) direction: %.1f km , %.1f km/element" %
-          (z_extent, elem_size_z))
-
-    print("")
-    element_sizes = [elem_size_x, elem_size_y, elem_size_z]
-    min_element_size = min(element_sizes)
-    max_element_size = max(element_sizes)
-    # Smallest GLL point distance.
-    dx_min = 0.1717 * min_element_size
-
-    # Get the p wave at all depths and choose the biggest one.
-    m = OneDimensionalModel("ak135-f")
-    values = [m.get_value("vp", _i) for _i in
-              np.linspace(5, dz, 400)]
-    v_max = max(values)
-    v_min = min(values)
-    print("P wave velocities range from %.1f km/s to %.1f km/s. The "
-          "velocities of the top 5 km\nhave not been analyzed to avoid very "
-          "slow layers.\n" % (v_min, v_max))
-
-    # criterion approximately 0.3 for SES3D.
-    dt = 0.3 * dx_min / v_max
-    minimum_period = 2.0 * max_element_size / v_min
-
-    print("Maximal recommended time step: %.3f s" % dt)
-    print("Minimal resolvable period: %.1f s\n" % minimum_period)
-
     decompositions = get_domain_decompositions(nx, ny, nz,
                                                max_recommendations=20)
     if not decompositions:
         print("Could not calculate recommended domain decompositions.")
-    else:
-        print("Possible recommended domain decompositions:")
-        for comp in decompositions:
-            print("\tTotal CPU count: %5i; "
-                  "CPUs in X: %3i (%2i elements/core), "
-                  "CPUs in Y: %3i (%2i elements/core), "
-                  "CPUs in Z: %3i (%2i elements/core)" %
-                  (np.array(comp).prod(), comp[0], nx / comp[0],
-                   comp[1], ny / comp[1], comp[2], nz / comp[2]))
+        return
+
+    print("Possible recommended domain decompositions:\n")
+    for comp in decompositions:
+        print(colorama.Fore.RED +
+              "Total CPU count: %5i; "
+              "CPUs in X: %3i (%2i elements/core), "
+              "CPUs in Y: %3i (%2i elements/core), "
+              "CPUs in Z: %3i (%2i elements/core)" %
+              (np.array(comp).prod(), comp[0], nx / comp[0],
+               comp[1], ny / comp[1], comp[2], nz / comp[2]) +
+              colorama.Style.RESET_ALL)
+
+        x_extent = dx * 111.32
+        y_extent = dy * 111.32
+        z_extent = dz
+        elem_size_x = x_extent / (nx + comp[0])
+        elem_size_y = y_extent / (ny + comp[1])
+        elem_size_z = z_extent / (nz + comp[2])
+
+        print("  Extent in latitudinal  (X) direction: %7.1f km, "
+              "%5.1f km/element, %4i elements" % (x_extent, elem_size_x,
+                                                  nx + comp[0]))
+        print("  Extent in longitudinal (Y) direction: %7.1f km, "
+              "%5.1f km/element, %4i elements" % (y_extent, elem_size_y,
+                                                  ny + comp[1]))
+        print("  Extent in depth        (Z) direction: %7.1f km, "
+              "%5.1f km/element, %4i elements" % (z_extent, elem_size_z,
+                                                  nz + comp[2]))
+        element_sizes = [elem_size_x, elem_size_y, elem_size_z]
+        min_element_size = min(element_sizes)
+        max_element_size = max(element_sizes)
+        # Smallest GLL point distance.
+        dx_min = 0.1717 * min_element_size
+
+        # Get the p wave at all depths and choose the biggest one.
+        m = OneDimensionalModel("ak135-f")
+        values = [m.get_value("vp", _i) for _i in
+                  np.linspace(5, dz, 400)]
+        v_max = max(values)
+        v_min = min(values)
+        print("  P wave velocities range from %.1f km/s to %.1f km/s. The "
+              "velocities of the top 5 km have not been analyzed to avoid "
+              "very slow layers." % (v_min, v_max))
+
+        # criterion approximately 0.3 for SES3D.
+        dt = 0.3 * dx_min / v_max
+        minimum_period = 2.0 * max_element_size / v_min
+
+        print(colorama.Fore.GREEN +
+              "  Maximal recommended time step: %.3f s" % dt)
+        print("  Minimal resolvable period: %.1f s" % minimum_period +
+              colorama.Style.RESET_ALL)
+
+        print(colorama.Fore.YELLOW + "  SES3D Settings: nx_global: %i, "
+              "ny_global: %i, nz_global: %i" % (nx, ny, nz))
+        print("                  px: %i, py: %i, px: %i" % (
+            comp[0], comp[1], comp[2]) + colorama.Style.RESET_ALL + "\n")
 
 
 def main():
