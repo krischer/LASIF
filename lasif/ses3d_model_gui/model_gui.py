@@ -27,6 +27,7 @@ import matplotlib.patheffects as PathEffects
 from lasif.colors import COLORS
 from lasif import ses3d_models
 
+
 # Pretty units for some components.
 UNIT_DICT = {
     "vp": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
@@ -34,7 +35,7 @@ UNIT_DICT = {
     "vsh": r"$\frac{\mathrm{km}}{\mathrm{s}}$",
     "rho": r"$\frac{\mathrm{kg}}{\mathrm{m}^3}$",
     "rhoinv": r"$\frac{\mathrm{m}^3}{\mathrm{kg}}$",
-    }
+}
 
 
 def compile_and_import_ui_files():
@@ -125,7 +126,7 @@ class Window(QtGui.QMainWindow):
 
         # Histogram.
         self.figures["histogram"] = self.ui.histogram.fig
-        self.axes["histogram"] =self.figures["histogram"].add_axes(
+        self.axes["histogram"] = self.figures["histogram"].add_axes(
             [0.05, 0.1, 0.9, 0.85], axisbg="none")
         # Only show the bottom.
         self.axes["histogram"].spines["right"].set_visible(False)
@@ -245,7 +246,7 @@ class Window(QtGui.QMainWindow):
         # Plot model and colorbar.
         ret_val = self.model.plot_depth_slice(
             component, depth, self.basemap,
-            absolute_values=True if style=="absolute" else False)
+            absolute_values=True if style == "absolute" else False)
 
         if ret_val is None:
             self.ui.depth_label.setText("Desired Depth: %.1f km" % depth)
@@ -287,7 +288,7 @@ class Window(QtGui.QMainWindow):
         self.plot_state["depth_profile_line"] = []
 
         if self.plot_state["actual_depth"] is not None:
-            ax= self.axes["depth_profile"]
+            ax = self.axes["depth_profile"]
             a, b = ax.get_xlim()
             self.plot_state["depth_profile_line"].append(
                 ax.hlines(self.plot_state["actual_depth"], a, b, color="0.2"))

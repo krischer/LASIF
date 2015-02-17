@@ -27,6 +27,7 @@ COLORS = [
     "#64B5CD"
 ]
 
+
 def get_colormap(name):
     """
     Load one of the colormaps defined in this module.
@@ -40,7 +41,7 @@ def get_colormap(name):
     else:
         raise ValueError("Unknown colormap '%s'." % name)
 
-    cm =  LinearSegmentedColormap.from_list(name, colors=colors, N=256)
+    cm = LinearSegmentedColormap.from_list(name, colors=colors, N=256)
     return cm
 
 # Colormap for tomography with a linear lightness. This here is a diverging

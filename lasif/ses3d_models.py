@@ -198,7 +198,7 @@ class RawSES3DModelHandler(object):
             rotations.colat2lat(_i)
             for _i in self.setup["physical_boundaries_x"][::-1]]
         self.lng_bounds = self.setup["physical_boundaries_y"]
-        self.depth_bounds =  [
+        self.depth_bounds = [
             6371 - _i / 1000.0 for _i in self.setup["physical_boundaries_z"]]
 
         self.collocation_points_lngs = self._get_collocation_points_along_axis(
@@ -505,7 +505,7 @@ class RawSES3DModelHandler(object):
             del m._depth_slice
 
         im = m.pcolormesh(x, y, depth_data, cmap=tomo_colormap, vmin=vmin,
-                    vmax=vmax)
+                          vmax=vmax)
         m._depth_slice = im
 
         # Store what is currently plotted.
@@ -529,8 +529,8 @@ class RawSES3DModelHandler(object):
         """
         # Need to rotate latitude and longitude.
         if hasattr(self.domain, "rotation_axis") and \
-                   self.domain.rotation_axis and \
-                   self.domain.rotation_angle_in_degree:
+                self.domain.rotation_axis and \
+                self.domain.rotation_angle_in_degree:
             latitude, longitude = rotations.rotate_lat_lon(
                 latitude, longitude, self.domain.rotation_axis,
                 -1.0 * self.domain.rotation_angle_in_degree)
