@@ -125,7 +125,7 @@ class Window(QtGui.QMainWindow):
         it = self.comm.iterations.get(value)
         self.ui.event_selection_comboBox.setEnabled(True)
         self.ui.event_selection_comboBox.clear()
-        self.ui.event_selection_comboBox.addItems(it.events.keys())
+        self.ui.event_selection_comboBox.addItems(sorted(it.events.keys()))
 
         if it.scale_data_to_synthetics:
             self.ui.status_label.setText("Data scaled to synthetics for "
