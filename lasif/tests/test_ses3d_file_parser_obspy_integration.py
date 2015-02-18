@@ -61,3 +61,54 @@ def test_ReadingByCheckingReturnedData():
         3.39320707E-07, 3.44629825E-07, 3.50957549E-07, 3.57983453E-07,
         3.65361842E-07, 3.72732785E-07])
     np.testing.assert_almost_equal(tr_r.data[-10:], r_data)
+
+
+def test_reading_headonly():
+    """
+    Reads the files in headonly mode.
+    """
+    filename_theta = os.path.join(data_dir, "File_theta")
+    filename_phi = os.path.join(data_dir, "File_phi")
+    filename_r = os.path.join(data_dir, "File_r")
+
+    tr_theta = obspy.read(filename_theta, headonly=True)[0]
+    assert tr_theta.stats.channel == "X"
+    assert hasattr(tr_theta.stats, "ses3d")
+    assert tr_theta.stats.npts == 3300
+
+    tr_phi = obspy.read(filename_phi, headonly=True)[0]
+    assert tr_phi.stats.channel == "Y"
+    assert hasattr(tr_phi.stats, "ses3d")
+    assert tr_phi.stats.npts == 3300
+
+    tr_r = obspy.read(filename_r, headonly=True)[0]
+    assert tr_r.stats.channel == "Z"
+    assert hasattr(tr_r.stats, "ses3d")
+    assert tr_r.stats.npts == 3300
+
+
+def test_reading_headonly_compare_to_normal_reading():
+    """
+    Reads the files in headonly mode by comparing to data read in normal mode.
+    """
+    filename_theta = os.path.join(data_dir, "File_theta")
+    filename_phi = os.path.join(data_dir, "File_phi")
+    filename_r = os.path.join(data_dir, "File_r")
+
+    tr_theta = obspy.read(filename_theta)[0]
+    tr_theta_h = obspy.read(filename_theta, headonly=True)[0]
+    assert tr_theta.stats == tr_theta_h.stats
+    assert len(tr_theta.data) == 3300
+    assert len(tr_theta_h.data) == 0
+
+    tr_phi = obspy.read(filename_phi)[0]
+    tr_phi_h = obspy.read(filename_phi, headonly=True)[0]
+    assert tr_phi.stats == tr_phi_h.stats
+    assert len(tr_phi.data) == 3300
+    assert len(tr_phi_h.data) == 0
+
+    tr_r = obspy.read(filename_r)[0]
+    tr_r_h = obspy.read(filename_r, headonly=True)[0]
+    assert tr_r.stats == tr_r_h.stats
+    assert len(tr_phi.data) == 3300
+    assert len(tr_phi_h.data) == 0

@@ -14,7 +14,6 @@ points in the setup.py.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
-from StringIO import StringIO
 import warnings
 
 from lasif import rotations
@@ -26,6 +25,12 @@ POSSIBLE_FIRST_LINES = [
     "theta component seismograms",
     "phi component seismograms",
     "r component seismograms"]
+
+COMPONENT_MAP = {
+    "theta": "X",
+    "phi": "Y",
+    "r": "Z"
+}
 
 
 def is_SES3D(filename_or_file_object):
@@ -52,7 +57,7 @@ def is_SES3D(filename_or_file_object):
     return False
 
 
-def read_SES3D(file_or_file_object, *args, **kwargs):
+def read_SES3D(file_or_file_object, headonly=False, *args, **kwargs):
     """
     Turns a SES3D file into a obspy.core.Stream object.
 
@@ -75,48 +80,60 @@ def read_SES3D(file_or_file_object, *args, **kwargs):
     and the channel will be set to either 'X' (south component), 'Y' (east
     component), or 'Z' (vertical component).
     """
+    if not hasattr(file_or_file_object, "read"):
+        with open(file_or_file_object, "rb") as fh:
+            return _read_SES3D(fh, headonly=headonly)
+    else:
+        return _read_SES3D(file_or_file_object, headonly=headonly)
+
+
+def _read_SES3D(fh, headonly=False):
+    """
+    Internal SES3D parsing routine.
+    """
     # Import here to avoid circular imports.
     from obspy.core import AttribDict, Trace, Stream
 
-    # Make sure that it is a file like object.
-    if not hasattr(file_or_file_object, "read"):
-        with open(file_or_file_object, "rb") as open_file:
-            file_or_file_object = StringIO(open_file.read())
-
     # Read the header.
-    component = file_or_file_object.readline().split()[0].lower()
-    npts = int(file_or_file_object.readline().split()[-1])
-    delta = float(file_or_file_object.readline().split()[-1])
+    component = fh.readline().split()[0].lower()
+    npts = int(fh.readline().split()[-1])
+    delta = float(fh.readline().split()[-1])
     # Skip receiver location line.
-    file_or_file_object.readline()
-    rec_loc = file_or_file_object.readline().split()
+    fh.readline()
+    rec_loc = fh.readline().split()
     rec_x, rec_y, rec_z = map(float, [rec_loc[1], rec_loc[3], rec_loc[5]])
     # Skip the source location line.
-    file_or_file_object.readline()
-    src_loc = file_or_file_object.readline().split()
+    fh.readline()
+    src_loc = fh.readline().split()
     src_x, src_y, src_z = map(float, [src_loc[1], src_loc[3], src_loc[5]])
 
     # Read the data.
-    data = np.array(map(float, file_or_file_object.readlines()),
-                    dtype="float32")
+    if headonly is False:
+        data = np.array(map(float, fh.readlines()),
+                        dtype="float32")
+    else:
+        data = np.array([])
+
+    ses3d = AttribDict()
+    ses3d.receiver_latitude = rotations.colat2lat(rec_x)
+    ses3d.receiver_longitude = rec_y
+    ses3d.receiver_depth_in_m = rec_z
+    ses3d.source_latitude = rotations.colat2lat(src_x)
+    ses3d.source_longitude = src_y
+    ses3d.source_depth_in_m = src_z
+
+    header = {
+        "delta": delta,
+        "channel": COMPONENT_MAP[component],
+        "ses3d": ses3d,
+        "npts": npts
+    }
 
     # Setup Obspy Stream/Trace structure.
-    tr = Trace(data=data)
-    tr.stats.delta = delta
-    # Map the channel attributes.
-    tr.stats.channel = {
-        "theta": "X",
-        "phi": "Y",
-        "r": "Z"}[component]
-    tr.stats.ses3d = AttribDict()
-    tr.stats.ses3d.receiver_latitude = rotations.colat2lat(rec_x)
-    tr.stats.ses3d.receiver_longitude = rec_y
-    tr.stats.ses3d.receiver_depth_in_m = rec_z
-    tr.stats.ses3d.source_latitude = rotations.colat2lat(src_x)
-    tr.stats.ses3d.source_longitude = src_y
-    tr.stats.ses3d.source_depth_in_m = src_z
+    tr = Trace(data=data, header=header)
+
     # Small check.
-    if npts != tr.stats.npts:
+    if headonly is False and npts != tr.stats.npts:
         msg = "The sample count specified in the header does not match " + \
             "the actual data count."
         warnings.warn(msg)

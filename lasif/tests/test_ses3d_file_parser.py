@@ -64,6 +64,30 @@ def test_isSES3DFileWithStringIO():
         other_file.close()
 
 
+def test_readingSES3DFile_headonly():
+    """
+    Tests the headonly reading of a SES3D file.
+    """
+    filename = os.path.join(data_dir, "File_phi")
+    st = read_SES3D(filename, headonly=True)
+    assert len(st) == 1
+    tr = st[0]
+    assert tr.stats.npts == 3300
+    np.testing.assert_almost_equal(tr.stats.delta, 0.15)
+    # Latitude in the file is actually the colatitude.
+    np.testing.assert_almost_equal(tr.stats.ses3d.receiver_latitude,
+                                   90.0 - 107.84100)
+    np.testing.assert_almost_equal(tr.stats.ses3d.receiver_longitude,
+                                   -3.5212801)
+    np.testing.assert_almost_equal(tr.stats.ses3d.receiver_depth_in_m, 0.0)
+    np.testing.assert_almost_equal(tr.stats.ses3d.source_latitude,
+                                   90.0 - 111.01999)
+    np.testing.assert_almost_equal(tr.stats.ses3d.source_longitude, -8.9499998)
+    np.testing.assert_almost_equal(tr.stats.ses3d.source_depth_in_m, 20000)
+
+    assert len(tr.data) == 0
+
+
 def test_readingSES3DFile():
     """
     Tests the actual reading of a SES3D file.
