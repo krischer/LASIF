@@ -208,7 +208,7 @@ def plot_raydensity(map_object, station_events, domain):
 
 
 def plot_stations_for_event(map_object, station_dict, event_info,
-                            raypaths=True):
+                            color="green", alpha=1.0, raypaths=True):
     """
     Plots all stations for one event.
 
@@ -228,8 +228,8 @@ def plot_stations_for_event(map_object, station_dict, event_info,
 
     x, y = map_object(lngs, lats)
 
-    stations = map_object.scatter(x, y, color="green", s=35, marker="v",
-                                  zorder=100, edgecolor="black")
+    stations = map_object.scatter(x, y, color=color, s=35, marker="v",
+                                  alpha=alpha, zorder=5)
     # Setting the picker overwrites the edgecolor attribute on certain
     # matplotlib and basemap versions. Fix it here.
     stations._edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]])

@@ -12,11 +12,14 @@ pg.setConfigOptions(antialias=True, foreground=(50, 50, 50), background=None)
 from glob import iglob
 import imp
 import inspect
+import matplotlib.patheffects as PathEffects
 from obspy.core.util.geodetics import locations2degrees
 from obspy.taup.taup import getTravelTimes
 import os
+import random
 import sys
 
+from ..colors import COLORS
 from .window_region_item import WindowLinearRegionItem
 
 import lasif.visualization
@@ -50,6 +53,9 @@ def compile_and_import_ui_files():
         except ImportError, e:
             print "Error importing %s" % py_ui_file
             print e.message
+
+
+path_effects = [PathEffects.withStroke(linewidth=5, foreground="white")]
 
 
 class Window(QtGui.QMainWindow):
@@ -142,7 +148,8 @@ class Window(QtGui.QMainWindow):
         self._current_raypath = self.basemap.drawgreatcircle(
             event_info["longitude"], event_info["latitude"],
             coordinates["longitude"], coordinates["latitude"],
-            lw=2, alpha=0.6)
+            color=COLORS[random.randint(0, len(COLORS) - 1)],
+            lw=2, alpha=0.8, zorder=10, path_effects=path_effects)
         self._draw()
 
     def _update_event_map(self):
@@ -165,6 +172,7 @@ class Window(QtGui.QMainWindow):
         # Plot the stations. This will also plot raypaths.
         self.current_station_scatter = lasif.visualization \
             .plot_stations_for_event(map_object=self.basemap,
+                                     color="0.2", alpha=0.4,
                                      station_dict=stations,
                                      event_info=event, raypaths=False)
         self.map_ax.set_title("No matter the projection, North for the "
