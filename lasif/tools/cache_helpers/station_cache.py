@@ -66,6 +66,7 @@ class StationCache(FileInfoCache):
         super(StationCache, self).__init__(cache_db_file=cache_db_file,
                                            root_folder=root_folder,
                                            read_only=read_only,
+                                           pretty_name="Station Cache",
                                            show_progress=show_progress)
 
     def _find_files_seed(self):

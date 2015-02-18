@@ -28,7 +28,7 @@ class WaveformCache(FileInfoCache):
     """
 
     def __init__(self, cache_db_file, root_folder, waveform_folder, read_only,
-                 show_progress=True):
+                 pretty_name, show_progress=True):
         self.index_values = [
             ("network", "TEXT"),
             ("station", "TEXT"),
@@ -49,6 +49,7 @@ class WaveformCache(FileInfoCache):
         super(WaveformCache, self).__init__(cache_db_file=cache_db_file,
                                             root_folder=root_folder,
                                             read_only=read_only,
+                                            pretty_name=pretty_name,
                                             show_progress=show_progress)
 
     def get_files_for_station(self, network, station):

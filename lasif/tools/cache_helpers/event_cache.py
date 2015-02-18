@@ -60,6 +60,7 @@ class EventCache(FileInfoCache):
         super(EventCache, self).__init__(cache_db_file=cache_db_file,
                                          root_folder=root_folder,
                                          read_only=read_only,
+                                         pretty_name="Event Cache",
                                          show_progress=False)
 
     def _find_files_quakeml(self):

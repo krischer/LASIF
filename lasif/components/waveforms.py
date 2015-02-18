@@ -106,6 +106,7 @@ class WaveformsComponent(Component):
             if not os.path.exists(data_path):
                 msg = "No data for event '%s' found." % event_name
                 raise LASIFNotFoundError(msg)
+            label = "Raw"
         elif data_type == "processed":
             if not tag_or_iteration:
                 msg = "Tag must be given for processed data."
@@ -114,6 +115,7 @@ class WaveformsComponent(Component):
                 msg = ("No data for event '%s' and processing tag '%s' "
                        "found." % (event_name, tag_or_iteration))
                 raise LASIFNotFoundError(msg)
+            label = "Processed %s" % event_name
         elif data_type == "synthetic":
             if not tag_or_iteration:
                 msg = "Long iteration name must be given for synthetic data."
@@ -122,6 +124,7 @@ class WaveformsComponent(Component):
                 msg = ("No synthetic data for event '%s' and iteration '%s' "
                        "found." % (event_name, tag_or_iteration))
                 raise LASIFNotFoundError(msg)
+            label = "Synthetic %s" % event_name
         else:
             raise ValueError("Invalid data type '%s'." % data_type)
 
@@ -131,6 +134,7 @@ class WaveformsComponent(Component):
         cache = WaveformCache(cache_db_file=waveform_db_file,
                               root_folder=self.comm.project.paths["root"],
                               waveform_folder=data_path,
+                              pretty_name="%s Waveform Cache" % label,
                               read_only=self.comm.project.read_only_caches)
         self.__cache[waveform_db_file] = cache
         return cache

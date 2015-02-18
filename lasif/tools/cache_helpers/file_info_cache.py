@@ -101,11 +101,12 @@ class FileInfoCache(object):
     Intended to be subclassed.
     """
     def __init__(self, cache_db_file, root_folder,
-                 read_only, show_progress=True):
+                 read_only, pretty_name, show_progress=True):
         self.cache_db_file = cache_db_file
         self.root_folder = root_folder
         self.read_only = read_only
         self.show_progress = show_progress
+        self.pretty_name = pretty_name
 
         # Will be filled in _init_database() method.
         self.db_cursor = None
@@ -394,7 +395,8 @@ class FileInfoCache(object):
                     if not pbar and self.show_progress and \
                             (time.time() - start_time > 3.5):
                         widgets = [
-                            "Updating cache: ", progressbar.Percentage(),
+                            "Updating %s: " % self.pretty_name,
+                            progressbar.Percentage(),
                             progressbar.Bar(), "", progressbar.ETA()]
                         pbar = progressbar.ProgressBar(
                             widgets=widgets, maxval=filecount).start()
