@@ -13,7 +13,6 @@ import numpy as np
 import obspy
 from obspy.xseed import Parser
 from scipy import signal
-from scipy.interpolate import interp1d
 import warnings
 
 from lasif import LASIFError
@@ -139,7 +138,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     # Trim with a short buffer in an attempt to avoid boundary effects.
     # starttime is the origin time of the event
     # endtime is the origin time plus the length of the synthetics
-    tr.trim(starttime - 0.05 * duration, endtime + 0.05 * duration)
+    tr.trim(starttime - 0.2 * duration, endtime + 0.2 * duration)
 
     # =========================================================================
     # Some basic checks on the data.
@@ -155,13 +154,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
         raise LASIFError(msg)
 
     # =========================================================================
-    # Step 1: Detrend and taper.
-    # =========================================================================
-    tr.detrend("linear")
-    tr.taper(max_percentage=0.05, type="hann")
-
-    # =========================================================================
-    # Step 2: Decimation
+    # Step 1: Decimation
     # Decimate with the factor closest to the sampling rate of the synthetics.
     # The data is still oversampled by a large amount so there should be no
     # problems. This has to be done here so that the instrument correction is
@@ -182,6 +175,13 @@ def preprocessing_function(processing_info, iteration):  # NOQA
             break
 
     # =========================================================================
+    # Step 2: Detrend and taper.
+    # =========================================================================
+    tr.detrend("linear")
+    tr.detrend("demean")
+    tr.taper(max_percentage=0.05, type="hann")
+
+    # =========================================================================
     # Step 3: Instrument correction
     # Correct seismograms to velocity in m/s.
     # =========================================================================
@@ -192,6 +192,19 @@ def preprocessing_function(processing_info, iteration):  # NOQA
         msg = "No station file found for the relevant time span. File skipped"
         raise LASIFError(msg)
 
+    # This is really necessary as other filters are just not sharp enough
+    # and lots of energy from other frequency bands leaks into the frequency
+    # band of interest
+
+    freqmin = processing_info["process_params"]["highpass"]
+    freqmax = processing_info["process_params"]["lowpass"]
+
+    f2 = 0.7 * freqmin
+    f3 = 1.3 * freqmax
+    f1 = 0.8 * f2
+    f4 = 1.4 * f3
+    pre_filt = (f1, f2, f3, f4)
+
     # processing for seed files ==============================================
     if "/SEED/" in station_file:
         # XXX: Check if this is m/s. In all cases encountered so far it
@@ -199,22 +212,25 @@ def preprocessing_function(processing_info, iteration):  # NOQA
         # to other units...
         paz = Parser(station_file).getPAZ(tr.id, tr.stats.starttime)
         try:
-            tr.simulate(paz_remove=paz)
-        except ValueError:
+            tr.simulate(seedresp={"filename": paz, "units": "VEL",
+                                  "date": tr.stats.starttime},
+                        pre_filt=pre_filt, zero_mean=False, taper=False)
+        except ValueError as e:
             msg = ("File  could not be corrected with the help of the "
-                   "SEED file '%s'. Will be skipped.") \
-                % processing_info["station_filename"],
+                   "SEED file '%s'. Will be skipped. Due to: %s") \
+                % (processing_info["station_filename"], str(e))
             raise LASIFError(msg)
 
     # processing with RESP files =============================================
     elif "/RESP/" in station_file:
         try:
             tr.simulate(seedresp={"filename": station_file, "units": "VEL",
-                                  "date": tr.stats.starttime})
-        except ValueError:
+                                  "date": tr.stats.starttime},
+                        pre_file=pre_filt, zero_mean=False, taper=False)
+        except ValueError as e:
             msg = ("File  could not be corrected with the help of the "
-                   "RESP file '%s'. Will be skipped.") \
-                % processing_info["station_filename"],
+                   "RESP file '%s'. Will be skipped. Due to: %s") \
+                % (processing_info["station_filename"], str(e))
             raise LASIFError(msg)
     elif "/StationXML/" in station_file:
         try:
@@ -225,7 +241,8 @@ def preprocessing_function(processing_info, iteration):  # NOQA
             raise LASIFError(msg)
         tr.attach_response(inv)
         try:
-            tr.remove_response()
+            tr.remove_response(output="VEL", pre_filt=pre_filt,
+                               zero_mean=False, taper=False)
         except Exception as e:
             msg = ("File  could not be corrected with the help of the "
                    "StationXML file '%s'. Due to: '%s'  Will be skipped.") \
@@ -235,11 +252,24 @@ def preprocessing_function(processing_info, iteration):  # NOQA
         raise NotImplementedError
 
     # =========================================================================
-    # Step 4: Interpolation
+    # Step 4: Bandpass filtering
+    # This has to be exactly the same filter as in the source time function.
+    # Should eventually be configurable.
     # =========================================================================
-    # Apply one more taper to avoid high frequency contributions from sudden
-    # steps at the beginning/end if padded with zeros.
-    tr.taper(max_percentage=0.05, type="hann")
+    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+              zerophase=False)
+    tr.detrend("linear")
+    tr.detrend("demean")
+    tr.taper(0.05, type="cosine")
+    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+              zerophase=True)
+    tr.detrend("linear")
+    tr.detrend("demean")
+    tr.taper(0.05)
+
+    # =========================================================================
+    # Step 5: Interpolation
+    # =========================================================================
     # Make sure that the data array is at least as long as the
     # synthetics array. Also add some buffer sample for the
     # spline interpolation to work in any case.
@@ -248,30 +278,15 @@ def preprocessing_function(processing_info, iteration):  # NOQA
         tr.trim(starttime=starttime - buf, pad=True, fill_value=0.0)
     if endtime > (tr.stats.endtime - buf):
         tr.trim(endtime=endtime + buf, pad=True, fill_value=0.0)
-
-    # Actual interpolation. Currently a linear interpolation is used.
-    new_time_array = np.linspace(starttime.timestamp, endtime.timestamp,
-                                 processing_info["process_params"]["npts"])
-    old_time_array = np.linspace(tr.stats.starttime.timestamp,
-                                 tr.stats.endtime.timestamp, tr.stats.npts)
-    tr.data = interp1d(old_time_array, tr.data, kind=1)(new_time_array)
-    tr.stats.starttime = starttime
-    tr.stats.delta = processing_info["process_params"]["dt"]
-
-    # =========================================================================
-    # Step 5: Bandpass filtering
-    # This has to be exactly the same filter as in the source time function.
-    # Should eventually be configurable.
-    # =========================================================================
-    tr.filter("lowpass", freq=processing_info["process_params"]["lowpass"],
-              corners=5, zerophase=False)
-    tr.filter("highpass", freq=processing_info["process_params"]["highpass"],
-              corners=2, zerophase=False)
+    tr.interpolate(
+        sampling_rate=1.0 / processing_info["process_params"]["dt"],
+        method="weighted_average_slopes", starttime=starttime,
+        npts=processing_info["process_params"]["npts"])
 
     # =========================================================================
     # Save processed data and clean up.
     # =========================================================================
-    # Convert to single precision for saving.
+    # Convert to single precision to save some space.
     tr.data = np.require(tr.data, dtype="float32", requirements="C")
     if hasattr(tr.stats, "mseed"):
         tr.stats.mseed.encoding = "FLOAT32"
