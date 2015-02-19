@@ -17,7 +17,6 @@
       <max_amplitude_ratio>100.0</max_amplitude_ratio>
     </signal_to_noise>
   </rejection_criteria>
-  <source_time_function>Filtered Heaviside</source_time_function>
   <solver_parameters>
     <solver>SES3D 4.1</solver>
     <solver_settings>

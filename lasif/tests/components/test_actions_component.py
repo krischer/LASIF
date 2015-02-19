@@ -86,7 +86,6 @@ def test_iteration_handling(comm):
     assert len(iteration.events["GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"][
                "stations"]) == 4
     assert iteration.iteration_name == "1"
-    assert iteration.source_time_function == "Filtered Heaviside"
     assert iteration.data_preprocessing["lowpass_period"] == 8.0
     assert iteration.data_preprocessing["highpass_period"] == 100.0
 
@@ -95,7 +94,6 @@ def test_iteration_handling(comm):
     process_params = iteration.get_process_params()
     assert process_params["npts"] == 500
     assert process_params["dt"] == 0.75
-    assert process_params["stf"] == "Filtered Heaviside"
     assert process_params["lowpass"] == 0.125
     assert process_params["highpass"] == 0.01
 

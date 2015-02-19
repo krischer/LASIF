@@ -12,24 +12,24 @@ Functionality to deal with Iteration XML files.
 from collections import OrderedDict
 from lxml import etree
 from lxml.builder import E
+import numpy as np
 import os
-from scipy.signal.filter_design import BadCoefficients \
-    as BadCoefficientsWarning
-import warnings
 
 from lasif import LASIFError
 
 
 class Iteration(object):
 
-    def __init__(self, iteration_xml_filename):
+    def __init__(self, iteration_xml_filename, stf_fct):
         """
-        Init function takes a Iteration XML file.
+        Init function takes a Iteration XML file and the function to
+        calculate the source time function..
         """
         if not os.path.exists(iteration_xml_filename):
             msg = "File '%s' not found." % iteration_xml_filename
             raise ValueError(msg)
         self._parse_iteration_xml(iteration_xml_filename)
+        self.stf_fct = stf_fct
 
     def __eq__(self, other):
         if not isinstance(other, type(self)):
@@ -52,7 +52,6 @@ class Iteration(object):
         self.description = \
             self._get_if_available(root, "iteration_description")
         self.comments = [_i.text for _i in root.findall("comment") if _i.text]
-        self.source_time_function = self._get(root, "source_time_function")
 
         self.scale_data_to_synthetics = \
             self._get_if_available(root, "scale_data_to_synthetics")
@@ -120,10 +119,6 @@ class Iteration(object):
             * "delta": The time increment of the data.
             * "data": The actual source time function as an array.
         """
-        STFS = ["Filtered Heaviside"]
-        stfs_l = [_i.lower() for _i in STFS]
-
-        stf = self.source_time_function.lower()
         delta = float(self.solver_settings["solver_settings"][
             "simulation_parameters"]["time_increment"])
         npts = int(self.solver_settings["solver_settings"][
@@ -132,30 +127,19 @@ class Iteration(object):
         freqmin = 1.0 / self.data_preprocessing["highpass_period"]
         freqmax = 1.0 / self.data_preprocessing["lowpass_period"]
 
-        if stf not in stfs_l:
-            msg = "Source time function '%s' not known. Available STFs: %s" % \
-                (self.source_time_function, "\n".join(STFS))
-            raise NotImplementedError(msg)
-
         ret_dict = {"delta": delta}
 
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            if stf == "filtered heaviside":
-                from lasif.source_time_functions import filtered_heaviside
-                ret_dict["data"] = \
-                    filtered_heaviside(npts, delta, freqmin, freqmax)
-            else:
-                msg = "Should not happen. Contact the developers or fix it."
-                raise Exception(msg)
-
-            for warning in w:
-                if warning.category == BadCoefficientsWarning:
-                    msg = ("The filter for creating the source time function "
-                           "is potentially unstable! Please change its "
-                           "settings!")
-                    raise LASIFError(msg)
+        # Get source time function.
+        ret_dict["data"] = self.stf_fct(
+            npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax,
+            iteration=self)
+        # Some sanity checks as the function might be user supplied.
+        if not isinstance(ret_dict["data"], np.ndarray) or \
+                ret_dict["data"].dtype != np.float64 or \
+                len(ret_dict["data"]) != npts:
+            raise ValueError("Source time function must return a "
+                             "float64 numpy array with `npts` "
+                             "samples.")
 
         return ret_dict
 
@@ -180,14 +164,12 @@ class Iteration(object):
             "simulation_parameters"]["number_of_time_steps"]
         dt = self.solver_settings["solver_settings"][
             "simulation_parameters"]["time_increment"]
-        stf = self.source_time_function
 
         return {
             "highpass": float(highpass),
             "lowpass": float(lowpass),
             "npts": int(npts),
-            "dt": float(dt),
-            "stf": stf}
+            "dt": float(dt)}
 
     @property
     def processing_tag(self):
@@ -218,7 +200,6 @@ class Iteration(object):
             "\tName: {self.iteration_name}\n"
             "\tDescription: {self.description}\n"
             "{comments}"
-            "\tSource Time Function: {self.source_time_function}\n"
             "\tPreprocessing Settings:\n"
             "\t\tHighpass Period: {hp:.3f} s\n"
             "\t\tLowpass Period: {lp:.3f} s\n"
@@ -291,7 +272,6 @@ class Iteration(object):
                     ))
                 )
             ),
-            E.source_time_function(self.source_time_function),
             E.solver_parameters(
                 E.solver(self.solver_settings["solver"]),
                 E.solver_settings(*solver_settings)
@@ -438,7 +418,6 @@ def create_iteration_xml_string(iteration_name, solver_name, events,
             E.signal_to_noise(
                 E.test_interval_from_origin_in_s("100.0"),
                 E.max_amplitude_ratio("100.0"))),
-        E.source_time_function("Filtered Heaviside"),
         E.solver_parameters(
             E.solver(solver_name),
             solver_doc),

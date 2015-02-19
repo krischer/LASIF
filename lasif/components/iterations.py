@@ -191,7 +191,10 @@ class IterationsComponent(Component):
 
         from lasif.iteration_xml import Iteration
 
-        existing_iteration = Iteration(it_dict[existing_iteration_name])
+        existing_iteration = Iteration(
+            it_dict[existing_iteration_name],
+            stf_fct=self.comm.project.get_project_function(
+                "source_time_function"))
 
         # Clone the old iteration, delete any comments and change the name.
         existing_iteration.comments = []
@@ -263,7 +266,9 @@ class IterationsComponent(Component):
             raise LASIFNotFoundError(msg)
 
         from lasif.iteration_xml import Iteration
-        it = Iteration(it_dict[iteration_name])
+        it = Iteration(it_dict[iteration_name],
+                       stf_fct=self.comm.project.get_project_function(
+                           "source_time_function"))
 
         # Store in cache.
         self.__cached_iterations[iteration_name] = it

@@ -65,8 +65,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
             'dt': 0.75,
             'highpass': 0.007142857142857143,
             'lowpass': 0.0125,
-            'npts': 2000,
-            'stf': 'Filtered Heaviside'},
+            'npts': 2000},
          'station_coordinates': {
             'elevation_in_m': -54.0,
             'latitude': 46.882,
@@ -84,8 +83,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     {'dt': 0.75,
      'highpass': 0.01,
      'lowpass': 0.02,
-     'npts': 500,
-     'stf': 'Filtered Heaviside'}
+     'npts': 500}
 
     Use ``$ lasif shell`` to play around and figure out what the iteration
     objects can do.

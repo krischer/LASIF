@@ -22,11 +22,20 @@ data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
     inspect.currentframe()))), "data")
 
 
+def __stf_fct_dummy(*args, **kwargs):
+    """
+    Dummy stf function. In a proper LASIF project, the user-supplied project
+    specific function will be passed.
+    """
+    pass
+
+
 def test_reading_iteration_xml():
     """
     Tests the reading of an IterationXML file to the internal representation.
     """
-    iteration = Iteration(os.path.join(data_dir, "iteration_example.xml"))
+    iteration = Iteration(os.path.join(data_dir, "iteration_example.xml"),
+                          stf_fct=__stf_fct_dummy)
     assert iteration.iteration_name == "IterationName"
     assert iteration.description == "Some description"
     assert iteration.comments == ["Comment 1", "Comment 2", "Comment 3"]
@@ -34,7 +43,6 @@ def test_reading_iteration_xml():
         "highpass_period": 100.0,
         "lowpass_period": 8.0
     }
-    assert iteration.source_time_function == "Filtered Heaviside"
     assert iteration.rejection_criteria == {
         "minimum_trace_length_in_s": 500.0,
         "signal_to_noise": {
@@ -101,7 +109,7 @@ def test_reading_and_writing(tmpdir):
     filename = os.path.join(data_dir, "iteration_example.xml")
     new_filename = os.path.join(str(tmpdir), "iteration.xml")
 
-    iteration = Iteration(filename)
+    iteration = Iteration(filename, stf_fct=__stf_fct_dummy)
     iteration.write(new_filename)
 
     # Compare the lxml etree's to avoid any difference in formatting and
@@ -119,7 +127,7 @@ def test_iteration_equality():
     """
     filename = os.path.join(data_dir, "iteration_example.xml")
 
-    iteration = Iteration(filename)
+    iteration = Iteration(filename, stf_fct=__stf_fct_dummy)
     other_iteration = copy.deepcopy(iteration)
 
     assert iteration == other_iteration
@@ -137,11 +145,11 @@ def test_reading_writing_with_empty_description(tmpdir):
     filename = os.path.join(data_dir, "iteration_example.xml")
     new_filename = os.path.join(str(tmpdir), "iteration.xml")
 
-    iteration = Iteration(filename)
+    iteration = Iteration(filename, stf_fct=__stf_fct_dummy)
     iteration.description = None
 
     # Write and read again.
     iteration.write(new_filename)
-    reread_iteration = Iteration(new_filename)
+    reread_iteration = Iteration(new_filename, stf_fct=__stf_fct_dummy)
 
     assert iteration == reread_iteration

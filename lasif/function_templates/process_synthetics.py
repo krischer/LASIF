@@ -35,8 +35,7 @@ def process_synthetics(st, iteration):  # NOQA
     {'dt': 0.75,
      'highpass': 0.01,
      'lowpass': 0.02,
-     'npts': 500,
-     'stf': 'Filtered Heaviside'}
+     'npts': 500}
 
     Use ``$ lasif shell`` to play around and figure out what the iteration
     objects can do.

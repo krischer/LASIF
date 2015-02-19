@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import mock
 import pytest
 
 from lasif.components.iterations import IterationsComponent
@@ -17,6 +18,11 @@ def comm(tmpdir):
     """
     tmpdir = str(tmpdir)
     comm = Communicator()
+
+    # Mock the project specific source time function.
+    comm.project = mock.MagicMock()
+    comm.project.get_project_function = lambda a: None
+
     IterationsComponent(
         iterations_folder=tmpdir,
         communicator=comm,
