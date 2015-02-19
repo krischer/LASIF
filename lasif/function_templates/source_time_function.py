@@ -48,13 +48,33 @@ def source_time_function(npts, delta, freqmin, freqmax, iteration):
     Use ``$ lasif shell`` to play around and figure out what the iteration
     objects can do.
     """
-    # This implementation is a simple filtered Heaviside function.
-    heaviside = np.ones(npts)
+    data = np.ones(npts * 2, dtype=np.float64)
+    data[:npts] = 0.0
 
-    # Apply ObsPy filters.
-    heaviside = obspy.signal.filter.highpass(heaviside, freqmin, 1.0 / delta,
-                                             2, zerophase=False)
-    heaviside = obspy.signal.filter.lowpass(heaviside, freqmax, 1.0 / delta,
-                                            5, zerophase=False)
+    # Use dummy trace for simple signal processing.
+    tr = obspy.Trace(data=data)
+    tr.stats.delta = delta
 
-    return heaviside
+    tr.taper(0.05, type="cosine")
+
+    # Use a fairly low-order causal bandpass filter to get some time shift.
+    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+              zerophase=False)
+    tr.taper(0.05, type="cosine")
+    tr.detrend("demean")
+
+    # Another one, this time zero-phase to remove some more frequencies outside
+    # the range of interest.
+    # If not zerophase the synthetics will be shifted even more which has some
+    # consequences as its no longer trivial to pick for example first-arrivals.
+    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+              zerophase=True)
+    tr.taper(0.05)
+    tr.detrend("demean")
+
+    tr.data = tr.data[npts:]
+    # Taper 10 sample at most.
+    tr.taper(0.05, max_length=(1.0 / delta) * 10)
+    tr.detrend("demean")
+
+    return tr.data

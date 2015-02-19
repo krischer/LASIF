@@ -134,12 +134,18 @@ class Iteration(object):
             npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax,
             iteration=self)
         # Some sanity checks as the function might be user supplied.
-        if not isinstance(ret_dict["data"], np.ndarray) or \
-                ret_dict["data"].dtype != np.float64 or \
-                len(ret_dict["data"]) != npts:
-            raise ValueError("Source time function must return a "
-                             "float64 numpy array with `npts` "
-                             "samples.")
+        if not isinstance(ret_dict["data"], np.ndarray):
+            raise ValueError("Custom source time function does not return a "
+                             "numpy array.")
+        elif ret_dict["data"].dtype != np.float64:
+            raise ValueError(
+                "Custom source time function must have dtype `float64`. Yours "
+                "has dtype `%s`." % (ret_dict["data"].dtype.__name__))
+        elif len(ret_dict["data"]) != npts:
+            raise ValueError(
+                "Source time function must return a float64 numpy array with "
+                "%i samples. Yours has %i samples." % (npts,
+                                                       len(ret_dict["data"])))
 
         return ret_dict
 
