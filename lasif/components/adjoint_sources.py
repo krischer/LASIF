@@ -114,7 +114,7 @@ class AdjointSourcesComponent(Component):
                        pad=True, fill_value=0.0)
 
         #  make time axis
-        t = np.linspace(0, original_stats.npts * original_stats.delta,
+        t = np.linspace(0, (original_stats.npts - 1) * original_stats.delta,
                         original_stats.npts)
 
         #  set data and synthetics, compute actual misfit
