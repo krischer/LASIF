@@ -195,14 +195,13 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     # This is really necessary as other filters are just not sharp enough
     # and lots of energy from other frequency bands leaks into the frequency
     # band of interest
-
     freqmin = processing_info["process_params"]["highpass"]
     freqmax = processing_info["process_params"]["lowpass"]
 
-    f2 = 0.7 * freqmin
-    f3 = 1.3 * freqmax
+    f2 = 0.9 * freqmin
+    f3 = 1.1 * freqmax
     f1 = 0.8 * f2
-    f4 = 1.4 * f3
+    f4 = 1.3 * f3
     pre_filt = (f1, f2, f3, f4)
 
     # processing for seed files ==============================================
@@ -253,19 +252,19 @@ def preprocessing_function(processing_info, iteration):  # NOQA
 
     # =========================================================================
     # Step 4: Bandpass filtering
-    # This has to be exactly the same filter as in the source time function.
-    # Should eventually be configurable.
+    # This has to be exactly the same filter as in the source time function
+    # in the case of SES3D.
     # =========================================================================
+    tr.detrend("linear")
+    tr.detrend("demean")
+    tr.taper(0.05, type="cosine")
     tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
               zerophase=False)
     tr.detrend("linear")
     tr.detrend("demean")
     tr.taper(0.05, type="cosine")
     tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
-              zerophase=True)
-    tr.detrend("linear")
-    tr.detrend("demean")
-    tr.taper(0.05)
+              zerophase=False)
 
     # =========================================================================
     # Step 5: Interpolation
