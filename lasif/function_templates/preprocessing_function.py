@@ -209,17 +209,35 @@ def preprocessing_function(processing_info, iteration):  # NOQA
         # XXX: Check if this is m/s. In all cases encountered so far it
         # always is, but SEED is in theory also able to specify corrections
         # to other units...
-        paz = Parser(station_file).getPAZ(tr.id, tr.stats.starttime)
+        parser = Parser(station_file)
         try:
-            tr.simulate(seedresp={"filename": paz, "units": "VEL",
-                                  "date": tr.stats.starttime},
-                        pre_filt=pre_filt, zero_mean=False, taper=False)
-        except ValueError as e:
+            # The simulate might fail but might still modify the data. The
+            # backup is needed for the backup plan to only correct using
+            # poles and zeros.
+            backup_tr = tr.copy()
+            try:
+                tr.simulate(seedresp={"filename": parser, "units": "VEL",
+                                      "date": tr.stats.starttime},
+                            pre_filt=pre_filt, zero_mean=False, taper=False)
+            except ValueError:
+                warnings.warn("Evalresp failed, will only use the Poles and "
+                              "Zeros stage")
+                tr = backup_tr
+                paz = parser.getPAZ(tr.id, tr.stats.starttime)
+                if paz["sensitivity"] == 0:
+                    warnings.warn("Sensitivity is 0 in SEED file and will "
+                                  "not be taken into account!")
+                    tr.simulate(paz_remove=paz, remove_sensitivity=False,
+                                pre_filt=pre_filt, zero_mean=False,
+                                taper=False)
+                else:
+                    tr.simulate(paz_remove=paz, pre_filt=pre_filt,
+                                zero_mean=False, taper=False)
+        except Exception:
             msg = ("File  could not be corrected with the help of the "
-                   "SEED file '%s'. Will be skipped. Due to: %s") \
-                % (processing_info["station_filename"], str(e))
+                   "SEED file '%s'. Will be skipped.") \
+                % processing_info["station_filename"]
             raise LASIFError(msg)
-
     # processing with RESP files =============================================
     elif "/RESP/" in station_file:
         try:

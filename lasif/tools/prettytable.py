@@ -1153,8 +1153,8 @@ class PrettyTable(object):
         # Don't think too hard about an empty table
         # Is this the desired behaviour?  Maybe we should still print the
         # header?
-        if self.rowcount == 0 and (not options["print_empty"]
-                                   or not options["border"]):
+        if self.rowcount == 0 and (not options["print_empty"] or
+                                   not options["border"]):
             return ""
 
         # Get the rows we need to print, taking into account slicing, sorting,

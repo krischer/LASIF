@@ -37,10 +37,10 @@ def test_ses3d_helper_script(capfd):
         "182 elements",
         "Extent in depth        (Z) direction:  1171.0 km,  16.3 km/element,  "
         " 72 elements",
-        "P wave velocities range from 5.8 km/s to 11.7 km/s. The velocities of"
-        " the top 5 km have not been analyzed to avoid very slow layers.",
+        "Wave velocities range from 3.9 km/s to 11.7 km/s. The velocities of"
+        " the top 15 km have not been analyzed to avoid very slow layers.",
         "Maximal recommended time step: 0.071 s",
-        "Minimal resolvable period: 9.9 s",
+        "Minimal resolvable period: 14.7 s",
         "SES3D Settings: nx_global: 108, ny_global: 168, nz_global: 64",
         "px: 12, py: 14, px: 8",
         "",
@@ -52,10 +52,10 @@ def test_ses3d_helper_script(capfd):
         "189 elements",
         "Extent in depth        (Z) direction:  1171.0 km,  16.3 km/element,  "
         " 72 elements",
-        "P wave velocities range from 5.8 km/s to 11.7 km/s. The velocities "
-        "of the top 5 km have not been analyzed to avoid very slow layers.",
+        "Wave velocities range from 3.9 km/s to 11.7 km/s. The velocities "
+        "of the top 15 km have not been analyzed to avoid very slow layers.",
         "Maximal recommended time step: 0.071 s",
-        "Minimal resolvable period: 9.6 s",
+        "Minimal resolvable period: 14.3 s",
         "SES3D Settings: nx_global: 108, ny_global: 168, nz_global: 64",
         "px: 12, py: 21, px: 8",
         "",
@@ -67,10 +67,10 @@ def test_ses3d_helper_script(capfd):
         "192 elements",
         "Extent in depth        (Z) direction:  1171.0 km,  16.3 km/element,  "
         " 72 elements",
-        "P wave velocities range from 5.8 km/s to 11.7 km/s. The velocities "
-        "of the top 5 km have not been analyzed to avoid very slow layers.",
+        "Wave velocities range from 3.9 km/s to 11.7 km/s. The velocities "
+        "of the top 15 km have not been analyzed to avoid very slow layers.",
         "Maximal recommended time step: 0.071 s",
-        "Minimal resolvable period: 9.6 s",
+        "Minimal resolvable period: 14.3 s",
         "SES3D Settings: nx_global: 108, ny_global: 168, nz_global: 64",
         "px: 12, py: 24, px: 8"]
 
