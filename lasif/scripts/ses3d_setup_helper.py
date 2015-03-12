@@ -186,14 +186,16 @@ def get_ses3d_settings(dx, dy, dz, nx, ny, nz, max_recommendations):
         # Smallest GLL point distance.
         dx_min = 0.1717 * min_element_size
 
-        # Get the p wave at all depths and choose the biggest one.
+        # Get the Wave speeds at all depths and choose the biggest one.
         m = OneDimensionalModel("ak135-f")
-        values = [m.get_value("vp", _i) for _i in
-                  np.linspace(5, dz, 400)]
-        v_max = max(values)
-        v_min = min(values)
-        print("  P wave velocities range from %.1f km/s to %.1f km/s. The "
-              "velocities of the top 5 km have not been analyzed to avoid "
+        s_values = [m.get_value("vs", _i) for _i in
+                    np.linspace(15, dz, 400)]
+        p_values = [m.get_value("vp", _i) for _i in
+                    np.linspace(15, dz, 400)]
+        v_max = max(p_values)
+        v_min = min(s_values)
+        print("  Wave velocities range from %.1f km/s to %.1f km/s. The "
+              "velocities of the top 15 km have not been analyzed to avoid "
               "very slow layers." % (v_min, v_max))
 
         # criterion approximately 0.3 for SES3D.
