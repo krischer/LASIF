@@ -323,6 +323,8 @@ def get_event_filename(event, prefix):
     fe = FlinnEngdahl()
     region_name = fe.get_region(org.longitude, org.latitude)
     region_name = region_name.replace(" ", "_")
+    # Replace commas, as some file systems cannot deal with them.
+    region_name = region_name.replace(",", "")
 
     return "%s_event_%s_Mag_%.1f_%s-%s-%s-%s.xml" % \
         (prefix, region_name, mag.mag, org.time.year, org.time.month,
