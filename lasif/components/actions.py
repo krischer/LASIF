@@ -480,24 +480,24 @@ class ActionsComponent(Component):
             # SPECFEM specifies them.
             domain = self.comm.project.domain
 
-            lat_range = domain["bounds"]["maximum_latitude"] - \
-                domain["bounds"]["minimum_latitude"]
-            lng_range = domain["bounds"]["maximum_longitude"] - \
-                domain["bounds"]["minimum_longitude"]
+            lat_range = domain.max_latitude - \
+                domain.min_latitude
+            lng_range = domain.max_longitude - \
+                domain.min_longitude
 
             c_lat = \
-                domain["bounds"]["minimum_latitude"] + lat_range / 2.0
+                domain.min_latitude + lat_range / 2.0
             c_lng = \
-                domain["bounds"]["minimum_longitude"] + lng_range / 2.0
+                domain.min_longitude + lng_range / 2.0
 
             # Rotate the point.
             c_lat_1, c_lng_1 = rotations.rotate_lat_lon(
-                c_lat, c_lng, domain["rotation_axis"],
-                domain["rotation_angle"])
+                c_lat, c_lng, domain.rotation_axis,
+                domain.rotation_angle_in_degree)
 
             # SES3D rotation.
             A = rotations._get_rotation_matrix(
-                domain["rotation_axis"], domain["rotation_angle"])
+                domain.rotation_axis, domain.rotation_angle_in_degree)
 
             latitude_rotation = -(c_lat_1 - c_lat)
             longitude_rotation = c_lng_1 - c_lng
@@ -734,8 +734,9 @@ class ActionsComponent(Component):
                     to_write[:, 0] = \
                         np.linspace(0, (l - 1) * dt, l) + src_time_shift
 
-                    # SPECFEM expects non-time reversed adjoint sources.
-                    to_write[:, 1] = adj_src[::-1]
+                    # SPECFEM expects non-time reversed adjoint sources and
+                    # the sign is different for some reason.
+                    to_write[:, 1] = -1.0 * adj_src[::-1]
 
                     np.savetxt(adjoint_src_filename, to_write)
             else:
