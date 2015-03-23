@@ -1183,8 +1183,6 @@ def lasif_calculate_constant_q_model(parser, args):
         iterations=10000,
         initial_temperature=0.1,
         cooling_factor=0.9998)
-    print("Weights: %s" % ", ".join([str(i) for i in weights]))
-    print("Relaxation Times: %s" % ", ".join([str(i) for i in weights]))
 
 
 def lasif_debug(parser, args):

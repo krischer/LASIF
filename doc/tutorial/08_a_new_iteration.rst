@@ -116,7 +116,6 @@ present in the LASIF project.
         <lowpass_period>40.0</lowpass_period>
       </data_preprocessing>
       <rejection_criteria>...</rejection_criteria>
-      <source_time_function>Filtered Heaviside</source_time_function>
       <solver_parameters>
         <solver>SES3D 4.1</solver>
         <solver_settings>
@@ -220,8 +219,9 @@ time series and a time frequency representation of the source time function.
     import lasif.visualization
     import matplotlib.pylab as plt
 
-    from lasif.source_time_functions import filtered_heaviside
-    data = filtered_heaviside(2000, 0.3, 1.0 / 100.0, 1.0 / 40.0)
+    from lasif.function_templates import source_time_function
+    data = source_time_function.source_time_function(2000, 0.3, 1.0 / 100.0,
+                                                     1.0 / 40.0, None)
     lasif.visualization.plot_tf(data, 0.3, freqmin=1.0 / 100.0,
                                 freqmax=1.0 / 40.0)
 
@@ -250,10 +250,12 @@ The single argument is the name of the iteration.
 .. plot::
 
     from lasif.tools import Q_discrete
-    weights = [2.56184936462, 2.50613220548, 0.0648624201145]
-    relaxation_times = [1.50088990947, 13.3322250004, 22.5140030575]
+    weights = [1.6264684983257656, 1.0142952434286228, 1.5007527644957979]
+    relaxation_times = [0.68991741458188449, 4.1538611409236301,
+                        23.537531778655516]
+
     Q_discrete.plot(weights, relaxation_times, f_min=1.0 / 100.0,
-                    f_max=1.0 / 8.0)
+                    f_max=1.0 / 10.0)
 
 
 The two vertical lines in each plot mark the frequency range as specified in
@@ -268,8 +270,12 @@ band from 10 seconds to 100 seconds use
 
     $ lasif calculate_constant_Q_model 10 100
 
-    Weights: 2.51476795756, 2.45723765861, 0.0554802992816
-    Relaxation Times: 2.51476795756, 2.45723765861, 0.0554802992816
+    Starting to find optimal relaxation parameters.
+    weights:              [1.60642, 1.0073, 1.49737]
+    relaxation times:     [0.71721, 4.2330, 23.78702]
+    partial derivatives:  [-1.68287755  0.78722974  5.14255026]
+    cumulative rms error: 0.0163777833823
+
 
 Data Preprocessing
 ^^^^^^^^^^^^^^^^^^
