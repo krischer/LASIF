@@ -367,7 +367,7 @@ def _recursive_etree(dictionary):
 
 
 def create_iteration_xml_string(iteration_name, solver_name, events,
-                                min_period, max_period):
+                                min_period, max_period, quiet=False):
     """
     Creates a new iteration string.
 
@@ -379,9 +379,10 @@ def create_iteration_xml_string(iteration_name, solver_name, events,
         list of station ids for this event.
     :param min_period: The minimum period for the iteration.
     :param max_period: The maximum period for the iteration.
+    :param quiet: Do not print anything if set to `True`.
     """
     solver_doc = _get_default_solver_settings(solver_name, min_period,
-                                              max_period)
+                                              max_period, quiet=quiet)
     if solver_name.lower() == "ses3d_4_1":
         solver_name = "SES3D 4.1"
     elif solver_name.lower() == "ses3d_2_0":
@@ -434,10 +435,12 @@ def create_iteration_xml_string(iteration_name, solver_name, events,
     return string_doc
 
 
-def _get_default_solver_settings(solver, min_period, max_period):
+def _get_default_solver_settings(solver, min_period, max_period, quiet=False):
     """
     Helper function returning etree representation of a solver's default
     settings.
+
+    :param quiet: Do not print anything if set to `True`.
     """
     known_solvers = ["ses3d_4_1", "ses3d_2_0", "specfem3d_cartesian",
                      "specfem3d_globe_cem"]
@@ -453,7 +456,7 @@ def _get_default_solver_settings(solver, min_period, max_period):
             f_max=1.0 / min_period,
             iterations=10000,
             initial_temperature=0.1,
-            cooling_factor=0.9998)
+            cooling_factor=0.9998, quiet=quiet)
 
         return generate_ses3d_4_1_template(w_p, tau_p)
     elif solver.lower() == "ses3d_2_0":

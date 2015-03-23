@@ -13,11 +13,16 @@ import matplotlib as mpl
 mpl.use("agg")
 
 import numpy as np
-import random
 
 from lasif.tools import Q_discrete
 from lasif.tests.testing_helpers import images_are_identical, \
     reset_matplotlib
+
+
+WEIGHTS = np.array([1.6264684983257656, 1.0142952434286228,
+                    1.5007527644957979])
+RELAXATION_TIMES = np.array([0.68991741458188449, 4.1538611409236301,
+                             23.537531778655516])
 
 
 def test_weights_and_relaxation_times():
@@ -25,7 +30,7 @@ def test_weights_and_relaxation_times():
     Regression test for the weights and relaxation times.
     """
     # Set the seed to get reproducible results.
-    random.seed(12345)
+    np.random.seed(12345)
 
     # These are the D_p and tau_p, respectively.
     weights, relaxation_times, = Q_discrete.calculate_Q_model(
@@ -36,10 +41,9 @@ def test_weights_and_relaxation_times():
         initial_temperature=0.1,
         cooling_factor=0.9998)
 
-    np.testing.assert_array_almost_equal(
-        weights, np.array([2.50960201, 2.31899515, 0.19681762]))
-    np.testing.assert_array_almost_equal(
-        relaxation_times, np.array([1.73160984, 14.41562154, 16.70330157]))
+    np.testing.assert_array_almost_equal(weights, WEIGHTS)
+
+    np.testing.assert_array_almost_equal(relaxation_times, RELAXATION_TIMES)
 
 
 def test_Q_model_plotting(tmpdir):
@@ -50,8 +54,6 @@ def test_Q_model_plotting(tmpdir):
 
     tmpdir = str(tmpdir)
 
-    weights = [2.50960201, 2.31899515, 0.19681762]
-    relaxation_times = [1.73160984, 14.41562154, 16.70330157]
-    Q_discrete.plot(weights, relaxation_times, f_min=1.0 / 100.0,
+    Q_discrete.plot(WEIGHTS, RELAXATION_TIMES, f_min=1.0 / 100.0,
                     f_max=1.0 / 10.0)
     images_are_identical("discrete_Q_model", tmpdir)

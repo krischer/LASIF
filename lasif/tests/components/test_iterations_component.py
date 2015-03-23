@@ -30,10 +30,12 @@ def comm(tmpdir):
     # Create two iterations.
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1",
-        {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0)
+        {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0,
+        quiet=True)
     comm.iterations.create_new_iteration(
         "2", "ses3d_4_1",
-        {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0)
+        {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0,
+        quiet=True)
     it = comm.iterations.get("1")
     it.comments = ["Some", "random comments"]
     comm.iterations.save_iteration(it)

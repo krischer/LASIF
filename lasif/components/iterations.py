@@ -104,7 +104,7 @@ class IterationsComponent(Component):
         return iteration_name in self.get_iteration_dict()
 
     def create_new_iteration(self, iteration_name, solver_name, events_dict,
-                             min_period, max_period):
+                             min_period, max_period, quiet=False):
         """
         Creates a new iteration XML file.
 
@@ -114,13 +114,14 @@ class IterationsComponent(Component):
         :param events_dict: A dictionary specifying the used events.
         :param min_period: The minimum period in seconds for the new iteration.
         :param max_period: The maximum period in seconds for the new iteration.
+        :param quiet: Do not print anything if set to `True`.
 
         >>> comm = getfixture('iterations_comm')
         >>> comm.iterations.has_iteration("3")
         False
         >>> comm.iterations.create_new_iteration("3", "ses3d_4_1",
         ...     {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]},
-        ...     10.0, 20.0)
+        ...     10.0, 20.0, quiet=True)
         >>> comm.iterations.has_iteration("3")
         True
         >>> os.remove(comm.iterations.get_iteration_dict()["3"])
@@ -133,7 +134,8 @@ class IterationsComponent(Component):
         from lasif.iteration_xml import create_iteration_xml_string
         xml_string = create_iteration_xml_string(iteration_name,
                                                  solver_name, events_dict,
-                                                 min_period, max_period)
+                                                 min_period, max_period,
+                                                 quiet=quiet)
         with open(self.get_filename_for_iteration(iteration_name), "wt")\
                 as fh:
             fh.write(xml_string)

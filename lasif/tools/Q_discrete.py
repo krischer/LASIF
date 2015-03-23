@@ -347,14 +347,14 @@ def plot(D_p, tau_p, f_min=None, f_max=None):
                  transform=plt.gca().transAxes, va="top", ha="center")
         ylim = plt.ylim()
         plt.fill_between(x=[f_min, f_max], y1=[ylim[0], ylim[0]],
-                         y2=[ylim[1], ylim[1]], color="0.7")
+                         y2=[ylim[1], ylim[1]], color="0.7", zorder=-2E6)
         plt.subplot(222)
         plt.vlines(f_min, *plt.ylim(), color="0.5")
         plt.vlines(f_max, *plt.ylim(), color="0.5")
         plt.text(0.5, 0.98, s="Absorption Band", size="small",
                  transform=plt.gca().transAxes, va="top", ha="center")
         plt.fill_between(x=[f_min, f_max], y1=[ylim[0], ylim[0]],
-                         y2=[ylim[1], ylim[1]], color="0.7")
+                         y2=[ylim[1], ylim[1]], color="0.7", zorder=-2E6)
     plt.gcf().patch.set_alpha(0.0)
 
     plt.subplot(212)
