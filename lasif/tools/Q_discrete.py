@@ -74,7 +74,6 @@ def calculate_Q_model(N, f_min, f_max, iterations=30000,
     f = np.logspace(np.log10(f_min), np.log10(f_max), 100)
     w = 2.0 * np.pi * f
 
-
     # compute tau from target Q at reference frequency
     tau = 1.0 / Q_0
 
@@ -129,9 +128,9 @@ def calculate_Q_model(N, f_min, f_max, iterations=30000,
             B = 0.0
             for p in np.arange(N):
                 A += tau[n] * (D_test[p] * w ** 2 * tau_s_test[p] ** 2) / (
-                   1.0 + w ** 2 * tau_s_test[p] ** 2)
+                    1.0 + w ** 2 * tau_s_test[p] ** 2)
                 B += tau[n] * (D_test[p] * w * tau_s_test[p]) / (
-                 1.0 + w ** 2 * tau_s_test[p] ** 2)
+                    1.0 + w ** 2 * tau_s_test[p] ** 2)
 
             Q_test = A / B
             chi_test += sum((Q_test - Q_0[n]) ** 2 / Q_0[n] ** 2)
@@ -220,8 +219,7 @@ def calculate_Q_model(N, f_min, f_max, iterations=30000,
         Q = A / B
         chi += sum((Q - Q_target_pert[n, :]) ** 2 / Q_0[n] ** 2)
 
-    #- random search for optimal parameters
-
+    #  random search for optimal parameters
     T = T_0
 
     for _ in xrange(max_it):
