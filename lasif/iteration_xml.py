@@ -48,7 +48,9 @@ class Iteration(object):
         """
         root = etree.parse(iteration_xml_filename).getroot()
 
-        self.iteration_name = self._get(root, "iteration_name")
+        # The iteration name is dependent on the filename.
+        self.iteration_name = os.path.basename(
+            iteration_xml_filename).lstrip("ITERATION_").rstrip(".xml")
         self.description = \
             self._get_if_available(root, "iteration_description")
         self.comments = [_i.text for _i in root.findall("comment") if _i.text]
