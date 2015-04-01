@@ -371,7 +371,7 @@ class ActionsComponent(Component):
             # SES3D specific configuration
             gen.config.output_folder = solver["output_directory"].replace(
                 "{{EVENT_NAME}}", event_name.replace(" ", "_"))
-            gen.config.simulate_type = simulation_type
+            gen.config.simulation_type = simulation_type
 
             gen.config.adjoint_forward_wavefield_output_folder = \
                 solver["adjoint_output_parameters"][
