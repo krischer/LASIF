@@ -130,11 +130,12 @@ class DownloadsComponent(Component):
 
         class SphericalSectionDomain(Domain):
             def get_query_parameters(self):
+                center = d.center
                 return {
-                    "minlatitude": min_lat,
-                    "maxlatitude": max_lat,
-                    "minlongitude": min_lng,
-                    "maxlongitude": max_lng
+                    "latitude": center.latitude,
+                    "longitude": center.longitude,
+                    "minradius": 0.0,
+                    "maxradius": d.max_extent / 2.0
                 }
 
             def is_in_domain(self, latitude, longitude):
