@@ -116,17 +116,6 @@ class DownloadsComponent(Component):
 
         # Make copies to assure the closure binds correctly.
         d = copy.deepcopy(domain)
-        min_lat = d.min_latitude
-        max_lat = d.max_latitude
-        min_lng = d.min_longitude
-        max_lng = d.max_longitude
-        rotation_angle = d.rotation_angle_in_degree
-        rotation_axis = d.rotation_axis
-
-        min_lat, max_lat, min_lng, max_lng = self._get_maximum_bounds(
-            min_lat, max_lat, min_lng, max_lng,
-            rotation_axis=rotation_axis,
-            rotation_angle_in_degree=rotation_angle)
 
         class SphericalSectionDomain(Domain):
             def get_query_parameters(self):
