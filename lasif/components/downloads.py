@@ -46,6 +46,10 @@ class DownloadsComponent(Component):
 
         mseed_storage = os.path.join(proj.paths["data"], event["event_name"],
                                      "raw")
+
+        # Attempt to get StationXML data for a very long time span. This has
+        # the nice side effect that StationXML files will mostly be shared
+        # between events.
         restrictions = Restrictions(
             starttime=starttime,
             endtime=endtime,
