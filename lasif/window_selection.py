@@ -19,6 +19,7 @@ is applied, progressively excluding more and more time steps.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import itertools
+import math
 
 import numpy as np
 from obspy.core.util import geodetics
@@ -459,15 +460,16 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # Initialise masked arrays. The mask will be set to True where no
     # windows are chosen.
     time_windows = np.ma.ones(npts)
-    time_windows.mask = np.zeros(npts)
+    time_windows.mask = False
     if plot:
         old_time_windows = time_windows.copy()
 
     # Elimination Stage 1: Eliminate everything half a period before or
     # after the minimum and maximum travel times, respectively.
     # theoretical arrival as positive.
-    min_idx = (first_tt_arrival - (minimum_period / 2.0)) / dt - 1
-    max_idx = (dist_in_km / min_velocity + minimum_period / 2.0) / dt - 1
+    min_idx = int((first_tt_arrival - (minimum_period / 2.0)) / dt) - 1
+    max_idx = int(math.ceil((
+        dist_in_km / min_velocity + minimum_period / 2.0) / dt)) - 1
     time_windows.mask[:min_idx] = True
     time_windows.mask[max_idx:] = True
     if plot:
@@ -481,8 +483,10 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # frames that passed the traveltime elimination stage.
     # -------------------------------------------------------------------------
     # Allocate arrays to collect the time dependent values.
-    sliding_time_shift = np.ma.masked_all(npts, dtype="float32")
-    max_cc_coeff = np.ma.masked_all(npts, dtype="float32")
+    sliding_time_shift = np.ma.zeros(npts, dtype="float32")
+    sliding_time_shift.mask = True
+    max_cc_coeff = np.ma.zeros(npts, dtype="float32")
+    max_cc_coeff.mask = True
 
     for start_idx, end_idx, midpoint_idx in _window_generator(npts,
                                                               window_length):
@@ -578,7 +582,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # negative
     if plot:
         old_time_windows = time_windows.copy()
-    time_windows.mask[np.abs(sliding_time_shift) > threshold_shift] = True
+    time_windows.mask[np.ma.abs(sliding_time_shift) > threshold_shift] = True
     if plot:
         plt.subplot2grid(grid, (19, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
@@ -591,7 +595,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     if plot:
         old_time_windows = time_windows.copy()
     sample_buffer = int(np.ceil(minimum_period / dt * 0.1))
-    indices = np.ma.where(np.abs(np.diff(sliding_time_shift)) > 0.1)[0]
+    indices = np.ma.where(np.ma.abs(np.ma.diff(sliding_time_shift)) > 0.1)[0]
     for index in indices:
         time_windows.mask[index - sample_buffer: index + sample_buffer] = True
     if plot:
