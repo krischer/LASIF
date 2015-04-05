@@ -18,60 +18,69 @@ is applied, progressively excluding more and more time steps.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import itertools
+
 import numpy as np
 from obspy.core.util import geodetics
-from obspy.taup import getTravelTimes
+from scipy.signal import argrelextrema
 
 
-def find_local_extrema(data, start_index=0):
+def find_local_extrema(data):
     """
-    A simplistic 1D local peak (and trough) detection algorithm.
+    Function finding local extrema. It can also deal with flat extrema,
+    e.g. a flat top or bottom. In that case the first index of all flat
+    values will be returned.
 
-    It is only useful for smooth data and will find ALL local extrema. A local
-    minimum is defined as having larger values as its immediate neighbours. A
-    local maximum is consequently defined as having smaller values in its
-    immediate vicinity.
-
-    Will also find local extrema at the domain borders.
-
-    :param data: A 1D array over which the search will be performed.
-    :type data: :class:`numpy.ndarray`
-    :param start_index: The minimum index at which extrema will be detected.
-    :return: Returns a tuple with three arrays:
-        * [0]: The indices of all found peaks
-        * [1]: The indices of all found troughs
-        * [2]: The indices of all found extreme points (peaks and troughs)
-
-    >>> import numpy as np
-    >>> data = np.array([0, 1, 2, 1, 0, 1, 2, 1])
-    >>> peaks, troughs, extrema = find_local_extrema(data)
-    >>> peaks
-    array([2, 6])
-    >>> troughs
-    array([0, 4, 7])
-    >>> extrema
-    array([0, 2, 4, 6, 7])
+    Returns a tuple of maxima and minima indices.
     """
-    # Detect peaks.
-    peaks = np.r_[True, data[1:] > data[:-1]] & \
-        np.r_[data[:-1] > data[1:], True]
-    peaks = np.where(peaks)[0]
-    peaks = peaks[np.where(peaks >= start_index)[0]]
+    diff = np.diff(data)
+    flats = np.argwhere(diff == 0)
 
-    troughs = np.r_[True, data[1:] < data[:-1]] & \
-        np.r_[data[:-1] < data[1:], True]
-    troughs = np.where(troughs)[0]
-    troughs = troughs[np.where(troughs >= start_index)[0]]
+    # Discard neighbouring flat points.
+    new_flats = list(flats[0:1])
+    for i, j in zip(flats[:-1], flats[1:]):
+        if j - i == 1:
+            continue
+        new_flats.append(j)
+    flats = new_flats
 
-    # Now create a merged version.
-    if np.intersect1d(peaks, troughs, assume_unique=True):
-        msg = "Error. Peak and troughs should not be identical! Something " \
-            "went wrong. Please fix it or contact the developers."
-        raise Exception(msg)
-    extrema = np.concatenate([peaks, troughs])
-    extrema.sort()
+    maxima = []
+    minima = []
 
-    return peaks, troughs, extrema
+    # Go over each flats position and check if its a maxima/minima.
+    for idx in flats:
+        l_type = "left"
+        r_type = "right"
+        for i in itertools.count():
+            this_idx = idx - i - 1
+            if diff[this_idx] < 0:
+                l_type = "minima"
+                break
+            elif diff[this_idx] > 0:
+                l_type = "maxima"
+                break
+        for i in itertools.count():
+            this_idx = idx + i + 1
+            if this_idx >= len(diff):
+                break
+            if diff[this_idx] < 0:
+                r_type = "maxima"
+                break
+            elif diff[this_idx] > 0:
+                r_type = "minima"
+                break
+        if r_type != l_type:
+            continue
+        if r_type == "maxima":
+            maxima.append(int(idx))
+        else:
+            minima.append(int(idx))
+
+    maxs = set(list(argrelextrema(data, np.greater)[0]))
+    mins = set(list(argrelextrema(data, np.less)[0]))
+
+    return np.array(sorted(list(maxs.union(set(maxima)))), dtype="int32"), \
+           np.array(sorted(list(mins.union(set(minima)))), dtype="int32")
 
 
 def find_closest(ref_array, target):
@@ -100,6 +109,51 @@ def find_closest(ref_array, target):
     return idx
 
 
+def _plot_mask(new_mask, old_mask, name=None):
+    """
+    Helper function plotting the remaining time segments after an elimination
+    stage.
+
+    Useful to figure out which stage is responsible for a certain window
+    being picked/rejected.
+
+    :param new_mask: The mask after the elimination stage.
+    :param old_mask: The mask before the elimination stage.
+    :param name: The name of the elimination stage.
+    :return:
+    """
+    # Lazy imports as not needed by default.
+    import matplotlib.pylab as plt  # NOQA
+    import matplotlib.patheffects as PathEffects  # NOQA
+
+    old_mask = old_mask.copy()
+    new_mask = new_mask.copy()
+
+    new_mask.mask = np.bitwise_xor(old_mask.mask, new_mask.mask)
+    old_mask.mask = np.invert(old_mask.mask)
+    if np.ma.flatnotmasked_contiguous(old_mask) is not None:
+        for i in np.ma.flatnotmasked_contiguous(old_mask):
+            plt.fill_between((i.start, i.stop), (-1.0, -1.0), (2.0, 2.0),
+                             color="gray", alpha=0.3, lw=0)
+
+    new_mask.mask = np.invert(new_mask.mask)
+    if np.ma.flatnotmasked_contiguous(new_mask) is not None:
+        for i in np.ma.flatnotmasked_contiguous(new_mask):
+            plt.fill_between((i.start, i.stop), (-1.0, -1.0), (2.0, 2.0),
+                             color="#fb9a99", lw=0)
+
+    if name:
+        plt.text(len(new_mask) - 1 - 20, 0.5, name, verticalalignment="center",
+                 horizontalalignment="right",
+                 path_effects=[
+                     PathEffects.withStroke(linewidth=3, foreground="white")],
+                 fontweight=500)
+    plt.xlim(0, len(new_mask) - 1)
+    plt.ylim(0, 1)
+    plt.yticks([])
+    plt.gca().xaxis.set_ticklabels([])
+
+
 def _window_generator(data_length, window_width):
     """
     Simple generator yielding start and stop indices for sliding windows.
@@ -117,6 +171,20 @@ def _window_generator(data_length, window_width):
         window_start += 1
 
 
+def _log_window_selection(tr_id, msg):
+    """
+    Helper function for consistent output during the window selection.
+
+    :param tr_id: The id of the current trace.
+    :param msg: The message to be printed.
+    """
+    print "[Window selection for %s] %s" % (tr_id, msg)
+
+# Dictionary to cache the TauPyModel so there is no need to reinitialize it
+# each time which is a fairly expensive operation.
+TAUPY_MODEL_CACHE = {}
+
+
 def select_windows(data_trace, synthetic_trace, event_latitude,
                    event_longitude, event_depth_in_km,
                    station_latitude, station_longitude, minimum_period,
@@ -124,10 +192,16 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                    min_cc=0.10, max_noise=0.10, max_noise_window=0.4,
                    min_velocity=2.4, threshold_shift=0.30,
                    threshold_correlation=0.75, min_length_period=1.5,
-                   min_peaks_troughs=2, max_energy_ratio=2.0, quiet=True):
+                   min_peaks_troughs=2, max_energy_ratio=2.0, verbose=False,
+                   plot=False):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.
+
+    Returns a list of windows which might be empty due to various reasons.
+
+    This function is really long and a lot of things. For a more detailed
+    description, please see the LASIF paper.
 
     :param data_trace: The data trace.
     :type data_trace: :class:`~obspy.core.trace.Trace`
@@ -162,7 +236,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     :param threshold_shift: Maximum allowable time shift within a window,
         as a fraction of the minimum period.
     :type threshold_shift: float
-    :param threshold_correlation: Minimum normalised correlation coeficient
+    :param threshold_correlation: Minimum normalised correlation coeeficient
         within a window.
     :type threshold_correlation: float
     :param min_length_period: Minimum length of the time windows relative to
@@ -174,44 +248,60 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     :param max_energy_ratio: Maximum energy ratio between data and
         synthetics within a time window.
     :type max_energy_ratio: float
-    :param quiet: Be quiet and don't print anything.
-    :type quiet: bool
+    :param verbose: No output by default.
+    :type verbose: bool
+    :param plot: Create a plot of the algortihm while it does its work.
+    :type plot: bool
     """
-    if not quiet:
-        print "* ---------------------------"
-        print "* autoselect " + data_trace.id
-
+    # Shortcuts to frequently accessed variables.
     data_starttime = data_trace.stats.starttime
     data_delta = data_trace.stats.delta
+    dt = data_trace.stats.delta
+    npts = data_trace.stats.npts
+    synth = synthetic_trace.data
+    data = data_trace.data
+    times = data_trace.times()
 
-    # =========================================================================
-    # initialisations
-    # =========================================================================
+    # Fill cache if necessary.
+    if not TAUPY_MODEL_CACHE:
+        from obspy.taup import TauPyModel  # NOQA
+        TAUPY_MODEL_CACHE["model"] = TauPyModel("AK135")
+    model = TAUPY_MODEL_CACHE["model"]
 
-    dt = synthetic_trace.stats.delta
-    npts = synthetic_trace.stats.npts
+    # -------------------------------------------------------------------------
+    # Geographical calculations and the time of the first arrival.
+    # -------------------------------------------------------------------------
     dist_in_deg = geodetics.locations2degrees(station_latitude,
                                               station_longitude,
                                               event_latitude, event_longitude)
     dist_in_km = geodetics.calcVincentyInverse(
         station_latitude, station_longitude, event_latitude,
         event_longitude)[0] / 1000.0
-    tts = getTravelTimes(dist_in_deg, event_depth_in_km, model="ak135")
-    first_tt_arrival = min([_i["time"] for _i in tts])
 
+    # Get only a couple of P phases which should be the first arrival
+    # for every epicentral distance. Its quite a bit faster than calculating
+    # the arrival times for every phase.
+    # Assumes the first sample is the centroid time of the event.
+    tts = model.get_travel_times(source_depth_in_km=event_depth_in_km,
+                                 distance_in_degree=dist_in_deg,
+                                 phase_list=["ttp"])
+    # Sort just as a safety measure.
+    tts = sorted(tts, key=lambda x: x.time)
+    first_tt_arrival = tts[0].time
+
+    # -------------------------------------------------------------------------
+    # Window settings
+    # -------------------------------------------------------------------------
     # Number of samples in the sliding window. Currently, the length of the
     # window is set to a multiple of the dominant period of the synthetics.
     # Make sure it is an uneven number; just to have a trivial midpoint
-    # definition.
+    # definition and one sample does not matter much in any case.
     window_length = int(round(float(2 * minimum_period) / dt))
-
     if not window_length % 2:
         window_length += 1
 
-    # Allocate arrays to collect the time dependent values.
-    sliding_time_shift = np.zeros(npts, dtype="float32")
-    max_cc_coeff = np.zeros(npts, dtype="float32")
-
+    # Use a Hanning window. No particular reason for it but its a well-behaved
+    # window and has nice spectral properties.
     taper = np.hanning(window_length)
 
     # =========================================================================
@@ -219,16 +309,14 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # noise level
     # =========================================================================
 
-    synth = synthetic_trace.data
-    data = data_trace.data
-
-    #  compute correlation coefficient
+    # Overall Correlation coefficient.
     norm = np.sqrt(np.sum(data ** 2)) * np.sqrt(np.sum(synth ** 2))
     cc = np.sum(data * synth) / norm
-    if not quiet:
-        print "** correlation coefficient: " + str(cc)
+    if verbose:
+        _log_window_selection(data_trace.id,
+                              "Correlation Coefficient: %.4f" % cc)
 
-    #  estimate noise level from waveforms prior to the first arrival
+    # Estimate noise level from waveforms prior to the first arrival.
     idx_end = int(np.ceil((first_tt_arrival - 0.5 * minimum_period) / dt))
     idx_end = max(10, idx_end)
     idx_start = int(np.ceil((first_tt_arrival - 2.5 * minimum_period) / dt))
@@ -240,45 +328,177 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     noise_absolute = data[idx_start:idx_end].ptp()
     noise_relative = noise_absolute / data.ptp()
 
-    if not quiet:
-        print "** absolute noise level: " + str(noise_absolute) + " m/s"
-        print "** relative noise level: " + str(noise_relative)
+    if verbose:
+        _log_window_selection(data_trace.id,
+                              "Absolute Noise Level: %e" % noise_absolute)
+        _log_window_selection(data_trace.id,
+                              "Relative Noise Level: %e" % noise_relative)
 
-    #  rejection criteria
-    accept = True
-
+    # Basic global rejection criteria.
+    accept_traces = True
     if (cc < min_cc) and (noise_relative > max_noise / 3.0):
-        if not quiet:
-            print "** correlation " + str(cc) + \
-                " is below threshold value of " + str(min_cc)
-        accept = False
+        if verbose:
+            _log_window_selection(
+                data_trace.id,
+                "Correlation %.4f is below threshold of %.4f" % (cc, min_cc))
+        accept_traces = False
 
     if noise_relative > max_noise:
-        if not quiet:
-            print "** noise level " + str(noise_relative) + \
-                " is above threshold value of " + str(max_noise)
-        accept = False
+        if verbose:
+            _log_window_selection(
+                data_trace.id,
+                "Noise level %e is above threshold of %e" % (noise_relative,
+                                                             max_noise))
+        accept_traces = False
 
-    if accept is False:
-        if not quiet:
-            print "* autoselect done, 0 windows selected"
+    # -------------------------------------------------------------------------
+    # Initial Plot setup.
+    # -------------------------------------------------------------------------
+    # All the plot calls are interleaved. I realize this is really ugly but
+    # the alternative would be to either have two functions (one with plots,
+    # one without) or split the plotting function in various subfunctions,
+    # neither of which are acceptable in my opinion. The impact on
+    # performance is minimal if plotting is turned off: all imports are lazy
+    # and a couple of conditionals are cheap.
+    if plot:
+        import matplotlib.pylab as plt  # NOQA
+        import matplotlib.patheffects as PathEffects  # NOQA
+
+        if accept_traces:
+            plt.figure(figsize=(18, 9))
+            plt.subplots_adjust(left=0.05, bottom=0.05, right=0.98, top=0.95,
+                                wspace=None, hspace=0.0)
+            grid = (25, 1)
+
+            # Axes showing the data.
+            plt.subplot2grid(grid, (0, 0), rowspan=8)
+        else:
+            # Only show one axes it the traces are not accepted.
+            plt.figure(figsize=(18, 3))
+
+        plt.plot(times, data, color="black", label="data", lw=1.5)
+        plt.plot(synthetic_trace.times(), synth, color="#e41a1c",
+                 label="synthetics",  lw=1.5)
+
+        # Symmetric around y axis.
+        middle = data.mean()
+        d_max, d_min = data.max(), data.min()
+        r = max(d_max - middle, middle - d_min) * 1.1
+        ylim = (middle - r, middle + r)
+        xlim = (times[0], times[-1])
+        plt.ylim(*ylim)
+        plt.xlim(*xlim)
+
+        offset = (xlim[1] - xlim[0]) * 0.005
+        plt.vlines(first_tt_arrival, ylim[0], ylim[1], colors="#ff7f00", lw=2)
+        plt.text(first_tt_arrival + offset,
+                 ylim[1] - (ylim[1] - ylim[0]) * 0.02,
+                 "first arrival", verticalalignment="top",
+                 horizontalalignment="left", color="#ee6e00",
+                 path_effects=[
+                     PathEffects.withStroke(linewidth=3, foreground="white")])
+
+        plt.vlines(first_tt_arrival - minimum_period / 2.0, ylim[0], ylim[1],
+                   colors="#ff7f00", lw=2)
+        plt.text(first_tt_arrival - minimum_period / 2.0 - offset,
+                 ylim[0] + (ylim[1] - ylim[0]) * 0.02,
+                 "first arrival - min period / 2", verticalalignment="bottom",
+                 horizontalalignment="right", color="#ee6e00",
+                 path_effects=[
+                     PathEffects.withStroke(linewidth=3, foreground="white")])
+
+        for velocity in [6, 5, 4, 3, min_velocity]:
+            tt = dist_in_km / velocity
+            plt.vlines(tt, ylim[0], ylim[1], colors="gray", lw=2)
+            if velocity == min_velocity:
+                hal = "right"
+                o_s = -1.0 * offset
+            else:
+                hal = "left"
+                o_s = offset
+            plt.text(tt + o_s, ylim[0] + (ylim[1] - ylim[0]) * 0.02,
+                 str(velocity) + " km/s", verticalalignment="bottom",
+                 horizontalalignment=hal, color="0.15")
+        plt.vlines(dist_in_km / min_velocity + minimum_period / 2.0,
+                   ylim[0], ylim[1], colors="gray", lw=2)
+        plt.text(dist_in_km / min_velocity + minimum_period / 2.0 - offset,
+                 ylim[1] - (ylim[1] - ylim[0]) * 0.02,
+                 "min surface velocity + min period / 2",
+                 verticalalignment="top",
+                 horizontalalignment="right", color="0.15", path_effects=[
+                PathEffects.withStroke(linewidth=3, foreground="white")])
+
+        plt.hlines(noise_absolute, xlim[0], xlim[1], linestyle="--",
+                   color="gray")
+        plt.hlines(-noise_absolute, xlim[0], xlim[1], linestyle="--",
+                   color="gray")
+        plt.text(offset, noise_absolute + (ylim[1] - ylim[0]) * 0.01,
+                 "noise level", verticalalignment="bottom",
+                 horizontalalignment="left", color="0.15",
+                 path_effects=[
+                     PathEffects.withStroke(linewidth=3, foreground="white")])
+        plt.legend(loc="lower right", fancybox=True, framealpha=0.5,
+                   fontsize="small")
+        plt.gca().xaxis.set_ticklabels([])
+
+        # Plot the basic global information.
+        ax = plt.gca()
+        txt = "Total CC Coeff: %.4f\nAbsolute Noise: %e\nRelative Noise: %e" \
+            % (cc, noise_absolute, noise_relative)
+        ax.text(0.01, 0.95, txt, transform=ax.transAxes,
+                fontdict=dict(fontsize="small", ha='left', va='top'),
+                bbox=dict(boxstyle="round", fc="w", alpha=0.8))
+        plt.suptitle("Channel %s" % data_trace.id, fontsize="larger")
+
+    # Show plot and return if not accepted.
+        if not accept_traces:
+            plt.show()
+    if not accept_traces:
         return []
 
-    # =========================================================================
-    # compute sliding time shifts and correlation coefficients
-    # =========================================================================
+    # Initialise masked arrays. The mask will be set to True where no
+    # windows are chosen.
+    time_windows = np.ma.ones(npts)
+    time_windows.mask = np.zeros(npts)
+    if plot:
+        old_time_windows = time_windows.copy()
+
+    # Elimination Stage 1: Eliminate everything half a period before or
+    # after the minimum and maximum travel times, respectively.
+    # theoretical arrival as positive.
+    min_idx = (first_tt_arrival - (minimum_period / 2.0)) / dt - 1
+    max_idx = (dist_in_km / min_velocity + minimum_period / 2.0) / dt - 1
+    time_windows.mask[:min_idx] = True
+    time_windows.mask[max_idx:] = True
+    if plot:
+        plt.subplot2grid(grid, (8, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="TRAVELTIME ELIMINATION")
+        old_time_windows = time_windows.copy()
+
+    # -------------------------------------------------------------------------
+    # Compute sliding time shifts and correlation coefficients for time
+    # frames that passed the traveltime elimination stage.
+    # -------------------------------------------------------------------------
+    # Allocate arrays to collect the time dependent values.
+    sliding_time_shift = np.ma.masked_all(npts, dtype="float32")
+    max_cc_coeff = np.ma.masked_all(npts, dtype="float32")
 
     for start_idx, end_idx, midpoint_idx in _window_generator(npts,
                                                               window_length):
+        if not min_idx < midpoint_idx < max_idx:
+            continue
 
         # Slice windows. Create a copy to be able to taper without affecting
         # the original time series.
-        data_window = data_trace.data[start_idx: end_idx].copy() * taper
+        data_window = data[start_idx: end_idx].copy() * taper
         synthetic_window = \
-            synthetic_trace.data[start_idx: end_idx].copy() * taper
+            synth[start_idx: end_idx].copy() * taper
 
-        # Skip windows that have essentially no energy to avoid instabilities.
-        if synthetic_window.ptp() < synthetic_trace.data.ptp() * 0.001:
+        # Elimination Stage 2: Skip windows that have essentially no energy
+        # to avoid instabilities. No windows can be picked in these.
+        if synthetic_window.ptp() < synth.ptp() * 0.001:
+            time_windows.mask[midpoint_idx] = True
             continue
 
         # Calculate the time shift. Here this is defined as the shift of the
@@ -295,76 +515,101 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                                           (data_window ** 2).sum())
         max_cc_coeff[midpoint_idx] = max_cc_value
 
-    # =========================================================================
-    # compute the initial mask, i.e. intervals (windows) where no measurements
-    # are made.
-    # =========================================================================
+    if plot:
+        plt.subplot2grid(grid, (9, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="NO ENERGY IN CC WINDOW")
+        # Axes with the CC coeffs
+        plt.subplot2grid(grid, (15, 0), rowspan=4)
+        plt.hlines(0, xlim[0], xlim[1], color="lightgray")
+        plt.hlines(-threshold_shift, xlim[0], xlim[1], color="gray",
+                   linestyle="--")
+        plt.hlines(threshold_shift, xlim[0], xlim[1], color="gray",
+                   linestyle="--")
+        plt.text(5, -threshold_shift - (2) * 0.03,
+                 "threshold", verticalalignment="top", size="large",
+                 horizontalalignment="left", color="0.15",
+                 path_effects=[
+                     PathEffects.withStroke(linewidth=3, foreground="white")])
+        plt.plot(times, sliding_time_shift, color="#377eb8",
+                 label="Time shift in fraction of minimum period", lw=1.5)
+        ylim = plt.ylim()
+        plt.yticks([-0.75, 0, 0.75])
+        plt.xticks([300, 600, 900, 1200, 1500, 1800])
+        plt.ylim(ylim[0], ylim[1] + ylim[1] - ylim[0])
+        plt.ylim(-1.0, 1.0)
+        plt.xlim(xlim)
+        plt.gca().xaxis.set_ticklabels([])
+        plt.legend(loc="lower right", fancybox=True, framealpha=0.5,
+                   fontsize="small")
 
-    # Step 1: Initialise masked arrays. The mask will be set to True where no
-    # windows are chosen.
-    time_windows = np.ma.ones(npts)
-    time_windows.mask = np.zeros(npts)
+        plt.subplot2grid(grid, (10, 0), rowspan=4)
+        plt.hlines(threshold_correlation, xlim[0], xlim[1], color="0.15",
+                   linestyle="--")
+        plt.hlines(1, xlim[0], xlim[1], color="lightgray")
+        plt.hlines(0, xlim[0], xlim[1], color="lightgray")
+        plt.text(5, threshold_correlation + (1.4) * 0.01,
+                 "threshold", verticalalignment="bottom", size="large",
+                 horizontalalignment="left", color="0.15",
+                 path_effects=[
+                     PathEffects.withStroke(linewidth=3, foreground="white")])
+        plt.plot(times, max_cc_coeff, color="#4daf4a",
+                 label="Maximum CC coefficient", lw=1.5)
+        plt.ylim(-0.2, 1.2)
+        plt.yticks([0, 0.5, 1])
+        plt.xticks([300, 600, 900, 1200, 1500, 1800])
+        plt.xlim(xlim)
+        plt.gca().xaxis.set_ticklabels([])
+        plt.legend(loc="lower right", fancybox=True, framealpha=0.5,
+                   fontsize="small")
 
-    # Step 2: Mark everything more then half a dominant period before the first
-    # theoretical arrival as positive.
-    time_windows.mask[:int(np.ceil(
-                      (first_tt_arrival - minimum_period * 0.5) / dt))] = True
+    # Elimination Stage 3: Mark all areas where the normalized cross
+    # correlation coefficient is under threshold_correlation as negative
+    if plot:
+        old_time_windows = time_windows.copy()
+    time_windows.mask[max_cc_coeff < threshold_correlation] = True
+    if plot:
+        plt.subplot2grid(grid, (14, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="CORRELATION COEFF THRESHOLD ELIMINATION")
 
-    # Step 3: Mark everything more then half a dominant period after the
-    # threshold arrival time - computed from the threshold velocity - as
-    # negative.
-    time_windows.mask[int(np.floor(dist_in_km / min_velocity / dt)):] = True
-
-    # Step 4: Mark everything with an absolute travel time shift of more than
-    # threshold_shift times the dominant period as negative
+    # Elimination Stage 4: Mark everything with an absolute travel time
+    # shift of more than # threshold_shift times the dominant period as
+    # negative
+    if plot:
+        old_time_windows = time_windows.copy()
     time_windows.mask[np.abs(sliding_time_shift) > threshold_shift] = True
+    if plot:
+        plt.subplot2grid(grid, (19, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="TIME SHIFT THRESHOLD ELIMINATION")
 
-    # Step 5: Mark the area around every "travel time shift jump" (based on
-    # the traveltime time difference) negative. The width of the area is
-    # currently chosen to be a tenth of a dominant period to each side.
+    # Elimination Stage 5: Mark the area around every "travel time shift
+    # jump" (based on the traveltime time difference) negative. The width of
+    # the area is currently chosen to be a tenth of a dominant period to
+    # each side.
+    if plot:
+        old_time_windows = time_windows.copy()
     sample_buffer = int(np.ceil(minimum_period / dt * 0.1))
     indices = np.ma.where(np.abs(np.diff(sliding_time_shift)) > 0.1)[0]
     for index in indices:
         time_windows.mask[index - sample_buffer: index + sample_buffer] = True
+    if plot:
+        plt.subplot2grid(grid, (20, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="TIME SHIFT JUMPS ELIMINATION")
 
-    # Step 6: Mark all areas where the normalized cross correlation coefficient
-    # is under threshold_correlation as negative
-    time_windows.mask[max_cc_coeff < threshold_correlation] = True
-
-    # =========================================================================
-    #  Make the final window selection.
-    # =========================================================================
-
-    min_length = min(minimum_period / dt * min_length_period,
-                     maximum_period / dt)
+    # -------------------------------------------------------------------------
+    # Peak and trough marching algorithm
+    # -------------------------------------------------------------------------
     final_windows = []
-
-    if np.ma.flatnotmasked_contiguous(time_windows) is None:
-        windows = []
-        return
-
-    #  loop through all the time windows
     for i in np.ma.flatnotmasked_contiguous(time_windows):
-
-        # Step 7: Throw away all windows with a length of less then
-        # min_length_period the dominant period.
-        if (i.stop - i.start) < min_length:
-            continue
-
         window_npts = i.stop - i.start
-        synthetic_window = synthetic_trace.data[i.start: i.stop]
-        data_window = data_trace.data[i.start: i.stop]
+        synthetic_window = synth[i.start: i.stop]
+        data_window = data[i.start: i.stop]
+        data_p, data_t = find_local_extrema(data_window)
+        synth_p, synth_t = find_local_extrema(synthetic_window)
 
-        # Step 8: Exclude windows without a real peak or trough (except for the
-        # edges).
-        data_p, data_t, data_extrema = find_local_extrema(data_window, 0)
-        synth_p, synth_t, synth_extrema = find_local_extrema(synthetic_window,
-                                                             0)
-        if np.min([len(synth_p), len(synth_t), len(data_p), len(data_t)]) < \
-                min_peaks_troughs:
-            continue
-
-        # Step 9: Peak and trough matching algorithm
         window_mask = np.ones(window_npts, dtype="bool")
 
         closest_peaks = find_closest(data_p, synth_p)
@@ -395,35 +640,100 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                 end = -1
             window_mask[start: end] = False
 
-        window_mask = np.ma.masked_array(window_mask, mask=window_mask)
+        window_mask = np.ma.masked_array(window_mask,
+                                         mask=window_mask)
+
         if window_mask.mask.all():
             continue
 
-        # Step 10: Check if the time windows have sufficiently similar energy
-        # and are above the noise
         for j in np.ma.flatnotmasked_contiguous(window_mask):
+            final_windows.append((i.start + j.start, i.start + j.stop))
+
+    if plot:
+        old_time_windows = time_windows.copy()
+    time_windows.mask[:] = True
+    for start, stop in final_windows:
+        time_windows.mask[start:stop] = False
+    if plot:
+        plt.subplot2grid(grid, (21, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="PEAK AND TROUGH MARCHING ELIMINATION")
+
+    # Loop through all the time windows, remove windows not satisfying the
+    # minimum number of peaks and troughs per window. Acts mainly as a
+    # safety guard.
+    old_time_windows = time_windows.copy()
+    for i in np.ma.flatnotmasked_contiguous(old_time_windows):
+        synthetic_window = synth[i.start: i.stop]
+        data_window = data[i.start: i.stop]
+        data_p, data_t = find_local_extrema(data_window)
+        synth_p, synth_t = find_local_extrema(synthetic_window)
+        if np.min([len(synth_p), len(synth_t), len(data_p), len(data_t)]) < \
+                min_peaks_troughs:
+            time_windows.mask[i.start: i.stop] = True
+    if plot:
+        plt.subplot2grid(grid, (22, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="PEAK/TROUGH COUNT ELIMINATION")
+
+
+    #  loop through all the time windows
+    if plot:
+        old_time_windows = time_windows.copy()
+    min_length = \
+        min(minimum_period / dt * min_length_period, maximum_period / dt)
+    tws = np.ma.flatnotmasked_contiguous(time_windows)
+    if tws is not None:
+        for i in tws:
+            # Step 7: Throw away all windows with a length of less then
+            # min_length_period the dominant period.
+            if (i.stop - i.start) < min_length:
+                time_windows.mask[i.start: i.stop] = True
+    if plot:
+        plt.subplot2grid(grid, (23, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="MINIMUM WINDOW LENGTH ELIMINATION")
+
+
+    # Final step, eliminating windows with little energy.
+    final_windows = []
+    tws = np.ma.flatnotmasked_contiguous(time_windows)
+    if tws is not None:
+        for j in tws:
 
             # Again assert a certain minimal length.
             if (j.stop - j.start) < min_length:
                 continue
 
             # Compare the energy in the data window and the synthetic window.
-            data_energy = (data_window[j.start: j.stop] ** 2).sum()
-            synth_energy = (synthetic_window[j.start: j.stop] ** 2).sum()
+            data_energy = (data[j.start: j.stop] ** 2).sum()
+            synth_energy = (synth[j.start: j.stop] ** 2).sum()
             energies = sorted([data_energy, synth_energy])
             if energies[1] > max_energy_ratio * energies[0]:
                 continue
 
             # Check that amplitudes in the data are above the noise
-            if noise_absolute / data_window[j.start: j.stop].ptp() > \
+            if noise_absolute / data[j.start: j.stop].ptp() > \
                     max_noise_window:
                 continue
+            final_windows.append((j.start, j.stop))
 
-            final_windows.append((i.start + j.start, i.start + j.stop))
+    if plot:
+        old_time_windows = time_windows.copy()
+    time_windows.mask[:] = True
+    for start, stop in final_windows:
+        time_windows.mask[start:stop] = False
 
-    if not quiet:
-        print "* autoselect done, " + str(len(final_windows)) + \
-            " window(s) selected"
+    if plot:
+        plt.subplot2grid(grid, (24, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="LITTLE ENERGY ELIMINATION")
+
+
+    if verbose:
+        _log_window_selection(
+            data_trace.id,
+            "Done, Selected %i window(s)" % len(final_windows))
 
     # Final step is to convert the index value windows to actual times.
     windows = []
@@ -431,6 +741,9 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         start = data_starttime + start * data_delta
         stop = data_starttime + stop * data_delta
         windows.append((start, stop))
+
+    if plot:
+        plt.show()
 
     return windows
 

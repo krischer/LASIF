@@ -16,7 +16,7 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
                             event_longitude, event_depth_in_km,
                             station_latitude, station_longitude,
                             minimum_period, maximum_period,
-                            iteration):  # NOQA
+                            iteration, **kwargs):  # NOQA
     """
     Function that will be called every time a window is picked. This is part
     of the project so it can change depending on the project.
@@ -121,6 +121,6 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
         min_length_period=MIN_LENGTH_PERIOD,
         min_peaks_troughs=MIN_PEAKS_TROUGHS,
         max_energy_ratio=MAX_ENERGY_RATIO,
-        quiet=True)
+        **kwargs)
 
     return windows

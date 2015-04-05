@@ -230,7 +230,7 @@ class ActionsComponent(Component):
                           min(_i * MPI.COMM_WORLD.size, total_size),
                           total_size))
 
-    def select_windows_for_station(self, event, iteration, station):
+    def select_windows_for_station(self, event, iteration, station, **kwargs):
         """
         Selects windows for the given event, iteration, and station. Will
         delete any previously existing windows for that station if any.
@@ -274,7 +274,7 @@ class ActionsComponent(Component):
                                      data.coordinates["longitude"],
                                      minimum_period=minimum_period,
                                      maximum_period=maximum_period,
-                                     iteration=iteration)
+                                     iteration=iteration, **kwargs)
             if not windows:
                 continue
 
