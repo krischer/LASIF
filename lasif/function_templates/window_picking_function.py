@@ -99,7 +99,8 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
     MIN_PEAKS_TROUGHS = 2
 
     # Maximum energy ratio between data and synthetics within a time window.
-    MAX_ENERGY_RATIO = 2.0
+    # Don't make this too small!
+    MAX_ENERGY_RATIO = 10.0
 
     windows = select_windows(
         data_trace=data_trace,

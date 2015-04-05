@@ -34,6 +34,7 @@ def find_local_extrema(data):
 
     Returns a tuple of maxima and minima indices.
     """
+    length = len(data)
     diff = np.diff(data)
     flats = np.argwhere(diff == 0)
 
@@ -80,8 +81,25 @@ def find_local_extrema(data):
     maxs = set(list(argrelextrema(data, np.greater)[0]))
     mins = set(list(argrelextrema(data, np.less)[0]))
 
-    return np.array(sorted(list(maxs.union(set(maxima)))), dtype="int32"), \
-           np.array(sorted(list(mins.union(set(minima)))), dtype="int32")
+    peaks, troughs = (
+        sorted(list(maxs.union(set(maxima)))),
+        sorted(list(mins.union(set(minima)))))
+
+    # Mark the first and last values as well to facilitate the peak and
+    # trough marching algorithm
+    if 0 not in peaks and 0 not in troughs:
+        if peaks[0] < troughs[0]:
+            troughs.insert(0, 0)
+        else:
+            peaks.insert(0, 0)
+    if length not in peaks and length not in troughs:
+        if peaks[-1] < troughs[-1]:
+            peaks.append(length)
+        else:
+            troughs.append(length)
+
+    return (np.array(peaks, dtype=np.int32),
+            np.array(troughs, dtype=np.int32))
 
 
 def find_closest(ref_array, target):
@@ -193,7 +211,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                    min_cc=0.10, max_noise=0.10, max_noise_window=0.4,
                    min_velocity=2.4, threshold_shift=0.30,
                    threshold_correlation=0.75, min_length_period=1.5,
-                   min_peaks_troughs=2, max_energy_ratio=2.0, verbose=False,
+                   min_peaks_troughs=2, max_energy_ratio=10.0, verbose=False,
                    plot=False):
     """
     Window selection algorithm for picking windows suitable for misfit
@@ -247,7 +265,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         time window (excluding the edges).
     :type min_peaks_troughs: float
     :param max_energy_ratio: Maximum energy ratio between data and
-        synthetics within a time window.
+        synthetics within a time window. Don't make this too small!
     :type max_energy_ratio: float
     :param verbose: No output by default.
     :type verbose: bool
@@ -467,10 +485,10 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # Elimination Stage 1: Eliminate everything half a period before or
     # after the minimum and maximum travel times, respectively.
     # theoretical arrival as positive.
-    min_idx = int((first_tt_arrival - (minimum_period / 2.0)) / dt) - 1
+    min_idx = int((first_tt_arrival - (minimum_period / 2.0)) / dt)
     max_idx = int(math.ceil((
-        dist_in_km / min_velocity + minimum_period / 2.0) / dt)) - 1
-    time_windows.mask[:min_idx] = True
+        dist_in_km / min_velocity + minimum_period / 2.0) / dt))
+    time_windows.mask[:min_idx + 1] = True
     time_windows.mask[max_idx:] = True
     if plot:
         plt.subplot2grid(grid, (8, 0), rowspan=1)
@@ -531,7 +549,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         plt.hlines(threshold_shift, xlim[0], xlim[1], color="gray",
                    linestyle="--")
         plt.text(5, -threshold_shift - (2) * 0.03,
-                 "threshold", verticalalignment="top", size="large",
+                 "threshold", verticalalignment="top",
                  horizontalalignment="left", color="0.15",
                  path_effects=[
                      PathEffects.withStroke(linewidth=3, foreground="white")])
@@ -553,7 +571,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         plt.hlines(1, xlim[0], xlim[1], color="lightgray")
         plt.hlines(0, xlim[0], xlim[1], color="lightgray")
         plt.text(5, threshold_correlation + (1.4) * 0.01,
-                 "threshold", verticalalignment="bottom", size="large",
+                 "threshold", verticalalignment="bottom",
                  horizontalalignment="left", color="0.15",
                  path_effects=[
                      PathEffects.withStroke(linewidth=3, foreground="white")])
@@ -608,9 +626,12 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # -------------------------------------------------------------------------
     final_windows = []
     for i in np.ma.flatnotmasked_contiguous(time_windows):
+        # Cut respective windows.
         window_npts = i.stop - i.start
         synthetic_window = synth[i.start: i.stop]
         data_window = data[i.start: i.stop]
+
+        # Find extrema in the data and the synthetics.
         data_p, data_t = find_local_extrema(data_window)
         synth_p, synth_t = find_local_extrema(synthetic_window)
 
@@ -714,12 +735,21 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
             synth_energy = (synth[j.start: j.stop] ** 2).sum()
             energies = sorted([data_energy, synth_energy])
             if energies[1] > max_energy_ratio * energies[0]:
+                if verbose:
+                    _log_window_selection(
+                        data_trace.id,
+                        "Deselecting window due to energy ratio between "
+                        "data and synthetics.")
                 continue
 
             # Check that amplitudes in the data are above the noise
             if noise_absolute / data[j.start: j.stop].ptp() > \
                     max_noise_window:
-                continue
+                if verbose:
+                    _log_window_selection(
+                        data_trace.id,
+                        "Deselecting window due having no amplitude above the "
+                        "signal to noise ratio.")
             final_windows.append((j.start, j.stop))
 
     if plot:
