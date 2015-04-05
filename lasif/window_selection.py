@@ -719,7 +719,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         if window_mask.mask.all():
             continue
 
-        for j in flatnotmasked_contiguous(time_windows):
+        for j in flatnotmasked_contiguous(window_mask):
             final_windows.append((i.start + j.start, i.start + j.stop))
 
     if plot:
