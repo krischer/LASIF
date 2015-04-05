@@ -465,8 +465,8 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                 hal = "left"
                 o_s = offset
             plt.text(tt + o_s, ylim[0] + (ylim[1] - ylim[0]) * 0.02,
-                 str(velocity) + " km/s", verticalalignment="bottom",
-                 horizontalalignment=hal, color="0.15")
+                     str(velocity) + " km/s", verticalalignment="bottom",
+                     horizontalalignment=hal, color="0.15")
         plt.vlines(dist_in_km / min_velocity + minimum_period / 2.0,
                    ylim[0], ylim[1], colors="gray", lw=2)
         plt.text(dist_in_km / min_velocity + minimum_period / 2.0 - offset,
@@ -474,7 +474,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                  "min surface velocity + min period / 2",
                  verticalalignment="top",
                  horizontalalignment="right", color="0.15", path_effects=[
-                PathEffects.withStroke(linewidth=3, foreground="white")])
+                    PathEffects.withStroke(linewidth=3, foreground="white")])
 
         plt.hlines(noise_absolute, xlim[0], xlim[1], linestyle="--",
                    color="gray")
@@ -650,7 +650,6 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         _plot_mask(time_windows, old_time_windows,
                    name="TIME SHIFT JUMPS ELIMINATION")
 
-
     # First minimum window length elimination stage. This is cheap and if
     # not done it can easily destabilize the peak-and-trough marching stage
     # which would then have to deal with way more edge cases.
@@ -667,7 +666,6 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         plt.subplot2grid(grid, (21, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="MINIMUM WINDOW LENGTH ELIMINATION 1")
-
 
     # -------------------------------------------------------------------------
     # Peak and trough marching algorithm
@@ -749,7 +747,6 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         _plot_mask(time_windows, old_time_windows,
                    name="PEAK/TROUGH COUNT ELIMINATION")
 
-
     # Second minimum window length elimination stage.
     if plot:
         old_time_windows = time_windows.copy()
@@ -764,7 +761,6 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         plt.subplot2grid(grid, (24, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="MINIMUM WINDOW LENGTH ELIMINATION 2")
-
 
     # Final step, eliminating windows with little energy.
     final_windows = []
@@ -805,7 +801,6 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         plt.subplot2grid(grid, (25, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="LITTLE ENERGY ELIMINATION")
-
 
     if verbose:
         _log_window_selection(
