@@ -1328,6 +1328,12 @@ def _get_argument_parser(fct):
     parser.add_argument("--read_only_caches",
                         help="sets all caches to read-only",
                         action="store_true")
+
+    parser.add_argument(
+        "--ipdb",
+        help="If true, a debugger will be launched upon encountering an "
+             "exception. Requires ipdb.",
+        action="store_true")
     return parser
 
 
@@ -1416,6 +1422,15 @@ def main():
               colorama.Style.RESET_ALL)
         sys.exit(1)
     except Exception as e:
-        print(colorama.Fore.RED)
-        traceback.print_exc()
-        print(colorama.Style.RESET_ALL)
+        args = parser.parse_args(further_args)
+        # Launch ipdb debugger right at the exception point if desired.
+        # Greatly eases debugging things. Requires ipdb to be installed.
+        if args.ipdb:
+            import ipdb  # NOQA
+            _, _, tb = sys.exc_info()
+            traceback.print_exc()
+            ipdb.post_mortem(tb)
+        else:
+            print(colorama.Fore.RED)
+            traceback.print_exc()
+            print(colorama.Style.RESET_ALL)
