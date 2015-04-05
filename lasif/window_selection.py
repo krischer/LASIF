@@ -419,7 +419,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
             grid = (26, 1)
 
             # Axes showing the data.
-            plt.subplot2grid(grid, (0, 0), rowspan=8)
+            data_plot = plt.subplot2grid(grid, (0, 0), rowspan=8)
         else:
             # Only show one axes it the traces are not accepted.
             plt.figure(figsize=(18, 3))
@@ -815,6 +815,15 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         windows.append((start, stop))
 
     if plot:
+        # Plot the final windows to the data axes.
+        import matplotlib.transforms as mtransforms  # NOQA
+        ax = data_plot
+        trans = mtransforms.blended_transform_factory(ax.transData,
+                                                      ax.transAxes)
+        for start, stop in final_windows:
+            ax.fill_between([start * data_delta, stop * data_delta], 0, 1,
+                            facecolor="#CDDC39", alpha=0.5, transform=trans)
+
         plt.show()
 
     return windows
