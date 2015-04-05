@@ -384,10 +384,10 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         import matplotlib.patheffects as PathEffects  # NOQA
 
         if accept_traces:
-            plt.figure(figsize=(18, 9))
+            plt.figure(figsize=(18, 10))
             plt.subplots_adjust(left=0.05, bottom=0.05, right=0.98, top=0.95,
                                 wspace=None, hspace=0.0)
-            grid = (25, 1)
+            grid = (26, 1)
 
             # Axes showing the data.
             plt.subplot2grid(grid, (0, 0), rowspan=8)
@@ -621,6 +621,27 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         _plot_mask(time_windows, old_time_windows,
                    name="TIME SHIFT JUMPS ELIMINATION")
 
+
+    # First minimum window length elimination stage. This is cheap and if
+    # not done it can easily destabilize the peak-and-trough marching stage
+    # which would then have to deal with way more edge cases.
+    if plot:
+        old_time_windows = time_windows.copy()
+    min_length = \
+        min(minimum_period / dt * min_length_period, maximum_period / dt)
+    tws = np.ma.flatnotmasked_contiguous(time_windows)
+    if tws is not None:
+        for i in tws:
+            # Step 7: Throw away all windows with a length of less then
+            # min_length_period the dominant period.
+            if (i.stop - i.start) < min_length:
+                time_windows.mask[i.start: i.stop] = True
+    if plot:
+        plt.subplot2grid(grid, (21, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="MINIMUM WINDOW LENGTH ELIMINATION 1")
+
+
     # -------------------------------------------------------------------------
     # Peak and trough marching algorithm
     # -------------------------------------------------------------------------
@@ -680,7 +701,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     for start, stop in final_windows:
         time_windows.mask[start:stop] = False
     if plot:
-        plt.subplot2grid(grid, (21, 0), rowspan=1)
+        plt.subplot2grid(grid, (22, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="PEAK AND TROUGH MARCHING ELIMINATION")
 
@@ -697,12 +718,12 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                 min_peaks_troughs:
             time_windows.mask[i.start: i.stop] = True
     if plot:
-        plt.subplot2grid(grid, (22, 0), rowspan=1)
+        plt.subplot2grid(grid, (23, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="PEAK/TROUGH COUNT ELIMINATION")
 
 
-    #  loop through all the time windows
+    # Second minimum window length elimination stage.
     if plot:
         old_time_windows = time_windows.copy()
     min_length = \
@@ -715,9 +736,9 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
             if (i.stop - i.start) < min_length:
                 time_windows.mask[i.start: i.stop] = True
     if plot:
-        plt.subplot2grid(grid, (23, 0), rowspan=1)
+        plt.subplot2grid(grid, (24, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
-                   name="MINIMUM WINDOW LENGTH ELIMINATION")
+                   name="MINIMUM WINDOW LENGTH ELIMINATION 2")
 
 
     # Final step, eliminating windows with little energy.
@@ -759,7 +780,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         time_windows.mask[start:stop] = False
 
     if plot:
-        plt.subplot2grid(grid, (24, 0), rowspan=1)
+        plt.subplot2grid(grid, (25, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="LITTLE ENERGY ELIMINATION")
 
