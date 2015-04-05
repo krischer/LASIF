@@ -26,6 +26,19 @@ from obspy.core.util import geodetics
 from scipy.signal import argrelextrema
 
 
+def flatnotmasked_contiguous(time_windows):
+    """
+    Helper function enabling to loop over empty time windows.
+    """
+    fc = np.ma.flatnotmasked_contiguous(time_windows)
+    # If nothing could be found, set the mask to true (which should already
+    # be the case).
+    if fc is None:
+        return []
+    else:
+        return fc
+
+
 def find_local_extrema(data):
     """
     Function finding local extrema. It can also deal with flat extrema,
@@ -34,7 +47,7 @@ def find_local_extrema(data):
 
     Returns a tuple of maxima and minima indices.
     """
-    length = len(data)
+    length = len(data) - 1
     diff = np.diff(data)
     flats = np.argwhere(diff == 0)
 
@@ -84,6 +97,24 @@ def find_local_extrema(data):
     peaks, troughs = (
         sorted(list(maxs.union(set(maxima)))),
         sorted(list(mins.union(set(minima)))))
+
+    # Special case handling for missing one or the other.
+    if not peaks and not troughs:
+        return np.array([], dtype=np.int32), np.array([], dtype=np.int32)
+    elif not peaks:
+        if 0 not in troughs:
+            peaks.insert(0, 0)
+        if length not in troughs:
+            peaks.append(length)
+        return (np.array(peaks, dtype=np.int32),
+                np.array(troughs, dtype=np.int32))
+    elif not troughs:
+        if 0 not in peaks:
+            troughs.insert(0, 0)
+        if length not in peaks:
+            troughs.append(length)
+        return (np.array(peaks, dtype=np.int32),
+                np.array(troughs, dtype=np.int32))
 
     # Mark the first and last values as well to facilitate the peak and
     # trough marching algorithm
@@ -150,16 +181,14 @@ def _plot_mask(new_mask, old_mask, name=None):
 
     new_mask.mask = np.bitwise_xor(old_mask.mask, new_mask.mask)
     old_mask.mask = np.invert(old_mask.mask)
-    if np.ma.flatnotmasked_contiguous(old_mask) is not None:
-        for i in np.ma.flatnotmasked_contiguous(old_mask):
-            plt.fill_between((i.start, i.stop), (-1.0, -1.0), (2.0, 2.0),
-                             color="gray", alpha=0.3, lw=0)
+    for i in flatnotmasked_contiguous(old_mask):
+        plt.fill_between((i.start, i.stop), (-1.0, -1.0), (2.0, 2.0),
+                         color="gray", alpha=0.3, lw=0)
 
     new_mask.mask = np.invert(new_mask.mask)
-    if np.ma.flatnotmasked_contiguous(new_mask) is not None:
-        for i in np.ma.flatnotmasked_contiguous(new_mask):
-            plt.fill_between((i.start, i.stop), (-1.0, -1.0), (2.0, 2.0),
-                             color="#fb9a99", lw=0)
+    for i in flatnotmasked_contiguous(new_mask):
+        plt.fill_between((i.start, i.stop), (-1.0, -1.0), (2.0, 2.0),
+                         color="#fb9a99", lw=0)
 
     if name:
         plt.text(len(new_mask) - 1 - 20, 0.5, name, verticalalignment="center",
@@ -629,13 +658,11 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         old_time_windows = time_windows.copy()
     min_length = \
         min(minimum_period / dt * min_length_period, maximum_period / dt)
-    tws = np.ma.flatnotmasked_contiguous(time_windows)
-    if tws is not None:
-        for i in tws:
-            # Step 7: Throw away all windows with a length of less then
-            # min_length_period the dominant period.
-            if (i.stop - i.start) < min_length:
-                time_windows.mask[i.start: i.stop] = True
+    for i in flatnotmasked_contiguous(time_windows):
+        # Step 7: Throw away all windows with a length of less then
+        # min_length_period the dominant period.
+        if (i.stop - i.start) < min_length:
+            time_windows.mask[i.start: i.stop] = True
     if plot:
         plt.subplot2grid(grid, (21, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
@@ -646,7 +673,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # Peak and trough marching algorithm
     # -------------------------------------------------------------------------
     final_windows = []
-    for i in np.ma.flatnotmasked_contiguous(time_windows):
+    for i in flatnotmasked_contiguous(time_windows):
         # Cut respective windows.
         window_npts = i.stop - i.start
         synthetic_window = synth[i.start: i.stop]
@@ -692,7 +719,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         if window_mask.mask.all():
             continue
 
-        for j in np.ma.flatnotmasked_contiguous(window_mask):
+        for j in flatnotmasked_contiguous(time_windows):
             final_windows.append((i.start + j.start, i.start + j.stop))
 
     if plot:
@@ -709,7 +736,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # minimum number of peaks and troughs per window. Acts mainly as a
     # safety guard.
     old_time_windows = time_windows.copy()
-    for i in np.ma.flatnotmasked_contiguous(old_time_windows):
+    for i in flatnotmasked_contiguous(old_time_windows):
         synthetic_window = synth[i.start: i.stop]
         data_window = data[i.start: i.stop]
         data_p, data_t = find_local_extrema(data_window)
@@ -728,13 +755,11 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         old_time_windows = time_windows.copy()
     min_length = \
         min(minimum_period / dt * min_length_period, maximum_period / dt)
-    tws = np.ma.flatnotmasked_contiguous(time_windows)
-    if tws is not None:
-        for i in tws:
-            # Step 7: Throw away all windows with a length of less then
-            # min_length_period the dominant period.
-            if (i.stop - i.start) < min_length:
-                time_windows.mask[i.start: i.stop] = True
+    for i in flatnotmasked_contiguous(time_windows):
+        # Step 7: Throw away all windows with a length of less then
+        # min_length_period the dominant period.
+        if (i.stop - i.start) < min_length:
+            time_windows.mask[i.start: i.stop] = True
     if plot:
         plt.subplot2grid(grid, (24, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
@@ -743,35 +768,32 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
 
     # Final step, eliminating windows with little energy.
     final_windows = []
-    tws = np.ma.flatnotmasked_contiguous(time_windows)
-    if tws is not None:
-        for j in tws:
+    for j in flatnotmasked_contiguous(time_windows):
+        # Again assert a certain minimal length.
+        if (j.stop - j.start) < min_length:
+            continue
 
-            # Again assert a certain minimal length.
-            if (j.stop - j.start) < min_length:
-                continue
+        # Compare the energy in the data window and the synthetic window.
+        data_energy = (data[j.start: j.stop] ** 2).sum()
+        synth_energy = (synth[j.start: j.stop] ** 2).sum()
+        energies = sorted([data_energy, synth_energy])
+        if energies[1] > max_energy_ratio * energies[0]:
+            if verbose:
+                _log_window_selection(
+                    data_trace.id,
+                    "Deselecting window due to energy ratio between "
+                    "data and synthetics.")
+            continue
 
-            # Compare the energy in the data window and the synthetic window.
-            data_energy = (data[j.start: j.stop] ** 2).sum()
-            synth_energy = (synth[j.start: j.stop] ** 2).sum()
-            energies = sorted([data_energy, synth_energy])
-            if energies[1] > max_energy_ratio * energies[0]:
-                if verbose:
-                    _log_window_selection(
-                        data_trace.id,
-                        "Deselecting window due to energy ratio between "
-                        "data and synthetics.")
-                continue
-
-            # Check that amplitudes in the data are above the noise
-            if noise_absolute / data[j.start: j.stop].ptp() > \
-                    max_noise_window:
-                if verbose:
-                    _log_window_selection(
-                        data_trace.id,
-                        "Deselecting window due having no amplitude above the "
-                        "signal to noise ratio.")
-            final_windows.append((j.start, j.stop))
+        # Check that amplitudes in the data are above the noise
+        if noise_absolute / data[j.start: j.stop].ptp() > \
+                max_noise_window:
+            if verbose:
+                _log_window_selection(
+                    data_trace.id,
+                    "Deselecting window due having no amplitude above the "
+                    "signal to noise ratio.")
+        final_windows.append((j.start, j.stop))
 
     if plot:
         old_time_windows = time_windows.copy()
