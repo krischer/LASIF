@@ -103,9 +103,16 @@ class Window(QtGui.QMainWindow):
         self.ui.status_label = QtGui.QLabel("")
         self.ui.statusbar.addPermanentWidget(self.ui.status_label)
 
-        # Add list of all models to the UI.
+        # Add list of all models and kernels to the UI.
+        # XXX: Do this with a radio box or tab or something else...this is
+        # really ugly right now.
+        all_models = ["MODEL: %s" % _i for _i in self.comm.models.list()]
+        all_kernels = [
+            "KERNEL: %s | %s" % (_i["iteration"], _i["event"])
+            for _i in self.comm.kernels.list()]
+
         self.ui.model_selection_comboBox.addItems(
-            [""] + self.comm.models.list())
+            [""] + all_models + all_kernels)
 
     def _setup_figures(self):
         """
@@ -307,7 +314,19 @@ class Window(QtGui.QMainWindow):
             self.current_state["model"] = model
             return
 
-        self.model = self.comm.models.get_model_handler(model)
+        if model.startswith("MODEL:"):
+            m = model.strip().lstrip("MODEL:").strip()
+            self.model = self.comm.models.get_model_handler(m)
+        elif model.startswith("KERNEL:"):
+            kernel = model.strip().lstrip("KERNEL:").strip()
+            iteration, event = kernel.split("|")
+            iteration = iteration.strip()
+            event = event.strip()
+            self.model = self.comm.kernels.get_model_handler(
+                iteration=iteration, event=event)
+        else:
+            raise NotImplementedError
+
         self.current_state["model"] = model
 
         self.ui.variable_selection_comboBox.clear()

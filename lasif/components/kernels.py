@@ -108,30 +108,18 @@ class KernelsComponent(Component):
         print("Copied boxfile from '%s' to '%s'." % (model_dir, kernel_dir))
         shutil.copyfile(boxfile, os.path.join(kernel_dir, "boxfile"))
 
-    def plot(self, iteration, event):
-        from lasif import ses3d_models
+    def get_model_handler(self, iteration, event):
+        """
+        Gets a an initialized SES3D model handler.
 
-        model_dir = self.get(iteration, event)
+        :param iteration: The iteration.
+        :param event: The event.
+        """
+        self.assert_has_boxfile(iteration=iteration, event=event)
 
-        handler = ses3d_models.RawSES3DModelHandler(
-            model_dir, domain=self.comm.project.domain,
+        from lasif.ses3d_models import RawSES3DModelHandler  # NOQA
+
+        return RawSES3DModelHandler(
+            directory=self.get(iteration=iteration, event=event),
+            domain=self.comm.project.domain,
             model_type="kernel")
-
-        while True:
-            print handler
-            print ""
-
-            inp = raw_input("Enter 'COMPONENT DEPTH' "
-                            "('quit/exit' to exit): ").strip()
-            if inp.lower() in ["quit", "q", "exit", "leave"]:
-                break
-            try:
-                component, depth = inp.split()
-            except:
-                continue
-
-            try:
-                handler.parse_component(component)
-            except:
-                continue
-            handler.plot_depth_slice(component, float(depth))
