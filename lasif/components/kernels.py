@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import glob
 import os
+import shutil
 
 from .component import Component
 from lasif import LASIFNotFoundError
@@ -52,6 +54,59 @@ class KernelsComponent(Component):
                                      "not found" % (iteration.long_name,
                                                     event["event_name"]))
         return kernel_dir
+
+    def assert_has_boxfile(self, iteration, event):
+        """
+        Makes sure the kernel in question has a boxfile. Otherwise it will
+        search all models until it finds one with the same dimensions and
+        copy the boxfile.
+
+        :param iteration: The iteration.
+        :param event: The event name.
+        """
+        kernel_dir = self.get(iteration=iteration, event=event)
+        boxfile = os.path.join(kernel_dir, "boxfile")
+        if os.path.exists(boxfile):
+            return
+
+        boxfile_found = False
+
+        # Find all vp gradients.
+        vp_gradients = glob.glob(os.path.join(kernel_dir, "grad_csv_*"))
+        file_count = len(vp_gradients)
+        filesize = list(set([os.path.getsize(_i) for _i in vp_gradients]))
+        if len(filesize) != 1:
+            msg = ("The grad_cp_*_* files in '%s' do not all have "
+                   "identical size.") % kernel_dir
+            raise ValueError(msg)
+        filesize = filesize[0]
+        # Now loop over all model directories until a fitting one if found.
+        for model_name in self.comm.models.list():
+            model_dir = self.comm.models.get(model_name)
+            # Use the lambda parameter files. One could also use any of the
+            # others.
+            lambda_files = glob.glob(os.path.join(model_dir, "lambda*"))
+            if len(lambda_files) != file_count:
+                continue
+            l_filesize = list(
+                set([os.path.getsize(_i) for _i in lambda_files]))
+            if len(l_filesize) != 1 or l_filesize[0] != filesize:
+                continue
+            model_boxfile = os.path.join(model_dir, "boxfile")
+            if not os.path.exists(model_boxfile):
+                continue
+            boxfile_found = True
+            boxfile = model_boxfile
+            break
+        if boxfile_found is not True:
+            msg = (
+                "Could not find a suitable boxfile for the kernel stored "
+                "in '%s'. Please either copy a suitable one to this "
+                "directory or add a model with the same dimension to LASIF. "
+                "LASIF will then be able to figure out the dimensions of it.")
+            raise LASIFNotFoundError(msg)
+        print("Copied boxfile from '%s' to '%s'." % (model_dir, kernel_dir))
+        shutil.copyfile(boxfile, os.path.join(kernel_dir, "boxfile"))
 
     def plot(self, iteration, event):
         from lasif import ses3d_models
