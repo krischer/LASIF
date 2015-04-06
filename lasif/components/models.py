@@ -38,29 +38,14 @@ class ModelsComponent(Component):
             raise LASIFNotFoundError("Model '%s' not known." % model_name)
         return model_dir
 
-    def plot(self, model_name):
-        from lasif import ses3d_models
+    def get_model_handler(self, model_name):
+        """
+        Gets a an initialized SES3D model handler.
 
-        model_dir = self.get(model_name)
-
-        handler = ses3d_models.RawSES3DModelHandler(
-            model_dir, domain=self.comm.project.domain)
-
-        while True:
-            print handler
-            print ""
-
-            inp = raw_input("Enter 'COMPONENT DEPTH' "
-                            "('quit/exit' to exit): ").strip()
-            if inp.lower() in ["quit", "q", "exit", "leave"]:
-                break
-            try:
-                component, depth = inp.split()
-            except:
-                continue
-
-            try:
-                handler.parse_component(component)
-            except:
-                continue
-            handler.plot_depth_slice(component, float(depth))
+        :param model_name: The name of the model.
+        """
+        from lasif.ses3d_models import RawSES3DModelHandler  # NOQA
+        return RawSES3DModelHandler(
+            directory=self.get(model_name),
+            domain=self.comm.project.domain,
+            model_type="earth_model")

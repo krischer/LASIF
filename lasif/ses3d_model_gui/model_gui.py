@@ -307,8 +307,7 @@ class Window(QtGui.QMainWindow):
             self.current_state["model"] = model
             return
 
-        self.model = ses3d_models.RawSES3DModelHandler(
-            self.comm.models.get(model), domain=self.comm.project.domain)
+        self.model = self.comm.models.get_model_handler(model)
         self.current_state["model"] = model
 
         self.ui.variable_selection_comboBox.clear()
