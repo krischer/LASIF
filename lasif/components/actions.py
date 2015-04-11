@@ -623,6 +623,7 @@ class ActionsComponent(Component):
                 l, key=lambda x: ".".join(x.split(".")[:2])):
             if station not in iteration_stations:
                 continue
+            print ".",
             station_weight = iteration_stations[station]["station_weight"]
             channels = {}
             try:

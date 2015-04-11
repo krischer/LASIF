@@ -75,7 +75,7 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
 
     # Extend the time axis, required for the correlation
     N = len(ti)
-    t_cc = utils.matlab_range(t[0], (2 * N - 2) * dt_new, dt_new)
+    t_cc = np.linspace(t[0], t[0] + (2 * N - 2) * dt_new, (2 * N - 1))
 
     # Rename some variables
     s1 = si1
@@ -86,7 +86,7 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
     N = len(t_cc)
     dnu = 1.0 / (N * dt_new)
 
-    nu = utils.matlab_range(0, float(N - 1) / (N * dt_new), dnu)
+    nu = np.linspace(0, (N - 1) * dnu, N)
     tau = t_cc
     TAU, NU = np.meshgrid(tau, nu)
 

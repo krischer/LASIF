@@ -162,10 +162,14 @@ def lasif_plot_domain(parser, args):
     """
     Plot the project's domain on a map.
     """
+    parser.add_argument("--no_simulation_domain",
+                        help="Don't plot the simulation domain",
+                        action="store_false")
     args = parser.parse_args(args)
-
     comm = _find_project_comm(".", args.read_only_caches)
-    comm.visualizations.plot_domain()
+
+    comm.visualizations.plot_domain(
+        plot_simulation_domain=args.no_simulation_domain)
 
     import matplotlib.pyplot as plt
     plt.show()
@@ -732,6 +736,8 @@ def lasif_compare_misfits(parser, args):
     that are identical in both iterations as the comparision is otherwise
     meaningless.
     """
+    from lasif import LASIFAdjointSourceCalculationError
+
     parser.add_argument("from_iteration",
                         help="past iteration")
     parser.add_argument("to_iteration", help="current iteration")
@@ -750,6 +756,9 @@ def lasif_compare_misfits(parser, args):
         set(to_it.events.keys())))
 
     all_events = collections.defaultdict(list)
+
+    total_misfit_from = 0
+    total_misfit_to = 0
 
     for event in events:
         # Get the windows from both.
@@ -773,14 +782,21 @@ def lasif_compare_misfits(parser, args):
 
                 try:
                     misfit_from = win_from.misfit_value
+                except LASIFAdjointSourceCalculationError:
+                    continue
                 except LASIFNotFoundError as e:
                     print str(e)
                     pass
                 try:
                     misfit_to = win_to.misfit_value
+                except LASIFAdjointSourceCalculationError:
+                    continue
                 except LASIFNotFoundError as e:
                     print str(e)
                     continue
+
+                total_misfit_from += misfit_from
+                total_misfit_to += misfit_to
 
                 all_events[event].append(
                     (misfit_to - misfit_from) /
@@ -788,6 +804,9 @@ def lasif_compare_misfits(parser, args):
 
     if not all_events:
         raise LASIFCommandLineException("No misfit values could be compared.")
+
+    print total_misfit_from
+    print total_misfit_to
 
     import matplotlib.pylab as plt
     import numpy as np
