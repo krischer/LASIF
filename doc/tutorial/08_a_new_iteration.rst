@@ -286,15 +286,15 @@ Data Preprocessing
 
 Data preprocessing is an essential step if one wants to compare data and
 seismograms. It serves several purposes: Restricting the frequency content of
-the data to that of the synthetics - what is not simulated can no be seen in
+the data to that of the synthetics - what is not simulated can not be seen in
 synthetic seismograms. Remove the instrument response and convert to the same
 units used for the synthetics (usually ``m/s``). Furthermore any linear  trends
-and static offset are removed and the some processing has to be performed so
+and static offset are removed and some processing has to be performed so
 that the data is available at the same points in time as the synthetics. The
 goal of the preprocessing within LASIF is to create data that is directly
 comparable to simulated data without any more processing.
 
-The applied processing is identified via the a name::
+The applied processing is identified via the name::
 
     preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000
 
@@ -333,7 +333,7 @@ iteration name.
 This will start a fully parallelized preprocessing for all data required for
 the specified iteration. It will utilize all your machine's cores and might
 take a while. If you repeat the command it will only process data not already
-processed; an advantages is that you can cancel the processing at any time and
+processed; an advantage is that you can cancel the processing at any time and
 then later on just execute the command again to continue where you left off.
 This usually only needs to be done every couple of iterations when you decide
 to go to higher frequencies or add new data.
