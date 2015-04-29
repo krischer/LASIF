@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>lasif.iteration_xml &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,11 +28,13 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../../index.html"/>
         <link rel="up" title="lasif" href="../lasif.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -44,8 +46,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -54,6 +62,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,6 +154,8 @@
     <li>lasif.iteration_xml</li>
       <li class="wy-breadcrumbs-aside">
         
+          
+        
       </li>
   </ul>
   <hr/>
@@ -165,24 +177,24 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
 <span class="kn">from</span> <span class="nn">lxml.builder</span> <span class="kn">import</span> <span class="n">E</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">scipy.signal.filter_design</span> <span class="kn">import</span> <span class="n">BadCoefficients</span> \
-    <span class="k">as</span> <span class="n">BadCoefficientsWarning</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">lasif</span> <span class="kn">import</span> <span class="n">LASIFError</span>
 
 
 <div class="viewcode-block" id="Iteration"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration">[docs]</a><span class="k">class</span> <span class="nc">Iteration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_xml_filename</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_xml_filename</span><span class="p">,</span> <span class="n">stf_fct</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Init function takes a Iteration XML file.</span>
+<span class="sd">        Init function takes a Iteration XML file and the function to</span>
+<span class="sd">        calculate the source time function..</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">):</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;File &#39;</span><span class="si">%s</span><span class="s">&#39; not found.&quot;</span> <span class="o">%</span> <span class="n">iteration_xml_filename</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_iteration_xml</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stf_fct</span> <span class="o">=</span> <span class="n">stf_fct</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
@@ -201,11 +213,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">iteration_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;iteration_name&quot;</span><span class="p">)</span>
+        <span class="c"># The iteration name is dependent on the filename.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iteration_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span>
+            <span class="n">iteration_xml_filename</span><span class="p">)</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&quot;ITERATION_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&quot;.xml&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;iteration_description&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;source_time_function&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;scale_data_to_synthetics&quot;</span><span class="p">)</span>
@@ -273,10 +286,6 @@
 <span class="sd">            * &quot;delta&quot;: The time increment of the data.</span>
 <span class="sd">            * &quot;data&quot;: The actual source time function as an array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">STFS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Filtered Heaviside&quot;</span><span class="p">]</span>
-        <span class="n">stfs_l</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">STFS</span><span class="p">]</span>
-
-        <span class="n">stf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">delta</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
             <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;time_increment&quot;</span><span class="p">])</span>
         <span class="n">npts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
@@ -285,30 +294,25 @@
         <span class="n">freqmin</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">]</span>
         <span class="n">freqmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">stf</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stfs_l</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Source time function &#39;</span><span class="si">%s</span><span class="s">&#39; not known. Available STFs: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> \
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span><span class="p">,</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">STFS</span><span class="p">))</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
         <span class="n">ret_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">}</span>
 
-        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">&quot;always&quot;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">stf</span> <span class="o">==</span> <span class="s">&quot;filtered heaviside&quot;</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">lasif.source_time_functions</span> <span class="kn">import</span> <span class="n">filtered_heaviside</span>
-                <span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> \
-                    <span class="n">filtered_heaviside</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Should not happen. Contact the developers or fix it.&quot;</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">w</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">warning</span><span class="o">.</span><span class="n">category</span> <span class="o">==</span> <span class="n">BadCoefficientsWarning</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;The filter for creating the source time function &quot;</span>
-                           <span class="s">&quot;is potentially unstable! Please change its &quot;</span>
-                           <span class="s">&quot;settings!&quot;</span><span class="p">)</span>
-                    <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="c"># Get source time function.</span>
+        <span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stf_fct</span><span class="p">(</span>
+            <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="n">freqmax</span><span class="p">,</span>
+            <span class="n">iteration</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c"># Some sanity checks as the function might be user supplied.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Custom source time function does not return a &quot;</span>
+                             <span class="s">&quot;numpy array.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s">&quot;Custom source time function must have dtype `float64`. Yours &quot;</span>
+                <span class="s">&quot;has dtype `</span><span class="si">%s</span><span class="s">`.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="n">npts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s">&quot;Source time function must return a float64 numpy array with &quot;</span>
+                <span class="s">&quot;</span><span class="si">%i</span><span class="s"> samples. Yours has </span><span class="si">%i</span><span class="s"> samples.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">npts</span><span class="p">,</span>
+                                                       <span class="nb">len</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">])))</span>
 
         <span class="k">return</span> <span class="n">ret_dict</span>
 </div>
@@ -333,17 +337,15 @@
             <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;number_of_time_steps&quot;</span><span class="p">]</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
             <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;time_increment&quot;</span><span class="p">]</span>
-        <span class="n">stf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span>
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="s">&quot;highpass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">highpass</span><span class="p">),</span>
             <span class="s">&quot;lowpass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">lowpass</span><span class="p">),</span>
             <span class="s">&quot;npts&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">npts</span><span class="p">),</span>
-            <span class="s">&quot;dt&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">dt</span><span class="p">),</span>
-            <span class="s">&quot;stf&quot;</span><span class="p">:</span> <span class="n">stf</span><span class="p">}</span>
+            <span class="s">&quot;dt&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">dt</span><span class="p">)}</span>
 </div>
     <span class="nd">@property</span>
-<div class="viewcode-block" id="Iteration.processing_tag"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration.processing_tag">[docs]</a>    <span class="k">def</span> <span class="nf">processing_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">processing_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the processing tag for this iteration.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -353,7 +355,7 @@
                           <span class="s">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span>\
             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_process_params</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">processing_tag</span>
-</div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">long_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s">&quot;ITERATION_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
@@ -371,7 +373,6 @@
             <span class="s">&quot;</span><span class="se">\t</span><span class="s">Name: {self.iteration_name}</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="s">&quot;</span><span class="se">\t</span><span class="s">Description: {self.description}</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="s">&quot;{comments}&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Source Time Function: {self.source_time_function}</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="s">&quot;</span><span class="se">\t</span><span class="s">Preprocessing Settings:</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Highpass Period: {hp:.3f} s</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Lowpass Period: {lp:.3f} s</span><span class="se">\n</span><span class="s">&quot;</span>
@@ -444,7 +445,6 @@
                     <span class="p">))</span>
                 <span class="p">)</span>
             <span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">source_time_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_time_function</span><span class="p">),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">solver_parameters</span><span class="p">(</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver&quot;</span><span class="p">]),</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">(</span><span class="o">*</span><span class="n">solver_settings</span><span class="p">)</span>
@@ -534,7 +534,7 @@
 
 
 <div class="viewcode-block" id="create_iteration_xml_string"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.create_iteration_xml_string">[docs]</a><span class="k">def</span> <span class="nf">create_iteration_xml_string</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">,</span> <span class="n">solver_name</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span>
-                                <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">):</span>
+                                <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a new iteration string.</span>
 
@@ -546,9 +546,10 @@
 <span class="sd">        list of station ids for this event.</span>
 <span class="sd">    :param min_period: The minimum period for the iteration.</span>
 <span class="sd">    :param max_period: The maximum period for the iteration.</span>
+<span class="sd">    :param quiet: Do not print anything if set to `True`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">solver_doc</span> <span class="o">=</span> <span class="n">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver_name</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span>
-                                              <span class="n">max_period</span><span class="p">)</span>
+                                              <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_4_1&quot;</span><span class="p">:</span>
         <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SES3D 4.1&quot;</span>
     <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
@@ -591,7 +592,6 @@
             <span class="n">E</span><span class="o">.</span><span class="n">signal_to_noise</span><span class="p">(</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">test_interval_from_origin_in_s</span><span class="p">(</span><span class="s">&quot;100.0&quot;</span><span class="p">),</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">max_amplitude_ratio</span><span class="p">(</span><span class="s">&quot;100.0&quot;</span><span class="p">))),</span>
-        <span class="n">E</span><span class="o">.</span><span class="n">source_time_function</span><span class="p">(</span><span class="s">&quot;Filtered Heaviside&quot;</span><span class="p">),</span>
         <span class="n">E</span><span class="o">.</span><span class="n">solver_parameters</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">solver_name</span><span class="p">),</span>
             <span class="n">solver_doc</span><span class="p">),</span>
@@ -602,10 +602,12 @@
     <span class="k">return</span> <span class="n">string_doc</span>
 
 </div>
-<span class="k">def</span> <span class="nf">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function returning etree representation of a solver&#39;s default</span>
 <span class="sd">    settings.</span>
+
+<span class="sd">    :param quiet: Do not print anything if set to `True`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">known_solvers</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ses3d_4_1&quot;</span><span class="p">,</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">,</span> <span class="s">&quot;specfem3d_cartesian&quot;</span><span class="p">,</span>
                      <span class="s">&quot;specfem3d_globe_cem&quot;</span><span class="p">]</span>
@@ -621,7 +623,7 @@
             <span class="n">f_max</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">min_period</span><span class="p">,</span>
             <span class="n">iterations</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
             <span class="n">initial_temperature</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-            <span class="n">cooling_factor</span><span class="o">=</span><span class="mf">0.9998</span><span class="p">)</span>
+            <span class="n">cooling_factor</span><span class="o">=</span><span class="mf">0.9998</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">generate_ses3d_4_1_template</span><span class="p">(</span><span class="n">w_p</span><span class="p">,</span> <span class="n">tau_p</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
@@ -650,10 +652,10 @@
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -677,7 +679,7 @@
       <script type="text/javascript" src="../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Web Interface &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,12 +28,14 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="next" title="API Documentation" href="api_doc.html"/>
         <link rel="prev" title="Command Line Interface" href="cli.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -45,8 +47,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,6 +63,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -141,7 +151,9 @@
     <li>Web Interface</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/webinterface.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/webinterface.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -162,31 +174,31 @@ heavily relies on JavaScript so make sure it is not disabled. Please also use
 a modern and up-to-date browser. I tested it with Firefox, Chrome, and Safari;
 Firefox being the slowest of the bunch.</p>
 <p>The webinterface is designed to display the state of a project at the time
-the <tt class="docutils literal"><span class="pre">serve</span></tt> command is executed. If you modify the state of a project
+the <code class="docutils literal"><span class="pre">serve</span></code> command is executed. If you modify the state of a project
 while the web server is running, the result is undefined. Please restart the
 server in that case.</p>
 <p>Here are a couple of screenshots highlighting some features of the web
 interface. Click on them for full size.</p>
-<div class="figure align-center">
+<div class="figure align-center" id="id1">
 <a class="reference internal image-reference" href="_images/1.png"><img alt="_images/1.png" src="_images/1.png" style="width: 100%;" /></a>
-<p class="caption">Interactive map capable of showing the domain boundaries, events,
-and per-event recording stations including raypaths.</p>
+<p class="caption"><span class="caption-text">Interactive map capable of showing the domain boundaries, events,
+and per-event recording stations including raypaths.</span></p>
 </div>
-<div class="figure align-center">
+<div class="figure align-center" id="id2">
 <a class="reference internal image-reference" href="_images/2.png"><img alt="_images/2.png" src="_images/2.png" style="width: 100%;" /></a>
-<p class="caption">Interactive waveform plotting.</p>
+<p class="caption"><span class="caption-text">Interactive waveform plotting.</span></p>
 </div>
-<div class="figure align-center">
+<div class="figure align-center" id="id3">
 <a class="reference internal image-reference" href="_images/3.png"><img alt="_images/3.png" src="_images/3.png" style="width: 100%;" /></a>
-<p class="caption">List of all events with some more information.</p>
+<p class="caption"><span class="caption-text">List of all events with some more information.</span></p>
 </div>
-<div class="figure align-center">
+<div class="figure align-center" id="id4">
 <a class="reference internal image-reference" href="_images/4.png"><img alt="_images/4.png" src="_images/4.png" style="width: 100%;" /></a>
-<p class="caption">Various interactive plots related to event distributions.</p>
+<p class="caption"><span class="caption-text">Various interactive plots related to event distributions.</span></p>
 </div>
-<div class="figure align-center">
+<div class="figure align-center" id="id5">
 <a class="reference internal image-reference" href="_images/5.png"><img alt="_images/5.png" src="_images/5.png" style="width: 100%;" /></a>
-<p class="caption">Detailed information about the defined iterations.</p>
+<p class="caption"><span class="caption-text">Detailed information about the defined iterations.</span></p>
 </div>
 </div>
 
@@ -196,10 +208,10 @@ and per-event recording stations including raypaths.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="api_doc.html" class="btn btn-neutral float-right" title="API Documentation">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="api_doc.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="cli.html" class="btn btn-neutral" title="Command Line Interface"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="cli.html" class="btn btn-neutral" title="Command Line Interface" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -211,10 +223,10 @@ and per-event recording stations including raypaths.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -238,7 +250,7 @@ and per-event recording stations including raypaths.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

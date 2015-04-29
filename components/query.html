@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>QueryComponent &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="API Components" href="components.html"/>
         <link rel="next" title="How LASIF Finds Coordinates" href="../how_lasif_finds_coordinates.html"/>
         <link rel="prev" title="WaveformsComponent" href="waveforms.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -146,7 +156,9 @@
     <li>QueryComponent</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/components/query.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/components/query.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -158,7 +170,7 @@
 <h1>QueryComponent<a class="headerlink" href="#querycomponent" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="lasif.components.query.QueryComponent">
-<em class="property">class </em><tt class="descclassname">lasif.components.query.</tt><tt class="descname">QueryComponent</tt><big>(</big><em>communicator</em>, <em>component_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">lasif.components.query.</code><code class="descname">QueryComponent</code><span class="sig-paren">(</span><em>communicator</em>, <em>component_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent" title="Permalink to this definition">¶</a></dt>
 <dd><p>This component is responsible for making queries across the different
 components and integrating them in a meaningful way.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -177,9 +189,9 @@ components and integrating them in a meaningful way.</p>
 of other components via the communicator.</p>
 <dl class="method">
 <dt id="lasif.components.query.QueryComponent.discover_available_data">
-<tt class="descname">discover_available_data</tt><big>(</big><em>event_name</em>, <em>station_id</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.discover_available_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.discover_available_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">discover_available_data</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.discover_available_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.discover_available_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Discovers the available data for one event at a certain station.</p>
-<p>Will raise a <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><tt class="xref py py-exc docutils literal"><span class="pre">LASIFNotFoundError</span></tt></a> if no raw data is
+<p>Will raise a <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><code class="xref py py-exc docutils literal"><span class="pre">LASIFNotFoundError</span></code></a> if no raw data is
 found for the given event and station combination.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -191,7 +203,7 @@ found for the given event and station combination.</p>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">dict</p>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Return a dictionary with &#8220;processed&#8221; and &#8220;synthetic&#8221; keys.
@@ -207,7 +219,7 @@ synthetics are available.</p>
 
 <dl class="method">
 <dt id="lasif.components.query.QueryComponent.get_all_stations_for_event">
-<tt class="descname">get_all_stations_for_event</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_all_stations_for_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_all_stations_for_event" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_all_stations_for_event</code><span class="sig-paren">(</span><em>event_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_all_stations_for_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_all_stations_for_event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of all stations for one event.</p>
 <p>A station is considered to be available for an event if at least one
 channel has raw data and an associated station file. Furthermore it
@@ -234,7 +246,7 @@ must be possible to derive coordinates for the station.</p>
 <span class="go">              &#39;local_depth_in_m&#39;: 0.0, &#39;longitude&#39;: 37.3273}}</span>
 </pre></div>
 </div>
-<p>Raises a <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><tt class="xref py py-class docutils literal"><span class="pre">LASIFNotFoundError</span></tt></a> if the event does not
+<p>Raises a <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><code class="xref py py-class docutils literal"><span class="pre">LASIFNotFoundError</span></code></a> if the event does not
 exist.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="s">&quot;RandomEvent&quot;</span><span class="p">)</span>
 <span class="gt">Traceback (most recent call last):</span>
@@ -246,20 +258,20 @@ exist.</p>
 
 <dl class="method">
 <dt id="lasif.components.query.QueryComponent.get_coordinates_for_station">
-<tt class="descname">get_coordinates_for_station</tt><big>(</big><em>event_name</em>, <em>station_id</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_coordinates_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_coordinates_for_station" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_coordinates_for_station</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_coordinates_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_coordinates_for_station" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the coordinates for one station.</p>
-<p>Must be in sync with <a class="reference internal" href="#lasif.components.query.QueryComponent.get_all_stations_for_event" title="lasif.components.query.QueryComponent.get_all_stations_for_event"><tt class="xref py py-meth docutils literal"><span class="pre">get_all_stations_for_event()</span></tt></a>.</p>
+<p>Must be in sync with <a class="reference internal" href="#lasif.components.query.QueryComponent.get_all_stations_for_event" title="lasif.components.query.QueryComponent.get_all_stations_for_event"><code class="xref py py-meth docutils literal"><span class="pre">get_all_stations_for_event()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lasif.components.query.QueryComponent.get_data_and_synthetics_iterator">
-<tt class="descname">get_data_and_synthetics_iterator</tt><big>(</big><em>iteration</em>, <em>event</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_data_and_synthetics_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_data_and_synthetics_iterator" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_data_and_synthetics_iterator</code><span class="sig-paren">(</span><em>iteration</em>, <em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_data_and_synthetics_iterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_data_and_synthetics_iterator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the processed data and matching synthetics for a particular event.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lasif.components.query.QueryComponent.get_iteration_status">
-<tt class="descname">get_iteration_status</tt><big>(</big><em>iteration</em>, <em>events=None</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_iteration_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_iteration_status" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_iteration_status</code><span class="sig-paren">(</span><em>iteration</em>, <em>events=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_iteration_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_iteration_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the status of an iteration. This is a query command as it
 integrates a lot of different information.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -268,7 +280,7 @@ integrates a lot of different information.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>iteration</strong> &#8211; The iteration which to query.</li>
-<li><strong>events</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; If given, only the events of those events will be
+<li><strong>events</strong> &#8211; If given, only the events of those events will be
 queried. Otherwise all will be queried.</li>
 </ul>
 </td>
@@ -276,21 +288,21 @@ queried. Otherwise all will be queried.</li>
 </tbody>
 </table>
 <p>Returns a dictionary of events, each containing the following keys:
-<tt class="docutils literal"><span class="pre">&quot;missing_raw&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;missing_processed&quot;</span></tt>,
-<tt class="docutils literal"><span class="pre">&quot;missing_synthetic&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;fraction_of_stations_that_have_windows&quot;</span></tt></p>
+<code class="docutils literal"><span class="pre">&quot;missing_raw&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;missing_processed&quot;</span></code>,
+<code class="docutils literal"><span class="pre">&quot;missing_synthetic&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;fraction_of_stations_that_have_windows&quot;</span></code></p>
 <p>Each of those is a list of stations missing for that particular data
 type.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lasif.components.query.QueryComponent.get_stations_for_all_events">
-<tt class="descname">get_stations_for_all_events</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_stations_for_all_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_stations_for_all_events" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_stations_for_all_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.get_stations_for_all_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.get_stations_for_all_events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary with a list of stations per event.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lasif.components.query.QueryComponent.point_in_domain">
-<tt class="descname">point_in_domain</tt><big>(</big><em>latitude</em>, <em>longitude</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.point_in_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.point_in_domain" title="Permalink to this definition">¶</a></dt>
+<code class="descname">point_in_domain</code><span class="sig-paren">(</span><em>latitude</em>, <em>longitude</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.point_in_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.point_in_domain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests if the point is in the domain. Returns True/False</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -308,7 +320,7 @@ type.</p>
 
 <dl class="method">
 <dt id="lasif.components.query.QueryComponent.what_is">
-<tt class="descname">what_is</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.what_is"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.what_is" title="Permalink to this definition">¶</a></dt>
+<code class="descname">what_is</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/query.html#QueryComponent.what_is"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.query.QueryComponent.what_is" title="Permalink to this definition">¶</a></dt>
 <dd><p>Debug function returning a string with information about the file.
 Useful as a debug function and to figure out what LASIF is doing.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -331,10 +343,10 @@ Useful as a debug function and to figure out what LASIF is doing.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../how_lasif_finds_coordinates.html" class="btn btn-neutral float-right" title="How LASIF Finds Coordinates">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../how_lasif_finds_coordinates.html" class="btn btn-neutral float-right" title="How LASIF Finds Coordinates" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="waveforms.html" class="btn btn-neutral" title="WaveformsComponent"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="waveforms.html" class="btn btn-neutral" title="WaveformsComponent" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -346,10 +358,10 @@ Useful as a debug function and to figure out what LASIF is doing.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -373,7 +385,7 @@ Useful as a debug function and to figure out what LASIF is doing.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

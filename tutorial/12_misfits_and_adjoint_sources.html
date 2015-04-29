@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>13. Misfit and Adjoint Source Calculation &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
         <link rel="next" title="14. Model Update" href="13_model_update.html"/>
         <link rel="prev" title="12. Synthetics" href="11_synthetic_waveforms.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>13. Misfit and Adjoint Source Calculation</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/12_misfits_and_adjoint_sources.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/12_misfits_and_adjoint_sources.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -190,7 +202,7 @@ the following formula:</p>
 correct windows.</p>
 <p>To launch it, execute the <strong>launch_misfit_gui</strong> together with the iteration
 name and the event name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif launch_misfit_gui 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif launch_misfit_gui <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 </pre></div>
 </div>
 <p>This will open a window akin to the following:</p>
@@ -234,14 +246,14 @@ stored separately. To combine them to, apply the weighting scheme and convert
 them to a format, that SES3D can actually use, run the
 <strong>finalize_adjoint_sources</strong> command with the iteration name and the event
 name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif finalize_adjoint_sources 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 </pre></div>
 </div>
 <p>This will also rotate the adjoint sources to the frame of reference used in the
 simulations.</p>
 <p>If you pick any more windows or change them in any way, you need to run the
 command again. The result of that command is a list of adjoint sources
-directly usable by SES3D in the <tt class="docutils literal"><span class="pre">OUTPUT</span></tt> folder.</p>
+directly usable by SES3D in the <code class="docutils literal"><span class="pre">OUTPUT</span></code> folder.</p>
 <p>Copy these to the correct folder inside your SES3D installation,
 make sure the tell SES3D to perform an adjoint reverse simulation and launch
 it. Please refer to the SES3D manual for the necessary details.</p>
@@ -255,10 +267,10 @@ it. Please refer to the SES3D manual for the necessary details.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="13_model_update.html" class="btn btn-neutral float-right" title="14. Model Update">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="13_model_update.html" class="btn btn-neutral float-right" title="14. Model Update" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="11_synthetic_waveforms.html" class="btn btn-neutral" title="12. Synthetics"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="11_synthetic_waveforms.html" class="btn btn-neutral" title="12. Synthetics" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -270,10 +282,10 @@ it. Please refer to the SES3D manual for the necessary details.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -297,7 +309,7 @@ it. Please refer to the SES3D manual for the necessary details.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

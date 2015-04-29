@@ -169,3 +169,20 @@ completely different window picking algorithm. Its function signature is:
         # endtime for each picked window.
         return [(obspy.UTCDateTime(...), obspy.UTCDateTime(...)),
                 (obspy.UTCDateTime(...), obspy.UTCDateTime(...))]
+
+
+Customize the Source Time Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This function is used to generate source time functions for SES3D. If you
+don't use SES3D for the numerical wavefield simulations you can ignore this.
+Its function signature is:
+
+
+.. code-block:: python
+
+
+    def source_time_function(npts, delta, freqmin, freqmax, iteration):
+        ...
+        # Make sure it returns a float64 NumPy array with `npts` samples.
+        return np.array(data, dtype=np.float64)

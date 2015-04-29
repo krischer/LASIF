@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>4. Station Data &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
         <link rel="next" title="5. Waveform Data" href="04_waveform_data.html"/>
         <link rel="prev" title="3. Seismic Events" href="02_seismic_events.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>4. Station Data</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/03_station_data.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/03_station_data.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -160,14 +172,14 @@ files containing the response information for each channel. Another possibility
 is to use MiniSEED waveform data and the corresponding dataless SEED or
 StationXML files. Please keep in mind that LASIF currently expects to only have
 channels of one station in each dataless SEED and StationXML file. All station
-information files are stored in a subfolder of the <tt class="docutils literal"><span class="pre">STATIONS</span></tt> directory.</p>
+information files are stored in a subfolder of the <code class="docutils literal"><span class="pre">STATIONS</span></code> directory.</p>
 <p>For more information about how LASIF derives station coordinates:
 <a class="reference internal" href="../how_lasif_finds_coordinates.html"><em>How LASIF Finds Coordinates</em></a></p>
 <div class="admonition caution">
 <p class="first admonition-title">Caution</p>
 <p class="last">If possible in any way, we strongly recommend to use station data in the
-<tt class="docutils literal"><span class="pre">StationXML</span></tt> format. It is the most future proof and sane format of
-the three. Please only use <tt class="docutils literal"><span class="pre">RESP</span></tt> files if absolutely necessary. The
+<code class="docutils literal"><span class="pre">StationXML</span></code> format. It is the most future proof and sane format of
+the three. Please only use <code class="docutils literal"><span class="pre">RESP</span></code> files if absolutely necessary. The
 problem with them is that they do not contain coordinates and thus LASIF
 needs to derive them by other means which is not as clean and more error
 prone.</p>
@@ -175,18 +187,18 @@ prone.</p>
 <div class="section" id="naming-scheme">
 <h2>4.1. Naming scheme<a class="headerlink" href="#naming-scheme" title="Permalink to this headline">¶</a></h2>
 <p><strong>dataless SEED</strong></p>
-<p>All dataless SEED files are expected to be in the <tt class="docutils literal"><span class="pre">STATIONS/SEED</span></tt> directory
+<p>All dataless SEED files are expected to be in the <code class="docutils literal"><span class="pre">STATIONS/SEED</span></code> directory
 and be named after the following scheme:</p>
 <div class="highlight-python"><div class="highlight"><pre>dataless.NETWORK_STATION[.X]
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">NETWORK</span></tt> and <tt class="docutils literal"><span class="pre">STATION</span></tt> should be replaced with the corresponding network
+<p><code class="docutils literal"><span class="pre">NETWORK</span></code> and <code class="docutils literal"><span class="pre">STATION</span></code> should be replaced with the corresponding network
 and stations codes. It is possible that multiple files are needed for each
 station (e.g. different files for different time intervals/channels) and thus
-<tt class="docutils literal"><span class="pre">.1</span></tt>, <tt class="docutils literal"><span class="pre">.2</span></tt>, ... can be appended to the filename. LASIF will automatically
+<code class="docutils literal"><span class="pre">.1</span></code>, <code class="docutils literal"><span class="pre">.2</span></code>, ... can be appended to the filename. LASIF will automatically
 choose the correct file in case they need to be accessed.</p>
 <p><strong>StationXML</strong></p>
-<p>All StationXML files are expected to be placed in the <tt class="docutils literal"><span class="pre">STATIONS/StationXML</span></tt>
+<p>All StationXML files are expected to be placed in the <code class="docutils literal"><span class="pre">STATIONS/StationXML</span></code>
 folder and follow the scheme:</p>
 <div class="highlight-python"><div class="highlight"><pre>station.NETWORK_STATION[.X].xml
 </pre></div>
@@ -194,7 +206,7 @@ folder and follow the scheme:</p>
 <p>The logic for for the different parts is the same as for the dataless SEED
 files described in the previous paragraph.</p>
 <p><strong>RESP Files</strong></p>
-<p>All RESP files are to be put in the <tt class="docutils literal"><span class="pre">STATIONS/RESP</span></tt> folder with the
+<p>All RESP files are to be put in the <code class="docutils literal"><span class="pre">STATIONS/RESP</span></code> folder with the
 following name:</p>
 <div class="highlight-python"><div class="highlight"><pre>RESP.NETWORK.STATION.LOCATION.CHANNEL[.X]
 </pre></div>
@@ -206,8 +218,8 @@ has to include the location and channel identifiers.</p>
 <h2>4.2. Stations for Tutorial<a class="headerlink" href="#stations-for-tutorial" title="Permalink to this headline">¶</a></h2>
 <p>For this tutorial we will work with a bunch of well distributed stations in
 the domain of interest. Unpack
-<a class="reference download internal" href="../_downloads/stations.tar.bz2"><tt class="xref download docutils literal"><span class="pre">this</span> <span class="pre">archive</span></tt></a> and place the XML
-files in the <tt class="docutils literal"><span class="pre">STATIONS/StationXML/</span></tt> folder. At this point LASIF is aware
+<a class="reference download internal" href="../_downloads/stations.tar.bz2"><code class="xref download docutils literal"><span class="pre">this</span> <span class="pre">archive</span></code></a> and place the XML
+files in the <code class="docutils literal"><span class="pre">STATIONS/StationXML/</span></code> folder. At this point LASIF is aware
 of the stations. Please note that the stations will not yet show up in any
 command as <strong>LASIF only treats data that has raw waveforms and an associated
 station file as being actually available</strong>.</p>
@@ -220,10 +232,10 @@ station file as being actually available</strong>.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="04_waveform_data.html" class="btn btn-neutral float-right" title="5. Waveform Data">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="04_waveform_data.html" class="btn btn-neutral float-right" title="5. Waveform Data" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -235,10 +247,10 @@ station file as being actually available</strong>.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -262,7 +274,7 @@ station file as being actually available</strong>.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

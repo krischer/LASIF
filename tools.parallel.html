@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>lasif.tools.parallel &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="API Documentation" href="api_doc.html"/>
         <link rel="next" title="lasif.tools.file_info_cache" href="tools.file_info_cache.html"/>
         <link rel="prev" title="lasif.tools" href="tools.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>lasif.tools.parallel</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/tools.parallel.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/tools.parallel.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -169,15 +181,15 @@ works just fine when running on one core and not started with MPI.</p>
 </table>
 <dl class="class">
 <dt id="lasif.tools.parallel_helpers.FunctionInfo">
-<em class="property">class </em><tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">FunctionInfo</tt><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#FunctionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.FunctionInfo" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">lasif.tools.parallel_helpers.</code><code class="descname">FunctionInfo</code><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#FunctionInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.FunctionInfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Namedtuple used to collect information about a function execution.</p>
-<p>It has the following fields: <tt class="docutils literal"><span class="pre">func_args</span></tt>, <tt class="docutils literal"><span class="pre">result</span></tt>, <tt class="docutils literal"><span class="pre">warnings</span></tt>,
-<tt class="docutils literal"><span class="pre">exception</span></tt>, and <tt class="docutils literal"><span class="pre">traceback</span></tt>.</p>
+<p>It has the following fields: <code class="docutils literal"><span class="pre">func_args</span></code>, <code class="docutils literal"><span class="pre">result</span></code>, <code class="docutils literal"><span class="pre">warnings</span></code>,
+<code class="docutils literal"><span class="pre">exception</span></code>, and <code class="docutils literal"><span class="pre">traceback</span></code>.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="lasif.tools.parallel_helpers.distribute_across_ranks">
-<tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">distribute_across_ranks</tt><big>(</big><em>function</em>, <em>items</em>, <em>get_name</em>, <em>logfile</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#distribute_across_ranks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.distribute_across_ranks" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.tools.parallel_helpers.</code><code class="descname">distribute_across_ranks</code><span class="sig-paren">(</span><em>function</em>, <em>items</em>, <em>get_name</em>, <em>logfile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#distribute_across_ranks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.distribute_across_ranks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls a function once for each item.</p>
 <p>It will be distributed across MPI ranks if launched with MPI.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -186,8 +198,8 @@ works just fine when running on one core and not started with MPI.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>function</strong> &#8211; The function to be executed for each item.</li>
-<li><strong>items</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; The function will be executed once for each item. It
-expects a list of dictionaries so that <tt class="docutils literal"><span class="pre">function(**item)</span></tt> can work.
+<li><strong>items</strong> &#8211; The function will be executed once for each item. It
+expects a list of dictionaries so that <code class="docutils literal"><span class="pre">function(**item)</span></code> can work.
 Only rank 0 needs to pass this. It will be ignored coming from other
 ranks.</li>
 <li><strong>get_name</strong> &#8211; Function to extract a name for each item to be able to
@@ -202,20 +214,20 @@ produce better logfiles.</li>
 
 <dl class="function">
 <dt id="lasif.tools.parallel_helpers.function_info">
-<tt class="descclassname">lasif.tools.parallel_helpers.</tt><tt class="descname">function_info</tt><big>(</big><em>traceback_limit=10</em><big>)</big><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#function_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.function_info" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.tools.parallel_helpers.</code><code class="descname">function_info</code><span class="sig-paren">(</span><em>traceback_limit=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/tools/parallel_helpers.html#function_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.tools.parallel_helpers.function_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator collecting information during the execution of a function.</p>
 <p>This is useful for collecting information about a function runnning on a
 number of processes/machines.</p>
 <p>It returns a FunctionInfo named tuple with the following fields:</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">func_args</span></tt>: Dictionary containing all the functions arguments and
+<li><code class="docutils literal"><span class="pre">func_args</span></code>: Dictionary containing all the functions arguments and
 values.</li>
-<li><tt class="docutils literal"><span class="pre">result</span></tt>: The return value of the function. Will be None if an
+<li><code class="docutils literal"><span class="pre">result</span></code>: The return value of the function. Will be None if an
 exception has been raised.</li>
-<li><tt class="docutils literal"><span class="pre">warnings</span></tt>: A list with all warnings the function raised.</li>
-<li><tt class="docutils literal"><span class="pre">exception</span></tt>: The exception the function raised. Will be None, if no
+<li><code class="docutils literal"><span class="pre">warnings</span></code>: A list with all warnings the function raised.</li>
+<li><code class="docutils literal"><span class="pre">exception</span></code>: The exception the function raised. Will be None, if no
 exception has been raised.</li>
-<li><tt class="docutils literal"><span class="pre">traceback</span></tt>: The full traceback in case an exception occured as a
+<li><code class="docutils literal"><span class="pre">traceback</span></code>: The full traceback in case an exception occured as a
 string.
 A traceback object is not serializable thus a string is used.</li>
 </ul>
@@ -229,13 +241,13 @@ A traceback object is not serializable thus a string is used.</li>
 <span class="go">4</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">warnings</span></tt> is empty if no warning has been raised. Otherwise it will
+<p><code class="docutils literal"><span class="pre">warnings</span></code> is empty if no warning has been raised. Otherwise it will
 collect all warnings.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">warnings</span>
 <span class="go">[]</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">exception</span></tt> and <tt class="docutils literal"><span class="pre">traceback</span></tt> are <tt class="docutils literal"><span class="pre">None</span></tt> if the function completed
+<p><code class="docutils literal"><span class="pre">exception</span></code> and <code class="docutils literal"><span class="pre">traceback</span></code> are <code class="docutils literal"><span class="pre">None</span></code> if the function completed
 successfully.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">exception</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">traceback</span>
@@ -251,10 +263,10 @@ successfully.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tools.file_info_cache.html" class="btn btn-neutral float-right" title="lasif.tools.file_info_cache">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tools.file_info_cache.html" class="btn btn-neutral float-right" title="lasif.tools.file_info_cache" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tools.html" class="btn btn-neutral" title="lasif.tools"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tools.html" class="btn btn-neutral" title="lasif.tools" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -266,10 +278,10 @@ successfully.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -293,7 +305,7 @@ successfully.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

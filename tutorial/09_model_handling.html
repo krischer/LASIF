@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>10. Earth Model Handling &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
         <link rel="next" title="11. Generating SES3D Input Files" href="10_generating_input_files.html"/>
         <link rel="prev" title="9. Defining a New Iteration" href="08_a_new_iteration.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>10. Earth Model Handling</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/09_model_handling.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/09_model_handling.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -159,13 +171,13 @@ have one Earth model per iteration with ideally the same name as the
 iteration. <strong>LASIF</strong> does not yet perform any work with the Earth models,
 it merely offers an organized way of storing and visualizing them.</p>
 <p><strong>LASIF</strong> can directly deal with the models used in SES3D. Each model has to
-be placed in a subfolder of <tt class="docutils literal"><span class="pre">MODELS</span></tt>. The folder name will again be used to
+be placed in a subfolder of <code class="docutils literal"><span class="pre">MODELS</span></code>. The folder name will again be used to
 identify the model.</p>
 <p>For the tutorial, we will work with two models: one based on PREM which we
 will use as the initial model and one with a perturbation which will be
 considered the true model for the tutorial. Download both models
-<a class="reference download internal" href="../_downloads/models.tar.bz2"><tt class="xref download docutils literal"><span class="pre">here</span></tt></a> and place them in the
-<tt class="docutils literal"><span class="pre">MODELS</span></tt> folder.</p>
+<a class="reference download internal" href="../_downloads/models.tar.bz2"><code class="xref download docutils literal"><span class="pre">here</span></code></a> and place them in the
+<code class="docutils literal"><span class="pre">MODELS</span></code> folder.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The true synthetic model is PREM with a small positive Gaussian anomaly  in
@@ -176,7 +188,7 @@ the sigma being 200 km in horizontal and 50 km in the vertical direction.</p>
 <p>Now you are able to use the <strong>list_models</strong> commands.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_models
 
-2 model in project:
+<span class="m">2</span> model in project:
     Iteration_1
     True_Model
 </pre></div>
@@ -190,7 +202,7 @@ Setup:
     Longitude: -10.00 - 10.00
     Depth in km: 0.00 - 471.00
     Total element count: 10816
-    Total collocation point count: 1352000 <span class="o">(</span>without duplicates: 716625<span class="o">)</span>
+    Total collocation point count: <span class="m">1352000</span> <span class="o">(</span>without duplicates: 716625<span class="o">)</span>
 Memory requirement per component: 2.7 MB
 Available components: A, B, C, lambda, mu, rhoinv
 Available derived components: rho, vp, vsh, vsv
@@ -205,7 +217,7 @@ of the derived components it potentially has to load two or more components so
 keep an eye on your machines memory. The tool can currently plot horizontal
 slices for arbitrary components at arbitrary depths. To do this, simply type
 the component name and the desired depth in kilometer and hit enter. This opens
-a new window, e.g. for <tt class="docutils literal"><span class="pre">vsv</span> <span class="pre">50</span></tt>:</p>
+a new window, e.g. for <code class="docutils literal"><span class="pre">vsv</span> <span class="pre">50</span></code>:</p>
 <a class="reference internal image-reference" href="../_images/vsv_52km.png"><img alt="../_images/vsv_52km.png" class="align-center" src="../_images/vsv_52km.png" style="width: 90%;" /></a>
 <p>Closing the window will enable you to plot a different component or different
 depth. To leave the model viewer simply type <strong>quit</strong>.</p>
@@ -219,10 +231,10 @@ copy the correct earth model file.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="10_generating_input_files.html" class="btn btn-neutral float-right" title="11. Generating SES3D Input Files">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="10_generating_input_files.html" class="btn btn-neutral float-right" title="11. Generating SES3D Input Files" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="08_a_new_iteration.html" class="btn btn-neutral" title="9. Defining a New Iteration"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="08_a_new_iteration.html" class="btn btn-neutral" title="9. Defining a New Iteration" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -234,10 +246,10 @@ copy the correct earth model file.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -261,7 +273,7 @@ copy the correct earth model file.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

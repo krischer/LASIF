@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>WaveformsComponent &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="API Components" href="components.html"/>
         <link rel="next" title="QueryComponent" href="query.html"/>
         <link rel="prev" title="StationsComponent" href="stations.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -146,7 +156,9 @@
     <li>WaveformsComponent</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/components/waveforms.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/components/waveforms.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -158,7 +170,7 @@
 <h1>WaveformsComponent<a class="headerlink" href="#waveformscomponent" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="lasif.components.waveforms.WaveformsComponent">
-<em class="property">class </em><tt class="descclassname">lasif.components.waveforms.</tt><tt class="descname">WaveformsComponent</tt><big>(</big><em>data_folder</em>, <em>synthetics_folder</em>, <em>communicator</em>, <em>component_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">lasif.components.waveforms.</code><code class="descname">WaveformsComponent</code><span class="sig-paren">(</span><em>data_folder</em>, <em>synthetics_folder</em>, <em>communicator</em>, <em>component_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Component managing the waveform data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -176,7 +188,7 @@
 </table>
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_available_processing_tags">
-<tt class="descname">get_available_processing_tags</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_available_processing_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_available_processing_tags" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_available_processing_tags</code><span class="sig-paren">(</span><em>event_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_available_processing_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_available_processing_tags" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the available processing tags for a given event.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -190,7 +202,7 @@
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_available_synthetics">
-<tt class="descname">get_available_synthetics</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_available_synthetics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_available_synthetics" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_available_synthetics</code><span class="sig-paren">(</span><em>event_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_available_synthetics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_available_synthetics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the available synthetics for a given event.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -204,7 +216,7 @@
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_metadata_for_file">
-<tt class="descname">get_metadata_for_file</tt><big>(</big><em>absolute_filename</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_for_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_for_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_metadata_for_file</code><span class="sig-paren">(</span><em>absolute_filename</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_for_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_for_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the metadata for a certain file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -218,7 +230,7 @@
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_metadata_processed">
-<tt class="descname">get_metadata_processed</tt><big>(</big><em>event_name</em>, <em>tag</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_processed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_processed" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_metadata_processed</code><span class="sig-paren">(</span><em>event_name</em>, <em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_processed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_processed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the processed metadata.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -236,9 +248,9 @@
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_metadata_processed_for_station">
-<tt class="descname">get_metadata_processed_for_station</tt><big>(</big><em>event_name</em>, <em>tag</em>, <em>station_id</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_processed_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_processed_for_station" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_metadata_processed_for_station</code><span class="sig-paren">(</span><em>event_name</em>, <em>tag</em>, <em>station_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_processed_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_processed_for_station" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the processed metadata for a single station.</p>
-<p>Same as <a class="reference internal" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_processed" title="lasif.components.waveforms.WaveformsComponent.get_metadata_processed"><tt class="xref py py-meth docutils literal"><span class="pre">get_metadata_processed()</span></tt></a> but for a single station.</p>
+<p>Same as <a class="reference internal" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_processed" title="lasif.components.waveforms.WaveformsComponent.get_metadata_processed"><code class="xref py py-meth docutils literal"><span class="pre">get_metadata_processed()</span></code></a> but for a single station.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -256,7 +268,7 @@
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_metadata_raw">
-<tt class="descname">get_metadata_raw</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_raw" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_metadata_raw</code><span class="sig-paren">(</span><em>event_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the available metadata at the channel level for the raw
 waveforms and the given event_name.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -270,9 +282,9 @@ at a particular point in time.</td>
 </tr>
 </tbody>
 </table>
-<p>In most instances, the <tt class="docutils literal"><span class="pre">latitude</span></tt>, <tt class="docutils literal"><span class="pre">longitude</span></tt>,
-<tt class="docutils literal"><span class="pre">elevation_in_m</span></tt>, and <tt class="docutils literal"><span class="pre">local_depth_in_m</span></tt> values will be
-<tt class="docutils literal"><span class="pre">None</span></tt> as station information is usually retrieved from the
+<p>In most instances, the <code class="docutils literal"><span class="pre">latitude</span></code>, <code class="docutils literal"><span class="pre">longitude</span></code>,
+<code class="docutils literal"><span class="pre">elevation_in_m</span></code>, and <code class="docutils literal"><span class="pre">local_depth_in_m</span></code> values will be
+<code class="docutils literal"><span class="pre">None</span></code> as station information is usually retrieved from the
 station metadata file. SAC files are an exception.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;waveforms_comm&#39;</span><span class="p">)</span>
@@ -303,7 +315,7 @@ station metadata file. SAC files are an exception.</p>
 <span class="go"> &#39;longitude&#39;, &#39;network&#39;, &#39;starttime&#39;, &#39;station&#39;]</span>
 </pre></div>
 </div>
-<p>A <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><tt class="xref py py-class docutils literal"><span class="pre">LASIFNotFoundError</span></tt></a> will be raised, if no raw
+<p>A <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><code class="xref py py-class docutils literal"><span class="pre">LASIFNotFoundError</span></code></a> will be raised, if no raw
 waveform data is found for the specified event.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_metadata_raw</span><span class="p">(</span><span class="s">&quot;RandomEvent&quot;</span><span class="p">)</span>
 <span class="gt">Traceback (most recent call last):</span>
@@ -315,10 +327,10 @@ waveform data is found for the specified event.</p>
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_metadata_raw_for_station">
-<tt class="descname">get_metadata_raw_for_station</tt><big>(</big><em>event_name</em>, <em>station_id</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_raw_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_raw_for_station" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_metadata_raw_for_station</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_raw_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_raw_for_station" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the available metadata at the channel level for the raw
 waveforms and the given event_name at a certain station.</p>
-<p>Same as <a class="reference internal" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_raw" title="lasif.components.waveforms.WaveformsComponent.get_metadata_raw"><tt class="xref py py-meth docutils literal"><span class="pre">get_metadata_raw()</span></tt></a> just for only a single station.</p>
+<p>Same as <a class="reference internal" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_raw" title="lasif.components.waveforms.WaveformsComponent.get_metadata_raw"><code class="xref py py-meth docutils literal"><span class="pre">get_metadata_raw()</span></code></a> just for only a single station.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -339,7 +351,7 @@ at a particular point in time.</p>
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic">
-<tt class="descname">get_metadata_synthetic</tt><big>(</big><em>event_name</em>, <em>long_iteration_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_synthetic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_metadata_synthetic</code><span class="sig-paren">(</span><em>event_name</em>, <em>long_iteration_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_synthetic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the synthetics metadata.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -358,9 +370,9 @@ at a particular point in time.</p>
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic_for_station">
-<tt class="descname">get_metadata_synthetic_for_station</tt><big>(</big><em>event_name</em>, <em>long_iteration_name</em>, <em>station_id</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_synthetic_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic_for_station" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_metadata_synthetic_for_station</code><span class="sig-paren">(</span><em>event_name</em>, <em>long_iteration_name</em>, <em>station_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_metadata_synthetic_for_station"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic_for_station" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the synthetics metadata for a single station.</p>
-<p>Same as <a class="reference internal" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic" title="lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic"><tt class="xref py py-meth docutils literal"><span class="pre">get_metadata_synthetic()</span></tt></a> but for a single station.</p>
+<p>Same as <a class="reference internal" href="#lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic" title="lasif.components.waveforms.WaveformsComponent.get_metadata_synthetic"><code class="xref py py-meth docutils literal"><span class="pre">get_metadata_synthetic()</span></code></a> but for a single station.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -378,7 +390,7 @@ at a particular point in time.</p>
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveform_folder">
-<tt class="descname">get_waveform_folder</tt><big>(</big><em>event_name</em>, <em>data_type</em>, <em>tag_or_iteration=None</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveform_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveform_folder" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_waveform_folder</code><span class="sig-paren">(</span><em>event_name</em>, <em>data_type</em>, <em>tag_or_iteration=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveform_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveform_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the folder where the waveforms are stored.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -386,8 +398,8 @@ at a particular point in time.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>event_name</strong> &#8211; Name of the event.</li>
-<li><strong>data_type</strong> &#8211; The type of data, one of <tt class="docutils literal"><span class="pre">&quot;raw&quot;</span></tt>,
-<tt class="docutils literal"><span class="pre">&quot;processed&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;synthetic&quot;</span></tt></li>
+<li><strong>data_type</strong> &#8211; The type of data, one of <code class="docutils literal"><span class="pre">&quot;raw&quot;</span></code>,
+<code class="docutils literal"><span class="pre">&quot;processed&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;synthetic&quot;</span></code></li>
 <li><strong>tag_or_iteration</strong> &#8211; The processing tag or iteration name if any.</li>
 </ul>
 </td>
@@ -398,9 +410,9 @@ at a particular point in time.</p>
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_processed">
-<tt class="descname">get_waveforms_processed</tt><big>(</big><em>event_name</em>, <em>station_id</em>, <em>tag</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_processed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_processed" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_waveforms_processed</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em>, <em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_processed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_processed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the processed waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">Stream</span></tt></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.1) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -418,9 +430,9 @@ at a particular point in time.</p>
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_raw">
-<tt class="descname">get_waveforms_raw</tt><big>(</big><em>event_name</em>, <em>station_id</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_raw" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_waveforms_raw</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the raw waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">Stream</span></tt></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.1) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -437,9 +449,9 @@ at a particular point in time.</p>
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic">
-<tt class="descname">get_waveforms_synthetic</tt><big>(</big><em>event_name</em>, <em>station_id</em>, <em>long_iteration_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_synthetic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_waveforms_synthetic</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em>, <em>long_iteration_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_synthetic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the synthetic waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">Stream</span></tt></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.1) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -457,7 +469,7 @@ at a particular point in time.</p>
 
 <dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.reset_cached_caches">
-<tt class="descname">reset_cached_caches</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.reset_cached_caches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.reset_cached_caches" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reset_cached_caches</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.reset_cached_caches"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.reset_cached_caches" title="Permalink to this definition">¶</a></dt>
 <dd><p>The waveform component caches the actual waveform caches to make its
 access instant. This is usually ok, but sometimes new data is added
 while the same instance of LASIF is still active. Thus the cached
@@ -474,10 +486,10 @@ caches need to be reset at times.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="query.html" class="btn btn-neutral float-right" title="QueryComponent">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="query.html" class="btn btn-neutral float-right" title="QueryComponent" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="stations.html" class="btn btn-neutral" title="StationsComponent"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="stations.html" class="btn btn-neutral" title="StationsComponent" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -489,10 +501,10 @@ caches need to be reset at times.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -516,7 +528,7 @@ caches need to be reset at times.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

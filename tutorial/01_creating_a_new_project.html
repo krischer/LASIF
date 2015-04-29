@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>2. Creating a New Project &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
         <link rel="next" title="3. Seismic Events" href="02_seismic_events.html"/>
         <link rel="prev" title="1. Interfaces" href="00_interfaces.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>2. Creating a New Project</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/01_creating_a_new_project.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/01_creating_a_new_project.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -156,8 +168,8 @@
 <h1>2. Creating a New Project<a class="headerlink" href="#creating-a-new-project" title="Permalink to this headline">¶</a></h1>
 <p>The necessary first step, whether for starting a new inversion or migrating an
 already existing inversion to <strong>LASIF</strong>, is to create a new project with the
-<tt class="code docutils literal"><span class="pre">lasif</span> <span class="pre">init_project</span></tt> command. In this  tutorial we will work with a
-project called <strong>Tutorial</strong>. The <tt class="code docutils literal"><span class="pre">lasif</span> <span class="pre">init_project</span></tt> command will
+<code class="code docutils literal"><span class="pre">lasif</span> <span class="pre">init_project</span></code> command. In this  tutorial we will work with a
+project called <strong>Tutorial</strong>. The <code class="code docutils literal"><span class="pre">lasif</span> <span class="pre">init_project</span></code> command will
 create a  new folder in whichever directory the command is executed in.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project Tutorial
 
@@ -281,7 +293,7 @@ works with spherical sections.
 there (only when using SES3D; SPECFEM GLOBE directly simulates in the
 rotated domain). Optional rotation parameters define the physical location of
 the domain. The coordinate system for the rotation parameters is described in
-<a class="reference internal" href="../rotations.html#module-lasif.rotations" title="lasif.rotations"><tt class="xref py py-mod docutils literal"><span class="pre">lasif.rotations</span></tt></a>.  You will have to edit the <tt class="docutils literal"><span class="pre">config.xml</span></tt> file to
+<a class="reference internal" href="../rotations.html#module-lasif.rotations" title="lasif.rotations"><code class="xref py py-mod docutils literal"><span class="pre">lasif.rotations</span></code></a>.  You will have to edit the <code class="docutils literal"><span class="pre">config.xml</span></code> file to
 adjust it to your region of interest.</p>
 <p><strong>LASIF</strong> handles all rotations necessary so the user never needs to worry
 about these. Just keep in mind to always keep any data (real waveforms, station
@@ -289,15 +301,15 @@ metadata and events) in coordinates that correspond to the physical domain and
 all synthetic waveforms in coordinates that correspond to the simulation
 domain.</p>
 <p>For this tutorial we are going to work in a rotated domain across Europe.
-Please change the <tt class="docutils literal"><span class="pre">config.xml</span></tt> file to reflect the following domain
+Please change the <code class="docutils literal"><span class="pre">config.xml</span></code> file to reflect the following domain
 settings.</p>
 <ul class="simple">
-<li>Latitude: <tt class="docutils literal"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></tt></li>
-<li>Longitude: <tt class="docutils literal"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></tt></li>
-<li>Depth: <tt class="docutils literal"><span class="pre">0</span> <span class="pre">km</span> <span class="pre">-</span> <span class="pre">471</span> <span class="pre">km</span></tt></li>
-<li>Boundary width in degree: <tt class="docutils literal"><span class="pre">2.5°</span></tt></li>
-<li>Rotation axis: <tt class="docutils literal"><span class="pre">1.0,</span> <span class="pre">1.0,</span> <span class="pre">0.2</span></tt></li>
-<li>Rotation angle: <tt class="docutils literal"><span class="pre">-65.0°</span></tt></li>
+<li>Latitude: <code class="docutils literal"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></code></li>
+<li>Longitude: <code class="docutils literal"><span class="pre">-10.0°</span> <span class="pre">-</span> <span class="pre">10.0°</span></code></li>
+<li>Depth: <code class="docutils literal"><span class="pre">0</span> <span class="pre">km</span> <span class="pre">-</span> <span class="pre">471</span> <span class="pre">km</span></code></li>
+<li>Boundary width in degree: <code class="docutils literal"><span class="pre">2.5°</span></code></li>
+<li>Rotation axis: <code class="docutils literal"><span class="pre">1.0,</span> <span class="pre">1.0,</span> <span class="pre">0.2</span></code></li>
+<li>Rotation angle: <code class="docutils literal"><span class="pre">-65.0°</span></code></li>
 </ul>
 <p>In general one should only work with data not affected by the boundary
 conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
@@ -305,7 +317,7 @@ It is not advisable to use data that traverses these layers. SES3D defaults
 to two layer but more are possible. For this tutorial we will only consider
 data which is at least three elements away from the border in a an attempt
 to avoid unphysical influences of the boundary conditions. This amounts to
-<tt class="docutils literal"><span class="pre">2.5°</span></tt>.</p>
+<code class="docutils literal"><span class="pre">2.5°</span></code>.</p>
 <p>At any point you can have a look at the defined domain with</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_domain
 </pre></div>
@@ -332,10 +344,10 @@ case please file an issue on the project&#8217;s Github page.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="02_seismic_events.html" class="btn btn-neutral float-right" title="3. Seismic Events">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="02_seismic_events.html" class="btn btn-neutral float-right" title="3. Seismic Events" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="00_interfaces.html" class="btn btn-neutral" title="1. Interfaces"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="00_interfaces.html" class="btn btn-neutral" title="1. Interfaces" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -347,10 +359,10 @@ case please file an issue on the project&#8217;s Github page.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -374,7 +386,7 @@ case please file an issue on the project&#8217;s Github page.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

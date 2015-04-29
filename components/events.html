@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>EventsComponent &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="API Components" href="components.html"/>
         <link rel="next" title="InventoryDBComponent" href="inventory_db.html"/>
         <link rel="prev" title="API Components" href="components.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -146,7 +156,9 @@
     <li>EventsComponent</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/components/events.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/components/events.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -158,9 +170,9 @@
 <h1>EventsComponent<a class="headerlink" href="#eventscomponent" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="lasif.components.events.EventsComponent">
-<em class="property">class </em><tt class="descclassname">lasif.components.events.</tt><tt class="descname">EventsComponent</tt><big>(</big><em>folder</em>, <em>communicator</em>, <em>component_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">lasif.components.events.</code><code class="descname">EventsComponent</code><span class="sig-paren">(</span><em>folder</em>, <em>communicator</em>, <em>component_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Component managing a folder of QuakeML files.</p>
-<p>Each file must adhere to the scheme <tt class="docutils literal"><span class="pre">*.xml</span></tt>.</p>
+<p>Each file must adhere to the scheme <code class="docutils literal"><span class="pre">*.xml</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -177,7 +189,7 @@ communicator.</li>
 </table>
 <dl class="method">
 <dt id="lasif.components.events.EventsComponent.count">
-<tt class="descname">count</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.count" title="Permalink to this definition">¶</a></dt>
+<code class="descname">count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.count" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the number of events managed by this component.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
@@ -188,7 +200,7 @@ communicator.</li>
 
 <dl class="method">
 <dt id="lasif.components.events.EventsComponent.get">
-<tt class="descname">get</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.get" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get</code><span class="sig-paren">(</span><em>event_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get information about one event.</p>
 <p>This function uses multiple cache layers and is thus very cheap to
 call.</p>
@@ -198,7 +210,7 @@ call.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the event.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></td>
 </tr>
 </tbody>
 </table>
@@ -214,7 +226,7 @@ call.</p>
 <span class="go">&#39;m_rp&#39;: -5.3e+16, &#39;m_pp&#39;: -8.5e+16, &#39;m_rt&#39;: 2.8e+16}</span>
 </pre></div>
 </div>
-<p>The moment tensor components are in <tt class="docutils literal"><span class="pre">Nm</span></tt>. The dictionary will
+<p>The moment tensor components are in <code class="docutils literal"><span class="pre">Nm</span></code>. The dictionary will
 contain the following keys:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s">&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>         
@@ -234,10 +246,10 @@ the function under certain circumstances.</p>
 
 <dl class="method">
 <dt id="lasif.components.events.EventsComponent.get_all_events">
-<tt class="descname">get_all_events</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.get_all_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.get_all_events" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_all_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.get_all_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.get_all_events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dictionary with the key being the event names and the
 values the information about each event, as would be returned by the
-<a class="reference internal" href="#lasif.components.events.EventsComponent.get" title="lasif.components.events.EventsComponent.get"><tt class="xref py py-meth docutils literal"><span class="pre">get()</span></tt></a> method.</p>
+<a class="reference internal" href="#lasif.components.events.EventsComponent.get" title="lasif.components.events.EventsComponent.get"><code class="xref py py-meth docutils literal"><span class="pre">get()</span></code></a> method.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get_all_events</span><span class="p">()</span>         
 <span class="go">{u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;: {...},</span>
@@ -248,7 +260,7 @@ values the information about each event, as would be returned by the
 
 <dl class="method">
 <dt id="lasif.components.events.EventsComponent.has_event">
-<tt class="descname">has_event</tt><big>(</big><em>event_name</em><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.has_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.has_event" title="Permalink to this definition">¶</a></dt>
+<code class="descname">has_event</code><span class="sig-paren">(</span><em>event_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.has_event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.has_event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test for existence of an event.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -269,7 +281,7 @@ values the information about each event, as would be returned by the
 
 <dl class="method">
 <dt id="lasif.components.events.EventsComponent.list">
-<tt class="descname">list</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all events.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span> 
@@ -281,7 +293,7 @@ values the information about each event, as would be returned by the
 
 <dl class="method">
 <dt id="lasif.components.events.EventsComponent.update_cache">
-<tt class="descname">update_cache</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.update_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.update_cache" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_cache</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.update_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.update_cache" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clears the cached events. Events are only cached within one instance
 of the the EventsComponent in any case.</p>
 </dd></dl>
@@ -296,10 +308,10 @@ of the the EventsComponent in any case.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="inventory_db.html" class="btn btn-neutral float-right" title="InventoryDBComponent">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="inventory_db.html" class="btn btn-neutral float-right" title="InventoryDBComponent" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="components.html" class="btn btn-neutral" title="API Components"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="components.html" class="btn btn-neutral" title="API Components" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -311,10 +323,10 @@ of the the EventsComponent in any case.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -338,7 +350,7 @@ of the the EventsComponent in any case.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

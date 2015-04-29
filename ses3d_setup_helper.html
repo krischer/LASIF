@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>SES3D Setup Assistant &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="API Documentation" href="api_doc.html"/>
         <link rel="next" title="lasif.iteration_xml" href="iteration_xml.html"/>
         <link rel="prev" title="lasif.scripts.iris2quakeml" href="iris2quakeml.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>SES3D Setup Assistant</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/ses3d_setup_helper.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/ses3d_setup_helper.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -155,34 +167,42 @@
   <div class="section" id="ses3d-setup-assistant">
 <h1>SES3D Setup Assistant<a class="headerlink" href="#ses3d-setup-assistant" title="Permalink to this headline">¶</a></h1>
 <p>This is a simple script that assists you in determining optimal SES3D
-settings. To use it just pass the number of elements and the size of the
-simulation domain.</p>
+settings. To use it just pass the approximate number of elements and the
+size of the simulation domain.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python -m lasif.scripts.ses3d_setup_helper --help
-usage: python -m lasif.scripts.ses3d_setup_helper <span class="o">[</span>-h<span class="o">]</span> dx dy dz nx ny nz
+usage: python -m lasif.scripts.ses3d_setup_helper <span class="o">[</span>-h<span class="o">]</span>
+                                                  <span class="o">[</span>--recommendations RECOMMENDATIONS<span class="o">]</span>
+                                                  dx dy dz nx ny nz
 
 Script assisting in determining suitable SES3D settings.
 
 positional arguments:
-  dx          latitudinal extent in degrees
-  dy          longitudinal extent in degrees
-  dz          depth extent in km
-  nx          elements in latitudinal direction
-  ny          elements in longitudinal direction
-  nz          elements in depth direction
+  dx                    latitudinal extent in degrees
+  dy                    longitudinal extent in degrees
+  dz                    depth extent in km
+  nx                    ~ element count in latitudinal dir. Same as nx_global.
+  ny                    ~ element count in longitudinal dir. Same as
+                        ny_global.
+  nz                    ~ element count in depth dir. Same as nz_global.
 
 optional arguments:
-  -h, --help  show this <span class="nb">help </span>message and <span class="nb">exit</span>
+  -h, --help            show this <span class="nb">help </span>message and <span class="nb">exit</span>
+  --recommendations RECOMMENDATIONS
+                        number of recommendations to provide
 </pre></div>
 </div>
 <p>Exemplary output is</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python -m lasif.scripts.ses3d_setup_helper 30 47 1171 108 168 64
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python -m lasif.scripts.ses3d_setup_helper <span class="m">30</span> <span class="m">47</span> <span class="m">1171</span> <span class="m">108</span> <span class="m">168</span> 64
 SES3D Setup Assistant
 
-All calculations are <span class="k">done </span>quick and dirty so take them with a grain of salt.
+All calculations are <span class="k">done</span> quick and dirty so take them with a grain of salt.
 
-Extent in latitudinal <span class="o">(</span>X<span class="o">)</span> direction: 3339.6 km, 31 km/element
-Extent in longitudinal <span class="o">(</span>Y<span class="o">)</span> direction: 5232.0 km, 31 km/element
-Extent in depth <span class="o">(</span>Z<span class="o">)</span> direction: 1171.0 km , 18.3 km/element
+Possible recommended domain decompositions:
+
+Total CPU count:  1344<span class="p">;</span> CPUs in X:  <span class="m">12</span> <span class="o">(</span> <span class="m">9</span> elements/core<span class="o">)</span>, CPUs in Y:  <span class="m">14</span> <span class="o">(</span><span class="m">12</span> elements/core<span class="o">)</span>, CPUs in Z:   <span class="m">8</span> <span class="o">(</span> <span class="m">8</span> elements/core<span class="o">)</span>
+  Extent in latitudinal  <span class="o">(</span>X<span class="o">)</span> direction:  3339.6 km,  27.8 km/element,  <span class="m">120</span> elements
+  Extent in longitudinal <span class="o">(</span>Y<span class="o">)</span> direction:  5232.0 km,  28.7 km/element,  <span class="m">182</span> elements
+  Extent in depth        <span class="o">(</span>Z<span class="o">)</span> direction:  1171.0 km,  16.3 km/element,   <span class="m">72</span> elements
 </pre></div>
 </div>
 <hr class="docutils" />
@@ -202,7 +222,7 @@ Extent in depth <span class="o">(</span>Z<span class="o">)</span> direction: 117
 </table>
 <dl class="function">
 <dt id="lasif.scripts.ses3d_setup_helper.get_divisors">
-<tt class="descclassname">lasif.scripts.ses3d_setup_helper.</tt><tt class="descname">get_divisors</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_divisors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_divisors" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.scripts.ses3d_setup_helper.</code><code class="descname">get_divisors</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_divisors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_divisors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all divisors for a certain number.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -217,7 +237,7 @@ Extent in depth <span class="o">(</span>Z<span class="o">)</span> direction: 117
 
 <dl class="function">
 <dt id="lasif.scripts.ses3d_setup_helper.get_domain_decompositions">
-<tt class="descclassname">lasif.scripts.ses3d_setup_helper.</tt><tt class="descname">get_domain_decompositions</tt><big>(</big><em>nx</em>, <em>ny</em>, <em>nz</em>, <em>max_recommendations=5</em><big>)</big><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_domain_decompositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_domain_decompositions" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.scripts.ses3d_setup_helper.</code><code class="descname">get_domain_decompositions</code><span class="sig-paren">(</span><em>nx</em>, <em>ny</em>, <em>nz</em>, <em>max_recommendations=5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_domain_decompositions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_domain_decompositions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attempt to get reasonable domain decomposition recommendations.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -238,7 +258,7 @@ return.</li>
 
 <dl class="function">
 <dt id="lasif.scripts.ses3d_setup_helper.get_factors_and_multiplicity">
-<tt class="descclassname">lasif.scripts.ses3d_setup_helper.</tt><tt class="descname">get_factors_and_multiplicity</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_factors_and_multiplicity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_factors_and_multiplicity" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.scripts.ses3d_setup_helper.</code><code class="descname">get_factors_and_multiplicity</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_factors_and_multiplicity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_factors_and_multiplicity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get prime factors and their multiplicity.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -253,7 +273,7 @@ return.</li>
 
 <dl class="function">
 <dt id="lasif.scripts.ses3d_setup_helper.get_primes">
-<tt class="descclassname">lasif.scripts.ses3d_setup_helper.</tt><tt class="descname">get_primes</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_primes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_primes" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.scripts.ses3d_setup_helper.</code><code class="descname">get_primes</code><span class="sig-paren">(</span><em>number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/scripts/ses3d_setup_helper.html#get_primes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.scripts.ses3d_setup_helper.get_primes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets all prime numbers 2 &lt;= x &lt;= number.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -275,10 +295,10 @@ return.</li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="iteration_xml.html" class="btn btn-neutral float-right" title="lasif.iteration_xml">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="iteration_xml.html" class="btn btn-neutral float-right" title="lasif.iteration_xml" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="iris2quakeml.html" class="btn btn-neutral" title="lasif.scripts.iris2quakeml"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="iris2quakeml.html" class="btn btn-neutral" title="lasif.scripts.iris2quakeml" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -290,10 +310,10 @@ return.</li>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -317,7 +337,7 @@ return.</li>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

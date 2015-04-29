@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>lasif.rotations &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="API Documentation" href="api_doc.html"/>
         <link rel="next" title="lasif.window_selection" href="window_selection.html"/>
         <link rel="prev" title="lasif.iteration_xml" href="iteration_xml.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>lasif.rotations</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/rotations.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/rotations.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -189,7 +201,7 @@ given in latitude and longitude.</p>
 </table>
 <dl class="function">
 <dt id="lasif.rotations.colat2lat">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">colat2lat</tt><big>(</big><em>colat</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#colat2lat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.colat2lat" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">colat2lat</code><span class="sig-paren">(</span><em>colat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#colat2lat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.colat2lat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to convert colatitude to latitude. This, surprisingly, is
 quite an error source.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">colat2lat</span><span class="p">(</span><span class="mi">180</span><span class="p">)</span>
@@ -216,7 +228,7 @@ quite an error source.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.get_border_latlng_list">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">get_border_latlng_list</tt><big>(</big><em>min_lat</em>, <em>max_lat</em>, <em>min_lng</em>, <em>max_lng</em>, <em>number_of_points_per_side=25</em>, <em>rotation_axis=(0</em>, <em>0</em>, <em>1)</em>, <em>rotation_angle_in_degree=0</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#get_border_latlng_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_border_latlng_list" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">get_border_latlng_list</code><span class="sig-paren">(</span><em>min_lat</em>, <em>max_lat</em>, <em>min_lng</em>, <em>max_lng</em>, <em>number_of_points_per_side=25</em>, <em>rotation_axis=(0</em>, <em>0</em>, <em>1)</em>, <em>rotation_angle_in_degree=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_border_latlng_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_border_latlng_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function taking a spherical section defined by latitudinal and
 longitudal extension, rotate it around the given axis and rotation angle
 and return a list of points outlining the region. Useful for plotting.</p>
@@ -241,7 +253,7 @@ and return a list of points outlining the region. Useful for plotting.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.get_center_angle">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">get_center_angle</tt><big>(</big><em>a</em>, <em>b</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#get_center_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_center_angle" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">get_center_angle</code><span class="sig-paren">(</span><em>a</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_center_angle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_center_angle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the angle of both angles on a sphere.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -278,7 +290,7 @@ and return a list of points outlining the region. Useful for plotting.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.get_max_extention_of_domain">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">get_max_extention_of_domain</tt><big>(</big><em>min_lat</em>, <em>max_lat</em>, <em>min_lng</em>, <em>max_lng</em>, <em>rotation_axis=(0</em>, <em>0</em>, <em>1)</em>, <em>rotation_angle_in_degree=0</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#get_max_extention_of_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_max_extention_of_domain" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">get_max_extention_of_domain</code><span class="sig-paren">(</span><em>min_lat</em>, <em>max_lat</em>, <em>min_lng</em>, <em>max_lng</em>, <em>rotation_axis=(0</em>, <em>0</em>, <em>1)</em>, <em>rotation_angle_in_degree=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_max_extention_of_domain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_max_extention_of_domain" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function getting the maximum extends of a rotated domain.</p>
 <dl class="docutils">
 <dt>Returns a dictionary with the following keys:</dt>
@@ -310,7 +322,7 @@ and return a list of points outlining the region. Useful for plotting.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.get_spherical_unit_vectors">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">get_spherical_unit_vectors</tt><big>(</big><em>lat</em>, <em>lon</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#get_spherical_unit_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_spherical_unit_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">get_spherical_unit_vectors</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#get_spherical_unit_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.get_spherical_unit_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the spherical unit vectors e_theta, e_phi and e_r for a point on
 the sphere determined by latitude and longitude which are defined as they
 are for earth.</p>
@@ -330,7 +342,7 @@ are for earth.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.lat2colat">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">lat2colat</tt><big>(</big><em>lat</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#lat2colat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat2colat" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">lat2colat</code><span class="sig-paren">(</span><em>lat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#lat2colat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat2colat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to convert latitude to colatitude. This, surprisingly, is
 quite an error source.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">lat2colat</span><span class="p">(</span><span class="o">-</span><span class="mi">90</span><span class="p">)</span>
@@ -357,7 +369,7 @@ quite an error source.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.lat_lon_radius_to_xyz">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">lat_lon_radius_to_xyz</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>r</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#lat_lon_radius_to_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat_lon_radius_to_xyz" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">lat_lon_radius_to_xyz</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#lat_lon_radius_to_xyz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat_lon_radius_to_xyz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts latitude, longitude and radius to x, y, and z.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -376,7 +388,7 @@ quite an error source.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.rotate_data">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">rotate_data</tt><big>(</big><em>north_data</em>, <em>east_data</em>, <em>vertical_data</em>, <em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#rotate_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_data" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">rotate_data</code><span class="sig-paren">(</span><em>north_data</em>, <em>east_data</em>, <em>vertical_data</em>, <em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#rotate_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotates three component data recorded at lat/lon a certain amount of
 degrees around a given rotation axis.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -401,7 +413,7 @@ defined to be up, e.g. radially outwards.</li>
 
 <dl class="function">
 <dt id="lasif.rotations.rotate_lat_lon">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">rotate_lat_lon</tt><big>(</big><em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#rotate_lat_lon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_lat_lon" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">rotate_lat_lon</code><span class="sig-paren">(</span><em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#rotate_lat_lon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_lat_lon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a point specified by latitude and longitude and return a new pair of
 latitude longitude assuming the earth has been rotated around rotation_axis
 by angle.</p>
@@ -423,7 +435,7 @@ by angle.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.rotate_moment_tensor">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">rotate_moment_tensor</tt><big>(</big><em>Mrr</em>, <em>Mtt</em>, <em>Mpp</em>, <em>Mrt</em>, <em>Mrp</em>, <em>Mtp</em>, <em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#rotate_moment_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_moment_tensor" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">rotate_moment_tensor</code><span class="sig-paren">(</span><em>Mrr</em>, <em>Mtt</em>, <em>Mpp</em>, <em>Mrt</em>, <em>Mrp</em>, <em>Mtp</em>, <em>lat</em>, <em>lon</em>, <em>rotation_axis</em>, <em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#rotate_moment_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_moment_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rotates a moment tensor, given in spherical coordinates, located at lat/lon
 around the rotation axis and simultaneously performs a base change from the
 spherical unit vectors at lat/lon to the unit vectors at the new
@@ -452,7 +464,7 @@ coordinates.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.rotate_vector">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">rotate_vector</tt><big>(</big><em>vector</em>, <em>rotation_axis</em>, <em>angle</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#rotate_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_vector" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">rotate_vector</code><span class="sig-paren">(</span><em>vector</em>, <em>rotation_axis</em>, <em>angle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#rotate_vector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.rotate_vector" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a vector and rotates it around a rotation axis with a given angle.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -471,7 +483,7 @@ coordinates.</p>
 
 <dl class="function">
 <dt id="lasif.rotations.xyz_to_lat_lon_radius">
-<tt class="descclassname">lasif.rotations.</tt><tt class="descname">xyz_to_lat_lon_radius</tt><big>(</big><em>*args</em><big>)</big><a class="reference internal" href="_modules/lasif/rotations.html#xyz_to_lat_lon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.xyz_to_lat_lon_radius" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.rotations.</code><code class="descname">xyz_to_lat_lon_radius</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#xyz_to_lat_lon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.xyz_to_lat_lon_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts x, y, and z to latitude, longitude and radius.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 <span class="go">(-0.0, 0.0, 1.0)</span>
@@ -499,10 +511,10 @@ coordinates.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="window_selection.html" class="btn btn-neutral float-right" title="lasif.window_selection">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="window_selection.html" class="btn btn-neutral float-right" title="lasif.window_selection" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="iteration_xml.html" class="btn btn-neutral" title="lasif.iteration_xml"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="iteration_xml.html" class="btn btn-neutral" title="lasif.iteration_xml" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -514,10 +526,10 @@ coordinates.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -541,7 +553,7 @@ coordinates.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

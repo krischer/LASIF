@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>lasif.scripts.ses3d_setup_helper &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,11 +28,13 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../../../index.html"/>
         <link rel="up" title="lasif" href="../../lasif.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -44,8 +46,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../../../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../../../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -54,6 +62,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,6 +154,8 @@
     <li>lasif.scripts.ses3d_setup_helper</li>
       <li class="wy-breadcrumbs-aside">
         
+          
+        
       </li>
   </ul>
   <hr/>
@@ -163,6 +175,7 @@
 <span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">colorama</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
@@ -293,63 +306,76 @@
                   <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">())</span>
 
 </div>
-<span class="k">def</span> <span class="nf">get_ses3d_settings</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">get_ses3d_settings</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">max_recommendations</span><span class="p">):</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&quot;SES3D Setup Assistant</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
 
     <span class="k">print</span><span class="p">(</span><span class="s">&quot;All calculations are done quick and dirty so take them with a &quot;</span>
           <span class="s">&quot;grain of salt.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
 
-    <span class="n">x_extent</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="mf">111.32</span>
-    <span class="n">y_extent</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="mf">111.32</span>
-    <span class="n">z_extent</span> <span class="o">=</span> <span class="n">dz</span>
-    <span class="n">elem_size_x</span> <span class="o">=</span> <span class="n">x_extent</span> <span class="o">/</span> <span class="n">nx</span>
-    <span class="n">elem_size_y</span> <span class="o">=</span> <span class="n">y_extent</span> <span class="o">/</span> <span class="n">ny</span>
-    <span class="n">elem_size_z</span> <span class="o">=</span> <span class="n">z_extent</span> <span class="o">/</span> <span class="n">nz</span>
-
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Extent in latitudinal (X) direction: </span><span class="si">%.1f</span><span class="s"> km, %1.f km/element&quot;</span> <span class="o">%</span>
-          <span class="p">(</span><span class="n">x_extent</span><span class="p">,</span> <span class="n">elem_size_x</span><span class="p">))</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Extent in longitudinal (Y) direction: </span><span class="si">%.1f</span><span class="s"> km, %1.f km/element&quot;</span> <span class="o">%</span>
-          <span class="p">(</span><span class="n">y_extent</span><span class="p">,</span> <span class="n">elem_size_y</span><span class="p">))</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Extent in depth (Z) direction: </span><span class="si">%.1f</span><span class="s"> km , </span><span class="si">%.1f</span><span class="s"> km/element&quot;</span> <span class="o">%</span>
-          <span class="p">(</span><span class="n">z_extent</span><span class="p">,</span> <span class="n">elem_size_z</span><span class="p">))</span>
-
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">element_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem_size_x</span><span class="p">,</span> <span class="n">elem_size_y</span><span class="p">,</span> <span class="n">elem_size_z</span><span class="p">]</span>
-    <span class="n">min_element_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">element_sizes</span><span class="p">)</span>
-    <span class="n">max_element_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">element_sizes</span><span class="p">)</span>
-    <span class="c"># Smallest GLL point distance.</span>
-    <span class="n">dx_min</span> <span class="o">=</span> <span class="mf">0.1717</span> <span class="o">*</span> <span class="n">min_element_size</span>
-
-    <span class="c"># Get the p wave at all depths and choose the biggest one.</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">OneDimensionalModel</span><span class="p">(</span><span class="s">&quot;ak135-f&quot;</span><span class="p">)</span>
-    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">&quot;vp&quot;</span><span class="p">,</span> <span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
-              <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="mi">400</span><span class="p">)]</span>
-    <span class="n">v_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-    <span class="n">v_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;P wave velocities range from </span><span class="si">%.1f</span><span class="s"> km/s to </span><span class="si">%.1f</span><span class="s"> km/s. The &quot;</span>
-          <span class="s">&quot;velocities of the top 5 km</span><span class="se">\n</span><span class="s">have not been analyzed to avoid very &quot;</span>
-          <span class="s">&quot;slow layers.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v_min</span><span class="p">,</span> <span class="n">v_max</span><span class="p">))</span>
-
-    <span class="c"># criterion approximately 0.3 for SES3D.</span>
-    <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">dx_min</span> <span class="o">/</span> <span class="n">v_max</span>
-    <span class="n">minimum_period</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">max_element_size</span> <span class="o">/</span> <span class="n">v_min</span>
-
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Maximal recommended time step: </span><span class="si">%.3f</span><span class="s"> s&quot;</span> <span class="o">%</span> <span class="n">dt</span><span class="p">)</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Minimal resolvable period: </span><span class="si">%.1f</span><span class="s"> s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">minimum_period</span><span class="p">)</span>
-
-    <span class="n">decompositions</span> <span class="o">=</span> <span class="n">get_domain_decompositions</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span>
-                                               <span class="n">max_recommendations</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">decompositions</span> <span class="o">=</span> <span class="n">get_domain_decompositions</span><span class="p">(</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">max_recommendations</span><span class="o">=</span><span class="n">max_recommendations</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">decompositions</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="s">&quot;Could not calculate recommended domain decompositions.&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Possible recommended domain decompositions:&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">decompositions</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Total CPU count: </span><span class="si">%5i</span><span class="s">; &quot;</span>
-                  <span class="s">&quot;CPUs in X: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core), &quot;</span>
-                  <span class="s">&quot;CPUs in Y: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core), &quot;</span>
-                  <span class="s">&quot;CPUs in Z: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core)&quot;</span> <span class="o">%</span>
-                  <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">(),</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nx</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                   <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ny</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">nz</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">return</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Possible recommended domain decompositions:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">decompositions</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span>
+              <span class="s">&quot;Total CPU count: </span><span class="si">%5i</span><span class="s">; &quot;</span>
+              <span class="s">&quot;CPUs in X: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core), &quot;</span>
+              <span class="s">&quot;CPUs in Y: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core), &quot;</span>
+              <span class="s">&quot;CPUs in Z: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core)&quot;</span> <span class="o">%</span>
+              <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">(),</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nx</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+               <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ny</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">nz</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span>
+              <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
+
+        <span class="n">x_extent</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">*</span> <span class="mf">111.32</span>
+        <span class="n">y_extent</span> <span class="o">=</span> <span class="n">dy</span> <span class="o">*</span> <span class="mf">111.32</span>
+        <span class="n">z_extent</span> <span class="o">=</span> <span class="n">dz</span>
+        <span class="n">elem_size_x</span> <span class="o">=</span> <span class="n">x_extent</span> <span class="o">/</span> <span class="p">(</span><span class="n">nx</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">elem_size_y</span> <span class="o">=</span> <span class="n">y_extent</span> <span class="o">/</span> <span class="p">(</span><span class="n">ny</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">elem_size_z</span> <span class="o">=</span> <span class="n">z_extent</span> <span class="o">/</span> <span class="p">(</span><span class="n">nz</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Extent in latitudinal  (X) direction: </span><span class="si">%7.1f</span><span class="s"> km, &quot;</span>
+              <span class="s">&quot;</span><span class="si">%5.1f</span><span class="s"> km/element, </span><span class="si">%4i</span><span class="s"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x_extent</span><span class="p">,</span> <span class="n">elem_size_x</span><span class="p">,</span>
+                                                  <span class="n">nx</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Extent in longitudinal (Y) direction: </span><span class="si">%7.1f</span><span class="s"> km, &quot;</span>
+              <span class="s">&quot;</span><span class="si">%5.1f</span><span class="s"> km/element, </span><span class="si">%4i</span><span class="s"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">y_extent</span><span class="p">,</span> <span class="n">elem_size_y</span><span class="p">,</span>
+                                                  <span class="n">ny</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Extent in depth        (Z) direction: </span><span class="si">%7.1f</span><span class="s"> km, &quot;</span>
+              <span class="s">&quot;</span><span class="si">%5.1f</span><span class="s"> km/element, </span><span class="si">%4i</span><span class="s"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z_extent</span><span class="p">,</span> <span class="n">elem_size_z</span><span class="p">,</span>
+                                                  <span class="n">nz</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">element_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem_size_x</span><span class="p">,</span> <span class="n">elem_size_y</span><span class="p">,</span> <span class="n">elem_size_z</span><span class="p">]</span>
+        <span class="n">min_element_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">element_sizes</span><span class="p">)</span>
+        <span class="n">max_element_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">element_sizes</span><span class="p">)</span>
+        <span class="c"># Smallest GLL point distance.</span>
+        <span class="n">dx_min</span> <span class="o">=</span> <span class="mf">0.1717</span> <span class="o">*</span> <span class="n">min_element_size</span>
+
+        <span class="c"># Get the Wave speeds at all depths and choose the biggest one.</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">OneDimensionalModel</span><span class="p">(</span><span class="s">&quot;ak135-f&quot;</span><span class="p">)</span>
+        <span class="n">s_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">&quot;vs&quot;</span><span class="p">,</span> <span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="mi">400</span><span class="p">)]</span>
+        <span class="n">p_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">&quot;vp&quot;</span><span class="p">,</span> <span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="mi">400</span><span class="p">)]</span>
+        <span class="n">v_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p_values</span><span class="p">)</span>
+        <span class="n">v_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">s_values</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Wave velocities range from </span><span class="si">%.1f</span><span class="s"> km/s to </span><span class="si">%.1f</span><span class="s"> km/s. The &quot;</span>
+              <span class="s">&quot;velocities of the top 15 km have not been analyzed to avoid &quot;</span>
+              <span class="s">&quot;very slow layers.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v_min</span><span class="p">,</span> <span class="n">v_max</span><span class="p">))</span>
+
+        <span class="c"># criterion approximately 0.3 for SES3D.</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">dx_min</span> <span class="o">/</span> <span class="n">v_max</span>
+        <span class="n">minimum_period</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">max_element_size</span> <span class="o">/</span> <span class="n">v_min</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span> <span class="o">+</span>
+              <span class="s">&quot;  Maximal recommended time step: </span><span class="si">%.3f</span><span class="s"> s&quot;</span> <span class="o">%</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Minimal resolvable period: </span><span class="si">%.1f</span><span class="s"> s&quot;</span> <span class="o">%</span> <span class="n">minimum_period</span> <span class="o">+</span>
+              <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
+
+        <span class="k">print</span><span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span> <span class="o">+</span> <span class="s">&quot;  SES3D Settings: nx_global: </span><span class="si">%i</span><span class="s">, &quot;</span>
+              <span class="s">&quot;ny_global: </span><span class="si">%i</span><span class="s">, nz_global: </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;                  px: </span><span class="si">%i</span><span class="s">, py: </span><span class="si">%i</span><span class="s">, px: </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
@@ -360,15 +386,18 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;dy&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;longitudinal extent in &quot;</span>
                                                <span class="s">&quot;degrees&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;dz&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;depth extent in km&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;nx&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;elements in latitudinal &quot;</span>
-                                             <span class="s">&quot;direction&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;ny&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;elements in longitudinal &quot;</span>
-                                             <span class="s">&quot;direction&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;nz&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;elements in depth &quot;</span>
-                                             <span class="s">&quot;direction&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;nx&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;~ element count in &quot;</span>
+                        <span class="s">&quot;latitudinal dir. Same as nx_global.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;ny&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;~ element count in &quot;</span>
+                        <span class="s">&quot;longitudinal dir. Same as ny_global.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;nz&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;~ element count in depth &quot;</span>
+                        <span class="s">&quot;dir. Same as nz_global.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--recommendations&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;number of recommendations to provide&quot;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="n">get_ses3d_settings</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dz</span><span class="p">,</span> <span class="n">nx</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">nx</span><span class="p">,</span>
-                       <span class="n">ny</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">nz</span><span class="p">)</span>
+                       <span class="n">ny</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">nz</span><span class="p">,</span>
+                       <span class="n">max_recommendations</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">recommendations</span><span class="p">)</span>
 
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
@@ -386,10 +415,10 @@
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -413,7 +442,7 @@
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

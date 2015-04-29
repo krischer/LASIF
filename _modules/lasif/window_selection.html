@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>lasif.window_selection &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,11 +28,13 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../../index.html"/>
         <link rel="up" title="lasif" href="../lasif.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -44,8 +46,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -54,6 +62,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,6 +154,8 @@
     <li>lasif.window_selection</li>
       <li class="wy-breadcrumbs-aside">
         
+          
+        
       </li>
   </ul>
   <hr/>
@@ -171,60 +183,119 @@
 <span class="sd">    GNU General Public License, Version 3</span>
 <span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">obspy.core.util</span> <span class="kn">import</span> <span class="n">geodetics</span>
-<span class="kn">from</span> <span class="nn">obspy.taup</span> <span class="kn">import</span> <span class="n">getTravelTimes</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">argrelextrema</span>
 
 
-<div class="viewcode-block" id="find_local_extrema"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_local_extrema">[docs]</a><span class="k">def</span> <span class="nf">find_local_extrema</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">start_index</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="flatnotmasked_contiguous"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.flatnotmasked_contiguous">[docs]</a><span class="k">def</span> <span class="nf">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A simplistic 1D local peak (and trough) detection algorithm.</span>
-
-<span class="sd">    It is only useful for smooth data and will find ALL local extrema. A local</span>
-<span class="sd">    minimum is defined as having larger values as its immediate neighbours. A</span>
-<span class="sd">    local maximum is consequently defined as having smaller values in its</span>
-<span class="sd">    immediate vicinity.</span>
-
-<span class="sd">    Will also find local extrema at the domain borders.</span>
-
-<span class="sd">    :param data: A 1D array over which the search will be performed.</span>
-<span class="sd">    :type data: :class:`numpy.ndarray`</span>
-<span class="sd">    :param start_index: The minimum index at which extrema will be detected.</span>
-<span class="sd">    :return: Returns a tuple with three arrays:</span>
-<span class="sd">        * [0]: The indices of all found peaks</span>
-<span class="sd">        * [1]: The indices of all found troughs</span>
-<span class="sd">        * [2]: The indices of all found extreme points (peaks and troughs)</span>
-
-<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
-<span class="sd">    &gt;&gt;&gt; data = np.array([0, 1, 2, 1, 0, 1, 2, 1])</span>
-<span class="sd">    &gt;&gt;&gt; peaks, troughs, extrema = find_local_extrema(data)</span>
-<span class="sd">    &gt;&gt;&gt; peaks</span>
-<span class="sd">    array([2, 6])</span>
-<span class="sd">    &gt;&gt;&gt; troughs</span>
-<span class="sd">    array([0, 4, 7])</span>
-<span class="sd">    &gt;&gt;&gt; extrema</span>
-<span class="sd">    array([0, 2, 4, 6, 7])</span>
+<span class="sd">    Helper function enabling to loop over empty time windows.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c"># Detect peaks.</span>
-    <span class="n">peaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">&gt;</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&amp;</span> \
-        <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">True</span><span class="p">]</span>
-    <span class="n">peaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">peaks</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">peaks</span> <span class="o">=</span> <span class="n">peaks</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">peaks</span> <span class="o">&gt;=</span> <span class="n">start_index</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">fc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">)</span>
+    <span class="c"># If nothing could be found, set the mask to true (which should already</span>
+    <span class="c"># be the case).</span>
+    <span class="k">if</span> <span class="n">fc</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fc</span>
 
-    <span class="n">troughs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&amp;</span> \
-        <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">True</span><span class="p">]</span>
-    <span class="n">troughs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">troughs</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">troughs</span> <span class="o">=</span> <span class="n">troughs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">troughs</span> <span class="o">&gt;=</span> <span class="n">start_index</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+</div>
+<div class="viewcode-block" id="find_local_extrema"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_local_extrema">[docs]</a><span class="k">def</span> <span class="nf">find_local_extrema</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function finding local extrema. It can also deal with flat extrema,</span>
+<span class="sd">    e.g. a flat top or bottom. In that case the first index of all flat</span>
+<span class="sd">    values will be returned.</span>
 
-    <span class="c"># Now create a merged version.</span>
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">intersect1d</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">troughs</span><span class="p">,</span> <span class="n">assume_unique</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Error. Peak and troughs should not be identical! Something &quot;</span> \
-            <span class="s">&quot;went wrong. Please fix it or contact the developers.&quot;</span>
-        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-    <span class="n">extrema</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">peaks</span><span class="p">,</span> <span class="n">troughs</span><span class="p">])</span>
-    <span class="n">extrema</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+<span class="sd">    Returns a tuple of maxima and minima indices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">flats</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">diff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">peaks</span><span class="p">,</span> <span class="n">troughs</span><span class="p">,</span> <span class="n">extrema</span>
+    <span class="c"># Discard neighbouring flat points.</span>
+    <span class="n">new_flats</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">flats</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">flats</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">flats</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+        <span class="k">if</span> <span class="n">j</span> <span class="o">-</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">new_flats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+    <span class="n">flats</span> <span class="o">=</span> <span class="n">new_flats</span>
+
+    <span class="n">maxima</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">minima</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c"># Go over each flats position and check if its a maxima/minima.</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">flats</span><span class="p">:</span>
+        <span class="n">l_type</span> <span class="o">=</span> <span class="s">&quot;left&quot;</span>
+        <span class="n">r_type</span> <span class="o">=</span> <span class="s">&quot;right&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+            <span class="n">this_idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">-</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">diff</span><span class="p">[</span><span class="n">this_idx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">l_type</span> <span class="o">=</span> <span class="s">&quot;minima&quot;</span>
+                <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">diff</span><span class="p">[</span><span class="n">this_idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">l_type</span> <span class="o">=</span> <span class="s">&quot;maxima&quot;</span>
+                <span class="k">break</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+            <span class="n">this_idx</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">this_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="k">if</span> <span class="n">diff</span><span class="p">[</span><span class="n">this_idx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">r_type</span> <span class="o">=</span> <span class="s">&quot;maxima&quot;</span>
+                <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">diff</span><span class="p">[</span><span class="n">this_idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">r_type</span> <span class="o">=</span> <span class="s">&quot;minima&quot;</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">r_type</span> <span class="o">!=</span> <span class="n">l_type</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">r_type</span> <span class="o">==</span> <span class="s">&quot;maxima&quot;</span><span class="p">:</span>
+            <span class="n">maxima</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">minima</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+
+    <span class="n">maxs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">argrelextrema</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">greater</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">mins</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">argrelextrema</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">less</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="n">peaks</span><span class="p">,</span> <span class="n">troughs</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">maxs</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">maxima</span><span class="p">)))),</span>
+        <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">mins</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">minima</span><span class="p">)))))</span>
+
+    <span class="c"># Special case handling for missing one or the other.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">peaks</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">troughs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">peaks</span><span class="p">:</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">troughs</span><span class="p">:</span>
+            <span class="n">peaks</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">length</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">troughs</span><span class="p">:</span>
+            <span class="n">peaks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">troughs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">troughs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">:</span>
+            <span class="n">troughs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">length</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">peaks</span><span class="p">:</span>
+            <span class="n">troughs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">troughs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
+
+    <span class="c"># Mark the first and last values as well to facilitate the peak and</span>
+    <span class="c"># trough marching algorithm</span>
+    <span class="k">if</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">peaks</span> <span class="ow">and</span> <span class="mi">0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">troughs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">peaks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">troughs</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">troughs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">peaks</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">length</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">peaks</span> <span class="ow">and</span> <span class="n">length</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">troughs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">peaks</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">troughs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">peaks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">troughs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">troughs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">))</span>
 
 </div>
 <div class="viewcode-block" id="find_closest"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.find_closest">[docs]</a><span class="k">def</span> <span class="nf">find_closest</span><span class="p">(</span><span class="n">ref_array</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
@@ -253,6 +324,49 @@
     <span class="k">return</span> <span class="n">idx</span>
 
 </div>
+<span class="k">def</span> <span class="nf">_plot_mask</span><span class="p">(</span><span class="n">new_mask</span><span class="p">,</span> <span class="n">old_mask</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function plotting the remaining time segments after an elimination</span>
+<span class="sd">    stage.</span>
+
+<span class="sd">    Useful to figure out which stage is responsible for a certain window</span>
+<span class="sd">    being picked/rejected.</span>
+
+<span class="sd">    :param new_mask: The mask after the elimination stage.</span>
+<span class="sd">    :param old_mask: The mask before the elimination stage.</span>
+<span class="sd">    :param name: The name of the elimination stage.</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># Lazy imports as not needed by default.</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="kn">as</span> <span class="nn">plt</span>  <span class="c"># NOQA</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="kn">as</span> <span class="nn">PathEffects</span>  <span class="c"># NOQA</span>
+
+    <span class="n">old_mask</span> <span class="o">=</span> <span class="n">old_mask</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">new_mask</span> <span class="o">=</span> <span class="n">new_mask</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">new_mask</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_xor</span><span class="p">(</span><span class="n">old_mask</span><span class="o">.</span><span class="n">mask</span><span class="p">,</span> <span class="n">new_mask</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">old_mask</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">old_mask</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">old_mask</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">((</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
+                         <span class="n">color</span><span class="o">=</span><span class="s">&quot;gray&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">new_mask</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">new_mask</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">new_mask</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">((</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span>
+                         <span class="n">color</span><span class="o">=</span><span class="s">&quot;#fb9a99&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_mask</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">,</span>
+                 <span class="n">horizontalalignment</span><span class="o">=</span><span class="s">&quot;right&quot;</span><span class="p">,</span>
+                 <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
+                     <span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">)],</span>
+                 <span class="n">fontweight</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_mask</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([])</span>
+
+
 <span class="k">def</span> <span class="nf">_window_generator</span><span class="p">(</span><span class="n">data_length</span><span class="p">,</span> <span class="n">window_width</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Simple generator yielding start and stop indices for sliding windows.</span>
@@ -270,6 +384,20 @@
         <span class="n">window_start</span> <span class="o">+=</span> <span class="mi">1</span>
 
 
+<span class="k">def</span> <span class="nf">_log_window_selection</span><span class="p">(</span><span class="n">tr_id</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function for consistent output during the window selection.</span>
+
+<span class="sd">    :param tr_id: The id of the current trace.</span>
+<span class="sd">    :param msg: The message to be printed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">print</span> <span class="s">&quot;[Window selection for </span><span class="si">%s</span><span class="s">] </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tr_id</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+<span class="c"># Dictionary to cache the TauPyModel so there is no need to reinitialize it</span>
+<span class="c"># each time which is a fairly expensive operation.</span>
+<span class="n">TAUPY_MODEL_CACHE</span> <span class="o">=</span> <span class="p">{}</span>
+
+
 <div class="viewcode-block" id="select_windows"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.select_windows">[docs]</a><span class="k">def</span> <span class="nf">select_windows</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
                    <span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span>
                    <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span> <span class="n">minimum_period</span><span class="p">,</span>
@@ -277,10 +405,16 @@
                    <span class="n">min_cc</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">max_noise</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">max_noise_window</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
                    <span class="n">min_velocity</span><span class="o">=</span><span class="mf">2.4</span><span class="p">,</span> <span class="n">threshold_shift</span><span class="o">=</span><span class="mf">0.30</span><span class="p">,</span>
                    <span class="n">threshold_correlation</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">min_length_period</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
-                   <span class="n">min_peaks_troughs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_energy_ratio</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+                   <span class="n">min_peaks_troughs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_energy_ratio</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                   <span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Window selection algorithm for picking windows suitable for misfit</span>
 <span class="sd">    calculation based on phase differences.</span>
+
+<span class="sd">    Returns a list of windows which might be empty due to various reasons.</span>
+
+<span class="sd">    This function is really long and a lot of things. For a more detailed</span>
+<span class="sd">    description, please see the LASIF paper.</span>
 
 <span class="sd">    :param data_trace: The data trace.</span>
 <span class="sd">    :type data_trace: :class:`~obspy.core.trace.Trace`</span>
@@ -315,7 +449,7 @@
 <span class="sd">    :param threshold_shift: Maximum allowable time shift within a window,</span>
 <span class="sd">        as a fraction of the minimum period.</span>
 <span class="sd">    :type threshold_shift: float</span>
-<span class="sd">    :param threshold_correlation: Minimum normalised correlation coeficient</span>
+<span class="sd">    :param threshold_correlation: Minimum normalised correlation coeeficient</span>
 <span class="sd">        within a window.</span>
 <span class="sd">    :type threshold_correlation: float</span>
 <span class="sd">    :param min_length_period: Minimum length of the time windows relative to</span>
@@ -325,46 +459,62 @@
 <span class="sd">        time window (excluding the edges).</span>
 <span class="sd">    :type min_peaks_troughs: float</span>
 <span class="sd">    :param max_energy_ratio: Maximum energy ratio between data and</span>
-<span class="sd">        synthetics within a time window.</span>
+<span class="sd">        synthetics within a time window. Don&#39;t make this too small!</span>
 <span class="sd">    :type max_energy_ratio: float</span>
-<span class="sd">    :param quiet: Be quiet and don&#39;t print anything.</span>
-<span class="sd">    :type quiet: bool</span>
+<span class="sd">    :param verbose: No output by default.</span>
+<span class="sd">    :type verbose: bool</span>
+<span class="sd">    :param plot: Create a plot of the algortihm while it does its work.</span>
+<span class="sd">    :type plot: bool</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;* ---------------------------&quot;</span>
-        <span class="k">print</span> <span class="s">&quot;* autoselect &quot;</span> <span class="o">+</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span>
-
+    <span class="c"># Shortcuts to frequently accessed variables.</span>
     <span class="n">data_starttime</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span>
     <span class="n">data_delta</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span>
+    <span class="n">npts</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span>
+    <span class="n">synth</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">times</span><span class="p">()</span>
 
-    <span class="c"># =========================================================================</span>
-    <span class="c"># initialisations</span>
-    <span class="c"># =========================================================================</span>
+    <span class="c"># Fill cache if necessary.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">TAUPY_MODEL_CACHE</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">obspy.taup</span> <span class="kn">import</span> <span class="n">TauPyModel</span>  <span class="c"># NOQA</span>
+        <span class="n">TAUPY_MODEL_CACHE</span><span class="p">[</span><span class="s">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TauPyModel</span><span class="p">(</span><span class="s">&quot;AK135&quot;</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">TAUPY_MODEL_CACHE</span><span class="p">[</span><span class="s">&quot;model&quot;</span><span class="p">]</span>
 
-    <span class="n">dt</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span>
-    <span class="n">npts</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span>
+    <span class="c"># -------------------------------------------------------------------------</span>
+    <span class="c"># Geographical calculations and the time of the first arrival.</span>
+    <span class="c"># -------------------------------------------------------------------------</span>
     <span class="n">dist_in_deg</span> <span class="o">=</span> <span class="n">geodetics</span><span class="o">.</span><span class="n">locations2degrees</span><span class="p">(</span><span class="n">station_latitude</span><span class="p">,</span>
                                               <span class="n">station_longitude</span><span class="p">,</span>
                                               <span class="n">event_latitude</span><span class="p">,</span> <span class="n">event_longitude</span><span class="p">)</span>
     <span class="n">dist_in_km</span> <span class="o">=</span> <span class="n">geodetics</span><span class="o">.</span><span class="n">calcVincentyInverse</span><span class="p">(</span>
         <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
         <span class="n">event_longitude</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1000.0</span>
-    <span class="n">tts</span> <span class="o">=</span> <span class="n">getTravelTimes</span><span class="p">(</span><span class="n">dist_in_deg</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s">&quot;ak135&quot;</span><span class="p">)</span>
-    <span class="n">first_tt_arrival</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">_i</span><span class="p">[</span><span class="s">&quot;time&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">tts</span><span class="p">])</span>
 
+    <span class="c"># Get only a couple of P phases which should be the first arrival</span>
+    <span class="c"># for every epicentral distance. Its quite a bit faster than calculating</span>
+    <span class="c"># the arrival times for every phase.</span>
+    <span class="c"># Assumes the first sample is the centroid time of the event.</span>
+    <span class="n">tts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_travel_times</span><span class="p">(</span><span class="n">source_depth_in_km</span><span class="o">=</span><span class="n">event_depth_in_km</span><span class="p">,</span>
+                                 <span class="n">distance_in_degree</span><span class="o">=</span><span class="n">dist_in_deg</span><span class="p">,</span>
+                                 <span class="n">phase_list</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;ttp&quot;</span><span class="p">])</span>
+    <span class="c"># Sort just as a safety measure.</span>
+    <span class="n">tts</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">first_tt_arrival</span> <span class="o">=</span> <span class="n">tts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">time</span>
+
+    <span class="c"># -------------------------------------------------------------------------</span>
+    <span class="c"># Window settings</span>
+    <span class="c"># -------------------------------------------------------------------------</span>
     <span class="c"># Number of samples in the sliding window. Currently, the length of the</span>
     <span class="c"># window is set to a multiple of the dominant period of the synthetics.</span>
     <span class="c"># Make sure it is an uneven number; just to have a trivial midpoint</span>
-    <span class="c"># definition.</span>
+    <span class="c"># definition and one sample does not matter much in any case.</span>
     <span class="n">window_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">minimum_period</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
-
     <span class="k">if</span> <span class="ow">not</span> <span class="n">window_length</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">window_length</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="c"># Allocate arrays to collect the time dependent values.</span>
-    <span class="n">sliding_time_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float32&quot;</span><span class="p">)</span>
-    <span class="n">max_cc_coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float32&quot;</span><span class="p">)</span>
-
+    <span class="c"># Use a Hanning window. No particular reason for it but its a well-behaved</span>
+    <span class="c"># window and has nice spectral properties.</span>
     <span class="n">taper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hanning</span><span class="p">(</span><span class="n">window_length</span><span class="p">)</span>
 
     <span class="c"># =========================================================================</span>
@@ -372,16 +522,14 @@
     <span class="c"># noise level</span>
     <span class="c"># =========================================================================</span>
 
-    <span class="n">synth</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">data</span>
-
-    <span class="c">#  compute correlation coefficient</span>
+    <span class="c"># Overall Correlation coefficient.</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">synth</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
     <span class="n">cc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">data</span> <span class="o">*</span> <span class="n">synth</span><span class="p">)</span> <span class="o">/</span> <span class="n">norm</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;** correlation coefficient: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">_log_window_selection</span><span class="p">(</span><span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                              <span class="s">&quot;Correlation Coefficient: </span><span class="si">%.4f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">cc</span><span class="p">)</span>
 
-    <span class="c">#  estimate noise level from waveforms prior to the first arrival</span>
+    <span class="c"># Estimate noise level from waveforms prior to the first arrival.</span>
     <span class="n">idx_end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">minimum_period</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
     <span class="n">idx_end</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">idx_end</span><span class="p">)</span>
     <span class="n">idx_start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="n">minimum_period</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
@@ -393,45 +541,180 @@
     <span class="n">noise_absolute</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">idx_start</span><span class="p">:</span><span class="n">idx_end</span><span class="p">]</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
     <span class="n">noise_relative</span> <span class="o">=</span> <span class="n">noise_absolute</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;** absolute noise level: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_absolute</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; m/s&quot;</span>
-        <span class="k">print</span> <span class="s">&quot;** relative noise level: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_relative</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">_log_window_selection</span><span class="p">(</span><span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                              <span class="s">&quot;Absolute Noise Level: </span><span class="si">%e</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">noise_absolute</span><span class="p">)</span>
+        <span class="n">_log_window_selection</span><span class="p">(</span><span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                              <span class="s">&quot;Relative Noise Level: </span><span class="si">%e</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">noise_relative</span><span class="p">)</span>
 
-    <span class="c">#  rejection criteria</span>
-    <span class="n">accept</span> <span class="o">=</span> <span class="bp">True</span>
-
+    <span class="c"># Basic global rejection criteria.</span>
+    <span class="n">accept_traces</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">cc</span> <span class="o">&lt;</span> <span class="n">min_cc</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">noise_relative</span> <span class="o">&gt;</span> <span class="n">max_noise</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot;** correlation &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cc</span><span class="p">)</span> <span class="o">+</span> \
-                <span class="s">&quot; is below threshold value of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">min_cc</span><span class="p">)</span>
-        <span class="n">accept</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">_log_window_selection</span><span class="p">(</span>
+                <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="s">&quot;Correlation </span><span class="si">%.4f</span><span class="s"> is below threshold of </span><span class="si">%.4f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="n">min_cc</span><span class="p">))</span>
+        <span class="n">accept_traces</span> <span class="o">=</span> <span class="bp">False</span>
 
     <span class="k">if</span> <span class="n">noise_relative</span> <span class="o">&gt;</span> <span class="n">max_noise</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot;** noise level &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_relative</span><span class="p">)</span> <span class="o">+</span> \
-                <span class="s">&quot; is above threshold value of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">max_noise</span><span class="p">)</span>
-        <span class="n">accept</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">_log_window_selection</span><span class="p">(</span>
+                <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="s">&quot;Noise level </span><span class="si">%e</span><span class="s"> is above threshold of </span><span class="si">%e</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">noise_relative</span><span class="p">,</span>
+                                                             <span class="n">max_noise</span><span class="p">))</span>
+        <span class="n">accept_traces</span> <span class="o">=</span> <span class="bp">False</span>
 
-    <span class="k">if</span> <span class="n">accept</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot;* autoselect done, 0 windows selected&quot;</span>
+    <span class="c"># -------------------------------------------------------------------------</span>
+    <span class="c"># Initial Plot setup.</span>
+    <span class="c"># -------------------------------------------------------------------------</span>
+    <span class="c"># All the plot calls are interleaved. I realize this is really ugly but</span>
+    <span class="c"># the alternative would be to either have two functions (one with plots,</span>
+    <span class="c"># one without) or split the plotting function in various subfunctions,</span>
+    <span class="c"># neither of which are acceptable in my opinion. The impact on</span>
+    <span class="c"># performance is minimal if plotting is turned off: all imports are lazy</span>
+    <span class="c"># and a couple of conditionals are cheap.</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="kn">as</span> <span class="nn">plt</span>  <span class="c"># NOQA</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="kn">as</span> <span class="nn">PathEffects</span>  <span class="c"># NOQA</span>
+
+        <span class="k">if</span> <span class="n">accept_traces</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+                                <span class="n">wspace</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">grid</span> <span class="o">=</span> <span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c"># Axes showing the data.</span>
+            <span class="n">data_plot</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># Only show one axes it the traces are not accepted.</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;data&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">synthetic_trace</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">synth</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;#e41a1c&quot;</span><span class="p">,</span>
+                 <span class="n">label</span><span class="o">=</span><span class="s">&quot;synthetics&quot;</span><span class="p">,</span>  <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+
+        <span class="c"># Symmetric around y axis.</span>
+        <span class="n">middle</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">d_max</span><span class="p">,</span> <span class="n">d_min</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">data</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">d_max</span> <span class="o">-</span> <span class="n">middle</span><span class="p">,</span> <span class="n">middle</span> <span class="o">-</span> <span class="n">d_min</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.1</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="p">(</span><span class="n">middle</span> <span class="o">-</span> <span class="n">r</span><span class="p">,</span> <span class="n">middle</span> <span class="o">+</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">xlim</span> <span class="o">=</span> <span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">*</span><span class="n">ylim</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">*</span><span class="n">xlim</span><span class="p">)</span>
+
+        <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.005</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">first_tt_arrival</span><span class="p">,</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="s">&quot;#ff7f00&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">first_tt_arrival</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span>
+                 <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.02</span><span class="p">,</span>
+                 <span class="s">&quot;first arrival&quot;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;top&quot;</span><span class="p">,</span>
+                 <span class="n">horizontalalignment</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;#ee6e00&quot;</span><span class="p">,</span>
+                 <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
+                     <span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">)])</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                   <span class="n">colors</span><span class="o">=</span><span class="s">&quot;#ff7f00&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="n">offset</span><span class="p">,</span>
+                 <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.02</span><span class="p">,</span>
+                 <span class="s">&quot;first arrival - min period / 2&quot;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span>
+                 <span class="n">horizontalalignment</span><span class="o">=</span><span class="s">&quot;right&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;#ee6e00&quot;</span><span class="p">,</span>
+                 <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
+                     <span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">)])</span>
+
+        <span class="k">for</span> <span class="n">velocity</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">min_velocity</span><span class="p">]:</span>
+            <span class="n">tt</span> <span class="o">=</span> <span class="n">dist_in_km</span> <span class="o">/</span> <span class="n">velocity</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">tt</span><span class="p">,</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="s">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">velocity</span> <span class="o">==</span> <span class="n">min_velocity</span><span class="p">:</span>
+                <span class="n">hal</span> <span class="o">=</span> <span class="s">&quot;right&quot;</span>
+                <span class="n">o_s</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">offset</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hal</span> <span class="o">=</span> <span class="s">&quot;left&quot;</span>
+                <span class="n">o_s</span> <span class="o">=</span> <span class="n">offset</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">tt</span> <span class="o">+</span> <span class="n">o_s</span><span class="p">,</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.02</span><span class="p">,</span>
+                     <span class="nb">str</span><span class="p">(</span><span class="n">velocity</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot; km/s&quot;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span>
+                     <span class="n">horizontalalignment</span><span class="o">=</span><span class="n">hal</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;0.15&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">dist_in_km</span> <span class="o">/</span> <span class="n">min_velocity</span> <span class="o">+</span> <span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span>
+                   <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="s">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">dist_in_km</span> <span class="o">/</span> <span class="n">min_velocity</span> <span class="o">+</span> <span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="n">offset</span><span class="p">,</span>
+                 <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.02</span><span class="p">,</span>
+                 <span class="s">&quot;min surface velocity + min period / 2&quot;</span><span class="p">,</span>
+                 <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;top&quot;</span><span class="p">,</span>
+                 <span class="n">horizontalalignment</span><span class="o">=</span><span class="s">&quot;right&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;0.15&quot;</span><span class="p">,</span> <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
+                     <span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">)])</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">noise_absolute</span><span class="p">,</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">,</span>
+                   <span class="n">color</span><span class="o">=</span><span class="s">&quot;gray&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="o">-</span><span class="n">noise_absolute</span><span class="p">,</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">,</span>
+                   <span class="n">color</span><span class="o">=</span><span class="s">&quot;gray&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">noise_absolute</span> <span class="o">+</span> <span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">,</span>
+                 <span class="s">&quot;noise level&quot;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span>
+                 <span class="n">horizontalalignment</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;0.15&quot;</span><span class="p">,</span>
+                 <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
+                     <span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">)])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                   <span class="n">fontsize</span><span class="o">=</span><span class="s">&quot;small&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([])</span>
+
+        <span class="c"># Plot the basic global information.</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="s">&quot;Total CC Coeff: </span><span class="si">%.4f</span><span class="se">\n</span><span class="s">Absolute Noise: </span><span class="si">%e</span><span class="se">\n</span><span class="s">Relative Noise: </span><span class="si">%e</span><span class="s">&quot;</span> \
+            <span class="o">%</span> <span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="n">noise_absolute</span><span class="p">,</span> <span class="n">noise_relative</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+                <span class="n">fontdict</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="s">&quot;small&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s">&#39;top&#39;</span><span class="p">),</span>
+                <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s">&quot;round&quot;</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="s">&quot;w&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">&quot;Channel </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s">&quot;larger&quot;</span><span class="p">)</span>
+
+    <span class="c"># Show plot and return if not accepted.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">accept_traces</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">accept_traces</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="c"># =========================================================================</span>
-    <span class="c"># compute sliding time shifts and correlation coefficients</span>
-    <span class="c"># =========================================================================</span>
+    <span class="c"># Initialise masked arrays. The mask will be set to True where no</span>
+    <span class="c"># windows are chosen.</span>
+    <span class="n">time_windows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c"># Elimination Stage 1: Eliminate everything half a period before or</span>
+    <span class="c"># after the minimum and maximum travel times, respectively.</span>
+    <span class="c"># theoretical arrival as positive.</span>
+    <span class="n">min_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">))</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="n">max_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span>
+        <span class="n">dist_in_km</span> <span class="o">/</span> <span class="n">min_velocity</span> <span class="o">+</span> <span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:</span><span class="n">min_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_idx</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;TRAVELTIME ELIMINATION&quot;</span><span class="p">)</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c"># -------------------------------------------------------------------------</span>
+    <span class="c"># Compute sliding time shifts and correlation coefficients for time</span>
+    <span class="c"># frames that passed the traveltime elimination stage.</span>
+    <span class="c"># -------------------------------------------------------------------------</span>
+    <span class="c"># Allocate arrays to collect the time dependent values.</span>
+    <span class="n">sliding_time_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">sliding_time_shift</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">max_cc_coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">max_cc_coeff</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="bp">True</span>
 
     <span class="k">for</span> <span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">,</span> <span class="n">midpoint_idx</span> <span class="ow">in</span> <span class="n">_window_generator</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span>
                                                               <span class="n">window_length</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">min_idx</span> <span class="o">&lt;</span> <span class="n">midpoint_idx</span> <span class="o">&lt;</span> <span class="n">max_idx</span><span class="p">:</span>
+            <span class="k">continue</span>
 
         <span class="c"># Slice windows. Create a copy to be able to taper without affecting</span>
         <span class="c"># the original time series.</span>
-        <span class="n">data_window</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">taper</span>
+        <span class="n">data_window</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">taper</span>
         <span class="n">synthetic_window</span> <span class="o">=</span> \
-            <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">taper</span>
+            <span class="n">synth</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span> <span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">taper</span>
 
-        <span class="c"># Skip windows that have essentially no energy to avoid instabilities.</span>
-        <span class="k">if</span> <span class="n">synthetic_window</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">:</span>
+        <span class="c"># Elimination Stage 2: Skip windows that have essentially no energy</span>
+        <span class="c"># to avoid instabilities. No windows can be picked in these.</span>
+        <span class="k">if</span> <span class="n">synthetic_window</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">synth</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">:</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
             <span class="k">continue</span>
 
         <span class="c"># Calculate the time shift. Here this is defined as the shift of the</span>
@@ -448,76 +731,121 @@
                                           <span class="p">(</span><span class="n">data_window</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
         <span class="n">max_cc_coeff</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_cc_value</span>
 
-    <span class="c"># =========================================================================</span>
-    <span class="c"># compute the initial mask, i.e. intervals (windows) where no measurements</span>
-    <span class="c"># are made.</span>
-    <span class="c"># =========================================================================</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;NO ENERGY IN CC WINDOW&quot;</span><span class="p">)</span>
+        <span class="c"># Axes with the CC coeffs</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;lightgray&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="o">-</span><span class="n">threshold_shift</span><span class="p">,</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;gray&quot;</span><span class="p">,</span>
+                   <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">threshold_shift</span><span class="p">,</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;gray&quot;</span><span class="p">,</span>
+                   <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="n">threshold_shift</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.03</span><span class="p">,</span>
+                 <span class="s">&quot;threshold&quot;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;top&quot;</span><span class="p">,</span>
+                 <span class="n">horizontalalignment</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;0.15&quot;</span><span class="p">,</span>
+                 <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
+                     <span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">)])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">sliding_time_shift</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;#377eb8&quot;</span><span class="p">,</span>
+                 <span class="n">label</span><span class="o">=</span><span class="s">&quot;Time shift in fraction of minimum period&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">ylim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([</span><span class="o">-</span><span class="mf">0.75</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1800</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                   <span class="n">fontsize</span><span class="o">=</span><span class="s">&quot;small&quot;</span><span class="p">)</span>
 
-    <span class="c"># Step 1: Initialise masked arrays. The mask will be set to True where no</span>
-    <span class="c"># windows are chosen.</span>
-    <span class="n">time_windows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">threshold_correlation</span><span class="p">,</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;0.15&quot;</span><span class="p">,</span>
+                   <span class="n">linestyle</span><span class="o">=</span><span class="s">&quot;--&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;lightgray&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;lightgray&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">threshold_correlation</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.4</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.01</span><span class="p">,</span>
+                 <span class="s">&quot;threshold&quot;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s">&quot;bottom&quot;</span><span class="p">,</span>
+                 <span class="n">horizontalalignment</span><span class="o">=</span><span class="s">&quot;left&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;0.15&quot;</span><span class="p">,</span>
+                 <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
+                     <span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">)])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">max_cc_coeff</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;#4daf4a&quot;</span><span class="p">,</span>
+                 <span class="n">label</span><span class="o">=</span><span class="s">&quot;Maximum CC coefficient&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1800</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                   <span class="n">fontsize</span><span class="o">=</span><span class="s">&quot;small&quot;</span><span class="p">)</span>
 
-    <span class="c"># Step 2: Mark everything more then half a dominant period before the first</span>
-    <span class="c"># theoretical arrival as positive.</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span>
-                      <span class="p">(</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="n">minimum_period</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="c"># Elimination Stage 3: Mark all areas where the normalized cross</span>
+    <span class="c"># correlation coefficient is under threshold_correlation as negative</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_cc_coeff</span> <span class="o">&lt;</span> <span class="n">threshold_correlation</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;CORRELATION COEFF THRESHOLD ELIMINATION&quot;</span><span class="p">)</span>
 
-    <span class="c"># Step 3: Mark everything more then half a dominant period after the</span>
-    <span class="c"># threshold arrival time - computed from the threshold velocity - as</span>
-    <span class="c"># negative.</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">dist_in_km</span> <span class="o">/</span> <span class="n">min_velocity</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)):]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="c"># Elimination Stage 4: Mark everything with an absolute travel time</span>
+    <span class="c"># shift of more than # threshold_shift times the dominant period as</span>
+    <span class="c"># negative</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold_shift</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;TIME SHIFT THRESHOLD ELIMINATION&quot;</span><span class="p">)</span>
 
-    <span class="c"># Step 4: Mark everything with an absolute travel time shift of more than</span>
-    <span class="c"># threshold_shift times the dominant period as negative</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold_shift</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-
-    <span class="c"># Step 5: Mark the area around every &quot;travel time shift jump&quot; (based on</span>
-    <span class="c"># the traveltime time difference) negative. The width of the area is</span>
-    <span class="c"># currently chosen to be a tenth of a dominant period to each side.</span>
+    <span class="c"># Elimination Stage 5: Mark the area around every &quot;travel time shift</span>
+    <span class="c"># jump&quot; (based on the traveltime time difference) negative. The width of</span>
+    <span class="c"># the area is currently chosen to be a tenth of a dominant period to</span>
+    <span class="c"># each side.</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">sample_buffer</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">))</span>
-    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
         <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="n">sample_buffer</span><span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">sample_buffer</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;TIME SHIFT JUMPS ELIMINATION&quot;</span><span class="p">)</span>
 
-    <span class="c"># Step 6: Mark all areas where the normalized cross correlation coefficient</span>
-    <span class="c"># is under threshold_correlation as negative</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_cc_coeff</span> <span class="o">&lt;</span> <span class="n">threshold_correlation</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-
-    <span class="c"># =========================================================================</span>
-    <span class="c">#  Make the final window selection.</span>
-    <span class="c"># =========================================================================</span>
-
-    <span class="n">min_length</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">min_length_period</span><span class="p">,</span>
-                     <span class="n">maximum_period</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
-    <span class="n">final_windows</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">)</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">windows</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">return</span>
-
-    <span class="c">#  loop through all the time windows</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">):</span>
-
+    <span class="c"># First minimum window length elimination stage. This is cheap and if</span>
+    <span class="c"># not done it can easily destabilize the peak-and-trough marching stage</span>
+    <span class="c"># which would then have to deal with way more edge cases.</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">min_length</span> <span class="o">=</span> \
+        <span class="nb">min</span><span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">min_length_period</span><span class="p">,</span> <span class="n">maximum_period</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">):</span>
         <span class="c"># Step 7: Throw away all windows with a length of less then</span>
         <span class="c"># min_length_period the dominant period.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
-            <span class="k">continue</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;MINIMUM WINDOW LENGTH ELIMINATION 1&quot;</span><span class="p">)</span>
 
+    <span class="c"># -------------------------------------------------------------------------</span>
+    <span class="c"># Peak and trough marching algorithm</span>
+    <span class="c"># -------------------------------------------------------------------------</span>
+    <span class="n">final_windows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">):</span>
+        <span class="c"># Cut respective windows.</span>
         <span class="n">window_npts</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span>
-        <span class="n">synthetic_window</span> <span class="o">=</span> <span class="n">synthetic_trace</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
-        <span class="n">data_window</span> <span class="o">=</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
+        <span class="n">synthetic_window</span> <span class="o">=</span> <span class="n">synth</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
+        <span class="n">data_window</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
 
-        <span class="c"># Step 8: Exclude windows without a real peak or trough (except for the</span>
-        <span class="c"># edges).</span>
-        <span class="n">data_p</span><span class="p">,</span> <span class="n">data_t</span><span class="p">,</span> <span class="n">data_extrema</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">data_window</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="n">synth_p</span><span class="p">,</span> <span class="n">synth_t</span><span class="p">,</span> <span class="n">synth_extrema</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">synthetic_window</span><span class="p">,</span>
-                                                             <span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">synth_p</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">synth_t</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_p</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_t</span><span class="p">)])</span> <span class="o">&lt;</span> \
-                <span class="n">min_peaks_troughs</span><span class="p">:</span>
-            <span class="k">continue</span>
+        <span class="c"># Find extrema in the data and the synthetics.</span>
+        <span class="n">data_p</span><span class="p">,</span> <span class="n">data_t</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">data_window</span><span class="p">)</span>
+        <span class="n">synth_p</span><span class="p">,</span> <span class="n">synth_t</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">synthetic_window</span><span class="p">)</span>
 
-        <span class="c"># Step 9: Peak and trough matching algorithm</span>
         <span class="n">window_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">window_npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s">&quot;bool&quot;</span><span class="p">)</span>
 
         <span class="n">closest_peaks</span> <span class="o">=</span> <span class="n">find_closest</span><span class="p">(</span><span class="n">data_p</span><span class="p">,</span> <span class="n">synth_p</span><span class="p">)</span>
@@ -548,35 +876,101 @@
                 <span class="n">end</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="n">window_mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
 
-        <span class="n">window_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">window_mask</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">window_mask</span><span class="p">)</span>
+        <span class="n">window_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">window_mask</span><span class="p">,</span>
+                                         <span class="n">mask</span><span class="o">=</span><span class="n">window_mask</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">window_mask</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="k">continue</span>
 
-        <span class="c"># Step 10: Check if the time windows have sufficiently similar energy</span>
-        <span class="c"># and are above the noise</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">window_mask</span><span class="p">):</span>
-
-            <span class="c"># Again assert a certain minimal length.</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c"># Compare the energy in the data window and the synthetic window.</span>
-            <span class="n">data_energy</span> <span class="o">=</span> <span class="p">(</span><span class="n">data_window</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">synth_energy</span> <span class="o">=</span> <span class="p">(</span><span class="n">synthetic_window</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-            <span class="n">energies</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">data_energy</span><span class="p">,</span> <span class="n">synth_energy</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_energy_ratio</span> <span class="o">*</span> <span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-                <span class="k">continue</span>
-
-            <span class="c"># Check that amplitudes in the data are above the noise</span>
-            <span class="k">if</span> <span class="n">noise_absolute</span> <span class="o">/</span> <span class="n">data_window</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">&gt;</span> \
-                    <span class="n">max_noise_window</span><span class="p">:</span>
-                <span class="k">continue</span>
-
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">window_mask</span><span class="p">):</span>
             <span class="n">final_windows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">quiet</span><span class="p">:</span>
-        <span class="k">print</span> <span class="s">&quot;* autoselect done, &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">final_windows</span><span class="p">))</span> <span class="o">+</span> \
-            <span class="s">&quot; window(s) selected&quot;</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="n">final_windows</span><span class="p">:</span>
+        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;PEAK AND TROUGH MARCHING ELIMINATION&quot;</span><span class="p">)</span>
+
+    <span class="c"># Loop through all the time windows, remove windows not satisfying the</span>
+    <span class="c"># minimum number of peaks and troughs per window. Acts mainly as a</span>
+    <span class="c"># safety guard.</span>
+    <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">old_time_windows</span><span class="p">):</span>
+        <span class="n">synthetic_window</span> <span class="o">=</span> <span class="n">synth</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
+        <span class="n">data_window</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span>
+        <span class="n">data_p</span><span class="p">,</span> <span class="n">data_t</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">data_window</span><span class="p">)</span>
+        <span class="n">synth_p</span><span class="p">,</span> <span class="n">synth_t</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">synthetic_window</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">synth_p</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">synth_t</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_p</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_t</span><span class="p">)])</span> <span class="o">&lt;</span> \
+                <span class="n">min_peaks_troughs</span><span class="p">:</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;PEAK/TROUGH COUNT ELIMINATION&quot;</span><span class="p">)</span>
+
+    <span class="c"># Second minimum window length elimination stage.</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">min_length</span> <span class="o">=</span> \
+        <span class="nb">min</span><span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="n">min_length_period</span><span class="p">,</span> <span class="n">maximum_period</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">):</span>
+        <span class="c"># Step 7: Throw away all windows with a length of less then</span>
+        <span class="c"># min_length_period the dominant period.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;MINIMUM WINDOW LENGTH ELIMINATION 2&quot;</span><span class="p">)</span>
+
+    <span class="c"># Final step, eliminating windows with little energy.</span>
+    <span class="n">final_windows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">):</span>
+        <span class="c"># Again assert a certain minimal length.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c"># Compare the energy in the data window and the synthetic window.</span>
+        <span class="n">data_energy</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">synth_energy</span> <span class="o">=</span> <span class="p">(</span><span class="n">synth</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">energies</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">data_energy</span><span class="p">,</span> <span class="n">synth_energy</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">energies</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_energy_ratio</span> <span class="o">*</span> <span class="n">energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">_log_window_selection</span><span class="p">(</span>
+                    <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="s">&quot;Deselecting window due to energy ratio between &quot;</span>
+                    <span class="s">&quot;data and synthetics.&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c"># Check that amplitudes in the data are above the noise</span>
+        <span class="k">if</span> <span class="n">noise_absolute</span> <span class="o">/</span> <span class="n">data</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">&gt;</span> \
+                <span class="n">max_noise_window</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">_log_window_selection</span><span class="p">(</span>
+                    <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="s">&quot;Deselecting window due having no amplitude above the &quot;</span>
+                    <span class="s">&quot;signal to noise ratio.&quot;</span><span class="p">)</span>
+        <span class="n">final_windows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">j</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">j</span><span class="o">.</span><span class="n">stop</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="n">final_windows</span><span class="p">:</span>
+        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
+                   <span class="n">name</span><span class="o">=</span><span class="s">&quot;LITTLE ENERGY ELIMINATION&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">_log_window_selection</span><span class="p">(</span>
+            <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s">&quot;Done, Selected </span><span class="si">%i</span><span class="s"> window(s)&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">final_windows</span><span class="p">))</span>
 
     <span class="c"># Final step is to convert the index value windows to actual times.</span>
     <span class="n">windows</span> <span class="o">=</span> <span class="p">[]</span>
@@ -584,6 +978,18 @@
         <span class="n">start</span> <span class="o">=</span> <span class="n">data_starttime</span> <span class="o">+</span> <span class="n">start</span> <span class="o">*</span> <span class="n">data_delta</span>
         <span class="n">stop</span> <span class="o">=</span> <span class="n">data_starttime</span> <span class="o">+</span> <span class="n">stop</span> <span class="o">*</span> <span class="n">data_delta</span>
         <span class="n">windows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
+        <span class="c"># Plot the final windows to the data axes.</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="kn">as</span> <span class="nn">mtransforms</span>  <span class="c"># NOQA</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">data_plot</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">blended_transform_factory</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span>
+                                                      <span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="n">final_windows</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([</span><span class="n">start</span> <span class="o">*</span> <span class="n">data_delta</span><span class="p">,</span> <span class="n">stop</span> <span class="o">*</span> <span class="n">data_delta</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+                            <span class="n">facecolor</span><span class="o">=</span><span class="s">&quot;#CDDC39&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">trans</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">windows</span>
 
@@ -604,10 +1010,10 @@
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -631,7 +1037,7 @@
       <script type="text/javascript" src="../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

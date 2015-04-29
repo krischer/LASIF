@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>lasif.components.iterations &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,11 +28,13 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../../../index.html"/>
         <link rel="up" title="lasif" href="../../lasif.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -44,8 +46,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../../../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../../../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
@@ -54,6 +62,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -143,6 +153,8 @@
       
     <li>lasif.components.iterations</li>
       <li class="wy-breadcrumbs-aside">
+        
+          
         
       </li>
   </ul>
@@ -257,7 +269,7 @@
         <span class="k">return</span> <span class="n">iteration_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="IterationsComponent.create_new_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.create_new_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">,</span> <span class="n">solver_name</span><span class="p">,</span> <span class="n">events_dict</span><span class="p">,</span>
-                             <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">):</span>
+                             <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a new iteration XML file.</span>
 
@@ -267,13 +279,14 @@
 <span class="sd">        :param events_dict: A dictionary specifying the used events.</span>
 <span class="sd">        :param min_period: The minimum period in seconds for the new iteration.</span>
 <span class="sd">        :param max_period: The maximum period in seconds for the new iteration.</span>
+<span class="sd">        :param quiet: Do not print anything if set to `True`.</span>
 
 <span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;iterations_comm&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; comm.iterations.has_iteration(&quot;3&quot;)</span>
 <span class="sd">        False</span>
 <span class="sd">        &gt;&gt;&gt; comm.iterations.create_new_iteration(&quot;3&quot;, &quot;ses3d_4_1&quot;,</span>
 <span class="sd">        ...     {&quot;EVENT_1&quot;: [&quot;AA.BB&quot;, &quot;CC.DD&quot;], &quot;EVENT_2&quot;: [&quot;EE.FF&quot;]},</span>
-<span class="sd">        ...     10.0, 20.0)</span>
+<span class="sd">        ...     10.0, 20.0, quiet=True)</span>
 <span class="sd">        &gt;&gt;&gt; comm.iterations.has_iteration(&quot;3&quot;)</span>
 <span class="sd">        True</span>
 <span class="sd">        &gt;&gt;&gt; os.remove(comm.iterations.get_iteration_dict()[&quot;3&quot;])</span>
@@ -286,7 +299,8 @@
         <span class="kn">from</span> <span class="nn">lasif.iteration_xml</span> <span class="kn">import</span> <span class="n">create_iteration_xml_string</span>
         <span class="n">xml_string</span> <span class="o">=</span> <span class="n">create_iteration_xml_string</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">,</span>
                                                  <span class="n">solver_name</span><span class="p">,</span> <span class="n">events_dict</span><span class="p">,</span>
-                                                 <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">)</span>
+                                                 <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span>
+                                                 <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_filename_for_iteration</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">),</span> <span class="s">&quot;wt&quot;</span><span class="p">)</span>\
                 <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">xml_string</span><span class="p">)</span>
@@ -344,7 +358,10 @@
 
         <span class="kn">from</span> <span class="nn">lasif.iteration_xml</span> <span class="kn">import</span> <span class="n">Iteration</span>
 
-        <span class="n">existing_iteration</span> <span class="o">=</span> <span class="n">Iteration</span><span class="p">(</span><span class="n">it_dict</span><span class="p">[</span><span class="n">existing_iteration_name</span><span class="p">])</span>
+        <span class="n">existing_iteration</span> <span class="o">=</span> <span class="n">Iteration</span><span class="p">(</span>
+            <span class="n">it_dict</span><span class="p">[</span><span class="n">existing_iteration_name</span><span class="p">],</span>
+            <span class="n">stf_fct</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
+                <span class="s">&quot;source_time_function&quot;</span><span class="p">))</span>
 
         <span class="c"># Clone the old iteration, delete any comments and change the name.</span>
         <span class="n">existing_iteration</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="p">[]</span>
@@ -416,7 +433,9 @@
             <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="kn">from</span> <span class="nn">lasif.iteration_xml</span> <span class="kn">import</span> <span class="n">Iteration</span>
-        <span class="n">it</span> <span class="o">=</span> <span class="n">Iteration</span><span class="p">(</span><span class="n">it_dict</span><span class="p">[</span><span class="n">iteration_name</span><span class="p">])</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">Iteration</span><span class="p">(</span><span class="n">it_dict</span><span class="p">[</span><span class="n">iteration_name</span><span class="p">],</span>
+                       <span class="n">stf_fct</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
+                           <span class="s">&quot;source_time_function&quot;</span><span class="p">))</span>
 
         <span class="c"># Store in cache.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__cached_iterations</span><span class="p">[</span><span class="n">iteration_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">it</span>
@@ -458,10 +477,10 @@
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -485,7 +504,7 @@
       <script type="text/javascript" src="../../../_static/jquery.js"></script>
       <script type="text/javascript" src="../../../_static/underscore.js"></script>
       <script type="text/javascript" src="../../../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

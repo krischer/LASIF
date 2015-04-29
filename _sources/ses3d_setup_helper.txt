@@ -3,8 +3,8 @@ SES3D Setup Assistant
 =====================
 
 This is a simple script that assists you in determining optimal SES3D
-settings. To use it just pass the number of elements and the size of the
-simulation domain.
+settings. To use it just pass the approximate number of elements and the
+size of the simulation domain.
 
 .. runblock:: console
 

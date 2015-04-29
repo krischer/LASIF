@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>12. Synthetics &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
         <link rel="next" title="13. Misfit and Adjoint Source Calculation" href="12_misfits_and_adjoint_sources.html"/>
         <link rel="prev" title="11. Generating SES3D Input Files" href="10_generating_input_files.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>12. Synthetics</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/11_synthetic_waveforms.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/11_synthetic_waveforms.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -160,13 +172,13 @@ amount of disc space due to the need to store the forward wavefield. Even
 this very small toy example requires 10 GB per forward adjoint simulation.
 This easily increases 100 fold for real simulations.</p>
 <p>Copy the generated input files and the model for Iteration 1 to your SES3D
-installation, adjust the <tt class="docutils literal"><span class="pre">ses3d_modules.f90</span></tt> file and run the adjoint
+installation, adjust the <code class="docutils literal"><span class="pre">ses3d_modules.f90</span></code> file and run the adjoint
 forwards simulations for the two events. Please refer to the SES3D manual
 for additional details. The simulations should only take a couple of minutes
 each on a run-of-the-mill computer. No need to turn to an HPC for this
 tutorial.</p>
 <p>Once the two simulations have run, copy the resulting synthetics to the
-<tt class="docutils literal"><span class="pre">SYNTHETICS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}</span></tt> folder. Use the
+<code class="docutils literal"><span class="pre">SYNTHETICS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}</span></code> folder. Use the
 raw SES3D output files. These have been calculated in the possibly different
 simulation domain and not the physical domain. Never convert these to the
 physical domain; <strong>LASIF</strong> does it for you and doing it twice is wrong.</p>
@@ -209,10 +221,10 @@ should look similar to this:</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="12_misfits_and_adjoint_sources.html" class="btn btn-neutral float-right" title="13. Misfit and Adjoint Source Calculation">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="12_misfits_and_adjoint_sources.html" class="btn btn-neutral float-right" title="13. Misfit and Adjoint Source Calculation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="10_generating_input_files.html" class="btn btn-neutral" title="11. Generating SES3D Input Files"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="10_generating_input_files.html" class="btn btn-neutral" title="11. Generating SES3D Input Files" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -224,10 +236,10 @@ should look similar to this:</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -251,7 +263,7 @@ should look similar to this:</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>Command Line Interface &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,12 +28,14 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="next" title="Web Interface" href="webinterface.html"/>
         <link rel="prev" title="16. Customizing LASIF" href="tutorial/15_customizing_lasif.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -45,8 +47,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -55,6 +63,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -141,7 +151,9 @@
     <li>Command Line Interface</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/cli.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/cli.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -153,10 +165,10 @@
 <h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
 <p>The recommended way to interact with <strong>LASIF</strong> projects is to use the
 command line interface. It consists of a number of subcommands grouped below
-the main <tt class="code docutils literal"><span class="pre">lasif</span></tt> command. The general usage is quickly explained in this
+the main <code class="code docutils literal"><span class="pre">lasif</span></code> command. The general usage is quickly explained in this
 paragraph whilst the remainder of this sections explains all subcommands in
 greater detail.</p>
-<p>The general help can be accessed with the <tt class="code docutils literal"><span class="pre">lasif</span> <span class="pre">help</span></tt> command.</p>
+<p>The general help can be accessed with the <code class="code docutils literal"><span class="pre">lasif</span> <span class="pre">help</span></code> command.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif <span class="nb">help</span>
 <span class="c">####################################################################################################</span>
     LASIF - Large Scale Seismic Inversion Framework  <span class="o">[</span>Version <span class="o">]</span>
@@ -171,7 +183,7 @@ usage: lasif <span class="o">[</span>--help<span class="o">]</span> COMMAND <spa
 ...
 </pre></div>
 </div>
-<p>To access the subcommand specific help append <tt class="code docutils literal"><span class="pre">--help</span></tt> to the command.</p>
+<p>To access the subcommand specific help append <code class="code docutils literal"><span class="pre">--help</span></code> to the command.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project --help
 usage: lasif init_project <span class="o">[</span>-h<span class="o">]</span> folder_path
 
@@ -192,7 +204,7 @@ while optional arguments can be passed if needed.</p>
 <p class="last">All <strong>lasif</strong> commands work and use the correct project as long as they are
 executed somewhere <strong>inside a project&#8217;s folder structure</strong>. It will
 recursively search the parent directories until it finds a
-<tt class="code docutils literal"><span class="pre">config.xml</span></tt> file. This will then be assumed to be the root folder
+<code class="code docutils literal"><span class="pre">config.xml</span></code> file. This will then be assumed to be the root folder
 of the project.</p>
 </div>
 <div class="admonition warning">
@@ -202,12 +214,12 @@ Information about each waveform, event, and station file for example is
 stored in the caches. The caches are usually automatically kept
 up-to-date: As soon as data is modified, deleted, added, ... the caches
 will know about it.</p>
-<p class="last">Most commands have a <tt class="docutils literal"><span class="pre">--read_only_caches</span></tt> flag. If that argument is
+<p class="last">Most commands have a <code class="docutils literal"><span class="pre">--read_only_caches</span></code> flag. If that argument is
 given, the caches will not be rebuilt but whatever is in the caches will
 be assumed to actually exist. This is useful when executing multiple
 LASIF commands in parallel. Otherwise some processes might write in
 parallel to the cash databases which will crash LASIF. Use this flag if you
-need to but best run <tt class="docutils literal"><span class="pre">$</span> <span class="pre">lasif</span> <span class="pre">build_all_caches</span></tt> beforehand and be
+need to but best run <code class="docutils literal"><span class="pre">$</span> <span class="pre">lasif</span> <span class="pre">build_all_caches</span></code> beforehand and be
 aware of what it means.</p>
 </div>
 <div class="section" id="mpi">
@@ -215,7 +227,7 @@ aware of what it means.</p>
 <p>Some commands can be executed with MPI to speed up their execution. Don&#8217;t
 use too many cores as the problem quickly becomes I/O bounds. For example to
 run the preprocessing on 16 cores, do</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>mpirun -n 16 lasif preprocess_data 1 GCMT_event_AZORES_ISLANDS
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>mpirun -n <span class="m">16</span> lasif preprocess_data <span class="m">1</span> GCMT_event_AZORES_ISLANDS
 </pre></div>
 </div>
 <p>The following commands are MPI-enabled. Attempting to run any other command
@@ -271,23 +283,22 @@ are grouped by functionality.</p>
 <li><a class="reference internal" href="#plotting-functions" id="id29">Plotting Functions</a><ul>
 <li><a class="reference internal" href="#lasif-plot-events" id="id30">lasif plot_events</a></li>
 <li><a class="reference internal" href="#lasif-plot-event" id="id31">lasif plot_event</a></li>
-<li><a class="reference internal" href="#lasif-plot-model" id="id32">lasif plot_model</a></li>
-<li><a class="reference internal" href="#lasif-plot-wavefield" id="id33">lasif plot_wavefield</a></li>
-<li><a class="reference internal" href="#lasif-plot-raydensity" id="id34">lasif plot_raydensity</a></li>
+<li><a class="reference internal" href="#lasif-plot-wavefield" id="id32">lasif plot_wavefield</a></li>
+<li><a class="reference internal" href="#lasif-plot-raydensity" id="id33">lasif plot_raydensity</a></li>
+<li><a class="reference internal" href="#lasif-launch-model-gui" id="id34">lasif launch_model_gui</a></li>
 <li><a class="reference internal" href="#lasif-plot-windows" id="id35">lasif plot_windows</a></li>
 <li><a class="reference internal" href="#lasif-plot-stf" id="id36">lasif plot_stf</a></li>
-<li><a class="reference internal" href="#lasif-plot-kernel" id="id37">lasif plot_kernel</a></li>
-<li><a class="reference internal" href="#lasif-plot-domain" id="id38">lasif plot_domain</a></li>
+<li><a class="reference internal" href="#lasif-plot-domain" id="id37">lasif plot_domain</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#project-management-functions" id="id39">Project Management Functions</a><ul>
-<li><a class="reference internal" href="#lasif-info" id="id40">lasif info</a></li>
-<li><a class="reference internal" href="#lasif-list-kernels" id="id41">lasif list_kernels</a></li>
-<li><a class="reference internal" href="#lasif-validate-data" id="id42">lasif validate_data</a></li>
-<li><a class="reference internal" href="#lasif-init-project" id="id43">lasif init_project</a></li>
-<li><a class="reference internal" href="#lasif-list-models" id="id44">lasif list_models</a></li>
-<li><a class="reference internal" href="#lasif-remove-empty-coordinate-entries" id="id45">lasif remove_empty_coordinate_entries</a></li>
-<li><a class="reference internal" href="#lasif-build-all-caches" id="id46">lasif build_all_caches</a></li>
+<li><a class="reference internal" href="#project-management-functions" id="id38">Project Management Functions</a><ul>
+<li><a class="reference internal" href="#lasif-info" id="id39">lasif info</a></li>
+<li><a class="reference internal" href="#lasif-list-kernels" id="id40">lasif list_kernels</a></li>
+<li><a class="reference internal" href="#lasif-validate-data" id="id41">lasif validate_data</a></li>
+<li><a class="reference internal" href="#lasif-init-project" id="id42">lasif init_project</a></li>
+<li><a class="reference internal" href="#lasif-list-models" id="id43">lasif list_models</a></li>
+<li><a class="reference internal" href="#lasif-remove-empty-coordinate-entries" id="id44">lasif remove_empty_coordinate_entries</a></li>
+<li><a class="reference internal" href="#lasif-build-all-caches" id="id45">lasif build_all_caches</a></li>
 </ul>
 </li>
 </ul>
@@ -302,7 +313,7 @@ are grouped by functionality.</p>
 <div class="section" id="lasif-download-data">
 <h4><a class="toc-backref" href="#id2">lasif download_data</a><a class="headerlink" href="#lasif-download-data" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif download_data [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif download_data [-h] [--read_only_caches] [--ipdb]
                                [--providers PROVIDERS [PROVIDERS ...]]
                                event_name
 </pre></div>
@@ -311,26 +322,33 @@ are grouped by functionality.</p>
 <p>Download waveform and station data for one event.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="53%" />
-<col width="47%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--providers</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--providers</span></code></td>
 <td>FDSN providers to
 query. Will use all
 known ones if not
@@ -342,8 +360,8 @@ set.</td>
 <div class="section" id="lasif-add-gcmt-events">
 <h4><a class="toc-backref" href="#id3">lasif add_gcmt_events</a><a class="headerlink" href="#lasif-add-gcmt-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif add_gcmt_events [-h] [--read_only_caches] [--min_year MIN_YEAR]
-                                 [--max_year MAX_YEAR]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif add_gcmt_events [-h] [--read_only_caches] [--ipdb]
+                                 [--min_year MIN_YEAR] [--max_year MAX_YEAR]
                                  count min_magnitude max_magnitude min_distance
 </pre></div>
 </div>
@@ -357,34 +375,41 @@ set.</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">count</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">count</span></code></td>
 <td>maximum amount of events to add</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min_magnitude</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">min_magnitude</span></code></td>
 <td>minimum magnitude off events to add</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">max_magnitude</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">max_magnitude</span></code></td>
 <td>maximum magnitude off events to add</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min_distance</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">min_distance</span></code></td>
 <td>The minimum acceptable distance to the next
 closest event in km.</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--min_year</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--min_year</span></code></td>
 <td>minimum year from
 which to add events</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--max_year</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--max_year</span></code></td>
 <td>maximum year from
 which to add events</td>
 </tr>
@@ -394,7 +419,7 @@ which to add events</td>
 <div class="section" id="lasif-add-spud-event">
 <h4><a class="toc-backref" href="#id4">lasif add_spud_event</a><a class="headerlink" href="#lasif-add-spud-event" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif add_spud_event [-h] [--read_only_caches] url
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif add_spud_event [-h] [--read_only_caches] [--ipdb] url
 </pre></div>
 </div>
 </div></blockquote>
@@ -407,18 +432,25 @@ which to add events</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">url</span></code></td>
 <td>any SPUD momenttensor URL</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -434,33 +466,40 @@ read-only</td>
 <div class="section" id="lasif-event-info">
 <h4><a class="toc-backref" href="#id6">lasif event_info</a><a class="headerlink" href="#lasif-event-info" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif event_info [-h] [--read_only_caches] [-v] event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif event_info [-h] [--read_only_caches] [--ipdb] [-v] event_name
 </pre></div>
 </div>
 </div></blockquote>
 <p>Print information about a single event.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-v</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-v</span></code></td>
 <td>Verbose. Print all
 contained events.</td>
 </tr>
@@ -470,28 +509,35 @@ contained events.</td>
 <div class="section" id="lasif-list-events">
 <h4><a class="toc-backref" href="#id7">lasif list_events</a><a class="headerlink" href="#lasif-list-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_events [-h] [--read_only_caches] [--details]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_events [-h] [--read_only_caches] [--ipdb] [--details]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Print a list of all events in the project.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--details</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--details</span></code></td>
 <td>print details of
 filecounts for all
 events</td>
@@ -511,7 +557,7 @@ events</td>
 <h4><a class="toc-backref" href="#id9">lasif select_windows</a><a class="headerlink" href="#lasif-select-windows" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif select_windows [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif select_windows [-h] [--read_only_caches] [--ipdb]
                                 iteration_name event_name
 </pre></div>
 </div>
@@ -528,21 +574,28 @@ core actually does any work.</p>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -550,7 +603,7 @@ read-only</td>
 <div class="section" id="lasif-generate-input-files">
 <h4><a class="toc-backref" href="#id10">lasif generate_input_files</a><a class="headerlink" href="#lasif-generate-input-files" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif generate_input_files [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif generate_input_files [-h] [--read_only_caches] [--ipdb]
                                       [--simulation_type {normal_simulation,adjoint_forward,adjoint_reverse}]
                                       iteration_name event_name
 </pre></div>
@@ -574,23 +627,30 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--simulation_type</span> <span class="pre">{normal_simulation</span> <span class="pre">(Default),</span> <span class="pre">adjoint_forward,</span> <span class="pre">adjoint_reverse}</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--simulation_type</span> <span class="pre">{normal_simulation</span> <span class="pre">(Default),</span> <span class="pre">adjoint_forward,</span> <span class="pre">adjoint_reverse}</span></code></td>
 <td>type of simulation
 to run</td>
 </tr>
@@ -600,7 +660,7 @@ to run</td>
 <div class="section" id="lasif-calculate-all-adjoint-sources">
 <h4><a class="toc-backref" href="#id11">lasif calculate_all_adjoint_sources</a><a class="headerlink" href="#lasif-calculate-all-adjoint-sources" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif calculate_all_adjoint_sources [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif calculate_all_adjoint_sources [-h] [--read_only_caches] [--ipdb]
                                                iteration_name event_name
 </pre></div>
 </div>
@@ -614,21 +674,28 @@ to run</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -636,7 +703,7 @@ read-only</td>
 <div class="section" id="lasif-finalize-adjoint-sources">
 <h4><a class="toc-backref" href="#id12">lasif finalize_adjoint_sources</a><a class="headerlink" href="#lasif-finalize-adjoint-sources" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif finalize_adjoint_sources [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif finalize_adjoint_sources [-h] [--read_only_caches] [--ipdb]
                                           iteration_name event_name
 </pre></div>
 </div>
@@ -650,21 +717,28 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -672,7 +746,8 @@ read-only</td>
 <div class="section" id="lasif-iteration-status">
 <h4><a class="toc-backref" href="#id13">lasif iteration_status</a><a class="headerlink" href="#lasif-iteration-status" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif iteration_status [-h] [--read_only_caches] iteration_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif iteration_status [-h] [--read_only_caches] [--ipdb]
+                                  iteration_name
 </pre></div>
 </div>
 </div></blockquote>
@@ -685,18 +760,25 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -704,7 +786,7 @@ read-only</td>
 <div class="section" id="lasif-create-successive-iteration">
 <h4><a class="toc-backref" href="#id14">lasif create_successive_iteration</a><a class="headerlink" href="#lasif-create-successive-iteration" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_successive_iteration [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_successive_iteration [-h] [--read_only_caches] [--ipdb]
                                              existing_iteration new_iteration
 </pre></div>
 </div>
@@ -720,21 +802,28 @@ iteration. Any comments will be deleted.</p>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">existing_iteration</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">existing_iteration</span></code></td>
 <td>name of the existing iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">new_iteration</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">new_iteration</span></code></td>
 <td>name of the new iteration</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -742,7 +831,7 @@ read-only</td>
 <div class="section" id="lasif-compare-misfits">
 <h4><a class="toc-backref" href="#id15">lasif compare_misfits</a><a class="headerlink" href="#lasif-compare-misfits" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif compare_misfits [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif compare_misfits [-h] [--read_only_caches] [--ipdb]
                                  from_iteration to_iteration
 </pre></div>
 </div>
@@ -752,27 +841,34 @@ that are identical in both iterations as the comparision is otherwise
 meaningless.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">from_iteration</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">from_iteration</span></code></td>
 <td>past iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">to_iteration</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">to_iteration</span></code></td>
 <td>current iteration</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -781,7 +877,7 @@ read-only</td>
 <h4><a class="toc-backref" href="#id16">lasif preprocess_data</a><a class="headerlink" href="#lasif-preprocess-data" title="Permalink to this headline">¶</a></h4>
 <p><strong>This function can be used with MPI</strong></p>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif preprocess_data [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif preprocess_data [-h] [--read_only_caches] [--ipdb]
                                  iteration_name [events [events ...]]
 </pre></div>
 </div>
@@ -798,22 +894,29 @@ core actually does any work.</p>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">events</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">events</span></code></td>
 <td>One or more events. If none given, all will be
 done.</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -821,26 +924,33 @@ read-only</td>
 <div class="section" id="lasif-list-iterations">
 <h4><a class="toc-backref" href="#id17">lasif list_iterations</a><a class="headerlink" href="#lasif-list-iterations" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_iterations [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_iterations [-h] [--read_only_caches] [--ipdb]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Print a list of all iterations in the project.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -848,7 +958,7 @@ read-only</td>
 <div class="section" id="lasif-create-new-iteration">
 <h4><a class="toc-backref" href="#id18">lasif create_new_iteration</a><a class="headerlink" href="#lasif-create-new-iteration" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_new_iteration [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif create_new_iteration [-h] [--read_only_caches] [--ipdb]
                                       iteration_name min_period max_period
                                       {SES3D_4_1,SES3D_2_0,SPECFEM3D_CARTESIAN,SPECFEM3D_GLOBE_CEM}
 </pre></div>
@@ -863,27 +973,34 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">min_period</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">min_period</span></code></td>
 <td>the minimum period of the iteration</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">max_period</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">max_period</span></code></td>
 <td>the maximum period of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">solver_name</span> <span class="pre">{SES3D_4_1,</span> <span class="pre">SES3D_2_0,</span> <span class="pre">SPECFEM3D_CARTESIAN,</span> <span class="pre">SPECFEM3D_GLOBE_CEM}</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">solver_name</span> <span class="pre">{SES3D_4_1,</span> <span class="pre">SES3D_2_0,</span> <span class="pre">SPECFEM3D_CARTESIAN,</span> <span class="pre">SPECFEM3D_GLOBE_CEM}</span></code></td>
 <td>name of the solver</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -891,7 +1008,7 @@ read-only</td>
 <div class="section" id="lasif-migrate-windows">
 <h4><a class="toc-backref" href="#id19">lasif migrate_windows</a><a class="headerlink" href="#lasif-migrate-windows" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif migrate_windows [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif migrate_windows [-h] [--read_only_caches] [--ipdb]
                                  from_iteration to_iteration
 </pre></div>
 </div>
@@ -905,21 +1022,28 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">from_iteration</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">from_iteration</span></code></td>
 <td>iteration containing windows</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">to_iteration</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">to_iteration</span></code></td>
 <td>iteration windows will be migrated to</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -927,31 +1051,38 @@ read-only</td>
 <div class="section" id="lasif-plot-q-model">
 <h4><a class="toc-backref" href="#id20">lasif plot_q_model</a><a class="headerlink" href="#lasif-plot-q-model" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_q_model [-h] [--read_only_caches] iteration_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_q_model [-h] [--read_only_caches] [--ipdb] iteration_name
 </pre></div>
 </div>
 </div></blockquote>
 <p>Plots the Q model for a given iteration.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of iteration</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -959,7 +1090,7 @@ read-only</td>
 <div class="section" id="lasif-iteration-info">
 <h4><a class="toc-backref" href="#id21">lasif iteration_info</a><a class="headerlink" href="#lasif-iteration-info" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif iteration_info [-h] [--read_only_caches] iteration_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif iteration_info [-h] [--read_only_caches] [--ipdb] iteration_name
 </pre></div>
 </div>
 </div></blockquote>
@@ -972,18 +1103,25 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -991,26 +1129,33 @@ read-only</td>
 <div class="section" id="lasif-launch-misfit-gui">
 <h4><a class="toc-backref" href="#id22">lasif launch_misfit_gui</a><a class="headerlink" href="#lasif-launch-misfit-gui" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif launch_misfit_gui [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif launch_misfit_gui [-h] [--read_only_caches] [--ipdb]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Launch the misfit GUI.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -1026,7 +1171,7 @@ read-only</td>
 <div class="section" id="lasif-debug">
 <h4><a class="toc-backref" href="#id24">lasif debug</a><a class="headerlink" href="#lasif-debug" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif debug [-h] [--read_only_caches] files [files ...]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif debug [-h] [--read_only_caches] [--ipdb] files [files ...]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1039,18 +1184,25 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">files</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">files</span></code></td>
 <td>filenames to print debug information about</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -1058,26 +1210,33 @@ read-only</td>
 <div class="section" id="lasif-shell">
 <h4><a class="toc-backref" href="#id25">lasif shell</a><a class="headerlink" href="#lasif-shell" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif shell [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif shell [-h] [--read_only_caches] [--ipdb]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Drops you into a shell with an active communicator instance.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -1085,8 +1244,8 @@ read-only</td>
 <div class="section" id="lasif-serve">
 <h4><a class="toc-backref" href="#id26">lasif serve</a><a class="headerlink" href="#lasif-serve" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif serve [-h] [--read_only_caches] [--port PORT] [--nobrowser]
-                       [--debug] [--open_to_outside]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif serve [-h] [--read_only_caches] [--ipdb] [--port PORT]
+                       [--nobrowser] [--debug] [--open_to_outside]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1099,28 +1258,35 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--port</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--port</span></code></td>
 <td>Port of the
 webserver.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--nobrowser</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--nobrowser</span></code></td>
 <td>Do not open a
 webbrowser.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--debug</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--debug</span></code></td>
 <td>Turn on debugging.
 Implies &#8216;&#8211;
 nobrowser&#8217;.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--open_to_outside</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--open_to_outside</span></code></td>
 <td>By default the
 website can only be
 opened from the
@@ -1149,7 +1315,7 @@ the network.</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
@@ -1159,7 +1325,7 @@ message and exit</td>
 <div class="section" id="lasif-calculate-constant-q-model">
 <h4><a class="toc-backref" href="#id28">lasif calculate_constant_q_model</a><a class="headerlink" href="#lasif-calculate-constant-q-model" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif calculate_constant_q_model [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif calculate_constant_q_model [-h] [--read_only_caches] [--ipdb]
                                             min_period max_period
 </pre></div>
 </div>
@@ -1173,21 +1339,28 @@ message and exit</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">min_period</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">min_period</span></code></td>
 <td>minimum period for the constant frequency band</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">max_period</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">max_period</span></code></td>
 <td>maximum period for the constant frequency band</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -1203,7 +1376,8 @@ read-only</td>
 <div class="section" id="lasif-plot-events">
 <h4><a class="toc-backref" href="#id30">lasif plot_events</a><a class="headerlink" href="#lasif-plot-events" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_events [-h] [--read_only_caches] [--type {map,depth,time}]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_events [-h] [--read_only_caches] [--ipdb]
+                             [--type {map,depth,time}]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1211,9 +1385,9 @@ read-only</td>
 <dl class="docutils">
 <dt>type can be one of:</dt>
 <dd><ul class="first last simple">
-<li><tt class="docutils literal"><span class="pre">map</span></tt> (default) - a map view of the events</li>
-<li><tt class="docutils literal"><span class="pre">depth</span></tt> - a depth distribution histogram</li>
-<li><tt class="docutils literal"><span class="pre">time</span></tt> - a time distribution histogram</li>
+<li><code class="docutils literal"><span class="pre">map</span></code> (default) - a map view of the events</li>
+<li><code class="docutils literal"><span class="pre">depth</span></code> - a depth distribution histogram</li>
+<li><code class="docutils literal"><span class="pre">time</span></code> - a time distribution histogram</li>
 </ul>
 </dd>
 </dl>
@@ -1225,20 +1399,27 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--type</span> <span class="pre">{map</span> <span class="pre">(Default),</span> <span class="pre">depth,</span> <span class="pre">time}</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--type</span> <span class="pre">{map</span> <span class="pre">(Default),</span> <span class="pre">depth,</span> <span class="pre">time}</span></code></td>
 <td>the type of plot.
-<tt class="docutils literal"><span class="pre">map</span></tt>: beachballs
-on a map, <tt class="docutils literal"><span class="pre">depth</span></tt>:
+<code class="docutils literal"><span class="pre">map</span></code>: beachballs
+on a map, <code class="docutils literal"><span class="pre">depth</span></code>:
 depth distribution
-histogram, <tt class="docutils literal"><span class="pre">time</span></tt>:
+histogram, <code class="docutils literal"><span class="pre">time</span></code>:
 time distribution
 histogram</td>
 </tr>
@@ -1248,7 +1429,7 @@ histogram</td>
 <div class="section" id="lasif-plot-event">
 <h4><a class="toc-backref" href="#id31">lasif plot_event</a><a class="headerlink" href="#lasif-plot-event" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_event [-h] [--read_only_caches] event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_event [-h] [--read_only_caches] [--ipdb] event_name
 </pre></div>
 </div>
 </div></blockquote>
@@ -1261,58 +1442,33 @@ histogram</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event to plot</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="lasif-plot-model">
-<h4><a class="toc-backref" href="#id32">lasif plot_model</a><a class="headerlink" href="#lasif-plot-model" title="Permalink to this headline">¶</a></h4>
-<blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_model [-h] [--read_only_caches] model_name
-</pre></div>
-</div>
-</div></blockquote>
-<p>Plot a SES3D model.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="55%" />
-<col width="45%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">model_name</span></tt></td>
-<td>name of the model</td>
-</tr>
-<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
-<td>show this help
-message and exit</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
-<td>sets all caches to
-read-only</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-plot-wavefield">
-<h4><a class="toc-backref" href="#id33">lasif plot_wavefield</a><a class="headerlink" href="#lasif-plot-wavefield" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id32">lasif plot_wavefield</a><a class="headerlink" href="#lasif-plot-wavefield" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_wavefield [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_wavefield [-h] [--read_only_caches] [--ipdb]
                                 iteration_name event_name
 </pre></div>
 </div>
@@ -1326,52 +1482,101 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name_of_the_iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-plot-raydensity">
-<h4><a class="toc-backref" href="#id34">lasif plot_raydensity</a><a class="headerlink" href="#lasif-plot-raydensity" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id33">lasif plot_raydensity</a><a class="headerlink" href="#lasif-plot-raydensity" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_raydensity [-h] [--read_only_caches] [--plot_stations]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_raydensity [-h] [--read_only_caches] [--ipdb]
+                                 [--plot_stations]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Plot a binned raycoverage plot for all events.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--plot_stations</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--plot_stations</span></code></td>
 <td>also plot the
 stations</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="lasif-launch-model-gui">
+<h4><a class="toc-backref" href="#id34">lasif launch_model_gui</a><a class="headerlink" href="#lasif-launch-model-gui" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif launch_model_gui [-h] [--read_only_caches] [--ipdb]
+</pre></div>
+</div>
+</div></blockquote>
+<p>Launch the model GUI.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="52%" />
+<col width="48%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
+<td>show this help
+message and exit</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
+<td>sets all caches to
+read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -1379,7 +1584,8 @@ stations</td>
 <div class="section" id="lasif-plot-windows">
 <h4><a class="toc-backref" href="#id35">lasif plot_windows</a><a class="headerlink" href="#lasif-plot-windows" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_windows [-h] [--read_only_caches] iteration_name event_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_windows [-h] [--read_only_caches] [--ipdb]
+                              iteration_name event_name
 </pre></div>
 </div>
 </div></blockquote>
@@ -1392,21 +1598,28 @@ stations</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">event_name</span></code></td>
 <td>name of the event</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
@@ -1414,7 +1627,7 @@ read-only</td>
 <div class="section" id="lasif-plot-stf">
 <h4><a class="toc-backref" href="#id36">lasif plot_stf</a><a class="headerlink" href="#lasif-plot-stf" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_stf [-h] [--read_only_caches] iteration_name
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_stf [-h] [--read_only_caches] [--ipdb] iteration_name
 </pre></div>
 </div>
 </div></blockquote>
@@ -1427,80 +1640,64 @@ read-only</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">iteration_name</span></code></td>
 <td>name of the iteration</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="lasif-plot-kernel">
-<h4><a class="toc-backref" href="#id37">lasif plot_kernel</a><a class="headerlink" href="#lasif-plot-kernel" title="Permalink to this headline">¶</a></h4>
-<blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_kernel [-h] [--read_only_caches] iteration_name event_name
-</pre></div>
-</div>
-</div></blockquote>
-<p>Work in progress.</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="51%" />
-<col width="49%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">iteration_name</span></tt></td>
-<td>name of the iteration</td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">event_name</span></tt></td>
-<td>name of the event</td>
-</tr>
-<tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
-<td>show this help
-message and exit</td>
-</tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
-<td>sets all caches to
-read-only</td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-plot-domain">
-<h4><a class="toc-backref" href="#id38">lasif plot_domain</a><a class="headerlink" href="#lasif-plot-domain" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id37">lasif plot_domain</a><a class="headerlink" href="#lasif-plot-domain" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_domain [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif plot_domain [-h] [--read_only_caches] [--ipdb]
+                             [--no_simulation_domain]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Plot the project&#8217;s domain on a map.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="56%" />
+<col width="44%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--no_simulation_domain</span></code></td>
+<td>Don&#8217;t plot the
+simulation domain</td>
 </tr>
 </tbody>
 </table>
@@ -1508,69 +1705,83 @@ read-only</td>
 </div>
 <hr class="docutils" />
 <div class="section" id="project-management-functions">
-<h3><a class="toc-backref" href="#id39">Project Management Functions</a><a class="headerlink" href="#project-management-functions" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id38">Project Management Functions</a><a class="headerlink" href="#project-management-functions" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-project-management admonition">
 <p class="first admonition-title">Project Management</p>
 <p class="last">Functions dealing with LASIF projects as a whole.</p>
 </div>
 <div class="section" id="lasif-info">
-<h4><a class="toc-backref" href="#id40">lasif info</a><a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id39">lasif info</a><a class="headerlink" href="#lasif-info" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif info [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif info [-h] [--read_only_caches] [--ipdb]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Print a summary of the project.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-list-kernels">
-<h4><a class="toc-backref" href="#id41">lasif list_kernels</a><a class="headerlink" href="#lasif-list-kernels" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id40">lasif list_kernels</a><a class="headerlink" href="#lasif-list-kernels" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_kernels [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_kernels [-h] [--read_only_caches] [--ipdb]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Print a list of all kernels in this project.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-validate-data">
-<h4><a class="toc-backref" href="#id42">lasif validate_data</a><a class="headerlink" href="#lasif-validate-data" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id41">lasif validate_data</a><a class="headerlink" href="#lasif-validate-data" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif validate_data [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif validate_data [-h] [--read_only_caches] [--ipdb]
                                [--station_file_availability] [--raypaths]
                                [--waveforms] [--full]
 </pre></div>
@@ -1604,42 +1815,49 @@ intended to detect values specified in wrong units.</li>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--station_file_availability</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--station_file_availability</span></code></td>
 <td>asserts that all
 waveform files have
 corresponding
 station files. Very
 slow.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--raypaths</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--raypaths</span></code></td>
 <td>assert that all
 raypaths are within
 the set boundaries.
 Very slow.</td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">--waveforms</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--waveforms</span></code></td>
 <td>asserts that
 waveforms for one
 event have only a
 single location and
 channel type. Fast.</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--full</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--full</span></code></td>
 <td>run all validations.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-init-project">
-<h4><a class="toc-backref" href="#id43">lasif init_project</a><a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id42">lasif init_project</a><a class="headerlink" href="#lasif-init-project" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif init_project [-h] folder_path
 </pre></div>
@@ -1654,12 +1872,12 @@ channel type. Fast.</td>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Positional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">folder_path</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">folder_path</span></code></td>
 <td>where to create the project</td>
 </tr>
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
@@ -1667,36 +1885,44 @@ message and exit</td>
 </table>
 </div>
 <div class="section" id="lasif-list-models">
-<h4><a class="toc-backref" href="#id44">lasif list_models</a><a class="headerlink" href="#lasif-list-models" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id43">lasif list_models</a><a class="headerlink" href="#lasif-list-models" title="Permalink to this headline">¶</a></h4>
 <blockquote>
-<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_models [-h] [--read_only_caches]
+<div><div class="highlight-none"><div class="highlight"><pre>usage: lasif list_models [-h] [--read_only_caches] [--ipdb]
 </pre></div>
 </div>
 </div></blockquote>
 <p>Print a list of all models in the project.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-remove-empty-coordinate-entries">
-<h4><a class="toc-backref" href="#id45">lasif remove_empty_coordinate_entries</a><a class="headerlink" href="#lasif-remove-empty-coordinate-entries" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id44">lasif remove_empty_coordinate_entries</a><a class="headerlink" href="#lasif-remove-empty-coordinate-entries" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif remove_empty_coordinate_entries [-h] [--read_only_caches]
+                                                 [--ipdb]
 </pre></div>
 </div>
 </div></blockquote>
@@ -1704,25 +1930,32 @@ read-only</td>
 <p>This is useful if you want to try to download coordinates again.</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="52%" />
+<col width="48%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">--read_only_caches</span></tt></td>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">--read_only_caches</span></code></td>
 <td>sets all caches to
 read-only</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">--ipdb</span></code></td>
+<td>If true, a debugger
+will be launched
+upon encountering an
+exception. Requires
+ipdb.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="lasif-build-all-caches">
-<h4><a class="toc-backref" href="#id46">lasif build_all_caches</a><a class="headerlink" href="#lasif-build-all-caches" title="Permalink to this headline">¶</a></h4>
+<h4><a class="toc-backref" href="#id45">lasif build_all_caches</a><a class="headerlink" href="#lasif-build-all-caches" title="Permalink to this headline">¶</a></h4>
 <blockquote>
 <div><div class="highlight-none"><div class="highlight"><pre>usage: lasif build_all_caches [-h]
 </pre></div>
@@ -1739,7 +1972,7 @@ on demand which works fine but might impede on some workflows.</p>
 <tbody valign="top">
 <tr class="row-odd"><td colspan="2"><strong>Optional Arguments</strong></td>
 </tr>
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">-h</span></tt>, <tt class="docutils literal"><span class="pre">--help</span></tt></td>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">-h</span></code>, <code class="docutils literal"><span class="pre">--help</span></code></td>
 <td>show this help
 message and exit</td>
 </tr>
@@ -1756,10 +1989,10 @@ message and exit</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="webinterface.html" class="btn btn-neutral float-right" title="Web Interface">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="webinterface.html" class="btn btn-neutral float-right" title="Web Interface" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorial/15_customizing_lasif.html" class="btn btn-neutral" title="16. Customizing LASIF"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial/15_customizing_lasif.html" class="btn btn-neutral" title="16. Customizing LASIF" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -1771,10 +2004,10 @@ message and exit</td>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -1798,7 +2031,7 @@ message and exit</td>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

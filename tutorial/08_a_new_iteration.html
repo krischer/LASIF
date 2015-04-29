@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>9. Defining a New Iteration &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
         <link rel="next" title="10. Earth Model Handling" href="09_model_handling.html"/>
         <link rel="prev" title="8. Data Validation" href="07_data_validation.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>9. Defining a New Iteration</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/08_a_new_iteration.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/08_a_new_iteration.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -161,7 +173,7 @@ specified. Each iteration can have an arbitrary name. It is probably a good
 idea to give simple numeric names, like 1, 2, 3, ...</p>
 <p>Let&#8217;s start by creating the XML file for the first iteration with the
 <strong>create_new_iteration</strong> command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration 1 40.0 100.0 SES3D_4_1
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration <span class="m">1</span> 40.0 100.0 SES3D_4_1
 </pre></div>
 </div>
 <p>This command takes four arguments; the first being the iteration name. A simple
@@ -170,15 +182,15 @@ of this iteration. In this example the band is limited between 40 and 100
 seconds. The fourth argument is the waveform solver to be used for this
 iteration. It currently only supports SES3D 4.1 but the infrastructure to add
 other solvers is already in place.</p>
-<p>You will see that this create a new file: <tt class="docutils literal"><span class="pre">ITERATIONS/ITERATION_1.xml</span></tt>.
+<p>You will see that this create a new file: <code class="docutils literal"><span class="pre">ITERATIONS/ITERATION_1.xml</span></code>.
 Each iteration will have its own file. To get a list of iterations, use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_iterations
 
-1 Iteration in project:
+<span class="m">1</span> Iteration in project:
 1
 </pre></div>
 </div>
-<p>To get more information about a specific iteration,  use the <tt class="docutils literal"><span class="pre">iteration_info</span></tt>
+<p>To get more information about a specific iteration,  use the <code class="docutils literal"><span class="pre">iteration_info</span></code>
 command.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif iteration_info 1
 
@@ -189,9 +201,9 @@ Source Time Function: Filtered Heaviside
 Preprocessing Settings:
     Highpass Period: 100.000 s
     Lowpass Period: 40.000 s
-Solver: SES3D 4.1 | 500 timesteps <span class="o">(</span>dt: 0.75s<span class="o">)</span>
-2 events recorded at 51 unique stations
-102 event-station pairs <span class="o">(</span><span class="s2">&quot;rays&quot;</span><span class="o">)</span>
+Solver: SES3D 4.1 <span class="p">|</span> <span class="m">500</span> timesteps <span class="o">(</span>dt: 0.75s<span class="o">)</span>
+<span class="m">2</span> events recorded at <span class="m">51</span> unique stations
+<span class="m">102</span> event-station pairs <span class="o">(</span><span class="s2">&quot;rays&quot;</span><span class="o">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -249,7 +261,6 @@ present in the LASIF project.</p>
     <span class="nt">&lt;lowpass_period&gt;</span>40.0<span class="nt">&lt;/lowpass_period&gt;</span>
   <span class="nt">&lt;/data_preprocessing&gt;</span>
   <span class="nt">&lt;rejection_criteria&gt;</span>...<span class="nt">&lt;/rejection_criteria&gt;</span>
-  <span class="nt">&lt;source_time_function&gt;</span>Filtered Heaviside<span class="nt">&lt;/source_time_function&gt;</span>
   <span class="nt">&lt;solver_parameters&gt;</span>
     <span class="nt">&lt;solver&gt;</span>SES3D 4.1<span class="nt">&lt;/solver&gt;</span>
     <span class="nt">&lt;solver_settings&gt;</span>
@@ -313,15 +324,15 @@ seconds. Please make sure to also adjust the file. The following
 parameters are essential in almost all cases (shown here with the values
 for the tutorial):</p>
 <ul class="simple">
-<li><tt class="docutils literal"><span class="pre">number_of_time_steps</span></tt>: <tt class="docutils literal"><span class="pre">2000</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">time_increment</span></tt>: <tt class="docutils literal"><span class="pre">0.3</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">is_dissipative</span></tt>: <tt class="docutils literal"><span class="pre">false</span></tt> (in a real world application set this to <tt class="docutils literal"><span class="pre">true</span></tt>)</li>
-<li><tt class="docutils literal"><span class="pre">nx_global</span></tt>: <tt class="docutils literal"><span class="pre">24</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">ny_global</span></tt>: <tt class="docutils literal"><span class="pre">24</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">nz_global</span></tt>: <tt class="docutils literal"><span class="pre">15</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">px_processors_in_theta_direction</span></tt>: <tt class="docutils literal"><span class="pre">2</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">py_processors_in_phi_direction</span></tt>: <tt class="docutils literal"><span class="pre">2</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">pz_processors_in_r_direction</span></tt>: <tt class="docutils literal"><span class="pre">1</span></tt></li>
+<li><code class="docutils literal"><span class="pre">number_of_time_steps</span></code>: <code class="docutils literal"><span class="pre">2000</span></code></li>
+<li><code class="docutils literal"><span class="pre">time_increment</span></code>: <code class="docutils literal"><span class="pre">0.3</span></code></li>
+<li><code class="docutils literal"><span class="pre">is_dissipative</span></code>: <code class="docutils literal"><span class="pre">false</span></code> (in a real world application set this to <code class="docutils literal"><span class="pre">true</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">nx_global</span></code>: <code class="docutils literal"><span class="pre">24</span></code></li>
+<li><code class="docutils literal"><span class="pre">ny_global</span></code>: <code class="docutils literal"><span class="pre">24</span></code></li>
+<li><code class="docutils literal"><span class="pre">nz_global</span></code>: <code class="docutils literal"><span class="pre">15</span></code></li>
+<li><code class="docutils literal"><span class="pre">px_processors_in_theta_direction</span></code>: <code class="docutils literal"><span class="pre">2</span></code></li>
+<li><code class="docutils literal"><span class="pre">py_processors_in_phi_direction</span></code>: <code class="docutils literal"><span class="pre">2</span></code></li>
+<li><code class="docutils literal"><span class="pre">pz_processors_in_r_direction</span></code>: <code class="docutils literal"><span class="pre">1</span></code></li>
 </ul>
 <p class="last">Please refer to the SES3D documentation for more information.</p>
 </div>
@@ -369,10 +380,13 @@ the iteration XML file.</p>
 <p>It is also possible to directly generate the relaxation times and weights for
 any frequency band. To generate a Q model approximately constant in a period
 band from 10 seconds to 100 seconds use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif calculate_constant_Q_model 10 100
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif calculate_constant_Q_model <span class="m">10</span> 100
 
-Weights: 2.51476795756, 2.45723765861, 0.0554802992816
-Relaxation Times: 2.51476795756, 2.45723765861, 0.0554802992816
+Starting to find optimal relaxation parameters.
+weights:              <span class="o">[</span>1.60642, 1.0073, 1.49737<span class="o">]</span>
+relaxation <span class="nb">times</span>:     <span class="o">[</span>0.71721, 4.2330, 23.78702<span class="o">]</span>
+partial derivatives:  <span class="o">[</span>-1.68287755  0.78722974  5.14255026<span class="o">]</span>
+cumulative rms error: 0.0163777833823
 </pre></div>
 </div>
 </div>
@@ -384,14 +398,14 @@ Relaxation Times: 2.51476795756, 2.45723765861, 0.0554802992816
 </div>
 <p>Data preprocessing is an essential step if one wants to compare data and
 seismograms. It serves several purposes: Restricting the frequency content of
-the data to that of the synthetics - what is not simulated can no be seen in
+the data to that of the synthetics - what is not simulated can not be seen in
 synthetic seismograms. Remove the instrument response and convert to the same
-units used for the synthetics (usually <tt class="docutils literal"><span class="pre">m/s</span></tt>). Furthermore any linear  trends
-and static offset are removed and the some processing has to be performed so
+units used for the synthetics (usually <code class="docutils literal"><span class="pre">m/s</span></code>). Furthermore any linear  trends
+and static offset are removed and some processing has to be performed so
 that the data is available at the same points in time as the synthetics. The
 goal of the preprocessing within LASIF is to create data that is directly
 comparable to simulated data without any more processing.</p>
-<p>The applied processing is identified via the a name:</p>
+<p>The applied processing is identified via the name:</p>
 <div class="highlight-python"><div class="highlight"><pre>preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000
 </pre></div>
 </div>
@@ -425,7 +439,7 @@ iteration name.</p>
 <p>This will start a fully parallelized preprocessing for all data required for
 the specified iteration. It will utilize all your machine&#8217;s cores and might
 take a while. If you repeat the command it will only process data not already
-processed; an advantages is that you can cancel the processing at any time and
+processed; an advantage is that you can cancel the processing at any time and
 then later on just execute the command again to continue where you left off.
 This usually only needs to be done every couple of iterations when you decide
 to go to higher frequencies or add new data.</p>
@@ -445,10 +459,10 @@ actually simulate anything and LASIF of course also assists in that regard.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="09_model_handling.html" class="btn btn-neutral float-right" title="10. Earth Model Handling">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="09_model_handling.html" class="btn btn-neutral float-right" title="10. Earth Model Handling" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="07_data_validation.html" class="btn btn-neutral" title="8. Data Validation"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="07_data_validation.html" class="btn btn-neutral" title="8. Data Validation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -460,10 +474,10 @@ actually simulate anything and LASIF of course also assists in that regard.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -487,7 +501,7 @@ actually simulate anything and LASIF of course also assists in that regard.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

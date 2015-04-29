@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>5. Waveform Data &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
         <link rel="next" title="6. Download Helpers" href="05_download_helpers.html"/>
         <link rel="prev" title="4. Station Data" href="03_station_data.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>5. Waveform Data</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/04_waveform_data.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/04_waveform_data.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -155,8 +167,8 @@
   <div class="section" id="waveform-data">
 <h1>5. Waveform Data<a class="headerlink" href="#waveform-data" title="Permalink to this headline">¶</a></h1>
 <p>Every inversion needs real data to be able to quantify misfits. The waveform
-data for all events are stored in the <tt class="docutils literal"><span class="pre">DATA</span></tt> subfolder. The data for each
-single event will be stored in a subfolder of the <tt class="docutils literal"><span class="pre">DATA</span></tt> folder with the
+data for all events are stored in the <code class="docutils literal"><span class="pre">DATA</span></code> subfolder. The data for each
+single event will be stored in a subfolder of the <code class="docutils literal"><span class="pre">DATA</span></code> folder with the
 <strong>same name as the QuakeML file minus the .xml</strong>.</p>
 <p>These folder are automatically created and updated each time a <strong>LASIF</strong>
 command is executed. If you followed the tutorial, your directory structure
@@ -188,15 +200,15 @@ should resemble the following:</p>
 └── config.xml
 </pre></div>
 </div>
-<p>All data in the <tt class="docutils literal"><span class="pre">DATA</span></tt> subfolder has to be processed or unprocessed actual
+<p>All data in the <code class="docutils literal"><span class="pre">DATA</span></code> subfolder has to be processed or unprocessed actual
 data. The data is further structured by assigning a tag to every data set. A
-tag is assigned by simply placing a folder in <tt class="docutils literal"><span class="pre">ROOT/DATA/EVENT_NAME</span></tt> and
-putting all data in there. The special tag <tt class="docutils literal"><span class="pre">raw</span></tt> is reserved for the raw
+tag is assigned by simply placing a folder in <code class="docutils literal"><span class="pre">ROOT/DATA/EVENT_NAME</span></code> and
+putting all data in there. The special tag <code class="docutils literal"><span class="pre">raw</span></code> is reserved for the raw
 waveforms straight from the datacenters or some other source. Other tags should
 describe the filtering and processing applied to the data (LASIF&#8217;s built-in
 processing capabilities actually enforce certain tag names - this will be
 covered in more detail later on). The same is true for synthetic waveform data,
-except that in that case, the data resides in the <tt class="docutils literal"><span class="pre">SYNTHETICS</span></tt> folder and
+except that in that case, the data resides in the <code class="docutils literal"><span class="pre">SYNTHETICS</span></code> folder and
 the tags have to coincide with the iteration names. More on this later on.</p>
 <p>After a while, the structure might look like this:</p>
 <div class="highlight-python"><div class="highlight"><pre>TutorialAnatolia
@@ -225,8 +237,8 @@ centers.</p>
 <h2>5.1. Tutorial Data<a class="headerlink" href="#tutorial-data" title="Permalink to this headline">¶</a></h2>
 <p>Download the data for the tutorial
 <a class="reference external" href="https://raw.githubusercontent.com/wiki/krischer/LASIF/data/data.tar.bz2">here</a>
-and place the contents in the <tt class="docutils literal"><span class="pre">DATA</span></tt> folder of the project. The <tt class="docutils literal"><span class="pre">raw</span></tt>
-subfolder should already be clear to you, the <tt class="docutils literal"><span class="pre">preprocessed_*</span></tt> folders will
+and place the contents in the <code class="docutils literal"><span class="pre">DATA</span></code> folder of the project. The <code class="docutils literal"><span class="pre">raw</span></code>
+subfolder should already be clear to you, the <code class="docutils literal"><span class="pre">preprocessed_*</span></code> folders will
 be explained in the course of this tutorial.</p>
 </div>
 </div>
@@ -237,10 +249,10 @@ be explained in the course of this tutorial.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="05_download_helpers.html" class="btn btn-neutral float-right" title="6. Download Helpers">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="05_download_helpers.html" class="btn btn-neutral float-right" title="6. Download Helpers" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="03_station_data.html" class="btn btn-neutral" title="4. Station Data"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="03_station_data.html" class="btn btn-neutral" title="4. Station Data" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -252,10 +264,10 @@ be explained in the course of this tutorial.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -279,7 +291,7 @@ be explained in the course of this tutorial.</p>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

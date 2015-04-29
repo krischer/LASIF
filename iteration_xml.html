@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>lasif.iteration_xml &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
         <link rel="up" title="API Documentation" href="api_doc.html"/>
         <link rel="next" title="lasif.rotations" href="rotations.html"/>
         <link rel="prev" title="SES3D Setup Assistant" href="ses3d_setup_helper.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>lasif.iteration_xml</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/iteration_xml.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/iteration_xml.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -168,7 +180,7 @@
 </table>
 <dl class="function">
 <dt id="lasif.iteration_xml.create_iteration_xml_string">
-<tt class="descclassname">lasif.iteration_xml.</tt><tt class="descname">create_iteration_xml_string</tt><big>(</big><em>iteration_name</em>, <em>solver_name</em>, <em>events</em>, <em>min_period</em>, <em>max_period</em><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#create_iteration_xml_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.create_iteration_xml_string" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">lasif.iteration_xml.</code><code class="descname">create_iteration_xml_string</code><span class="sig-paren">(</span><em>iteration_name</em>, <em>solver_name</em>, <em>events</em>, <em>min_period</em>, <em>max_period</em>, <em>quiet=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/iteration_xml.html#create_iteration_xml_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.create_iteration_xml_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new iteration string.</p>
 <p>Returns a string containing the XML representation.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -182,6 +194,7 @@
 list of station ids for this event.</li>
 <li><strong>min_period</strong> &#8211; The minimum period for the iteration.</li>
 <li><strong>max_period</strong> &#8211; The maximum period for the iteration.</li>
+<li><strong>quiet</strong> &#8211; Do not print anything if set to <cite>True</cite>.</li>
 </ul>
 </td>
 </tr>
@@ -191,17 +204,17 @@ list of station ids for this event.</li>
 
 <dl class="class">
 <dt id="lasif.iteration_xml.Iteration">
-<em class="property">class </em><tt class="descclassname">lasif.iteration_xml.</tt><tt class="descname">Iteration</tt><big>(</big><em>iteration_xml_filename</em><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">lasif.iteration_xml.</code><code class="descname">Iteration</code><span class="sig-paren">(</span><em>iteration_xml_filename</em>, <em>stf_fct</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="lasif.iteration_xml.Iteration.get_process_params">
-<tt class="descname">get_process_params</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.get_process_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.get_process_params" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_process_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.get_process_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.get_process_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Small helper function retrieving the most important iteration
 parameters.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lasif.iteration_xml.Iteration.get_source_time_function">
-<tt class="descname">get_source_time_function</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.get_source_time_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.get_source_time_function" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_source_time_function</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.get_source_time_function"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.get_source_time_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the source time function for the given iteration.</p>
 <dl class="docutils">
 <dt>Will return a dictionary with the following keys:</dt>
@@ -215,13 +228,13 @@ parameters.</p>
 
 <dl class="attribute">
 <dt id="lasif.iteration_xml.Iteration.processing_tag">
-<tt class="descname">processing_tag</tt><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.processing_tag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.processing_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descname">processing_tag</code><a class="headerlink" href="#lasif.iteration_xml.Iteration.processing_tag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the processing tag for this iteration.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="lasif.iteration_xml.Iteration.write">
-<tt class="descname">write</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.write" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/iteration_xml.html#Iteration.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.iteration_xml.Iteration.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serialized the Iteration structure once again.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -243,10 +256,10 @@ parameters.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="rotations.html" class="btn btn-neutral float-right" title="lasif.rotations">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="rotations.html" class="btn btn-neutral float-right" title="lasif.rotations" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="ses3d_setup_helper.html" class="btn btn-neutral" title="SES3D Setup Assistant"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="ses3d_setup_helper.html" class="btn btn-neutral" title="SES3D Setup Assistant" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -258,10 +271,10 @@ parameters.</p>
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -285,7 +298,7 @@ parameters.</p>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

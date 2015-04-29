@@ -5,6 +5,7 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <title>3. Seismic Events &mdash; LASIF 0.0.1 documentation</title>
@@ -14,7 +15,6 @@
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,13 +28,15 @@
   
 
   
+
+  
     <link rel="top" title="LASIF 0.0.1 documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
         <link rel="next" title="4. Station Data" href="03_station_data.html"/>
         <link rel="prev" title="2. Creating a New Project" href="01_creating_a_new_project.html"/> 
 
   
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+  <script src="_static/js/modernizr.min.js"></script>
 
 </head>
 
@@ -46,8 +48,14 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
         
-          <a href="../index.html" class="fa fa-home"> LASIF</a>
+
         
+          <a href="../index.html" class="icon icon-home"> LASIF
+        
+
+        
+        </a>
+
         
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -56,6 +64,8 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+        
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
@@ -144,7 +154,9 @@
     <li>3. Seismic Events</li>
       <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/02_seismic_events.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/02_seismic_events.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
   </ul>
@@ -157,19 +169,19 @@
 <p>Once the domain has been adjusted to your needs, you need to tell <strong>LASIF</strong>
 which events you want to use for the inversion. This works by simply placing a
 valid QuakeML 1.2 file at the correct location.</p>
-<p>All events have to be stored in the <tt class="docutils literal"><span class="pre">EVENTS</span></tt> subfolder of the project. They
+<p>All events have to be stored in the <code class="docutils literal"><span class="pre">EVENTS</span></code> subfolder of the project. They
 have to be QuakeML 1.2 files with full moment tensor information.</p>
 <p>LASIF provides some convenience methods for this purpose. One can leverage the
 <a class="reference external" href="http://www.iris.edu/spud/momenttensor">IRIS SPUD service</a> to get GlobalCMT
 events.  Simply search for an event on their webpage and copy the event url.
-The <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></tt> command will then grab the QuakeML file from the
+The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></code> command will then grab the QuakeML file from the
 url and store an XML file in the correct folder.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
 <span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
 </pre></div>
 </div>
 <p>These commands will download two event files and store them in the
-<tt class="docutils literal"><span class="pre">EVENTS</span></tt> subfolder.</p>
+<code class="docutils literal"><span class="pre">EVENTS</span></code> subfolder.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>ls EVENTS
 
 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml
@@ -177,15 +189,15 @@ GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
 </pre></div>
 </div>
 <p>A more convenient way to see which events are currently defined in the
-project is the <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre">list_events</span></tt> command.</p>
+project is the <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">list_events</span></code> command.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_events
 
-2 events in project:
+<span class="m">2</span> events in project:
 +------------------------------------------------------------+--------------------------+---------------------+
-| Event Name                                                 |  Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag   | <span class="c"># raw/preproc/synth |</span>
+<span class="p">|</span> Event Name                                                 <span class="p">|</span>  Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag   <span class="p">|</span> <span class="c"># raw/preproc/synth |</span>
 +------------------------------------------------------------+--------------------------+---------------------+
-| GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             |   44.9 / 8.5  / 10 / 4.9 |    0 /     0 /    0 |
-| GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 |   43.3 / 20.8 /  9 / 5.9 |    0 /     0 /    0 |
+<span class="p">|</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             <span class="p">|</span>   44.9 / 8.5  / <span class="m">10</span> / 4.9 <span class="p">|</span>    <span class="m">0</span> /     <span class="m">0</span> /    <span class="m">0</span> <span class="p">|</span>
+<span class="p">|</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 <span class="p">|</span>   43.3 / 20.8 /  <span class="m">9</span> / 5.9 <span class="p">|</span>    <span class="m">0</span> /     <span class="m">0</span> /    <span class="m">0</span> <span class="p">|</span>
 +------------------------------------------------------------+------------------------+-----------------------+
 </pre></div>
 </div>
@@ -197,7 +209,7 @@ additional information for that event will be related to it via the event
 filename. So please give them a good and reasonable filename. If you really
 feel that event renaming is a necessary feature please file an issue on Github
 so that the authors can add a proper event renaming function.</p>
-<p>The <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre">plot_events</span></tt> command will show a map with all events currently
+<p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">plot_events</span></code> command will show a map with all events currently
 part of the project.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_events
 </pre></div>
@@ -206,7 +218,7 @@ part of the project.</p>
 <div class="figure">
 <img alt="../_images/02_seismic_events-1.png" src="../_images/02_seismic_events-1.png" />
 </div>
-<p>The <tt class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></tt> command is your friend if you desire more information
+<p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></code> command is your friend if you desire more information
 about a certain event:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
@@ -215,7 +227,7 @@ Earthquake with 4.9 Mwc at NORTHERN ITALY
 Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
 2000-08-21T17:14:27.000000Z UTC
 
-Station and waveform information available at 51 stations. Use <span class="s1">&#39;-v&#39;</span> to print them.
+Station and waveform information available at <span class="m">51</span> stations. Use <span class="s1">&#39;-v&#39;</span> to print them.
 </pre></div>
 </div>
 <p>The information given with this command will be the one LASIF uses. This is
@@ -239,10 +251,10 @@ actually happened during each iteration so the project gains
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="03_station_data.html" class="btn btn-neutral float-right" title="4. Station Data">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="03_station_data.html" class="btn btn-neutral float-right" title="4. Station Data" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="01_creating_a_new_project.html" class="btn btn-neutral" title="2. Creating a New Project"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="01_creating_a_new_project.html" class="btn btn-neutral" title="2. Creating a New Project" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -254,10 +266,10 @@ actually happened during each iteration so the project gains
         &copy; Copyright 2014, Lion Krischer &amp; Andreas Fichtner.
     </p>
   </div>
-
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-  
+
 </footer>
+
         </div>
       </div>
 
@@ -281,7 +293,7 @@ actually happened during each iteration so the project gains
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
