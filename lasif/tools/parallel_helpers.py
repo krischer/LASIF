@@ -135,7 +135,6 @@ def distribute_across_ranks(function, items, get_name, logfile):
         expects a list of dictionaries so that ``function(**item)`` can work.
         Only rank 0 needs to pass this. It will be ignored coming from other
         ranks.
-    :type items: list
     :param get_name: Function to extract a name for each item to be able to
         produce better logfiles.
     :param logfile: The logfile to write.

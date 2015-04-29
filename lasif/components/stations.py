@@ -94,11 +94,10 @@ class StationsComponent(Component):
     def get_details_for_filename(self, filename):
         """
         Returns the details for a single file. Each file can have more than
-        channel stored in it.
+        channel stored in it. Returns a list of dictionaries.
 
         :param filename: The name of the station file.
         :type filename: str
-        :rtype: list of dictionaries
 
         >>> comm = getfixture('stations_comm')
         >>> filename = sorted(comm.stations.get_all_channels())[1]["filename"]
@@ -123,7 +122,7 @@ class StationsComponent(Component):
         """
         Get information about all available channels at all points in time.
 
-        :rtype: list of dictionaries
+        Returns a list of dictionaries.
 
         Mainly useful for testing and debugging. For real applications use
         :meth:`.get_all_channels_at_time` which will return all channels
