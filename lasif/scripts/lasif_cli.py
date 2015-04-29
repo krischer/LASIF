@@ -53,11 +53,22 @@ import difflib
 import itertools
 import sys
 import traceback
+import warnings
 
 from mpi4py import MPI
 
 from lasif import LASIFNotFoundError
 from lasif.components.project import Project
+
+# Try to disable the ObsPy deprecation warnings. This makes LASIF work with
+# the latest ObsPy stable and the master.
+try:
+    # It only exists for certain ObsPy versions.
+    from obspy.core.util.deprecation_helpers import ObsPyDeprecationWarning
+except:
+    pass
+else:
+    warnings.filterwarnings("ignore", category=ObsPyDeprecationWarning)
 
 
 FCT_PREFIX = "lasif_"
