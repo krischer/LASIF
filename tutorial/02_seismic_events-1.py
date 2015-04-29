@@ -11,7 +11,7 @@ bmap = domain.RectangularSphericalSection(
     max_depth_in_km=1440,
     boundary_width_in_degree=2.5,
     rotation_axis=[1.0, 1.0, 0.2],
-    rotation_angle_in_degree=-65.0).plot(plot_simulation_domain=True)
+    rotation_angle_in_degree=-65.0).plot(plot_simulation_domain=False)
 events = [{
     'depth_in_km': 9.0,
     'event_name': 'GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2',

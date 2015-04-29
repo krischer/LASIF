@@ -76,7 +76,7 @@ part of the project.
         max_depth_in_km=1440,
         boundary_width_in_degree=2.5,
         rotation_axis=[1.0, 1.0, 0.2],
-        rotation_angle_in_degree=-65.0).plot(plot_simulation_domain=True)
+        rotation_angle_in_degree=-65.0).plot(plot_simulation_domain=False)
     events = [{
         'depth_in_km': 9.0,
         'event_name': 'GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2',
@@ -119,13 +119,11 @@ about a certain event:
 
     $ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
-
     Earthquake with 4.9 Mwc at NORTHERN ITALY
-    Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
-    2000-08-21T17:14:27.000000Z UTC
+        Latitude: 44.870, Longitude: 8.480, Depth: 15.0 km
+        2000-08-21T17:14:31.100000Z UTC
 
-    Station and waveform information available at 51 stations. Use '-v' to print them.
-
+    Station and waveform information available at 0 stations. Use '-v' to print them.
 
 
 The information given with this command will be the one LASIF uses. This is
