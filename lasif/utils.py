@@ -314,7 +314,7 @@ def get_event_filename(event, prefix):
     >>> print get_event_filename(event, "GCMT")
     GCMT_event_KYRGYZSTAN-XINJIANG_BORDER_REG._Mag_4.4_2012-4-4-14.xml
     """
-    from obspy.core.util.geodetics.flinnengdahl import FlinnEngdahl
+    from obspy.core.util.geodetics import FlinnEngdahl
 
     mag = event.preferred_magnitude() or event.magnitudes[0]
     org = event.preferred_origin() or event.origins[0]
