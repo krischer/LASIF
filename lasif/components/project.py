@@ -172,7 +172,7 @@ class Project(Component):
             filename = os.path.basename(template_filename)
             new_filename = os.path.join(self.paths["functions"], filename)
             if not os.path.exists(new_filename):
-                if init_project is not True:
+                if not init_project:
                     warnings.warn(
                         "Function template '%s' did not exist. It does now. "
                         "Did you update a later LASIF version? Please make "
