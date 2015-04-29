@@ -25,7 +25,6 @@ import sys
 import matplotlib.patheffects as PathEffects
 
 from lasif.colors import COLORS
-from lasif import ses3d_models
 
 
 # Pretty units for some components.

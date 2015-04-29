@@ -36,7 +36,8 @@ def test_reading_iteration_xml():
     """
     iteration = Iteration(os.path.join(data_dir, "iteration_example.xml"),
                           stf_fct=__stf_fct_dummy)
-    assert iteration.iteration_name == "IterationName"
+    # The name is always dependent on the filename
+    assert iteration.iteration_name == "iteration_example"
     assert iteration.description == "Some description"
     assert iteration.comments == ["Comment 1", "Comment 2", "Comment 3"]
     assert iteration.data_preprocessing == {
@@ -152,4 +153,6 @@ def test_reading_writing_with_empty_description(tmpdir):
     iteration.write(new_filename)
     reread_iteration = Iteration(new_filename, stf_fct=__stf_fct_dummy)
 
+    # Change the name as it is always dependent on the filename.
+    reread_iteration.iteration_name = iteration.iteration_name
     assert iteration == reread_iteration

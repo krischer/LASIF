@@ -22,7 +22,8 @@ def matlab_range(start, stop, step):
     """
     # Some tolerance
     if (abs(stop - start) / step) % 1 < 1E-7:
-        return np.linspace(start, stop, int(round((stop - start) / step)),
+        return np.linspace(start, stop,
+                           int(round((stop - start) / step)) + 1,
                            endpoint=True)
     return np.arange(start, stop, step)
 

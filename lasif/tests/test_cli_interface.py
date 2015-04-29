@@ -241,7 +241,7 @@ def test_plotting_functions(cli):
     vs = "lasif.components.visualizations.VisualizationsComponent."
     with mock.patch(vs + "plot_domain") as patch:
         cli.run("lasif plot_domain")
-    patch.assert_called_once_with()
+    patch.assert_called_once_with(plot_simulation_domain=True)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_event") as patch:
@@ -690,9 +690,7 @@ def test_Q_model_calculating(cli):
     assert round(kwargs["f_min"] - 1.0 / 234, 5) == 0
     assert round(kwargs["f_max"] - 1.0 / 12, 5) == 0
 
-    assert out == (
-        "Weights: 1, 2, 3\n"
-        "Relaxation Times: 1, 2, 3\n")
+    assert out == ''
 
 
 def test_debug_information(cli):

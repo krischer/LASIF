@@ -474,7 +474,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                  "min surface velocity + min period / 2",
                  verticalalignment="top",
                  horizontalalignment="right", color="0.15", path_effects=[
-                    PathEffects.withStroke(linewidth=3, foreground="white")])
+                     PathEffects.withStroke(linewidth=3, foreground="white")])
 
         plt.hlines(noise_absolute, xlim[0], xlim[1], linestyle="--",
                    color="gray")

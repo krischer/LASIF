@@ -51,7 +51,6 @@ import collections
 import colorama
 import difflib
 import itertools
-import shutil
 import sys
 import traceback
 

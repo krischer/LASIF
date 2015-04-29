@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <iteration>
-  <iteration_name>IterationName</iteration_name>
+  <iteration_name>iteration_example</iteration_name>
   <iteration_description>Some description</iteration_description>
   <comment>Comment 1</comment>
   <comment>Comment 2</comment>
