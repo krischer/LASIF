@@ -144,6 +144,15 @@ metadata and events) in coordinates that correspond to the physical domain and
 all synthetic waveforms in coordinates that correspond to the simulation
 domain.
 
+.. warning::
+
+    A one chunk simulation in SPECFEM3D GLOBE is not exactly identical with the
+    domain definition in LASIF. A SES3D (and LASIF) domain is defined in
+    geographical coordinates whereas a cubed sphere chunk uses great circles on
+    all boundaries. This is not a big limitation just keep in mind that the
+    domain in SPECFEM is a bit smaller at the corners than the LASIF domain. If
+    this becomes an issue let us know and we'll add some more logic to LASIF.
+
 For this tutorial we are going to work in a rotated domain across Europe.
 Please change the ``config.xml`` file to reflect the following domain
 settings.
