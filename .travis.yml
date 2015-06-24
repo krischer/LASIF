@@ -20,16 +20,16 @@ before_install:
   - sudo rm -rf /dev/shm
   - sudo ln -s /run/shm /dev/shm
   - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose pytest flake8 colorama flask sphinx basemap lxml sqlalchemy==0.9.9 mock mpi4py
-  - pip install --use-mirrors suds-jurko
-  - pip install --use-mirrors geographiclib
-  - pip install --use-mirrors progressbar
-  - pip install --use-mirrors flask-cache
-  - pip install --use-mirrors geojson
-  - pip install --use-mirrors future
-  - pip install --use-mirrors "joblib>=0.8.0a3"
-  - pip install --use-mirrors --no-deps pyqtgraph
+  - pip install suds-jurko
+  - pip install geographiclib
+  - pip install progressbar
+  - pip install flask-cache
+  - pip install geojson
+  - pip install future
+  - pip install "joblib>=0.8.0a3"
+  - pip install --no-deps pyqtgraph
   # The theme from the repository it also more up to date.
-  - pip install --use-mirrors https://github.com/snide/sphinx_rtd_theme/archive/master.zip
+  - pip install https://github.com/snide/sphinx_rtd_theme/archive/master.zip
   - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 

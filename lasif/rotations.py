@@ -414,19 +414,19 @@ def get_border_latlng_list(
     east_border = np.empty((number_of_points_per_side, 2))
     west_border = np.empty((number_of_points_per_side, 2))
 
-    north_border[:, 0] = min_lat
+    north_border[:, 0] = max_lat
     north_border[:, 1] = np.linspace(min_lng, max_lng,
                                      number_of_points_per_side)
 
-    south_border[:, 0] = max_lat
-    south_border[:, 1] = np.linspace(max_lng, min_lng,
-                                     number_of_points_per_side)
-
-    east_border[:, 0] = np.linspace(min_lat, max_lat,
+    east_border[:, 0] = np.linspace(max_lat, min_lat,
                                     number_of_points_per_side)
     east_border[:, 1] = max_lng
 
-    west_border[:, 0] = np.linspace(max_lat, min_lat,
+    south_border[:, 0] = min_lat
+    south_border[:, 1] = np.linspace(max_lng, min_lng,
+                                     number_of_points_per_side)
+
+    west_border[:, 0] = np.linspace(min_lat, max_lat,
                                     number_of_points_per_side)
     west_border[:, 1] = min_lng
 
