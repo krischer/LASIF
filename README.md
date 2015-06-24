@@ -5,4 +5,16 @@
 > Work In Progress - Use With Caution
 
 
-[LASIF](http://krischer.github.io/LASIF)
+Documentation: [LASIF](http://krischer.github.io/LASIF)
+
+
+### Paper
+
+For more details and the reasoning behind LASIF, please also see our paper:
+
+*Lion Krischer, Andreas Fichtner, Saule Zukauskaite, and Heiner Igel* (2015),
+**Large‐Scale Seismic Inversion Framework**, Seismological Research Letters, doi:10.1785/0220140248.
+
+
+* [Early Publication](http://srl.geoscienceworld.org/content/early/2015/06/02/0220140248.extract)
+* [DOI Link (might not work yet)](http://dx.doi.org/10.1785/0220140248)
