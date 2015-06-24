@@ -10,6 +10,19 @@ LASIF (**LA**\ rge-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
 data-driven end-to-end workflow tool to perform adjoint full seismic waveform
 inversions.
 
+
+.. admonition:: For more details please see our paper
+
+    *Lion Krischer, Andreas Fichtner, Saule Zukauskaite, and Heiner Igel* (2015),
+    **Large‐Scale Seismic Inversion Framework**, Seismological Research Letters, doi:10.1785/0220140248.
+
+
+    * `Early Publication <http://srl.geoscienceworld.org/content/early/2015/06/02/0220140248.extract>`_
+    * `DOI Link (might not work yet) <http://dx.doi.org/10.1785/0220140248>`_
+
+---------
+
+
 Dealing with the large amounts of data present in modern full seismic waveform
 inversions in an organized, reproducible and shareable way continues to be a
 major difficulty potentially even hindering actual research. LASIF improves the
