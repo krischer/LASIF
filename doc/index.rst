@@ -10,6 +10,9 @@ LASIF (**LA**\ rge-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
 data-driven end-to-end workflow tool to perform adjoint full seismic waveform
 inversions.
 
+**Github:** The code is developed at and available from its
+`Github respository <http://github.com/krischer/LASIF>`_.
+
 
 .. admonition:: For more details please see our paper
 
