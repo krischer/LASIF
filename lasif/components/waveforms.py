@@ -155,7 +155,7 @@ class WaveformsComponent(Component):
         :class:`~obspy.core.stream.Stream` object.
 
         :param event_name: The name of the event.
-        :param station_id: The id of the station in the form NET.STA.
+        :param station_id: The id of the station in the form ``NET.STA``.
         """
         return self._get_waveforms(event_name, station_id, data_type="raw")
 
@@ -165,7 +165,7 @@ class WaveformsComponent(Component):
         :class:`~obspy.core.stream.Stream` object.
 
         :param event_name: The name of the event.
-        :param station_id: The id of the station in the form NET.STA.
+        :param station_id: The id of the station in the form ``NET.STA``.
         :param tag: The processing tag.
         """
         return self._get_waveforms(event_name, station_id,
@@ -178,7 +178,7 @@ class WaveformsComponent(Component):
         :class:`~obspy.core.stream.Stream` object.
 
         :param event_name: The name of the event.
-        :param station_id: The id of the station in the form NET.STA.
+        :param station_id: The id of the station in the form ``NET.STA``.
         :param long_iteration_name: The long form of an iteration name.
         """
         from lasif import rotations
@@ -387,7 +387,7 @@ class WaveformsComponent(Component):
 
         :param event_name: The name of the event.
         :param tag: The processing tag.
-        :param station_id: The id of the station in the form NET.STA.
+        :param station_id: The id of the station in the form ``NET.STA``.
         """
         waveform_cache = self.get_waveform_cache(event_name,
                                                  data_type="processed",
@@ -406,7 +406,7 @@ class WaveformsComponent(Component):
 
         :param event_name: The name of the event.
         :param long_iteration_name: The long form of the iteration name.
-        :param station_id: The id of the station in the form NET.STA.
+        :param station_id: The id of the station in the form ``NET.STA``.
         """
         # Assure the iteration actually contains the event.
         it = self.comm.iterations.get(long_iteration_name)
@@ -434,7 +434,7 @@ class WaveformsComponent(Component):
 
         :param event_name: The name of the event.
         :param long_iteration_name: The long form of the iteration name.
-        :param station_id: The id of the station in the form NET.STA.
+        :param station_id: The id of the station in the form ``NET.STA``.
         """
         waveform_cache = self.get_waveform_cache(
             event_name, data_type="synthetic",
