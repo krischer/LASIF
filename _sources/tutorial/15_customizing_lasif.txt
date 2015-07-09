@@ -141,12 +141,16 @@ The default implementation is this:
 
 .. code-block:: python
 
-    def process_synthetics(st, iteration):
+    def process_synthetics(st, iteration, event):
         return st
 
 This is very useful for processing the synthetics in any fashion or to shift
 them time and similar endeavours. Make sure it returns a
 :class:`~obspy.core.stream.Stream` object.
+
+``iteration`` and ``event`` are the :class:`~lasif.iteration_xml.Iteration`
+object of the current iteration and a dictionary containing information about
+the data's event, respectively.
 
 
 Customize Window Picking

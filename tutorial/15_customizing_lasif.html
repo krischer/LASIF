@@ -262,13 +262,16 @@ please do it in this function. It will be applied on the fly to each
 up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object of synthetic
 data.</p>
 <p>The default implementation is this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">st</span>
 </pre></div>
 </div>
 <p>This is very useful for processing the synthetics in any fashion or to shift
 them time and similar endeavours. Make sure it returns a
 <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<p><code class="docutils literal"><span class="pre">iteration</span></code> and <code class="docutils literal"><span class="pre">event</span></code> are the <a class="reference internal" href="../iteration_xml.html#lasif.iteration_xml.Iteration" title="lasif.iteration_xml.Iteration"><code class="xref py py-class docutils literal"><span class="pre">Iteration</span></code></a>
+object of the current iteration and a dictionary containing information about
+the data&#8217;s event, respectively.</p>
 </div>
 <div class="section" id="customize-window-picking">
 <h2>16.4. Customize Window Picking<a class="headerlink" href="#customize-window-picking" title="Permalink to this headline">¶</a></h2>
