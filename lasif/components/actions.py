@@ -526,8 +526,9 @@ class ActionsComponent(Component):
             if abs(rotated_axis[0] - c_lat_1) >= 0.01 or \
                     abs(rotated_axis[1] - c_lng_1) >= 0.01:
                 msg = "Failed to describe the domain in terms that SPECFEM " \
-                      "understands"
-                raise LASIFError(msg)
+                      "understands. The domain definition in the output " \
+                      "files will NOT BE CORRECT!"
+                warnings.warn(msg, LASIFWarning)
 
             gen.config.ANGULAR_WIDTH_XI_IN_DEGREES = lng_range
             gen.config.ANGULAR_WIDTH_ETA_IN_DEGREES = lat_range
