@@ -31,11 +31,11 @@ def comm(tmpdir):
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1",
         {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0,
-        quiet=True)
+        quiet=True, create_folders=False)
     comm.iterations.create_new_iteration(
         "2", "ses3d_4_1",
         {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0,
-        quiet=True)
+        quiet=True, create_folders=False)
     it = comm.iterations.get("1")
     it.comments = ["Some", "random comments"]
     comm.iterations.save_iteration(it)

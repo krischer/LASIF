@@ -104,7 +104,8 @@ class IterationsComponent(Component):
         return iteration_name in self.get_iteration_dict()
 
     def create_new_iteration(self, iteration_name, solver_name, events_dict,
-                             min_period, max_period, quiet=False):
+                             min_period, max_period, quiet=False,
+                             create_folders=True):
         """
         Creates a new iteration XML file.
 
@@ -115,13 +116,15 @@ class IterationsComponent(Component):
         :param min_period: The minimum period in seconds for the new iteration.
         :param max_period: The maximum period in seconds for the new iteration.
         :param quiet: Do not print anything if set to `True`.
+        :param create_folders: Create the folders for this iteration's
+            synthetic waveforms
 
         >>> comm = getfixture('iterations_comm')
         >>> comm.iterations.has_iteration("3")
         False
         >>> comm.iterations.create_new_iteration("3", "ses3d_4_1",
         ...     {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]},
-        ...     10.0, 20.0, quiet=True)
+        ...     10.0, 20.0, quiet=True, create_folders=False)
         >>> comm.iterations.has_iteration("3")
         True
         >>> os.remove(comm.iterations.get_iteration_dict()["3"])
@@ -140,7 +143,8 @@ class IterationsComponent(Component):
                 as fh:
             fh.write(xml_string)
 
-        self.create_synthetics_folder_for_iteration(iteration_name)
+        if create_folders:
+            self.create_synthetics_folder_for_iteration(iteration_name)
 
     def create_synthetics_folder_for_iteration(self, iteration_name):
         """
@@ -156,7 +160,7 @@ class IterationsComponent(Component):
                 os.makedirs(folder)
 
     def create_successive_iteration(self, existing_iteration_name,
-                                    new_iteration_name):
+                                    new_iteration_name, create_folders=True):
         """
         Create an iteration based on an existing one.
 
@@ -166,11 +170,17 @@ class IterationsComponent(Component):
         :param existing_iteration_name: Name of the iteration to be used as
             a template.
         :param new_iteration_name: Name of the new iteration.
+        :param create_folders: Create the folders for the next iteration's
+            synthetic waveforms
+
+        Note that the ``create_folders=False`` argument is only used here
+        for testing purposes. In most cases you will want this to be ``True``.
 
         >>> comm = getfixture('iterations_comm')
         >>> comm.iterations.has_iteration("3")
         False
-        >>> comm.iterations.create_successive_iteration("1", "3")
+        >>> comm.iterations.create_successive_iteration("1", "3",
+        ...                                             create_folders=False)
         >>> comm.iterations.has_iteration("3")
         True
 
@@ -218,7 +228,8 @@ class IterationsComponent(Component):
         existing_iteration.iteration_name = new_iteration_name
         self.save_iteration(existing_iteration)
 
-        self.create_synthetics_folder_for_iteration(new_iteration_name)
+        if create_folders:
+            self.create_synthetics_folder_for_iteration(new_iteration_name)
 
     def save_iteration(self, iteration):
         """
