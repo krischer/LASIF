@@ -140,6 +140,21 @@ class IterationsComponent(Component):
                 as fh:
             fh.write(xml_string)
 
+        self.create_synthetics_folder_for_iteration(iteration_name)
+
+    def create_synthetics_folder_for_iteration(self, iteration_name):
+        """
+        Create the synthetics folder if it does not yet exists.
+
+        :param iteration_name: The iteration for which to create the folders.
+        """
+        iteration = self.comm.iterations.get(iteration_name)
+        path = self.comm.project.paths["synthetics"]
+        for event_name in iteration.events.keys():
+            folder = os.path.join(path, event_name, iteration.long_name)
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+
     def create_successive_iteration(self, existing_iteration_name,
                                     new_iteration_name):
         """
@@ -202,6 +217,8 @@ class IterationsComponent(Component):
         existing_iteration.comments = []
         existing_iteration.iteration_name = new_iteration_name
         self.save_iteration(existing_iteration)
+
+        self.create_synthetics_folder_for_iteration(new_iteration_name)
 
     def save_iteration(self, iteration):
         """
