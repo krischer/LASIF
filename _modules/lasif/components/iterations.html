@@ -224,7 +224,8 @@
         <span class="k">return</span> <span class="n">iteration_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="IterationsComponent.create_new_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.create_new_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">,</span> <span class="n">solver_name</span><span class="p">,</span> <span class="n">events_dict</span><span class="p">,</span>
-                             <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+                             <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                             <span class="n">create_folders</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a new iteration XML file.</span>
 
@@ -235,13 +236,15 @@
 <span class="sd">        :param min_period: The minimum period in seconds for the new iteration.</span>
 <span class="sd">        :param max_period: The maximum period in seconds for the new iteration.</span>
 <span class="sd">        :param quiet: Do not print anything if set to `True`.</span>
+<span class="sd">        :param create_folders: Create the folders for this iteration&#39;s</span>
+<span class="sd">            synthetic waveforms</span>
 
 <span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;iterations_comm&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; comm.iterations.has_iteration(&quot;3&quot;)</span>
 <span class="sd">        False</span>
 <span class="sd">        &gt;&gt;&gt; comm.iterations.create_new_iteration(&quot;3&quot;, &quot;ses3d_4_1&quot;,</span>
 <span class="sd">        ...     {&quot;EVENT_1&quot;: [&quot;AA.BB&quot;, &quot;CC.DD&quot;], &quot;EVENT_2&quot;: [&quot;EE.FF&quot;]},</span>
-<span class="sd">        ...     10.0, 20.0, quiet=True)</span>
+<span class="sd">        ...     10.0, 20.0, quiet=True, create_folders=False)</span>
 <span class="sd">        &gt;&gt;&gt; comm.iterations.has_iteration(&quot;3&quot;)</span>
 <span class="sd">        True</span>
 <span class="sd">        &gt;&gt;&gt; os.remove(comm.iterations.get_iteration_dict()[&quot;3&quot;])</span>
@@ -259,9 +262,25 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_filename_for_iteration</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">),</span> <span class="s">&quot;wt&quot;</span><span class="p">)</span>\
                 <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">xml_string</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">create_folders</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_synthetics_folder_for_iteration</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="IterationsComponent.create_synthetics_folder_for_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.create_synthetics_folder_for_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">create_synthetics_folder_for_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the synthetics folder if it does not yet exists.</span>
+
+<span class="sd">        :param iteration_name: The iteration for which to create the folders.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">iteration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;synthetics&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="n">iteration</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">iteration</span><span class="o">.</span><span class="n">long_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="IterationsComponent.create_successive_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.create_successive_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">create_successive_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_iteration_name</span><span class="p">,</span>
-                                    <span class="n">new_iteration_name</span><span class="p">):</span>
+                                    <span class="n">new_iteration_name</span><span class="p">,</span> <span class="n">create_folders</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create an iteration based on an existing one.</span>
 
@@ -271,11 +290,17 @@
 <span class="sd">        :param existing_iteration_name: Name of the iteration to be used as</span>
 <span class="sd">            a template.</span>
 <span class="sd">        :param new_iteration_name: Name of the new iteration.</span>
+<span class="sd">        :param create_folders: Create the folders for the next iteration&#39;s</span>
+<span class="sd">            synthetic waveforms</span>
+
+<span class="sd">        Note that the ``create_folders=False`` argument is only used here</span>
+<span class="sd">        for testing purposes. In most cases you will want this to be ``True``.</span>
 
 <span class="sd">        &gt;&gt;&gt; comm = getfixture(&#39;iterations_comm&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; comm.iterations.has_iteration(&quot;3&quot;)</span>
 <span class="sd">        False</span>
-<span class="sd">        &gt;&gt;&gt; comm.iterations.create_successive_iteration(&quot;1&quot;, &quot;3&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; comm.iterations.create_successive_iteration(&quot;1&quot;, &quot;3&quot;,</span>
+<span class="sd">        ...                                             create_folders=False)</span>
 <span class="sd">        &gt;&gt;&gt; comm.iterations.has_iteration(&quot;3&quot;)</span>
 <span class="sd">        True</span>
 
@@ -322,6 +347,9 @@
         <span class="n">existing_iteration</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">existing_iteration</span><span class="o">.</span><span class="n">iteration_name</span> <span class="o">=</span> <span class="n">new_iteration_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_iteration</span><span class="p">(</span><span class="n">existing_iteration</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">create_folders</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_synthetics_folder_for_iteration</span><span class="p">(</span><span class="n">new_iteration_name</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="IterationsComponent.save_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.save_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">save_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
