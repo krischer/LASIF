@@ -95,7 +95,17 @@ class WaveformsComponent(Component):
         else:
             raise ValueError("Invalid data type '%s'." % data_type)
 
-    def get_waveform_cache(self, event_name, data_type, tag_or_iteration=None):
+    def get_waveform_cache(self, event_name, data_type,
+                           tag_or_iteration=None, dont_update=False):
+        """
+        :param event_name: The name of the event.
+        :param data_type: The data type.
+        :param tag_or_iteration: If processed data, the tag, if synthetic
+            data, the iteration.
+        :param dont_update: If True, an existing cache will not be updated
+            but returned as is. If it does not exist, it will be updated
+            regardless.
+        """
         if data_type == "synthetic":
             tag_or_iteration = \
                 self.comm.iterations.get(tag_or_iteration).long_name
@@ -131,11 +141,18 @@ class WaveformsComponent(Component):
         waveform_db_file = data_path + "_cache" + os.path.extsep + "sqlite"
         if waveform_db_file in self.__cache:
             return self.__cache[waveform_db_file]
-        cache = WaveformCache(cache_db_file=waveform_db_file,
-                              root_folder=self.comm.project.paths["root"],
-                              waveform_folder=data_path,
-                              pretty_name="%s Waveform Cache" % label,
-                              read_only=self.comm.project.read_only_caches)
+        if dont_update is True and os.path.exists(waveform_db_file):
+            cache = WaveformCache(cache_db_file=waveform_db_file,
+                                  root_folder=self.comm.project.paths["root"],
+                                  waveform_folder=data_path,
+                                  pretty_name="%s Waveform Cache" % label,
+                                  read_only=True)
+        else:
+            cache = WaveformCache(cache_db_file=waveform_db_file,
+                                  root_folder=self.comm.project.paths["root"],
+                                  waveform_folder=data_path,
+                                  pretty_name="%s Waveform Cache" % label,
+                                  read_only=self.comm.project.read_only_caches)
         self.__cache[waveform_db_file] = cache
         return cache
 

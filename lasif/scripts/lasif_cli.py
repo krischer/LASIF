@@ -380,10 +380,13 @@ def lasif_build_all_caches(parser, args):
     This is optional and might take a while. Otherwise the caches are built
     on demand which works fine but might impede on some workflows.
     """
-    parser.parse_args(args)
+    parser.add_argument("--quick", help="Only check caches for folders that "
+                                        "do not have a cache.",
+                        action="store_true")
+    args = parser.parse_args(args)
 
     comm = _find_project_comm(".", read_only_caches=False)
-    comm.project.build_all_caches()
+    comm.project.build_all_caches(quick=args.quick)
 
 
 @command_group("Project Management")
@@ -1270,6 +1273,12 @@ def _get_argument_parser(fct):
         prog="lasif %s" % fct.func_name.replace("lasif_", ""),
         description=_get_cmd_description(fct))
 
+    parser.add_argument(
+        "--ipdb",
+        help="If true, a debugger will be launched upon encountering an "
+             "exception. Requires ipdb.",
+        action="store_true")
+
     # Exceptions. If any are missed, its not mission critical but just
     # less nice.
     exceptions = ["lasif_tutorial", "lasif_init_project",
@@ -1282,12 +1291,6 @@ def _get_argument_parser(fct):
     parser.add_argument("--read_only_caches",
                         help="sets all caches to read-only",
                         action="store_true")
-
-    parser.add_argument(
-        "--ipdb",
-        help="If true, a debugger will be launched upon encountering an "
-             "exception. Requires ipdb.",
-        action="store_true")
     return parser
 
 

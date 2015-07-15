@@ -44,6 +44,8 @@ class StationsComponent(Component):
 
         # Attribute will store the station cache if it has been initialized.
         self.__cached_station_cache = None
+        self.cache_file = os.path.join(self.cache_folder,
+                                       "station_cache.sqlite")
 
         super(StationsComponent, self).__init__(communicator, component_name)
 
@@ -83,7 +85,7 @@ class StationsComponent(Component):
         """
         from ..tools.cache_helpers.station_cache import StationCache
         self.__cached_station_cache = StationCache(
-            os.path.join(self.cache_folder, "station_cache.sqlite"),
+            self.cache_file,
             root_folder=self.comm.project.paths["root"],
             seed_folder=self.seed_folder,
             resp_folder=self.resp_folder,

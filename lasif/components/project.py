@@ -286,20 +286,26 @@ class Project(Component):
         with open(cfile, "wb") as fh:
             cPickle.dump(cf_cache, fh, protocol=2)
 
-    def build_all_caches(self):
+    def build_all_caches(self, quick=False):
         """
         Command to build/update all caches.
         """
         # The event cache is always up to date and does not have to be updated.
-        # Update the station cache.
-        print("Building/updating station cache...")
-        # This triggers the cache to be build/updated.
-        self.comm.stations.file_count
+
+        if quick and os.path.exists(self.comm.stations.cache_file):
+            print("Station cache already exists...")
+        else:
+            # Update the station cache.
+            print("Building/updating station cache...")
+            # This triggers the cache to be build/updated.
+            self.comm.stations.file_count
+
         for event in self.comm.events.list():
             print("Building/updating data cache for event '%s'..." % event)
             # Get all caches which will build them.
             try:
-                self.comm.waveforms.get_waveform_cache(event, "raw")
+                self.comm.waveforms.get_waveform_cache(event, "raw",
+                                                       dont_update=quick)
             except LASIFNotFoundError:
                 pass
             p_tags = self.comm.waveforms.get_available_processing_tags(event)
@@ -307,13 +313,13 @@ class Project(Component):
             for tag in p_tags:
                 try:
                     self.comm.waveforms.get_waveform_cache(
-                        event, "processed", tag)
+                        event, "processed", tag, dont_update=quick)
                 except LASIFNotFoundError:
                     pass
             for tag in s_tags:
                 try:
                     self.comm.waveforms.get_waveform_cache(
-                        event, "synthetic", tag)
+                        event, "synthetic", tag, dont_update=quick)
                 except LASIFNotFoundError:
                     pass
 
