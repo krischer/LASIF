@@ -364,6 +364,28 @@ at a particular point in time.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="lasif.components.waveforms.WaveformsComponent.get_waveform_cache">
+<code class="descname">get_waveform_cache</code><span class="sig-paren">(</span><em>event_name</em>, <em>data_type</em>, <em>tag_or_iteration=None</em>, <em>dont_update=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveform_cache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveform_cache" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>event_name</strong> &#8211; The name of the event.</li>
+<li><strong>data_type</strong> &#8211; The data type.</li>
+<li><strong>tag_or_iteration</strong> &#8211; If processed data, the tag, if synthetic
+data, the iteration.</li>
+<li><strong>dont_update</strong> &#8211; If True, an existing cache will not be updated
+but returned as is. If it does not exist, it will be updated
+regardless.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveform_folder">
 <code class="descname">get_waveform_folder</code><span class="sig-paren">(</span><em>event_name</em>, <em>data_type</em>, <em>tag_or_iteration=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveform_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveform_folder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the folder where the waveforms are stored.</p>

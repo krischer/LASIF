@@ -215,7 +215,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid data type &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">data_type</span><span class="p">)</span>
 </div>
-    <span class="k">def</span> <span class="nf">get_waveform_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span> <span class="n">tag_or_iteration</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="WaveformsComponent.get_waveform_cache"><a class="viewcode-back" href="../../../components/waveforms.html#lasif.components.waveforms.WaveformsComponent.get_waveform_cache">[docs]</a>    <span class="k">def</span> <span class="nf">get_waveform_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span>
+                           <span class="n">tag_or_iteration</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dont_update</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param event_name: The name of the event.</span>
+<span class="sd">        :param data_type: The data type.</span>
+<span class="sd">        :param tag_or_iteration: If processed data, the tag, if synthetic</span>
+<span class="sd">            data, the iteration.</span>
+<span class="sd">        :param dont_update: If True, an existing cache will not be updated</span>
+<span class="sd">            but returned as is. If it does not exist, it will be updated</span>
+<span class="sd">            regardless.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s">&quot;synthetic&quot;</span><span class="p">:</span>
             <span class="n">tag_or_iteration</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tag_or_iteration</span><span class="p">)</span><span class="o">.</span><span class="n">long_name</span>
@@ -251,14 +261,21 @@
         <span class="n">waveform_db_file</span> <span class="o">=</span> <span class="n">data_path</span> <span class="o">+</span> <span class="s">&quot;_cache&quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">extsep</span> <span class="o">+</span> <span class="s">&quot;sqlite&quot;</span>
         <span class="k">if</span> <span class="n">waveform_db_file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cache</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cache</span><span class="p">[</span><span class="n">waveform_db_file</span><span class="p">]</span>
-        <span class="n">cache</span> <span class="o">=</span> <span class="n">WaveformCache</span><span class="p">(</span><span class="n">cache_db_file</span><span class="o">=</span><span class="n">waveform_db_file</span><span class="p">,</span>
-                              <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;root&quot;</span><span class="p">],</span>
-                              <span class="n">waveform_folder</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
-                              <span class="n">pretty_name</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> Waveform Cache&quot;</span> <span class="o">%</span> <span class="n">label</span><span class="p">,</span>
-                              <span class="n">read_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">read_only_caches</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dont_update</span> <span class="ow">is</span> <span class="bp">True</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">waveform_db_file</span><span class="p">):</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="n">WaveformCache</span><span class="p">(</span><span class="n">cache_db_file</span><span class="o">=</span><span class="n">waveform_db_file</span><span class="p">,</span>
+                                  <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;root&quot;</span><span class="p">],</span>
+                                  <span class="n">waveform_folder</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
+                                  <span class="n">pretty_name</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> Waveform Cache&quot;</span> <span class="o">%</span> <span class="n">label</span><span class="p">,</span>
+                                  <span class="n">read_only</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="n">WaveformCache</span><span class="p">(</span><span class="n">cache_db_file</span><span class="o">=</span><span class="n">waveform_db_file</span><span class="p">,</span>
+                                  <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;root&quot;</span><span class="p">],</span>
+                                  <span class="n">waveform_folder</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
+                                  <span class="n">pretty_name</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> Waveform Cache&quot;</span> <span class="o">%</span> <span class="n">label</span><span class="p">,</span>
+                                  <span class="n">read_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">read_only_caches</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__cache</span><span class="p">[</span><span class="n">waveform_db_file</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache</span>
         <span class="k">return</span> <span class="n">cache</span>
-
+</div>
     <span class="k">def</span> <span class="nf">_convert_timestamps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
             <span class="n">value</span><span class="p">[</span><span class="s">&quot;starttime&quot;</span><span class="p">]</span> <span class="o">=</span> \

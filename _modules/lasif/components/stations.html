@@ -164,6 +164,8 @@
 
         <span class="c"># Attribute will store the station cache if it has been initialized.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_folder</span><span class="p">,</span>
+                                       <span class="s">&quot;station_cache.sqlite&quot;</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">StationsComponent</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">communicator</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
 
@@ -203,7 +205,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">..tools.cache_helpers.station_cache</span> <span class="kn">import</span> <span class="n">StationCache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="o">=</span> <span class="n">StationCache</span><span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_folder</span><span class="p">,</span> <span class="s">&quot;station_cache.sqlite&quot;</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cache_file</span><span class="p">,</span>
             <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;root&quot;</span><span class="p">],</span>
             <span class="n">seed_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_folder</span><span class="p">,</span>
             <span class="n">resp_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resp_folder</span><span class="p">,</span>
