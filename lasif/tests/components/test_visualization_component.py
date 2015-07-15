@@ -94,7 +94,7 @@ def test_Q_model_plotting(comm):
 
     with mock.patch("lasif.tools.Q_discrete.plot") as patch:
         comm.iterations.plot_Q_model("1")
-        patch.assert_called_once()
+        assert patch.call_count == 1
         kwargs = patch.call_args[1]
     assert round(kwargs["f_min"] - 1.0 / 111.0, 5) == 0
     assert round(kwargs["f_max"] - 1.0 / 11.0, 5) == 0

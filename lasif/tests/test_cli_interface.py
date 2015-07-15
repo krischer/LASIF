@@ -91,17 +91,14 @@ def test_command_tolerance(cli):
     """
     with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
         cli.run("lasif info")
-    patch.assert_called_once()
     assert patch.call_count == 1
 
     with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
         cli.run("lasif INFO")
-    patch.assert_called_once()
     assert patch.call_count == 1
 
     with mock.patch("lasif.scripts.lasif_cli.lasif_info") as patch:
         cli.run("lasif InFo")
-    patch.assert_called_once()
     assert patch.call_count == 1
 
 
@@ -370,7 +367,6 @@ def test_iteration_creation_and_stf_plotting(cli):
 
     with mock.patch("lasif.visualization.plot_tf") as patch:
         cli.run("lasif plot_stf 1")
-    patch.assert_called_once()
     assert patch.call_count == 1
     data, delta = patch.call_args[0]
     np.testing.assert_array_equal(
@@ -562,7 +558,7 @@ def test_remove_empty_coordinate_entries(cli):
             as patch:
         out = cli.run("lasif remove_empty_coordinate_entries")
     assert out.stderr == ""
-    patch.assert_run_once_with()
+    patch.assert_called_once_with()
     assert patch.call_count == 1
 
 
