@@ -609,7 +609,7 @@ class ActionsComponent(Component):
         domain = self.comm.project.domain
         solver = iteration.solver_settings["solver"].lower()
 
-        adj_src_count = 0
+        adjoint_source_stations = set()
 
         if "ses3d" in solver:
             ses3d_all_coordinates = []
@@ -693,9 +693,9 @@ class ActionsComponent(Component):
 
                 # Now once again map from ZNE to the XYZ of SES3D.
                 CHANNEL_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
-                adj_src_count += 1
+                adjoint_source_stations.add(station)
                 adjoint_src_filename = os.path.join(
-                    output_folder, "ad_src_%i" % adj_src_count)
+                    output_folder, "ad_src_%i" % len(adjoint_source_stations))
                 ses3d_all_coordinates.append(
                     (r_rec_colat, r_rec_lng, r_rec_depth))
 
@@ -724,12 +724,13 @@ class ActionsComponent(Component):
                     src_time_shift = 0
                 else:
                     src_time_shift = float(s_set["adjoint_source_time_shift"])
-                adj_src_count += 1
+                adjoint_source_stations.add(station)
                 # Write all components. The adjoint sources right now are
                 # not time shifted.
                 for component in ["Z", "N", "E"]:
+                    # XXX: M band code could be different.
                     adjoint_src_filename = os.path.join(
-                        output_folder, "%s..%s" % (station, component))
+                        output_folder, "%s.MX%s.adj" % (station, component))
                     adj_src = channels[component]
                     l = len(adj_src)
                     to_write = np.empty((l, 2))
@@ -746,16 +747,30 @@ class ActionsComponent(Component):
                     "Adjoint source writing for solver '%s' not yet "
                     "implemented." % iteration.solver_settings["solver"])
 
-        if not adj_src_count:
+        if not adjoint_source_stations:
             print("Could not create a single adjoint source.")
             return
 
         if "ses3d" in solver:
             with open(os.path.join(output_folder, "ad_srcfile"), "wt") as fh:
-                fh.write("%i\n" % adj_src_count)
+                fh.write("%i\n" % len(adjoint_source_stations))
                 for line in ses3d_all_coordinates:
                     fh.write("%.6f %.6f %.6f\n" % (line[0], line[1], line[2]))
                 fh.write("\n")
+        elif "specfem" in solver:
+            adjoint_source_stations = sorted(list(adjoint_source_stations))
+            with open(os.path.join(output_folder, "STATIONS_ADJOINT"),
+                      "wt") as fh:
+                for station in adjoint_source_stations:
+                    coords = self.comm.query.get_coordinates_for_station(
+                        event_name, station)
+                    fh.write("{sta} {net} {lat} {lng} {ele} {dep}\n".format(
+                        sta=station.split(".")[1],
+                        net=station.split(".")[0],
+                        lat=coords["latitude"],
+                        lng=coords["longitude"],
+                        ele=coords["elevation_in_m"],
+                        dep=coords["local_depth_in_m"]))
 
         print "Wrote adjoint sources for %i station(s) to %s." % (
-            adj_src_count, os.path.relpath(output_folder))
+            len(adjoint_source_stations), os.path.relpath(output_folder))
