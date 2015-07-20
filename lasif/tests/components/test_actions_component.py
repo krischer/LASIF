@@ -322,7 +322,8 @@ def test_adjoint_source_finalization_global_domain(comm, capsys):
     adj_src_dir = os.path.join(out, adj_src_dir)
     assert os.path.exists(adj_src_dir)
     assert sorted(os.listdir(adj_src_dir)) == sorted(
-        ["HL.ARG..E", "HL.ARG..N", "HL.ARG..Z"])
+        ["HL.ARG.MXE.adj", "HL.ARG.MXN.adj", "HL.ARG.MXZ.adj",
+         "STATIONS_ADJOINT"])
 
 
 def test_adjoint_source_finalization_rotated_domain(comm, capsys):
@@ -459,7 +460,8 @@ def test_adjoint_source_finalization_rotated_domain_specfem(comm, capsys):
     adj_src_dir = os.path.join(out, adj_src_dir)
     assert os.path.exists(adj_src_dir)
     assert sorted(os.listdir(adj_src_dir)) == sorted(
-        ["HL.ARG..E", "HL.ARG..N", "HL.ARG..Z"])
+        ["HL.ARG.MXE.adj", "HL.ARG.MXN.adj", "HL.ARG.MXZ.adj",
+         "STATIONS_ADJOINT"])
 
 
 def test_calculate_all_adjoint_sources_with_failing_adjoint_src_calculation(
