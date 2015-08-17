@@ -62,16 +62,7 @@ def source_time_function(npts, delta, freqmin, freqmax, iteration):
     tr.taper(0.05, type="cosine")
 
     # Use a fairly low-order causal bandpass filter to get some time shift.
-    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
-              zerophase=False)
-    tr.detrend("linear")
-    tr.detrend("demean")
-    tr.taper(0.05, type="cosine")
-
-    # Once again to get a sharper filter. This is still stable but will
-    # result in a fairly strong time shift which has to be corrected by also
-    # filtering the data.
-    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=2,
               zerophase=False)
 
     # Final cut. It's really important to make sure that the first sample in

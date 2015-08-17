@@ -11,7 +11,7 @@ Project specific function processing observed data.
 """
 import numpy as np
 import obspy
-from obspy.xseed import Parser
+from obspy.io.xseed import Parser
 from scipy import signal
 import warnings
 
@@ -135,7 +135,13 @@ def preprocessing_function(processing_info, iteration):  # NOQA
                           processing_info["input_filename"], len(st)))
     tr = st[0]
 
-    # Trim with a short buffer in an attempt to avoid boundary effects.
+    # Make sure the seismograms are long enough. If not, skip them.
+    if starttime > tr.stats.starttime or endtime < tr.stats.endtime:
+        msg = "The seismogram does not cover the required time span."
+        raise LASIFError(msg)
+
+
+    # Trim to reduce processing cost.
     # starttime is the origin time of the event
     # endtime is the origin time plus the length of the synthetics
     tr.trim(starttime - 0.2 * duration, endtime + 0.2 * duration)
@@ -185,6 +191,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     # Step 3: Instrument correction
     # Correct seismograms to velocity in m/s.
     # =========================================================================
+    output_units = "VEL"
     station_file = processing_info["station_filename"]
 
     # check if the station file actually exists ==============================
@@ -200,8 +207,9 @@ def preprocessing_function(processing_info, iteration):  # NOQA
 
     f2 = 0.9 * freqmin
     f3 = 1.1 * freqmax
-    f1 = 0.8 * f2
-    f4 = 1.3 * f3
+    # Recommendations from the SAC manual.
+    f1 = 0.5 * f2
+    f4 = 2.0 * f3
     pre_filt = (f1, f2, f3, f4)
 
     # processing for seed files ==============================================
@@ -216,7 +224,8 @@ def preprocessing_function(processing_info, iteration):  # NOQA
             # poles and zeros.
             backup_tr = tr.copy()
             try:
-                tr.simulate(seedresp={"filename": parser, "units": "VEL",
+                tr.simulate(seedresp={"filename": parser,
+                                      "units": output_units,
                                       "date": tr.stats.starttime},
                             pre_filt=pre_filt, zero_mean=False, taper=False)
             except ValueError:
@@ -241,7 +250,8 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     # processing with RESP files =============================================
     elif "/RESP/" in station_file:
         try:
-            tr.simulate(seedresp={"filename": station_file, "units": "VEL",
+            tr.simulate(seedresp={"filename": station_file,
+                                  "units": output_units,
                                   "date": tr.stats.starttime},
                         pre_file=pre_filt, zero_mean=False, taper=False)
         except ValueError as e:
@@ -258,7 +268,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
             raise LASIFError(msg)
         tr.attach_response(inv)
         try:
-            tr.remove_response(output="VEL", pre_filt=pre_filt,
+            tr.remove_response(output=output_units, pre_filt=pre_filt,
                                zero_mean=False, taper=False)
         except Exception as e:
             msg = ("File  could not be corrected with the help of the "
@@ -276,28 +286,17 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     tr.detrend("linear")
     tr.detrend("demean")
     tr.taper(0.05, type="cosine")
-    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
-              zerophase=False)
-    tr.detrend("linear")
-    tr.detrend("demean")
-    tr.taper(0.05, type="cosine")
-    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=2,
               zerophase=False)
 
     # =========================================================================
-    # Step 5: Interpolation
+    # Step 5: Sinc interpolation
     # =========================================================================
     # Make sure that the data array is at least as long as the
-    # synthetics array. Also add some buffer sample for the
-    # spline interpolation to work in any case.
-    buf = processing_info["process_params"]["dt"] * 5
-    if starttime < (tr.stats.starttime + buf):
-        tr.trim(starttime=starttime - buf, pad=True, fill_value=0.0)
-    if endtime > (tr.stats.endtime - buf):
-        tr.trim(endtime=endtime + buf, pad=True, fill_value=0.0)
+    # synthetics array.
     tr.interpolate(
         sampling_rate=1.0 / processing_info["process_params"]["dt"],
-        method="weighted_average_slopes", starttime=starttime,
+        method="lanczos", starttime=starttime, window="blackman", a=12,
         npts=processing_info["process_params"]["npts"])
 
     # =========================================================================
