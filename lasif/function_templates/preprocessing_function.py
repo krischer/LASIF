@@ -136,10 +136,13 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     tr = st[0]
 
     # Make sure the seismograms are long enough. If not, skip them.
-    if starttime > tr.stats.starttime or endtime < tr.stats.endtime:
-        msg = "The seismogram does not cover the required time span."
-        raise LASIFError(msg)
+    if starttime < tr.stats.starttime or endtime > tr.stats.endtime:
 
+        msg = ("The seismogram does not cover the required time span.\n"
+               "Seismogram time span: %s - %s\n"
+               "Requested time span: %s - %s" % (
+                   tr.stats.starttime, tr.stats.endtime, starttime, endtime))
+        raise LASIFError(msg)
 
     # Trim to reduce processing cost.
     # starttime is the origin time of the event
