@@ -395,6 +395,27 @@ def test_lasif_event_info(cli):
     assert "available at 0 stations" in event_2
 
 
+def test_generate_all_input_files(cli):
+    """
+    Mock test for generate_all_input_files.
+    """
+    cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
+
+    ac = "lasif.components.actions.ActionsComponent."
+
+    # Now there actually is just one event with data so it will only be
+    # called once.
+    with mock.patch(ac + "generate_input_files") as patch:
+        out = cli.run("lasif generate_all_input_files 1 "
+                      "--simulation_type=adjoint_forward")
+    assert out.stderr == ""
+
+    patch.assert_called_once_with(
+        "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11",
+        "adjoint forward")
+    assert patch.call_count == 1
+
+
 def test_input_file_generation(cli):
     """
     Mock test to see if the input file generation routine is called. The

@@ -545,6 +545,38 @@ def lasif_plot_stf(parser, args):
 
 
 @command_group("Iteration Management")
+def lasif_generate_all_input_files(parser, args):
+    """
+    Generates all input files for a certain iteration.
+
+    TYPE denotes the type of simulation to run. Available types are
+        * "normal_simulation"
+        * "adjoint_forward"
+        * "adjoint_reverse"
+    """
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("--simulation_type",
+                        choices=("normal_simulation", "adjoint_forward",
+                                 "adjoint_reverse"),
+                        default="normal_simulation",
+                        help="type of simulation to run")
+    args = parser.parse_args(args)
+    iteration_name = args.iteration_name
+    simulation_type = args.simulation_type
+
+    comm = _find_project_comm(".", args.read_only_caches)
+    simulation_type = simulation_type.replace("_", " ")
+
+    it = comm.iterations.get(iteration_name)
+    events = sorted(it.events.keys())
+    for _i, event in enumerate(events):
+        print("Generating input files for event %i of %i..." % (_i + 1,
+                                                                len(events)))
+        comm.actions.generate_input_files(iteration_name, event,
+                                          simulation_type)
+
+
+@command_group("Iteration Management")
 def lasif_generate_input_files(parser, args):
     """
     Generate the input files for the waveform solver.
