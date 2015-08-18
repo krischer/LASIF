@@ -839,7 +839,8 @@ def lasif_compare_misfits(parser, args):
         plt.title("%i measurements with identical windows for event '%s'" %
                   (len(values), event_name))
 
-    output_folder = comm.project.get_output_folder("misfit_comparison")
+    output_folder = comm.project.get_output_folder(
+        type="misfit_comparisons", tag="misfit_comparision")
     filename = os.path.join(output_folder, "misfit_comparision.pdf")
     plt.savefig(filename)
     print "\nSaved figure to '%s'" % os.path.relpath(filename)
@@ -1010,7 +1011,8 @@ def lasif_plot_windows(parser, args):
     comm = _find_project_comm(".", args.read_only_caches)
 
     output_folder = comm.project.get_output_folder(
-        "Selected_Windows_Iteration_%s__%s" % (event_name, iteration_name))
+        type="plotted_windows",
+        tag="Iteration_%s__%s" % (event_name, iteration_name))
 
     window_manager = comm.windows.get(event_name, iteration_name)
     for window_group in window_manager:

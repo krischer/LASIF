@@ -120,7 +120,9 @@ class ValidatorComponent(Component):
                                                colorama.Fore.RESET))
         else:
             folder = \
-                self.comm.project.get_output_folder("DATA_INTEGRITY_REPORT")
+                self.comm.project.get_output_folder(
+                    type="validation",
+                    tag="data_integrity_report")
             filename = os.path.join(folder, "report.txt")
             seperator_string = "\n" + 80 * "=" + "\n" + 80 * "=" + "\n"
             with open(filename, "wt") as fh:

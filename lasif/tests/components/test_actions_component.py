@@ -39,29 +39,28 @@ def test_input_files_are_actually_generated(comm):
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
 
+    output = os.path.join(comm.project.paths["output"], "input_files")
+
     # Normal simulation.
     comm.actions.generate_input_files(
         "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "normal simulation")
-    output_dir = [_i for _i in os.listdir(comm.project.paths["output"])
+    output_dir = [_i for _i in os.listdir(output)
                   if "normal_simulation" in _i][0]
-    assert len(os.listdir(os.path.join(
-        comm.project.paths["output"], output_dir))) != 0
+    assert len(os.listdir(os.path.join(output, output_dir))) != 0
 
     # Adjoint forward.
     comm.actions.generate_input_files(
         "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "adjoint forward")
-    output_dir = [_i for _i in os.listdir(comm.project.paths["output"])
+    output_dir = [_i for _i in os.listdir(output)
                   if "adjoint_forward" in _i][0]
-    assert len(os.listdir(os.path.join(
-        comm.project.paths["output"], output_dir))) != 0
+    assert len(os.listdir(os.path.join(output, output_dir))) != 0
 
     # Adjoint reverse.
     comm.actions.generate_input_files(
         "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "adjoint reverse")
-    output_dir = [_i for _i in os.listdir(comm.project.paths["output"])
+    output_dir = [_i for _i in os.listdir(output)
                   if "adjoint_reverse" in _i][0]
-    assert len(os.listdir(os.path.join(
-        comm.project.paths["output"], output_dir))) != 0
+    assert len(os.listdir(os.path.join(output, output_dir))) != 0
 
 
 def test_iteration_handling(comm):
@@ -194,9 +193,8 @@ def test_finalize_adjoint_sources_with_failing_adjoint_src_calculation(
     assert "Could not create a single adjoint source." in out
 
     # Make sure nothing is actually written.
-    out = comm.project.paths["output"]
-    adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
-    adj_src_dir = os.path.join(out, adj_src_dir)
+    out = os.path.join(comm.project.paths["output"], "adjoint_sources")
+    adj_src_dir = os.path.join(out, os.listdir(out)[0])
     assert os.path.exists(adj_src_dir)
     assert len(os.listdir(adj_src_dir)) == 0
 
@@ -253,9 +251,8 @@ def test_adjoint_source_finalization_unrotated_domain(comm, capsys):
     assert "Wrote adjoint sources for 1 station(s)" in out
 
     # Make sure nothing is actually written.
-    out = comm.project.paths["output"]
-    adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
-    adj_src_dir = os.path.join(out, adj_src_dir)
+    out = os.path.join(comm.project.paths["output"], "adjoint_sources")
+    adj_src_dir = os.path.join(out, os.listdir(out)[0])
     assert os.path.exists(adj_src_dir)
     assert sorted(os.listdir(adj_src_dir)) == sorted(["ad_srcfile",
                                                       "ad_src_1"])
@@ -317,9 +314,8 @@ def test_adjoint_source_finalization_global_domain(comm, capsys):
     assert "Wrote adjoint sources for 1 station(s)" in out
 
     # Make sure nothing is actually written.
-    out = comm.project.paths["output"]
-    adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
-    adj_src_dir = os.path.join(out, adj_src_dir)
+    out = os.path.join(comm.project.paths["output"], "adjoint_sources")
+    adj_src_dir = os.path.join(out, os.listdir(out)[0])
     assert os.path.exists(adj_src_dir)
     assert sorted(os.listdir(adj_src_dir)) == sorted(
         ["HL.ARG.MXE.adj", "HL.ARG.MXN.adj", "HL.ARG.MXZ.adj",
@@ -385,9 +381,9 @@ def test_adjoint_source_finalization_rotated_domain(comm, capsys):
     assert "Wrote adjoint sources for 1 station(s)" in out
 
     # Make sure nothing is actually written.
-    out = comm.project.paths["output"]
-    adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
-    adj_src_dir = os.path.join(out, adj_src_dir)
+    out = os.path.join(comm.project.paths["output"], "adjoint_sources")
+    adj_src_dir = os.path.join(out, os.listdir(out)[0])
+
     assert os.path.exists(adj_src_dir)
     assert sorted(os.listdir(adj_src_dir)) == sorted(["ad_srcfile",
                                                       "ad_src_1"])
@@ -455,9 +451,8 @@ def test_adjoint_source_finalization_rotated_domain_specfem(comm, capsys):
     assert "Wrote adjoint sources for 1 station(s) to" in out
 
     # Make sure nothing is actually written.
-    out = comm.project.paths["output"]
-    adj_src_dir = [i for i in os.listdir(out) if "adjoint_sources" in i][0]
-    adj_src_dir = os.path.join(out, adj_src_dir)
+    out = os.path.join(comm.project.paths["output"], "adjoint_sources")
+    adj_src_dir = os.path.join(out, os.listdir(out)[0])
     assert os.path.exists(adj_src_dir)
     assert sorted(os.listdir(adj_src_dir)) == sorted(
         ["HL.ARG.MXE.adj", "HL.ARG.MXN.adj", "HL.ARG.MXZ.adj",

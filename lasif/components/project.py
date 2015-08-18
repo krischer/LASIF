@@ -588,13 +588,18 @@ class Project(Component):
         self.__project_function_cache[fct_type] = fct
         return fct
 
-    def get_output_folder(self, tag):
+    def get_output_folder(self, type, tag):
         """
         Generates a output folder in a unified way.
+
+        :param type: The type of data. Will be a subfolder.
+        :param tag: The tag of the folder. Will be postfix of the final folder.
         """
         from obspy import UTCDateTime
-        output_dir = ("%s___%s" % (str(UTCDateTime()), tag))
-        output_dir = os.path.join(self.paths["output"], output_dir)
+        d = str(UTCDateTime()).replace(":", "-").split(".")[0]
+
+        output_dir = os.path.join(self.paths["output"], type.lower(),
+                                  "%s__%s" % (d, tag))
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         return output_dir

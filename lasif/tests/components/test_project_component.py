@@ -101,13 +101,17 @@ def test_output_folder_name(comm):
     import obspy
     cur_time = obspy.UTCDateTime()
 
-    output_dir = comm.project.get_output_folder("some_string")
+    output_dir = comm.project.get_output_folder(
+        type="random", tag="some_string")
 
     basename = os.path.basename(output_dir)
-    time, tag = basename.split("___")
+    type_dir = os.path.basename(os.path.dirname(output_dir))
+    assert type_dir == "random"
+
+    time, tag = basename.split("__")
     time = obspy.UTCDateTime(time)
 
-    assert (time - cur_time) <= 0.1
+    assert (time - cur_time) <= 1.0
     assert tag == "some_string"
 
 

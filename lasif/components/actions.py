@@ -551,7 +551,8 @@ class ActionsComponent(Component):
         # output
         # =================================================================
         output_dir = self.comm.project.get_output_folder(
-            "input_files___ITERATION_%s__%s__EVENT_%s" % (
+            type="input_files",
+            tag="ITERATION_%s__%s__EVENT_%s" % (
                 iteration_name, simulation_type.replace(" ", "_"),
                 event_name))
 
@@ -617,7 +618,8 @@ class ActionsComponent(Component):
         event_weight = iteration_event_def["event_weight"]
 
         output_folder = self.comm.project.get_output_folder(
-            "adjoint_sources__ITERATION_%s__%s" % (iteration_name, event_name))
+            type="adjoint_sources",
+            tag="ITERATION_%s__%s" % (iteration_name, event_name))
 
         l = sorted(window_manager.list())
         for station, windows in itertools.groupby(
