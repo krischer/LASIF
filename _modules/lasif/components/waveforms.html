@@ -106,7 +106,13 @@
       
       <div class="wy-nav-content">
         <div class="rst-content">
-          <div role="navigation" aria-label="breadcrumbs navigation">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
@@ -375,8 +381,9 @@
                 <span class="c"># First rotate the station back to see, where it was</span>
                 <span class="c"># recorded.</span>
                 <span class="n">lat</span><span class="p">,</span> <span class="n">lng</span> <span class="o">=</span> <span class="n">rotations</span><span class="o">.</span><span class="n">rotate_lat_lon</span><span class="p">(</span>
-                    <span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;longitude&quot;</span><span class="p">],</span>
-                    <span class="n">domain</span><span class="o">.</span><span class="n">rotation_axis</span><span class="p">,</span> <span class="n">domain</span><span class="o">.</span><span class="n">rotation_angle_in_degree</span><span class="p">)</span>
+                    <span class="n">lat</span><span class="o">=</span><span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">lon</span><span class="o">=</span><span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;longitude&quot;</span><span class="p">],</span>
+                    <span class="n">rotation_axis</span><span class="o">=</span><span class="n">domain</span><span class="o">.</span><span class="n">rotation_axis</span><span class="p">,</span>
+                    <span class="n">angle</span><span class="o">=-</span><span class="n">domain</span><span class="o">.</span><span class="n">rotation_angle_in_degree</span><span class="p">)</span>
                 <span class="c"># Rotate the synthetics.</span>
                 <span class="n">n</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">rotations</span><span class="o">.</span><span class="n">rotate_data</span><span class="p">(</span>
                     <span class="n">st</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">channel</span><span class="o">=</span><span class="s">&quot;N&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
