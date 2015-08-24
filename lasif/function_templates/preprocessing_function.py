@@ -289,7 +289,12 @@ def preprocessing_function(processing_info, iteration):  # NOQA
     tr.detrend("linear")
     tr.detrend("demean")
     tr.taper(0.05, type="cosine")
-    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=2,
+    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+              zerophase=False)
+    tr.detrend("linear")
+    tr.detrend("demean")
+    tr.taper(0.05, type="cosine")
+    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
               zerophase=False)
 
     # =========================================================================

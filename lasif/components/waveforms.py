@@ -246,8 +246,9 @@ class WaveformsComponent(Component):
                 # First rotate the station back to see, where it was
                 # recorded.
                 lat, lng = rotations.rotate_lat_lon(
-                    coordinates["latitude"], coordinates["longitude"],
-                    domain.rotation_axis, domain.rotation_angle_in_degree)
+                    lat=coordinates["latitude"], lon=coordinates["longitude"],
+                    rotation_axis=domain.rotation_axis,
+                    angle=-domain.rotation_angle_in_degree)
                 # Rotate the synthetics.
                 n, e, z = rotations.rotate_data(
                     st.select(channel="N")[0].data,
