@@ -147,6 +147,27 @@ class WaveformsComponent(Component):
                                   waveform_folder=data_path,
                                   pretty_name="%s Waveform Cache" % label,
                                   read_only=True)
+        elif data_type == "synthetic" \
+                and not os.path.exists(waveform_db_file) \
+                and os.listdir(data_path):
+            # If it is synthetic, read a file and assume all other files
+            # have the same length. This has the huge advantage that the
+            # files no longer have to be opened but only the filename has to
+            # be parsed. Only works for SES3D files.
+            files = sorted(os.listdir(data_path))
+            filename = os.path.join(data_path, files[len(files) // 2])
+            tr = obspy.read(filename)[0]
+            synthetic_info = {
+                "starttime_timestamp": tr.stats.starttime.timestamp,
+                "endtime_timestamp": tr.stats.endtime.timestamp
+            }
+
+            cache = WaveformCache(cache_db_file=waveform_db_file,
+                                  root_folder=self.comm.project.paths["root"],
+                                  waveform_folder=data_path,
+                                  pretty_name="%s Waveform Cache" % label,
+                                  read_only=self.comm.project.read_only_caches,
+                                  synthetic_info=synthetic_info)
         else:
             cache = WaveformCache(cache_db_file=waveform_db_file,
                                   root_folder=self.comm.project.paths["root"],

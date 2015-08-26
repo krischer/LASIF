@@ -28,7 +28,15 @@ class WaveformCache(FileInfoCache):
     """
 
     def __init__(self, cache_db_file, root_folder, waveform_folder, read_only,
-                 pretty_name, show_progress=True):
+                 pretty_name, show_progress=True,
+                 synthetic_info=None):
+        """
+        :param synthetic_info: Special argument. If given it must be a
+            dictionary with the following keys: "starttime_timestamp" and
+            "endtime_timestamp". These are assumed to be constant for the
+            folder and will be used everywhere greatly speeding up the
+            parsing of synthetic files.
+        """
         self.index_values = [
             ("network", "TEXT"),
             ("station", "TEXT"),
@@ -45,6 +53,7 @@ class WaveformCache(FileInfoCache):
         self.filetypes = ["waveform"]
 
         self.waveform_folder = waveform_folder
+        self.synthetic_info = synthetic_info
 
         super(WaveformCache, self).__init__(cache_db_file=cache_db_file,
                                             root_folder=root_folder,
@@ -88,6 +97,27 @@ class WaveformCache(FileInfoCache):
         """
         Extract all the information from the file.
         """
+        # Only works for SES3D synthetics for now...
+        if self.synthetic_info:
+            try:
+                network, station, location, channel = \
+                    [_i.replace("_", "")
+                     for _i in os.path.basename(filename).split(".")]
+            except:
+                pass
+            else:
+                network, station, location, channel = (
+                    network.upper(), station.upper(), location.upper(),
+                    channel.upper())
+                if location == "--":
+                    location = ""
+                return [[
+                    network, station, location, channel,
+                    "%s.%s.%s.%s" % (network, station, location, channel),
+                    self.synthetic_info["starttime_timestamp"],
+                    self.synthetic_info["endtime_timestamp"],
+                    None, None, None, None]]
+
         try:
             st = obspy.read(filename, headonly=True)
         except:
@@ -124,12 +154,8 @@ class WaveformCache(FileInfoCache):
                 tr.stats.station = station
                 tr.stats.location = location
                 tr.stats.channel = tr.stats.channel.upper()
-                # Get receiver coordinates (in the possibly rotated frame of
-                # reference)
-                latitude = tr.stats.ses3d.receiver_latitude
-                longitude = tr.stats.ses3d.receiver_longitude
-                elevation_in_m = 0.0
-                local_depth_in_m = tr.stats.ses3d.receiver_depth_in_m
+                # No need to get receiver coordinates from the SES3D file.
+                # They are potentially rotated and not that useful.
 
             s = tr.stats
 
