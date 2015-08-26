@@ -282,6 +282,27 @@
                                   <span class="n">waveform_folder</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
                                   <span class="n">pretty_name</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> Waveform Cache&quot;</span> <span class="o">%</span> <span class="n">label</span><span class="p">,</span>
                                   <span class="n">read_only</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data_type</span> <span class="o">==</span> <span class="s">&quot;synthetic&quot;</span> \
+                <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">waveform_db_file</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+            <span class="c"># If it is synthetic, read a file and assume all other files</span>
+            <span class="c"># have the same length. This has the huge advantage that the</span>
+            <span class="c"># files no longer have to be opened but only the filename has to</span>
+            <span class="c"># be parsed. Only works for SES3D files.</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">data_path</span><span class="p">))</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">files</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">tr</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">synthetic_info</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;starttime_timestamp&quot;</span><span class="p">:</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span>
+                <span class="s">&quot;endtime_timestamp&quot;</span><span class="p">:</span> <span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">endtime</span><span class="o">.</span><span class="n">timestamp</span>
+            <span class="p">}</span>
+
+            <span class="n">cache</span> <span class="o">=</span> <span class="n">WaveformCache</span><span class="p">(</span><span class="n">cache_db_file</span><span class="o">=</span><span class="n">waveform_db_file</span><span class="p">,</span>
+                                  <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;root&quot;</span><span class="p">],</span>
+                                  <span class="n">waveform_folder</span><span class="o">=</span><span class="n">data_path</span><span class="p">,</span>
+                                  <span class="n">pretty_name</span><span class="o">=</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> Waveform Cache&quot;</span> <span class="o">%</span> <span class="n">label</span><span class="p">,</span>
+                                  <span class="n">read_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">read_only_caches</span><span class="p">,</span>
+                                  <span class="n">synthetic_info</span><span class="o">=</span><span class="n">synthetic_info</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cache</span> <span class="o">=</span> <span class="n">WaveformCache</span><span class="p">(</span><span class="n">cache_db_file</span><span class="o">=</span><span class="n">waveform_db_file</span><span class="p">,</span>
                                   <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;root&quot;</span><span class="p">],</span>
