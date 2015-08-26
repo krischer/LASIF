@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 
 import mock
+import numpy as np
 import pytest
 
 from lasif.components.iterations import IterationsComponent
@@ -27,15 +28,22 @@ def comm(tmpdir):
         iterations_folder=tmpdir,
         communicator=comm,
         component_name="iterations")
-    # Create two iterations.
-    comm.iterations.create_new_iteration(
-        "1", "ses3d_4_1",
-        {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0,
-        quiet=True, create_folders=False)
-    comm.iterations.create_new_iteration(
-        "2", "ses3d_4_1",
-        {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0,
-        quiet=True, create_folders=False)
+
+    # Greatly speed up this fixture.
+    with mock.patch("lasif.tools.Q_discrete.calculate_Q_model") as p:
+        p.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
+        # Create two iterations.
+        comm.iterations.create_new_iteration(
+            "1", "ses3d_4_1",
+            {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0,
+            quiet=True, create_folders=False)
+        comm.iterations.create_new_iteration(
+            "2", "ses3d_4_1",
+            {"EVENT_1": ["AA.BB", "CC.DD"], "EVENT_2": ["EE.FF"]}, 10.0, 20.0,
+            quiet=True, create_folders=False)
+
     it = comm.iterations.get("1")
     it.comments = ["Some", "random comments"]
     comm.iterations.save_iteration(it)

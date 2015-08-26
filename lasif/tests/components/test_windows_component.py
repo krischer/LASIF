@@ -11,6 +11,8 @@ Test suite for the windows component.
 """
 from __future__ import absolute_import
 
+import mock
+import numpy as np
 import os
 import pytest
 
@@ -21,12 +23,17 @@ from ..testing_helpers import communicator  # NOQA
 
 @pytest.fixture
 def comm(communicator):
-    communicator.iterations.create_new_iteration(
-        iteration_name=1,
-        solver_name="SES3D_4_1",
-        events_dict=communicator.query.get_stations_for_all_events(),
-        min_period=40.0,
-        max_period=100.0)
+    with mock.patch("lasif.tools.Q_discrete.calculate_Q_model") as patch:
+        # Speed up this test.
+        patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                              np.array([0.59496, 3.7119, 22.2171]))
+
+        communicator.iterations.create_new_iteration(
+            iteration_name=1,
+            solver_name="SES3D_4_1",
+            events_dict=communicator.query.get_stations_for_all_events(),
+            min_period=40.0,
+            max_period=100.0)
 
     # Create folders for each event.
     for event_name in communicator.events.list():

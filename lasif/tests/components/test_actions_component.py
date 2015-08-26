@@ -27,7 +27,8 @@ def comm(tmpdir):
     return project.comm
 
 
-def test_input_files_are_actually_generated(comm):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_input_files_are_actually_generated(patch, comm):
     """
     Tests if the input file generation actually creates some files and works in
     the first place.
@@ -35,6 +36,10 @@ def test_input_files_are_actually_generated(comm):
     Does not test the input files. That is the responsibility of the input file
     generator module.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     assert os.listdir(comm.project.paths["output"]) == []
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
@@ -63,10 +68,15 @@ def test_input_files_are_actually_generated(comm):
     assert len(os.listdir(os.path.join(output, output_dir))) != 0
 
 
-def test_iteration_handling(comm):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_iteration_handling(patch, comm):
     """
     Tests the managing of the iterations.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     # First create two iterations.
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
@@ -97,10 +107,15 @@ def test_iteration_handling(comm):
     assert process_params["highpass"] == 0.01
 
 
-def test_generating_new_iteration(comm):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_generating_new_iteration(patch, comm):
     """
     Tests that iteration creation works.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     assert os.listdir(comm.project.paths["iterations"]) == []
 
     # Using an invalid solver raises.
@@ -126,12 +141,17 @@ def test_generating_new_iteration(comm):
     assert excinfo.value.message.lower() == "iteration 1 already exists."
 
 
-def test_preprocessing_runs(comm):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_preprocessing_runs(patch, comm):
     """
     Simple tests to assure the preprocessing actually runs. Does not test if it
     does the right thing but will at least assure the program flow works as
     expected.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
     processing_tag = comm.iterations.get("1").processing_tag
@@ -154,12 +174,17 @@ def test_preprocessing_runs(comm):
     assert len(os.listdir(processing_dir)) == 6
 
 
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
 def test_finalize_adjoint_sources_with_failing_adjoint_src_calculation(
-        comm, capsys):
+        patch, comm, capsys):
     """
     Tests the finalization of adjoint sources with a failing adjoint source
     calculation.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
 
@@ -199,10 +224,15 @@ def test_finalize_adjoint_sources_with_failing_adjoint_src_calculation(
     assert len(os.listdir(adj_src_dir)) == 0
 
 
-def test_adjoint_source_finalization_unrotated_domain(comm, capsys):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_adjoint_source_finalization_unrotated_domain(patch, comm, capsys):
     """
     Tests the adjoint source finalization with an unrotated domain.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
 
@@ -322,10 +352,15 @@ def test_adjoint_source_finalization_global_domain(comm, capsys):
          "STATIONS_ADJOINT"])
 
 
-def test_adjoint_source_finalization_rotated_domain(comm, capsys):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_adjoint_source_finalization_rotated_domain(patch, comm, capsys):
     """
     Tests the adjoint source finalization with a rotated domain.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     # Set some rotation angle to actually get some rotated things.
     comm.project.domain.rotation_angle_in_degree = 0.1
 
@@ -459,12 +494,17 @@ def test_adjoint_source_finalization_rotated_domain_specfem(comm, capsys):
          "STATIONS_ADJOINT"])
 
 
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
 def test_calculate_all_adjoint_sources_with_failing_adjoint_src_calculation(
-        comm, capsys):
+        patch, comm, capsys):
     """
     Tests the calculates of adjoint sources with a failing adjoint source
     calculation.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
 
@@ -502,10 +542,15 @@ def test_calculate_all_adjoint_sources_with_failing_adjoint_src_calculation(
     assert os.listdir(out) == []
 
 
-def test_calculate_all_adjoint_sources_rotated_domain(comm, capsys):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_calculate_all_adjoint_sources_rotated_domain(patch, comm, capsys):
     """
     Tests the adjoint source calculation with a rotated domain.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     # Set some rotation angle to actually get some rotated things.
     comm.project.domain.rotation_angle_in_degree = 0.1
 

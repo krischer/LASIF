@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import inspect
 import mock
+import numpy as np
 import os
 import pytest
 import shutil
@@ -82,11 +83,16 @@ def test_simple_raydensity_with_stations(comm):
                          comm.project.paths["root"], dpi=25)
 
 
-def test_Q_model_plotting(comm):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_Q_model_plotting(patch, comm):
     """
     Tests the Q model plotting with mocking. The actual plotting is tested
     at the Q model tests.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     comm.iterations.create_new_iteration(
         iteration_name="1", solver_name="ses3d_4_1",
         events_dict=comm.query.get_stations_for_all_events(),

@@ -15,6 +15,8 @@ import inspect
 import matplotlib as mpl
 import matplotlib.pylab as plt
 from matplotlib.testing.compare import compare_images as mpl_compare_images
+import mock
+import numpy as np
 import obspy
 import os
 import pytest
@@ -89,11 +91,15 @@ def cli(communicator, request, capsys):
                 msg = "Invalid LASIF CLI command."
                 raise Exception(msg)
             sys.argv = components
-            capsys.readouterr()
-            try:
-                lasif_cli.main()
-            except SystemExit:
-                pass
+            # Greatly speed up some tests.
+            with mock.patch("lasif.tools.Q_discrete.calculate_Q_model") as p:
+                p.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                                  np.array([0.59496, 3.7119, 22.2171]))
+                capsys.readouterr()
+                try:
+                    lasif_cli.main()
+                except SystemExit:
+                    pass
         except Exception as exc:
             raise exc
         finally:

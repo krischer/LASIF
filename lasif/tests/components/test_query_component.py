@@ -4,6 +4,8 @@ from __future__ import absolute_import
 
 import glob
 import inspect
+import mock
+import numpy as np
 import os
 import pytest
 import shutil
@@ -26,10 +28,15 @@ def comm(tmpdir):
     return project.comm
 
 
-def test_discover_available_data(comm):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_discover_available_data(patch, comm):
     """
     Tests the discover available data method.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
 
     # At the beginning it contains nothing, except a raw vertical component
@@ -172,10 +179,15 @@ def test_get_debug_information_for_file(comm):
         "41.88/0.75/634.00/0.00")
 
 
-def test_iteration_status(comm):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_iteration_status(patch, comm):
     """
     Tests the iteration status commands.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
     event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
@@ -234,10 +246,15 @@ def test_iteration_status(comm):
     assert status[event]["missing_raw"] == set(["HL.ARG"])
 
 
-def test_data_synthetic_iterator(comm, recwarn):
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_data_synthetic_iterator(patch, comm, recwarn):
     """
     Tests that the data synthetic iterator works as expected.
     """
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
     # It requires an existing iteration with processed data.
     comm.iterations.create_new_iteration(
         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)

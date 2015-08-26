@@ -698,15 +698,8 @@ def test_Q_model_calculating(cli):
     """
     Tests the Q model calculation via mocking.
     """
-    with mock.patch("lasif.tools.Q_discrete.calculate_Q_model") as patch:
-        patch.return_value = ([1, 2, 3], [4, 5, 6])
-        out = cli.run("lasif calculate_constant_Q_model 12 234").stdout
-    assert patch.call_count == 1
-    kwargs = patch.call_args[1]
-
-    assert round(kwargs["f_min"] - 1.0 / 234, 5) == 0
-    assert round(kwargs["f_max"] - 1.0 / 12, 5) == 0
-
+    # Mocked in the fixture's run() function.
+    out = cli.run("lasif calculate_constant_Q_model 12 234").stdout
     assert out == ''
 
 
