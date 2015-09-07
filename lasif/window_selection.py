@@ -706,7 +706,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                  "threshold", verticalalignment="bottom",
                  horizontalalignment="left", color="0.15",
                  path_effects=[
-                    PathEffects.withStroke(linewidth=3, foreground="white")])
+                 PathEffects.withStroke(linewidth=3, foreground="white")])
         plt.plot(times, ratio, color="#9B59B6",
                  label="Envelope amplitude similarity", lw=1.5)
         plt.yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
