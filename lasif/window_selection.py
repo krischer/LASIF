@@ -373,8 +373,9 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     if idx_start >= idx_end:
         idx_start = max(0, idx_end - 10)
 
-    noise_absolute = data[idx_start:idx_end].ptp()
-    noise_relative = noise_absolute / data.ptp()
+    abs_data = np.abs(data)
+    noise_absolute = abs_data[idx_start:idx_end].max()
+    noise_relative = noise_absolute / abs_data.max()
 
     if verbose:
         _log_window_selection(data_trace.id,
@@ -385,19 +386,18 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # Basic global rejection criteria.
     accept_traces = True
     if (cc < min_cc) and (noise_relative > max_noise / 3.0):
+        msg = "Correlation %.4f is below threshold of %.4f" % (cc, min_cc)
         if verbose:
-            _log_window_selection(
-                data_trace.id,
-                "Correlation %.4f is below threshold of %.4f" % (cc, min_cc))
-        accept_traces = False
+            _log_window_selection(data_trace.id, msg)
+        accept_traces = msg
 
     if noise_relative > max_noise:
+        msg = "Noise level %.3f is above threshold of %.3f" % (
+            noise_relative, max_noise)
         if verbose:
             _log_window_selection(
-                data_trace.id,
-                "Noise level %e is above threshold of %e" % (noise_relative,
-                                                             max_noise))
-        accept_traces = False
+                data_trace.id, msg)
+        accept_traces = msg
 
     # -------------------------------------------------------------------------
     # Initial Plot setup.
@@ -412,7 +412,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         import matplotlib.pylab as plt  # NOQA
         import matplotlib.patheffects as PathEffects  # NOQA
 
-        if accept_traces:
+        if accept_traces is True:
             plt.figure(figsize=(18, 10))
             plt.subplots_adjust(left=0.05, bottom=0.05, right=0.98, top=0.95,
                                 wspace=None, hspace=0.0)
@@ -491,17 +491,22 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
 
         # Plot the basic global information.
         ax = plt.gca()
-        txt = "Total CC Coeff: %.4f\nAbsolute Noise: %e\nRelative Noise: %e" \
-            % (cc, noise_absolute, noise_relative)
+        txt = (
+            "Total CC Coeff: %.4f\nAbsolute Noise: %e\nRelative Noise: %.3f"
+            % (cc, noise_absolute, noise_relative))
         ax.text(0.01, 0.95, txt, transform=ax.transAxes,
                 fontdict=dict(fontsize="small", ha='left', va='top'),
                 bbox=dict(boxstyle="round", fc="w", alpha=0.8))
         plt.suptitle("Channel %s" % data_trace.id, fontsize="larger")
 
     # Show plot and return if not accepted.
-        if not accept_traces:
+        if accept_traces is not True:
+            txt = "Rejected: %s" % (accept_traces)
+            ax.text(0.99, 0.95, txt, transform=ax.transAxes,
+                    fontdict=dict(fontsize="small", ha='right', va='top'),
+                    bbox=dict(boxstyle="round", fc="red", alpha=1.0))
             plt.show()
-    if not accept_traces:
+    if accept_traces is not True:
         return []
 
     # Initialise masked arrays. The mask will be set to True where no
