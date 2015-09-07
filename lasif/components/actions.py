@@ -230,6 +230,9 @@ class ActionsComponent(Component):
                           min(_i * MPI.COMM_WORLD.size, total_size),
                           total_size))
 
+        # Barrier at the end useful for running this in a loop.
+        MPI.COMM_WORLD.barrier()
+
     def select_windows_for_station(self, event, iteration, station, **kwargs):
         """
         Selects windows for the given event, iteration, and station. Will
