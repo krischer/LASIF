@@ -224,6 +224,11 @@ class ActionsComponent(Component):
                 self.select_windows_for_station(event, iteration, station)
             except LASIFNotFoundError as e:
                 warnings.warn(str(e), LASIFWarning)
+            except Exception as e:
+                warnings.warn(
+                    "Exception occured for iteration %s, event %s, and "
+                    "station %s: %s" (iteration.name, event["event_name"],
+                                      station, str(e)), LASIFWarning)
             if MPI.COMM_WORLD.rank == 0:
                 print("Window picking process: Picked windows for approx. %i "
                       "of %i stations." % (
