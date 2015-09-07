@@ -102,6 +102,13 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
     # Don't make this too small!
     MAX_ENERGY_RATIO = 10.0
 
+    # The minimum similarity of the envelopes of both data and synthetics. This
+    # essentially assures that the amplitudes of data and synthetics can not
+    # diverge too much within a window. It is a bit like the inverse of the
+    # ratio of both envelopes so a value of 0.2 makes sure neither amplitude
+    # can be more then 5 times larger than the other.
+    MIN_ENVELOPE_SIMILARITY = 0.2
+
     windows = select_windows(
         data_trace=data_trace,
         synthetic_trace=synthetic_trace,
@@ -122,6 +129,7 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
         min_length_period=MIN_LENGTH_PERIOD,
         min_peaks_troughs=MIN_PEAKS_TROUGHS,
         max_energy_ratio=MAX_ENERGY_RATIO,
+        min_envelope_similarity=MIN_ENVELOPE_SIMILARITY,
         **kwargs)
 
     return windows

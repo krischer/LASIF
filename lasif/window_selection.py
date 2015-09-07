@@ -23,6 +23,7 @@ import math
 
 import numpy as np
 from obspy.core.util import geodetics
+import obspy.signal.filter
 from scipy.signal import argrelextrema
 
 
@@ -240,8 +241,9 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                    min_cc=0.10, max_noise=0.10, max_noise_window=0.4,
                    min_velocity=2.4, threshold_shift=0.30,
                    threshold_correlation=0.75, min_length_period=1.5,
-                   min_peaks_troughs=2, max_energy_ratio=10.0, verbose=False,
-                   plot=False):
+                   min_peaks_troughs=2, max_energy_ratio=10.0,
+                   min_envelope_similarity=0.2,
+                   verbose=False, plot=False):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.
@@ -296,6 +298,13 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     :param max_energy_ratio: Maximum energy ratio between data and
         synthetics within a time window. Don't make this too small!
     :type max_energy_ratio: float
+    :param min_envelope_similarity: The minimum similarity of the envelopes of
+        both data and synthetics. This essentially assures that the
+        amplitudes of data and synthetics can not diverge too much within a
+        window. It is a bit like the inverse of the ratio of both envelopes
+        so a value of 0.2 makes sure neither amplitude can be more then 5
+        times larger than the other.
+    :type min_envelope_similarity: float
     :param verbose: No output by default.
     :type verbose: bool
     :param plot: Create a plot of the algortihm while it does its work.
@@ -399,6 +408,14 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                 data_trace.id, msg)
         accept_traces = msg
 
+    # Calculate the envelope of both data and synthetics. This is to make sure
+    # that the amplitude of both is not too different over time and is
+    # used as another selector. Only calculated if the trace is generally
+    # accepted as it is fairly slow.
+    if accept_traces is True:
+        data_env = obspy.signal.filter.envelope(data)
+        synth_env = obspy.signal.filter.envelope(synth)
+
     # -------------------------------------------------------------------------
     # Initial Plot setup.
     # -------------------------------------------------------------------------
@@ -413,16 +430,23 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         import matplotlib.patheffects as PathEffects  # NOQA
 
         if accept_traces is True:
-            plt.figure(figsize=(18, 10))
+            plt.figure(figsize=(18, 12))
             plt.subplots_adjust(left=0.05, bottom=0.05, right=0.98, top=0.95,
                                 wspace=None, hspace=0.0)
-            grid = (26, 1)
+            grid = (31, 1)
 
             # Axes showing the data.
             data_plot = plt.subplot2grid(grid, (0, 0), rowspan=8)
         else:
             # Only show one axes it the traces are not accepted.
             plt.figure(figsize=(18, 3))
+
+        # Plot envelopes if needed.
+        if accept_traces is True:
+            plt.plot(times, data_env, color="black", alpha=0.5, lw=0.4,
+                     label="data envelope")
+            plt.plot(synthetic_trace.times(), synth_env, color="#e41a1c",
+                     alpha=0.4, lw=0.5, label="synthetics envelope")
 
         plt.plot(times, data, color="black", label="data", lw=1.5)
         plt.plot(synthetic_trace.times(), synth, color="#e41a1c",
@@ -655,6 +679,44 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         _plot_mask(time_windows, old_time_windows,
                    name="TIME SHIFT JUMPS ELIMINATION")
 
+    # Clip both to avoid large numbers by division.
+    stacked = np.vstack([
+        np.ma.clip(synth_env, synth_env.max() * min_envelope_similarity * 0.5,
+                   synth_env.max()),
+        np.ma.clip(data_env, data_env.max() * min_envelope_similarity * 0.5,
+                   data_env.max())])
+    # Ratio.
+    ratio = stacked.min(axis=0) / stacked.max(axis=0)
+
+    # Elimination Stage 6: Make sure the amplitudes of both don't vary too
+    # much.
+    if plot:
+        old_time_windows = time_windows.copy()
+    time_windows.mask[ratio < min_envelope_similarity] = True
+    if plot:
+        plt.subplot2grid(grid, (25, 0), rowspan=1)
+        _plot_mask(time_windows, old_time_windows,
+                   name="ENVELOPE AMPLITUDE SIMILARITY ELIMINATION")
+
+    if plot:
+        plt.subplot2grid(grid, (21, 0), rowspan=4)
+        plt.hlines(min_envelope_similarity, xlim[0], xlim[1], color="gray",
+                   linestyle="--")
+        plt.text(5, min_envelope_similarity + (2) * 0.03,
+                 "threshold", verticalalignment="bottom",
+                 horizontalalignment="left", color="0.15",
+                 path_effects=[
+                    PathEffects.withStroke(linewidth=3, foreground="white")])
+        plt.plot(times, ratio, color="#9B59B6",
+                 label="Envelope amplitude similarity", lw=1.5)
+        plt.yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+        plt.ylim(0.05, 1.05)
+        plt.xticks([300, 600, 900, 1200, 1500, 1800])
+        plt.xlim(xlim)
+        plt.gca().xaxis.set_ticklabels([])
+        plt.legend(loc="lower right", fancybox=True, framealpha=0.5,
+                   fontsize="small")
+
     # First minimum window length elimination stage. This is cheap and if
     # not done it can easily destabilize the peak-and-trough marching stage
     # which would then have to deal with way more edge cases.
@@ -668,7 +730,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         if (i.stop - i.start) < min_length:
             time_windows.mask[i.start: i.stop] = True
     if plot:
-        plt.subplot2grid(grid, (21, 0), rowspan=1)
+        plt.subplot2grid(grid, (26, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="MINIMUM WINDOW LENGTH ELIMINATION 1")
 
@@ -731,7 +793,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     for start, stop in final_windows:
         time_windows.mask[start:stop] = False
     if plot:
-        plt.subplot2grid(grid, (22, 0), rowspan=1)
+        plt.subplot2grid(grid, (27, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="PEAK AND TROUGH MARCHING ELIMINATION")
 
@@ -748,7 +810,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                 min_peaks_troughs:
             time_windows.mask[i.start: i.stop] = True
     if plot:
-        plt.subplot2grid(grid, (23, 0), rowspan=1)
+        plt.subplot2grid(grid, (28, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="PEAK/TROUGH COUNT ELIMINATION")
 
@@ -763,7 +825,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         if (i.stop - i.start) < min_length:
             time_windows.mask[i.start: i.stop] = True
     if plot:
-        plt.subplot2grid(grid, (24, 0), rowspan=1)
+        plt.subplot2grid(grid, (29, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="MINIMUM WINDOW LENGTH ELIMINATION 2")
 
@@ -803,7 +865,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
         time_windows.mask[start:stop] = False
 
     if plot:
-        plt.subplot2grid(grid, (25, 0), rowspan=1)
+        plt.subplot2grid(grid, (30, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
                    name="LITTLE ENERGY ELIMINATION")
 
