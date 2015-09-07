@@ -269,7 +269,7 @@ class WaveformsComponent(Component):
                 lat, lng = rotations.rotate_lat_lon(
                     lat=coordinates["latitude"], lon=coordinates["longitude"],
                     rotation_axis=domain.rotation_axis,
-                    angle=domain.rotation_angle_in_degree)
+                    angle=-domain.rotation_angle_in_degree)
                 # Rotate the synthetics.
                 n, e, z = rotations.rotate_data(
                     st.select(channel="N")[0].data,
