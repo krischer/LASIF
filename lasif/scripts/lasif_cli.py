@@ -1035,6 +1035,10 @@ def lasif_plot_windows(parser, args):
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
+    parser.add_argument(
+        "--combine",
+        help="Create a combined plot for all windows of that event.",
+        action="store_true")
     args = parser.parse_args(args)
 
     iteration_name = args.iteration_name
@@ -1042,19 +1046,24 @@ def lasif_plot_windows(parser, args):
 
     comm = _find_project_comm(".", args.read_only_caches)
 
-    output_folder = comm.project.get_output_folder(
-        type="plotted_windows",
-        tag="Iteration_%s__%s" % (event_name, iteration_name))
+    if args.combine:
+        comm.visualizations.plot_windows(event=event_name,
+                                         iteration=iteration_name, ax=None,
+                                         show=True)
+    else:
+        output_folder = comm.project.get_output_folder(
+            type="plotted_windows",
+            tag="Iteration_%s__%s" % (event_name, iteration_name))
 
-    window_manager = comm.windows.get(event_name, iteration_name)
-    for window_group in window_manager:
-        window_group.plot(show=False, filename=os.path.join(output_folder,
-                          "%s.png" % window_group.channel_id))
-        sys.stdout.write(".")
-        sys.stdout.flush()
-    print("\nDone")
+        window_manager = comm.windows.get(event_name, iteration_name)
+        for window_group in window_manager:
+            window_group.plot(show=False, filename=os.path.join(output_folder,
+                              "%s.png" % window_group.channel_id))
+            sys.stdout.write(".")
+            sys.stdout.flush()
+        print("\nDone")
 
-    print("Done. Written output to folder %s." % output_folder)
+        print("Done. Written output to folder %s." % output_folder)
 
 
 @command_group("Project Management")

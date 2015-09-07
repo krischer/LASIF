@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import copy
 import itertools
+import math
+import numpy as np
 import os
 
 from lasif import LASIFError, LASIFNotFoundError
@@ -128,6 +131,168 @@ class VisualizationsComponent(Component):
                 "raydensity.png")
             plt.savefig(outfile, dpi=200, transparent=True)
             print "Saved picture at %s" % outfile
+
+    def plot_windows(self, event, iteration, ax=None, show=True):
+        """
+
+        :param event:
+        :param iteration:
+        :param ax: If given, it will be plotted to this ax.
+        :param show: If true, ``plt.show()`` will be called before returning.
+        :return: The potentially created axes object.
+        """
+        from obspy.geodetics.base import locations2degrees
+
+        event = self.comm.events.get(event)
+        iteration = self.comm.iterations.get(iteration)
+        pparam = iteration.get_process_params()
+        window_manager = self.comm.windows.get(event, iteration)
+
+        starttime = event["origin_time"]
+        duration = (pparam["npts"] - 1) * pparam["dt"]
+
+        # First step is to calculate all epicentral distances.
+        stations = copy.deepcopy(self.comm.query.get_all_stations_for_event(
+            event["event_name"]))
+        for s in stations.values():
+            s["epicentral_distance"] = locations2degrees(
+                event["latitude"], event["longitude"], s["latitude"],
+                s["longitude"])
+
+        min_epicentral_distance = math.floor(min(
+            _i["epicentral_distance"] for _i in stations.values()))
+        max_epicentral_distance = math.ceil(max(
+            _i["epicentral_distance"] for _i in stations.values()))
+        epicentral_range = max_epicentral_distance - min_epicentral_distance
+
+        if epicentral_range == 0:
+            raise ValueError
+
+        # Create the image that will represent the pictures in an epicentral
+        # distance plot. By default everything is black.
+        #
+        # First dimension: Epicentral distance.
+        # Second dimension: Time.
+        # Third dimension: RGB tuple.
+        len_time = 1000
+        len_dist = 100
+        image = np.zeros((len_dist, len_time, 3), dtype=np.uint8)
+
+        # Helper functions calculating the indices.
+        def _time_index(value):
+            frac = np.clip((value - starttime) / duration, 0, 1)
+            return int(round(frac * len_time))
+
+        def _space_index(value):
+            frac = np.clip(
+                (value - min_epicentral_distance) / epicentral_range, 0, 1)
+            return int(round(frac * len_dist))
+
+        def _color_index(channel):
+            _map = {
+                "Z": 2,
+                "N": 1,
+                "E": 0
+            }
+            channel = channel[-1].upper()
+            if channel not in _map:
+                raise ValueError
+            return _map[channel]
+
+        for channel in window_manager.list():
+            station = ".".join(channel.split(".")[:2])
+            for win in window_manager.get(channel):
+                image[
+                    _space_index(stations[station]["epicentral_distance"]),
+                    _time_index(win.starttime):_time_index(win.endtime),
+                    _color_index(channel)] = 255
+
+        # From http://colorbrewer2.org/
+        color_map = {
+            (255, 0, 0): (228,26,28),  # red
+            (0, 255, 0): (77,175,74),  # green
+            (0, 0, 255): (55,126,184),  # blue
+            (255, 0, 255): (152,78,163),  # purple
+            (0, 255, 255): (255,127,0),  # orange
+            (255, 255, 0): (255,255,51),  # yellow
+            (255, 255, 255): (250, 250, 250),  # white
+            (0, 0, 0): (50, 50, 50)  # More pleasent gray background
+        }
+
+        # Replace colors...fairly complex. Not sure if there is another way...
+        red, green, blue = image[:, :, 0], image[:, :, 1], image[:, :, 2]
+        for color, replacement in color_map.items():
+            image[:, :, :][(red == color[0]) & (green == color[1]) &
+                           (blue == color[2])] = replacement
+
+        def _one(i):
+            return [_i / 255.0 for _i in i]
+
+        import matplotlib.pylab as plt
+        plt.style.use("ggplot")
+
+        artists = [
+            plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(0, 0, 255)])),
+            plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(0, 255, 0)])),
+            plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(255, 0, 0)])),
+            plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(0, 255, 255)])),
+            plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(255, 0, 255)])),
+            plt.Rectangle((0, 1), 1, 1, color=_one(color_map[(255, 255, 0)])),
+            plt.Rectangle((0, 1), 1, 1,
+                          color=_one(color_map[(255, 255, 255)]))
+        ]
+        labels = [
+            "Z",
+            "N",
+            "E",
+            "Z + N",
+            "Z + E",
+            "N + E",
+            "Z + N + E"
+        ]
+
+        if ax is None:
+            plt.figure(figsize=(16, 9))
+            ax = plt.gca()
+
+        ax.imshow(image, aspect="auto", interpolation="nearest", vmin=0,
+                  vmax=255, origin="lower")
+        ax.grid()
+        ax.set_title("Selected windows for iteration %s and event %s" % (
+                     iteration.name, event["event_name"]))
+
+        ax.legend(artists, labels, loc="lower right",
+                  title="Selected Components")
+
+        # Set the x-ticks.
+        xticks = []
+        for time in ax.get_xticks():
+            # They are offset by -0.5.
+            time += 0.5
+            # Convert to actual time
+            frac = time / float(len_time)
+            time = frac * duration
+            xticks.append("%.1f" % time)
+        ax.set_xticklabels(xticks)
+        ax.set_xlabel("Time since event in seconds")
+
+        yticks = []
+        for dist in ax.get_yticks():
+            # They are offset by -0.5.
+            dist += 0.5
+            # Convert to actual epicentral distance.
+            frac = dist / float(len_dist)
+            dist = min_epicentral_distance + (frac * epicentral_range)
+            yticks.append("%.1f" % dist)
+        ax.set_yticklabels(yticks)
+        ax.set_ylabel("Epicentral distance in degree")
+
+        if show:
+            plt.tight_layout()
+            plt.show()
+            plt.close()
+
+        return ax
 
     def plot_data_and_synthetics(self, event, iteration, channel_id, ax=None,
                                  show=True):
