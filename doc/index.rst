@@ -1,6 +1,10 @@
 Welcome to LASIF
 ================
 
+.. |br| raw:: html
+
+    <br />
+
 .. image:: images/logo/lasif_logo.*
     :width: 80%
     :align: center
@@ -16,12 +20,10 @@ inversions.
 
 .. admonition:: For more details please see our paper
 
-    *Lion Krischer, Andreas Fichtner, Saule Zukauskaite, and Heiner Igel* (2015),
-    **Large‐Scale Seismic Inversion Framework**, Seismological Research Letters, doi:10.1785/0220140248.
-
-
-    * `Early Publication <http://srl.geoscienceworld.org/content/early/2015/06/02/0220140248.extract>`_
-    * `DOI Link (might not work yet) <http://dx.doi.org/10.1785/0220140248>`_
+    *Lion Krischer, Andreas Fichtner, Saule Zukauskaite, and Heiner Igel* (2015), |br|
+    **Large‐Scale Seismic Inversion Framework**, |br|
+    Seismological Research Letters, 86(4), 1198–1207. |br|
+    `doi:10.1785/0220140248 <http://dx.doi.org/10.1785/0220140248>`_
 
 ---------
 
