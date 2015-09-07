@@ -61,4 +61,5 @@ tomographic images.
     cli
     webinterface
     api_doc
+    faq
 
