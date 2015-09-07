@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Python Module Index &mdash; LASIF 0.0.1 documentation</title>
+  <title>FAQ &mdash; LASIF 0.0.1 documentation</title>
   
 
   
@@ -31,9 +31,7 @@
 
   
     <link rel="top" title="LASIF 0.0.1 documentation" href="index.html"/>
- 
-
-
+        <link rel="prev" title="How LASIF Finds Coordinates" href="how_lasif_finds_coordinates.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -81,14 +79,17 @@
         
           
           
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="webinterface.html">Web Interface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_doc.html">API Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-do-i-control-and-tune-the-window-selection-algorithm">How do I control and tune the window selection algorithm?</a></li>
+</ul>
+</li>
 </ul>
 
           
@@ -119,9 +120,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li></li>
+    <li>FAQ</li>
       <li class="wy-breadcrumbs-aside">
         
+          
+            <a href="_sources/faq.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -131,69 +134,60 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
+  <div class="section" id="faq">
+<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">¶</a></h1>
+<p>This section intends to collect frequently asked questions and will
+hopefully grow over time.</p>
+<hr class="docutils" />
+<div class="section" id="how-do-i-control-and-tune-the-window-selection-algorithm">
+<h2>How do I control and tune the window selection algorithm?<a class="headerlink" href="#how-do-i-control-and-tune-the-window-selection-algorithm" title="Permalink to this headline">¶</a></h2>
+<p>For this you have to edit the <code class="docutils literal"><span class="pre">FUNCTIONS/window_picking_function.py</span></code> file
+within your project folder as described in
+<a class="reference internal" href="tutorial/15_customizing_lasif.html"><em>Customizing LASIF</em></a>. The inner workings and the meaning of
+the various parameters are explained in the LASIF paper. If something is
+unclear, please let me know.</p>
+<p>You will most likely have to tune these parameters - the defaults are pretty
+conservative. The best way to tune them in my opinion is to add the
+<code class="docutils literal"><span class="pre">plot=True</span></code> argument to the window picking function in
+<code class="docutils literal"><span class="pre">FUNCTIONS/window_picking_function.py</span></code>, e.g.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="o">...</span>
 
-   <h1>Python Module Index</h1>
+<span class="n">windows</span> <span class="o">=</span> <span class="n">select_windows</span><span class="p">(</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="n">plot</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+    <span class="o">...</span><span class="p">)</span>
 
-   <div class="modindex-jumpbox">
-   <a href="#cap-l"><strong>l</strong></a>
-   </div>
-
-   <table class="indextable modindextable" cellspacing="0" cellpadding="2">
-     <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
-     <tr class="cap" id="cap-l"><td></td><td>
-       <strong>l</strong></td><td></td></tr>
-     <tr>
-       <td><img src="_static/minus.png" class="toggler"
-              id="toggle-1" style="display: none" alt="-" /></td>
-       <td>
-       <code class="xref">lasif</code></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="iteration_xml.html#module-lasif.iteration_xml"><code class="xref">lasif.iteration_xml</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="rotations.html#module-lasif.rotations"><code class="xref">lasif.rotations</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="iris2quakeml.html#module-lasif.scripts.iris2quakeml"><code class="xref">lasif.scripts.iris2quakeml</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="ses3d_setup_helper.html#module-lasif.scripts.ses3d_setup_helper"><code class="xref">lasif.scripts.ses3d_setup_helper</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="tools.html#module-lasif.tools"><code class="xref">lasif.tools</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="tools.file_info_cache.html#module-lasif.tools.cache_helpers.file_info_cache"><code class="xref">lasif.tools.cache_helpers.file_info_cache</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="tools.parallel.html#module-lasif.tools.parallel_helpers"><code class="xref">lasif.tools.parallel_helpers</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&nbsp;&nbsp;&nbsp;
-       <a href="window_selection.html#module-lasif.window_selection"><code class="xref">lasif.window_selection</code></a></td><td>
-       <em></em></td></tr>
-   </table>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>This will pop up a window similar to the one in the paper for each selected
+window.</p>
+<p><strong>No windows due to signal to noise ratio:</strong></p>
+<a class="reference internal image-reference" href="_images/window_picking_example_bad.svg"><img src="_images/window_picking_example_bad.svg" width="100%" /></a>
+<p><strong>Some picked windows:</strong></p>
+<a class="reference internal image-reference" href="_images/window_picking_example.svg"><img src="_images/window_picking_example.svg" width="100%" /></a>
+<p>This enables you to judge the effect of each parameter and should allow you
+to fine tune the algorithm to the data at hand. Simply test for a couple of
+windows with</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif select_windows ITERATION EVENT_NAME
+</pre></div>
+</div>
+<p>and tune the parameters until you are satisfied. <strong>Don&#8217;t forget to remove
+the</strong> <code class="docutils literal"><span class="pre">plot=True</span></code> <strong>statement after the tuning!</strong></p>
+</div>
+</div>
 
 
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="how_lasif_finds_coordinates.html" class="btn btn-neutral" title="How LASIF Finds Coordinates" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
