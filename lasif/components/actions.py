@@ -227,8 +227,8 @@ class ActionsComponent(Component):
             except Exception as e:
                 warnings.warn(
                     "Exception occured for iteration %s, event %s, and "
-                    "station %s: %s" (iteration.name, event["event_name"],
-                                      station, str(e)), LASIFWarning)
+                    "station %s: %s" % (iteration.name, event["event_name"],
+                                        station, str(e)), LASIFWarning)
             if MPI.COMM_WORLD.rank == 0:
                 print("Window picking process: Picked windows for approx. %i "
                       "of %i stations." % (
