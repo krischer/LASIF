@@ -155,7 +155,6 @@ def list_iterations():
     Returns a list of events.
     """
     iterations = app.comm.iterations.list()
-    return flask.jsonify(iterations=iterations)
 
 
 @app.route("/rest/windows")
@@ -172,6 +171,27 @@ def list_windows():
             iterations[it].append(event_name)
     return flask.jsonify(iterations)
 
+
+@app.route("/rest/window_plot")
+def get_window_plot():
+    """
+    Various plots related to windows.
+    """
+    args = flask.request.args
+
+    iteration = args.get("iteration")
+    event = args.get("event")
+
+    app.comm.visualizations.plot_windows(event=event, iteration=iteration,
+                                         distance_bins=500, show=False)
+
+    temp = io.BytesIO()
+    plt.savefig(temp, format="png", dpi=200, transparent=True)
+    plt.close("all")
+    temp.seek(0, 0)
+
+    return flask.send_file(temp, mimetype="image/png",
+                           add_etags=False)
 
 @app.route("/rest/iteration/<iteration_name>")
 def get_iteration_detail(iteration_name):

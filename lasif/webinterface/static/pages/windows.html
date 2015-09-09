@@ -1,8 +1,26 @@
-<h5>Misfit Windows</h5>
+<div class="container">
+    <div class="row" style="padding-bottom: 20px">
+        <button type="button" class="btn btn-default btn-sm"
+                style="width: 250px; margin-right: 20px"
+                data-animation="am-flip-x" bs-dropdown="iteration_dropdown"
+                aria-haspopup="true" aria-expanded="false">
+            <span ng-if="current_iteration">Iteration: </span>
+            {{current_iteration || "Select Iteration ..."}}
+        </button>
 
-<ol>
-    <ul ng-repeat="iteration in windows">
-        <b>{{iteration}}</b>
-        <span ng-repeat="event in iteration">{{event}}</span>
-    </ul>
-</ol>
+        <button type="button" class="btn btn-warning btn-sm"
+                style="width: 600px" ng-show="current_iteration"
+                bs-dropdown="window_distance_plot_dropdown"
+                aria-haspopup="true" aria-expanded="false">
+            Plot Event: {{current_event || "[Choose]"}}
+        </button>
+    </div>
+
+    <div ng-if="current_iteration && current_event" class="row">
+        <div class="col-md-12">
+            <img
+                style="width:100%"
+                src="./rest/window_plot?iteration={{current_iteration}}&event={{current_event}}">
+        </div>
+    </div>
+</div>

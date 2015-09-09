@@ -13,6 +13,7 @@ lasifApp.factory('eventList', function ($http) {
     return $http.get('rest/event');
 });
 
+
 lasifApp.factory('latestOutput', function ($http) {
     return $http.get('rest/latest_output');
 });

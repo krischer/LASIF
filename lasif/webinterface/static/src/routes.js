@@ -7,7 +7,7 @@ lasifApp.config(function ($routeSegmentProvider) {
         when("/",            "home").
         when("/map/:event_name?", "map").
         when("/iterations",  "iterations").
-        when("/windows",  "windows").
+        when("/windows/:iteration_name?/:event_name?",  "windows").
         when("/events",      "events").
         when("/events/list", "events.list").
         when("/events/depth_histogram", "events.depth_histogram").

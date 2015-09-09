@@ -102,6 +102,7 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
     # Don't make this too small!
     MAX_ENERGY_RATIO = 10.0
 
+
     # The minimum similarity of the envelopes of both data and synthetics. This
     # essentially assures that the amplitudes of data and synthetics can not
     # diverge too much within a window. It is a bit like the inverse of the

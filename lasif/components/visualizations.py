@@ -132,7 +132,7 @@ class VisualizationsComponent(Component):
             plt.savefig(outfile, dpi=200, transparent=True)
             print "Saved picture at %s" % outfile
 
-    def plot_windows(self, event, iteration, distance_bins=100,
+    def plot_windows(self, event, iteration, distance_bins=500,
                      ax=None, show=True):
         """
         Plot all selected windows on a epicentral distance vs duration plot
@@ -188,12 +188,12 @@ class VisualizationsComponent(Component):
         # Helper functions calculating the indices.
         def _time_index(value):
             frac = np.clip((value - starttime) / duration, 0, 1)
-            return int(round(frac * len_time))
+            return int(round(frac * (len_time - 1)))
 
         def _space_index(value):
             frac = np.clip(
                 (value - min_epicentral_distance) / epicentral_range, 0, 1)
-            return int(round(frac * len_dist))
+            return int(round(frac * (len_dist - 1)))
 
         def _color_index(channel):
             _map = {
