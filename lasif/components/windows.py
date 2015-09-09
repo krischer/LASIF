@@ -76,3 +76,51 @@ class WindowsComponent(Component):
                                   iteration_name))
         return WindowGroupManager(folder, iteration_name, event_name,
                                   comm=self.comm)
+
+    def get_window_statistics(self, iteration):
+        """
+        Get a dictionary with window statistics for an iteration per event.
+
+        Depending on the size of your inversion and chosen iteration,
+        this might take a while...
+        """
+        it = self.comm.iterations.get(iteration)
+
+        statistics = {}
+
+        for _i, event in enumerate(list(sorted(it.events.keys()))):
+            print("Collecting statistics for event %i of %i ..." % (
+                _i + 1, len(it.events)))
+
+            wm = self.get(event=event, iteration=iteration)
+
+            component_window_count = {"E": 0, "N": 0, "Z": 0}
+            component_length_sum = {"E": 0, "N": 0, "Z": 0}
+            stations_with_windows_count = 0
+
+            for station in it.events[event]["stations"].keys():
+                wins = wm.get_windows_for_station(station)
+                has_windows = False
+                for coll in wins:
+                    component = coll.channel_id[-1].upper()
+                    total_length = sum([_i.length for _i in coll.windows])
+                    if total_length:
+                        has_windows = True
+                    component_window_count[component] += 1
+                    component_length_sum[component] += total_length
+                if has_windows:
+                    stations_with_windows_count += 1
+
+            statistics[event] = {
+                "total_station_count": len(it.events[event]["stations"]),
+                "stations_with_windows": stations_with_windows_count,
+                "stations_with_vertical_windows": component_window_count["Z"],
+                "stations_with_north_windows": component_window_count["N"],
+                "stations_with_east_windows": component_window_count["E"],
+                "total_window_length": sum(component_length_sum.values()),
+                "window_length_vertical_components": component_length_sum["Z"],
+                "window_length_north_components": component_length_sum["N"],
+                "window_length_east_components": component_length_sum["E"]
+            }
+
+        return statistics

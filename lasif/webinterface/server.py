@@ -172,6 +172,12 @@ def list_windows():
     return flask.jsonify(iterations)
 
 
+@app.route("/rest/window_statistics/<iteration_name>")
+def get_window_statistics_for_iteration(iteration_name):
+    return flask.jsonify(
+        app.comm.windows.get_window_statistics(iteration_name))
+
+
 @app.route("/rest/window_plot")
 def get_window_plot():
     """
