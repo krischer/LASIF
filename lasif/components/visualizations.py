@@ -132,11 +132,18 @@ class VisualizationsComponent(Component):
             plt.savefig(outfile, dpi=200, transparent=True)
             print "Saved picture at %s" % outfile
 
-    def plot_windows(self, event, iteration, ax=None, show=True):
+    def plot_windows(self, event, iteration, distance_bins=100,
+                     ax=None, show=True):
         """
+        Plot all selected windows on a epicentral distance vs duration plot
+        with the color encoding the selected channels. This gives a quick
+        overview of how well selected the windows for a certain event and
+        iteration are.
 
-        :param event:
-        :param iteration:
+        :param event: The event.
+        :param iteration: The iteration.
+        :param distance_bins: The number of bins on the epicentral
+            distance axis.
         :param ax: If given, it will be plotted to this ax.
         :param show: If true, ``plt.show()`` will be called before returning.
         :return: The potentially created axes object.
@@ -175,7 +182,7 @@ class VisualizationsComponent(Component):
         # Second dimension: Time.
         # Third dimension: RGB tuple.
         len_time = 1000
-        len_dist = 100
+        len_dist = distance_bins
         image = np.zeros((len_dist, len_time, 3), dtype=np.uint8)
 
         # Helper functions calculating the indices.
@@ -285,7 +292,8 @@ class VisualizationsComponent(Component):
             dist = min_epicentral_distance + (frac * epicentral_range)
             yticks.append("%.1f" % dist)
         ax.set_yticklabels(yticks)
-        ax.set_ylabel("Epicentral distance in degree")
+        ax.set_ylabel("Epicentral distance in degree [Binned in %i distances]"
+                      % distance_bins)
 
         if show:
             plt.tight_layout()

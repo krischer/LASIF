@@ -1074,6 +1074,10 @@ def lasif_plot_windows(parser, args):
         "--combine",
         help="Create a combined plot for all windows of that event.",
         action="store_true")
+    parser.add_argument("--distance_bins", type=int,
+                        help="The number of bins on the distance axis for "
+                             "the combined plot.",
+                        default=500)
     args = parser.parse_args(args)
 
     iteration_name = args.iteration_name
@@ -1084,6 +1088,7 @@ def lasif_plot_windows(parser, args):
     if args.combine:
         comm.visualizations.plot_windows(event=event_name,
                                          iteration=iteration_name, ax=None,
+                                         distance_bins=args.distance_bins,
                                          show=True)
     else:
         output_folder = comm.project.get_output_folder(
