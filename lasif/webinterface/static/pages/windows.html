@@ -8,6 +8,11 @@
             {{current_iteration || "Select Iteration ..."}}
         </button>
 
+        <button type="button" class="btn btn-info btn-sm"
+                style="width: 200px" ng-show="current_iteration">
+            Show Statistics (Slow!)
+        </button>
+
         <button type="button" class="btn btn-warning btn-sm"
                 style="width: 600px" ng-show="current_iteration"
                 bs-dropdown="window_distance_plot_dropdown"

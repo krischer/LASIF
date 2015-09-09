@@ -166,8 +166,8 @@ class VisualizationsComponent(Component):
                 event["latitude"], event["longitude"], s["latitude"],
                 s["longitude"])
 
-        min_epicentral_distance = math.floor(min(
-            _i["epicentral_distance"] for _i in stations.values()))
+        # Plot from 0 to however far it goes.
+        min_epicentral_distance = 0
         max_epicentral_distance = math.ceil(max(
             _i["epicentral_distance"] for _i in stations.values()))
         epicentral_range = max_epicentral_distance - min_epicentral_distance

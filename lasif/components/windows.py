@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import copy
+import json
 import os
+import shutil
 
 from lasif import LASIFNotFoundError
 from .component import Component
@@ -21,6 +24,11 @@ class WindowsComponent(Component):
         self._folder = windows_folder
         super(WindowsComponent, self).__init__(communicator,
                                                component_name)
+
+        self._statistics_cache_folder = os.path.join(
+            self.comm.project.paths["cache"], "statistics")
+        if not os.path.exists(self._statistics_cache_folder):
+            os.makedirs(self._statistics_cache_folder)
 
     def list(self):
         """
@@ -77,14 +85,47 @@ class WindowsComponent(Component):
         return WindowGroupManager(folder, iteration_name, event_name,
                                   comm=self.comm)
 
-    def get_window_statistics(self, iteration):
+    def _clear_window_statistics_cache(self):
+        """
+        Clears the window statistics cache.
+        """
+        if os.path.exists(self._statistics_cache_folder):
+            shutil.rmtree(self._statistics_cache_folder)
+
+        if not os.path.exists(self._statistics_cache_folder):
+            os.makedirs(self._statistics_cache_folder)
+
+    def get_window_statistics(self, iteration, cache=True):
         """
         Get a dictionary with window statistics for an iteration per event.
 
         Depending on the size of your inversion and chosen iteration,
         this might take a while...
+
+        :param iteration: The iteration for which to calculate everything.
+        :param cache: Use cache (if available). Otherwise cached value will
+            be deleted.
         """
+        from obspy.geodetics.base import locations2degrees
+
         it = self.comm.iterations.get(iteration)
+
+        cache_file = os.path.join(self._statistics_cache_folder,
+                                  "window_statistics_iteration_%s.json" %
+                                  it.name)
+
+        if os.path.exists(cache_file):
+            if cache is True:
+                try:
+                    with open(cache_file) as fh:
+                        data = json.load(fh)
+                except Exception as e:
+                    print("Loading cache failed due to: %s" % str(e))
+                print("Loading statistics from cache.")
+                return data
+            else:
+                print("Removing existing cached file ...")
+                os.remove(cache_file)
 
         statistics = {}
 
@@ -94,33 +135,60 @@ class WindowsComponent(Component):
 
             wm = self.get(event=event, iteration=iteration)
 
+            event_obj = self.comm.events.get(event)
+            station_details = copy.deepcopy(
+                self.comm.query.get_all_stations_for_event(event))
+
             component_window_count = {"E": 0, "N": 0, "Z": 0}
             component_length_sum = {"E": 0, "N": 0, "Z": 0}
             stations_with_windows_count = 0
+            stations_without_windows_count = 0
+
+            stations = {}
 
             for station in it.events[event]["stations"].keys():
+                s = station_details[station]
+                stations[station] = s
+
+                s["epicentral_distance"] = locations2degrees(
+                    event_obj["latitude"], event_obj["longitude"],
+                    s["latitude"], s["longitude"])
+
+                s["windows"] = {"Z": [], "E": [], "N": []}
+
                 wins = wm.get_windows_for_station(station)
                 has_windows = False
                 for coll in wins:
                     component = coll.channel_id[-1].upper()
                     total_length = sum([_i.length for _i in coll.windows])
-                    if total_length:
-                        has_windows = True
+                    if not total_length:
+                        continue
+                    for win in coll.windows:
+                        s["windows"][component].append(win.length)
+                    has_windows = True
                     component_window_count[component] += 1
                     component_length_sum[component] += total_length
                 if has_windows:
                     stations_with_windows_count += 1
+                else:
+                    stations_without_windows_count += 1
 
             statistics[event] = {
                 "total_station_count": len(it.events[event]["stations"]),
                 "stations_with_windows": stations_with_windows_count,
+                "stations_without_windows": stations_without_windows_count,
                 "stations_with_vertical_windows": component_window_count["Z"],
                 "stations_with_north_windows": component_window_count["N"],
                 "stations_with_east_windows": component_window_count["E"],
                 "total_window_length": sum(component_length_sum.values()),
                 "window_length_vertical_components": component_length_sum["Z"],
                 "window_length_north_components": component_length_sum["N"],
-                "window_length_east_components": component_length_sum["E"]
+                "window_length_east_components": component_length_sum["E"],
+                "stations": stations
             }
+
+        # Store in cache.
+        with open(cache_file, "w") as fh:
+            json.dump(statistics, fh)
 
         return statistics
