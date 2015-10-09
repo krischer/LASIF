@@ -51,7 +51,9 @@ import collections
 import colorama
 import difflib
 import itertools
+import progressbar
 import sys
+import time
 import traceback
 import warnings
 
@@ -165,6 +167,20 @@ def _find_project_comm_mpi(folder, read_only_caches):
         comm = _find_project_comm(folder, read_only_caches=True)
 
     return comm
+
+
+def split(container, count):
+    """
+    Simple and elegant function splitting a container into count
+    equal chunks.
+
+    Order is not preserved but for the use case at hand this is
+    potentially an advantage as data sitting in the same folder thus
+    have a higher at being processed at the same time thus the disc
+    head does not have to jump around so much. Of course very
+    architecture dependent.
+    """
+    return [container[_i::count] for _i in range(count)]
 
 
 @command_group("Plotting")
@@ -795,6 +811,8 @@ def lasif_create_successive_iteration(parser, args):
         existing_iteration_name=existing_iteration_name,
         new_iteration_name=new_iteration_name)
 
+
+@mpi_enabled
 @command_group("Iteration Management")
 def lasif_compare_misfits(parser, args):
     """
@@ -809,24 +827,41 @@ def lasif_compare_misfits(parser, args):
     parser.add_argument("to_iteration", help="current iteration")
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm_mpi(".", args.read_only_caches)
 
+    _starting_time = time.time()
+
+    # Read on each core as pickling/broadcasting them prooves to be
+    # difficult. Should be possible if this ever becomes a performance issue.
     from_it = comm.iterations.get(args.from_iteration)
     to_it = comm.iterations.get(args.to_iteration)
 
-    print "Calculating misfit change from iteration '%s' to iteration " \
-          "'%s'..." % (from_it.name, to_it.name)
+    if MPI.COMM_WORLD.rank == 0:
+        # Get a list of events that are in both, the new and the old iteration.
+        events = sorted(set(from_it.events.keys()).intersection(
+            set(to_it.events.keys())))
+        event_count = len(events)
 
-    # Get a list of events that are in both, the new and the old iteration.
-    events = list(set(from_it.events.keys()).intersection(
-        set(to_it.events.keys())))
+        # Split into a number of events per MPI process.
+        events = split(events, MPI.COMM_WORLD.size)
 
-    all_events = collections.defaultdict(list)
+        print " => Calculating misfit change from iteration '%s' to " \
+            "iteration '%s' ..." % (from_it.name, to_it.name)
+        print " => Launching calculations on %i core(s)\n" % \
+            MPI.COMM_WORLD.size
+
+    else:
+        events = None
+
+    # Scatter jobs
+    events = MPI.COMM_WORLD.scatter(events, root=0)
 
     total_misfit_from = 0
     total_misfit_to = 0
 
-    for event in events:
+    all_events = collections.defaultdict(list)
+
+    for _i, event in enumerate(events):
         # Get the windows from both.
         window_group_to = comm.windows.get(event, to_it)
         window_group_from = comm.windows.get(event, from_it)
@@ -835,7 +870,19 @@ def lasif_compare_misfits(parser, args):
         shared_channels = set(window_group_to.list()).intersection(
             set(window_group_from.list()))
 
-        for channel in shared_channels:
+        # On rank 0, show a progressbar because it can take forever.
+        if MPI.COMM_WORLD.rank == 0:
+            widgets = [
+                "Approximately event %i of %i: " % (
+                    _i * MPI.COMM_WORLD.size + 1, event_count),
+                progressbar.Percentage(),
+                progressbar.Bar(), "", progressbar.ETA()]
+            pbar = progressbar.ProgressBar(
+                widgets=widgets, maxval=len(shared_channels)).start()
+
+        for _i, channel in enumerate(shared_channels):
+            if MPI.COMM_WORLD.rank == 0:
+                pbar.update(_i)
             window_collection_from = window_group_from.get(channel)
             window_collection_to = window_group_to.get(channel)
 
@@ -867,12 +914,34 @@ def lasif_compare_misfits(parser, args):
                 all_events[event].append(
                     (misfit_to - misfit_from) /
                     (misfit_from * win_from.weight))
+        if MPI.COMM_WORLD.rank == 0:
+            pbar.finish()
+
+    _all_events = MPI.COMM_WORLD.gather(all_events, root=0)
+
+    total_misfit_from = MPI.COMM_WORLD.reduce(total_misfit_from, root=0)
+    total_misfit_to = MPI.COMM_WORLD.reduce(total_misfit_to, root=0)
+
+    # Only rank 0 continues.
+    if MPI.COMM_WORLD.rank != 0:
+        return
+
+    # Collect in singular dictionary again.
+    all_events = {}
+    [all_events.update(_i) for _i in _all_events]
 
     if not all_events:
         raise LASIFCommandLineException("No misfit values could be compared.")
 
-    print total_misfit_from
-    print total_misfit_to
+    print "\nTotal misfit in Iteration %s: %.3f" % (from_it.name,
+                                                    total_misfit_from)
+    print "Total misfit in Iteration %s: %.3f" % (to_it.name,
+                                                  total_misfit_to)
+
+    _ending_time = time.time()
+
+    print "\n => Computation time: %.1f seconds" % (_ending_time -
+                                                    _starting_time)
 
     import matplotlib.pylab as plt
     import numpy as np
