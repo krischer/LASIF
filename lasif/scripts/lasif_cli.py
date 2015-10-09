@@ -791,23 +791,9 @@ def lasif_create_successive_iteration(parser, args):
 
     comm = _find_project_comm(".", args.read_only_caches)
 
-    if comm.iterations.has_iteration(new_iteration_name):
-        msg = ("Iteration '%s' already exists." % new_iteration_name)
-        raise LASIFCommandLineException(msg)
-
-    # Get the old iteration
-    existing_iteration = comm.iterations.get(existing_iteration_name)
-
-    # Clone the old iteration, delete any comments and change the name.
-    existing_iteration.comments = []
-    existing_iteration.iteration_name = new_iteration_name
-
-    existing_iteration.write(comm.iterations.get_filename_for_iteration(
-        new_iteration_name))
-
-    print("Successfully created new iteration:")
-    print(existing_iteration)
-
+    comm.iterations.create_successive_iteration(
+        existing_iteration_name=existing_iteration_name,
+        new_iteration_name=new_iteration_name)
 
 @command_group("Iteration Management")
 def lasif_compare_misfits(parser, args):
@@ -1061,6 +1047,23 @@ def lasif_plot_q_model(parser, args):
 
     import matplotlib.pyplot as plt
     plt.show()
+
+
+@command_group("Plotting")
+def lasif_plot_window_statistics(parser, args):
+    """
+    Plot the selected windows.
+    """
+    parser.add_argument("iteration_name", help="name of the iteration")
+    args = parser.parse_args(args)
+
+    iteration_name = args.iteration_name
+
+    comm = _find_project_comm(".", args.read_only_caches)
+
+    if args.combine:
+        comm.visualizations.plot_window_statistics(
+            iteration=iteration_name, ax=None, show=True)
 
 
 @command_group("Plotting")

@@ -103,7 +103,7 @@ class WaveformCache(FileInfoCache):
                 network, station, location, channel = \
                     [_i.replace("_", "")
                      for _i in os.path.basename(filename).split(".")]
-            except:
+            except Exception as e:
                 pass
             else:
                 network, station, location, channel = (

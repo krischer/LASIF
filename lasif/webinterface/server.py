@@ -185,11 +185,13 @@ def get_window_plot():
     """
     args = flask.request.args
 
-    iteration = args.get("iteration")
-    event = args.get("event")
+    plot_type = args.get("type")
 
-    app.comm.visualizations.plot_windows(event=event, iteration=iteration,
-                                         distance_bins=500, show=False)
+    if plot_type == "window_distance":
+        iteration = args.get("iteration")
+        event = args.get("event")
+        app.comm.visualizations.plot_windows(event=event, iteration=iteration,
+                                             distance_bins=500, show=False)
 
     temp = io.BytesIO()
     plt.savefig(temp, format="png", dpi=200, transparent=True)

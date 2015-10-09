@@ -302,6 +302,93 @@ class VisualizationsComponent(Component):
 
         return ax
 
+
+    def plot_window_statistics(self, iteration, ax=None, show=True,
+                               cache=True):
+        """
+        Plots the statistics of windows for one iteration.
+
+        :param iteration: The chosen iteration.
+        :param ax: If given, it will be plotted to this ax.
+        :param show: If true, ``plt.show()`` will be called before returning.
+        :param cache: Use the cache for the statistics.
+
+        :return: The potentially created axes object.
+        """
+        # Get the statistics.
+        data = self.comm.windows.get_window_statistics(iteration=iteration,
+                                                       cache=cache)
+
+        import matplotlib
+        import matplotlib.pylab as plt
+        import seaborn as sns
+
+        if ax is None:
+            plt.figure(figsize=(20, 12))
+            ax = plt.gca()
+
+        ax.invert_yaxis()
+
+        pal = sns.color_palette("Set1", n_colors=4)
+
+        total_count = []
+        count_z = []
+        count_n = []
+        count_e = []
+        event_names = []
+
+        width = 0.2
+        ind = np.arange(len(data))
+
+        cm = matplotlib.cm.RdYlGn
+
+        for _i, event in enumerate(sorted(data.keys())):
+            d = data[event]
+            event_names.append(event)
+            total_count.append(d["total_station_count"])
+            count_z.append(d["stations_with_vertical_windows"])
+            count_n.append(d["stations_with_north_windows"])
+            count_e.append(d["stations_with_east_windows"])
+
+            frac = int(round(100 * d["stations_with_windows"] /
+                             float(d["total_station_count"])))
+
+            color = cm(frac / 70.0)
+
+            ax.text(-10, _i, "%i%%" % frac,
+                    fontdict=dict(fontsize="x-small", ha='right', va='top'),
+                    bbox=dict(boxstyle="round", fc=color, alpha=0.8))
+
+
+        ax.barh(ind, count_z, width, color=pal[0], label="Stations with "
+                                                        "Vertical Component Windows")
+        ax.barh(ind + 1 * width, count_n, width, color=pal[1],
+               label="Stations with North Component Windows")
+        ax.barh(ind + 2 * width, count_e, width, color=pal[2],
+               label="Stations with East Component Windows")
+        ax.barh(ind + 3 * width, total_count, width, color='0.4',
+                 label="Total Stations")
+
+
+        ax.set_xlabel("Station Count")
+
+        ax.set_yticks(ind + 2 * width, event_names)
+        ax.yaxis.set_tick_params(pad=30)
+        ax.set_ylim(len(data), -width)
+
+        ax.legend(frameon=True)
+
+        plt.suptitle("Window Statistics for Iteration %i" % 1)
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.95)
+
+        if show:
+            plt.show()
+
+        return ax
+
+
     def plot_data_and_synthetics(self, event, iteration, channel_id, ax=None,
                                  show=True):
         """
