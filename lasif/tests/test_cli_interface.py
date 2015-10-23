@@ -755,50 +755,6 @@ def test_building_all_cached(cli):
             "'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15'") in out.stdout
 
 
-def test_read_only_cache_flag_passed_on(cli):
-    """
-    Make sure the read_only_caches flag is passed on.
-    """
-    # This is not comprehensive but the handling is the same for each CLI
-    # function so it should be good enough I hope.
-    with mock.patch("lasif.components.project.Project.__init__") as p:
-        cli.run("lasif list_events")
-    assert p.call_count == 1
-    assert p.call_args[1] == {"read_only_caches": False}
-
-    with mock.patch("lasif.components.project.Project.__init__") as p:
-        cli.run("lasif list_events --read_only_caches")
-    assert p.call_count == 1
-    assert p.call_args[1] == {"read_only_caches": True}
-
-    # Should also be passed on to the underlying actual cache objects.
-    with mock.patch(
-            "lasif.tools.cache_helpers.event_cache.EventCache.__init__") as p:
-        cli.run("lasif list_events")
-    assert p.call_count == 1
-    assert p.call_args[1]["read_only"] is False
-
-    with mock.patch(
-            "lasif.tools.cache_helpers.event_cache.EventCache.__init__") as p:
-        cli.run("lasif list_events --read_only_caches")
-    assert p.call_count == 1
-    assert p.call_args[1]["read_only"] is True
-
-
-def test_read_only_option_not_working_for_certain_commands(cli):
-    """
-    The read-only option should not work for certain function. Mainly the
-    "build_all_caches" option right now. It makes little sense to have it
-    for this function...
-    """
-    err = cli.run("lasif build_all_caches").stderr
-    assert err.strip() == ""
-
-    # Should raise here.
-    err = cli.run("lasif build_all_caches --read_only_caches").stderr
-    assert "unrecognized arguments: --read_only_caches" in err
-
-
 def test_lasif_serve(cli):
     """
     Tests that the correct serve functions are called.

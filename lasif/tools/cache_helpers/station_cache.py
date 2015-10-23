@@ -44,7 +44,7 @@ class StationCache(FileInfoCache):
     StationXML: *.xml
     """
     def __init__(self, cache_db_file, root_folder, seed_folder, resp_folder,
-                 stationxml_folder, read_only, show_progress=True):
+                 stationxml_folder, show_progress=True):
         self.index_values = [
             ("channel_id", "TEXT"),
             ("start_date", "INTEGER"),
@@ -65,7 +65,6 @@ class StationCache(FileInfoCache):
 
         super(StationCache, self).__init__(cache_db_file=cache_db_file,
                                            root_folder=root_folder,
-                                           read_only=read_only,
                                            pretty_name="Station Cache",
                                            show_progress=show_progress)
 
