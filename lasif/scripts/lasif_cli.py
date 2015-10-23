@@ -128,7 +128,7 @@ class LASIFCommandLineException(Exception):
     pass
 
 
-def _find_project_comm(folder, read_only_caches):
+def _find_project_comm(folder):
     """
     Will search upwards from the given folder until a folder containing a
     LASIF root structure is found. The absolute path to the root is returned.
@@ -136,35 +136,30 @@ def _find_project_comm(folder, read_only_caches):
     max_folder_depth = 10
     folder = folder
     for _ in xrange(max_folder_depth):
-        if os.path.exists(os.path.join(folder, "config.xml")):
+        if os.path.exists(os.path.join(folder, "config_hp.xml")):
             return Project(
-                os.path.abspath(folder),
-                read_only_caches=read_only_caches).get_communicator()
+                os.path.abspath(folder)).get_communicator()
         folder = os.path.join(folder, os.path.pardir)
     msg = "Not inside a LASIF project."
     raise LASIFCommandLineException(msg)
 
 
-def _find_project_comm_mpi(folder, read_only_caches):
+def _find_project_comm_mpi(folder):
     """
     Parallel version. Will open the caches for rank 0 with write access,
     caches from the other ranks can only read.
 
     :param folder: The folder were to start the search.
-    :param read_only_caches: Read-only caches for rank 0. All others will
-        always be read-only.
     """
     if MPI.COMM_WORLD.rank == 0:
-        # Rank 0 can write the caches, the others cannot. The
-        # "--read_only_caches" flag overwrites this behaviour.
-        comm = _find_project_comm(folder, read_only_caches=read_only_caches)
+        comm = _find_project_comm(folder)
 
     # Open the caches for the other ranks after rank zero has opened it to
     # allow for the initial caches to be written.
     MPI.COMM_WORLD.barrier()
 
     if MPI.COMM_WORLD.rank != 0:
-        comm = _find_project_comm(folder, read_only_caches=True)
+        comm = _find_project_comm(folder)
 
     return comm
 
@@ -192,7 +187,7 @@ def lasif_plot_domain(parser, args):
                         help="Don't plot the simulation domain",
                         action="store_false")
     args = parser.parse_args(args)
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     comm.visualizations.plot_domain(
         plot_simulation_domain=args.no_simulation_domain)
@@ -208,7 +203,7 @@ def lasif_shell(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     print("LASIF shell, 'comm' object is available in the local namespace.\n")
     print(comm)
     from IPython import embed
@@ -224,7 +219,7 @@ def lasif_plot_event(parser, args):
     args = parser.parse_args(args)
     event_name = args.event_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.visualizations.plot_event(event_name)
 
     import matplotlib.pyplot as plt
@@ -250,7 +245,7 @@ def lasif_plot_events(parser, args):
     args = parser.parse_args(args)
     plot_type = args.type
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.visualizations.plot_events(plot_type)
 
     import matplotlib.pyplot as plt
@@ -266,7 +261,7 @@ def lasif_plot_raydensity(parser, args):
                         action="store_true")
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.visualizations.plot_raydensity(plot_stations=args.plot_stations)
 
 
@@ -281,7 +276,7 @@ def lasif_add_spud_event(parser, args):
 
     from lasif.scripts.iris2quakeml import iris2quakeml
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     iris2quakeml(url, comm.project.paths["events"])
 
 
@@ -307,7 +302,7 @@ def lasif_add_gcmt_events(parser, args):
     args = parser.parse_args(args)
 
     from lasif.tools.query_gcmt_catalog import add_new_events
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     add_new_events(comm=comm, count=args.count,
                    min_magnitude=args.min_magnitude,
@@ -323,7 +318,7 @@ def lasif_info(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     print(comm.project)
 
 
@@ -341,7 +336,7 @@ def lasif_download_data(parser, args):
     event_name = args.event_name
     providers = args.providers
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.downloads.download_data(event_name, providers=providers)
 
 
@@ -356,7 +351,7 @@ def lasif_list_events(parser, args):
     args = parser.parse_args(args)
 
     from lasif.tools.prettytable import PrettyTable
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     print("%i event%s in project:" % (comm.events.count(),
           "s" if comm.events.count() != 1 else ""))
 
@@ -401,7 +396,7 @@ def lasif_build_all_caches(parser, args):
                         action="store_true")
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", read_only_caches=False)
+    comm = _find_project_comm(".")
     comm.project.build_all_caches(quick=args.quick)
 
 
@@ -412,7 +407,7 @@ def lasif_list_models(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     models = comm.models.list()
     print("%i model%s in project:" % (len(models), "s" if len(models) != 1
           else ""))
@@ -427,7 +422,7 @@ def lasif_list_kernels(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     kernels = comm.kernels.list()
     print("%i kernel%s in project:" % (
         len(kernels), "s" if len(kernels) != 1 else ""))
@@ -447,7 +442,7 @@ def lasif_plot_wavefield(parser, args):
 
     from lasif import ses3d_models
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     event_name = comm.events.get(args.event_name)["event_name"]
     iteration_name = comm.iterations.get(args.iteration_name).long_name
@@ -498,7 +493,7 @@ def lasif_event_info(parser, args):
     event_name = args.event_name
     verbose = args.v
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     if not comm.events.has_event(event_name):
         msg = "Event '%s' not found in project." % event_name
         raise LASIFCommandLineException(msg)
@@ -546,7 +541,7 @@ def lasif_plot_stf(parser, args):
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     iteration = comm.iterations.get(iteration_name)
     pp = iteration.get_process_params()
@@ -580,7 +575,7 @@ def lasif_generate_all_input_files(parser, args):
     iteration_name = args.iteration_name
     simulation_type = args.simulation_type
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     simulation_type = simulation_type.replace("_", " ")
 
     it = comm.iterations.get(iteration_name)
@@ -614,7 +609,7 @@ def lasif_generate_input_files(parser, args):
     event_name = args.event_name
     simulation_type = args.simulation_type
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     simulation_type = simulation_type.replace("_", " ")
     comm.actions.generate_input_files(iteration_name, event_name,
                                       simulation_type)
@@ -656,7 +651,7 @@ def lasif_finalize_adjoint_sources(parser, args):
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.actions.finalize_adjoint_sources(iteration_name, event_name)
 
 
@@ -671,7 +666,7 @@ def lasif_calculate_all_adjoint_sources(parser, args):
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.actions.calculate_all_adjoint_sources(iteration_name, event_name)
 
 
@@ -692,7 +687,7 @@ def lasif_select_windows(parser, args):
     iteration = args.iteration_name
     event = args.event_name
 
-    comm = _find_project_comm_mpi(".", args.read_only_caches)
+    comm = _find_project_comm_mpi(".")
 
     comm.actions.select_windows(event, iteration)
 
@@ -712,7 +707,7 @@ def lasif_select_all_windows(parser, args):
 
     iteration = args.iteration_name
 
-    comm = _find_project_comm_mpi(".", args.read_only_caches)
+    comm = _find_project_comm_mpi(".")
 
     events = comm.events.list()
 
@@ -739,7 +734,7 @@ def lasif_launch_misfit_gui(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     from lasif.misfit_gui.misfit_gui import launch
     launch(comm)
@@ -752,7 +747,7 @@ def lasif_launch_model_gui(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     from lasif.ses3d_model_gui.model_gui import launch
     launch(comm)
@@ -781,7 +776,7 @@ def lasif_create_new_iteration(parser, args):
         msg = "min_period needs to be smaller than max_period."
         raise LASIFCommandLineException(msg)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.iterations.create_new_iteration(
         iteration_name=iteration_name,
         solver_name=solver_name,
@@ -805,7 +800,7 @@ def lasif_create_successive_iteration(parser, args):
     existing_iteration_name = args.existing_iteration
     new_iteration_name = args.new_iteration
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     comm.iterations.create_successive_iteration(
         existing_iteration_name=existing_iteration_name,
@@ -827,7 +822,7 @@ def lasif_compare_misfits(parser, args):
     parser.add_argument("to_iteration", help="current iteration")
     args = parser.parse_args(args)
 
-    comm = _find_project_comm_mpi(".", args.read_only_caches)
+    comm = _find_project_comm_mpi(".")
 
     _starting_time = time.time()
 
@@ -981,7 +976,7 @@ def lasif_migrate_windows(parser, args):
     parser.add_argument("to_iteration", help="iteration windows will "
                                              "be migrated to")
     args = parser.parse_args(args)
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     from_it = comm.iterations.get(args.from_iteration)
     to_it = comm.iterations.get(args.to_iteration)
@@ -1018,7 +1013,7 @@ def lasif_list_iterations(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     it_len = comm.iterations.count()
 
@@ -1037,7 +1032,7 @@ def lasif_iteration_info(parser, args):
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     if not comm.iterations.has_iteration(iteration_name):
         msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
                "a list of all available iterations.") % iteration_name
@@ -1055,7 +1050,7 @@ def lasif_remove_empty_coordinate_entries(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.inventory_db.remove_coordinate_less_stations()
 
     print("SUCCESS")
@@ -1079,7 +1074,7 @@ def lasif_preprocess_data(parser, args):
     iteration_name = args.iteration_name
     events = args.events if args.events else None
 
-    comm = _find_project_comm_mpi(".", args.read_only_caches)
+    comm = _find_project_comm_mpi(".")
 
     # No need to perform these checks on all ranks.
     exceptions = []
@@ -1114,7 +1109,7 @@ def lasif_plot_q_model(parser, args):
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.iterations.plot_Q_model(iteration_name)
 
     import matplotlib.pyplot as plt
@@ -1131,7 +1126,7 @@ def lasif_plot_window_statistics(parser, args):
 
     iteration_name = args.iteration_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     if args.combine:
         comm.visualizations.plot_window_statistics(
@@ -1158,7 +1153,7 @@ def lasif_plot_windows(parser, args):
     iteration_name = args.iteration_name
     event_name = args.event_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     if args.combine:
         comm.visualizations.plot_windows(event=event_name,
@@ -1231,7 +1226,7 @@ def lasif_validate_data(parser, args):
         raypaths = True
         waveforms = True
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     comm.validator.validate_data(
         station_file_availability=station_file_availability,
         raypaths=raypaths, waveforms=waveforms)
@@ -1246,7 +1241,7 @@ def lasif_iteration_status(parser, args):
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
     status = comm.query.get_iteration_status(iteration_name)
     iteration = comm.iterations.get(iteration_name)
 
@@ -1307,7 +1302,7 @@ def lasif_debug(parser, args):
     parser.add_argument(
         "files", help="filenames to print debug information about", nargs="+")
     args = parser.parse_args(args)
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     for filename in args.files:
         filename = os.path.relpath(filename)
@@ -1357,7 +1352,7 @@ def lasif_serve(parser, args):
     if debug:
         nobrowser = True
 
-    comm = _find_project_comm(".", args.read_only_caches)
+    comm = _find_project_comm(".")
 
     if nobrowser is False:
         import webbrowser
@@ -1445,10 +1440,6 @@ def _get_argument_parser(fct):
     if fct.func_name in exceptions:
         return parser
 
-    # Otherwise add the option to add caches in read-only mode.
-    parser.add_argument("--read_only_caches",
-                        help="sets all caches to read-only",
-                        action="store_true")
     return parser
 
 

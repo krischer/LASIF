@@ -37,7 +37,6 @@ class EventsComponent(Component):
             cache_db_file=os.path.join(
                 self.comm.project.paths["cache"], "event_cache.sqlite"),
             root_folder=self.comm.project.paths["root"],
-            read_only=self.comm.project.read_only_caches,
             event_folder=self.folder)
 
         values = event_cache.get_values()

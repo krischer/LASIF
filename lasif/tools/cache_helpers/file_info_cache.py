@@ -101,10 +101,9 @@ class FileInfoCache(object):
     Intended to be subclassed.
     """
     def __init__(self, cache_db_file, root_folder,
-                 read_only, pretty_name, show_progress=True):
+                 pretty_name, show_progress=True):
         self.cache_db_file = cache_db_file
         self.root_folder = root_folder
-        self.read_only = read_only
         self.show_progress = show_progress
         self.pretty_name = pretty_name
 
@@ -115,36 +114,9 @@ class FileInfoCache(object):
         # Will be filled once database has been updated.
         self.files = {}
 
-        # Readonly mode disable updates and the creation of new databases.
-        # This is useful for scenarios where multiple processes access the
-        # same file cache database concurrently which otherwise can result
-        # in locked databases. Of course the cache database must already be
-        # built for that to work.
-        if self.read_only is True:
-            if not os.path.exists(self.cache_db_file):
-                raise ValueError("Cache DB '%s' does not exists and cannot "
-                                 "be created as it has been requested in "
-                                 "read-only mode." % self.cache_db_file)
-            # Open in read-only mode (seen in
-            # http://stackoverflow.com/a/28302809/1657047)
-            # I am not sure this actually works as it opens the file in
-            # read-only mode but not necessarily the database. It will work
-            # if SQLite3 notices the file pointer is in read-only mode and
-            # adjusts accordingly which might very well be the case.
-            self._fd = os.open(self.cache_db_file, os.O_RDONLY)
-            self.db_conn = sqlite3.connect("/dev/fd/%d" % self._fd)
-            self.db_cursor = self.db_conn.cursor()
-            if self._validate_database() is not True:
-                raise ValueError(
-                    "Cache DB '%s' did not validate and cannot be created "
-                    "anew as it has been requested in read-only mode." %
-                    self.cache_db_file)
-        elif self.read_only is False:
-            self._init_database()
-            self._update_indices()
-            self.update()
-        else:
-            raise NotImplementedError
+        self._init_database()
+        self._update_indices()
+        self.update()
 
     def __del__(self):
         if self.db_conn:

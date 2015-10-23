@@ -253,8 +253,8 @@ def get_event_details(event_name):
 
 @app.route("/rest/available_data/<event_name>/<station_id>")
 def get_available_data(event_name, station_id):
-    available_data = app.comm.query.discover_available_data(event_name,
-                                                            station_id)
+    available_data = app.comm.waveforms.get_available_data(
+        event_name=event_name, station_id=station_id)
     return flask.jsonify(**available_data)
 
 

@@ -49,8 +49,7 @@ class Project(Component):
 
     It represents the heart of LASIF.
     """
-    def __init__(self, project_root_path, init_project=False,
-                 read_only_caches=False):
+    def __init__(self, project_root_path, init_project=False):
         """
         Upon intialization, set the paths and read the config file.
 
@@ -61,26 +60,19 @@ class Project(Component):
             project, e.g. create the necessary folder structure. If a string is
             passed, the project will be given this name. Otherwise a default
             name will be chosen. Defaults to False.
-        :param read_only_caches: If True, all caches are read-only. This is
-            important for concurrent access as otherwise you might end up
-            with race conditions. Make sure to build all necessary caches
-            before enabling this, otherwise LASIF will not find all files it
-            requires to work.
-        :type read_only_caches: bool
         """
         # Setup the paths.
         self.__setup_paths(project_root_path)
+        # Manually create the CACHE folder - it is needed for initializing
+        # some components and thus cannot use the folder creation logic for
+        # the rest of the project structure.
+        if not os.path.exists(self.paths["cache"]):
+            os.makedirs(self.paths["cache"])
 
         if init_project:
-            if read_only_caches:
-                raise ValueError("Cannot initialize a project with disabled "
-                                 "cache-writes.")
             if not os.path.exists(project_root_path):
                 os.makedirs(project_root_path)
             self.__init_new_project(init_project)
-
-        # Project wide flag if the caches are read_only.
-        self.read_only_caches = bool(read_only_caches)
 
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
@@ -93,10 +85,6 @@ class Project(Component):
         self.__comm = Communicator()
         super(Project, self).__init__(self.__comm, "project")
 
-        # Setup the different components. The CACHE folder must already be
-        # present.
-        if not os.path.exists(self.paths["cache"]):
-            os.makedirs(self.paths["cache"])
         self.__setup_components()
 
         # Finally update the folder structure.
@@ -116,7 +104,6 @@ class Project(Component):
         raw_data_file_count = 0
         processed_data_file_count = 0
         synthetic_data_file_count = 0
-        station_file_count = 0
         project_filesize = 0
 
         for dirpath, _, filenames in os.walk(self.paths["root"]):
@@ -130,15 +117,12 @@ class Project(Component):
                     processed_data_file_count += len(filenames)
             elif dirpath.startswith(self.paths["synthetics"]):
                 synthetic_data_file_count += len(filenames)
-            elif dirpath.startswith(self.paths["stations"]):
-                station_file_count += len(filenames)
 
         ret_str = "LASIF project \"%s\"\n" % self.config["name"]
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         ret_str += "\tContent:\n"
         ret_str += "\t\t%i events\n" % self.comm.events.count()
-        ret_str += "\t\t%i station files\n" % station_file_count
         ret_str += "\t\t%i raw waveform files\n" % raw_data_file_count
         ret_str += "\t\t%i processed waveform files \n" % \
                    processed_data_file_count
@@ -286,43 +270,6 @@ class Project(Component):
         with open(cfile, "wb") as fh:
             cPickle.dump(cf_cache, fh, protocol=2)
 
-    def build_all_caches(self, quick=False):
-        """
-        Command to build/update all caches.
-        """
-        # The event cache is always up to date and does not have to be updated.
-
-        if quick and os.path.exists(self.comm.stations.cache_file):
-            print("Station cache already exists...")
-        else:
-            # Update the station cache.
-            print("Building/updating station cache...")
-            # This triggers the cache to be build/updated.
-            self.comm.stations.file_count
-
-        for event in self.comm.events.list():
-            print("Building/updating data cache for event '%s'..." % event)
-            # Get all caches which will build them.
-            try:
-                self.comm.waveforms.get_waveform_cache(event, "raw",
-                                                       dont_update=quick)
-            except LASIFNotFoundError:
-                pass
-            p_tags = self.comm.waveforms.get_available_processing_tags(event)
-            s_tags = self.comm.waveforms.get_available_synthetics(event)
-            for tag in p_tags:
-                try:
-                    self.comm.waveforms.get_waveform_cache(
-                        event, "processed", tag, dont_update=quick)
-                except LASIFNotFoundError:
-                    pass
-            for tag in s_tags:
-                try:
-                    self.comm.waveforms.get_waveform_cache(
-                        event, "synthetic", tag, dont_update=quick)
-                except LASIFNotFoundError:
-                    pass
-
     def get_filecounts_for_event(self, event_name):
         """
         Gets the number of files associated with the current event.
@@ -386,17 +333,9 @@ class Project(Component):
         # Basic components.
         EventsComponent(folder=self.paths["events"], communicator=self.comm,
                         component_name="events")
-        StationsComponent(stationxml_folder=self.paths["station_xml"],
-                          seed_folder=self.paths["dataless_seed"],
-                          resp_folder=self.paths["resp"],
-                          cache_folder=self.paths["cache"],
-                          communicator=self.comm, component_name="stations")
         WaveformsComponent(data_folder=self.paths["data"],
                            synthetics_folder=self.paths["synthetics"],
                            communicator=self.comm, component_name="waveforms")
-        InventoryDBComponent(db_file=self.paths["inv_db_file"],
-                             communicator=self.comm,
-                             component_name="inventory_db")
         ModelsComponent(models_folder=self.paths["models"],
                         communicator=self.comm,
                         component_name="models")
@@ -416,13 +355,13 @@ class Project(Component):
         ValidatorComponent(communicator=self.comm,
                            component_name="validator")
 
-        # Window and adjoint source components.
-        WindowsComponent(windows_folder=self.paths["windows"],
-                         communicator=self.comm,
-                         component_name="windows")
-        AdjointSourcesComponent(ad_src_folder=self.paths["adjoint_sources"],
-                                communicator=self.comm,
-                                component_name="adjoint_sources")
+        # # Window and adjoint source components.
+        # WindowsComponent(windows_folder=self.paths["windows"],
+        #                  communicator=self.comm,
+        #                  component_name="windows")
+        # AdjointSourcesComponent(ad_src_folder=self.paths["adjoint_sources"],
+        #                         communicator=self.comm,
+        #                         component_name="adjoint_sources")
 
         # Data downloading component.
         DownloadsComponent(communicator=self.comm,
@@ -446,31 +385,15 @@ class Project(Component):
         self.paths["iterations"] = os.path.join(root_path, "ITERATIONS")
         self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
         self.paths["kernels"] = os.path.join(root_path, "KERNELS")
-        self.paths["stations"] = os.path.join(root_path, "STATIONS")
         self.paths["output"] = os.path.join(root_path, "OUTPUT")
         # Path for the custom functions.
         self.paths["functions"] = os.path.join(root_path, "FUNCTIONS")
 
-        self.paths["windows"] = os.path.join(
-            root_path, "ADJOINT_SOURCES_AND_WINDOWS", "WINDOWS")
-        self.paths["adjoint_sources"] = os.path.join(
-            root_path, "ADJOINT_SOURCES_AND_WINDOWS", "ADJOINT_SOURCES")
-
-        # Station file subfolders.
-        self.paths["dataless_seed"] = os.path.join(self.paths["stations"],
-                                                   "SEED")
-        self.paths["station_xml"] = os.path.join(self.paths["stations"],
-                                                 "StationXML")
-        self.paths["resp"] = os.path.join(self.paths["stations"],
-                                          "RESP")
-
         # Paths for various files.
         self.paths["config_file"] = os.path.join(root_path,
-                                                 "config.xml")
+                                                 "config_hp.xml")
         self.paths["config_file_cache"] = \
-            os.path.join(self.paths["cache"], "config.xml_cache.pickle")
-        self.paths["inv_db_file"] = \
-            os.path.join(self.paths["cache"], "inventory_db.sqlite")
+            os.path.join(self.paths["cache"], "config_hp.xml_cache.pickle")
 
     def __update_folder_structure(self):
         """

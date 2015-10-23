@@ -42,13 +42,13 @@ class QueryComponent(Component):
         ...     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")) \
         # doctest: +NORMALIZE_WHITESPACE
         {u'HL.ARG': {'elevation_in_m': 170.0, 'latitude': 36.216,
-                     'local_depth_in_m': 0.0, 'longitude': 28.126},
+                     'longitude': 28.126},
          u'HT.SIGR': {'elevation_in_m': 93.0, 'latitude': 39.2114,
-                      'local_depth_in_m': 0.0, 'longitude': 25.8553},
+                      'longitude': 25.8553},
          u'KO.KULA': {'elevation_in_m': 915.0, 'latitude': 38.5145,
-                      'local_depth_in_m': 0.0, 'longitude': 28.6607},
+                      'longitude': 28.6607},
          u'KO.RSDY': {'elevation_in_m': 0.0, 'latitude': 40.3972,
-                      'local_depth_in_m': 0.0, 'longitude': 37.3273}}
+                      'longitude': 37.3273}}
 
 
         Raises a :class:`~lasif.LASIFNotFoundError` if the event does not
@@ -59,48 +59,13 @@ class QueryComponent(Component):
             ...
         LASIFNotFoundError: ...
         """
-        event = self.comm.events.get(event_name)
+        import pyasdf
 
-        # Collect information from all the different places.
-        waveform_metadata = self.comm.waveforms.get_metadata_raw(event_name)
-        station_coordinates = self.comm.stations.get_all_channels_at_time(
-            event["origin_time"])
-        inventory_coordinates = self.comm.inventory_db.get_all_coordinates()
+        waveform_file = self.comm.waveforms.get_asdf_filename(
+            event_name=event_name, data_type="raw")
 
-        stations = {}
-        for waveform in waveform_metadata:
-            station_id = "%s.%s" % (waveform["network"], waveform["station"])
-            if station_id in stations:
-                continue
-
-            try:
-                stat_coords = station_coordinates[waveform["channel_id"]]
-            except KeyError:
-                # No station file for channel.
-                continue
-
-            # First attempt to retrieve from the station files.
-            if stat_coords["latitude"] is not None:
-                stations[station_id] = stat_coords
-                continue
-            # Then from the waveform metadata in the case of a sac file.
-            elif waveform["latitude"] is not None:
-                stations[station_id] = waveform
-                continue
-            # If that still does not work, check if the inventory database
-            # has an entry.
-            elif station_id in inventory_coordinates:
-                coords = inventory_coordinates[station_id]
-                # Otherwise already queried for, but no coordinates found.
-                if coords["latitude"]:
-                    stations[station_id] = coords
-                continue
-
-            # The last resort is a new query via the inventory database.
-            coords = self.comm.inventory_db.get_coordinates(station_id)
-            if coords["latitude"]:
-                stations[station_id] = coords
-        return stations
+        with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
+            return ds.get_all_coordinates()
 
     def get_coordinates_for_station(self, event_name, station_id):
         """
@@ -108,36 +73,13 @@ class QueryComponent(Component):
 
         Must be in sync with :meth:`~.get_all_stations_for_event`.
         """
-        event = self.comm.events.get(event_name)
+        import pyasdf
 
-        # Collect information from all the different places.
-        waveform = self.comm.waveforms.get_metadata_raw_for_station(
-            event_name, station_id)[0]
-        station_coordinates = self.comm.stations.get_all_channels_at_time(
-            event["origin_time"])
+        waveform_file = self.comm.waveforms.get_asdf_filename(
+            event_name=event_name, data_type="raw")
 
-        try:
-            stat_coords = station_coordinates[waveform["channel_id"]]
-        except KeyError:
-            # No station file for channel.
-            raise LASIFNotFoundError("Station '%s' has no available "
-                                     "station file." % station_id)
-
-        # First attempt to retrieve from the station files.
-        if stat_coords["latitude"] is not None:
-            return stat_coords
-        # Then from the waveform metadata in the case of a sac file.
-        elif waveform["latitude"] is not None:
-            return waveform
-        # The last resort is a new query via the inventory database.
-        coords = self.comm.inventory_db.get_coordinates(station_id)
-        if coords["latitude"]:
-            return coords
-        else:
-            # No station file for channel.
-            raise LASIFNotFoundError("Coordinates could not be deduced for "
-                                     "station '%s' and event '%s'." % (
-                                         station_id, event_name))
+        with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
+            return ds.waveforms[station_id].coordinates
 
     def get_stations_for_all_events(self):
         """
