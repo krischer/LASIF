@@ -492,8 +492,9 @@ class RawSES3DModelHandler(object):
             vmedian = np.median(depth_data)
             offset = max(abs(vmax - vmedian), abs(vmedian - vmin))
 
-            if vmax - vmin == 0:
-                offset = 0.01
+            min_delta = abs(vmax * 0.005)
+            if (vmax - vmin) < min_delta:
+                offset = min_delta
 
             vmin = vmedian - offset
             vmax = vmedian + offset

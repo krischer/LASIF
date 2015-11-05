@@ -758,6 +758,47 @@ def lasif_launch_model_gui(parser, args):
     launch(comm)
 
 
+@command_group("Plotting")
+def lasif_plot_model(parser, args):
+    """
+    Directly plot a model to a file.
+
+    Useful for scripting LASIF.
+    """
+    parser.add_argument("model_name", help="name of the model")
+    parser.add_argument("depth", type=float, help="the depth at which to plot")
+    parser.add_argument("component", type=str,
+                        help="the component to plot")
+    parser.add_argument("filename", type=str,
+                        help="output filename")
+
+    args = parser.parse_args(args)
+
+    comm = _find_project_comm(".", args.read_only_caches)
+
+    if args.model_name not in comm.models.list():
+        raise LASIFCommandLineException("Model '%s' not known to LASIF." %
+                                        args.model_name)
+
+    import matplotlib.pyplot as plt
+
+    plt.figure(figsize=(15, 15))
+
+    model = comm.models.get_model_handler(args.model_name)
+    model.parse_component(args.component)
+
+    m = comm.project.domain.plot()
+    im = model.plot_depth_slice(component=args.component,
+                                depth_in_km=args.depth, m=m)["mesh"]
+
+    # make a colorbar and title
+    m.colorbar(im, "right", size="3%", pad='2%')
+    plt.title(str(args.depth) + ' km')
+
+    plt.savefig(args.filename, dpi=100)
+    plt.close()
+
+
 @command_group("Iteration Management")
 def lasif_create_new_iteration(parser, args):
     """
