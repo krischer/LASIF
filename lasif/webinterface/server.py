@@ -155,6 +155,7 @@ def list_iterations():
     Returns a list of events.
     """
     iterations = app.comm.iterations.list()
+    return flask.jsonify(iterations)
 
 
 @app.route("/rest/windows")
@@ -200,6 +201,7 @@ def get_window_plot():
 
     return flask.send_file(temp, mimetype="image/png",
                            add_etags=False)
+
 
 @app.route("/rest/iteration/<iteration_name>")
 def get_iteration_detail(iteration_name):

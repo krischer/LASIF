@@ -302,7 +302,6 @@ class VisualizationsComponent(Component):
 
         return ax
 
-
     def plot_window_statistics(self, iteration, ax=None, show=True,
                                cache=True):
         """
@@ -359,16 +358,14 @@ class VisualizationsComponent(Component):
                     fontdict=dict(fontsize="x-small", ha='right', va='top'),
                     bbox=dict(boxstyle="round", fc=color, alpha=0.8))
 
-
-        ax.barh(ind, count_z, width, color=pal[0], label="Stations with "
-                                                        "Vertical Component Windows")
+        ax.barh(ind, count_z, width, color=pal[0],
+                label="Stations with Vertical Component Windows")
         ax.barh(ind + 1 * width, count_n, width, color=pal[1],
-               label="Stations with North Component Windows")
+                label="Stations with North Component Windows")
         ax.barh(ind + 2 * width, count_e, width, color=pal[2],
-               label="Stations with East Component Windows")
+                label="Stations with East Component Windows")
         ax.barh(ind + 3 * width, total_count, width, color='0.4',
-                 label="Total Stations")
-
+                label="Total Stations")
 
         ax.set_xlabel("Station Count")
 
@@ -387,7 +384,6 @@ class VisualizationsComponent(Component):
             plt.show()
 
         return ax
-
 
     def plot_data_and_synthetics(self, event, iteration, channel_id, ax=None,
                                  show=True):
