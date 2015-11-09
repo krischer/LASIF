@@ -14,6 +14,7 @@ from lxml import etree
 from lxml.builder import E
 import numpy as np
 import os
+import re
 
 from lasif import LASIFError
 
@@ -49,8 +50,9 @@ class Iteration(object):
         root = etree.parse(iteration_xml_filename).getroot()
 
         # The iteration name is dependent on the filename.
-        self.iteration_name = os.path.basename(
-            iteration_xml_filename).lstrip("ITERATION_").rstrip(".xml")
+        self.iteration_name = re.sub(r"\.xml$", "", re.sub(
+            r"^ITERATION_", "", os.path.basename(iteration_xml_filename)))
+
         self.description = \
             self._get_if_available(root, "iteration_description")
         self.comments = [_i.text for _i in root.findall("comment") if _i.text]
