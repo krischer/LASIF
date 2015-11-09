@@ -338,6 +338,16 @@ def test_various_list_functions(cli):
     assert "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11" in events
     assert "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15" in events
 
+    # Also has a --list option.
+    events = cli.run("lasif list_events --list").stdout
+    assert events == (
+        "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11\n"
+        "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15\n")
+
+    # Bot arguments cannot be passed at the same time.
+    out = cli.run("lasif list_events --list --details").stdout
+    assert "--list and --details cannot both be specified." in out
+
     iterations = cli.run("lasif list_iterations").stdout
     assert "0 iterations" in iterations
     with open(os.path.join(cli.comm.project.paths["iterations"],

@@ -353,12 +353,21 @@ def lasif_list_events(parser, args):
     parser.add_argument("--details", help="print details of filecounts for "
                                           "all events",
                         action="store_true")
+    parser.add_argument("--list", help="Show only a list of events. Good for "
+                                       "scripting bash.",
+                        action="store_true")
     args = parser.parse_args(args)
 
     from lasif.tools.prettytable import PrettyTable
     comm = _find_project_comm(".", args.read_only_caches)
-    print("%i event%s in project:" % (comm.events.count(),
-          "s" if comm.events.count() != 1 else ""))
+
+    if args.list and args.details:
+        raise LASIFCommandLineException("--list and --details cannot both "
+                                        "be specified.")
+
+    if args.list is False:
+        print("%i event%s in project:" % (comm.events.count(),
+              "s" if comm.events.count() != 1 else ""))
 
     if args.details is True:
         tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag",
@@ -376,6 +385,9 @@ def lasif_list_events(parser, args):
                     count["preprocessed_waveform_file_count"],
                     count["synthetic_waveform_file_count"])])
         print(tab)
+    elif args.list is True:
+        for event in sorted(comm.events.list()):
+            print(event)
     else:
         tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag"])
         tab.align["Event Name"] = "l"
