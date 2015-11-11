@@ -811,6 +811,48 @@ def lasif_plot_model(parser, args):
     plt.close()
 
 
+@command_group("Plotting")
+def lasif_plot_kernel(parser, args):
+    """
+    Directly plot a kernel to a file.
+
+    Useful for scripting LASIF. As they are not often in the LASIF project
+    this is one of the view commands that will work on data outside of LASIF.
+    """
+    parser.add_argument("folder", help="The folder containing the gradients.")
+    parser.add_argument("depth", type=float, help="the depth at which to plot")
+    parser.add_argument("component", type=str,
+                        help="the component to plot")
+    parser.add_argument("filename", type=str,
+                        help="output filename")
+
+    args = parser.parse_args(args)
+
+    comm = _find_project_comm(".", args.read_only_caches)
+
+    import matplotlib.pyplot as plt
+    from lasif.ses3d_models import RawSES3DModelHandler
+
+    plt.figure(figsize=(15, 15))
+
+    model = RawSES3DModelHandler(
+        directory=args.folder, domain=comm.project.domain,
+        model_type="kernel")
+
+    model.parse_component(args.component)
+
+    m = comm.project.domain.plot()
+    im = model.plot_depth_slice(component=args.component,
+                                depth_in_km=args.depth, m=m)["mesh"]
+
+    # make a colorbar and title
+    m.colorbar(im, "right", size="3%", pad='2%')
+    plt.title(str(args.depth) + ' km')
+
+    plt.savefig(args.filename, dpi=100)
+    plt.close()
+
+
 @command_group("Iteration Management")
 def lasif_create_new_iteration(parser, args):
     """
