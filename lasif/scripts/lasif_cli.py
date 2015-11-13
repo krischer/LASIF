@@ -1031,10 +1031,10 @@ def lasif_compare_misfits(parser, args):
     if not all_events:
         raise LASIFCommandLineException("No misfit values could be compared.")
 
-    print "\nTotal misfit in Iteration %s: %.3f" % (from_it.name,
-                                                    total_misfit_from)
-    print "Total misfit in Iteration %s: %.3f" % (to_it.name,
-                                                  total_misfit_to)
+    print "\nTotal misfit in Iteration %s: %g" % (from_it.name,
+                                                  total_misfit_from)
+    print "Total misfit in Iteration %s: %g" % (to_it.name,
+                                                total_misfit_to)
 
     _ending_time = time.time()
 
