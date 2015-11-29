@@ -360,10 +360,10 @@ class Project(Component):
             communicator=self.comm,
             component_name="wins_and_adj_sources")
         # # Window and adjoint source components.
-        WindowsAndAdjointSourcesComponent(
-            folder=self.paths["windows_and_adjoint_sources"],
-            communicator=self.comm,
-            component_name="win_adjoint")
+        # WindowsAndAdjointSourcesComponent(
+        #     folder=self.paths["windows_and_adjoint_sources"],
+        #     communicator=self.comm,
+        #     component_name="win_adjoint")
         # AdjointSourcesComponent(ad_src_folder=self.paths["adjoint_sources"],
         #                         communicator=self.comm,
         #                         component_name="adjoint_sources")
