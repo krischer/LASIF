@@ -90,14 +90,21 @@ class WaveformsComponent(Component):
         :param station_id: The id of the station in the form ``NET.STA``.
         :param long_iteration_name: The long form of an iteration name.
         """
-        from lasif import rotations
-        import lasif.domain
-
         iteration = self.comm.iterations.get(long_iteration_name)
 
         st = self._get_waveforms(event_name, station_id,
                                  data_type="synthetic",
                                  tag_or_iteration=iteration.long_name)
+
+        return self.rotate_and_process_synthetics(
+            st=st, station_id=station_id, iteration=iteration,
+            event_name=event_name)
+
+    def rotate_and_process_synthetics(self, st, station_id, iteration,
+                                      event_name, coordinates=None):
+        import lasif.domain
+        from lasif import rotations
+
         network, station = station_id.split(".")
 
         # In the case of data coming from SES3D the components must be
@@ -129,8 +136,9 @@ class WaveformsComponent(Component):
                     and domain.rotation_angle_in_degree and \
                     "ses3d" in iteration.solver_settings["solver"].lower():
                 # Coordinates are required for the rotation.
-                coordinates = self.comm.query.get_coordinates_for_station(
-                    event_name, station_id)
+                if not coordinates:
+                    coordinates = self.comm.query.get_coordinates_for_station(
+                        event_name, station_id)
 
                 # First rotate the station back to see, where it was
                 # recorded.

@@ -152,7 +152,7 @@ class ActionsComponent(Component):
             get_name=lambda x: x["processing_info"]["input_filename"],
             logfile=logfile)
 
-    def select_windows(self, event, iteration):
+    def select_windows(self, event, iteration, **kwargs):
         """
         Automatically select the windows for the given event and iteration.
 
@@ -165,78 +165,106 @@ class ActionsComponent(Component):
         :param event: The event.
         :param iteration: The iteration.
         """
-        from lasif.utils import channel2station
+        from lasif.utils import select_component_from_stream
+
         from mpi4py import MPI
+        import pyasdf
 
         event = self.comm.events.get(event)
         iteration = self.comm.iterations.get(iteration)
 
-        def split(container, count):
-            """
-            Simple and elegant function splitting a container into count
-            equal chunks.
+        # Get the ASDF filenames.
+        processed_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="processed",
+            tag_or_iteration=iteration.processing_tag)
+        synthetic_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="synthetic",
+            tag_or_iteration=iteration.name)
 
-            Order is not preserved but for the use case at hand this is
-            potentially an advantage as data sitting in the same folder thus
-            have a higher at being processed at the same time thus the disc
-            head does not have to jump around so much. Of course very
-            architecture dependent.
-            """
-            return [container[_i::count] for _i in range(count)]
+        if not os.path.exists(processed_filename):
+            msg = "File '%s' does not exists." % processed_filename
+            raise LASIFNotFoundError(msg)
 
-        # Only rank 0 needs to know what has to be processsed.
+        if not os.path.exists(synthetic_filename):
+            msg = "File '%s' does not exists." % synthetic_filename
+            raise LASIFNotFoundError(msg)
+
+        # Load project specific window selection function.
+        select_windows = self.comm.project.get_project_function(
+            "window_picking_function")
+
+        process_params = iteration.get_process_params()
+        minimum_period = 1.0 / process_params["lowpass"]
+        maximum_period = 1.0 / process_params["highpass"]
+
+        def process(observed_station, synthetic_station):
+            obs_tag = observed_station.get_waveform_tags()
+            syn_tag = synthetic_station.get_waveform_tags()
+
+            # Make sure both have length 1.
+            assert len(obs_tag) == 1, (
+                "Station: %s - Requires 1 observed waveform tag. Has %i." % (
+                    observed_station._station_name, len(obs_tag)))
+            assert len(syn_tag) == 1, (
+                "Station: %s - Requires 1 synthetic waveform tag. Has %i." % (
+                    observed_station._station_name, len(syn_tag)))
+
+            obs_tag = obs_tag[0]
+            syn_tag = syn_tag[0]
+
+            # Finally get the data.
+            st_obs = observed_station[obs_tag]
+            st_syn = synthetic_station[syn_tag]
+
+            # Extract coordinates once.
+            coordinates=observed_station.coordinates
+
+            # Process and rotate the synthetics.
+            st_syn = self.comm.waveforms.rotate_and_process_synthetics(
+                st=st_syn.copy(), station_id=observed_station._station_name,
+                iteration=iteration, event_name=event["event_name"],
+                coordinates=coordinates)
+
+            all_windows = {}
+
+            for component in ["E", "N", "Z"]:
+                try:
+                    data_tr = select_component_from_stream(st_obs, component)
+                    synth_tr = select_component_from_stream(st_syn, component)
+                except LASIFNotFoundError:
+                    continue
+
+                windows = select_windows(
+                    data_tr, synth_tr, event["latitude"],
+                    event["longitude"], event["depth_in_km"],
+                    coordinates["latitude"],
+                    coordinates["longitude"],
+                    minimum_period=minimum_period,
+                    maximum_period=maximum_period,
+                    iteration=iteration, **kwargs)
+
+                if not windows:
+                    continue
+                all_windows[data_tr.id] = windows
+
+            if all_windows:
+                return all_windows
+
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r")
+        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r")
+
+        # Launch the processing. This will be executed in parallel across
+        # ranks.
+        results = ds.process_two_files_without_parallel_output(ds_synth,
+                                                               process)
+
+        # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
-            # All stations for the given iteration and event.
-            stations = \
-                set(iteration.events[event["event_name"]]["stations"].keys())
-
-            # Get all stations that currently do not have windows.
-            windows = self.comm.windows.get(event, iteration).list()
-            stations_without_windows = \
-                stations - set(map(channel2station, windows))
-            total_size = len(stations_without_windows)
-            stations_without_windows = split(list(stations_without_windows),
-                                             MPI.COMM_WORLD.size)
-
-            # Initialize station cache on rank 0.
-            self.comm.stations.file_count
-            # Also initialize the processed and synthetic data caches. They
-            # have to exist before the other ranks can access them.
-            try:
-                self.comm.waveforms.get_waveform_cache(
-                    event["event_name"], "processed", iteration.processing_tag)
-            except LASIFNotFoundError:
-                pass
-            try:
-                self.comm.waveforms.get_waveform_cache(
-                    event["event_name"], "synthetic", iteration)
-            except LASIFNotFoundError:
-                pass
-        else:
-            stations_without_windows = None
-
-        # Distribute on a per-station basis.
-        stations_without_windows = MPI.COMM_WORLD.scatter(
-            stations_without_windows, root=0)
-
-        for _i, station in enumerate(stations_without_windows):
-            try:
-                self.select_windows_for_station(event, iteration, station)
-            except LASIFNotFoundError as e:
-                warnings.warn(str(e), LASIFWarning)
-            except Exception as e:
-                warnings.warn(
-                    "Exception occured for iteration %s, event %s, and "
-                    "station %s: %s" % (iteration.name, event["event_name"],
-                                        station, str(e)), LASIFWarning)
-            if MPI.COMM_WORLD.rank == 0:
-                print("Window picking process: Picked windows for approx. %i "
-                      "of %i stations." % (
-                          min(_i * MPI.COMM_WORLD.size, total_size),
-                          total_size))
-
-        # Barrier at the end useful for running this in a loop.
-        MPI.COMM_WORLD.barrier()
+            self.comm.win_adjoint.write_windows(
+                event=event["event_name"], iteration=iteration,
+                windows=results)
 
     def select_windows_for_station(self, event, iteration, station, **kwargs):
         """
