@@ -14,24 +14,16 @@ from ..adjoint_sources.ad_src_l2_norm_misfit import adsrc_l2_norm_misfit
 from ..adjoint_sources.ad_src_cc_time_shift import adsrc_cc_time_shift
 
 
-# Map the adjoint source type names to functions implementing them.
-MISFIT_MAPPING = {
-    "TimeFrequencyPhaseMisfitFichtner2008": adsrc_tf_phase_misfit,
-    "L2Norm": adsrc_l2_norm_misfit,
-    "CCTimeShift": adsrc_cc_time_shift
-}
 
 
 class AdjointSourcesComponent(Component):
     """
     Component dealing with the adjoint sources.
 
-    :param ad_src_folder: The folder where the adjoint sources are stored.
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
-    def __init__(self, ad_src_folder, communicator, component_name):
-        self._folder = ad_src_folder
+    def __init__(self, communicator, component_name):
         super(AdjointSourcesComponent, self).__init__(
             communicator, component_name)
 

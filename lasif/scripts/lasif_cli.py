@@ -668,19 +668,45 @@ def lasif_finalize_adjoint_sources(parser, args):
     comm.actions.finalize_adjoint_sources(iteration_name, event_name)
 
 
+@mpi_enabled
 @command_group("Iteration Management")
 def lasif_calculate_all_adjoint_sources(parser, args):
     """
-    Calculates all adjoint sources for a given iteration and event.
+    Calculates all adjoint sources for a given iteration.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("event_name", help="name of the event")
     args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-    event_name = args.event_name
 
-    comm = _find_project_comm(".")
-    comm.actions.calculate_all_adjoint_sources(iteration_name, event_name)
+    iteration = args.iteration_name
+
+    comm = _find_project_comm_mpi(".")
+
+    events = comm.events.list()
+
+    for _i, event in enumerate(events):
+        if MPI.COMM_WORLD.rank == 0:
+            print("\n{green}"
+                  "==========================================================="
+                  "{reset}".format(green=colorama.Fore.GREEN,
+                                   reset=colorama.Style.RESET_ALL))
+            print("Starting adjoint source calculation for event %i of "
+                  "%i..." % (_i + 1, len(events)))
+            print("{green}"
+                  "==========================================================="
+                  "{reset}\n".format(green=colorama.Fore.GREEN,
+                                     reset=colorama.Style.RESET_ALL))
+
+        # Windows file must exist!
+        filename = comm.wins_and_adj_sources.get_filename(event=event,
+                                                          iteration=iteration)
+        if not os.path.exists(filename):
+            if MPI.COMM_WORLD.rank == 0:
+                print("File '%s' does not exists. No adjoint sources for "
+                      "event '%s' will be calculated." % (filename, event))
+            continue
+
+        MPI.COMM_WORLD.barrier()
+        comm.actions.calculate_adjoint_sources(event, iteration)
 
 
 @mpi_enabled
@@ -737,8 +763,8 @@ def lasif_select_all_windows(parser, args):
                   "{reset}\n".format(green=colorama.Fore.GREEN,
                                      reset=colorama.Style.RESET_ALL))
 
-        filename = comm.win_adjoint.get_filename(event=event,
-                                                 iteration=iteration)
+        filename = comm.wins_and_adj_sources.get_filename(event=event,
+                                                          iteration=iteration)
         if os.path.exists(filename):
             if MPI.COMM_WORLD.rank == 0:
                 print("File '%s' already exists. Will not pick windows for that "

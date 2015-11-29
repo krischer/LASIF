@@ -152,15 +152,139 @@ class ActionsComponent(Component):
             get_name=lambda x: x["processing_info"]["input_filename"],
             logfile=logfile)
 
+
+    def calculate_adjoint_sources(self, event, iteration, **kwargs):
+        from lasif.utils import select_component_from_stream
+
+        from mpi4py import MPI
+        import pyasdf
+
+        event = self.comm.events.get(event)
+        iteration = self.comm.iterations.get(iteration)
+
+        # Get the ASDF filenames.
+        processed_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="processed",
+            tag_or_iteration=iteration.processing_tag)
+        synthetic_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event["event_name"],
+            data_type="synthetic",
+            tag_or_iteration=iteration.name)
+
+        if not os.path.exists(processed_filename):
+            msg = "File '%s' does not exists." % processed_filename
+            raise LASIFNotFoundError(msg)
+
+        if not os.path.exists(synthetic_filename):
+            msg = "File '%s' does not exists." % synthetic_filename
+            raise LASIFNotFoundError(msg)
+
+        # Read all windows on rank 0 and broadcast.
+        if MPI.COMM_WORLD.rank == 0:
+            all_windows = self.comm.wins_and_adj_sources.read_all_windows(
+                event=event, iteration=iteration
+            )
+        else:
+            all_windows = {}
+        all_windows = MPI.COMM_WORLD.bcast(all_windows, root=0)
+
+        process_params = iteration.get_process_params()
+
+        def process(observed_station, synthetic_station):
+            obs_tag = observed_station.get_waveform_tags()
+            syn_tag = synthetic_station.get_waveform_tags()
+
+            # Make sure both have length 1.
+            assert len(obs_tag) == 1, (
+                "Station: %s - Requires 1 observed waveform tag. Has %i." % (
+                    observed_station._station_name, len(obs_tag)))
+            assert len(syn_tag) == 1, (
+                "Station: %s - Requires 1 synthetic waveform tag. Has %i." % (
+                    observed_station._station_name, len(syn_tag)))
+
+            obs_tag = obs_tag[0]
+            syn_tag = syn_tag[0]
+
+            # Finally get the data.
+            st_obs = observed_station[obs_tag]
+            st_syn = synthetic_station[syn_tag]
+
+            # Extract coordinates once.
+            coordinates = observed_station.coordinates
+
+            # Process and rotate the synthetics.
+            st_syn = self.comm.waveforms.rotate_and_process_synthetics(
+                st=st_syn.copy(), station_id=observed_station._station_name,
+                iteration=iteration, event_name=event["event_name"],
+                coordinates=coordinates)
+
+            adjoint_sources = {}
+
+            for component in ["E", "N", "Z"]:
+                try:
+                    data_tr = select_component_from_stream(st_obs, component)
+                    synth_tr = select_component_from_stream(st_syn, component)
+                except LASIFNotFoundError:
+                    continue
+
+                if data_tr.id not in all_windows:
+                    # No windows existing for components. Skipping.
+                    continue
+
+                # Collect all.
+                adj_srcs = []
+
+                windows = all_windows[data_tr.id]
+                try:
+                    for starttime, endtime in windows:
+                        asrc = \
+                            self.comm.wins_and_adj_sources.calculate_adjoint_source(
+                            data=data_tr, synth=synth_tr, starttime=starttime,
+                            endtime=endtime, taper="hann",
+                            taper_percentage=0.05,
+                            min_period=1.0/process_params["lowpass"],
+                            max_period=1.0/process_params["highpass"],
+                            ad_src_type="TimeFrequencyPhaseMisfitFichtner2008")
+                        adj_srcs.append(asrc)
+                except:
+                    # Either pass or fail for the whole component.
+                    continue
+
+                if not adj_srcs:
+                    continue
+
+                # Sum up both misfit, and adjoint source.
+                misfit = sum([_i["misfit_value"] for _i in adj_srcs])
+                adj_source = np.sum([_i["adjoint_source"] for _i in adj_srcs],
+                                    axis=0)
+
+                adjoint_sources[data_tr.id] = {
+                    "misfit": misfit,
+                    "adj_source": adj_source
+                }
+
+            return adjoint_sources
+
+        ds = pyasdf.ASDFDataSet(processed_filename, mode="r")
+        ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r")
+
+        # Launch the processing. This will be executed in parallel across
+        # ranks.
+        results = ds.process_two_files_without_parallel_output(ds_synth,
+                                                               process)
+
+        # Write files on rank 0.
+        if MPI.COMM_WORLD.rank == 0:
+            self.comm.wins_and_adj_sources.write_adjoint_sources(
+                event=event["event_name"], iteration=iteration,
+                adj_sources=results)
+
     def select_windows(self, event, iteration, **kwargs):
         """
         Automatically select the windows for the given event and iteration.
 
-        Will only attempt to select windows for stations that have no
-        windows. Each station that has a window is assumed to have already
-        been picked in some fashion.
-
-        Function can be called with and without MPI.
+        Function must be called with MPI.
 
         :param event: The event.
         :param iteration: The iteration.
@@ -262,7 +386,7 @@ class ActionsComponent(Component):
 
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
-            self.comm.win_adjoint.write_windows(
+            self.comm.wins_and_adj_sources.write_windows(
                 event=event["event_name"], iteration=iteration,
                 windows=results)
 
