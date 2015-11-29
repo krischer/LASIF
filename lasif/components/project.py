@@ -40,7 +40,7 @@ from .stations import StationsComponent
 from .validator import ValidatorComponent
 from .visualizations import VisualizationsComponent
 from .waveforms import WaveformsComponent
-from .windows import WindowsComponent
+from .windows import WindowsAndAdjointSourcesComponent
 
 
 class Project(Component):
@@ -373,10 +373,15 @@ class Project(Component):
         ValidatorComponent(communicator=self.comm,
                            component_name="validator")
 
+        WindowsAndAdjointSourcesComponent(
+            folder=self.paths["windows_and_adjoint_sources"],
+            communicator=self.comm,
+            component_name="wins_and_adj_sources")
         # # Window and adjoint source components.
-        # WindowsComponent(windows_folder=self.paths["windows"],
-        #                  communicator=self.comm,
-        #                  component_name="windows")
+        WindowsAndAdjointSourcesComponent(
+            folder=self.paths["windows_and_adjoint_sources"],
+            communicator=self.comm,
+            component_name="win_adjoint")
         # AdjointSourcesComponent(ad_src_folder=self.paths["adjoint_sources"],
         #                         communicator=self.comm,
         #                         component_name="adjoint_sources")
@@ -413,6 +418,9 @@ class Project(Component):
         self.paths["config_file_cache"] = \
             os.path.join(self.paths["cache"], "config_hp.xml_cache.pickle")
 
+        self.paths["windows_and_adjoint_sources"] = os.path.join(
+            root_path, "ADJOINT_SOURCES_AND_WINDOWS")
+
     def __update_folder_structure(self):
         """
         Updates the folder structure of the project.
@@ -422,13 +430,11 @@ class Project(Component):
                 continue
             os.makedirs(path)
         events = self.comm.events.list()
-        folders = [self.paths["data"], self.paths["synthetics"]]
-        for folder in folders:
-            for event in events:
-                event_folder = os.path.join(folder, event)
-                if os.path.exists(event_folder):
-                    continue
-                os.makedirs(event_folder)
+        for event in events:
+            event_folder = os.path.join(self.paths["data"], event)
+            if os.path.exists(event_folder):
+                continue
+            os.makedirs(event_folder)
 
     def __init_new_project(self, project_name):
         """

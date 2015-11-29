@@ -736,6 +736,15 @@ def lasif_select_all_windows(parser, args):
                   "==========================================================="
                   "{reset}\n".format(green=colorama.Fore.GREEN,
                                      reset=colorama.Style.RESET_ALL))
+
+        filename = comm.win_adjoint.get_filename(event=event,
+                                                 iteration=iteration)
+        if os.path.exists(filename):
+            if MPI.COMM_WORLD.rank == 0:
+                print("File '%s' already exists. Will not pick windows for that "
+                      "event. Delete the file to repick windows." % filename)
+            continue
+
         MPI.COMM_WORLD.barrier()
         comm.actions.select_windows(event, iteration)
 
