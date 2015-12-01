@@ -256,7 +256,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
             tr.simulate(seedresp={"filename": station_file,
                                   "units": output_units,
                                   "date": tr.stats.starttime},
-                        pre_file=pre_filt, zero_mean=False, taper=False)
+                        pre_filt=pre_filt, zero_mean=False, taper=False)
         except ValueError as e:
             msg = ("File  could not be corrected with the help of the "
                    "RESP file '%s'. Will be skipped. Due to: %s") \
