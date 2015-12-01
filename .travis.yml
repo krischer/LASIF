@@ -27,6 +27,7 @@ before_install:
   - pip install geojson
   - pip install future
   - pip install "joblib>=0.8.0a3"
+  - pip install decorator
   - pip install --no-deps pyqtgraph
   # The theme from the repository it also more up to date.
   - pip install https://github.com/snide/sphinx_rtd_theme/archive/master.zip
