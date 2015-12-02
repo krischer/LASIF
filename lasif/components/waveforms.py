@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import collections
 import fnmatch
 import itertools
 import os
@@ -12,6 +13,25 @@ import obspy
 from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 from ..tools.cache_helpers.waveform_cache import WaveformCache
 from .component import Component
+
+
+class LimitedSizeDict(collections.OrderedDict):
+    """
+    Based on http://stackoverflow.com/a/2437645/1657047
+    """
+    def __init__(self, *args, **kwds):
+        self.size_limit = kwds.pop("size_limit", None)
+        collections.OrderedDict.__init__(self, *args, **kwds)
+        self._check_size_limit()
+
+    def __setitem__(self, key, value):
+        collections.OrderedDict.__setitem__(self, key, value)
+        self._check_size_limit()
+
+    def _check_size_limit(self):
+        if self.size_limit is not None:
+            while len(self) > self.size_limit:
+                self.popitem(last=False)
 
 
 class WaveformsComponent(Component):
@@ -29,7 +49,9 @@ class WaveformsComponent(Component):
         self._synthetics_folder = synthetics_folder
 
         # Internal cache for the initialized waveform cache instances.
-        self.__cache = {}
+        # Limit to 20 instances as SQLite does not like too many open
+        # databases at the same time.
+        self.__cache = LimitedSizeDict(size_limit=10)
 
         super(WaveformsComponent, self).__init__(communicator, component_name)
 
