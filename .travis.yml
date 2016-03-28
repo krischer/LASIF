@@ -16,7 +16,7 @@ before_install:
   - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
   - conda install --yes -n condaenv pip
   - source activate condaenv
-  - conda install --yes -c obspy obspy nomkl basemap progressbar colorama joblib pytest nose mock pyqtgraph pip python=$TRAVIS_PYTHON_VERSION mpi4py
+  - conda install --yes -c obspy obspy nomkl basemap progressbar colorama joblib pytest nose mock pyqtgraph pip python=$TRAVIS_PYTHON_VERSION mpi4py sphinx sphinx_rtd_theme
   - pip install geographiclib flask-cache geojson flake8
   - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
 
