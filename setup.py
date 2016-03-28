@@ -8,7 +8,7 @@ workflow with SES3D 4.0.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de) and
-    Andreas Fichtner (A.Fichtner@uu.nl) 2012-2013
+    Andreas Fichtner (A.Fichtner@uu.nl) 2012-2016
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
@@ -44,7 +44,7 @@ def get_package_data():
 
 setup_config = dict(
     name="lasif",
-    version="0.0.1a",
+    version="0.1.x",
     description="",
     author="Lion Krischer and Andreas Fichtner",
     author_email="krischer@geophysik.uni-muenchen.de",
