@@ -221,7 +221,7 @@ class RectangularSphericalSection(Domain):
 
         return True
 
-    def plot(self, plot_simulation_domain=False, ax=None):
+    def plot(self, plot_simulation_domain=False, ax=None, resolution=None):
         import matplotlib.pyplot as plt
         from mpl_toolkits.basemap import Basemap
 
@@ -231,18 +231,26 @@ class RectangularSphericalSection(Domain):
 
         # Use a global plot for very large domains.
         if self.max_extent >= 180.0:
-            m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
+            if resolution is None:
+                resolution="c"
+            m = Basemap(projection='moll', lon_0=0, resolution=resolution,
+                        ax=ax)
             stepsize = 45.0
         # Orthographic projection for 75.0 <= extent < 180.0
         elif self.max_extent >= 75.0 or (plot_simulation_domain is True and
                                          self.rotation_angle_in_degree):
+            if resolution is None:
+                resolution="c"
             m = Basemap(projection="ortho", lon_0=self.center.longitude,
-                        lat_0=self.center.latitude, resolution="c", ax=ax)
+                        lat_0=self.center.latitude, resolution=resolution,
+                        ax=ax)
             stepsize = 10.0
         # Lambert azimuthal equal area projection. Equal area projections
         # are useful for interpreting features and this particular one also
         # does not distort features a lot on regional scales.
         else:
+            if resolution is None:
+                resolution="l"
             extent = self.extent
             # Calculate approximate width and height in meters.
             width = extent.longitudinal_extent
@@ -260,7 +268,7 @@ class RectangularSphericalSection(Domain):
             width *= 110000 * 1.1
             height *= 110000 * 1.3
 
-            m = Basemap(projection='laea', resolution="l", width=width,
+            m = Basemap(projection='laea', resolution=resolution, width=width,
                         height=height, lat_0=self.center.latitude,
                         lon_0=self.center.longitude, ax=ax)
 
