@@ -69,18 +69,6 @@ information can be found here:
 * :doc:`how_lasif_finds_coordinates`
 
 
-TO DO: Things that are still missing
-------------------------------------
-
-This is mainly useful for the developers.
-
-* Applying the time corrections for events and stations
-* Settings for the time frequency misfit
-* A clean way to integrate other misfits
-* Data rejection criteria implementation
-* Log more things for better provenance
-
-
 Supported Data Formats
 ----------------------
 
@@ -91,12 +79,12 @@ This is a short list of supported data formats and other software.
 * **Synthetics:** All file formats supported by ObsPy and the output files of
   SES3D 4.1.
 * **Event Metadata:** QuakeML 1.2
-* **Station Metadata:** dataless SEED, RESP and (hopefully) soon FDSN
-  StationXML.  Once implemented, StationXML will be the recommended and most
-  future proof format.
-* **Earth Models:** Currently the raw SES3D model format is supported.
-* **Waveform Solvers:** SES3D 4.1, support for SpecFEM Cartesian and/or Globe
-  will be added soon.
+* **Station Metadata:** dataless SEED, RESP and FDSN StationXML. We strongly
+  recommend to use StationXML!
+* **Earth Models:** Currently the raw SES3D model format is supported. Other
+  solvers can still be used but LASIF will not be able to plot kernels and
+  velocity models.
+* **Waveform Solvers:** SES3D 4.1, SPECFEM3D GLOBE
 
 
 Further Notes
@@ -114,11 +102,3 @@ be ignored.
 
 This also means that the raw data files have to have the correct time
 information.
-
-Synthetic Data Files
-^^^^^^^^^^^^^^^^^^^^
-The very first sample of each synthetic waveform will be assumed to coincide
-with the event time. If this is not a reasonable assumption, please contact the
-LASIF developers.
-
-
