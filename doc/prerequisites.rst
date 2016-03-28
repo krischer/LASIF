@@ -70,6 +70,28 @@ The actual **LASIF** module can then be installed with
 After the installation one should run the tests to ensure everything is
 installed correctly and works as intended on your machine.
 
+Updating LASIF
+^^^^^^^^^^^^^^
+
+To update **LASIF**, change into the **LASIF** directory and type
+
+.. code-block:: bash
+
+    $ git pull
+    $ pip install -v -e .
+
+Additionally you might have to update the `wfs_input_generator`:
+
+.. code-block:: bash
+
+    $ pip install https://github.com/krischer/wfs_input_generator/archive/master.zi
+
+Please note, that updating **LASIF** will not update your custom, user-defined
+functions within your projects (see :doc:`tutorial/15_customizing_lasif`).  If
+you want to update those as well: delete them and execute any **LASIF**
+function - this will copy the latest versions of these files to your project
+directory. **Make sure to save any changes you made to those functions!!**
+
 
 Testing
 -------
@@ -88,10 +110,26 @@ To run the tests, cd into the toplevel ``LASIF`` directory and execute:
     $ py.test
 
 This will recursively find and execute all tests below the current working
-directory.
+directory. The output should look akin to the following:
 
+.. code-block:: bash
 
-If your machine has multiple cores, the processing can also be sped up
+    ===================================== test session starts =====================================
+    platform darwin -- Python 2.7.11, pytest-2.9.1, py-1.4.31, pluggy-0.3.1
+    rootdir: /Users/lion/workspace/code/LASIF, inifile: pytest.ini
+    collected 195 items
+
+    lasif/rotations.py .......
+    lasif/utils.py ..
+    lasif/window_selection.py .
+    ...
+
+    ===================== 189 passed, 4 skipped, 2 xfailed in 160.14 seconds ======================
+
+No errors should occur. **If you see nothing - make sure your MPI installation
+is correct (see above)**.
+
+Assuming your machine has multiple cores, the test can also be sped up
 quite a bit by using ``pytest-xdist`` which can be installed via pip.
 
 .. code-block:: bash
@@ -115,8 +153,7 @@ repository version here.
 
 .. code-block:: bash
 
-    $ pip install sphinx
-    $ pip install https://github.com/snide/sphinx_rtd_theme/archive/master.zip
+    $ conda install sphinx sphinx_rtd_theme
 
 To actually build the documentation (in this case in the HTML format), run
 
