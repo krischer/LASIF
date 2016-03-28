@@ -135,16 +135,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-        <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
+          <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
       
     <li>SES3D Setup Assistant</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/ses3d_setup_helper.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/ses3d_setup_helper.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -156,7 +156,7 @@
 <p>This is a simple script that assists you in determining optimal SES3D
 settings. To use it just pass the approximate number of elements and the
 size of the simulation domain.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python -m lasif.scripts.ses3d_setup_helper --help
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python -m lasif.scripts.ses3d_setup_helper --help
 usage: python -m lasif.scripts.ses3d_setup_helper <span class="o">[</span>-h<span class="o">]</span>
                                                   <span class="o">[</span>--recommendations RECOMMENDATIONS<span class="o">]</span>
                                                   dx dy dz nx ny nz
@@ -173,13 +173,13 @@ positional arguments:
   nz                    ~ element count in depth dir. Same as nz_global.
 
 optional arguments:
-  -h, --help            show this <span class="nb">help </span>message and <span class="nb">exit</span>
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
   --recommendations RECOMMENDATIONS
                         number of recommendations to provide
 </pre></div>
 </div>
 <p>Exemplary output is</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>python -m lasif.scripts.ses3d_setup_helper <span class="m">30</span> <span class="m">47</span> <span class="m">1171</span> <span class="m">108</span> <span class="m">168</span> 64
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python -m lasif.scripts.ses3d_setup_helper <span class="m">30</span> <span class="m">47</span> <span class="m">1171</span> <span class="m">108</span> <span class="m">168</span> 64
 SES3D Setup Assistant
 
 All calculations are <span class="k">done</span> quick and dirty so take them with a grain of salt.

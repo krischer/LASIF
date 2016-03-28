@@ -145,16 +145,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
     <li>16. Customizing LASIF</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/15_customizing_lasif.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/15_customizing_lasif.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -175,7 +175,7 @@ necessary we will make it more flexible.</p>
 subfolder of an active LASIF project. If you ever want to update these
 function to the latest official version of LASIF just delete the files and
 launch any LASIF command.</p>
-<div class="highlight-none"><div class="highlight"><pre>FUNCTIONS
+<div class="highlight-none"><div class="highlight"><pre><span></span>FUNCTIONS
 ├── preprocessing_function.py
 ├── process_synthetics.py
 └── window_picking_function.py
@@ -195,9 +195,9 @@ branch based on the current iteration.</p>
 <p>All of the custom function are passed an
 <a class="reference internal" href="../iteration_xml.html#lasif.iteration_xml.Iteration" title="lasif.iteration_xml.Iteration"><code class="xref py py-class docutils literal"><span class="pre">Iteration</span></code></a> object, thus code like the following
 is the preferred way to handle differences in these function per iterations.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">custom_function</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
-    <span class="c"># Assumes iteration names are numeric. You might need a more</span>
-    <span class="c"># complicated setup depending on your project.</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_function</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+    <span class="c1"># Assumes iteration names are numeric. You might need a more</span>
+    <span class="c1"># complicated setup depending on your project.</span>
     <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">iteration</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
         <span class="n">do_this</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -206,21 +206,21 @@ is the preferred way to handle differences in these function per iterations.</p>
 </div>
 <p>To figure out what these iteration objects can do, launch an interactive lasif
 session and play around a bit.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif shell
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif shell
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">iteration</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;1&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">iteration</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">iteration</span><span class="o">.</span><span class="n">name</span>
-<span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="s">&#39;1&#39;</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="s1">&#39;1&#39;</span>
 
 <span class="n">In</span> <span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="n">iteration</span><span class="o">.</span><span class="n">get_process_params</span><span class="p">()</span>
 <span class="n">Out</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span>
-<span class="p">{</span><span class="s">&#39;dt&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
- <span class="s">&#39;highpass&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
- <span class="s">&#39;lowpass&#39;</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span>
- <span class="s">&#39;npts&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
- <span class="s">&#39;stf&#39;</span><span class="p">:</span> <span class="s">&#39;Filtered Heaviside&#39;</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+ <span class="s1">&#39;highpass&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+ <span class="s1">&#39;lowpass&#39;</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span>
+ <span class="s1">&#39;npts&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+ <span class="s1">&#39;stf&#39;</span><span class="p">:</span> <span class="s1">&#39;Filtered Heaviside&#39;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -228,7 +228,7 @@ session and play around a bit.</p>
 <h2>16.2. Custom Preprocessing<a class="headerlink" href="#custom-preprocessing" title="Permalink to this headline">¶</a></h2>
 <p>The preprocessing function is used to preprocess all the data. It has the
 following function signature:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">preprocessing_function</span><span class="p">(</span><span class="n">processing_info</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing_function</span><span class="p">(</span><span class="n">processing_info</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
@@ -237,36 +237,36 @@ the defined processing, and write it to <code class="docutils literal"><span cla
 It does not have to return anything; raise an error if something does not
 work as expected.</p>
 <p>The <code class="docutils literal"><span class="pre">processing_info</span></code> object also contains event and station information.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;event_information&#39;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&#39;depth_in_km&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
-    <span class="s">&#39;event_name&#39;</span><span class="p">:</span> <span class="s">&#39;GCMT_event_VANCOUVER_ISLAND...&#39;</span><span class="p">,</span>
-    <span class="s">&#39;filename&#39;</span><span class="p">:</span> <span class="s">&#39;/.../GCMT_event_VANCOUVER_ISLAND....xml&#39;</span><span class="p">,</span>
-    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">49.53</span><span class="p">,</span>
-    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">126.89</span><span class="p">,</span>
-    <span class="s">&#39;m_pp&#39;</span><span class="p">:</span> <span class="mf">2.22e+18</span><span class="p">,</span>
-    <span class="s">&#39;m_rp&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.78e+18</span><span class="p">,</span>
-    <span class="s">&#39;m_rr&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">6.15e+17</span><span class="p">,</span>
-    <span class="s">&#39;m_rt&#39;</span><span class="p">:</span> <span class="mf">1.98e+17</span><span class="p">,</span>
-    <span class="s">&#39;m_tp&#39;</span><span class="p">:</span> <span class="mf">5.14e+18</span><span class="p">,</span>
-    <span class="s">&#39;m_tt&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.61e+18</span><span class="p">,</span>
-    <span class="s">&#39;magnitude&#39;</span><span class="p">:</span> <span class="mf">6.5</span><span class="p">,</span>
-    <span class="s">&#39;magnitude_type&#39;</span><span class="p">:</span> <span class="s">&#39;Mwc&#39;</span><span class="p">,</span>
-    <span class="s">&#39;origin_time&#39;</span><span class="p">:</span> <span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">200000</span><span class="p">),</span>
-    <span class="s">&#39;region&#39;</span><span class="p">:</span> <span class="s">u&#39;VANCOUVER ISLAND, CANADA REGION&#39;</span><span class="p">},</span>
- <span class="s">&#39;input_filename&#39;</span><span class="p">:</span> <span class="s">u&#39;/.../raw/7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
- <span class="s">&#39;output_filename&#39;</span><span class="p">:</span> <span class="s">u&#39;/.../processed_.../7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
- <span class="s">&#39;process_params&#39;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&#39;dt&#39;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
-    <span class="s">&#39;highpass&#39;</span><span class="p">:</span> <span class="mf">0.007142857142857143</span><span class="p">,</span>
-    <span class="s">&#39;lowpass&#39;</span><span class="p">:</span> <span class="mf">0.0125</span><span class="p">,</span>
-    <span class="s">&#39;npts&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
-    <span class="s">&#39;stf&#39;</span><span class="p">:</span> <span class="s">&#39;Filtered Heaviside&#39;</span><span class="p">},</span>
- <span class="s">&#39;station_coordinates&#39;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s">&#39;elevation_in_m&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">54.0</span><span class="p">,</span>
-    <span class="s">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">46.882</span><span class="p">,</span>
-    <span class="s">&#39;local_depth_in_m&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
-    <span class="s">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">124.3337</span><span class="p">},</span>
- <span class="s">&#39;station_filename&#39;</span><span class="p">:</span> <span class="s">u&#39;/.../STATIONS/RESP/RESP.7D.FN01A..HH*&#39;</span><span class="p">}</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;event_information&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;depth_in_km&#39;</span><span class="p">:</span> <span class="mf">22.0</span><span class="p">,</span>
+    <span class="s1">&#39;event_name&#39;</span><span class="p">:</span> <span class="s1">&#39;GCMT_event_VANCOUVER_ISLAND...&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;filename&#39;</span><span class="p">:</span> <span class="s1">&#39;/.../GCMT_event_VANCOUVER_ISLAND....xml&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">49.53</span><span class="p">,</span>
+    <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">126.89</span><span class="p">,</span>
+    <span class="s1">&#39;m_pp&#39;</span><span class="p">:</span> <span class="mf">2.22e+18</span><span class="p">,</span>
+    <span class="s1">&#39;m_rp&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.78e+18</span><span class="p">,</span>
+    <span class="s1">&#39;m_rr&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">6.15e+17</span><span class="p">,</span>
+    <span class="s1">&#39;m_rt&#39;</span><span class="p">:</span> <span class="mf">1.98e+17</span><span class="p">,</span>
+    <span class="s1">&#39;m_tp&#39;</span><span class="p">:</span> <span class="mf">5.14e+18</span><span class="p">,</span>
+    <span class="s1">&#39;m_tt&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.61e+18</span><span class="p">,</span>
+    <span class="s1">&#39;magnitude&#39;</span><span class="p">:</span> <span class="mf">6.5</span><span class="p">,</span>
+    <span class="s1">&#39;magnitude_type&#39;</span><span class="p">:</span> <span class="s1">&#39;Mwc&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;origin_time&#39;</span><span class="p">:</span> <span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">200000</span><span class="p">),</span>
+    <span class="s1">&#39;region&#39;</span><span class="p">:</span> <span class="s1">u&#39;VANCOUVER ISLAND, CANADA REGION&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;input_filename&#39;</span><span class="p">:</span> <span class="s1">u&#39;/.../raw/7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;output_filename&#39;</span><span class="p">:</span> <span class="s1">u&#39;/.../processed_.../7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;process_params&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
+    <span class="s1">&#39;highpass&#39;</span><span class="p">:</span> <span class="mf">0.007142857142857143</span><span class="p">,</span>
+    <span class="s1">&#39;lowpass&#39;</span><span class="p">:</span> <span class="mf">0.0125</span><span class="p">,</span>
+    <span class="s1">&#39;npts&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+    <span class="s1">&#39;stf&#39;</span><span class="p">:</span> <span class="s1">&#39;Filtered Heaviside&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;station_coordinates&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;elevation_in_m&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">54.0</span><span class="p">,</span>
+    <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">46.882</span><span class="p">,</span>
+    <span class="s1">&#39;local_depth_in_m&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">124.3337</span><span class="p">},</span>
+ <span class="s1">&#39;station_filename&#39;</span><span class="p">:</span> <span class="s1">u&#39;/.../STATIONS/RESP/RESP.7D.FN01A..HH*&#39;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -276,16 +276,16 @@ work as expected.</p>
 component flips to get them to ZNE) to the synthetics but just
 uses them as is. If your workflow requires the synthetics to be processed,
 please do it in this function. It will be applied on the fly to each
-up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object of synthetic
+up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object of synthetic
 data.</p>
 <p>The default implementation is this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">st</span>
 </pre></div>
 </div>
 <p>This is very useful for processing the synthetics in any fashion or to shift
 them time and similar endeavours. Make sure it returns a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <p><code class="docutils literal"><span class="pre">iteration</span></code> and <code class="docutils literal"><span class="pre">event</span></code> are the <a class="reference internal" href="../iteration_xml.html#lasif.iteration_xml.Iteration" title="lasif.iteration_xml.Iteration"><code class="xref py py-class docutils literal"><span class="pre">Iteration</span></code></a>
 object of the current iteration and a dictionary containing information about
 the data&#8217;s event, respectively.</p>
@@ -294,15 +294,15 @@ the data&#8217;s event, respectively.</p>
 <h2>16.4. Customize Window Picking<a class="headerlink" href="#customize-window-picking" title="Permalink to this headline">¶</a></h2>
 <p>Use this function to customize the window picking of LASIF, or even use a
 completely different window picking algorithm. Its function signature is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">window_picking_function</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">window_picking_function</span><span class="p">(</span><span class="n">data_trace</span><span class="p">,</span> <span class="n">synthetic_trace</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span>
                             <span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span>
                             <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span>
                             <span class="n">minimum_period</span><span class="p">,</span> <span class="n">maximum_period</span><span class="p">,</span>
                             <span class="n">iteration</span><span class="p">):</span>
     <span class="o">...</span>
 
-    <span class="c"># Make sure it return a list of tuples, each denoting start and</span>
-    <span class="c"># endtime for each picked window.</span>
+    <span class="c1"># Make sure it return a list of tuples, each denoting start and</span>
+    <span class="c1"># endtime for each picked window.</span>
     <span class="k">return</span> <span class="p">[(</span><span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="o">...</span><span class="p">)),</span>
             <span class="p">(</span><span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="o">...</span><span class="p">))]</span>
 </pre></div>
@@ -313,9 +313,9 @@ completely different window picking algorithm. Its function signature is:</p>
 <p>This function is used to generate source time functions for SES3D. If you
 don&#8217;t use SES3D for the numerical wavefield simulations you can ignore this.
 Its function signature is:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">source_time_function</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">source_time_function</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
     <span class="o">...</span>
-    <span class="c"># Make sure it returns a float64 NumPy array with `npts` samples.</span>
+    <span class="c1"># Make sure it returns a float64 NumPy array with `npts` samples.</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
 </pre></div>
 </div>

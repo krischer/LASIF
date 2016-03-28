@@ -145,16 +145,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
     <li>9. Defining a New Iteration</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/08_a_new_iteration.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/08_a_new_iteration.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -170,7 +170,7 @@ specified. Each iteration can have an arbitrary name. It is probably a good
 idea to give simple numeric names, like 1, 2, 3, ...</p>
 <p>Let&#8217;s start by creating the XML file for the first iteration with the
 <strong>create_new_iteration</strong> command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif create_new_iteration <span class="m">1</span> 40.0 100.0 SES3D_4_1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif create_new_iteration <span class="m">1</span> 40.0 100.0 SES3D_4_1
 </pre></div>
 </div>
 <p>This command takes four arguments; the first being the iteration name. A simple
@@ -181,7 +181,7 @@ iteration. It currently only supports SES3D 4.1 but the infrastructure to add
 other solvers is already in place.</p>
 <p>You will see that this create a new file: <code class="docutils literal"><span class="pre">ITERATIONS/ITERATION_1.xml</span></code>.
 Each iteration will have its own file. To get a list of iterations, use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_iterations
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif list_iterations
 
 <span class="m">1</span> Iteration in project:
 1
@@ -189,7 +189,7 @@ Each iteration will have its own file. To get a list of iterations, use</p>
 </div>
 <p>To get more information about a specific iteration,  use the <code class="docutils literal"><span class="pre">iteration_info</span></code>
 command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif iteration_info 1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif iteration_info 1
 
 LASIF Iteration
 Name: 1
@@ -250,7 +250,7 @@ information will hopefully be incorporated into LASIF.</p>
 <p>Let&#8217;s have a quick look at the generated file. The <strong>create_new_iteration</strong>
 command will create a new iteration file with all the information currently
 present in the LASIF project.</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
 <span class="nt">&lt;iteration&gt;</span>
   <span class="nt">&lt;iteration_name&gt;</span>1<span class="nt">&lt;/iteration_name&gt;</span>
   <span class="nt">&lt;data_preprocessing&gt;</span>
@@ -345,7 +345,7 @@ and time increment you specify in the solver settings. Furthermore all source
 time functions will be filtered with the same bandpass as the data.</p>
 <p>To get a quick look of the source time function for any given iteration, use
 the <strong>plot_stf</strong> command with the iteration name:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_stf 1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_stf 1
 </pre></div>
 </div>
 <p>This command will read the corresponding iteration file and open a plot with a
@@ -364,7 +364,7 @@ optimization algorithm to find relaxation times and associated weights that
 will be nearly constant over the chosen frequency domain.</p>
 <p>At any point you can see the absorption-band model for a given iteration at a
 couple of exemplary Q values with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_Q_model 1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_Q_model 1
 </pre></div>
 </div>
 <p>The single argument is the name of the iteration.</p>
@@ -377,11 +377,11 @@ the iteration XML file.</p>
 <p>It is also possible to directly generate the relaxation times and weights for
 any frequency band. To generate a Q model approximately constant in a period
 band from 10 seconds to 100 seconds use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif calculate_constant_Q_model <span class="m">10</span> 100
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif calculate_constant_Q_model <span class="m">10</span> 100
 
 Starting to find optimal relaxation parameters.
 weights:              <span class="o">[</span>1.60642, 1.0073, 1.49737<span class="o">]</span>
-relaxation <span class="nb">times</span>:     <span class="o">[</span>0.71721, 4.2330, 23.78702<span class="o">]</span>
+relaxation times:     <span class="o">[</span>0.71721, 4.2330, 23.78702<span class="o">]</span>
 partial derivatives:  <span class="o">[</span>-1.68287755  0.78722974  5.14255026<span class="o">]</span>
 cumulative rms error: 0.0163777833823
 </pre></div>
@@ -403,17 +403,17 @@ that the data is available at the same points in time as the synthetics. The
 goal of the preprocessing within LASIF is to create data that is directly
 comparable to simulated data without any more processing.</p>
 <p>The applied processing is identified via the name:</p>
-<div class="highlight-python"><div class="highlight"><pre>preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000
+<div class="highlight-python"><div class="highlight"><pre><span></span>preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000
 </pre></div>
 </div>
 <p>or (in Python terms):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
 <span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">40.0</span>
 <span class="n">npts</span> <span class="o">=</span> <span class="mi">2000</span>
 <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span>
 
-<span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
-                  <span class="s">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">highpass</span><span class="o">=</span><span class="n">highpass</span><span class="p">,</span> <span class="n">lowpass</span><span class="o">=</span><span class="n">lowpass</span><span class="p">,</span>
+<span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
+                  <span class="s2">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">highpass</span><span class="o">=</span><span class="n">highpass</span><span class="p">,</span> <span class="n">lowpass</span><span class="o">=</span><span class="n">lowpass</span><span class="p">,</span>
                                                    <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -430,7 +430,7 @@ performed full waveform inversion) please contact the LASIF developers.</p>
 <p>You can of course also simply utilize LASIF&#8217;s built-in preprocessing. Using it
 is trivial, just launch the <strong>preprocess_data</strong> command together with the
 iteration name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif preprocess_data 1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif preprocess_data 1
 </pre></div>
 </div>
 <p>This will start a fully parallelized preprocessing for all data required for

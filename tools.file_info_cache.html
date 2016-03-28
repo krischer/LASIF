@@ -132,16 +132,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-        <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
+          <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
       
     <li>lasif.tools.file_info_cache</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/tools.file_info_cache.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/tools.file_info_cache.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -161,47 +161,47 @@ automatically remove any deleted files, reindex modified ones and add new ones.<
 <p>This is much faster then reading the files every time but still provides a lot
 of flexibility as the data can be managed by some other means.</p>
 <p>Example implementation:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">ImageCache</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ImageCache</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_folder</span><span class="p">,</span> <span class="n">cache_db_file</span><span class="p">):</span>
-        <span class="c"># The index values are a list of tuples. The first denotes the</span>
-        <span class="c"># name of the index and the second the type of the index. The types</span>
-        <span class="c"># have to correspond to SQLite types.</span>
+        <span class="c1"># The index values are a list of tuples. The first denotes the</span>
+        <span class="c1"># name of the index and the second the type of the index. The types</span>
+        <span class="c1"># have to correspond to SQLite types.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index_values</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s">&quot;width&quot;</span><span class="p">,</span> <span class="s">&quot;INTEGER&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s">&quot;height&quot;</span><span class="p">,</span> <span class="s">&quot;INTEGER&quot;</span><span class="p">),</span>
-            <span class="p">(</span><span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;TEXT&quot;</span><span class="p">)]</span>
-        <span class="c"># The types of files to index.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">filetypes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;png&quot;</span><span class="p">,</span> <span class="s">&quot;jpeg&quot;</span><span class="p">]</span>
+            <span class="p">(</span><span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;INTEGER&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;INTEGER&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;TEXT&quot;</span><span class="p">)]</span>
+        <span class="c1"># The types of files to index.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filetypes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">]</span>
 
-        <span class="c"># Subclass specific values</span>
+        <span class="c1"># Subclass specific values</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_folder</span> <span class="o">=</span> <span class="n">image_folder</span>
 
-        <span class="c"># Don&#39;t forget to call the parents __init__()!</span>
+        <span class="c1"># Don&#39;t forget to call the parents __init__()!</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ImageCache</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">cache_db_file</span><span class="o">=</span><span class="n">cache_db_file</span><span class="p">)</span>
 
-    <span class="c"># Now you need to define one &#39;find files&#39; and one &#39;index file&#39;</span>
-    <span class="c"># methods for each filetype. The &#39;find files&#39; method needs to be named</span>
-    <span class="c"># &#39;_find_files_FILETYPE&#39; and takes no arguments. The &#39;index file&#39;</span>
-    <span class="c"># method has to be named &#39;_extract_index_values_FILETYPE&#39; and takes one</span>
-    <span class="c"># argument: the path to file. It needs to return a list of lists. Each</span>
-    <span class="c"># inner list contains the indexed values in the same order as specified</span>
-    <span class="c"># in self.index_values. It can return multiple sets of indices per</span>
-    <span class="c"># file. Useful for lots of filetypes, not necessarily images as in the</span>
-    <span class="c"># example here.</span>
+    <span class="c1"># Now you need to define one &#39;find files&#39; and one &#39;index file&#39;</span>
+    <span class="c1"># methods for each filetype. The &#39;find files&#39; method needs to be named</span>
+    <span class="c1"># &#39;_find_files_FILETYPE&#39; and takes no arguments. The &#39;index file&#39;</span>
+    <span class="c1"># method has to be named &#39;_extract_index_values_FILETYPE&#39; and takes one</span>
+    <span class="c1"># argument: the path to file. It needs to return a list of lists. Each</span>
+    <span class="c1"># inner list contains the indexed values in the same order as specified</span>
+    <span class="c1"># in self.index_values. It can return multiple sets of indices per</span>
+    <span class="c1"># file. Useful for lots of filetypes, not necessarily images as in the</span>
+    <span class="c1"># example here.</span>
 
     <span class="k">def</span> <span class="nf">_find_files_png</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;*.png&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;*.png&quot;</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_find_files_jpeg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;*.png&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;*.png&quot;</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_extract_index_values_png</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="c"># Do somethings to get the values.</span>
-        <span class="k">return</span> <span class="p">[[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s">&quot;png&quot;</span><span class="p">]]</span>
+        <span class="c1"># Do somethings to get the values.</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">]]</span>
 
     <span class="k">def</span> <span class="nf">_extract_index_values_jpeg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="c"># Do somethings to get the values.</span>
-        <span class="k">return</span> <span class="p">[[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s">&quot;jpeg&quot;</span><span class="p">]]</span>
+        <span class="c1"># Do somethings to get the values.</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="s2">&quot;jpeg&quot;</span><span class="p">]]</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">

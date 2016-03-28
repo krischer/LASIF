@@ -138,16 +138,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
     <li>3. Seismic Events</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/02_seismic_events.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/02_seismic_events.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -166,13 +166,13 @@ have to be QuakeML 1.2 files with full moment tensor information.</p>
 events.  Simply search for an event on their webpage and copy the event url.
 The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></code> command will then grab the QuakeML file from the
 url and store an XML file in the correct folder.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
-<span class="nv">$ </span>lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif add_spud_event http://www.iris.edu/spud/momenttensor/835040
+$ lasif add_spud_event http://www.iris.edu/spud/momenttensor/912955
 </pre></div>
 </div>
 <p>These commands will download two event files and store them in the
 <code class="docutils literal"><span class="pre">EVENTS</span></code> subfolder.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>ls EVENTS
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ ls EVENTS
 
 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml
 GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
@@ -180,11 +180,11 @@ GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
 </div>
 <p>A more convenient way to see which events are currently defined in the
 project is the <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">list_events</span></code> command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif list_events
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif list_events
 
 <span class="m">2</span> events in project:
 +------------------------------------------------------------+--------------------------+---------------------+
-<span class="p">|</span> Event Name                                                 <span class="p">|</span>  Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag   <span class="p">|</span> <span class="c"># raw/preproc/synth |</span>
+<span class="p">|</span> Event Name                                                 <span class="p">|</span>  Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag   <span class="p">|</span> <span class="c1"># raw/preproc/synth |</span>
 +------------------------------------------------------------+--------------------------+---------------------+
 <span class="p">|</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             <span class="p">|</span>   44.9 / 8.5  / <span class="m">10</span> / 4.9 <span class="p">|</span>    <span class="m">0</span> /     <span class="m">0</span> /    <span class="m">0</span> <span class="p">|</span>
 <span class="p">|</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 <span class="p">|</span>   43.3 / 20.8 /  <span class="m">9</span> / 5.9 <span class="p">|</span>    <span class="m">0</span> /     <span class="m">0</span> /    <span class="m">0</span> <span class="p">|</span>
@@ -201,7 +201,7 @@ feel that event renaming is a necessary feature please file an issue on Github
 so that the authors can add a proper event renaming function.</p>
 <p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">plot_events</span></code> command will show a map with all events currently
 part of the project.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_events
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_events
 </pre></div>
 </div>
 <p>(<a class="reference external" href="../tutorial/02_seismic_events-1.py">Source code</a>, <a class="reference external" href="../tutorial/02_seismic_events-1.png">png</a>, <a class="reference external" href="../tutorial/02_seismic_events-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorial/02_seismic_events-1.pdf">pdf</a>)</p>
@@ -210,7 +210,7 @@ part of the project.</p>
 </div>
 <p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></code> command is your friend if you desire more information
 about a certain event:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 Earthquake with 4.9 Mwc at NORTHERN ITALY
     Latitude: 44.870, Longitude: 8.480, Depth: 15.0 km

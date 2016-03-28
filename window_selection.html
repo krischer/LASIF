@@ -132,16 +132,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-        <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
+          <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
       
     <li>lasif.window_selection</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/window_selection.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/window_selection.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -186,7 +186,7 @@ the value is closest.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">ref_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">20.</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ref_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">20.</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">100.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">2.4</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.6</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">find_closest</span><span class="p">(</span><span class="n">ref_array</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
 <span class="go">array([ 0, 19,  2,  2,  3,  3])</span>
@@ -222,8 +222,8 @@ description, please see the LASIF paper.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Trace</span></code></a>) &#8211; The data trace.</li>
-<li><strong>synthetic_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Trace</span></code></a>) &#8211; The synthetic trace.</li>
+<li><strong>data_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Trace</span></code></a>) &#8211; The data trace.</li>
+<li><strong>synthetic_trace</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Trace</span></code></a>) &#8211; The synthetic trace.</li>
 <li><strong>event_latitude</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The event latitude.</li>
 <li><strong>event_longitude</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The event longitude.</li>
 <li><strong>event_depth_in_km</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The event depth in km.</li>

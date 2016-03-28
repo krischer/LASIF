@@ -122,13 +122,13 @@
     <li><a href="index.html">Docs</a> &raquo;</li>
       
     <li>FAQ</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/faq.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/faq.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -151,7 +151,7 @@ unclear, please let me know.</p>
 conservative. The best way to tune them in my opinion is to add the
 <code class="docutils literal"><span class="pre">plot=True</span></code> argument to the window picking function in
 <code class="docutils literal"><span class="pre">FUNCTIONS/window_picking_function.py</span></code>, e.g.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="o">...</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="o">...</span>
 
 <span class="n">windows</span> <span class="o">=</span> <span class="n">select_windows</span><span class="p">(</span>
     <span class="o">...</span><span class="p">,</span>
@@ -170,7 +170,7 @@ window.</p>
 <p>This enables you to judge the effect of each parameter and should allow you
 to fine tune the algorithm to the data at hand. Simply test for a couple of
 windows with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif select_windows ITERATION EVENT_NAME
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif select_windows ITERATION EVENT_NAME
 </pre></div>
 </div>
 <p>and tune the parameters until you are satisfied. <strong>Don&#8217;t forget to remove

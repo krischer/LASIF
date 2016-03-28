@@ -118,16 +118,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
       
-        <li><a href="../../lasif.html">lasif</a> &raquo;</li>
+          <li><a href="../../lasif.html">lasif</a> &raquo;</li>
       
     <li>lasif.components.iterations</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-      
-    </li>
+          
+        
+      </li>
   </ul>
   <hr/>
 </div>
@@ -135,8 +135,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for lasif.components.iterations</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- coding: utf-8 -*-</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">glob</span>
@@ -167,8 +167,8 @@
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_folder</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">get_long_iteration_name</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">extsep</span> <span class="o">+</span>
-            <span class="s">&quot;xml&quot;</span><span class="p">)</span>
-</div>
+            <span class="s2">&quot;xml&quot;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.get_iteration_dict"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.get_iteration_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_iteration_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a dictionary with the keys being the iteration names and the</span>
@@ -182,11 +182,11 @@
 <span class="sd">         &#39;2&#39;: &#39;/.../ITERATION_2.xml&#39;}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_folder</span><span class="p">,</span> <span class="s">&quot;ITERATION_*</span><span class="si">%s</span><span class="s">xml&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">extsep</span><span class="p">))]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_folder</span><span class="p">,</span> <span class="s2">&quot;ITERATION_*</span><span class="si">%s</span><span class="s2">xml&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">extsep</span><span class="p">))]</span>
         <span class="n">it_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">_i</span><span class="p">))[</span><span class="mi">0</span><span class="p">][</span><span class="mi">10</span><span class="p">:]:</span> <span class="n">_i</span>
                    <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">files</span><span class="p">}</span>
-        <span class="k">return</span> <span class="n">it_dict</span>
-</div>
+        <span class="k">return</span> <span class="n">it_dict</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.get_long_iteration_name"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.get_long_iteration_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_long_iteration_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the long form of an iteration from its short name.</span>
@@ -195,8 +195,8 @@
 <span class="sd">        &gt;&gt;&gt; comm.iterations.get_long_iteration_name(&quot;1&quot;)</span>
 <span class="sd">        &#39;ITERATION_1&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s">&quot;ITERATION_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">iteration_name</span>
-</div>
+        <span class="k">return</span> <span class="s2">&quot;ITERATION_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">iteration_name</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.list"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a list of all iterations managed by this component.</span>
@@ -205,8 +205,8 @@
 <span class="sd">        &gt;&gt;&gt; comm.iterations.list()</span>
 <span class="sd">        [&#39;1&#39;, &#39;2&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</div>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.count"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the number of iterations managed by this component.</span>
@@ -215,8 +215,8 @@
 <span class="sd">        &gt;&gt;&gt; comm.iterations.count()</span>
 <span class="sd">        2</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">())</span>
-</div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">())</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.has_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.has_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">has_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test for existence of an iteration.</span>
@@ -230,16 +230,16 @@
 <span class="sd">        &gt;&gt;&gt; comm.iterations.has_iteration(&quot;99&quot;)</span>
 <span class="sd">        False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Make it work with both the long and short version of the iteration</span>
-        <span class="c"># name, and existing iteration object.</span>
+        <span class="c1"># Make it work with both the long and short version of the iteration</span>
+        <span class="c1"># name, and existing iteration object.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">iteration_name</span> <span class="o">=</span> <span class="n">iteration_name</span><span class="o">.</span><span class="n">iteration_name</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="n">iteration_name</span> <span class="o">=</span> <span class="n">iteration_name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&quot;ITERATION_&quot;</span><span class="p">)</span>
+        <span class="n">iteration_name</span> <span class="o">=</span> <span class="n">iteration_name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;ITERATION_&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">iteration_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span>
-</div>
+        <span class="k">return</span> <span class="n">iteration_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.create_new_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.create_new_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">,</span> <span class="n">solver_name</span><span class="p">,</span> <span class="n">events_dict</span><span class="p">,</span>
                              <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
                              <span class="n">create_folders</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
@@ -268,7 +268,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">iteration_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">iteration_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">():</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Iteration </span><span class="si">%s</span><span class="s"> already exists.&quot;</span> <span class="o">%</span> <span class="n">iteration_name</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Iteration </span><span class="si">%s</span><span class="s2"> already exists.&quot;</span> <span class="o">%</span> <span class="n">iteration_name</span>
             <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="kn">from</span> <span class="nn">lasif.iteration_xml</span> <span class="kn">import</span> <span class="n">create_iteration_xml_string</span>
@@ -276,13 +276,13 @@
                                                  <span class="n">solver_name</span><span class="p">,</span> <span class="n">events_dict</span><span class="p">,</span>
                                                  <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span>
                                                  <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_filename_for_iteration</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">),</span> <span class="s">&quot;wt&quot;</span><span class="p">)</span>\
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_filename_for_iteration</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">),</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span>\
                 <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">xml_string</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">create_folders</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">create_synthetics_folder_for_iteration</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
-</div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_synthetics_folder_for_iteration</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.create_synthetics_folder_for_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.create_synthetics_folder_for_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">create_synthetics_folder_for_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the synthetics folder if it does not yet exists.</span>
@@ -290,12 +290,12 @@
 <span class="sd">        :param iteration_name: The iteration for which to create the folders.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">iteration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;synthetics&quot;</span><span class="p">]</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;synthetics&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="n">iteration</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">iteration</span><span class="o">.</span><span class="n">long_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
-</div>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.create_successive_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.create_successive_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">create_successive_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_iteration_name</span><span class="p">,</span>
                                     <span class="n">new_iteration_name</span><span class="p">,</span> <span class="n">create_folders</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -347,10 +347,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">it_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">existing_iteration_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">it_dict</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Iteration </span><span class="si">%s</span><span class="s"> does not exists.&quot;</span> <span class="o">%</span> <span class="n">existing_iteration_name</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Iteration </span><span class="si">%s</span><span class="s2"> does not exists.&quot;</span> <span class="o">%</span> <span class="n">existing_iteration_name</span>
             <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">new_iteration_name</span> <span class="ow">in</span> <span class="n">it_dict</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Iteration </span><span class="si">%s</span><span class="s"> already exists.&quot;</span> <span class="o">%</span> <span class="n">new_iteration_name</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Iteration </span><span class="si">%s</span><span class="s2"> already exists.&quot;</span> <span class="o">%</span> <span class="n">new_iteration_name</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="kn">from</span> <span class="nn">lasif.iteration_xml</span> <span class="kn">import</span> <span class="n">Iteration</span>
@@ -358,16 +358,16 @@
         <span class="n">existing_iteration</span> <span class="o">=</span> <span class="n">Iteration</span><span class="p">(</span>
             <span class="n">it_dict</span><span class="p">[</span><span class="n">existing_iteration_name</span><span class="p">],</span>
             <span class="n">stf_fct</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
-                <span class="s">&quot;source_time_function&quot;</span><span class="p">))</span>
+                <span class="s2">&quot;source_time_function&quot;</span><span class="p">))</span>
 
-        <span class="c"># Clone the old iteration, delete any comments and change the name.</span>
+        <span class="c1"># Clone the old iteration, delete any comments and change the name.</span>
         <span class="n">existing_iteration</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">existing_iteration</span><span class="o">.</span><span class="n">iteration_name</span> <span class="o">=</span> <span class="n">new_iteration_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_iteration</span><span class="p">(</span><span class="n">existing_iteration</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">create_folders</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">create_synthetics_folder_for_iteration</span><span class="p">(</span><span class="n">new_iteration_name</span><span class="p">)</span>
-</div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_synthetics_folder_for_iteration</span><span class="p">(</span><span class="n">new_iteration_name</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.save_iteration"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.save_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">save_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save an iteration object to disc.</span>
@@ -377,11 +377,11 @@
         <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_filename_for_iteration</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="n">iteration</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
-        <span class="c"># Remove the iteration from the cache so it is loaded anew the next</span>
-        <span class="c"># time it is accessed.</span>
+        <span class="c1"># Remove the iteration from the cache so it is loaded anew the next</span>
+        <span class="c1"># time it is accessed.</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_iterations</span><span class="p">:</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_iterations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-</div>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_iterations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.get"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns an iteration object.</span>
@@ -415,33 +415,33 @@
 <span class="sd">        &gt;&gt;&gt; comm.iterations.get(it)</span>
 <span class="sd">        &lt;lasif.iteration_xml.Iteration object at ...&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Make it work with both the long and short version of the iteration</span>
-        <span class="c"># name, and existing iteration object.</span>
+        <span class="c1"># Make it work with both the long and short version of the iteration</span>
+        <span class="c1"># name, and existing iteration object.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">iteration_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">iteration_name</span><span class="o">.</span><span class="n">iteration_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="n">iteration_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
-        <span class="n">iteration_name</span> <span class="o">=</span> <span class="n">iteration_name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s">&quot;ITERATION_&quot;</span><span class="p">)</span>
+        <span class="n">iteration_name</span> <span class="o">=</span> <span class="n">iteration_name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;ITERATION_&quot;</span><span class="p">)</span>
 
-        <span class="c"># Access cache.</span>
+        <span class="c1"># Access cache.</span>
         <span class="k">if</span> <span class="n">iteration_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_iterations</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_iterations</span><span class="p">[</span><span class="n">iteration_name</span><span class="p">]</span>
 
         <span class="n">it_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iteration_dict</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">iteration_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">it_dict</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Iteration &#39;</span><span class="si">%s</span><span class="s">&#39; not found.&quot;</span> <span class="o">%</span> <span class="n">iteration_name</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Iteration &#39;</span><span class="si">%s</span><span class="s2">&#39; not found.&quot;</span> <span class="o">%</span> <span class="n">iteration_name</span>
             <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="kn">from</span> <span class="nn">lasif.iteration_xml</span> <span class="kn">import</span> <span class="n">Iteration</span>
         <span class="n">it</span> <span class="o">=</span> <span class="n">Iteration</span><span class="p">(</span><span class="n">it_dict</span><span class="p">[</span><span class="n">iteration_name</span><span class="p">],</span>
                        <span class="n">stf_fct</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">get_project_function</span><span class="p">(</span>
-                           <span class="s">&quot;source_time_function&quot;</span><span class="p">))</span>
+                           <span class="s2">&quot;source_time_function&quot;</span><span class="p">))</span>
 
-        <span class="c"># Store in cache.</span>
+        <span class="c1"># Store in cache.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__cached_iterations</span><span class="p">[</span><span class="n">iteration_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">it</span>
 
-        <span class="k">return</span> <span class="n">it</span>
-</div>
+        <span class="k">return</span> <span class="n">it</span></div>
+
 <div class="viewcode-block" id="IterationsComponent.plot_Q_model"><a class="viewcode-back" href="../../../components/iterations.html#lasif.components.iterations.IterationsComponent.plot_Q_model">[docs]</a>    <span class="k">def</span> <span class="nf">plot_Q_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Plots the Q model for a given iteration. Will only work if the</span>
@@ -450,18 +450,18 @@
         <span class="kn">from</span> <span class="nn">lasif.tools.Q_discrete</span> <span class="kn">import</span> <span class="n">plot</span>
 
         <span class="n">iteration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">iteration</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&quot;ses3d 4.1&quot;</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Only works for SES3D 4.1&quot;</span>
+        <span class="k">if</span> <span class="n">iteration</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;ses3d 4.1&quot;</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Only works for SES3D 4.1&quot;</span>
             <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="n">proc_params</span> <span class="o">=</span> <span class="n">iteration</span><span class="o">.</span><span class="n">get_process_params</span><span class="p">()</span>
-        <span class="n">f_min</span> <span class="o">=</span> <span class="n">proc_params</span><span class="p">[</span><span class="s">&quot;highpass&quot;</span><span class="p">]</span>
-        <span class="n">f_max</span> <span class="o">=</span> <span class="n">proc_params</span><span class="p">[</span><span class="s">&quot;lowpass&quot;</span><span class="p">]</span>
+        <span class="n">f_min</span> <span class="o">=</span> <span class="n">proc_params</span><span class="p">[</span><span class="s2">&quot;highpass&quot;</span><span class="p">]</span>
+        <span class="n">f_max</span> <span class="o">=</span> <span class="n">proc_params</span><span class="p">[</span><span class="s2">&quot;lowpass&quot;</span><span class="p">]</span>
 
-        <span class="n">relax</span> <span class="o">=</span> <span class="n">iteration</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
-            <span class="s">&quot;relaxation_parameter_list&quot;</span><span class="p">]</span>
-        <span class="n">tau_p</span> <span class="o">=</span> <span class="n">relax</span><span class="p">[</span><span class="s">&quot;tau&quot;</span><span class="p">]</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">relax</span><span class="p">[</span><span class="s">&quot;w&quot;</span><span class="p">]</span>
+        <span class="n">relax</span> <span class="o">=</span> <span class="n">iteration</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;relaxation_parameter_list&quot;</span><span class="p">]</span>
+        <span class="n">tau_p</span> <span class="o">=</span> <span class="n">relax</span><span class="p">[</span><span class="s2">&quot;tau&quot;</span><span class="p">]</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">relax</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span>
 
         <span class="n">plot</span><span class="p">(</span><span class="n">D_p</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">tau_p</span><span class="o">=</span><span class="n">tau_p</span><span class="p">,</span> <span class="n">f_min</span><span class="o">=</span><span class="n">f_min</span><span class="p">,</span> <span class="n">f_max</span><span class="o">=</span><span class="n">f_max</span><span class="p">)</span></div></div>
 </pre></div>

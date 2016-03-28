@@ -143,16 +143,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
     <li>13. Misfit and Adjoint Source Calculation</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/12_misfits_and_adjoint_sources.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/12_misfits_and_adjoint_sources.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -197,7 +197,7 @@ the following formula:</p>
 correct windows.</p>
 <p>To launch it, execute the <strong>launch_misfit_gui</strong> together with the iteration
 name and the event name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif launch_misfit_gui <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif launch_misfit_gui <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 </pre></div>
 </div>
 <p>This will open a window akin to the following:</p>
@@ -241,7 +241,7 @@ stored separately. To combine them to, apply the weighting scheme and convert
 them to a format, that SES3D can actually use, run the
 <strong>finalize_adjoint_sources</strong> command with the iteration name and the event
 name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 </pre></div>
 </div>
 <p>This will also rotate the adjoint sources to the frame of reference used in the

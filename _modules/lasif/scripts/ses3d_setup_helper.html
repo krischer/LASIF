@@ -118,16 +118,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
       
-        <li><a href="../../lasif.html">lasif</a> &raquo;</li>
+          <li><a href="../../lasif.html">lasif</a> &raquo;</li>
       
     <li>lasif.scripts.ses3d_setup_helper</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-      
-    </li>
+          
+        
+      </li>
   </ul>
   <hr/>
 </div>
@@ -135,8 +135,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for lasif.scripts.ses3d_setup_helper</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- coding: utf-8 -*-</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Script assisting in determining suitable SES3D settings.</span>
 
@@ -154,8 +154,8 @@
 <span class="kn">from</span> <span class="nn">lasif.data</span> <span class="kn">import</span> <span class="n">OneDimensionalModel</span>
 
 
-<span class="c"># Arbitrary number but it is probably unlikely to run SES3D on more than</span>
-<span class="c"># 3000 cores.</span>
+<span class="c1"># Arbitrary number but it is probably unlikely to run SES3D on more than</span>
+<span class="c1"># 3000 cores.</span>
 <span class="n">MAX_CORES</span> <span class="o">=</span> <span class="mi">3000</span>
 
 
@@ -174,9 +174,9 @@
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">number</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">(</span><span class="n">number</span> <span class="o">//</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
             <span class="n">sieve</span><span class="p">[(</span><span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">False</span>
-    <span class="k">return</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">sieve</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">number</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">sieve</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_factors_and_multiplicity"><a class="viewcode-back" href="../../../ses3d_setup_helper.html#lasif.scripts.ses3d_setup_helper.get_factors_and_multiplicity">[docs]</a><span class="k">def</span> <span class="nf">get_factors_and_multiplicity</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get prime factors and their multiplicity.</span>
@@ -197,9 +197,9 @@
                 <span class="n">factors</span><span class="p">[</span><span class="n">prime</span><span class="p">]</span> <span class="o">=</span> <span class="n">factor</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">break</span>
-    <span class="k">return</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">factors</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">factors</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">factors</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">factors</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_divisors"><a class="viewcode-back" href="../../../ses3d_setup_helper.html#lasif.scripts.ses3d_setup_helper.get_divisors">[docs]</a><span class="k">def</span> <span class="nf">get_divisors</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get all divisors for a certain number.</span>
@@ -226,9 +226,9 @@
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">nfactors</span><span class="p">:</span>
                 <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">divisors</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">divisors</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">divisors</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="get_domain_decompositions"><a class="viewcode-back" href="../../../ses3d_setup_helper.html#lasif.scripts.ses3d_setup_helper.get_domain_decompositions">[docs]</a><span class="k">def</span> <span class="nf">get_domain_decompositions</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">max_recommendations</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Attempt to get reasonable domain decomposition recommendations.</span>
@@ -247,56 +247,56 @@
     <span class="n">factors_y</span> <span class="o">=</span> <span class="n">get_divisors</span><span class="p">(</span><span class="n">ny</span><span class="p">)</span>
     <span class="n">factors_z</span> <span class="o">=</span> <span class="n">get_divisors</span><span class="p">(</span><span class="n">nz</span><span class="p">)</span>
 
-    <span class="c"># Don&#39;t have less than 4 or more than 20 elements per core in one</span>
-    <span class="c"># direction.</span>
+    <span class="c1"># Don&#39;t have less than 4 or more than 20 elements per core in one</span>
+    <span class="c1"># direction.</span>
     <span class="n">factors_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">factors_x</span> <span class="k">if</span> <span class="mi">15</span> <span class="o">&gt;=</span> <span class="n">nx</span> <span class="o">/</span> <span class="n">_i</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">]</span>
     <span class="n">factors_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">factors_y</span> <span class="k">if</span> <span class="mi">15</span> <span class="o">&gt;=</span> <span class="n">ny</span> <span class="o">/</span> <span class="n">_i</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">]</span>
     <span class="n">factors_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">factors_z</span> <span class="k">if</span> <span class="mi">15</span> <span class="o">&gt;=</span> <span class="n">nz</span> <span class="o">/</span> <span class="n">_i</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">]</span>
 
-    <span class="c"># Get all possible combinations and choose then one with the smallest</span>
-    <span class="c"># standard deviation.</span>
+    <span class="c1"># Get all possible combinations and choose then one with the smallest</span>
+    <span class="c1"># standard deviation.</span>
     <span class="n">combinations</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">factors_x</span><span class="p">,</span> <span class="n">factors_y</span><span class="p">,</span> <span class="n">factors_z</span><span class="p">)</span>
     <span class="n">combinations</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">combinations</span>
                     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">MAX_CORES</span><span class="p">]</span>
-    <span class="c"># Sort by their &quot;standard deviation&quot; of the elements per CPU which is a bit</span>
-    <span class="c"># wild given its only three samples but it should prefer fairly equal</span>
-    <span class="c"># distributions.</span>
+    <span class="c1"># Sort by their &quot;standard deviation&quot; of the elements per CPU which is a bit</span>
+    <span class="c1"># wild given its only three samples but it should prefer fairly equal</span>
+    <span class="c1"># distributions.</span>
 
     <span class="k">def</span> <span class="nf">sort_fct</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-        <span class="c"># Get number of elements per core.</span>
+        <span class="c1"># Get number of elements per core.</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">nx</span> <span class="o">/</span> <span class="n">a</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">ny</span> <span class="o">/</span> <span class="n">b</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">nz</span> <span class="o">/</span> <span class="n">c</span>
-        <span class="c"># kind of a normalized standard deviation...</span>
+        <span class="c1"># kind of a normalized standard deviation...</span>
         <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">b</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">c</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> \
             <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">c</span> <span class="o">/</span> <span class="n">b</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> \
             <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">a</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">b</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
 
     <span class="n">combinations</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">combinations</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">sort_fct</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">combinations</span><span class="p">[:</span><span class="n">max_recommendations</span><span class="p">],</span>
-                  <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">())</span>
+                  <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">())</span></div>
 
-</div>
+
 <span class="k">def</span> <span class="nf">get_ses3d_settings</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">max_recommendations</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;SES3D Setup Assistant</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;SES3D Setup Assistant</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;All calculations are done quick and dirty so take them with a &quot;</span>
-          <span class="s">&quot;grain of salt.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;All calculations are done quick and dirty so take them with a &quot;</span>
+          <span class="s2">&quot;grain of salt.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="n">decompositions</span> <span class="o">=</span> <span class="n">get_domain_decompositions</span><span class="p">(</span>
         <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">,</span> <span class="n">max_recommendations</span><span class="o">=</span><span class="n">max_recommendations</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">decompositions</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Could not calculate recommended domain decompositions.&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Could not calculate recommended domain decompositions.&quot;</span><span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Possible recommended domain decompositions:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Possible recommended domain decompositions:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">decompositions</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span> <span class="o">+</span>
-              <span class="s">&quot;Total CPU count: </span><span class="si">%5i</span><span class="s">; &quot;</span>
-              <span class="s">&quot;CPUs in X: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core), &quot;</span>
-              <span class="s">&quot;CPUs in Y: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core), &quot;</span>
-              <span class="s">&quot;CPUs in Z: </span><span class="si">%3i</span><span class="s"> (</span><span class="si">%2i</span><span class="s"> elements/core)&quot;</span> <span class="o">%</span>
+              <span class="s2">&quot;Total CPU count: </span><span class="si">%5i</span><span class="s2">; &quot;</span>
+              <span class="s2">&quot;CPUs in X: </span><span class="si">%3i</span><span class="s2"> (</span><span class="si">%2i</span><span class="s2"> elements/core), &quot;</span>
+              <span class="s2">&quot;CPUs in Y: </span><span class="si">%3i</span><span class="s2"> (</span><span class="si">%2i</span><span class="s2"> elements/core), &quot;</span>
+              <span class="s2">&quot;CPUs in Z: </span><span class="si">%3i</span><span class="s2"> (</span><span class="si">%2i</span><span class="s2"> elements/core)&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span><span class="o">.</span><span class="n">prod</span><span class="p">(),</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">nx</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ny</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">nz</span> <span class="o">/</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span>
               <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
@@ -308,71 +308,71 @@
         <span class="n">elem_size_y</span> <span class="o">=</span> <span class="n">y_extent</span> <span class="o">/</span> <span class="p">(</span><span class="n">ny</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">elem_size_z</span> <span class="o">=</span> <span class="n">z_extent</span> <span class="o">/</span> <span class="p">(</span><span class="n">nz</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Extent in latitudinal  (X) direction: </span><span class="si">%7.1f</span><span class="s"> km, &quot;</span>
-              <span class="s">&quot;</span><span class="si">%5.1f</span><span class="s"> km/element, </span><span class="si">%4i</span><span class="s"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x_extent</span><span class="p">,</span> <span class="n">elem_size_x</span><span class="p">,</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;  Extent in latitudinal  (X) direction: </span><span class="si">%7.1f</span><span class="s2"> km, &quot;</span>
+              <span class="s2">&quot;</span><span class="si">%5.1f</span><span class="s2"> km/element, </span><span class="si">%4i</span><span class="s2"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x_extent</span><span class="p">,</span> <span class="n">elem_size_x</span><span class="p">,</span>
                                                   <span class="n">nx</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Extent in longitudinal (Y) direction: </span><span class="si">%7.1f</span><span class="s"> km, &quot;</span>
-              <span class="s">&quot;</span><span class="si">%5.1f</span><span class="s"> km/element, </span><span class="si">%4i</span><span class="s"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">y_extent</span><span class="p">,</span> <span class="n">elem_size_y</span><span class="p">,</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;  Extent in longitudinal (Y) direction: </span><span class="si">%7.1f</span><span class="s2"> km, &quot;</span>
+              <span class="s2">&quot;</span><span class="si">%5.1f</span><span class="s2"> km/element, </span><span class="si">%4i</span><span class="s2"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">y_extent</span><span class="p">,</span> <span class="n">elem_size_y</span><span class="p">,</span>
                                                   <span class="n">ny</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Extent in depth        (Z) direction: </span><span class="si">%7.1f</span><span class="s"> km, &quot;</span>
-              <span class="s">&quot;</span><span class="si">%5.1f</span><span class="s"> km/element, </span><span class="si">%4i</span><span class="s"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z_extent</span><span class="p">,</span> <span class="n">elem_size_z</span><span class="p">,</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;  Extent in depth        (Z) direction: </span><span class="si">%7.1f</span><span class="s2"> km, &quot;</span>
+              <span class="s2">&quot;</span><span class="si">%5.1f</span><span class="s2"> km/element, </span><span class="si">%4i</span><span class="s2"> elements&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">z_extent</span><span class="p">,</span> <span class="n">elem_size_z</span><span class="p">,</span>
                                                   <span class="n">nz</span> <span class="o">+</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
         <span class="n">element_sizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">elem_size_x</span><span class="p">,</span> <span class="n">elem_size_y</span><span class="p">,</span> <span class="n">elem_size_z</span><span class="p">]</span>
         <span class="n">min_element_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">element_sizes</span><span class="p">)</span>
         <span class="n">max_element_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">element_sizes</span><span class="p">)</span>
-        <span class="c"># Smallest GLL point distance.</span>
+        <span class="c1"># Smallest GLL point distance.</span>
         <span class="n">dx_min</span> <span class="o">=</span> <span class="mf">0.1717</span> <span class="o">*</span> <span class="n">min_element_size</span>
 
-        <span class="c"># Get the Wave speeds at all depths and choose the biggest one.</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">OneDimensionalModel</span><span class="p">(</span><span class="s">&quot;ak135-f&quot;</span><span class="p">)</span>
-        <span class="n">s_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">&quot;vs&quot;</span><span class="p">,</span> <span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
+        <span class="c1"># Get the Wave speeds at all depths and choose the biggest one.</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">OneDimensionalModel</span><span class="p">(</span><span class="s2">&quot;ak135-f&quot;</span><span class="p">)</span>
+        <span class="n">s_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;vs&quot;</span><span class="p">,</span> <span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="mi">400</span><span class="p">)]</span>
-        <span class="n">p_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">&quot;vp&quot;</span><span class="p">,</span> <span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
+        <span class="n">p_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;vp&quot;</span><span class="p">,</span> <span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">dz</span><span class="p">,</span> <span class="mi">400</span><span class="p">)]</span>
         <span class="n">v_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">p_values</span><span class="p">)</span>
         <span class="n">v_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">s_values</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Wave velocities range from </span><span class="si">%.1f</span><span class="s"> km/s to </span><span class="si">%.1f</span><span class="s"> km/s. The &quot;</span>
-              <span class="s">&quot;velocities of the top 15 km have not been analyzed to avoid &quot;</span>
-              <span class="s">&quot;very slow layers.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v_min</span><span class="p">,</span> <span class="n">v_max</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;  Wave velocities range from </span><span class="si">%.1f</span><span class="s2"> km/s to </span><span class="si">%.1f</span><span class="s2"> km/s. The &quot;</span>
+              <span class="s2">&quot;velocities of the top 15 km have not been analyzed to avoid &quot;</span>
+              <span class="s2">&quot;very slow layers.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">v_min</span><span class="p">,</span> <span class="n">v_max</span><span class="p">))</span>
 
-        <span class="c"># criterion approximately 0.3 for SES3D.</span>
+        <span class="c1"># criterion approximately 0.3 for SES3D.</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">dx_min</span> <span class="o">/</span> <span class="n">v_max</span>
         <span class="n">minimum_period</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">max_element_size</span> <span class="o">/</span> <span class="n">v_min</span>
 
         <span class="k">print</span><span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span> <span class="o">+</span>
-              <span class="s">&quot;  Maximal recommended time step: </span><span class="si">%.3f</span><span class="s"> s&quot;</span> <span class="o">%</span> <span class="n">dt</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;  Minimal resolvable period: </span><span class="si">%.1f</span><span class="s"> s&quot;</span> <span class="o">%</span> <span class="n">minimum_period</span> <span class="o">+</span>
+              <span class="s2">&quot;  Maximal recommended time step: </span><span class="si">%.3f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="n">dt</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;  Minimal resolvable period: </span><span class="si">%.1f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="n">minimum_period</span> <span class="o">+</span>
               <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span> <span class="o">+</span> <span class="s">&quot;  SES3D Settings: nx_global: </span><span class="si">%i</span><span class="s">, &quot;</span>
-              <span class="s">&quot;ny_global: </span><span class="si">%i</span><span class="s">, nz_global: </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">))</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;                  px: </span><span class="si">%i</span><span class="s">, py: </span><span class="si">%i</span><span class="s">, px: </span><span class="si">%i</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span> <span class="o">+</span> <span class="s2">&quot;  SES3D Settings: nx_global: </span><span class="si">%i</span><span class="s2">, &quot;</span>
+              <span class="s2">&quot;ny_global: </span><span class="si">%i</span><span class="s2">, nz_global: </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;                  px: </span><span class="si">%i</span><span class="s2">, py: </span><span class="si">%i</span><span class="s2">, px: </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">comp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">comp</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">colorama</span><span class="o">.</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">prog</span><span class="o">=</span><span class="s">&quot;python -m lasif.scripts.ses3d_setup_helper&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s">&quot;Script assisting in determining suitable SES3D settings.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;dx&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;latitudinal extent in degrees&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;dy&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;longitudinal extent in &quot;</span>
-                                               <span class="s">&quot;degrees&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;dz&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;depth extent in km&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;nx&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;~ element count in &quot;</span>
-                        <span class="s">&quot;latitudinal dir. Same as nx_global.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;ny&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;~ element count in &quot;</span>
-                        <span class="s">&quot;longitudinal dir. Same as ny_global.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;nz&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&quot;~ element count in depth &quot;</span>
-                        <span class="s">&quot;dir. Same as nz_global.&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&quot;--recommendations&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;number of recommendations to provide&quot;</span><span class="p">)</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;python -m lasif.scripts.ses3d_setup_helper&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Script assisting in determining suitable SES3D settings.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;dx&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;latitudinal extent in degrees&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;dy&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;longitudinal extent in &quot;</span>
+                                               <span class="s2">&quot;degrees&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;dz&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;depth extent in km&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;nx&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;~ element count in &quot;</span>
+                        <span class="s2">&quot;latitudinal dir. Same as nx_global.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;ny&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;~ element count in &quot;</span>
+                        <span class="s2">&quot;longitudinal dir. Same as ny_global.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;nz&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;~ element count in depth &quot;</span>
+                        <span class="s2">&quot;dir. Same as nz_global.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--recommendations&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;number of recommendations to provide&quot;</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
     <span class="n">get_ses3d_settings</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span> <span class="n">dz</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dz</span><span class="p">,</span> <span class="n">nx</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">nx</span><span class="p">,</span>
                        <span class="n">ny</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">nz</span><span class="p">,</span>
                        <span class="n">max_recommendations</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">recommendations</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

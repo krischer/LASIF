@@ -141,16 +141,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
     <li>11. Generating SES3D Input Files</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/10_generating_input_files.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/10_generating_input_files.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -169,7 +169,7 @@ to define the solver settings.</p>
 <div class="section" id="input-file-generation">
 <h2>11.1. Input File Generation<a class="headerlink" href="#input-file-generation" title="Permalink to this headline">¶</a></h2>
 <p>The actual input file generation is now very straightforward:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files ITERATION_NAME EVENT_NAME --simulation_type<span class="o">=</span>SIMULATION_TYPE
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif generate_input_files ITERATION_NAME EVENT_NAME --simulation_type<span class="o">=</span>SIMULATION_TYPE
 </pre></div>
 </div>
 <p><strong>TYPE</strong> has to be one of</p>
@@ -186,8 +186,8 @@ on.</li>
 </div></blockquote>
 <p>The other parameters should be clear.</p>
 <p>For this tutorial you can generate input files for both events with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif generate_input_files <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17 --simulation_type<span class="o">=</span>adjoint_forward
-<span class="nv">$ </span>lasif generate_input_files <span class="m">1</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 --simulation_type<span class="o">=</span>adjoint_forward
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif generate_input_files <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17 --simulation_type<span class="o">=</span>adjoint_forward
+$ lasif generate_input_files <span class="m">1</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 --simulation_type<span class="o">=</span>adjoint_forward
 </pre></div>
 </div>
 <p>This will place input files in the <em>OUTPUT</em> subdirectory of the project. In

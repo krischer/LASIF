@@ -132,16 +132,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-        <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
+          <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
       
     <li>lasif.tools.parallel</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/tools.parallel.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/tools.parallel.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -215,7 +215,7 @@ exception has been raised.</li>
 string.
 A traceback object is not serializable thus a string is used.</li>
 </ul>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nd">@function_info</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@function_info</span><span class="p">()</span>
 <span class="gp">... </span><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <span class="n">test</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -227,13 +227,13 @@ A traceback object is not serializable thus a string is used.</li>
 </div>
 <p><code class="docutils literal"><span class="pre">warnings</span></code> is empty if no warning has been raised. Otherwise it will
 collect all warnings.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">warnings</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">warnings</span>
 <span class="go">[]</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">exception</span></code> and <code class="docutils literal"><span class="pre">traceback</span></code> are <code class="docutils literal"><span class="pre">None</span></code> if the function completed
 successfully.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">exception</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">exception</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">info</span><span class="o">.</span><span class="n">traceback</span>
 </pre></div>
 </div>

@@ -140,18 +140,18 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
+          <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
       
-        <li><a href="components.html">API Components</a> &raquo;</li>
+          <li><a href="components.html">API Components</a> &raquo;</li>
       
     <li>QueryComponent</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/components/query.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/components/query.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -224,10 +224,10 @@ must be possible to derive coordinates for the station.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;query_comm&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;query_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s">&quot;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&quot;</span><span class="p">))</span>         
+<span class="gp">... </span>    <span class="s2">&quot;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&quot;</span><span class="p">))</span>         
 <span class="go">{u&#39;HL.ARG&#39;: {&#39;elevation_in_m&#39;: 170.0, &#39;latitude&#39;: 36.216,</span>
 <span class="go">             &#39;local_depth_in_m&#39;: 0.0, &#39;longitude&#39;: 28.126},</span>
 <span class="go"> u&#39;HT.SIGR&#39;: {&#39;elevation_in_m&#39;: 93.0, &#39;latitude&#39;: 39.2114,</span>
@@ -240,7 +240,7 @@ must be possible to derive coordinates for the station.</p>
 </div>
 <p>Raises a <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><code class="xref py py-class docutils literal"><span class="pre">LASIFNotFoundError</span></code></a> if the event does not
 exist.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="s">&quot;RandomEvent&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get_all_stations_for_event</span><span class="p">(</span><span class="s2">&quot;RandomEvent&quot;</span><span class="p">)</span>
 <span class="gt">Traceback (most recent call last):</span>
     <span class="o">...</span>
 <span class="gr">LASIFNotFoundError</span>: <span class="n">...</span>

@@ -140,18 +140,18 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
+          <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
       
-        <li><a href="components.html">API Components</a> &raquo;</li>
+          <li><a href="components.html">API Components</a> &raquo;</li>
       
     <li>WaveformsComponent</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/components/waveforms.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/components/waveforms.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -278,11 +278,11 @@ at a particular point in time.</td>
 <code class="docutils literal"><span class="pre">elevation_in_m</span></code>, and <code class="docutils literal"><span class="pre">local_depth_in_m</span></code> values will be
 <code class="docutils literal"><span class="pre">None</span></code> as station information is usually retrieved from the
 station metadata file. SAC files are an exception.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;waveforms_comm&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;waveforms_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_metadata_raw</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s">&quot;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&quot;</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s">&quot;channel_id&quot;</span><span class="p">]))</span>         
+<span class="gp">... </span>    <span class="s2">&quot;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;channel_id&quot;</span><span class="p">]))</span>         
 <span class="go">[{&#39;channel&#39;: u&#39;BHE&#39;,</span>
 <span class="go">  &#39;channel_id&#39;: u&#39;HL.ARG..BHE&#39;,</span>
 <span class="go">  &#39;elevation_in_m&#39;: None,</span>
@@ -300,8 +300,8 @@ station metadata file. SAC files are an exception.</p>
 </pre></div>
 </div>
 <p>Each dictionary will have the following keys.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_metadata_raw</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s">&quot;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>         
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_metadata_raw</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>         
 <span class="go">[&#39;channel&#39;, &#39;channel_id&#39;, &#39;elevation_in_m&#39;, &#39;endtime&#39;,</span>
 <span class="go"> &#39;filename&#39;, &#39;latitude&#39;, &#39;local_depth_in_m&#39;, &#39;location&#39;,</span>
 <span class="go"> &#39;longitude&#39;, &#39;network&#39;, &#39;starttime&#39;, &#39;station&#39;]</span>
@@ -309,7 +309,7 @@ station metadata file. SAC files are an exception.</p>
 </div>
 <p>A <a class="reference internal" href="../api_doc.html#lasif.LASIFNotFoundError" title="lasif.LASIFNotFoundError"><code class="xref py py-class docutils literal"><span class="pre">LASIFNotFoundError</span></code></a> will be raised, if no raw
 waveform data is found for the specified event.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_metadata_raw</span><span class="p">(</span><span class="s">&quot;RandomEvent&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">waveforms</span><span class="o">.</span><span class="n">get_metadata_raw</span><span class="p">(</span><span class="s2">&quot;RandomEvent&quot;</span><span class="p">)</span>
 <span class="gt">Traceback (most recent call last):</span>
     <span class="o">...</span>
 <span class="gr">LASIFNotFoundError</span>: <span class="n">...</span>
@@ -426,7 +426,7 @@ regardless.</li>
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_processed">
 <code class="descname">get_waveforms_processed</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em>, <em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_processed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_processed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the processed waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -446,7 +446,7 @@ regardless.</li>
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_raw">
 <code class="descname">get_waveforms_raw</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the raw waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -465,7 +465,7 @@ regardless.</li>
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic">
 <code class="descname">get_waveforms_synthetic</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em>, <em>long_iteration_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_synthetic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the synthetic waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

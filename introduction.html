@@ -85,11 +85,9 @@
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#further-information">Further Information</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#to-do-things-that-are-still-missing">TO DO: Things that are still missing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#supported-data-formats">Supported Data Formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#further-notes">Further Notes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#quakeml-files">QuakeML files</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#synthetic-data-files">Synthetic Data Files</a></li>
 </ul>
 </li>
 </ul>
@@ -130,13 +128,13 @@
     <li><a href="index.html">Docs</a> &raquo;</li>
       
     <li>Introduction</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="_sources/introduction.txt" rel="nofollow"> View page source</a>
+          
+            <a href="_sources/introduction.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -192,17 +190,6 @@ information can be found here:</p>
 <li><a class="reference internal" href="how_lasif_finds_coordinates.html"><em>How LASIF Finds Coordinates</em></a></li>
 </ul>
 </div>
-<div class="section" id="to-do-things-that-are-still-missing">
-<h2>TO DO: Things that are still missing<a class="headerlink" href="#to-do-things-that-are-still-missing" title="Permalink to this headline">¶</a></h2>
-<p>This is mainly useful for the developers.</p>
-<ul class="simple">
-<li>Applying the time corrections for events and stations</li>
-<li>Settings for the time frequency misfit</li>
-<li>A clean way to integrate other misfits</li>
-<li>Data rejection criteria implementation</li>
-<li>Log more things for better provenance</li>
-</ul>
-</div>
 <div class="section" id="supported-data-formats">
 <h2>Supported Data Formats<a class="headerlink" href="#supported-data-formats" title="Permalink to this headline">¶</a></h2>
 <p>This is a short list of supported data formats and other software.</p>
@@ -211,12 +198,12 @@ information can be found here:</p>
 <li><strong>Synthetics:</strong> All file formats supported by ObsPy and the output files of
 SES3D 4.1.</li>
 <li><strong>Event Metadata:</strong> QuakeML 1.2</li>
-<li><strong>Station Metadata:</strong> dataless SEED, RESP and (hopefully) soon FDSN
-StationXML.  Once implemented, StationXML will be the recommended and most
-future proof format.</li>
-<li><strong>Earth Models:</strong> Currently the raw SES3D model format is supported.</li>
-<li><strong>Waveform Solvers:</strong> SES3D 4.1, support for SpecFEM Cartesian and/or Globe
-will be added soon.</li>
+<li><strong>Station Metadata:</strong> dataless SEED, RESP and FDSN StationXML. We strongly
+recommend to use StationXML!</li>
+<li><strong>Earth Models:</strong> Currently the raw SES3D model format is supported. Other
+solvers can still be used but LASIF will not be able to plot kernels and
+velocity models.</li>
+<li><strong>Waveform Solvers:</strong> SES3D 4.1, SPECFEM3D GLOBE</li>
 </ul>
 </div>
 <div class="section" id="further-notes">
@@ -232,12 +219,6 @@ will be the reference time for each event!</strong> Times specified in SAC files
 be ignored.</p>
 <p>This also means that the raw data files have to have the correct time
 information.</p>
-</div>
-<div class="section" id="synthetic-data-files">
-<h3>Synthetic Data Files<a class="headerlink" href="#synthetic-data-files" title="Permalink to this headline">¶</a></h3>
-<p>The very first sample of each synthetic waveform will be assumed to coincide
-with the event time. If this is not a reasonable assumption, please contact the
-LASIF developers.</p>
 </div>
 </div>
 </div>

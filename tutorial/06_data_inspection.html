@@ -138,16 +138,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
     <li>7. Data Inspection</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/06_data_inspection.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/06_data_inspection.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -184,7 +184,7 @@ available will be considered to be stations that are good to be worked with by
 LASIF. Others will be ignored.</p>
 <p>To get an overview, of what data is actually available for any given event,
 just execute:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
 Earthquake with 4.9 Mwc at NORTHERN ITALY
 Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
@@ -193,7 +193,7 @@ Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
 Station and waveform information available at <span class="m">51</span> stations:
 
 <span class="o">===========================================================================</span>
-         id       latitude      longitude elevation_in_m    <span class="nb">local </span><span class="nv">depth</span>
+         id       latitude      longitude elevation_in_m    <span class="nb">local</span> <span class="nv">depth</span>
 <span class="o">===========================================================================</span>
     LA.AA00  44.4567283802  5.62467939102            0.0            0.0
     LA.AA01   42.192951649  23.3492243512            0.0            0.0
@@ -212,7 +212,7 @@ matter for continental scale inversions.</p>
 </div>
 <p>It is furthermore possible to plot the availability information for one event
 including a very simple ray coverage plot with:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_event GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_event GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 </pre></div>
 </div>
 <p>(<a class="reference external" href="../tutorial/06_data_inspection-1.py">Source code</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.png">png</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.pdf">pdf</a>)</p>
@@ -222,7 +222,7 @@ including a very simple ray coverage plot with:</p>
 <p>If you are interested in getting a coverage plot of all events and data
 available for the current project, please execute the <strong>plot_raydensity</strong>
 command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_raydensity
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_raydensity
 </pre></div>
 </div>
 <p>Keep in mind that this only results in a reasonable plot for large amounts of

@@ -118,16 +118,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
       
-        <li><a href="../../lasif.html">lasif</a> &raquo;</li>
+          <li><a href="../../lasif.html">lasif</a> &raquo;</li>
       
     <li>lasif.components.events</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-      
-    </li>
+          
+        
+      </li>
   </ul>
   <hr/>
 </div>
@@ -135,8 +135,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for lasif.components.events</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- coding: utf-8 -*-</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">copy</span>
@@ -172,19 +172,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">event_cache</span> <span class="o">=</span> <span class="n">EventCache</span><span class="p">(</span>
             <span class="n">cache_db_file</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;cache&quot;</span><span class="p">],</span> <span class="s">&quot;event_cache.sqlite&quot;</span><span class="p">),</span>
-            <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s">&quot;root&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;cache&quot;</span><span class="p">],</span> <span class="s2">&quot;event_cache.sqlite&quot;</span><span class="p">),</span>
+            <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
             <span class="n">read_only</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">read_only_caches</span><span class="p">,</span>
             <span class="n">event_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
 
         <span class="n">values</span> <span class="o">=</span> <span class="n">event_cache</span><span class="o">.</span><span class="n">get_values</span><span class="p">()</span>
 
-        <span class="c"># Cache the event information so everything is only read once at max.</span>
+        <span class="c1"># Cache the event information so everything is only read once at max.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">_i</span><span class="p">[</span><span class="s">&quot;event_name&quot;</span><span class="p">]:</span> <span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">values</span><span class="p">}</span>
+            <span class="n">_i</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]:</span> <span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">values</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">value</span><span class="p">[</span><span class="s">&quot;origin_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;origin_time&quot;</span><span class="p">])</span>
-</div>
+            <span class="n">value</span><span class="p">[</span><span class="s2">&quot;origin_time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;origin_time&quot;</span><span class="p">])</span></div>
+
 <div class="viewcode-block" id="EventsComponent.list"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.list">[docs]</a>    <span class="k">def</span> <span class="nf">list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        List of all events.</span>
@@ -194,8 +194,8 @@
 <span class="sd">        [u&#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;,</span>
 <span class="sd">         u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</div>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
 <div class="viewcode-block" id="EventsComponent.count"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the number of events managed by this component.</span>
@@ -204,8 +204,8 @@
 <span class="sd">        &gt;&gt;&gt; comm.events.count()</span>
 <span class="sd">        2</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="EventsComponent.has_event"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.has_event">[docs]</a>    <span class="k">def</span> <span class="nf">has_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Test for existence of an event.</span>
@@ -219,14 +219,14 @@
 <span class="sd">        &gt;&gt;&gt; comm.events.has_event(&#39;random&#39;)</span>
 <span class="sd">        False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Make sure  it also works with existing event dictionaries. This</span>
-        <span class="c"># has the potential to simplify lots of code.</span>
+        <span class="c1"># Make sure  it also works with existing event dictionaries. This</span>
+        <span class="c1"># has the potential to simplify lots of code.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="p">[</span><span class="s">&quot;event_name&quot;</span><span class="p">]</span>
+            <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
             <span class="k">pass</span>
-        <span class="k">return</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span>
-</div>
+        <span class="k">return</span> <span class="n">event_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span></div>
+
 <div class="viewcode-block" id="EventsComponent.get_all_events"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.get_all_events">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a dictionary with the key being the event names and the</span>
@@ -239,8 +239,8 @@
 <span class="sd">        {u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;: {...},</span>
 <span class="sd">         u&#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;: {...}}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="EventsComponent.get"><a class="viewcode-back" href="../../../components/events.html#lasif.components.events.EventsComponent.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get information about one event.</span>
@@ -281,15 +281,15 @@
 <span class="sd">        &gt;&gt;&gt; ev == comm.events.get(ev)</span>
 <span class="sd">        True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Make sure  it also works with existing event dictionaries. This</span>
-        <span class="c"># has the potential to simplify lots of code.</span>
+        <span class="c1"># Make sure  it also works with existing event dictionaries. This</span>
+        <span class="c1"># has the potential to simplify lots of code.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="p">[</span><span class="s">&quot;event_name&quot;</span><span class="p">]</span>
+            <span class="n">event_name</span> <span class="o">=</span> <span class="n">event_name</span><span class="p">[</span><span class="s2">&quot;event_name&quot;</span><span class="p">]</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
             <span class="k">pass</span>
 
         <span class="k">if</span> <span class="n">event_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="s">&quot;Event &#39;</span><span class="si">%s</span><span class="s">&#39; not known to LASIF.&quot;</span> <span class="o">%</span>
+            <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span><span class="s2">&quot;Event &#39;</span><span class="si">%s</span><span class="s2">&#39; not known to LASIF.&quot;</span> <span class="o">%</span>
                                      <span class="n">event_name</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__event_info_cache</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span></div></div>

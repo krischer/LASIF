@@ -141,16 +141,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
     <li>2. Creating a New Project</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/tutorial/01_creating_a_new_project.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/tutorial/01_creating_a_new_project.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -164,7 +164,7 @@ already existing inversion to <strong>LASIF</strong>, is to create a new project
 <code class="code docutils literal"><span class="pre">lasif</span> <span class="pre">init_project</span></code> command. In this  tutorial we will work with a
 project called <strong>Tutorial</strong>. The <code class="code docutils literal"><span class="pre">lasif</span> <span class="pre">init_project</span></code> command will
 create a  new folder in whichever directory the command is executed in.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif init_project Tutorial
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif init_project Tutorial
 
 Initialized project in:
     /Users/lion/workspace/temp/LASIF_Tutorial/Tutorial
@@ -174,7 +174,7 @@ Initialized project in:
 defined by the files it contains. All information it requires will be
 assembled from the available data. In the course of this tutorial you will
 learn what piece of data belongs where and how LASIF interacts with it.</p>
-<div class="highlight-none"><div class="highlight"><pre>Tutorial
+<div class="highlight-none"><div class="highlight"><pre><span></span>Tutorial
 ├── ADJOINT_SOURCES_AND_WINDOWS
 │   ├── ADJOINT_SOURCES
 │   └── WINDOWS
@@ -202,7 +202,7 @@ location of this file also determines the root folder of the project. It is
 a simple, self-explanatory XML format. Please refer to the comments in the
 XML file to infer the meaning of the different settings. Immediately after the
 project has been initialized it looks akin to the following:</p>
-<div class="highlight-xml"><div class="highlight"><pre><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
 <span class="nt">&lt;lasif_project&gt;</span>
   <span class="c">&lt;!-- Name of the LASIF project. Choose one you like. --&gt;</span>
   <span class="nt">&lt;name&gt;</span>Tutorial<span class="nt">&lt;/name&gt;</span>
@@ -321,7 +321,7 @@ data which is at least three elements away from the border in a an attempt
 to avoid unphysical influences of the boundary conditions. This amounts to
 <code class="docutils literal"><span class="pre">2.5°</span></code>.</p>
 <p>At any point you can have a look at the defined domain with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>lasif plot_domain
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_domain
 </pre></div>
 </div>
 <p>This will open a window showing the location of the physical domain and the

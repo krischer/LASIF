@@ -140,18 +140,18 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
+          <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
       
-        <li><a href="components.html">API Components</a> &raquo;</li>
+          <li><a href="components.html">API Components</a> &raquo;</li>
       
     <li>InventoryDBComponent</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-          <a href="../_sources/components/inventory_db.txt" rel="nofollow"> View page source</a>
+          
+            <a href="../_sources/components/inventory_db.txt" rel="nofollow"> View page source</a>
+          
         
-      
-    </li>
+      </li>
   </ul>
   <hr/>
 </div>
@@ -188,7 +188,7 @@ once and the result will be stored in the database instance.</p>
 inventory database. All entries will be <code class="docutils literal"><span class="pre">None</span></code> if a webservice
 request has been attempted but returned nothing. This is to prevent
 successive requests.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>         
 <span class="go">{u&#39;AA.BB&#39;: {&#39;latitude&#39;: 1.0, &#39;elevation_in_m&#39;: 3.0,</span>
 <span class="go">            &#39;local_depth_in_m&#39;: 4.0, &#39;longitude&#39;: 2.0},</span>
@@ -207,15 +207,15 @@ successive requests.</p>
 <code class="docutils literal"><span class="pre">elevation_in_m</span></code>, and <code class="docutils literal"><span class="pre">local_depth_in_m</span></code> keys. If the station is
 not yet in the database, it will attempt to download the coordinates
 from the web services.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s">&quot;AA.BB&quot;</span><span class="p">)</span>         
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s2">&quot;AA.BB&quot;</span><span class="p">)</span>         
 <span class="go">{&#39;latitude&#39;: 1.0, &#39;elevation_in_m&#39;: 3.0, &#39;local_depth_in_m&#39;: 4.0,</span>
 <span class="go"> &#39;longitude&#39;: 2.0}</span>
 </pre></div>
 </div>
 <p>A station whose coordinates have already been requested but whose
 request failed will have <code class="docutils literal"><span class="pre">None</span></code> for all coordinate values.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s">&quot;EE.FF&quot;</span><span class="p">)</span>         
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s2">&quot;EE.FF&quot;</span><span class="p">)</span>         
 <span class="go">{&#39;latitude&#39;: None, &#39;elevation_in_m&#39;: None, &#39;local_depth_in_m&#39;: None,</span>
 <span class="go"> &#39;longitude&#39;: None}</span>
 </pre></div>
@@ -228,7 +228,7 @@ request failed will have <code class="docutils literal"><span class="pre">None</
 <dd><p>Simple command removing all stations that have no associated
 coordinates. This means it will attempt to download them again on
 the next run.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_all_coordinates</span><span class="p">()</span>         
 <span class="go">{u&#39;AA.BB&#39;: {&#39;latitude&#39;: 1.0, &#39;elevation_in_m&#39;: 3.0,</span>
 <span class="go">            &#39;local_depth_in_m&#39;: 4.0, &#39;longitude&#39;: 2.0},</span>
@@ -252,20 +252,20 @@ the next run.</p>
 <dd><p>Saves the coordinates for some station in the database.</p>
 <p>Used internally but can also be used to save coordinates from other
 sources in the project.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">save_station_coordinates</span><span class="p">(</span><span class="n">station_id</span><span class="o">=</span><span class="s">&quot;XX.YY&quot;</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;inventory_db_comm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">save_station_coordinates</span><span class="p">(</span><span class="n">station_id</span><span class="o">=</span><span class="s2">&quot;XX.YY&quot;</span><span class="p">,</span>
 <span class="gp">... </span><span class="n">latitude</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="mf">11.0</span><span class="p">,</span> <span class="n">elevation_in_m</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>
 <span class="gp">... </span><span class="n">local_depth_in_m</span><span class="o">=</span><span class="mf">13.0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s">&quot;XX.YY&quot;</span><span class="p">)</span>         
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s2">&quot;XX.YY&quot;</span><span class="p">)</span>         
 <span class="go">{&#39;latitude&#39;: 10.0, &#39;elevation_in_m&#39;: 12.0, &#39;local_depth_in_m&#39;: 13.0,</span>
 <span class="go">&#39;longitude&#39;: 11.0}</span>
 </pre></div>
 </div>
 <p>Inserting once again will update the entry.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">save_station_coordinates</span><span class="p">(</span><span class="n">station_id</span><span class="o">=</span><span class="s">&quot;XX.YY&quot;</span><span class="p">,</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">save_station_coordinates</span><span class="p">(</span><span class="n">station_id</span><span class="o">=</span><span class="s2">&quot;XX.YY&quot;</span><span class="p">,</span>
 <span class="gp">... </span><span class="n">latitude</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="mf">21.0</span><span class="p">,</span> <span class="n">elevation_in_m</span><span class="o">=</span><span class="mf">22.0</span><span class="p">,</span>
 <span class="gp">... </span><span class="n">local_depth_in_m</span><span class="o">=</span><span class="mf">23.0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s">&quot;XX.YY&quot;</span><span class="p">)</span>         
+<span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">inventory_db</span><span class="o">.</span><span class="n">get_coordinates</span><span class="p">(</span><span class="s2">&quot;XX.YY&quot;</span><span class="p">)</span>         
 <span class="go">{&#39;latitude&#39;: 20.0, &#39;elevation_in_m&#39;: 22.0, &#39;local_depth_in_m&#39;: 23.0,</span>
 <span class="go"> &#39;longitude&#39;: 21.0}</span>
 </pre></div>

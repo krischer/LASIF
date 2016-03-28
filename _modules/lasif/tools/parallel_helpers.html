@@ -118,16 +118,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
       
-        <li><a href="../../lasif.html">lasif</a> &raquo;</li>
+          <li><a href="../../lasif.html">lasif</a> &raquo;</li>
       
     <li>lasif.tools.parallel_helpers</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-      
-    </li>
+          
+        
+      </li>
   </ul>
   <hr/>
 </div>
@@ -135,8 +135,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for lasif.tools.parallel_helpers</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- coding: utf-8 -*-</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Helpers for embarrassingly parallel calculations using MPI. All functions</span>
 <span class="sd">works just fine when running on one core and not started with MPI.</span>
@@ -161,17 +161,17 @@
 
 
 <div class="viewcode-block" id="FunctionInfo"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel_helpers.FunctionInfo">[docs]</a><span class="k">class</span> <span class="nc">FunctionInfo</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span>
-    <span class="s">&quot;FunctionInfo&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;func_args&quot;</span><span class="p">,</span> <span class="s">&quot;result&quot;</span><span class="p">,</span> <span class="s">&quot;warnings&quot;</span><span class="p">,</span> <span class="s">&quot;exception&quot;</span><span class="p">,</span>
-                     <span class="s">&quot;traceback&quot;</span><span class="p">])):</span>
+    <span class="s2">&quot;FunctionInfo&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;func_args&quot;</span><span class="p">,</span> <span class="s2">&quot;result&quot;</span><span class="p">,</span> <span class="s2">&quot;warnings&quot;</span><span class="p">,</span> <span class="s2">&quot;exception&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;traceback&quot;</span><span class="p">])):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Namedtuple used to collect information about a function execution.</span>
 
 <span class="sd">    It has the following fields: ``func_args``, ``result``, ``warnings``,</span>
 <span class="sd">    ``exception``, and ``traceback``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-</div>
+
 <div class="viewcode-block" id="function_info"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel_helpers.function_info">[docs]</a><span class="k">def</span> <span class="nf">function_info</span><span class="p">(</span><span class="n">traceback_limit</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Decorator collecting information during the execution of a function.</span>
@@ -218,7 +218,7 @@
         <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">&quot;always&quot;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
                 <span class="n">exception</span> <span class="o">=</span> <span class="bp">None</span>
                 <span class="n">tb</span> <span class="o">=</span> <span class="bp">None</span>
@@ -226,17 +226,17 @@
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                    <span class="c"># With help from http://stackoverflow.com/a/14528175.</span>
+                    <span class="c1"># With help from http://stackoverflow.com/a/14528175.</span>
                     <span class="n">exc_info</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
                     <span class="n">stack</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_stack</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="n">traceback_limit</span><span class="p">)</span>
                     <span class="n">tb</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_tb</span><span class="p">(</span><span class="n">exc_info</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
                     <span class="n">full_tb</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">tb</span>
                     <span class="n">exc_line</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exception_only</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
-                    <span class="n">tb</span> <span class="o">=</span> <span class="s">&quot;Traceback (</span><span class="si">%i</span><span class="s"> levels - most recent call last):</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> \
+                    <span class="n">tb</span> <span class="o">=</span> <span class="s2">&quot;Traceback (</span><span class="si">%i</span><span class="s2"> levels - most recent call last):</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> \
                         <span class="n">traceback_limit</span>
-                    <span class="n">tb</span> <span class="o">+=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_list</span><span class="p">(</span><span class="n">full_tb</span><span class="p">))</span>
-                    <span class="n">tb</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
-                    <span class="n">tb</span> <span class="o">+=</span> <span class="s">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exc_line</span><span class="p">)</span>
+                    <span class="n">tb</span> <span class="o">+=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_list</span><span class="p">(</span><span class="n">full_tb</span><span class="p">))</span>
+                    <span class="n">tb</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="n">tb</span> <span class="o">+=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exc_line</span><span class="p">)</span>
                     <span class="n">exception</span> <span class="o">=</span> <span class="n">e</span>
 
             <span class="k">return</span> <span class="n">FunctionInfo</span><span class="p">(</span>
@@ -247,9 +247,9 @@
                 <span class="n">traceback</span><span class="o">=</span><span class="n">tb</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">wrapper</span>
-    <span class="k">return</span> <span class="n">_function_info</span>
+    <span class="k">return</span> <span class="n">_function_info</span></div>
 
-</div>
+
 <span class="k">def</span> <span class="nf">_execute_wrapped_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">parameters</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to execute the same function but wrapper with the</span>
@@ -289,16 +289,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">container</span><span class="p">[</span><span class="n">_i</span><span class="p">::</span><span class="n">count</span><span class="p">]</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">)]</span>
 
-    <span class="c"># Rank zero collects what needs to be done and distributes it across</span>
-    <span class="c"># all cores.</span>
+    <span class="c1"># Rank zero collects what needs to be done and distributes it across</span>
+    <span class="c1"># all cores.</span>
     <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">total_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
         <span class="n">items</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">items</span> <span class="o">=</span> <span class="bp">None</span>
 
-    <span class="c"># Now each rank knows what it has to process. This still works</span>
-    <span class="c"># nicely with only one core, the overhead is negligible.</span>
+    <span class="c1"># Now each rank knows what it has to process. This still works</span>
+    <span class="c1"># nicely with only one core, the overhead is negligible.</span>
     <span class="n">items</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
@@ -307,7 +307,7 @@
         <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_execute_wrapped_function</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Approximately </span><span class="si">%i</span><span class="s"> of </span><span class="si">%i</span><span class="s"> items have been processed.&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Approximately </span><span class="si">%i</span><span class="s2"> of </span><span class="si">%i</span><span class="s2"> items have been processed.&quot;</span> <span class="o">%</span> <span class="p">(</span>
                 <span class="nb">min</span><span class="p">((</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">total_length</span><span class="p">),</span>
                 <span class="n">total_length</span><span class="p">))</span>
 
@@ -323,22 +323,22 @@
     <span class="n">failed_file_count</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">total_file_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
-    <span class="c"># Log the results.</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="c1"># Log the results.</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">============</span><span class="se">\n</span><span class="s">Item: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">get_name</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">func_args</span><span class="p">))</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">============</span><span class="se">\n</span><span class="s2">Item: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">get_name</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">func_args</span><span class="p">))</span>
             <span class="n">has_exception</span> <span class="o">=</span> <span class="bp">False</span>
             <span class="n">has_warning</span> <span class="o">=</span> <span class="bp">False</span>
             <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">exception</span><span class="p">:</span>
                 <span class="n">has_exception</span> <span class="o">=</span> <span class="bp">True</span>
-                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">)</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">traceback</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">warnings</span><span class="p">:</span>
                 <span class="n">has_warning</span> <span class="o">=</span> <span class="bp">True</span>
                 <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">warnings</span><span class="p">:</span>
-                    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Warning: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
+                    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Warning: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot; - SUCCESS&quot;</span><span class="p">)</span>
+                <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; - SUCCESS&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">has_exception</span><span class="p">:</span>
                 <span class="n">failed_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -347,19 +347,19 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">successful_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Finished processing </span><span class="si">%i</span><span class="s"> items. See the logfile for &quot;</span>
-              <span class="s">&quot;details.</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">total_file_count</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s"> files failed being processed.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Finished processing </span><span class="si">%i</span><span class="s2"> items. See the logfile for &quot;</span>
+              <span class="s2">&quot;details.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">total_file_count</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files failed being processed.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span><span class="p">,</span> <span class="n">failed_file_count</span><span class="p">,</span>
                <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s"> files raised warnings while being processed.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files raised warnings while being processed.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span> <span class="n">warning_file_count</span><span class="p">,</span>
                <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s"> files have been processed without errors or warnings</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files have been processed without errors or warnings</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">successful_file_count</span><span class="p">,</span>
                <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">Logfile written to &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">logfile</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Logfile written to &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">logfile</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">results</span></div>
 </pre></div>

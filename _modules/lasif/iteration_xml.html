@@ -118,16 +118,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../index.html">Module code</a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
       
-        <li><a href="../lasif.html">lasif</a> &raquo;</li>
+          <li><a href="../lasif.html">lasif</a> &raquo;</li>
       
     <li>lasif.iteration_xml</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-      
-    </li>
+          
+        
+      </li>
   </ul>
   <hr/>
 </div>
@@ -135,8 +135,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for lasif.iteration_xml</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- coding: utf-8 -*-</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Functionality to deal with Iteration XML files.</span>
 
@@ -164,7 +164,7 @@
 <span class="sd">        calculate the source time function..</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">):</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;File &#39;</span><span class="si">%s</span><span class="s">&#39; not found.&quot;</span> <span class="o">%</span> <span class="n">iteration_xml_filename</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;File &#39;</span><span class="si">%s</span><span class="s2">&#39; not found.&quot;</span> <span class="o">%</span> <span class="n">iteration_xml_filename</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_iteration_xml</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stf_fct</span> <span class="o">=</span> <span class="n">stf_fct</span>
@@ -186,71 +186,71 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
 
-        <span class="c"># The iteration name is dependent on the filename.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iteration_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r&quot;\.xml$&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
-            <span class="s">r&quot;^ITERATION_&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">)))</span>
+        <span class="c1"># The iteration name is dependent on the filename.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iteration_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">r&quot;\.xml$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+            <span class="s2">r&quot;^ITERATION_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">iteration_xml_filename</span><span class="p">)))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;iteration_description&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;iteration_description&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> \
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s">&quot;scale_data_to_synthetics&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;scale_data_to_synthetics&quot;</span><span class="p">)</span>
 
-        <span class="c"># Defaults to True.</span>
+        <span class="c1"># Defaults to True.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;false&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Value &#39;</span><span class="si">%s</span><span class="s">&#39; invalid for &quot;</span>
-                             <span class="s">&quot;&#39;scale_data_to_synthetics&#39;.&quot;</span> <span class="o">%</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Value &#39;</span><span class="si">%s</span><span class="s2">&#39; invalid for &quot;</span>
+                             <span class="s2">&quot;&#39;scale_data_to_synthetics&#39;.&quot;</span> <span class="o">%</span>
                              <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">prep</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;data_preprocessing&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="s">&quot;highpass_period&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="s">&quot;lowpass_period&quot;</span><span class="p">))</span>
+        <span class="n">prep</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;data_preprocessing&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;highpass_period&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="s2">&quot;highpass_period&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;lowpass_period&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="s2">&quot;lowpass_period&quot;</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">crits</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;rejection_criteria&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;minimum_trace_length_in_s&quot;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">crits</span><span class="p">,</span> <span class="s">&quot;minimum_trace_length_in_s&quot;</span><span class="p">))</span>
-        <span class="n">s_n</span> <span class="o">=</span> <span class="n">crits</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;signal_to_noise&quot;</span><span class="p">)</span>
+        <span class="n">crits</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;rejection_criteria&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;minimum_trace_length_in_s&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">crits</span><span class="p">,</span> <span class="s2">&quot;minimum_trace_length_in_s&quot;</span><span class="p">))</span>
+        <span class="n">s_n</span> <span class="o">=</span> <span class="n">crits</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">)</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">temp</span><span class="p">[</span><span class="s">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">s_n</span><span class="p">,</span> <span class="s">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">))</span>
-        <span class="n">temp</span><span class="p">[</span><span class="s">&quot;max_amplitude_ratio&quot;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">s_n</span><span class="p">,</span> <span class="s">&quot;max_amplitude_ratio&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;signal_to_noise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">s_n</span><span class="p">,</span> <span class="s2">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">))</span>
+        <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;max_amplitude_ratio&quot;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">s_n</span><span class="p">,</span> <span class="s2">&quot;max_amplitude_ratio&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span> <span class="o">=</span> \
-            <span class="n">_recursive_dict</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;solver_parameters&quot;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">_recursive_dict</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;solver_parameters&quot;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;event&quot;</span><span class="p">):</span>
-            <span class="n">event_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s">&quot;event_name&quot;</span><span class="p">)</span>
-            <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;event&quot;</span><span class="p">):</span>
+            <span class="n">event_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s2">&quot;event_name&quot;</span><span class="p">)</span>
+            <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s">&quot;event_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s">&quot;event_weight&quot;</span><span class="p">)),</span>
-                <span class="s">&quot;time_correction_in_s&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s">&quot;time_correction_in_s&quot;</span><span class="p">)),</span>
-                <span class="s">&quot;stations&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
-                <span class="s">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
-            <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;station&quot;</span><span class="p">):</span>
-                <span class="n">station_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s">&quot;station_id&quot;</span><span class="p">)</span>
+                <span class="s2">&quot;event_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s2">&quot;event_weight&quot;</span><span class="p">)),</span>
+                <span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">)),</span>
+                <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
+                <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;station&quot;</span><span class="p">):</span>
+                <span class="n">station_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;station_id&quot;</span><span class="p">)</span>
                 <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span>
-                            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s">&quot;stations&quot;</span><span class="p">][</span><span class="n">station_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&quot;station_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span>
-                                            <span class="s">&quot;station_weight&quot;</span><span class="p">)),</span>
-                    <span class="s">&quot;time_correction_in_s&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s">&quot;time_correction_in_s&quot;</span><span class="p">)),</span>
-                    <span class="s">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
+                            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="n">station_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;station_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span>
+                                            <span class="s2">&quot;station_weight&quot;</span><span class="p">)),</span>
+                    <span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">)),</span>
+                    <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
 
 <div class="viewcode-block" id="Iteration.get_source_time_function"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration.get_source_time_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_source_time_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -260,36 +260,36 @@
 <span class="sd">            * &quot;delta&quot;: The time increment of the data.</span>
 <span class="sd">            * &quot;data&quot;: The actual source time function as an array.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">delta</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
-            <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;time_increment&quot;</span><span class="p">])</span>
-        <span class="n">npts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
-            <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;number_of_time_steps&quot;</span><span class="p">])</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s2">&quot;time_increment&quot;</span><span class="p">])</span>
+        <span class="n">npts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s2">&quot;number_of_time_steps&quot;</span><span class="p">])</span>
 
-        <span class="n">freqmin</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">]</span>
-        <span class="n">freqmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]</span>
+        <span class="n">freqmin</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;highpass_period&quot;</span><span class="p">]</span>
+        <span class="n">freqmax</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;lowpass_period&quot;</span><span class="p">]</span>
 
-        <span class="n">ret_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">}</span>
+        <span class="n">ret_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;delta&quot;</span><span class="p">:</span> <span class="n">delta</span><span class="p">}</span>
 
-        <span class="c"># Get source time function.</span>
-        <span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stf_fct</span><span class="p">(</span>
+        <span class="c1"># Get source time function.</span>
+        <span class="n">ret_dict</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stf_fct</span><span class="p">(</span>
             <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="o">=</span><span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="o">=</span><span class="n">freqmax</span><span class="p">,</span>
             <span class="n">iteration</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-        <span class="c"># Some sanity checks as the function might be user supplied.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Custom source time function does not return a &quot;</span>
-                             <span class="s">&quot;numpy array.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+        <span class="c1"># Some sanity checks as the function might be user supplied.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Custom source time function does not return a &quot;</span>
+                             <span class="s2">&quot;numpy array.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ret_dict</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s">&quot;Custom source time function must have dtype `float64`. Yours &quot;</span>
-                <span class="s">&quot;has dtype `</span><span class="si">%s</span><span class="s">`.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="n">npts</span><span class="p">:</span>
+                <span class="s2">&quot;Custom source time function must have dtype `float64`. Yours &quot;</span>
+                <span class="s2">&quot;has dtype `</span><span class="si">%s</span><span class="s2">`.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span> <span class="o">!=</span> <span class="n">npts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s">&quot;Source time function must return a float64 numpy array with &quot;</span>
-                <span class="s">&quot;</span><span class="si">%i</span><span class="s"> samples. Yours has </span><span class="si">%i</span><span class="s"> samples.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">npts</span><span class="p">,</span>
-                                                       <span class="nb">len</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">])))</span>
+                <span class="s2">&quot;Source time function must return a float64 numpy array with &quot;</span>
+                <span class="s2">&quot;</span><span class="si">%i</span><span class="s2"> samples. Yours has </span><span class="si">%i</span><span class="s2"> samples.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">npts</span><span class="p">,</span>
+                                                       <span class="nb">len</span><span class="p">(</span><span class="n">ret_dict</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])))</span>
 
-        <span class="k">return</span> <span class="n">ret_dict</span>
-</div>
+        <span class="k">return</span> <span class="n">ret_dict</span></div>
+
     <span class="k">def</span> <span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
 
@@ -304,35 +304,35 @@
 <span class="sd">        Small helper function retrieving the most important iteration</span>
 <span class="sd">        parameters.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">]</span>
-        <span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]</span>
+        <span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;highpass_period&quot;</span><span class="p">]</span>
+        <span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;lowpass_period&quot;</span><span class="p">]</span>
 
-        <span class="n">npts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
-            <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;number_of_time_steps&quot;</span><span class="p">]</span>
-        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
-            <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;time_increment&quot;</span><span class="p">]</span>
+        <span class="n">npts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s2">&quot;number_of_time_steps&quot;</span><span class="p">]</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver_settings&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s2">&quot;time_increment&quot;</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s">&quot;highpass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">highpass</span><span class="p">),</span>
-            <span class="s">&quot;lowpass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">lowpass</span><span class="p">),</span>
-            <span class="s">&quot;npts&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">npts</span><span class="p">),</span>
-            <span class="s">&quot;dt&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">dt</span><span class="p">)}</span>
-</div>
+            <span class="s2">&quot;highpass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">highpass</span><span class="p">),</span>
+            <span class="s2">&quot;lowpass&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">lowpass</span><span class="p">),</span>
+            <span class="s2">&quot;npts&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">npts</span><span class="p">),</span>
+            <span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">dt</span><span class="p">)}</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">processing_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the processing tag for this iteration.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Generate a preprocessing tag. This will identify the used</span>
-        <span class="c"># preprocessing so that duplicates can be avoided.</span>
-        <span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
-                          <span class="s">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span>\
+        <span class="c1"># Generate a preprocessing tag. This will identify the used</span>
+        <span class="c1"># preprocessing so that duplicates can be avoided.</span>
+        <span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
+                          <span class="s2">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span>\
             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_process_params</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">processing_tag</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">long_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s">&quot;ITERATION_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">return</span> <span class="s2">&quot;ITERATION_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -343,36 +343,36 @@
 <span class="sd">        Pretty printing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ret_str</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s">&quot;LASIF Iteration</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Name: {self.iteration_name}</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Description: {self.description}</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;{comments}&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Preprocessing Settings:</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Highpass Period: {hp:.3f} s</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Lowpass Period: {lp:.3f} s</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Solver: {solver} | {timesteps} timesteps (dt: {dt}s)</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">{event_count} events recorded at {station_count} &quot;</span>
-            <span class="s">&quot;unique stations</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">{pair_count} event-station pairs (</span><span class="se">\&quot;</span><span class="s">rays</span><span class="se">\&quot;</span><span class="s">)&quot;</span><span class="p">)</span>
+            <span class="s2">&quot;LASIF Iteration</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Name: {self.iteration_name}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Description: {self.description}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;{comments}&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Preprocessing Settings:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">Highpass Period: {hp:.3f} s</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">Lowpass Period: {lp:.3f} s</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Solver: {solver} | {timesteps} timesteps (dt: {dt}s)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">{event_count} events recorded at {station_count} &quot;</span>
+            <span class="s2">&quot;unique stations</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">{pair_count} event-station pairs (</span><span class="se">\&quot;</span><span class="s2">rays</span><span class="se">\&quot;</span><span class="s2">)&quot;</span><span class="p">)</span>
 
-        <span class="n">comments</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Comment: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Comment: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
                              <span class="n">comment</span> <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">comments</span><span class="p">:</span>
-            <span class="n">comments</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="n">comments</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
         <span class="n">all_stations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">ev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
-            <span class="n">all_stations</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ev</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">())</span>
+            <span class="n">all_stations</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ev</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">ret_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="n">comments</span><span class="p">,</span>
-            <span class="n">hp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">],</span>
-            <span class="n">lp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">],</span>
-            <span class="n">solver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver&quot;</span><span class="p">],</span>
-            <span class="n">timesteps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
-                <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;number_of_time_steps&quot;</span><span class="p">],</span>
-            <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">][</span>
-                <span class="s">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s">&quot;time_increment&quot;</span><span class="p">],</span>
+            <span class="n">hp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;highpass_period&quot;</span><span class="p">],</span>
+            <span class="n">lp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;lowpass_period&quot;</span><span class="p">],</span>
+            <span class="n">solver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver&quot;</span><span class="p">],</span>
+            <span class="n">timesteps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver_settings&quot;</span><span class="p">][</span>
+                <span class="s2">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s2">&quot;number_of_time_steps&quot;</span><span class="p">],</span>
+            <span class="n">dt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver_settings&quot;</span><span class="p">][</span>
+                <span class="s2">&quot;simulation_parameters&quot;</span><span class="p">][</span><span class="s2">&quot;time_increment&quot;</span><span class="p">],</span>
             <span class="n">event_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">),</span>
             <span class="n">pair_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">all_stations</span><span class="p">),</span>
             <span class="n">station_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_stations</span><span class="p">)))</span>
@@ -384,7 +384,7 @@
 <span class="sd">        :param filename: The path that will be written to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">solver_settings</span> <span class="o">=</span> <span class="n">_recursive_etree</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver_settings&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver_settings&quot;</span><span class="p">])</span>
 
         <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">iteration_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iteration_name</span><span class="p">))</span>
@@ -400,63 +400,63 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">(</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">highpass_period</span><span class="p">(</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;highpass_period&quot;</span><span class="p">])),</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;highpass_period&quot;</span><span class="p">])),</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">lowpass_period</span><span class="p">(</span>
-                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s">&quot;lowpass_period&quot;</span><span class="p">]))</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;lowpass_period&quot;</span><span class="p">]))</span>
             <span class="p">),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">(</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">minimum_trace_length_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;minimum_trace_length_in_s&quot;</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;minimum_trace_length_in_s&quot;</span><span class="p">]</span>
                 <span class="p">)),</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">signal_to_noise</span><span class="p">(</span>
                     <span class="n">E</span><span class="o">.</span><span class="n">test_interval_from_origin_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;signal_to_noise&quot;</span><span class="p">][</span>
-                            <span class="s">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">][</span>
+                            <span class="s2">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">]</span>
                     <span class="p">)),</span>
                     <span class="n">E</span><span class="o">.</span><span class="n">max_amplitude_ratio</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s">&quot;signal_to_noise&quot;</span><span class="p">][</span>
-                            <span class="s">&quot;max_amplitude_ratio&quot;</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">][</span>
+                            <span class="s2">&quot;max_amplitude_ratio&quot;</span><span class="p">]</span>
                     <span class="p">))</span>
                 <span class="p">)</span>
             <span class="p">),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">solver_parameters</span><span class="p">(</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s">&quot;solver&quot;</span><span class="p">]),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver&quot;</span><span class="p">]),</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">(</span><span class="o">*</span><span class="n">solver_settings</span><span class="p">)</span>
             <span class="p">),</span>
         <span class="p">])</span>
 
-        <span class="c"># Add all events.</span>
+        <span class="c1"># Add all events.</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
             <span class="n">event</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">event</span><span class="p">(</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">event_name</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">event_weight</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;event_weight&quot;</span><span class="p">])),</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;time_correction_in_s&quot;</span><span class="p">])),</span>
-                <span class="o">*</span><span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s">&quot;comments&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_i</span><span class="p">]</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">event_weight</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;event_weight&quot;</span><span class="p">])),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">])),</span>
+                <span class="o">*</span><span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_i</span><span class="p">]</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">station_value</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">station_value</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
                 <span class="n">event</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">station</span><span class="p">(</span>
                     <span class="n">E</span><span class="o">.</span><span class="n">station_id</span><span class="p">(</span><span class="n">station_id</span><span class="p">),</span>
-                    <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">station_value</span><span class="p">[</span><span class="s">&quot;station_weight&quot;</span><span class="p">])),</span>
+                    <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">station_value</span><span class="p">[</span><span class="s2">&quot;station_weight&quot;</span><span class="p">])),</span>
                     <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
-                        <span class="n">station_value</span><span class="p">[</span><span class="s">&quot;time_correction_in_s&quot;</span><span class="p">])),</span>
+                        <span class="n">station_value</span><span class="p">[</span><span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">])),</span>
                     <span class="o">*</span><span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
-                      <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station_value</span><span class="p">[</span><span class="s">&quot;comments&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_i</span><span class="p">]</span>
+                      <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station_value</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_i</span><span class="p">]</span>
                 <span class="p">))</span>
             <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
         <span class="n">doc</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">iteration</span><span class="p">(</span><span class="o">*</span><span class="n">contents</span><span class="p">)</span>
         <span class="n">doc</span><span class="o">.</span><span class="n">getroottree</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                                <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
+                                <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span></div></div>
 
-</div></div>
+
 <span class="k">def</span> <span class="nf">_recursive_dict</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to create a dictionary from an etree element.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;relaxation_parameter_list&quot;</span><span class="p">:</span>
-        <span class="n">tau</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;tau&quot;</span><span class="p">)]</span>
-        <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;w&quot;</span><span class="p">)]</span>
-        <span class="k">return</span> <span class="s">&quot;relaxation_parameter_list&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;tau&quot;</span><span class="p">:</span> <span class="n">tau</span><span class="p">,</span> <span class="s">&quot;w&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s2">&quot;relaxation_parameter_list&quot;</span><span class="p">:</span>
+        <span class="n">tau</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;tau&quot;</span><span class="p">)]</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="s2">&quot;relaxation_parameter_list&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;tau&quot;</span><span class="p">:</span> <span class="n">tau</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">}</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">text</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">text</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
@@ -466,9 +466,9 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">pass</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;false&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
             <span class="n">text</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">elif</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;true&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
             <span class="n">text</span> <span class="o">=</span> <span class="bp">True</span>
     <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> \
         <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_recursive_dict</span><span class="p">,</span> <span class="n">element</span><span class="p">))</span> <span class="ow">or</span> <span class="n">text</span>
@@ -483,26 +483,26 @@
 
     <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&quot;relaxation_parameter_list&quot;</span><span class="p">:</span>
-            <span class="c"># Wild iterator to arrive at the desired etree. If somebody else</span>
-            <span class="c"># ever reads this just look at the output and do it some other</span>
-            <span class="c"># way...</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;relaxation_parameter_list&quot;</span><span class="p">:</span>
+            <span class="c1"># Wild iterator to arrive at the desired etree. If somebody else</span>
+            <span class="c1"># ever reads this just look at the output and do it some other</span>
+            <span class="c1"># way...</span>
             <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">relaxation_parameter_list</span><span class="p">(</span>
                 <span class="o">*</span><span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="n">number</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
                   <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">itertools</span><span class="o">.</span><span class="n">izip</span><span class="p">(</span>
                       <span class="n">itertools</span><span class="o">.</span><span class="n">izip_longest</span><span class="p">(</span>
-                          <span class="p">[],</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;tau&quot;</span><span class="p">]),</span> <span class="n">fillvalue</span><span class="o">=</span><span class="s">&quot;tau&quot;</span><span class="p">),</span>
+                          <span class="p">[],</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;tau&quot;</span><span class="p">]),</span> <span class="n">fillvalue</span><span class="o">=</span><span class="s2">&quot;tau&quot;</span><span class="p">),</span>
                       <span class="n">itertools</span><span class="o">.</span><span class="n">izip_longest</span><span class="p">(</span>
-                          <span class="p">[],</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s">&quot;w&quot;</span><span class="p">]),</span> <span class="n">fillvalue</span><span class="o">=</span><span class="s">&quot;w&quot;</span><span class="p">)))]</span>
+                          <span class="p">[],</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]),</span> <span class="n">fillvalue</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)))]</span>
             <span class="p">))</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">):</span>
             <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">key</span><span class="p">)(</span><span class="o">*</span><span class="n">_recursive_etree</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
             <span class="k">continue</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;true&quot;</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
         <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="s">&quot;false&quot;</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
         <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">key</span><span class="p">)(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">contents</span>
 
@@ -524,58 +524,58 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">solver_doc</span> <span class="o">=</span> <span class="n">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver_name</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span>
                                               <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_4_1&quot;</span><span class="p">:</span>
-        <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SES3D 4.1&quot;</span>
-    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
-        <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SES3D 2.0&quot;</span>
-    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;specfem3d_cartesian&quot;</span><span class="p">:</span>
-        <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SPECFEM3D CARTESIAN&quot;</span>
-    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;specfem3d_globe_cem&quot;</span><span class="p">:</span>
-        <span class="n">solver_name</span> <span class="o">=</span> <span class="s">&quot;SPECFEM3D GLOBE CEM&quot;</span>
+    <span class="k">if</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ses3d_4_1&quot;</span><span class="p">:</span>
+        <span class="n">solver_name</span> <span class="o">=</span> <span class="s2">&quot;SES3D 4.1&quot;</span>
+    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
+        <span class="n">solver_name</span> <span class="o">=</span> <span class="s2">&quot;SES3D 2.0&quot;</span>
+    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;specfem3d_cartesian&quot;</span><span class="p">:</span>
+        <span class="n">solver_name</span> <span class="o">=</span> <span class="s2">&quot;SPECFEM3D CARTESIAN&quot;</span>
+    <span class="k">elif</span> <span class="n">solver_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;specfem3d_globe_cem&quot;</span><span class="p">:</span>
+        <span class="n">solver_name</span> <span class="o">=</span> <span class="s2">&quot;SPECFEM3D GLOBE CEM&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
     <span class="k">if</span> <span class="n">min_period</span> <span class="o">&gt;=</span> <span class="n">max_period</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;min_period needs to be smaller than max_period.&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;min_period needs to be smaller than max_period.&quot;</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="c"># Loop over all events.</span>
+    <span class="c1"># Loop over all events.</span>
     <span class="n">events_doc</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c"># Also over all stations.</span>
+    <span class="c1"># Also over all stations.</span>
     <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">stations</span> <span class="ow">in</span> <span class="n">events</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
         <span class="n">stations_doc</span> <span class="o">=</span> <span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">station</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">station_id</span><span class="p">(</span><span class="n">station</span><span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="s">&quot;1.0&quot;</span><span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="s">&quot;0.0&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">]</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="s2">&quot;0.0&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">]</span>
         <span class="n">events_doc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">event</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">event_name</span><span class="p">(</span><span class="n">event_name</span><span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">event_weight</span><span class="p">(</span><span class="s">&quot;1.0&quot;</span><span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="s">&quot;0.0&quot;</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">event_weight</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="s2">&quot;0.0&quot;</span><span class="p">),</span>
             <span class="o">*</span><span class="n">stations_doc</span><span class="p">))</span>
 
     <span class="n">doc</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">iteration</span><span class="p">(</span>
         <span class="n">E</span><span class="o">.</span><span class="n">iteration_name</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">),</span>
-        <span class="n">E</span><span class="o">.</span><span class="n">iteration_description</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">),</span>
-        <span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">),</span>
-        <span class="n">E</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="p">(</span><span class="s">&quot;true&quot;</span><span class="p">),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">iteration_description</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>
+        <span class="n">E</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="p">(</span><span class="s2">&quot;true&quot;</span><span class="p">),</span>
         <span class="n">E</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">highpass_period</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">max_period</span><span class="p">)),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">lowpass_period</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">min_period</span><span class="p">))),</span>
         <span class="n">E</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">(</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">minimum_trace_length_in_s</span><span class="p">(</span><span class="s">&quot;500.0&quot;</span><span class="p">),</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">minimum_trace_length_in_s</span><span class="p">(</span><span class="s2">&quot;500.0&quot;</span><span class="p">),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">signal_to_noise</span><span class="p">(</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">test_interval_from_origin_in_s</span><span class="p">(</span><span class="s">&quot;100.0&quot;</span><span class="p">),</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">max_amplitude_ratio</span><span class="p">(</span><span class="s">&quot;100.0&quot;</span><span class="p">))),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">test_interval_from_origin_in_s</span><span class="p">(</span><span class="s2">&quot;100.0&quot;</span><span class="p">),</span>
+                <span class="n">E</span><span class="o">.</span><span class="n">max_amplitude_ratio</span><span class="p">(</span><span class="s2">&quot;100.0&quot;</span><span class="p">))),</span>
         <span class="n">E</span><span class="o">.</span><span class="n">solver_parameters</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">solver_name</span><span class="p">),</span>
             <span class="n">solver_doc</span><span class="p">),</span>
         <span class="o">*</span><span class="n">events_doc</span><span class="p">)</span>
 
     <span class="n">string_doc</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                                <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">string_doc</span>
+                                <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">string_doc</span></div>
 
-</div>
+
 <span class="k">def</span> <span class="nf">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function returning etree representation of a solver&#39;s default</span>
@@ -583,16 +583,16 @@
 
 <span class="sd">    :param quiet: Do not print anything if set to `True`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">known_solvers</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;ses3d_4_1&quot;</span><span class="p">,</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">,</span> <span class="s">&quot;specfem3d_cartesian&quot;</span><span class="p">,</span>
-                     <span class="s">&quot;specfem3d_globe_cem&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_4_1&quot;</span><span class="p">:</span>
+    <span class="n">known_solvers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ses3d_4_1&quot;</span><span class="p">,</span> <span class="s2">&quot;ses3d_2_0&quot;</span><span class="p">,</span> <span class="s2">&quot;specfem3d_cartesian&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;specfem3d_globe_cem&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ses3d_4_1&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">lasif.tools</span> <span class="kn">import</span> <span class="n">Q_discrete</span>
         <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_ses3d_4_1_template</span>
 
-        <span class="c"># Generate the relaxation weights for SES3D.</span>
+        <span class="c1"># Generate the relaxation weights for SES3D.</span>
         <span class="n">w_p</span><span class="p">,</span> <span class="n">tau_p</span> <span class="o">=</span> <span class="n">Q_discrete</span><span class="o">.</span><span class="n">calculate_Q_model</span><span class="p">(</span>
             <span class="n">N</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-            <span class="c"># These are suitable for the default frequency range.</span>
+            <span class="c1"># These are suitable for the default frequency range.</span>
             <span class="n">f_min</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">max_period</span><span class="p">,</span>
             <span class="n">f_max</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">min_period</span><span class="p">,</span>
             <span class="n">iterations</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
@@ -600,18 +600,18 @@
             <span class="n">cooling_factor</span><span class="o">=</span><span class="mf">0.9998</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">generate_ses3d_4_1_template</span><span class="p">(</span><span class="n">w_p</span><span class="p">,</span> <span class="n">tau_p</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_ses3d_2_0_template</span>
         <span class="k">return</span> <span class="n">generate_ses3d_2_0_template</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;specfem3d_cartesian&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;specfem3d_cartesian&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_specfem3d_cartesian_template</span>
         <span class="k">return</span> <span class="n">generate_specfem3d_cartesian_template</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;specfem3d_globe_cem&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;specfem3d_globe_cem&quot;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_specfem3d_globe_cem_template</span>
         <span class="k">return</span> <span class="n">generate_specfem3d_globe_cem_template</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Solver &#39;</span><span class="si">%s</span><span class="s">&#39; not known. Known solvers: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="n">solver</span><span class="p">,</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">known_solvers</span><span class="p">))</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Solver &#39;</span><span class="si">%s</span><span class="s2">&#39; not known. Known solvers: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">solver</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">known_solvers</span><span class="p">))</span>
         <span class="k">raise</span> <span class="n">LASIFError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </pre></div>
 

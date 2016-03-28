@@ -118,16 +118,16 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../../../index.html">Docs</a> &raquo;</li>
       
-        <li><a href="../../index.html">Module code</a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
       
-        <li><a href="../../lasif.html">lasif</a> &raquo;</li>
+          <li><a href="../../lasif.html">lasif</a> &raquo;</li>
       
     <li>lasif.components.inventory_db</li>
-    <li class="wy-breadcrumbs-aside">
-      
+      <li class="wy-breadcrumbs-aside">
         
-      
-    </li>
+          
+        
+      </li>
   </ul>
   <hr/>
 </div>
@@ -135,8 +135,8 @@
            <div itemprop="articleBody">
             
   <h1>Source code for lasif.components.inventory_db</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- coding: utf-8 -*-</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
@@ -145,8 +145,8 @@
 
 <span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
 
-<span class="n">URL</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;http://{service}/fdsnws/station/1/query?&quot;</span>
-       <span class="s">&quot;network={network}&amp;sta={station}&amp;level=station&amp;nodata=404&quot;</span><span class="p">)</span>
+<span class="n">URL</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;http://{service}/fdsnws/station/1/query?&quot;</span>
+       <span class="s2">&quot;network={network}&amp;sta={station}&amp;level=station&amp;nodata=404&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="InventoryDBComponent"><a class="viewcode-back" href="../../../components/inventory_db.html#lasif.components.inventory_db.InventoryDBComponent">[docs]</a><span class="k">class</span> <span class="nc">InventoryDBComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
@@ -187,14 +187,14 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cursor</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">        CREATE TABLE IF NOT EXISTS stations(</span>
-<span class="s">            station_name TEXT PRIMARY_KEY UNIQUE,</span>
-<span class="s">            latitude REAL,</span>
-<span class="s">            longitude REAL,</span>
-<span class="s">            elevation REAL,</span>
-<span class="s">            depth REAL</span>
-<span class="s">        );&quot;&quot;&quot;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        CREATE TABLE IF NOT EXISTS stations(</span>
+<span class="s2">            station_name TEXT PRIMARY_KEY UNIQUE,</span>
+<span class="s2">            latitude REAL,</span>
+<span class="s2">            longitude REAL,</span>
+<span class="s2">            elevation REAL,</span>
+<span class="s2">            depth REAL</span>
+<span class="s2">        );&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
@@ -227,12 +227,12 @@
 <span class="sd">        {&#39;latitude&#39;: 20.0, &#39;elevation_in_m&#39;: 22.0, &#39;local_depth_in_m&#39;: 23.0,</span>
 <span class="sd">         &#39;longitude&#39;: 21.0}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Either all are None or only the local_depth.</span>
+        <span class="c1"># Either all are None or only the local_depth.</span>
         <span class="n">coods</span> <span class="o">=</span> <span class="p">[</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">elevation_in_m</span><span class="p">,</span> <span class="n">local_depth_in_m</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">None</span> <span class="ow">in</span> <span class="n">coods</span><span class="p">:</span>
             <span class="n">count</span> <span class="o">=</span> <span class="n">coods</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">count</span> <span class="o">!=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">local_depth_in_m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="s">&quot;Only local depth is allowed to be None.&quot;</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Only local depth is allowed to be None.&quot;</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="n">latitude</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">latitude</span><span class="p">)</span> <span class="k">if</span> <span class="n">latitude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span>
@@ -242,15 +242,15 @@
         <span class="n">local_depth_in_m</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">local_depth_in_m</span><span class="p">)</span> \
             <span class="k">if</span> <span class="n">local_depth_in_m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span>
 
-        <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">        INSERT OR REPLACE INTO stations</span>
-<span class="s">            (station_name, latitude, longitude, elevation, depth)</span>
-<span class="s">        VALUES (?, ?, ?, ?, ?);</span>
-<span class="s">        &quot;&quot;&quot;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        INSERT OR REPLACE INTO stations</span>
+<span class="s2">            (station_name, latitude, longitude, elevation, depth)</span>
+<span class="s2">        VALUES (?, ?, ?, ?, ?);</span>
+<span class="s2">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span>
                                    <span class="n">elevation_in_m</span><span class="p">,</span> <span class="n">local_depth_in_m</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="InventoryDBComponent.remove_coordinate_less_stations"><a class="viewcode-back" href="../../../components/inventory_db.html#lasif.components.inventory_db.InventoryDBComponent.remove_coordinate_less_stations">[docs]</a>    <span class="k">def</span> <span class="nf">remove_coordinate_less_stations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Simple command removing all stations that have no associated</span>
@@ -274,13 +274,13 @@
 <span class="sd">         u&#39;CC.DD&#39;: {&#39;latitude&#39;: 2.0, &#39;elevation_in_m&#39;: 2.0,</span>
 <span class="sd">                    &#39;local_depth_in_m&#39;: 2.0, &#39;longitude&#39;: 2.0}}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">        DELETE FROM stations</span>
-<span class="s">        WHERE latitude is null;</span>
-<span class="s">        &quot;&quot;&quot;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        DELETE FROM stations</span>
+<span class="s2">        WHERE latitude is null;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="InventoryDBComponent.get_all_coordinates"><a class="viewcode-back" href="../../../components/inventory_db.html#lasif.components.inventory_db.InventoryDBComponent.get_all_coordinates">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a dictionary with all stations coordinates defined in the</span>
@@ -298,19 +298,19 @@
 <span class="sd">         u&#39;EE.FF&#39;: {&#39;latitude&#39;: None, &#39;elevation_in_m&#39;: None,</span>
 <span class="sd">                    &#39;local_depth_in_m&#39;: None, &#39;longitude&#39;: None}}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">        SELECT station_name, latitude, longitude, elevation, depth</span>
-<span class="s">        FROM stations</span>
-<span class="s">        &quot;&quot;&quot;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT station_name, latitude, longitude, elevation, depth</span>
+<span class="s2">        FROM stations</span>
+<span class="s2">        &quot;&quot;&quot;</span>
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="n">_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="p">{</span>
-            <span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-            <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-            <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
-            <span class="s">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">[</span><span class="mi">4</span><span class="p">]}</span>
-            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}</span>
-</div>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="s2">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+            <span class="s2">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="n">_i</span><span class="p">[</span><span class="mi">4</span><span class="p">]}</span>
+            <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}</span></div>
+
 <div class="viewcode-block" id="InventoryDBComponent.get_coordinates"><a class="viewcode-back" href="../../../components/inventory_db.html#lasif.components.inventory_db.InventoryDBComponent.get_coordinates">[docs]</a>    <span class="k">def</span> <span class="nf">get_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a dictionary containing ``latitude``, ``longitude``,</span>
@@ -332,78 +332,78 @@
 <span class="sd">        {&#39;latitude&#39;: None, &#39;elevation_in_m&#39;: None, &#39;local_depth_in_m&#39;: None,</span>
 <span class="sd">         &#39;longitude&#39;: None}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">sql</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">        SELECT latitude, longitude, elevation, depth</span>
-<span class="s">        FROM stations</span>
-<span class="s">        WHERE station_name = ?</span>
-<span class="s">        LIMIT 1;</span>
-<span class="s">        &quot;&quot;&quot;</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        SELECT latitude, longitude, elevation, depth</span>
+<span class="s2">        FROM stations</span>
+<span class="s2">        WHERE station_name = ?</span>
+<span class="s2">        LIMIT 1;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
         <span class="n">coordinates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="p">(</span><span class="n">station_id</span><span class="p">,))</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
 
-        <span class="c"># If there is a result and it is None, then the coordinate has been</span>
-        <span class="c"># requested before but has not been found. Thus return 0.</span>
+        <span class="c1"># If there is a result and it is None, then the coordinate has been</span>
+        <span class="c1"># requested before but has not been found. Thus return 0.</span>
         <span class="k">if</span> <span class="n">coordinates</span> <span class="ow">and</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
-                    <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
-                    <span class="s">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                    <span class="s2">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                    <span class="s2">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
         <span class="k">elif</span> <span class="n">coordinates</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                    <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                    <span class="s">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">3</span><span class="p">]}</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="s2">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="s2">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">3</span><span class="p">]}</span>
 
-        <span class="c"># Otherwise try to download the necessary information.</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;Attempting to download coordinates for </span><span class="si">%s</span><span class="s">. This will only &quot;</span>
-               <span class="s">&quot;happen once ... &quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">station_id</span>
+        <span class="c1"># Otherwise try to download the necessary information.</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Attempting to download coordinates for </span><span class="si">%s</span><span class="s2">. This will only &quot;</span>
+               <span class="s2">&quot;happen once ... &quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">station_id</span>
         <span class="k">print</span> <span class="n">msg</span><span class="p">,</span>
 
         <span class="n">req</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="n">network</span><span class="p">,</span> <span class="n">station</span> <span class="o">=</span> <span class="n">station_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">)</span>
-        <span class="c"># Try IRIS first.</span>
+        <span class="n">network</span><span class="p">,</span> <span class="n">station</span> <span class="o">=</span> <span class="n">station_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="c1"># Try IRIS first.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">req</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">URL</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="n">service</span><span class="o">=</span><span class="s">&quot;service.iris.edu&quot;</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">))</span>
+                <span class="n">service</span><span class="o">=</span><span class="s2">&quot;service.iris.edu&quot;</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">))</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="c"># Then ORFEUS.</span>
-        <span class="k">if</span> <span class="n">req</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">code</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;2&quot;</span><span class="p">:</span>
+        <span class="c1"># Then ORFEUS.</span>
+        <span class="k">if</span> <span class="n">req</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">code</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">req</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">URL</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">service</span><span class="o">=</span><span class="s">&quot;www.orfeus-eu.org&quot;</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span>
+                    <span class="n">service</span><span class="o">=</span><span class="s2">&quot;www.orfeus-eu.org&quot;</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span>
                     <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">))</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="k">pass</span>
-        <span class="c"># Otherwise write None&#39;s to the database.</span>
-        <span class="k">if</span> <span class="n">req</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">code</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;2&quot;</span><span class="p">:</span>
+        <span class="c1"># Otherwise write None&#39;s to the database.</span>
+        <span class="k">if</span> <span class="n">req</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">code</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_station_coordinates</span><span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-            <span class="k">print</span> <span class="s">&quot;Failure.&quot;</span>
-            <span class="k">return</span> <span class="p">{</span><span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
-                    <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
+            <span class="k">print</span> <span class="s2">&quot;Failure.&quot;</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+                    <span class="s2">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s2">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
 
-        <span class="c"># Now simply find the coordinates.</span>
+        <span class="c1"># Now simply find the coordinates.</span>
         <span class="n">request_text</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">lat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;&lt;Latitude&gt;(.*)&lt;/Latitude&gt;&quot;</span><span class="p">,</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;&lt;Latitude&gt;(.*)&lt;/Latitude&gt;&quot;</span><span class="p">,</span>
                                    <span class="n">request_text</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="n">lat</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">lng</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;&lt;Longitude&gt;(.*)&lt;/Longitude&gt;&quot;</span><span class="p">,</span>
+            <span class="n">lng</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;&lt;Longitude&gt;(.*)&lt;/Longitude&gt;&quot;</span><span class="p">,</span>
                                    <span class="n">request_text</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="n">lng</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">ele</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;&lt;Elevation&gt;(.*)&lt;/Elevation&gt;&quot;</span><span class="p">,</span>
+            <span class="n">ele</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;&lt;Elevation&gt;(.*)&lt;/Elevation&gt;&quot;</span><span class="p">,</span>
                                    <span class="n">request_text</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="n">ele</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="c"># The local is not set at the station level.</span>
+        <span class="c1"># The local is not set at the station level.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_station_coordinates</span><span class="p">(</span><span class="n">station_id</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lng</span><span class="p">,</span> <span class="n">ele</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="k">print</span> <span class="s">&quot;Success.&quot;</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">lng</span><span class="p">,</span> <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">ele</span><span class="p">,</span>
-                <span class="s">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span></div></div>
+        <span class="k">print</span> <span class="s2">&quot;Success.&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">lng</span><span class="p">,</span> <span class="s2">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">ele</span><span class="p">,</span>
+                <span class="s2">&quot;local_depth_in_m&quot;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span></div></div>
 </pre></div>
 
            </div>
