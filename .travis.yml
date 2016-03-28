@@ -10,29 +10,15 @@ env:
 before_install:
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
-  - ./miniconda.sh -b -p /home/travis/miniconda
-  - export PATH=/home/travis/miniconda/bin:$PATH
+  - ./miniconda.sh -b -p $HOME/miniconda
+  - export PATH=$HOME/miniconda/bin:$PATH
   - conda update --yes conda
   - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
   - conda install --yes -n condaenv pip
   - source activate condaenv
-  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
-  - sudo rm -rf /dev/shm
-  - sudo ln -s /run/shm /dev/shm
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose pytest flake8 colorama flask sphinx basemap lxml sqlalchemy==0.9.9 mock mpi4py
-  - pip install suds-jurko
-  - pip install geographiclib
-  - pip install progressbar
-  - pip install flask-cache
-  - pip install geojson
-  - pip install future
-  - pip install "joblib>=0.8.0a3"
-  - pip install decorator
-  - pip install --no-deps pyqtgraph
-  # The theme from the repository it also more up to date.
-  - pip install https://github.com/snide/sphinx_rtd_theme/archive/master.zip
-  - pip install --no-deps https://github.com/obspy/obspy/archive/master.zip
-  - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
+  - conda install --yes -c obspy obspy basemap progressbar colorama joblib pytest nose mock flake8 pip python=$TRAVIS_PYTHON_VERSION mpi4py
+  - pip install geographiclib flask-cache geojson
+  - pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
 
 install:
   - pip install --no-deps .
