@@ -36,7 +36,7 @@ Requirements:
 """
 import argparse
 import HTMLParser
-from obspy import readEvents
+from obspy import read_events
 import os
 from StringIO import StringIO
 import urllib2
@@ -68,7 +68,7 @@ def iris2quakeml(url, output_folder=None):
     data = StringIO(data)
 
     try:
-        cat = readEvents(data)
+        cat = read_events(data)
     except:
         msg = "Could not read downloaded event data"
         raise ValueError(msg)

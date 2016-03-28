@@ -22,7 +22,7 @@ import itertools
 import math
 
 import numpy as np
-from obspy.core.util import geodetics
+from obspy import geodetics
 import obspy.signal.filter
 from scipy.signal import argrelextrema
 
@@ -331,7 +331,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     dist_in_deg = geodetics.locations2degrees(station_latitude,
                                               station_longitude,
                                               event_latitude, event_longitude)
-    dist_in_km = geodetics.calcVincentyInverse(
+    dist_in_km = geodetics.calc_vincenty_inverse(
         station_latitude, station_longitude, event_latitude,
         event_longitude)[0] / 1000.0
 

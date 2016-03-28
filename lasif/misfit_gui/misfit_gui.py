@@ -13,7 +13,7 @@ from glob import iglob
 import imp
 import inspect
 import matplotlib.patheffects as PathEffects
-from obspy.core.util.geodetics import locations2degrees
+from obspy.geodetics import locations2degrees
 from obspy.taup.taup import getTravelTimes
 import os
 import random

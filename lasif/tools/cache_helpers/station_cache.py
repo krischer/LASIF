@@ -16,7 +16,7 @@ import os
 import sqlite3
 
 import obspy
-from obspy.xseed import Parser
+from obspy.io.xseed import Parser
 
 from lasif import LASIFError
 from lasif.file_handling import simple_resp_parser
@@ -88,7 +88,7 @@ class StationCache(FileInfoCache):
         except:
             msg = "Not a valid SEED file?"
             raise StationCacheError(msg)
-        channels = p.getInventory()["channels"]
+        channels = p.get_inventory()["channels"]
 
         channels = [[
             _i["channel_id"], int(_i["start_date"].timestamp),

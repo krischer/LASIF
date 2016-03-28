@@ -12,7 +12,7 @@ Test suite for some utility functions.
 import inspect
 import numpy as np
 from obspy import UTCDateTime
-from obspy.xseed import Parser
+from obspy.io.xseed import Parser
 import os
 
 from lasif import utils

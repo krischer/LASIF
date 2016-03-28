@@ -110,8 +110,8 @@ def test_faulty_events(tmpdir, recwarn):
     file_2 = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
         inspect.getfile(inspect.currentframe())))), "data", "ExampleProject",
         "EVENTS", "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml")
-    cat = obspy.readEvents(file_1)
-    cat += obspy.readEvents(file_2)
+    cat = obspy.read_events(file_1)
+    cat += obspy.read_events(file_2)
 
     # Modify it to trigger all problems.
     temp = io.BytesIO()

@@ -65,7 +65,7 @@ def test_select_windows():
         min_peaks_troughs=min_peaks_troughs,
         max_energy_ratio=max_energy_ratio)
 
-    expected_windows = [(obspy.UTCDateTime(2000, 8, 21, 17, 15, 38),
+    expected_windows = [(obspy.UTCDateTime(2000, 8, 21, 17, 15, 38, 300000),
                          obspy.UTCDateTime(2000, 8, 21, 17, 19, 24, 800000))]
 
     assert windows == expected_windows

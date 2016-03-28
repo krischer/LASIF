@@ -33,10 +33,10 @@ def channel_in_parser(parser_object, channel_id, starttime, endtime):
 
     Returns True or False.
 
-    :type parser_object: :class:`obspy.xseed.Parser`
+    :type parser_object: :class:`obspy.io.xseed.Parser`
     :param parser_object: The parser object.
     """
-    channels = parser_object.getInventory()["channels"]
+    channels = parser_object.get_inventory()["channels"]
     for chan in channels:
         if not fnmatch(chan["channel_id"], channel_id):
             continue
@@ -309,12 +309,12 @@ def get_event_filename(event, prefix):
     :param event: The event object.
     :param prefix: A prefix for the file, denoting e.g. the event catalog.
 
-    >>> from obspy import readEvents
-    >>> event = readEvents()[0]
+    >>> from obspy import read_events
+    >>> event = read_events()[0]
     >>> print get_event_filename(event, "GCMT")
     GCMT_event_KYRGYZSTAN-XINJIANG_BORDER_REG._Mag_4.4_2012-4-4-14.xml
     """
-    from obspy.core.util.geodetics import FlinnEngdahl
+    from obspy.geodetics import FlinnEngdahl
 
     mag = event.preferred_magnitude() or event.magnitudes[0]
     org = event.preferred_origin() or event.origins[0]

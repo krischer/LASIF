@@ -11,7 +11,7 @@ import collections
 import copy
 import geojson
 import json
-from obspy.imaging.mopad_wrapper import Beach
+from obspy.imaging.beachball import beach
 import io
 import inspect
 import numpy as np
@@ -133,7 +133,7 @@ def mt_plot():
     ax.set_axis_off()
     fig.add_axes(ax)
 
-    bb = Beach(focmec, xy=(0, 0), width=200, linewidth=lw, facecolor=color)
+    bb = beach(focmec, xy=(0, 0), width=200, linewidth=lw, facecolor=color)
     ax.add_collection(bb)
     ax.set_xlim(-105, 105)
     ax.set_ylim(-105, 105)

@@ -72,10 +72,10 @@ class EventCache(FileInfoCache):
         Reads QuakeML files and extracts some keys per channel. Only one
         event per file is allows.
         """
-        from obspy.core.util import FlinnEngdahl
+        from obspy.geodetics import FlinnEngdahl
 
         try:
-            cat = obspy.readEvents(filename)
+            cat = obspy.read_events(filename)
         except:
             msg = "Not a valid QuakeML file?"
             raise EventCacheError(msg)

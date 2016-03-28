@@ -14,8 +14,8 @@ from itertools import izip, chain
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import numpy as np
-from obspy.imaging.mopad_wrapper import Beach
-from obspy.signal.tf_misfit import plotTfr
+from obspy.imaging.beachball import beach
+from obspy.signal.tf_misfit import plot_tfr
 
 
 def plot_events(events, map_object, beachball_size=0.02):
@@ -31,7 +31,7 @@ def plot_events(events, map_object, beachball_size=0.02):
         # Attempt to calculate the best beachball size.
         width = max((map_object.xmax - map_object.xmin,
                      map_object.ymax - map_object.ymin)) * beachball_size
-        b = Beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
+        b = beach(focmec, xy=(x, y), width=width, linewidth=1, facecolor="red")
         b.set_zorder(200000000)
         map_object.ax.add_collection(b)
         beachballs.append(b)
@@ -257,8 +257,8 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
     """
     npts = len(data)
 
-    fig = plotTfr(data, dt=delta, fmin=1.0 / (npts * delta),
-                  fmax=1.0 / (2.0 * delta), show=False)
+    fig = plot_tfr(data, dt=delta, fmin=1.0 / (npts * delta),
+                   fmax=1.0 / (2.0 * delta), show=False)
 
     # Get the different axes...use some kind of logic to determine which is
     # which. This is super flaky as dependent on the ObsPy version and what

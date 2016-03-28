@@ -303,8 +303,8 @@ class ValidatorComponent(Component):
         import collections
         import itertools
         import math
-        from obspy import readEvents
-        from obspy.core.quakeml import _validate as validate_quakeml
+        from obspy import read_events
+        from obspy.io.quakeml.core import _validate as validate_quakeml
         from lxml import etree
 
         print "Validating %i event files ..." % self.comm.events.count()
@@ -380,7 +380,7 @@ class ValidatorComponent(Component):
         for event in self.comm.events.get_all_events().values():
             filename = event["filename"]
             self._flush_point()
-            cat = readEvents(filename)
+            cat = read_events(filename)
             filename = os.path.basename(filename)
             # Check that all files contain exactly one event!
             if len(cat) != 1:

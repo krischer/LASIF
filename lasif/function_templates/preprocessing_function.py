@@ -235,7 +235,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
                 warnings.warn("Evalresp failed, will only use the Poles and "
                               "Zeros stage")
                 tr = backup_tr
-                paz = parser.getPAZ(tr.id, tr.stats.starttime)
+                paz = parser.get_paz(tr.id, tr.stats.starttime)
                 if paz["sensitivity"] == 0:
                     warnings.warn("Sensitivity is 0 in SEED file and will "
                                   "not be taken into account!")
@@ -245,10 +245,10 @@ def preprocessing_function(processing_info, iteration):  # NOQA
                 else:
                     tr.simulate(paz_remove=paz, pre_filt=pre_filt,
                                 zero_mean=False, taper=False)
-        except Exception:
+        except Exception as e:
             msg = ("File  could not be corrected with the help of the "
-                   "SEED file '%s'. Will be skipped.") \
-                % processing_info["station_filename"]
+                    "SEED file '%s'. Will be skipped due to: %s") \
+                % (processing_info["station_filename"], str(e))
             raise LASIFError(msg)
     # processing with RESP files =============================================
     elif "/RESP/" in station_file:
