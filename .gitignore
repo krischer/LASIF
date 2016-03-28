@@ -4,3 +4,4 @@ lasif.egg-info/*
 .coverage
 htmlcov
 lasif/misfit_gui/qt_window.py
+.cache
