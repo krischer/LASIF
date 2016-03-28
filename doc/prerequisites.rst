@@ -18,8 +18,7 @@ are listed here. It might well work with other versions but only the versions
 listed here have been tested and are officially supported. It has been
 tested on Linux and Mac OS X but should also run just fine on Windows.
 
-* ``obspy`` (`www.obspy.org <http://www.obspy.org/>`_ - in a recent
-  respository version)
+* ``obspy >= 1.0.1`` (`www.obspy.org <http://www.obspy.org/>`_)
 * ``numpy >= 1.8``
 * ``matplotlib >= 1.3``
 * ``basemap >= 1.0.7``
@@ -35,37 +34,27 @@ tested on Linux and Mac OS X but should also run just fine on Windows.
 
 
 If you know what you are doing, just make sure these dependencies are
-available, otherwise please do yourself a favor and download the
-`Anaconda <https://store.continuum.io/cshop/anaconda/>`_ Python
-distribution, a free package containing almost all dependencies. Make sure
-to choose the Python 2.7 version. Install ObsPy according to
-`these instructions <https://github.com/obspy/obspy/wiki/Installation-via-Anaconda>`_
-but do not execute ``pip install obspy``. Instead install via git:
+available, otherwise please do yourself a favor and download the `Anaconda
+<https://www.continuum.io/downloads>`_ Python distribution, a free package
+containing almost all dependencies. Download it, install it, and follow the
+upcoming instructions. It will install **LASIF** into a separate ``conda``
+environment. This is very useful to separate the installation from the rest of
+your system. Additionally it does not require root privileges and thus can be
+installed almost everywhere.
 
 .. code-block:: bash
 
-    $ git clone https://github.com/obspy/obspy.git
-    $ cd obspy
-    $ pip install -v -e .
-
-This will install the latest repository version of ObsPy. At some point in
-the future the latest stable ObsPy version will also be sufficient but right
-now **LASIF** depends on features not yet in the latest stable ObsPy version.
-Install the remaining dependencies with
-
-.. code-block:: bash
-
-    $ conda install numpy matplotlib basemap mpi4py flask pyqt pytest mock nose flake8
-    $ pip install geographiclib progressbar colorama joblib flask-cache geojson pyqtgraph
-
-Finally install the *wfs_input_generator* module again via git:
-
-.. code-block:: bash
-
-    $ git clone https://github.com/krischer/wfs_input_generator.git
-    $ cd wfs_input_generator
-    $ pip install -v -e .
-
+    # Create a new conda environment named "lasif".
+    $ conda create -n lasif python=2.7
+    # Activate that environment. You will have to do this every time you start LASIF.
+    # If you don't want to do that: put that line in your .bashrc/.bash_profile
+    $ source activate lasif
+    # Install most things via conda.
+    $ conda install -c obspy obspy basemap progressbar colorama joblib flask pyqt pyqtgraph pytest nose mock flake8 pip
+    # Install some missing things over pip.
+    $ pip install geographiclib flask-cache geojson
+    # Install the wfs_input_generator package.
+    $ pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
 
 Installing LASIF
 ^^^^^^^^^^^^^^^^
