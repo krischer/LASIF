@@ -247,7 +247,7 @@ def preprocessing_function(processing_info, iteration):  # NOQA
                                 zero_mean=False, taper=False)
         except Exception as e:
             msg = ("File  could not be corrected with the help of the "
-                    "SEED file '%s'. Will be skipped due to: %s") \
+                   "SEED file '%s'. Will be skipped due to: %s") \
                 % (processing_info["station_filename"], str(e))
             raise LASIFError(msg)
     # processing with RESP files =============================================

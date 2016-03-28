@@ -232,7 +232,7 @@ class RectangularSphericalSection(Domain):
         # Use a global plot for very large domains.
         if self.max_extent >= 180.0:
             if resolution is None:
-                resolution="c"
+                resolution = "c"
             m = Basemap(projection='moll', lon_0=0, resolution=resolution,
                         ax=ax)
             stepsize = 45.0
@@ -240,7 +240,7 @@ class RectangularSphericalSection(Domain):
         elif self.max_extent >= 75.0 or (plot_simulation_domain is True and
                                          self.rotation_angle_in_degree):
             if resolution is None:
-                resolution="c"
+                resolution = "c"
             m = Basemap(projection="ortho", lon_0=self.center.longitude,
                         lat_0=self.center.latitude, resolution=resolution,
                         ax=ax)
@@ -250,7 +250,7 @@ class RectangularSphericalSection(Domain):
         # does not distort features a lot on regional scales.
         else:
             if resolution is None:
-                resolution="l"
+                resolution = "l"
             extent = self.extent
             # Calculate approximate width and height in meters.
             width = extent.longitudinal_extent
