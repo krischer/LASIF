@@ -23,14 +23,9 @@ class DownloadsComponent(Component):
         """
         """
         event = self.comm.events.get(event)
-        try:
-            from obspy.fdsn.download_helpers import DownloadHelper, \
-                GlobalDomain, Restrictions
-        except ImportError:
-            raise ImportError("Currently requires the "
-                              "krischer/download_helpers branch of ObsPy. "
-                              "Should soon be either merged into ObsPy or"
-                              "outsourced in a separate project.")
+
+        from obspy.clients.fdsn.mass_downloader import MassDownloader, \
+            Restrictions, GlobalDomain
 
         proj = self.comm.project
 
@@ -78,7 +73,7 @@ class DownloadsComponent(Component):
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
-        dlh = DownloadHelper(providers=providers)
+        dlh = MassDownloader(providers=providers)
         dlh.download(domain=domain, restrictions=restrictions,
                      mseed_storage=mseed_storage,
                      stationxml_storage=stationxml_storage)
@@ -116,7 +111,7 @@ class DownloadsComponent(Component):
         return stationxml_storage
 
     def _get_spherical_section_domain(self, domain):
-        from obspy.fdsn.download_helpers import Domain
+        from obspy.clients.fdsn.mass_downloader import Domain
 
         # Make copies to assure the closure binds correctly.
         d = copy.deepcopy(domain)
