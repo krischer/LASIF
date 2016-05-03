@@ -64,7 +64,7 @@ class DownloadsComponent(Component):
                                                               endtime)
 
         # Also log to file for reasons of provenance and debugging.
-        logger = logging.getLogger("obspy-download-helper")
+        logger = logging.getLogger("obspy.clients.fdsn.mass_downloader")
         fh = logging.FileHandler(
             self.comm.project.get_log_file("DOWNLOADS", event["event_name"]))
         fh.setLevel(logging.INFO)
