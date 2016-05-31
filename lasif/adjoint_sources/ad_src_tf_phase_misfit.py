@@ -51,11 +51,11 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # 2D interpolation to bring the tf representation of the correlation on the
     # same grid as the tf representation of the synthetics. Uses a two-step
     # procedure for real and imaginary parts.
-    tf_cc_interp = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.real,
-                                       kx=1, ky=1, s=0)(tau[0], nu[:, 0])
+    tf_cc_interp = RectBivariateSpline(tau_cc, nu_cc, tf_cc.real,
+                                       kx=1, ky=1, s=0)(tau, nu)
     tf_cc_interp = np.require(tf_cc_interp, dtype="complex128")
-    tf_cc_interp.imag = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.imag,
-                                            kx=1, ky=1, s=0)(tau[0], nu[:, 0])
+    tf_cc_interp.imag = RectBivariateSpline(tau_cc, nu_cc, tf_cc.imag,
+                                            kx=1, ky=1, s=0)(tau, nu)
     tf_cc = tf_cc_interp
 
     # compute tf window and weighting function --------------------------------
@@ -104,7 +104,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         messages.append(warning)
 
     # Compute the phase misfit
-    dnu = nu[1, 0] - nu[0, 0]
+    dnu = nu[1] - nu[0]
     phase_misfit = np.sqrt(np.sum(weight ** 2 * DP ** 2) * dt_new * dnu)
 
     # Sanity check. Should not occur.
@@ -120,10 +120,10 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
                                                  np.abs(tf_synth))
 
         # Invert tf transform and make adjoint source
-        ad_src, it, I = time_frequency.itfa(tau, nu, idp, width)
+        ad_src, it, I = time_frequency.itfa(tau, idp, width)
 
         # Interpolate to original time axis
-        current_time = tau[0, :]
+        current_time = tau
         new_time = t[t <= current_time.max()]
 
         # Interpolate both signals to the new time axis

@@ -45,10 +45,9 @@ def time_frequency_transform(t, s, dt_new, width):
 
     nu = np.linspace(0, float(N - 1) / (N * dt_new), len(t))
     tau = t
-    TAU, NU = np.meshgrid(tau, nu)
 
     # Compute the time frequency representation
-    tfs = np.zeros(NU.shape, dtype="complex128")
+    tfs = np.zeros((nu.shape[0], tau.shape[0]), dtype="complex128")
 
     for k in xrange(len(tau)):
         # Window the signals
@@ -61,7 +60,7 @@ def time_frequency_transform(t, s, dt_new, width):
 
     tfs *= dt_new / np.sqrt(2.0 * np.pi)
 
-    return TAU, NU, tfs
+    return tau, nu, tfs
 
 
 def time_frequency_cc_difference(t, s1, s2, dt_new, width):
@@ -98,16 +97,14 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
     # If we ever get signals not starting at time 0: uncomment this line.
     # t_min = t_cc[0]
 
-    # Initialize the meshgrid
     N = len(t_cc)
     dnu = 1.0 / (N * dt_new)
 
     nu = np.linspace(0, (N - 1) * dnu, N)
     tau = t_cc
-    TAU, NU = np.meshgrid(tau, nu)
 
     # Compute the time frequency representation
-    tfs = np.zeros(NU.shape, dtype="complex128")
+    tfs = np.zeros((nu.shape[0], tau.shape[0]), dtype="complex128")
 
     for k in xrange(len(tau)):
         # Window the signals
@@ -122,12 +119,11 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
 
     tfs *= dt_new / np.sqrt(2.0 * np.pi)
 
-    return TAU, NU, tfs
+    return tau, nu, tfs
 
 
-def itfa(TAU, NU, tfs, width):
+def itfa(tau, tfs, width):
     # initialisation
-    tau = TAU[0, :]
     N = len(tau)
     dt = tau[1] - tau[0]
 
