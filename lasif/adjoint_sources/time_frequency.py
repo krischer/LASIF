@@ -35,7 +35,9 @@ def time_frequency_transform(t, s, dt_new, width):
     # Rename some variables
     t = ti
     s = si
-    t_min = t[0]
+    assert t[0] == 0
+    # If we ever get signals not starting at time 0: uncomment this line.
+    # t_min = t[0]
 
     # Initialize the meshgrid
     N = len(t)
@@ -53,7 +55,8 @@ def time_frequency_transform(t, s, dt_new, width):
         f = w * s
 
         tfs[k, :] = np.fft.fft(f) / np.sqrt(2.0 * np.pi) * dt_new
-        tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
+        # If we ever get signals not starting at time 0: uncomment this line.
+        # tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
 
     return TAU, NU, tfs
 
@@ -87,7 +90,10 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
     # Rename some variables
     s1 = si1
     s2 = si2
-    t_min = t_cc[0]
+
+    assert t_cc[0] == 0
+    # If we ever get signals not starting at time 0: uncomment this line.
+    # t_min = t_cc[0]
 
     # Initialize the meshgrid
     N = len(t_cc)
@@ -108,7 +114,8 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
 
         cc = utils.cross_correlation(f2, f1)
         tfs[k, :] = np.fft.fft(cc) / np.sqrt(2.0 * np.pi) * dt_new
-        tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
+        # If we ever get signals not starting at time 0: uncomment this line.
+        # tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
 
     return TAU, NU, tfs
 
@@ -116,18 +123,16 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
 def itfa(TAU, NU, tfs, width):
     # initialisation
     tau = TAU[0, :]
-    nu = NU[:, 0]
     N = len(tau)
     dt = tau[1] - tau[0]
 
-    # modification of the signal
-    # Zeitachse: tfs(k,:)
-    # Frequenzachse: tfs(:,1)
-    t_min = tau[0]
+    assert tau[0] == 0
 
-    for k in xrange(len(tau)):
-        tfs[k, :] = tfs[k, :] * np.exp(2.0 * np.pi * 1j * nu.transpose() *
-                                       t_min)
+    # If we ever get signals not starting at time 0: uncomment these lines.
+    # t_min = tau[0]
+    # for k in xrange(len(tau)):
+    #     tfs[k, :] = tfs[k, :] * np.exp(2.0 * np.pi * 1j * nu.transpose() *
+    #                                    t_min)
 
     # inverse fft
     I = np.zeros((N, N), dtype="complex128")
