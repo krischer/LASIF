@@ -11,6 +11,7 @@ Time frequency functions.
 """
 import numpy as np
 from obspy.signal.interpolation import lanczos_interpolation
+import scipy.fftpack
 
 from lasif.adjoint_sources import utils
 
@@ -54,9 +55,11 @@ def time_frequency_transform(t, s, dt_new, width):
         w = utils.gaussian_window(t - tau[k], width)
         f = w * s
 
-        tfs[k, :] = np.fft.fft(f) / np.sqrt(2.0 * np.pi) * dt_new
+        tfs[k, :] = scipy.fftpack.fft(f)
         # If we ever get signals not starting at time 0: uncomment this line.
         # tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
+
+    tfs *= dt_new / np.sqrt(2.0 * np.pi)
 
     return TAU, NU, tfs
 
@@ -113,9 +116,11 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
         f2 = w * s2
 
         cc = utils.cross_correlation(f2, f1)
-        tfs[k, :] = np.fft.fft(cc) / np.sqrt(2.0 * np.pi) * dt_new
+        tfs[k, :] = scipy.fftpack.fft(cc)
         # If we ever get signals not starting at time 0: uncomment this line.
         # tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
+
+    tfs *= dt_new / np.sqrt(2.0 * np.pi)
 
     return TAU, NU, tfs
 
@@ -138,7 +143,9 @@ def itfa(TAU, NU, tfs, width):
     I = np.zeros((N, N), dtype="complex128")
 
     for k in xrange(N):
-        I[k, :] = 2.0 * np.pi * np.fft.ifft(tfs[k, :]) / dt
+        I[k, :] = scipy.fftpack.ifft(tfs[k, :])
+
+    I *= 2.0 * np.pi / dt
 
     # time integration
     s = np.zeros(N, dtype="complex128")
