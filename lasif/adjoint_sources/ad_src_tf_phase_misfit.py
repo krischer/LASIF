@@ -11,9 +11,10 @@ Fichtner et al. (2008).
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
-from scipy.interpolate import interp1d
+from obspy.signal.interpolation import lanczos_interpolation
 from scipy.interpolate import RectBivariateSpline
 import warnings
+
 
 from lasif import LASIFAdjointSourceCalculationError
 from lasif.adjoint_sources import time_frequency
@@ -124,7 +125,16 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         # Interpolate to original time axis
         current_time = tau[0, :]
         new_time = t[t <= current_time.max()]
-        ad_src = interp1d(current_time, np.imag(ad_src), kind=2)(new_time)
+
+        # Interpolate both signals to the new time axis
+        ad_src = lanczos_interpolation(
+            data=np.require(ad_src.imag, dtype=np.float64, requirements=["C"]),
+            old_start=current_time[0],
+            old_dt=current_time[1] - current_time[0],
+            new_start=new_time[0],
+            new_dt=new_time[1] - new_time[0],
+            new_npts=len(new_time), a=8, window="blackmann")
+
         if len(t) > len(new_time):
             ad_src = np.concatenate([ad_src, np.zeros(len(t) - len(new_time))])
 

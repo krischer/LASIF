@@ -10,9 +10,10 @@ Time frequency functions.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
-from scipy.interpolate import interp1d
+from obspy.signal.interpolation import lanczos_interpolation
 
 from lasif.adjoint_sources import utils
+
 
 
 def time_frequency_transform(t, s, dt_new, width):
@@ -27,7 +28,9 @@ def time_frequency_transform(t, s, dt_new, width):
     # New time axis
     ti = utils.matlab_range(t[0], t[-1], dt_new)
     # Interpolate both signals to the new time axis
-    si = interp1d(t, s, kind=1)(ti)
+    si = lanczos_interpolation(
+        data=s, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
+        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
 
     # Rename some variables
     t = ti
@@ -70,8 +73,12 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
     # New time axis
     ti = utils.matlab_range(t[0], t[-1], dt_new)
     # Interpolate both signals to the new time axis
-    si1 = interp1d(t, s1, kind=1)(ti)
-    si2 = interp1d(t, s2, kind=1)(ti)
+    si1 = lanczos_interpolation(
+        data=s1, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
+        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+    si2 = lanczos_interpolation(
+        data=s2, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
+        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
 
     # Extend the time axis, required for the correlation
     N = len(ti)
