@@ -20,6 +20,7 @@ tested on Linux and Mac OS X but should also run just fine on Windows.
 
 * ``obspy >= 1.0.1`` (`www.obspy.org <http://www.obspy.org/>`_)
 * ``numpy >= 1.8``
+* ``numexpr`` (newer versions are also oftentimes faster)
 * ``matplotlib >= 1.3``
 * ``basemap >= 1.0.7``
 * ``wfs_input_generator`` (`website <http://github.com/krischer/wfs_input_generator>`_)
@@ -50,7 +51,7 @@ installed almost everywhere.
     # If you don't want to do that: put that line in your .bashrc/.bash_profile
     $ source activate lasif
     # Install most things via conda.
-    $ conda install -c obspy obspy basemap progressbar colorama joblib flask pyqt pyqtgraph pytest nose mock flake8 pip
+    $ conda install -c obspy obspy basemap progressbar colorama joblib flask pyqt pyqtgraph pytest nose mock flake8 pip numexpr
     # Install some missing things over pip.
     $ pip install geographiclib flask-cache geojson
     # Install the wfs_input_generator package.

@@ -63,6 +63,7 @@ setup_config = dict(
         "joblib",
         "lxml",
         "nose",
+        "numexpr",
         "pytest",
         "flake8",
         "mock",
