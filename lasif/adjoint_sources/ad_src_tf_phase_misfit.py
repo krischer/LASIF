@@ -12,12 +12,13 @@ Fichtner et al. (2008).
 """
 import numpy as np
 from obspy.signal.interpolation import lanczos_interpolation
+import scipy.signal
 from scipy.interpolate import RectBivariateSpline
 import warnings
 
 
 from lasif import LASIFAdjointSourceCalculationError
-from lasif.adjoint_sources import time_frequency
+from lasif.adjoint_sources import time_frequency #, utils
 
 eps = np.spacing(1)
 
@@ -34,11 +35,29 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     """
     messages = []
 
+    # Internal sampling interval. Some explanations for this "magic" number.
+    # LASIF's preprocessing allows no frequency content with smaller periods
+    # than min_period / 2.2 (see function_templates/preprocesssing_function.py
+    # for details). Assuming most users don't change this, this is equal to
+    # the Nyquist frequency and the largest possible sampling interval to
+    # catch everything is min_period / 4.4.
+    dt_new = min_period / 4.4
+
+
+    # Downsample data and synthetics - they are usually way oversampled in
+    # any case and this greatly speeds up the calculations.
+
+    # New time axis
+    # ti = utils.matlab_range(t[0], t[-1], dt_new)
+    # # Interpolate both signals to the new time axis
+    # si = lanczos_interpolation(
+    #     data=s, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
+    #     new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+
+
     # Compute time-frequency representations ----------------------------------
 
-    # compute new time increments and Gaussian window width for the
-    # time-frequency transforms
-    dt_new = float(int(min_period / 3.0))
+    # Window width is twice the minimal period.
     width = 2.0 * min_period
 
     # Compute time-frequency representation of the cross-correlation

@@ -17,11 +17,15 @@ from lasif.adjoint_sources import utils
 
 
 
-def time_frequency_transform(t, s, dt_new, width):
+def time_frequency_transform(t, s, dt_new, width, threshold=1E-5):
     """
+    Gabor transform (time frequency transform with Gaussian windows).
+
+    Data will be resampled before it is transformed.
+
     :param t: discrete time
     :param s: discrete signal
-    :param dt_new: time increment in the tf domain
+    :param dt_new: Signal will be resampled to that time interval.
     :param width: width of the Gaussian window
     :param threshold: fraction of the absolute signal below which the Fourier
         transform is set to zero in order to reduce computation time
@@ -43,16 +47,21 @@ def time_frequency_transform(t, s, dt_new, width):
     # Initialize the meshgrid
     N = len(t)
 
-    nu = np.linspace(0, float(N - 1) / (N * dt_new), len(t))
-    tau = t
+    nu = np.linspace(0, float(N - 1) / (N * dt_new), N)
 
     # Compute the time frequency representation
-    tfs = np.zeros((nu.shape[0], tau.shape[0]), dtype="complex128")
+    tfs = np.zeros((N, N), dtype="complex128")
 
-    for k in xrange(len(tau)):
+    threshold = np.abs(s).max() * threshold
+
+    for k in xrange(N):
         # Window the signals
-        w = utils.gaussian_window(t - tau[k], width)
-        f = w * s
+        f = utils.gaussian_window(t - t[k], width) * s
+
+        # No need to transform if nothing is there. Great speedup as lots of
+        # windowed functions have 0 everywhere.
+        # if np.abs(f).max() < threshold:
+        #     continue
 
         tfs[k, :] = scipy.fftpack.fft(f)
         # If we ever get signals not starting at time 0: uncomment this line.
@@ -60,7 +69,7 @@ def time_frequency_transform(t, s, dt_new, width):
 
     tfs *= dt_new / np.sqrt(2.0 * np.pi)
 
-    return tau, nu, tfs
+    return t, nu, tfs
 
 
 def time_frequency_cc_difference(t, s1, s2, dt_new, width):
