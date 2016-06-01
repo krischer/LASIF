@@ -16,7 +16,6 @@ import scipy.interpolate
 from lasif.adjoint_sources import utils
 
 
-
 def time_frequency_transform(t, s, width, threshold=1E-2):
     """
     Gabor transform (time frequency transform with Gaussian windows).
