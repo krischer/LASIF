@@ -17,7 +17,7 @@ from lasif.adjoint_sources import utils
 
 
 
-def time_frequency_transform(t, s, width, threshold=1E-5):
+def time_frequency_transform(t, s, width, threshold=1E-3):
     """
     Gabor transform (time frequency transform with Gaussian windows).
 
@@ -45,8 +45,8 @@ def time_frequency_transform(t, s, width, threshold=1E-5):
 
         # No need to transform if nothing is there. Great speedup as lots of
         # windowed functions have 0 everywhere.
-        # if np.abs(f).max() < threshold:
-        #     continue
+        if np.abs(f).max() < threshold:
+            continue
 
         tfs[k, :] = scipy.fftpack.fft(f)
 
@@ -55,7 +55,7 @@ def time_frequency_transform(t, s, width, threshold=1E-5):
     return t, nu, tfs
 
 
-def time_frequency_cc_difference(t, s1, s2, width):
+def time_frequency_cc_difference(t, s1, s2, width, threshold=1E-3):
     """
     Straight port of tfa_cc_new.m
 
@@ -81,11 +81,16 @@ def time_frequency_cc_difference(t, s1, s2, width):
     # Compute the time frequency representation
     tfs = np.zeros((nu.shape[0], tau.shape[0]), dtype="complex128")
 
+    threshold = np.abs(s1).max() * threshold
+
     for k in xrange(len(tau)):
         # Window the signals
         w = utils.gaussian_window(t - tau[k], width)
         f1 = w * s1
         f2 = w * s2
+
+        if np.abs(s1).max() < threshold:
+            continue
 
         cc = utils.cross_correlation(f2, f1)
         tfs[k, :] = scipy.fftpack.fft(cc)
@@ -94,15 +99,19 @@ def time_frequency_cc_difference(t, s1, s2, width):
     return tau, nu, tfs
 
 
-def itfa(tau, tfs, width):
+def itfa(tau, tfs, width, threshold=1E-3):
     N = len(tau)
     dt = tau[1] - tau[0]
+
+    threshold = np.abs(tfs).max() * threshold
 
     # inverse fft
     I = np.zeros((N, N), dtype="complex128")
 
     # IFFT and scaling.
     for k in xrange(N):
+        if np.abs(tfs[k, :]).max() < threshold:
+            continue
         I[k, :] = scipy.fftpack.ifft(tfs[k, :])
     I *= 2.0 * np.pi / dt
 
