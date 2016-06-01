@@ -22,6 +22,8 @@ from lasif.adjoint_sources import time_frequency, utils
 
 eps = np.spacing(1)
 
+
+@profile
 def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
                           axis=None, colorbar_axis=None):
     """
@@ -51,7 +53,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # same aliasing into the lower frequencies but the filters coupled with
     # the TF-domain weighting will get rid of them in essentially all
     # realistically occurring cases.
-    dt_new = float(int(min_period / 3.0))
+    dt_new = max(float(int(min_period / 3.0)), t[1] - t[0])
 
     # New time axis
     ti = utils.matlab_range(t[0], t[-1], dt_new)
@@ -62,7 +64,10 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     if not len(ti) % 2:
         ti = ti[:-1]
 
-    # Interpolate both signals to the new time axis
+    # Interpolate both signals to the new time axis - this massively speeds
+    # up the whole procedure as most signals are highly oversampled. The
+    # adjoint source at the end is re-interpolated to the original sampling
+    # points.
     data = lanczos_interpolation(
         data=data, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
         new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
@@ -72,8 +77,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     original_time = t
     t = ti
 
-
-    # Compute time-frequency representations ----------------------------------
+    # -------------------------------------------------------------------------
+    # Compute time-frequency representations
 
     # Window width is twice the minimal period.
     width = 2.0 * min_period
@@ -85,12 +90,14 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic,
                                                                 width)
 
-    # compute tf window and weighting function --------------------------------
+    # -------------------------------------------------------------------------
+    # compute tf window and weighting function
 
-    # noise taper: downweigh tf amplitudes that are very low
-    m = np.abs(tf_cc).max() / 10.0
-    weight = 1.0 - np.exp(-(np.abs(tf_cc) ** 2) / (m ** 2))
-    nu_t = nu.transpose()
+    # noise taper: down-weight tf amplitudes that are very low
+    tf_cc_abs = np.abs(tf_cc)
+    m = tf_cc_abs.max() / 10.0
+    weight = 1.0 - np.exp(-(tf_cc_abs ** 2) / (m ** 2))
+    nu_t = nu.T
 
     # highpass filter (periods longer than max_period are suppressed
     # exponentially)
