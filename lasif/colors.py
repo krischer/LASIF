@@ -32,14 +32,17 @@ def get_colormap(name):
     """
     Load one of the colormaps defined in this module.
     """
-    if name == "tomo_full_scale_linear_lightness":
+    if name.startswith("tomo_full_scale_linear_lightness"):
         colors = tomo_full_scale_linear_lightness
-    elif name == "tomo_80_perc_linear_lightness":
+    elif name.startswith("tomo_80_perc_linear_lightness"):
         colors = tomo_80_perc_linear_lightness
-    elif name == "tomo_80_perc_no_black_linear_lightness":
+    elif name.startswith("tomo_80_perc_no_black_linear_lightness"):
         colors = tomo_80_perc_no_black_linear_lightness
     else:
         raise ValueError("Unknown colormap '%s'." % name)
+
+    if name.endswith("_r"):
+        colors = colors[::-1]
 
     cm = LinearSegmentedColormap.from_list(name, colors=colors, N=256)
     return cm
