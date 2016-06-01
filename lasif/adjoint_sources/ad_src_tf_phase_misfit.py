@@ -12,16 +12,9 @@ Fichtner et al. (2008).
 """
 import warnings
 
+import numexpr as ne
 import numpy as np
 from obspy.signal.interpolation import lanczos_interpolation
-
-# Optional dependency - it does speed up computations by around 25 % and
-# it is oftentimes easy to install - so totally worth it!
-try:
-    import numexpr as ne
-    HAS_NUMEXPR = True
-except ImportError:
-    HAS_NUMEXPR = False
 
 
 from lasif import LASIFAdjointSourceCalculationError
@@ -102,11 +95,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # noise taper: down-weight tf amplitudes that are very low
     tf_cc_abs = np.abs(tf_cc)
     m = tf_cc_abs.max() / 10.0
-
-    if HAS_NUMEXPR:
-        weight = ne.evaluate("1.0 - exp(-(tf_cc_abs ** 2) / (m ** 2))")
-    else:
-        weight = 1.0 - np.exp(-(tf_cc_abs ** 2) / (m ** 2))
+    weight = ne.evaluate("1.0 - exp(-(tf_cc_abs ** 2) / (m ** 2))")
 
     nu_t = nu.T
 
@@ -137,10 +126,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # frequency direction. 0.7 is an emperical value.
     abs_weighted_DP = np.abs(weight * DP)
     _x = abs_weighted_DP.max()
-    if HAS_NUMEXPR:
-        test_field = ne.evaluate("weight * DP / _x")
-    else:
-        test_field = weight * DP / _x
+    test_field = ne.evaluate("weight * DP / _x")
 
     criterion_1 = np.sum([np.abs(np.diff(test_field, axis=0)) > 0.7])
     criterion_2 = np.sum([np.abs(np.diff(test_field, axis=1)) > 0.7])
@@ -154,10 +140,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # Compute the phase misfit
     dnu = nu[1] - nu[0]
 
-    if HAS_NUMEXPR:
-        i = ne.evaluate("sum(weight ** 2 * DP ** 2)")
-    else:
-        i = np.sum(weight ** 2 * DP ** 2)
+    i = ne.evaluate("sum(weight ** 2 * DP ** 2)")
 
     phase_misfit = np.sqrt(i * dt_new * dnu)
 
@@ -170,11 +153,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     if criterion <= 7.0:
         # Make kernel for the inverse tf transform
-        if HAS_NUMEXPR:
-            idp = ne.evaluate(
-                "weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)")
-        else:
-            idp = weight ** 2 * DP * tf_synth / (m + np.abs(tf_synth) ** 2)
+        idp = ne.evaluate(
+            "weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)")
 
         # Invert tf transform and make adjoint source
         ad_src, it, I = time_frequency.itfa(tau, idp, width)
