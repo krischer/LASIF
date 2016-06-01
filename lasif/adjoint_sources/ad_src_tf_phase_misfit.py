@@ -44,14 +44,24 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # for details). Assuming most users don't change this, this is equal to
     # the Nyquist frequency and the largest possible sampling interval to
     # catch everything is min_period / 4.4.
-    dt_new = min_period / 4.4
-
-
-    # Downsample data and synthetics - they are usually way oversampled in
-    # any case and this greatly speeds up the calculations.
+    #
+    # The current choice is historic as changing does (very slightly) chance
+    # the calculated misfit and we don't want to disturb inversions in
+    # progress. The difference is likely minimal in any case. We might have
+    # same aliasing into the lower frequencies but the filters coupled with
+    # the TF-domain weighting will get rid of them in essentially all
+    # realistically occurring cases.
+    dt_new = float(int(min_period / 3.0))
 
     # New time axis
     ti = utils.matlab_range(t[0], t[-1], dt_new)
+    # Make sure its odd - that avoid having to deal with some issues
+    # regarding frequency bin interpolation. Now positive and negative
+    # frequencies will always be all symmetric. Data is assumed to be
+    # tapered in any case so no problem are to be expected.
+    if not len(ti) % 2:
+        ti = ti[:-1]
+
     # Interpolate both signals to the new time axis
     data = lanczos_interpolation(
         data=data, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
