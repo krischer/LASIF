@@ -67,6 +67,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # up the whole procedure as most signals are highly oversampled. The
     # adjoint source at the end is re-interpolated to the original sampling
     # points.
+    original_data = data
+    original_synthetic = synthetic
     data = lanczos_interpolation(
         data=data, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
         new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
@@ -185,66 +187,104 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         raise LASIFAdjointSourceCalculationError(
             "Criterion failed, no misfit has been calculated.")
 
-    # Plot if required. -------------------------------------------------------
+    # Plot if requested. ------------------------------------------------------
     if plot:
-        import matplotlib.cm as cm
+        import matplotlib as mpl
         import matplotlib.pyplot as plt
-        plt.style.use("ggplot")
+        plt.style.use("seaborn-whitegrid")
         from lasif.colors import get_colormap
 
-        axis = plt.gca()
+        if isinstance(plot, mpl.figure.Figure):
+            fig = plot
+        else:
+            fig = plt.gcf()
 
-        # Primary axis: plot weighted phase difference. -----------------------
+        # Manually set-up the axes for full control.
+        l, b, w, h = 0.1, 0.05, 0.80, 0.22
+        rect = l, b + 3 * h, w, h
+        waveforms_axis = fig.add_axes(rect)
+        rect = l, b + h, w, 2 * h
+        tf_axis = fig.add_axes(rect)
+        rect = l, b, w, h
+        adj_src_axis = fig.add_axes(rect)
+        rect = l + w + 0.02, b, 1.0 - (l + w + 0.02) - 0.05, 4 * h
+        cm_axis = fig.add_axes(rect)
 
+        # Plot the weighted phase difference.
         weighted_phase_difference = (DP * weight).transpose()
-        abs_diff = np.abs(weighted_phase_difference)
-        mappable = axis.pcolormesh(
+        mappable = tf_axis.pcolormesh(
             tau, nu, weighted_phase_difference, vmin=-1.0, vmax=1.0,
-            cmap=get_colormap("tomo_full_scale_linear_lightness"))
-        axis.set_xlabel("Seconds since event")
-        axis.set_ylabel("Frequency [Hz]")
+            cmap=get_colormap("tomo_full_scale_linear_lightness_r"),
+            shading="gouraud", zorder=-10)
+        tf_axis.grid(True)
+        tf_axis.grid(True, which='minor', axis='both', linestyle='-',
+                     color='k')
 
-        # Smart scaling for the frequency axis.
-        temp = abs_diff.max(axis=1) * (nu[1] - nu[0])
-        ymax = len(temp[temp > temp.max() / 1000.0])
-        ymax *= nu[1] - nu[0]
-        ymax *= 2
-        axis.set_ylim(0, 2.0 / min_period)
+        cm = fig.colorbar(mappable, cax=cm_axis)
+        cm.set_label("Phase difference in radian", fontsize="large")
 
-        # if colorbar_axis:
-        #     cm = plt.gcf().colorbar(mappable, cax=colorbar_axis)
-        # else:
-        cm = plt.gcf().colorbar(mappable, ax=axis)
-        cm.set_label("Phase difference in radian")
-
-        # Secondary axis: plot waveforms and adjoint source. ------------------
-
-        ax2 = axis.twinx()
-
-        ax2.plot(original_time, ad_src, color="black", alpha=1.0)
-        min_value = min(ad_src.min(), -1.0)
-        max_value = max(ad_src.max(), 1.0)
-
-        value_range = max_value - min_value
-        axis.twin_axis = ax2
-        ax2.set_ylim(min_value - 2.5 * value_range,
-                     max_value + 0.5 * value_range)
-        axis.set_xlim(0, tau[-1])
-        ax2.set_xlim(0, tau[-1])
-        ax2.set_yticks([])
-
+        # Various texts on the time frequency domain plot.
         text = "Misfit: %.4f" % phase_misfit
-        axis.text(x=0.99, y=0.02, s=text, transform=axis.transAxes,
-                  bbox=dict(facecolor='orange', alpha=0.8),
-                  verticalalignment="bottom",
-                  horizontalalignment="right")
+        tf_axis.text(x=0.99, y=0.02, s=text, transform=tf_axis.transAxes,
+                     fontsize="large", color="#C25734", fontweight=900,
+                     verticalalignment="bottom",
+                     horizontalalignment="right")
+
+        tf_axis.text(x=0.99, y=0.95, s="Weighted Phase Difference",
+                     fontsize="large", color="0.1",
+                     transform=tf_axis.transAxes,
+                     verticalalignment="top",
+                     horizontalalignment="right")
 
         if messages:
             message = "\n".join(messages)
-            axis.text(x=0.99, y=0.98, s=message, transform=axis.transAxes,
-                      bbox=dict(facecolor='red', alpha=0.8),
-                      verticalalignment="top",
-                      horizontalalignment="right")
+            tf_axis.text(x=0.99, y=0.98, s=message,
+                         transform=tf_axis.transAxes,
+                         bbox=dict(facecolor='red', alpha=0.8),
+                         verticalalignment="top",
+                         horizontalalignment="right")
+
+        # Adjoint source.
+        adj_src_axis.plot(original_time, ad_src[::-1], color="0.1", lw=2,
+                          label="Adjoint source (non-time-reversed)")
+        adj_src_axis.legend()
+
+        # Waveforms.
+        waveforms_axis.plot(original_time, original_data, color="0.1", lw=2,
+                            label="Observed")
+        waveforms_axis.plot(original_time, original_synthetic,
+                            color="#C11E11", lw=2, label="Synthetic")
+        waveforms_axis.legend()
+
+        # Set limits for all axes.
+        tf_axis.set_ylim(0, 2.0 / min_period)
+        tf_axis.set_xlim(0, tau[-1])
+        adj_src_axis.set_xlim(0, tau[-1])
+        waveforms_axis.set_xlim(0, tau[-1])
+
+        waveforms_axis.set_ylabel("Velocity [m/s]", fontsize="large")
+        tf_axis.set_ylabel("Period [s]", fontsize="large")
+        adj_src_axis.set_xlabel("Seconds since event", fontsize="large")
+
+        # Hack to keep ticklines but remove the ticks - there is probably a
+        # better way to do this.
+        waveforms_axis.set_xticklabels([
+            "" for _ in waveforms_axis.get_xticks()])
+        tf_axis.set_xticklabels(["" for _ in tf_axis.get_xticks()])
+
+        _l = tf_axis.get_ylim()
+        _r = _l[1] - _l[0]
+        _t = tf_axis.get_yticks()
+        _t = _t[(_l[0] + 0.1 * _r < _t) & (_t < _l[1] - 0.1 * _r)]
+
+        tf_axis.set_yticks(_t)
+        tf_axis.set_yticklabels(["%.1fs" % (1.0 / _i) for _i in _t])
+
+        waveforms_axis.get_yaxis().set_label_coords(-0.08, 0.5)
+        tf_axis.get_yaxis().set_label_coords(-0.08, 0.5)
+
+        fig.suptitle("Time Frequency Phase Misfit and Adjoint Source",
+                     fontsize="xx-large")
 
     ret_dict = {
         "adjoint_source": ad_src,
