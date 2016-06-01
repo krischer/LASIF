@@ -230,7 +230,9 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
                      verticalalignment="bottom",
                      horizontalalignment="right")
 
-        tf_axis.text(x=0.99, y=0.95, s="Weighted Phase Difference",
+        txt = "Weighted Phase Difference - red is a phase advance of the " \
+              "synthetics"
+        tf_axis.text(x=0.99, y=0.95, s=txt,
                      fontsize="large", color="0.1",
                      transform=tf_axis.transAxes,
                      verticalalignment="top",
