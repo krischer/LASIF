@@ -10,7 +10,6 @@ Time frequency functions.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
-from obspy.signal.interpolation import lanczos_interpolation
 import scipy.fftpack
 
 from lasif.adjoint_sources import utils
@@ -89,7 +88,7 @@ def time_frequency_cc_difference(t, s1, s2, width, threshold=1E-3):
         f1 = w * s1
         f2 = w * s2
 
-        if np.abs(s1).max() < threshold:
+        if min(np.abs(f1).max(), np.abs(f2).max()) < threshold:
             continue
 
         cc = utils.cross_correlation(f2, f1)
