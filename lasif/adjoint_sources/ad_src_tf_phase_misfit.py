@@ -70,21 +70,11 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     width = 2.0 * min_period
 
     # Compute time-frequency representation of the cross-correlation
-    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(
+    _, _, tf_cc = time_frequency.time_frequency_cc_difference(
         t, data, synthetic, width)
     # Compute the time-frequency representation of the synthetic
     tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic,
                                                                 width)
-
-    # 2D interpolation to bring the tf representation of the correlation on the
-    # same grid as the tf representation of the synthetics. Uses a two-step
-    # procedure for real and imaginary parts.
-    tf_cc_interp = RectBivariateSpline(tau_cc, nu_cc, tf_cc.real,
-                                       kx=1, ky=1, s=0)(tau, nu)
-    tf_cc_interp = np.require(tf_cc_interp, dtype="complex128")
-    tf_cc_interp.imag = RectBivariateSpline(tau_cc, nu_cc, tf_cc.imag,
-                                            kx=1, ky=1, s=0)(tau, nu)
-    tf_cc = tf_cc_interp
 
     # compute tf window and weighting function --------------------------------
 

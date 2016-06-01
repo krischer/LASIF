@@ -11,12 +11,13 @@ Time frequency functions.
 """
 import numpy as np
 import scipy.fftpack
+import scipy.interpolate
 
 from lasif.adjoint_sources import utils
 
 
 
-def time_frequency_transform(t, s, width, threshold=1E-3):
+def time_frequency_transform(t, s, width, threshold=1E-2):
     """
     Gabor transform (time frequency transform with Gaussian windows).
 
@@ -54,7 +55,7 @@ def time_frequency_transform(t, s, width, threshold=1E-3):
     return t, nu, tfs
 
 
-def time_frequency_cc_difference(t, s1, s2, width, threshold=1E-3):
+def time_frequency_cc_difference(t, s1, s2, width, threshold=1E-2):
     """
     Straight port of tfa_cc_new.m
 
@@ -77,12 +78,15 @@ def time_frequency_cc_difference(t, s1, s2, width, threshold=1E-3):
     nu = np.linspace(0, (N - 1) * dnu, N)
     tau = t_cc
 
+    cc_freqs = scipy.fftpack.fftfreq(len(t_cc), d=dt)
+    freqs = scipy.fftpack.fftfreq(len(t), d=dt)
+
     # Compute the time frequency representation
-    tfs = np.zeros((nu.shape[0], tau.shape[0]), dtype="complex128")
+    tfs = np.zeros((len(t), len(t)), dtype="complex128")
 
     threshold = np.abs(s1).max() * threshold
 
-    for k in xrange(len(tau)):
+    for k in xrange(len(t)):
         # Window the signals
         w = utils.gaussian_window(t - tau[k], width)
         f1 = w * s1
@@ -92,13 +96,14 @@ def time_frequency_cc_difference(t, s1, s2, width, threshold=1E-3):
             continue
 
         cc = utils.cross_correlation(f2, f1)
-        tfs[k, :] = scipy.fftpack.fft(cc)
+        tfs[k, :] = \
+            scipy.interpolate.interp1d(cc_freqs, scipy.fftpack.fft(cc))(freqs)
     tfs *= dt / np.sqrt(2.0 * np.pi)
 
     return tau, nu, tfs
 
 
-def itfa(tau, tfs, width, threshold=1E-3):
+def itfa(tau, tfs, width, threshold=1E-2):
     N = len(tau)
     dt = tau[1] - tau[0]
 
