@@ -24,7 +24,7 @@ eps = np.spacing(1)
 
 
 def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
-                          axis=None, colorbar_axis=None):
+                          plot=False):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -159,21 +159,17 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         # Invert tf transform and make adjoint source
         ad_src, it, I = time_frequency.itfa(tau, idp, width)
 
-        # Interpolate to original time axis
-        current_time = tau
-        new_time = original_time[original_time <= current_time.max()]
-
         # Interpolate both signals to the new time axis
         ad_src = lanczos_interpolation(
-            data=np.require(ad_src.imag, dtype=np.float64, requirements=["C"]),
-            old_start=current_time[0],
-            old_dt=current_time[1] - current_time[0],
-            new_start=new_time[0],
-            new_dt=new_time[1] - new_time[0],
-            new_npts=len(new_time), a=8, window="blackmann")
-
-        if len(t) > len(new_time):
-            ad_src = np.concatenate([ad_src, np.zeros(len(t) - len(new_time))])
+            # Pad with a couple of zeros in case some where lost in all
+            # these resampling operations. The first sample should not
+            # change the time.
+            data=np.concatenate([ad_src.imag, np.zeros(100)]),
+            old_start=tau[0],
+            old_dt=tau[1] - tau[0],
+            new_start=original_time[0],
+            new_dt=original_time[1] - original_time[0],
+            new_npts=len(original_time), a=8, window="blackmann")
 
         # Divide by the misfit and change sign.
         ad_src /= (phase_misfit + eps)
@@ -190,38 +186,42 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
             "Criterion failed, no misfit has been calculated.")
 
     # Plot if required. -------------------------------------------------------
-
-    if axis:
+    if plot:
         import matplotlib.cm as cm
         import matplotlib.pyplot as plt
+        plt.style.use("ggplot")
+        from lasif.colors import get_colormap
+
+        axis = plt.gca()
 
         # Primary axis: plot weighted phase difference. -----------------------
 
         weighted_phase_difference = (DP * weight).transpose()
         abs_diff = np.abs(weighted_phase_difference)
-        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference,
-                                   vmin=-1.0, vmax=1.0, cmap=cm.RdBu_r)
+        mappable = axis.pcolormesh(
+            tau, nu, weighted_phase_difference, vmin=-1.0, vmax=1.0,
+            cmap=get_colormap("tomo_full_scale_linear_lightness"))
         axis.set_xlabel("Seconds since event")
         axis.set_ylabel("Frequency [Hz]")
 
         # Smart scaling for the frequency axis.
         temp = abs_diff.max(axis=1) * (nu[1] - nu[0])
         ymax = len(temp[temp > temp.max() / 1000.0])
-        ymax *= nu[1, 0] - nu[0, 0]
+        ymax *= nu[1] - nu[0]
         ymax *= 2
         axis.set_ylim(0, 2.0 / min_period)
 
-        if colorbar_axis:
-            cm = plt.gcf().colorbar(mappable, cax=colorbar_axis)
-        else:
-            cm = plt.gcf().colorbar(mappable, ax=axis)
+        # if colorbar_axis:
+        #     cm = plt.gcf().colorbar(mappable, cax=colorbar_axis)
+        # else:
+        cm = plt.gcf().colorbar(mappable, ax=axis)
         cm.set_label("Phase difference in radian")
 
         # Secondary axis: plot waveforms and adjoint source. ------------------
 
         ax2 = axis.twinx()
 
-        ax2.plot(t, ad_src, color="black", alpha=1.0)
+        ax2.plot(original_time, ad_src, color="black", alpha=1.0)
         min_value = min(ad_src.min(), -1.0)
         max_value = max(ad_src.max(), 1.0)
 
@@ -229,8 +229,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         axis.twin_axis = ax2
         ax2.set_ylim(min_value - 2.5 * value_range,
                      max_value + 0.5 * value_range)
-        axis.set_xlim(0, tau[:, -1][-1])
-        ax2.set_xlim(0, tau[:, -1][-1])
+        axis.set_xlim(0, tau[-1])
+        ax2.set_xlim(0, tau[-1])
         ax2.set_yticks([])
 
         text = "Misfit: %.4f" % phase_misfit
