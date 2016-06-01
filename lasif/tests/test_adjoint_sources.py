@@ -72,23 +72,27 @@ def test_cross_correlation():
     np.testing.assert_allclose(cc, cc_matlab)
 
 
-@pytest.mark.xfail
 def test_time_frequency_transform():
     """
     Tests the basic time frequency transformation.
 
     XXX: Adjust the test.
     """
-    t, u = utils.get_dispersed_wavetrain()
-    tau, nu, tfs = time_frequency.time_frequency_transform(t, u, 2, 10, 0.0)
+    t, u = utils.get_dispersed_wavetrain(dt=2.0)
+    tau, nu, tfs = time_frequency.time_frequency_transform(
+        t=t, s=u, width=10.0)
 
     # Load the matlab output.
     matlab = os.path.join(
         data_dir, "matlab_tfa_output_reference_solution.mat")
     matlab = loadmat(matlab)
-    # tau_matlab = matlab["TAU"]
-    # nu_matlab = matlab["NU"]
     tfs_matlab = matlab["tfs"]
+
+    # Cut away some frequencies - the matlab version performs internal
+    # interpolation resulting in aliasing. The rest of the values are a very
+    # good fit.
+    tfs = tfs[200:, :]
+    tfs_matlab = tfs_matlab[200:, :]
 
     # Some tolerance is needed to due numeric differences.
     tolerance = 1E-5

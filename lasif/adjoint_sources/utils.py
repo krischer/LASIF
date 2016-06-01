@@ -30,7 +30,7 @@ def matlab_range(start, stop, step):
 
 def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
                             b=1, c=1, body_wave_factor=0.01,
-                            body_wave_freq_scale=0.5):
+                            body_wave_freq_scale=0.5, dt=1.0):
     """
     :type dw: float, optional
     :param dw: Angular frequency spacing. Defaults to 1E-3.
@@ -61,7 +61,7 @@ def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
     w_min = 2.0 * np.pi / 50.0
     w_max = 2.0 * np.pi / 10.0
     w = matlab_range(w_min, w_max, dw)
-    t = matlab_range(t_min, t_max, 1)
+    t = matlab_range(t_min, t_max, dt)
 
     # Define the dispersion curves.
     c = a - b * w - c * w ** 2
