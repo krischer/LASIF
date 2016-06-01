@@ -18,7 +18,7 @@ import warnings
 
 
 from lasif import LASIFAdjointSourceCalculationError
-from lasif.adjoint_sources import time_frequency #, utils
+from lasif.adjoint_sources import time_frequency, utils
 
 eps = np.spacing(1)
 
@@ -33,6 +33,10 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         * messages: A list of strings giving additional hints to what happened
             in the calculation.
     """
+    # Assumes that t starts at 0. Pad your data if that is not the case -
+    # Parts with zeros are essentially skipped making it fairly efficient.
+    assert t[0] == 0
+
     messages = []
 
     # Internal sampling interval. Some explanations for this "magic" number.
@@ -48,11 +52,16 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # any case and this greatly speeds up the calculations.
 
     # New time axis
-    # ti = utils.matlab_range(t[0], t[-1], dt_new)
-    # # Interpolate both signals to the new time axis
-    # si = lanczos_interpolation(
-    #     data=s, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
-    #     new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+    ti = utils.matlab_range(t[0], t[-1], dt_new)
+    # Interpolate both signals to the new time axis
+    data = lanczos_interpolation(
+        data=data, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
+        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+    synthetic = lanczos_interpolation(
+        data=synthetic, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
+        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+    original_time = t
+    t = ti
 
 
     # Compute time-frequency representations ----------------------------------
@@ -62,10 +71,10 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     # Compute time-frequency representation of the cross-correlation
     tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(
-        t, data, synthetic, dt_new, width)
+        t, data, synthetic, width)
     # Compute the time-frequency representation of the synthetic
     tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic,
-                                                                dt_new, width)
+                                                                width)
 
     # 2D interpolation to bring the tf representation of the correlation on the
     # same grid as the tf representation of the synthetics. Uses a two-step
@@ -143,7 +152,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
         # Interpolate to original time axis
         current_time = tau
-        new_time = t[t <= current_time.max()]
+        new_time = original_time[original_time <= current_time.max()]
 
         # Interpolate both signals to the new time axis
         ad_src = lanczos_interpolation(

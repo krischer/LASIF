@@ -17,37 +17,22 @@ from lasif.adjoint_sources import utils
 
 
 
-def time_frequency_transform(t, s, dt_new, width, threshold=1E-5):
+def time_frequency_transform(t, s, width, threshold=1E-5):
     """
     Gabor transform (time frequency transform with Gaussian windows).
 
     Data will be resampled before it is transformed.
 
-    :param t: discrete time
-    :param s: discrete signal
-    :param dt_new: Signal will be resampled to that time interval.
+    :param t: discrete time.
+    :param s: discrete signal.
     :param width: width of the Gaussian window
     :param threshold: fraction of the absolute signal below which the Fourier
         transform is set to zero in order to reduce computation time
     """
-    # New time axis
-    ti = utils.matlab_range(t[0], t[-1], dt_new)
-    # Interpolate both signals to the new time axis
-    si = lanczos_interpolation(
-        data=s, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
-        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
-
-    # Rename some variables
-    t = ti
-    s = si
-    assert t[0] == 0
-    # If we ever get signals not starting at time 0: uncomment this line.
-    # t_min = t[0]
-
-    # Initialize the meshgrid
     N = len(t)
+    dt = t[1] - t[0]
 
-    nu = np.linspace(0, float(N - 1) / (N * dt_new), N)
+    nu = np.linspace(0, float(N - 1) / (N * dt), N)
 
     # Compute the time frequency representation
     tfs = np.zeros((N, N), dtype="complex128")
@@ -64,50 +49,31 @@ def time_frequency_transform(t, s, dt_new, width, threshold=1E-5):
         #     continue
 
         tfs[k, :] = scipy.fftpack.fft(f)
-        # If we ever get signals not starting at time 0: uncomment this line.
-        # tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
 
-    tfs *= dt_new / np.sqrt(2.0 * np.pi)
+    tfs *= dt / np.sqrt(2.0 * np.pi)
 
     return t, nu, tfs
 
 
-def time_frequency_cc_difference(t, s1, s2, dt_new, width):
+def time_frequency_cc_difference(t, s1, s2, width):
     """
     Straight port of tfa_cc_new.m
 
     :param t: discrete time
     :param s1: discrete signal 1
     :param s2: discrete signal 2
-    :param dt_new: time increment in the tf domain
     :param width: width of the Gaussian window
     :param threshold: fraction of the absolute signal below which the Fourier
         transform is set to zero in order to reduce computation time
     """
-    # New time axis
-    ti = utils.matlab_range(t[0], t[-1], dt_new)
-    # Interpolate both signals to the new time axis
-    si1 = lanczos_interpolation(
-        data=s1, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
-        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
-    si2 = lanczos_interpolation(
-        data=s2, old_start=t[0], old_dt=t[1] - t[0], new_start=t[0],
-        new_dt=dt_new, new_npts=len(ti), a=8, window="blackmann")
+    dt = t[1] - t[0]
 
     # Extend the time axis, required for the correlation
-    N = len(ti)
-    t_cc = np.linspace(t[0], t[0] + (2 * N - 2) * dt_new, (2 * N - 1))
-
-    # Rename some variables
-    s1 = si1
-    s2 = si2
-
-    assert t_cc[0] == 0
-    # If we ever get signals not starting at time 0: uncomment this line.
-    # t_min = t_cc[0]
+    N = len(t)
+    t_cc = np.linspace(t[0], t[0] + (2 * N - 2) * dt, (2 * N - 1))
 
     N = len(t_cc)
-    dnu = 1.0 / (N * dt_new)
+    dnu = 1.0 / (N * dt)
 
     nu = np.linspace(0, (N - 1) * dnu, N)
     tau = t_cc
@@ -117,39 +83,27 @@ def time_frequency_cc_difference(t, s1, s2, dt_new, width):
 
     for k in xrange(len(tau)):
         # Window the signals
-        w = utils.gaussian_window(ti - tau[k], width)
+        w = utils.gaussian_window(t - tau[k], width)
         f1 = w * s1
         f2 = w * s2
 
         cc = utils.cross_correlation(f2, f1)
         tfs[k, :] = scipy.fftpack.fft(cc)
-        # If we ever get signals not starting at time 0: uncomment this line.
-        # tfs[k, :] = tfs[k, :] * np.exp(-2.0 * np.pi * 1j * t_min * nu)
-
-    tfs *= dt_new / np.sqrt(2.0 * np.pi)
+    tfs *= dt / np.sqrt(2.0 * np.pi)
 
     return tau, nu, tfs
 
 
 def itfa(tau, tfs, width):
-    # initialisation
     N = len(tau)
     dt = tau[1] - tau[0]
-
-    assert tau[0] == 0
-
-    # If we ever get signals not starting at time 0: uncomment these lines.
-    # t_min = tau[0]
-    # for k in xrange(len(tau)):
-    #     tfs[k, :] = tfs[k, :] * np.exp(2.0 * np.pi * 1j * nu.transpose() *
-    #                                    t_min)
 
     # inverse fft
     I = np.zeros((N, N), dtype="complex128")
 
+    # IFFT and scaling.
     for k in xrange(N):
         I[k, :] = scipy.fftpack.ifft(tfs[k, :])
-
     I *= 2.0 * np.pi / dt
 
     # time integration
@@ -158,7 +112,6 @@ def itfa(tau, tfs, width):
     for k in xrange(N):
         f = utils.gaussian_window(tau[k] - tau, width) * I[:, k].transpose()
         s[k] = np.sum(f) * dt
-
-    s /= np.sqrt(2.0 * np.pi)
+    s *= dt / np.sqrt(2.0 * np.pi)
 
     return s, tau, I
