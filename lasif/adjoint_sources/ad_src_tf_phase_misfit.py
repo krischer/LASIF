@@ -22,7 +22,6 @@ from lasif.adjoint_sources import time_frequency, utils
 
 eps = np.spacing(1)
 
-
 def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
                           axis=None, colorbar_axis=None):
     """
@@ -134,8 +133,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     if criterion <= 7.0:
         # Make kernel for the inverse tf transform
-        idp = weight * weight * DP * tf_synth / (m + np.abs(tf_synth) *
-                                                 np.abs(tf_synth))
+        idp = weight ** 2 * DP * tf_synth / (m + np.abs(tf_synth) ** 2)
 
         # Invert tf transform and make adjoint source
         ad_src, it, I = time_frequency.itfa(tau, idp, width)
