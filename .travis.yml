@@ -29,7 +29,7 @@ script:
 
 # Upload any potentially produced diffs and produced images to imgur after a test failure.
 after_failure:
-  - wget "http://imgur.com/tools/imgurbash.sh"
-  - "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgurbash.sh %"
+  - wget "https://raw.githubusercontent.com/tremby/imgur.sh/master/imgur.sh"
+  - "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgur.sh %"
 after_success:
   - bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh
