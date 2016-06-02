@@ -97,7 +97,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     # noise taper: down-weight tf amplitudes that are very low
     tf_cc_abs = np.abs(tf_cc)
-    m = tf_cc_abs.max() / 10.0
+    m = tf_cc_abs.max() / 10.0  # NOQA
     weight = ne.evaluate("1.0 - exp(-(tf_cc_abs ** 2) / (m ** 2))")
 
     nu_t = nu.T
@@ -128,7 +128,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # Attempt to detect phase jumps by taking the derivatives in time and
     # frequency direction. 0.7 is an emperical value.
     abs_weighted_DP = np.abs(weight * DP)
-    _x = abs_weighted_DP.max()
+    _x = abs_weighted_DP.max()  # NOQA
     test_field = ne.evaluate("weight * DP / _x")
 
     criterion_1 = np.sum([np.abs(np.diff(test_field, axis=0)) > 0.7])
@@ -277,8 +277,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         # Hack to keep ticklines but remove the ticks - there is probably a
         # better way to do this.
         waveforms_axis.set_xticklabels([
-            "" for _ in waveforms_axis.get_xticks()])
-        tf_axis.set_xticklabels(["" for _ in tf_axis.get_xticks()])
+            "" for _i in waveforms_axis.get_xticks()])
+        tf_axis.set_xticklabels(["" for _i in tf_axis.get_xticks()])
 
         _l = tf_axis.get_ylim()
         _r = _l[1] - _l[0]
