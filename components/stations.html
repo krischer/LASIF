@@ -101,7 +101,7 @@
 <li class="toctree-l3"><a class="reference internal" href="events.html">EventsComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="inventory_db.html">InventoryDBComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="iterations.html">IterationsComponent</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="">StationsComponent</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">StationsComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="waveforms.html">WaveformsComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="query.html">QueryComponent</a></li>
 </ul>
@@ -132,7 +132,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -217,10 +217,10 @@ will update the cache automatically.</p>
 <p>Mainly useful for testing and debugging. For real applications use
 <a class="reference internal" href="#lasif.components.stations.StationsComponent.get_all_channels_at_time" title="lasif.components.stations.StationsComponent.get_all_channels_at_time"><code class="xref py py-meth docutils literal"><span class="pre">get_all_channels_at_time()</span></code></a> which will return all channels
 active at a certain point in time.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pprint</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pprint</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">(),</span>
-<span class="gp">... </span>                     <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;channel_id&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>        
+<span class="gp">... </span>                     <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;channel_id&quot;</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>        
 <span class="go">[{&#39;channel_id&#39;: u&#39;IU.PAB.00.BHE&#39;,</span>
 <span class="go">  &#39;elevation_in_m&#39;: 950.0,</span>
 <span class="go">  &#39;end_date&#39;: UTCDateTime(2009, 8, 13, 19, 0),</span>
@@ -232,7 +232,7 @@ active at a certain point in time.</p>
 </pre></div>
 </div>
 <p>Returns a list of dictionaries, each with the following keys:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>         
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>         
 <span class="go">[&#39;channel_id&#39;, &#39;elevation_in_m&#39;, &#39;end_date&#39;, &#39;filename&#39;, &#39;latitude&#39;,</span>
 <span class="go"> &#39;local_depth_in_m&#39;, &#39;longitude&#39;, &#39;start_date&#39;]</span>
 </pre></div>
@@ -257,7 +257,7 @@ and the values are dictionaries with the coordinates.</td>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">UTCDateTime</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">obspy</span> <span class="k">import</span> <span class="n">UTCDateTime</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels_at_time</span><span class="p">(</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>         
 <span class="go">{u&#39;BW.FURT..EHE&#39;: {&#39;latitude&#39;: 48.162899, &#39;elevation_in_m&#39;: 565.0,</span>
@@ -266,7 +266,7 @@ and the values are dictionaries with the coordinates.</td>
 </pre></div>
 </div>
 <p>It also works with timestamps.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels_at_time</span><span class="p">(</span><span class="mi">1325376000</span><span class="p">)</span>         
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels_at_time</span><span class="p">(</span><span class="mi">1325376000</span><span class="p">)</span>         
 <span class="go">{u&#39;BW.FURT..EHE&#39;: {&#39;latitude&#39;: 48.162899, &#39;elevation_in_m&#39;: 565.0,</span>
 <span class="go">                   &#39;local_depth_in_m&#39;: 0.0, &#39;longitude&#39;: 11.2752},</span>
 <span class="go"> ...}</span>
@@ -292,18 +292,18 @@ given channel and time combination.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">obspy</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">obspy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It works with <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a> objects</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_channel_filename</span><span class="p">(</span>  
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_channel_filename</span><span class="p">(</span>  
 <span class="gp">... </span>    <span class="s2">&quot;IU.ANMO.10.BHZ&quot;</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
 <span class="go">u&#39;/.../IRIS_single_channel_with_response.xml&#39;</span>
 </pre></div>
 </div>
 <p>and timestamps.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_channel_filename</span><span class="p">(</span>  
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_channel_filename</span><span class="p">(</span>  
 <span class="gp">... </span>    <span class="s2">&quot;IU.ANMO.10.BHZ&quot;</span><span class="p">,</span> <span class="mi">1331683200</span><span class="p">)</span>
 <span class="go">u&#39;/.../IRIS_single_channel_with_response.xml&#39;</span>
 </pre></div>
@@ -323,7 +323,7 @@ channel stored in it. Returns a list of dictionaries.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">filename</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_all_channels</span><span class="p">())[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_details_for_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>         
 <span class="go">[{&#39;local_depth_in_m&#39;: 0.0, &#39;end_date&#39;: None, &#39;elevation_in_m&#39;: 565.0,</span>
@@ -349,18 +349,18 @@ downloaders or other modules saving data to LASIF.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">&quot;BW&quot;</span><span class="p">,</span> <span class="s2">&quot;FURT&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;BHZ&quot;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;RESP&quot;</span><span class="p">)</span>        
 <span class="go">&#39;/.../resp/RESP.BW.FURT..BHZ&#39;</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">&quot;BW&quot;</span><span class="p">,</span> <span class="s2">&quot;ALTM&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;BHZ&quot;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;datalessSEED&quot;</span><span class="p">)</span>        
 <span class="go">&#39;/.../seed/dataless.BW_ALTM&#39;</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s2">&quot;BW&quot;</span><span class="p">,</span> <span class="s2">&quot;FURT&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;BHZ&quot;</span><span class="p">,</span> <span class="n">file_format</span><span class="o">=</span><span class="s2">&quot;StationXML&quot;</span><span class="p">)</span>        
 <span class="go">&#39;/.../stationxml/BW_FURT.xml&#39;</span>
 </pre></div>
@@ -384,18 +384,18 @@ available.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">UTCDateTime</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">obspy</span> <span class="k">import</span> <span class="n">UTCDateTime</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It works with <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a> objects</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s1">&#39;IU.ANMO.10.BHZ&#39;</span><span class="p">,</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s1">&#39;IU.ANMO.10.BHZ&#39;</span><span class="p">,</span>
 <span class="gp">... </span>                          <span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
 <span class="go">True</span>
 </pre></div>
 </div>
 <p>and timestamps.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s1">&#39;IU.ANMO.10.BHZ&#39;</span><span class="p">,</span> <span class="mi">1331683200</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s1">&#39;IU.ANMO.10.BHZ&#39;</span><span class="p">,</span> <span class="mi">1331683200</span><span class="p">)</span>
 <span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s1">&#39;AA.BB.CC.DD&#39;</span><span class="p">,</span> <span class="mi">1331683200</span><span class="p">)</span>
 <span class="go">False</span>

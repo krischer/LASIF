@@ -92,7 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="iris2quakeml.html">lasif.scripts.iris2quakeml</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ses3d_setup_helper.html">SES3D Setup Assistant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="iteration_xml.html">lasif.iteration_xml</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="">lasif.rotations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">lasif.rotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="window_selection.html">lasif.window_selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.html">lasif.tools</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tools.parallel.html">lasif.tools.parallel</a></li>
@@ -124,7 +124,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -188,7 +188,7 @@ given in latitude and longitude.</p>
 <code class="descclassname">lasif.rotations.</code><code class="descname">colat2lat</code><span class="sig-paren">(</span><em>colat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#colat2lat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.colat2lat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to convert colatitude to latitude. This, surprisingly, is
 quite an error source.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">colat2lat</span><span class="p">(</span><span class="mi">180</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">colat2lat</span><span class="p">(</span><span class="mi">180</span><span class="p">)</span>
 <span class="go">-90.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">colat2lat</span><span class="p">(</span><span class="mi">135</span><span class="p">)</span>
 <span class="go">-45.0</span>
@@ -252,7 +252,7 @@ and return a list of points outlining the region. Useful for plotting.</p>
 </tbody>
 </table>
 <p>The examples use round() to guard against floating point inaccuracies.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">get_center_angle</span><span class="p">(</span><span class="mi">350</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">get_center_angle</span><span class="p">(</span><span class="mi">350</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
 <span class="go">0.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">get_center_angle</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">270</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
 <span class="go">0.0</span>
@@ -329,7 +329,7 @@ are for earth.</p>
 <code class="descclassname">lasif.rotations.</code><code class="descname">lat2colat</code><span class="sig-paren">(</span><em>lat</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#lat2colat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.lat2colat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function to convert latitude to colatitude. This, surprisingly, is
 quite an error source.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lat2colat</span><span class="p">(</span><span class="o">-</span><span class="mi">90</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lat2colat</span><span class="p">(</span><span class="o">-</span><span class="mi">90</span><span class="p">)</span>
 <span class="go">180.0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lat2colat</span><span class="p">(</span><span class="o">-</span><span class="mi">45</span><span class="p">)</span>
 <span class="go">135.0</span>
@@ -469,19 +469,19 @@ coordinates.</p>
 <dt id="lasif.rotations.xyz_to_lat_lon_radius">
 <code class="descclassname">lasif.rotations.</code><code class="descname">xyz_to_lat_lon_radius</code><span class="sig-paren">(</span><em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lasif/rotations.html#xyz_to_lat_lon_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.rotations.xyz_to_lat_lon_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts x, y, and z to latitude, longitude and radius.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 <span class="go">(-0.0, 0.0, 1.0)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
 <span class="go">(-0.0, 0.0, 1.0)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">)</span>
 <span class="go">(-90.0, 0.0, 2.0)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">xyz_to_lat_lon_radius</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">)</span>
 <span class="go">(90.0, 0.0, 2.0)</span>
 </pre></div>
 </div>

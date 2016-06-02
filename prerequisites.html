@@ -82,7 +82,7 @@
             
             
                 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="">Installation, Testing &amp; DevInfo</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation, Testing &amp; DevInfo</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#installing-lasif">Installing LASIF</a></li>
@@ -128,7 +128,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -167,6 +167,7 @@ tested on Linux and Mac OS X but should also run just fine on Windows.</p>
 <ul class="simple">
 <li><code class="docutils literal"><span class="pre">obspy</span> <span class="pre">&gt;=</span> <span class="pre">1.0.1</span></code> (<a class="reference external" href="http://www.obspy.org/">www.obspy.org</a>)</li>
 <li><code class="docutils literal"><span class="pre">numpy</span> <span class="pre">&gt;=</span> <span class="pre">1.8</span></code></li>
+<li><code class="docutils literal"><span class="pre">numexpr</span></code> (newer versions are also oftentimes faster)</li>
 <li><code class="docutils literal"><span class="pre">matplotlib</span> <span class="pre">&gt;=</span> <span class="pre">1.3</span></code></li>
 <li><code class="docutils literal"><span class="pre">basemap</span> <span class="pre">&gt;=</span> <span class="pre">1.0.7</span></code></li>
 <li><code class="docutils literal"><span class="pre">wfs_input_generator</span></code> (<a class="reference external" href="http://github.com/krischer/wfs_input_generator">website</a>)</li>
@@ -192,7 +193,7 @@ $ conda create -n lasif <span class="nv">python</span><span class="o">=</span>2.
 <span class="c1"># If you don&#39;t want to do that: put that line in your .bashrc/.bash_profile</span>
 $ <span class="nb">source</span> activate lasif
 <span class="c1"># Install most things via conda.</span>
-$ conda install -c obspy obspy basemap progressbar colorama joblib flask pyqt pyqtgraph pytest nose mock flake8 pip
+$ conda install -c obspy obspy basemap progressbar colorama joblib flask pyqt pyqtgraph pytest nose mock flake8 pip numexpr
 <span class="c1"># Install some missing things over pip.</span>
 $ pip install geographiclib flask-cache geojson
 <span class="c1"># Install the wfs_input_generator package.</span>
@@ -223,7 +224,7 @@ $ pip install -v -e .
 </pre></div>
 </div>
 <p>Please note, that updating <strong>LASIF</strong> will not update your custom, user-defined
-functions within your projects (see <a class="reference internal" href="tutorial/15_customizing_lasif.html"><em>Customizing LASIF</em></a>).  If
+functions within your projects (see <a class="reference internal" href="tutorial/15_customizing_lasif.html"><span class="doc">Customizing LASIF</span></a>).  If
 you want to update those as well: delete them and execute any <strong>LASIF</strong>
 function - this will copy the latest versions of these files to your project
 directory. <strong>Make sure to save any changes you made to those functions!!</strong></p>

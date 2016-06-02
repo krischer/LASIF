@@ -98,7 +98,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../tools.parallel.html">lasif.tools.parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tools.file_info_cache.html">lasif.tools.file_info_cache</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="components.html">API Components</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="">EventsComponent</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">EventsComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="inventory_db.html">InventoryDBComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="iterations.html">IterationsComponent</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stations.html">StationsComponent</a></li>
@@ -132,7 +132,7 @@
         <div class="rst-content">
           
 
-
+ 
 
 
 
@@ -183,7 +183,7 @@ communicator.</li>
 <dt id="lasif.components.events.EventsComponent.count">
 <code class="descname">count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.count" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the number of events managed by this component.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 <span class="go">2</span>
 </pre></div>
@@ -206,7 +206,7 @@ call.</p>
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;</span><span class="p">)</span>         
 <span class="go">{&#39;m_tp&#39;: -2.17e+17, &#39;m_tt&#39;: 8.92e+17, &#39;depth_in_km&#39;: 7.0,</span>
 <span class="go">&#39;event_name&#39;: u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;,</span>
@@ -220,7 +220,7 @@ call.</p>
 </div>
 <p>The moment tensor components are in <code class="docutils literal"><span class="pre">Nm</span></code>. The dictionary will
 contain the following keys:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s1">&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>         
 <span class="go"> [&#39;depth_in_km&#39;, &#39;event_name&#39;, &#39;filename&#39;, &#39;latitude&#39;, &#39;longitude&#39;,</span>
 <span class="go">  &#39;m_pp&#39;, &#39;m_rp&#39;, &#39;m_rr&#39;, &#39;m_rt&#39;, &#39;m_tp&#39;, &#39;m_tt&#39;, &#39;magnitude&#39;,</span>
@@ -229,7 +229,7 @@ contain the following keys:</p>
 </div>
 <p>It also works with an existing event dictionary. This eases calling
 the function under certain circumstances.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ev</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ev</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ev</span> <span class="o">==</span> <span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span>
 <span class="go">True</span>
 </pre></div>
@@ -242,7 +242,7 @@ the function under certain circumstances.</p>
 <dd><p>Returns a dictionary with the key being the event names and the
 values the information about each event, as would be returned by the
 <a class="reference internal" href="#lasif.components.events.EventsComponent.get" title="lasif.components.events.EventsComponent.get"><code class="xref py py-meth docutils literal"><span class="pre">get()</span></code></a> method.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">get_all_events</span><span class="p">()</span>         
 <span class="go">{u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;: {...},</span>
 <span class="go"> u&#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;: {...}}</span>
@@ -262,7 +262,7 @@ values the information about each event, as would be returned by the
 </tr>
 </tbody>
 </table>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="s1">&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;</span><span class="p">)</span>
 <span class="go">True</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">has_event</span><span class="p">(</span><span class="s1">&#39;random&#39;</span><span class="p">)</span>
@@ -275,7 +275,7 @@ values the information about each event, as would be returned by the
 <dt id="lasif.components.events.EventsComponent.list">
 <code class="descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/events.html#EventsComponent.list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.events.EventsComponent.list" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all events.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;events_comm&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">list</span><span class="p">()</span> 
 <span class="go">[u&#39;GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11&#39;,</span>
 <span class="go"> u&#39;GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15&#39;]</span>
