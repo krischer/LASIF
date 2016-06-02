@@ -12,14 +12,24 @@ Test cases for everything related to the adjoint source calculations.
 import inspect
 import numpy as np
 import os
-import pytest
+
+import obspy
 from scipy.io import loadmat
 
 from lasif.adjoint_sources import utils, time_frequency, ad_src_tf_phase_misfit
 
+from .testing_helpers import images_are_identical, reset_matplotlib
+
 
 data_dir = os.path.join(os.path.dirname(os.path.abspath(inspect.getfile(
     inspect.currentframe()))), "data")
+
+
+def setup_function(function):
+    """
+    Reset matplotlib.
+    """
+    reset_matplotlib()
 
 
 def test_matlab_range():
@@ -75,8 +85,6 @@ def test_cross_correlation():
 def test_time_frequency_transform():
     """
     Tests the basic time frequency transformation.
-
-    XXX: Adjust the test.
     """
     t, u = utils.get_dispersed_wavetrain(dt=2.0)
     tau, nu, tfs = time_frequency.time_frequency_transform(
@@ -104,33 +112,18 @@ def test_time_frequency_transform():
     np.testing.assert_allclose(np.angle(tfs), np.angle(tfs_matlab))
 
 
-@pytest.mark.xfail
-def test_adjoint_time_frequency_phase_misfit_source():
+def test_adjoint_time_frequency_phase_misfit_source_plot(tmpdir):
     """
-    Tests the adjoint source calculation for the time frequency phase
-    misfit after Fichtner et. al. (2008).
-
-    XXX: Adjust the test.
+    Tests the plot for a time-frequency misfit adjoint source. This, at the
+    same time, also tests the adjoint source and misfit calculation.
     """
     # Load the matlab output.
-    ad_src_matlab = os.path.join(
-        data_dir,
-        "matlab_tf_phase_misfit_adjoint_source_reference_solution.mat")
-    ad_src_matlab = loadmat(ad_src_matlab)["ad_src"].transpose()[0]
+    obs, syn = obspy.read(os.path.join(data_dir, "adj_src_test.mseed")).traces
 
-    # Generate some data.
-    t, u = utils.get_dispersed_wavetrain()
-    _, u0 = utils.get_dispersed_wavetrain(
-        a=3.91, b=0.87, c=0.8, body_wave_factor=0.015,
-        body_wave_freq_scale=1.0 / 2.2)
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(15, 10))
 
-    adjoint_src = ad_src_tf_phase_misfit.adsrc_tf_phase_misfit(
-        t, u, u0, 2, 10, 0.0)
-    ad_src = adjoint_src["adjoint_source"]
-    # Assert the misfit.
-    np.testing.assert_almost_equal(adjoint_src["misfit"], 0.271417, 5)
-
-    # Some testing tolerance is needed mainly due to the phase being hard
-    # to define for small amplitudes.
-    tolerance = np.abs(ad_src).max() * 1.2E-3
-    np.testing.assert_allclose(ad_src, ad_src_matlab, 1E-7, tolerance)
+    ad_src_tf_phase_misfit.adsrc_tf_phase_misfit(obs.times(), obs.data,
+                                                 syn.data, 20.0, 100.0,
+                                                 plot=True)
+    images_are_identical("tf_adjoint_source", str(tmpdir))
