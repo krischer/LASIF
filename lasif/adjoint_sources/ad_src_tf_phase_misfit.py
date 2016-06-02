@@ -14,6 +14,7 @@ import warnings
 
 import numexpr as ne
 import numpy as np
+import obspy
 from obspy.signal.interpolation import lanczos_interpolation
 
 
@@ -176,6 +177,11 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         # Divide by the misfit and change sign.
         ad_src /= (phase_misfit + eps)
         ad_src = -1.0 * np.diff(ad_src) / (t[1] - t[0])
+
+        # Taper at both ends. Exploit ObsPy to not have to deal with all the
+        # nasty things.
+        ad_src = \
+            obspy.Trace(ad_src).taper(max_percentage=0.05, type="hann").data
 
         # Reverse time and add a leading zero so the adjoint source has the
         # same length as the input time series.
