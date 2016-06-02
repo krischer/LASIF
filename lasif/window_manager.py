@@ -504,6 +504,25 @@ class Window(object):
             self.taper_percentage, self.misfit_type)
         return adsrc
 
+    def plot_adjoint_source(self):
+        if self.comm is None:
+            raise ValueError("Operation only possible with an active "
+                             "communicator instance.")
+        if self.misfit_type is None:
+            self.misfit_type = DEFAULT_AD_SRC_TYPE
+
+        import matplotlib.pyplot as plt
+        plt.close("all")
+        plt.figure(figsize=(15, 10))
+
+        self.comm.adjoint_sources.calculate_adjoint_source(
+            self.__collection.event_name, self.__collection.synthetics_tag,
+            self.__collection.channel_id,
+            self.starttime, self.endtime, self.taper,
+            self.taper_percentage, self.misfit_type, plot=True)
+
+        plt.show()
+
     @property
     def misfit_details(self):
         """

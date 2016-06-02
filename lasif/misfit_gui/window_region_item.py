@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from PyQt4 import QtCore
 import pyqtgraph
 
 
@@ -29,8 +30,11 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         self.win._Window__collection.write()
 
     def mouseDoubleClickEvent(self, ev):
-        coll = self.win._Window__collection
-        coll.delete_window(self.win.starttime, self.win.endtime)
-        coll.write()
-        self._parent.removeItem(self)
-        ev.accept()
+        if ev.modifiers() == QtCore.Qt.AltModifier:
+            self.win.plot_adjoint_source()
+        else:
+            coll = self.win._Window__collection
+            coll.delete_window(self.win.starttime, self.win.endtime)
+            coll.write()
+            self._parent.removeItem(self)
+            ev.accept()
