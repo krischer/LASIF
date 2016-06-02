@@ -112,7 +112,7 @@ def cli(communicator, request, capsys):
     return request
 
 
-def images_are_identical(image_name, temp_dir, dpi=None):
+def images_are_identical(image_name, temp_dir, dpi=None, tol=5):
     """
     Partially copied from ObsPy
     """
@@ -131,7 +131,7 @@ def images_are_identical(image_name, temp_dir, dpi=None):
 
     # Use a reasonably high tolerance to get around difference with different
     # freetype and possibly agg versions. matplotlib uses a tolerance of 13.
-    result = mpl_compare_images(expected, actual, 5, in_decorator=True)
+    result = mpl_compare_images(expected, actual, tol=tol, in_decorator=True)
     if result is not None:
         print result
     assert result is None

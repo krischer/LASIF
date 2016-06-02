@@ -114,10 +114,8 @@ def test_time_frequency_transform():
 
 def test_adjoint_time_frequency_phase_misfit_source_plot(tmpdir):
     """
-    Tests the plot for a time-frequency misfit adjoint source. This, at the
-    same time, also tests the adjoint source and misfit calculation.
+    Tests the plot for a time-frequency misfit adjoint source.
     """
-    # Load the matlab output.
     obs, syn = obspy.read(os.path.join(data_dir, "adj_src_test.mseed")).traces
 
     import matplotlib.pyplot as plt
@@ -126,4 +124,29 @@ def test_adjoint_time_frequency_phase_misfit_source_plot(tmpdir):
     ad_src_tf_phase_misfit.adsrc_tf_phase_misfit(obs.times(), obs.data,
                                                  syn.data, 20.0, 100.0,
                                                  plot=True)
-    images_are_identical("tf_adjoint_source", str(tmpdir))
+    # High tolerance as fonts are for some reason shifted on some systems.
+    # This should still be safe as a differnce in the actual tf difference
+    # or the waveforms would induce changes all over the plot which would
+    # make the rms error much larger.
+    images_are_identical("tf_adjoint_source", str(tmpdir), tol=30)
+
+
+def test_time_frequency_adjoint_source():
+    """
+    Test the time frequency misfit and adjoint source.
+    """
+    obs, syn = obspy.read(os.path.join(data_dir, "adj_src_test.mseed")).traces
+    ret_val = ad_src_tf_phase_misfit.adsrc_tf_phase_misfit(
+        obs.times(), obs.data, syn.data, 20.0, 100.0)
+
+    assert round(ret_val["misfit_value"], 4) == 0.7147
+    assert not ret_val["details"]["messages"]
+
+    adj_src_baseline = np.load(os.path.join(
+        data_dir, "adjoint_source_baseline.npy"))
+
+    np.testing.assert_allclose(
+        actual=ret_val["adjoint_source"],
+        desired=adj_src_baseline,
+        atol=1E-5 * abs(adj_src_baseline).max(),
+        rtol=1E-5)
