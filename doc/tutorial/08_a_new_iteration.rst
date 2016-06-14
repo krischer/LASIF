@@ -17,12 +17,12 @@ Let's start by creating the XML file for the first iteration with the
 
 This command takes four arguments; the first being the iteration name. A simple
 number is sufficient in many cases. The second and third denote the band limit
-of this iteration. In this example the band is limited between 40 and 100
+of this iteration. In this example, the band is limited between 40 and 100
 seconds. The fourth argument is the waveform solver to be used for this
 iteration. It currently only supports SES3D 4.1 but the infrastructure to add
 other solvers is already in place.
 
-You will see that this create a new file: ``ITERATIONS/ITERATION_1.xml``.
+You will see that this creates a new file: ``ITERATIONS/ITERATION_1.xml``.
 Each iteration will have its own file. To get a list of iterations, use
 
 .. code-block:: bash
@@ -60,6 +60,14 @@ command.
     currently part of the LASIF project. The **x_info** counterpart returns
     more detailed information about the resource.
 
+.. note::
+
+    As mentioned before, it is entirely possible to add new events at a later 
+    stage during an inversion. Be aware, however, that these events will only
+    show up in a subsequent iteration that is created using the 
+    **create_new_iteration** command, because all events and stations used in
+    any given iteration are explicitly defined in the iteration xml file.
+
 The Iteration XML Files
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -87,7 +95,7 @@ The iteration XML files currently contain:
   currently mostly fixed and only the desired frequency content can be chosen.
   Keep in mind that these values will also be used to filter the source time
   function.
-* Some data rejection criterias. This will be covered in more detail later on.
+* Some data rejection criteria. This will be covered in more detail later on.
 * The source time function configuration.
 * The settings for the solver used for this iteration.
 * A list of all events used for the iteration. Here it is possible to apply
@@ -159,10 +167,10 @@ present in the LASIF project.
     </iteration>
 
 
-It is a rather self-explaining file; some things to look out for:
+It is a rather self-explanatory file, but some things to look out for:
 
 * The dataprocessing frequency limits are given periods in seconds. This is
-  more in line what one would normally use.
+  more in line with what one would normally use than frequencies in Hz.
 * The source time function is just given as a string. The "Filtered Heaviside"
   is the only source time function currently supported. It will be filtered
   with the limits specified in the data preprocessing section.
@@ -174,8 +182,8 @@ It is a rather self-explaining file; some things to look out for:
 
     The file shown here has already been adjusted for the tutorial example.
     For the tutorial we will run a simulation on 4 cores (should be suitable
-    for your Desktop PC/Laptop) for 2000 timesteps with a time delta of 0.3
-    seconds. Please make sure to also adjust the file. The following
+    for your desktop PC/laptop) for 2000 timesteps with a time delta of 0.3
+    seconds. Please make sure to also adjust the file accordingly. The following
     parameters are essential in almost all cases (shown here with the values
     for the tutorial):
 
@@ -189,22 +197,25 @@ It is a rather self-explaining file; some things to look out for:
     * ``py_processors_in_phi_direction``: ``2``
     * ``pz_processors_in_r_direction``: ``1``
 
-    Please refer to the SES3D documentation for more information.
+    Please refer to the SES3D documentation for more information. The SES3D
+    documentation can currently be obtained from the tarball found 
+    `here <http://www.cos.ethz.ch/software/ses3d.html>`_ (link most recently 
+    checked on 13 June 2016).
 
 
 Source Time Functions
 ^^^^^^^^^^^^^^^^^^^^^
 
-The source time functions will be dynamically generated from the information
+The source time functions will be generated dynamically from the information
 specified in the iteration XML files. Currently only one type of source time
 function, a filtered Heaviside function is supported. In the future, if
-desired, it could also be possible to use inverted source time functions.
+desired, it could also become possible to use inverted source time functions.
 
 The source time function will always be defined for the number of time steps
-and time increment you specify in the solver settings. Furthermore all source
-time functions will be filtered with the same bandpass as the data.
+and the time increment you specify in the solver settings. Furthermore, all
+source time functions will be filtered with the same bandpass as the data.
 
-To get a quick look of the source time function for any given iteration, use
+To have a quick look at the source time function for any given iteration, use
 the **plot_stf** command with the iteration name:
 
 .. code-block:: bash
@@ -258,12 +269,12 @@ The single argument is the name of the iteration.
                     f_max=1.0 / 10.0)
 
 
-The two vertical lines in each plot mark the frequency range as specified in
+The grey band in each plot marks the frequency range as specified in
 the iteration XML file.
 
 It is also possible to directly generate the relaxation times and weights for
-any frequency band. To generate a Q model approximately constant in a period
-band from 10 seconds to 100 seconds use
+any frequency band. To generate a Q model that is approximately constant in 
+a period band from 10 seconds to 100 seconds use
 
 
 .. code-block:: bash
@@ -285,20 +296,26 @@ Data Preprocessing
     You do not actually need to do this for the tutorial.
 
 Data preprocessing is an essential step if one wants to compare data and
-seismograms. It serves several purposes: Restricting the frequency content of
-the data to that of the synthetics - what is not simulated can not be seen in
-synthetic seismograms. Remove the instrument response and convert to the same
-units used for the synthetics (usually ``m/s``). Furthermore any linear  trends
-and static offset are removed and some processing has to be performed so
-that the data is available at the same points in time as the synthetics. The
-goal of the preprocessing within LASIF is to create data that is directly
+seismograms. It serves several purposes: 
+
+* Restricting the frequency content of the data to that of the synthetics -- 
+  what is not simulated cannot be seen in synthetic seismograms. 
+* Removing the instrument response and converting the data to the same units
+  used for the synthetics (usually ``m/s``). 
+* Removal of any linear trends and static offset. 
+* Some processing also has to be performed to make the data available at
+  the same points in time as the synthetics. 
+
+The goal of the preprocessing within LASIF is to create data that is directly
 comparable to simulated data without any more processing.
 
-The applied processing is identified via the name::
+While the raw unprocessed data are stored in a folder ``{{EVENT}}/raw``, the
+preprocessed data will be stored in a separate directory within each event,
+identified via the name::
 
     preprocessed_hp_0.01000_lp_0.02500_npts_2000_dt_0.300000
 
-or (in Python terms):
+(tutorial values). Or in Python terms:
 
 .. code-block:: python
 
@@ -311,41 +328,44 @@ or (in Python terms):
                       "npts_{npts}_dt_{dt:5f}").format(highpass=highpass, lowpass=lowpass,
                                                        npts=npts, dt=dt)
 
-.. note::
-
-    You can use any processing tool you want, but you have to adhere to the
-    directory structure otherwise LASIF will not be able to work with the data.
-    It is furthermore important that the processed filenames are identical to
-    the unprocessed ones.
-
 If you feel that additional identifiers are needed to uniquely identify the
 applied processing (in the limited setting of being useful for the here
-performed full waveform inversion) please contact the LASIF developers.
+performed waveform inversion) please contact the LASIF developers.
 
-You can of course also simply utilize LASIF's built-in preprocessing. Using it
-is trivial, just launch the **preprocess_data** command together with the
+Although in principle you can use any processing tool you like, the simplest
+option is probably to make use of LASIF's built-in preprocessing. Using it
+is trivial: just launch the **preprocess_data** command together with the
 iteration name.
 
 .. code-block:: bash
 
     $ lasif preprocess_data 1
 
-This will start a fully parallelized preprocessing for all data required for
-the specified iteration. It will utilize all your machine's cores and might
-take a while. If you repeat the command it will only process data not already
-processed; an advantage is that you can cancel the processing at any time and
+This will start a fully parallelized preprocessing run for all data required
+for the specified iteration. It will utilize all your machine's cores and might
+take a while. If you repeat the command, it will only process data not already
+processed. An advantage is that you can cancel the processing at any time and
 then later on just execute the command again to continue where you left off.
 This usually only needs to be done every couple of iterations when you decide
 to go to higher frequencies or add new data.
 
 The preprocessed data will be put in the correct folder.
 
+.. note::
+
+    You can use any processing tool you want, but you have to adhere to the
+    directory structure -- otherwise LASIF will not be able to work with 
+    the data.
+    It is also important that the processed filenames are identical to
+    the unprocessed ones.
+
 Data Rejection
 ^^^^^^^^^^^^^^
 
-Coming soon...watch this space.
+Coming soon...watch this space. *(last updated 14 June 2016)*
 
 
-This concludes the initial setup for each iteration. The next steps is to
-actually simulate anything and LASIF of course also assists in that regard.
+This concludes the initial setup for each iteration. The next step is to
+actually simulate something -- and LASIF, of course, also assists in that 
+respect.
 
