@@ -782,7 +782,8 @@ def lasif_plot_model(parser, args):
     parser.add_argument("component", type=str,
                         help="the component to plot")
     parser.add_argument("filename", type=str,
-                        help="output filename")
+                        help="Output filename. Use '-' to not write to a "
+                             "file but directly show the kernel.")
 
     args = parser.parse_args(args)
 
@@ -807,7 +808,10 @@ def lasif_plot_model(parser, args):
     m.colorbar(im, "right", size="3%", pad='2%')
     plt.title(str(args.depth) + ' km')
 
-    plt.savefig(args.filename, dpi=100)
+    if args.filename == "-":
+        plt.show()
+    else:
+        plt.savefig(args.filename, dpi=100)
     plt.close()
 
 
@@ -820,11 +824,13 @@ def lasif_plot_kernel(parser, args):
     this is one of the view commands that will work on data outside of LASIF.
     """
     parser.add_argument("folder", help="The folder containing the gradients.")
-    parser.add_argument("depth", type=float, help="the depth at which to plot")
+    parser.add_argument("depth", type=float,
+                        help="The depth at which to plot.")
     parser.add_argument("component", type=str,
-                        help="the component to plot")
+                        help="The component to plot.")
     parser.add_argument("filename", type=str,
-                        help="output filename")
+                        help="Output filename. Use '-' to not write to a "
+                             "file but directly show the kernel.")
 
     args = parser.parse_args(args)
 
@@ -849,7 +855,10 @@ def lasif_plot_kernel(parser, args):
     m.colorbar(im, "right", size="3%", pad='2%')
     plt.title(str(args.depth) + ' km')
 
-    plt.savefig(args.filename, dpi=100)
+    if args.filename == "-":
+        plt.show()
+    else:
+        plt.savefig(args.filename, dpi=100)
     plt.close()
 
 
