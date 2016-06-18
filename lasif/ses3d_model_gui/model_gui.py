@@ -277,9 +277,9 @@ class Window(QtGui.QMainWindow):
         ax = self.axes["histogram"]
         ax.clear()
         ax.hist(ret_val["data"].ravel(), bins=150, color=COLORS[2])
-        min, max = ret_val["data"].min(), ret_val["data"].max()
-        v_range = max - min
-        ax.set_xlim(min - v_range * 0.1, max + v_range * 0.1)
+        _min, _max = ret_val["data"].min(), ret_val["data"].max()
+        v_range = max(abs(_max - _min), 0.1 * abs(_max))
+        ax.set_xlim(_min - v_range * 0.1, _max + v_range * 0.1)
         ax.set_yticks([])
 
         self._draw()
