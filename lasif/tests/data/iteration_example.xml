@@ -45,95 +45,77 @@
   <event>
     <event_name>GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15</event_name>
     <event_weight>1.0</event_weight>
-    <time_correction_in_s>0.0</time_correction_in_s>
     <station>
       <station_id>HL.ARG</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>IU.ANTO</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>GE.ISP</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>HL.RDO</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>HT.SIGR</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>GE.SANT</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>HT.ALN</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>HL.SANT</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
   </event>
   <event>
     <event_name>GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11</event_name>
     <event_weight>1.0</event_weight>
-    <time_correction_in_s>0.0</time_correction_in_s>
     <comment>This is some event, I tell you.</comment>
     <comment>Another comment just to test that multiple ones work.</comment>
     <station>
       <station_id>GE.APE</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
       <comment>Stations can also have comments!</comment>
       <comment>Who would have known?</comment>
     </station>
     <station>
       <station_id>HL.ARG</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>IU.ANTO</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>GE.ISP</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>HL.RDO</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>HT.SIGR</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>HT.ALN</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
     <station>
       <station_id>HL.APE</station_id>
       <station_weight>1.0</station_weight>
-      <time_correction_in_s>0.0</time_correction_in_s>
     </station>
   </event>
 </iteration>
