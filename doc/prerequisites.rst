@@ -88,7 +88,7 @@ Additionally you might have to update the `wfs_input_generator`:
     $ pip install https://github.com/krischer/wfs_input_generator/archive/master.zi
 
 Please note, that updating **LASIF** will not update your custom, user-defined
-functions within your projects (see :doc:`tutorial/15_customizing_lasif`).  If
+functions within your projects (see :doc:`tutorial/16_customizing_lasif`).  If
 you want to update those as well: delete them and execute any **LASIF**
 function - this will copy the latest versions of these files to your project
 directory. **Make sure to save any changes you made to those functions!!**

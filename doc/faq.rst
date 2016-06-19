@@ -12,7 +12,7 @@ How do I control and tune the window selection algorithm?
 
 For this you have to edit the ``FUNCTIONS/window_picking_function.py`` file
 within your project folder as described in
-:doc:`tutorial/15_customizing_lasif`. The inner workings and the meaning of
+:doc:`tutorial/16_customizing_lasif`. The inner workings and the meaning of
 the various parameters are explained in the LASIF paper. If something is
 unclear, please let me know.
 
