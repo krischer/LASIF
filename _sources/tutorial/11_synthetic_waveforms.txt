@@ -1,15 +1,16 @@
 Synthetics
 ----------
 
-Now that everything is set up, you have to actually perform the simulations.
+Now that everything has been set up, you have to actually perform the simulations.
 Please keep in mind that the adjoint forward simulations require a very large
-amount of disc space due to the need to store the forward wavefield. Even
+amount of disk space due to the need to store the forward wavefield. Even
 this very small toy example requires 10 GB per forward adjoint simulation.
 This easily increases 100 fold for real simulations.
 
 Copy the generated input files and the model for Iteration 1 to your SES3D
-installation, adjust the ``ses3d_modules.f90`` file and run the adjoint
-forwards simulations for the two events. Please refer to the SES3D manual
+installation, adjust the ``ses3d_modules.f90`` file (for ses3d_r07_b, 
+adjust the ``ses3d_conf.h`` file found in ``SOURCE``) and run the adjoint
+forward simulations for the two events. Please refer to the SES3D manual
 for additional details. The simulations should only take a couple of minutes
 each on a run-of-the-mill computer. No need to turn to an HPC for this
 tutorial.
@@ -21,7 +22,7 @@ simulation domain and not the physical domain. Never convert these to the
 physical domain; **LASIF** does it for you and doing it twice is wrong.
 
 Now might be a good time to fire up the :doc:`../webinterface` if you did not
-already check if out. It features boil down to being an interactive
+already check if out. Its features boil down to being an interactive
 visualization platform of the current state of a LASIF project. You should
 be able to see the two events including different types of waveform data.
 

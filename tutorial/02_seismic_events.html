@@ -161,7 +161,7 @@ which events you want to use for the inversion. This works by simply placing a
 valid QuakeML 1.2 file at the correct location.</p>
 <p>All events have to be stored in the <code class="docutils literal"><span class="pre">EVENTS</span></code> subfolder of the project. They
 have to be QuakeML 1.2 files with full moment tensor information.</p>
-<p>LASIF provides some convenience methods for this purpose. One can leverage the
+<p>LASIF provides some convenience methods for this purpose. One can make use of the
 <a class="reference external" href="http://www.iris.edu/spud/momenttensor">IRIS SPUD service</a> to get GlobalCMT
 events.  Simply search for an event on their webpage and copy the event url.
 The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">add_spud_event</span></code> command will then grab the QuakeML file from the
@@ -200,7 +200,9 @@ filename. So please give them a good and reasonable filename. If you really
 feel that event renaming is a necessary feature please file an issue on Github
 so that the authors can add a proper event renaming function.</p>
 <p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">plot_events</span></code> command will show a map with all events currently
-part of the project.</p>
+part of the project. With the same command, you can get histograms of depth
+distribution and origin time distribution by appending <code class="docutils literal"><span class="pre">--type</span> <span class="pre">depth</span></code> or
+<code class="docutils literal"><span class="pre">--type</span> <span class="pre">time</span></code>, respectively.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_events
 </pre></div>
 </div>
@@ -208,7 +210,7 @@ part of the project.</p>
 <div class="figure">
 <img alt="../_images/02_seismic_events-1.png" src="../_images/02_seismic_events-1.png" />
 </div>
-<p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></code> command is your friend if you desire more information
+<p>The <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">event_info</span></code> command is your friend if you want more information
 about a certain event:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
@@ -219,16 +221,16 @@ Earthquake with 4.9 Mwc at NORTHERN ITALY
 Station and waveform information available at <span class="m">0</span> stations. Use <span class="s1">&#39;-v&#39;</span> to print them.
 </pre></div>
 </div>
-<p>The information given with this command will be the one LASIF uses. This is
-useful if the event has more then one origin and you want to know which one
-LASIF actually uses. Notice that the event currently has no data associated
+<p>The information given with this command will be what <strong>LASIF</strong> uses. This is
+useful if the event has more than one origin and you want to know which one
+is actually used by <strong>LASIF</strong>. Notice that the event currently has no data associated
 with it. We will fix this in the next section.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">You do not need to add all events you plan to use in the inversion at the
 beginning. Only add those you want to use for the very first inversion.
-LASIF is rather flexible and enables you to use different events, data,
-weighting schemes, ... for every iteration. It will keep track of what
+<strong>LASIF</strong> is rather flexible and enables you to use different events, data,
+weighting schemes, etc. for every iteration. It will keep track of what
 actually happened during each iteration so the project gains
 <strong>reproducibility and provenance</strong>.</p>
 </div>

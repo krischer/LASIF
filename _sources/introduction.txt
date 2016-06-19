@@ -8,8 +8,8 @@ Introduction
 
 LASIF (**L**\ arg-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
 **data-driven workflow tool** to perform full waveform inversions.  It is
-opinionated and strict meaning that it enforces a certain data and directory
-structure. The upside is that it only requires a very minimal amount of
+opinionated and strict, meaning that it enforces a certain data and directory
+structure. The advantage is that it only requires a very minimal amount of
 configuration and maintenance. It attempts to gather all necessary information
 from the data itself so there is no need to keep index or content files.
 
@@ -26,7 +26,7 @@ furthermore also serves as a preparatory step towards a fully database driven
 full waveform inversion workflow as all necessary information is already stored
 in an easily indexable data format.
 
-LASIF is data-driven meaning that it attempts to gather all necessary
+LASIF is data-driven, meaning that it attempts to gather all necessary
 information from the available data. The big advantage of this approach is that
 the users can use any tool they want to access and work with the data as long
 as they adhere to the directory structure imposed by LASIF. At the start of
@@ -63,7 +63,7 @@ tied together by a common project.
 Further Information
 -------------------
 
-The documentation is currently being restructures. For now additional
+The documentation is currently being restructured. For now additional
 information can be found here:
 
 * :doc:`how_lasif_finds_coordinates`

@@ -159,11 +159,11 @@
             
   <div class="section" id="waveform-data">
 <h1>5. Waveform Data<a class="headerlink" href="#waveform-data" title="Permalink to this headline">¶</a></h1>
-<p>Every inversion needs real data to be able to quantify misfits. The waveform
+<p>Every inversion needs real data to be able to quantify misfit. The waveform
 data for all events are stored in the <code class="docutils literal"><span class="pre">DATA</span></code> subfolder. The data for each
 single event will be stored in a subfolder of the <code class="docutils literal"><span class="pre">DATA</span></code> folder with the
 <strong>same name as the QuakeML file minus the .xml</strong>.</p>
-<p>These folder are automatically created and updated each time a <strong>LASIF</strong>
+<p>These folders are automatically created and updated each time a <strong>LASIF</strong>
 command is executed. If you followed the tutorial, your directory structure
 should resemble the following:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>Tutorial
@@ -219,12 +219,12 @@ the tags have to coincide with the iteration names. More on this later on.</p>
 |...
 </pre></div>
 </div>
-<p><strong>The user is responsible</strong> for adhering to that structure. Otherwise other
+<p><strong>The user is responsible</strong> for adhering to this structure. Otherwise other
 parts of LASIF cannot operate properly. Many commands shipping with LASIF ease
 that process.</p>
 <p><strong>LASIF</strong> is able to deal with waveform data in essentially every common
 format thanks to being built on top of ObsPy. We recommend to use the
-MiniSEED format as that is the one actually shipped by effectively all data
+MiniSEED format as this is the format that is shipped by effectively all data
 centers.</p>
 <div class="section" id="tutorial-data">
 <h2>5.1. Tutorial Data<a class="headerlink" href="#tutorial-data" title="Permalink to this headline">¶</a></h2>

@@ -7,7 +7,7 @@ valid QuakeML 1.2 file at the correct location.
 All events have to be stored in the ``EVENTS`` subfolder of the project. They
 have to be QuakeML 1.2 files with full moment tensor information.
 
-LASIF provides some convenience methods for this purpose. One can leverage the
+LASIF provides some convenience methods for this purpose. One can make use of the
 `IRIS SPUD service <http://www.iris.edu/spud/momenttensor>`_ to get GlobalCMT
 events.  Simply search for an event on their webpage and copy the event url.
 The ``lasif add_spud_event`` command will then grab the QuakeML file from the
@@ -55,7 +55,9 @@ feel that event renaming is a necessary feature please file an issue on Github
 so that the authors can add a proper event renaming function.
 
 The ``lasif plot_events`` command will show a map with all events currently
-part of the project.
+part of the project. With the same command, you can get histograms of depth
+distribution and origin time distribution by appending ``--type depth`` or 
+``--type time``, respectively.
 
 .. code-block:: bash
 
@@ -112,7 +114,7 @@ part of the project.
     lasif.visualization.plot_events(events, bmap)
 
 
-The ``lasif event_info`` command is your friend if you desire more information
+The ``lasif event_info`` command is your friend if you want more information
 about a certain event:
 
 .. code-block:: bash
@@ -126,17 +128,17 @@ about a certain event:
     Station and waveform information available at 0 stations. Use '-v' to print them.
 
 
-The information given with this command will be the one LASIF uses. This is
-useful if the event has more then one origin and you want to know which one
-LASIF actually uses. Notice that the event currently has no data associated
+The information given with this command will be what **LASIF** uses. This is
+useful if the event has more than one origin and you want to know which one
+is actually used by **LASIF**. Notice that the event currently has no data associated
 with it. We will fix this in the next section.
 
 .. note::
 
     You do not need to add all events you plan to use in the inversion at the
     beginning. Only add those you want to use for the very first inversion.
-    LASIF is rather flexible and enables you to use different events, data,
-    weighting schemes, ... for every iteration. It will keep track of what
+    **LASIF** is rather flexible and enables you to use different events, data,
+    weighting schemes, etc. for every iteration. It will keep track of what
     actually happened during each iteration so the project gains
     **reproducibility and provenance**.
 

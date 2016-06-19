@@ -156,21 +156,21 @@
             
   <div class="section" id="data-validation">
 <h1>8. Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h1>
-<p>You might have noticed that LASIF projects can potentially contain many million
-files and it will thus be impossible to validate the data by hand. Therefore
-LASIF contains a number of functions attempting to check the data of a
+<p>You might have noticed that LASIF projects can potentially contain many millions
+of files and it will thus be impossible to validate the data by hand. LASIF
+therefore contains a number of functions attempting to check the data of a
 project. All of these can be called with</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif validate_data
 </pre></div>
 </div>
-<p>Please make sure no errors appear otherwise LASIF cannot guarantee to work
-correctly.  With time more checks will be added to this function as more
+<p>Please make sure no errors appear &#8211; otherwise LASIF cannot guarantee to work
+correctly.  With time, more checks will be added to this function as more
 problems arise.</p>
-<p>This command will output an oftentimes very large report. All problems
+<p>This command will output a possibly very large report. All problems
 indicated in it should be solved to ensure LASIF can operate correctly. The
-best strategy to it is to start at the very beginning of the file. Oftentimes
+best strategy to it is to start at the very beginning of the file. Often,
 some errors are due to others and the <em>validate_data</em> command tries to be smart
-and checks for simple errors first. Per default the command will launch only a
+and checks for simple errors first. By default, the command will launch only a
 simplified validation function as some tests are rather slow. To get a full
 validation going use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif validate_data --full

@@ -92,8 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">6. Download Helpers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#downloading-waveforms">6.1. Downloading Waveforms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#downloading-station-metadata">6.2. Downloading Station Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#downloading-data">6.1. Downloading Data</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
@@ -175,22 +174,23 @@ information but enables the use of many tools otherwise not possible.</p>
 <div class="admonition caution">
 <p class="first admonition-title">Caution</p>
 <p class="last">IRIS changed their web services to the FDSN web service standard. LASIF
-will need to be adopted. Work on this is almost done. In the meantime
+will need to be adopted. Work on this is almost done. In the mean time
 the following commands will only be able to download data from the
 European ArcLink network.</p>
 </div>
-<div class="section" id="downloading-waveforms">
-<h2>6.1. Downloading Waveforms<a class="headerlink" href="#downloading-waveforms" title="Permalink to this headline">¶</a></h2>
-<p>Waveforms are downloaded on a per event basis. The <strong>config.xml</strong> file contains
+<div class="section" id="downloading-data">
+<h2>6.1. Downloading Data<a class="headerlink" href="#downloading-data" title="Permalink to this headline">¶</a></h2>
+<p>Data are downloaded on a per event basis. The <strong>config.xml</strong> file contains
 some specification to detail the download.</p>
-<p>To download the waveform data for one event, choose one and run</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif download_waveforms GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+<p>To download the data for an event, choose one and run</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif download_data GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 </pre></div>
 </div>
-<p>The command essentially just tries to download everything it can. It queries
+<p>The command essentially just tries to download everything it can, both the
+waveforms and station metadata. It queries
 the IRIS DMC and ArcLink for all stations available in the physical domain and
 then downloads the appropriate data. It accounts for the domain borders and
-possible domain rotations. It is influences by three parameters in the
+possible domain rotations. It is influenced by three parameters in the
 <strong>config.xml</strong> file:</p>
 <ul class="simple">
 <li>The <em>arclink_username</em> tag should be your email. It will be send with all
@@ -204,7 +204,7 @@ the associated event.</li>
 to download this many seconds for every waveform after the origin of the
 associated event. Adapt this to the size of your inversion domain.</li>
 </ul>
-<p>This, dependent on the domain size, event location, and origin time can take a
+<p>Depending on the domain size, event location, and origin time, this can take a
 while. Executing the same command again will only attempt to download data not
 already present. All data will be placed in <cite>DATA/EVENT_NAME/raw</cite>.</p>
 <div class="admonition note">
@@ -212,19 +212,6 @@ already present. All data will be placed in <cite>DATA/EVENT_NAME/raw</cite>.</p
 <p class="last">At this point it is worth mentioning that LASIF keeps logs of many actions
 that the user performs. All logs will be saved in the <em>LOGS</em> subfolder.</p>
 </div>
-</div>
-<div class="section" id="downloading-station-metadata">
-<h2>6.2. Downloading Station Metadata<a class="headerlink" href="#downloading-station-metadata" title="Permalink to this headline">¶</a></h2>
-<p>LASIF also includes some functionality to download station metadata. It will,
-download RESP files from IRIS and dataless SEED files from ArcLink. It works
-the same as it does for the waveforms. To download all stations for one event
-simply execute</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif download_stations GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
-</pre></div>
-</div>
-<p>The <cite>lasif download_stations</cite> command will, for the specified event, figure
-what waveform data is present in the <cite>DATA/EVENT_NAME/raw</cite> folder and download
-all missing station metadata information for these files.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">At some point in the near future the station metadata downloading routines

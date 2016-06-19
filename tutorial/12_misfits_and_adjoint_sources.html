@@ -161,51 +161,87 @@
             
   <div class="section" id="misfit-and-adjoint-source-calculation">
 <h1>13. Misfit and Adjoint Source Calculation<a class="headerlink" href="#misfit-and-adjoint-source-calculation" title="Permalink to this headline">¶</a></h1>
-<p>In order to simulate the adjoint wavefield one needs to calculate the adjoint
-sources. An adjoint source is usually dependent on the misfit between the
+<p>In order to calculate sensitivity kernels (gradients) for a given combination
+of  model and data, one needs calculate the adjoint sources. An adjoint
+source is usually dependent on the misfit between the
 synthetics and real data.</p>
 <p>LASIF currently supports misfits in the time-frequency domain as defined by
-Fichtner, 2008. Great care has to be taken to avoid cycle skips/phase jumps
+<a class="reference external" href="https://doi.org/10.1111/j.1365-246X.2008.03923.x">Fichtner et al. (GJI 2008)</a>
+Great care has to be taken to avoid cycle skips/phase jumps
 between synthetics and data. This is achieved by careful windowing.</p>
 <div class="section" id="weighting-scheme">
 <h2>13.1. Weighting Scheme<a class="headerlink" href="#weighting-scheme" title="Permalink to this headline">¶</a></h2>
-<p>You might have noticed that at various points it has been possible to
+<p>You may notice that at various points it is possible to
 distribute weights. These weights all contribute to the final adjoint source.
 The inversion scheme requires one adjoint source per iteration, event, station,
 and component.</p>
 <p>In each iteration&#8217;s XML file you can specify the weight for each event, denoted
-as <span class="math">\(w_{event}\)</span> in the following. The weight is allowed to range between
+as <span class="math">\(w_{event}\)</span> and within each event, the weight per station
+<span class="math">\(w_{station}\)</span>. Both weights are allowed to range between
 0.0 and 1.0. A weight of 0.0 corresponds to no weight at all, e.g. skip the
 event and a weight of 1.0 is the maximum weight.</p>
-<p>Within each event is possible to weight each station separately, in the
-following named <span class="math">\(w_{station}\)</span>. The station weights can also range from
-0.0 to 1.0 and follow the same logic as the event weights.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<span class="nt">&lt;iteration&gt;</span>
+  <span class="nt">&lt;iteration_name&gt;</span>1<span class="nt">&lt;/iteration_name&gt;</span>
+  ...
+  <span class="nt">&lt;event&gt;</span>
+    <span class="nt">&lt;event_name&gt;</span>GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2<span class="nt">&lt;/event_name&gt;</span>
+    <span class="nt">&lt;event_weight&gt;</span>1.0<span class="nt">&lt;/event_weight&gt;</span>
+    <span class="nt">&lt;time_correction_in_s&gt;</span>0.0<span class="nt">&lt;/time_correction_in_s&gt;</span>
+    <span class="nt">&lt;station&gt;</span>
+      <span class="nt">&lt;station_id&gt;</span>LA.AA22<span class="nt">&lt;/station_id&gt;</span>
+      <span class="nt">&lt;station_weight&gt;</span>1.0<span class="nt">&lt;/station_weight&gt;</span>
+      <span class="nt">&lt;time_correction_in_s&gt;</span>0.0<span class="nt">&lt;/time_correction_in_s&gt;</span>
+    <span class="nt">&lt;/station&gt;</span>
+    <span class="nt">&lt;station&gt;</span>
+      ...
+    <span class="nt">&lt;/station&gt;</span>
+  <span class="nt">&lt;/event&gt;</span>
+    ...
+  <span class="nt">&lt;event&gt;</span>
+  <span class="nt">&lt;/event&gt;</span>
+<span class="nt">&lt;/iteration&gt;</span>
+</pre></div>
+</div>
 <p>You can furthermore choose an arbitrary number of windows per component for
 which the misfit and adjoint source will be calculated. Each window has a
-separate weight with the only limitation being that the weight has to be
-positive. Assuming <span class="math">\(N\)</span> windows in a given component, the corresponding
-adjoint sources will be called <span class="math">\(ad\_src_{1..N}\)</span> while their weights are
-<span class="math">\(w_{1..N}\)</span>.</p>
-<p>The final adjoint source for every component will be calculated according to
-the following formula:</p>
+separate weight, with the only limitation being that the weight has to
+be positive. These weights can be edited after the windows have been created
+(for example in the misfit GUI, see below).</p>
+<p>Assuming <span class="math">\(N\)</span> windows in a given component, the corresponding
+adjoint sources will be called <span class="math">\(adj\_source_{1..N}\)</span> while their
+weights are <span class="math">\(w_{1..N}\)</span>. The final adjoint source for every component
+will be calculated according to the following formula:</p>
 <div class="math">
 \[adj\_source = w_{event} \cdot w_{station} \cdot \frac{1}{\sum_{i=1}^N w_i} \cdot \sum_{i=1}^N w_i \cdot ad\_src_i\]</div>
 </div>
 <div class="section" id="misfit-gui">
 <h2>13.2. Misfit GUI<a class="headerlink" href="#misfit-gui" title="Permalink to this headline">¶</a></h2>
-<p>LASIF comes with a graphical utility dubbed the Misfit GUI, that helps to pick
-correct windows.</p>
-<p>To launch it, execute the <strong>launch_misfit_gui</strong> together with the iteration
-name and the event name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif launch_misfit_gui <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+<p>LASIF comes with a graphical utility called the Misfit GUI, that helps to pick
+correct windows. To launch it, simply type</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif launch_misfit_gui
 </pre></div>
 </div>
-<p>This will open a window akin to the following:</p>
-<a class="reference internal image-reference" href="../_images/misfit_gui.png"><img alt="../_images/misfit_gui.png" class="align-center" src="../_images/misfit_gui.png" style="width: 90%;" /></a>
-<p>It is essentially partitioned into three parts. The top part is devoted to plot
-all three traces of a single station. The bottom left part shows a
-representation of the misfit for the last chosen window and the bottom left
-part shows a simple map.</p>
+<p>This will open a window that looks like the following:</p>
+<a class="reference internal image-reference" href="../_images/misfit_gui.screenshot.2016-06-14.png"><img alt="../_images/misfit_gui.screenshot.2016-06-14.png" class="align-center" src="../_images/misfit_gui.screenshot.2016-06-14.png" style="width: 90%;" /></a>
+<p>In the top right part of the GUI, you can choose which iteration and which
+event you want to see the synthetics of. The scroll menu shows all the
+stations for which data are available, and you can go to the next station
+using either mouse or keyboard up/down arrows. The map in the bottom right
+will show which event-station combination is currently plotted.</p>
+<p>With the <strong>Next</strong> and <strong>Prev</strong> button you can jump from one station to the
+next. The <strong>Reset Station</strong> button will remove all windows for the current
+station.</p>
+<p>To actually choose a window simply drag in any of the waveform windows. Upon
+mouse button release the window will be saved and the adjoint source will be
+calculated. The number in the top left of each chosen window reflects the
+weight for that window.</p>
+<p>Right clicking on an already existing window will delete it, left clicking will
+plot the misfit once again.</p>
+<p>The windows are saved in the window XML files (saved on a
+per-station basis in the
+<code class="docutils literal"><span class="pre">ADJOINT_SOURCES_AND_WINDOWS/WINDOWS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}/</span></code> folder), and currently, this is the only place where the window
+weights can be adjusted.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The current interface is based purely on matplotlib. This has the advantage
@@ -214,30 +250,21 @@ toolkit and therefore the GUI is not particularly pleasing from a UI/UX
 point of view. Some operations might feel clunky. We might move to a proper
 GUI toolkit in the future.</p>
 </div>
-<p>With the <strong>Next</strong> and <strong>Prev</strong> button you can jump from one station to the
-next. The <strong>Reset Station</strong> button will remove all windows for the current
-station.</p>
-<p>The weight for any window has to be chosen before the windows are picked. To
-chose the current weight, press the <strong>w</strong> key. At this point, the weight box
-will be red. Now simply type the desired new weight and press <strong>Enter</strong> to
-finish setting the new weight. All windows chosen from this point on will
-be assigned this weight.</p>
-<p>To actually choose a window simply drag in any of the waveform windows. Upon
-mouse button release the window will be saved and the adjoint source will be
-calculated. The number in the top left of each chosen window reflects the
-weight for that window.</p>
-<p>Right clicking on an already existing window will delete it, left clicking will
-plot the misfit once again.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">At any point you can press <strong>h</strong> to get an up-to-date help text for the
-GUI.</p>
+<p>As an alternative to going through each event-station pair, you can tell
+LASIF to select the windows automatically using</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif select_windows <span class="m">1</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+</pre></div>
 </div>
+<p>for a single event in iteration 1, or</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif select_all_windows
+</pre></div>
+</div>
+<p>for all events in the iteration. <strong>Use these tools with caution!</strong></p>
 </div>
 <div class="section" id="final-adjoint-source-calculation">
 <h2>13.3. Final Adjoint Source Calculation<a class="headerlink" href="#final-adjoint-source-calculation" title="Permalink to this headline">¶</a></h2>
-<p>During window selection the adjoint source for each chosen window will be
-stored separately. To combine them to, apply the weighting scheme and convert
+<p>During window selection, the adjoint source for each chosen window will be
+stored separately. To combine them, apply the weighting scheme and convert
 them to a format, that SES3D can actually use, run the
 <strong>finalize_adjoint_sources</strong> command with the iteration name and the event
 name.</p>
@@ -250,7 +277,7 @@ simulations.</p>
 command again. The result of that command is a list of adjoint sources
 directly usable by SES3D in the <code class="docutils literal"><span class="pre">OUTPUT</span></code> folder.</p>
 <p>Copy these to the correct folder inside your SES3D installation,
-make sure the tell SES3D to perform an adjoint reverse simulation and launch
+make sure to tell SES3D to perform an adjoint reverse simulation and launch
 it. Please refer to the SES3D manual for the necessary details.</p>
 <p>Now do the same for the second event.</p>
 </div>

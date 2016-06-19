@@ -175,11 +175,11 @@ idea to give simple numeric names, like 1, 2, 3, ...</p>
 </div>
 <p>This command takes four arguments; the first being the iteration name. A simple
 number is sufficient in many cases. The second and third denote the band limit
-of this iteration. In this example the band is limited between 40 and 100
+of this iteration. In this example, the band is limited between 40 and 100
 seconds. The fourth argument is the waveform solver to be used for this
 iteration. It currently only supports SES3D 4.1 but the infrastructure to add
 other solvers is already in place.</p>
-<p>You will see that this create a new file: <code class="docutils literal"><span class="pre">ITERATIONS/ITERATION_1.xml</span></code>.
+<p>You will see that this creates a new file: <code class="docutils literal"><span class="pre">ITERATIONS/ITERATION_1.xml</span></code>.
 Each iteration will have its own file. To get a list of iterations, use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif list_iterations
 
@@ -212,6 +212,14 @@ Solver: SES3D 4.1 <span class="p">|</span> <span class="m">500</span> timesteps 
 currently part of the LASIF project. The <strong>x_info</strong> counterpart returns
 more detailed information about the resource.</p>
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">As mentioned before, it is entirely possible to add new events at a later
+stage during an inversion. Be aware, however, that these events will only
+show up in a subsequent iteration that is created using the
+<strong>create_new_iteration</strong> command, because all events and stations used in
+any given iteration are explicitly defined in the iteration xml file.</p>
+</div>
 <div class="section" id="the-iteration-xml-files">
 <h2>9.1. The Iteration XML Files<a class="headerlink" href="#the-iteration-xml-files" title="Permalink to this headline">¶</a></h2>
 <p>The XML file defining each iteration attempts to be a collection of all
@@ -234,7 +242,7 @@ stored in an organized and sane manner.</p>
 currently mostly fixed and only the desired frequency content can be chosen.
 Keep in mind that these values will also be used to filter the source time
 function.</li>
-<li>Some data rejection criterias. This will be covered in more detail later on.</li>
+<li>Some data rejection criteria. This will be covered in more detail later on.</li>
 <li>The source time function configuration.</li>
 <li>The settings for the solver used for this iteration.</li>
 <li>A list of all events used for the iteration. Here it is possible to apply
@@ -301,10 +309,10 @@ present in the LASIF project.</p>
 <span class="nt">&lt;/iteration&gt;</span>
 </pre></div>
 </div>
-<p>It is a rather self-explaining file; some things to look out for:</p>
+<p>It is a rather self-explanatory file, but some things to look out for:</p>
 <ul class="simple">
 <li>The dataprocessing frequency limits are given periods in seconds. This is
-more in line what one would normally use.</li>
+more in line with what one would normally use than frequencies in Hz.</li>
 <li>The source time function is just given as a string. The &#8220;Filtered Heaviside&#8221;
 is the only source time function currently supported. It will be filtered
 with the limits specified in the data preprocessing section.</li>
@@ -316,8 +324,8 @@ does not have to be adjusted for every event.</li>
 <p class="first admonition-title">Note</p>
 <p>The file shown here has already been adjusted for the tutorial example.
 For the tutorial we will run a simulation on 4 cores (should be suitable
-for your Desktop PC/Laptop) for 2000 timesteps with a time delta of 0.3
-seconds. Please make sure to also adjust the file. The following
+for your desktop PC/laptop) for 2000 timesteps with a time delta of 0.3
+seconds. Please make sure to also adjust the file accordingly. The following
 parameters are essential in almost all cases (shown here with the values
 for the tutorial):</p>
 <ul class="simple">
@@ -331,19 +339,22 @@ for the tutorial):</p>
 <li><code class="docutils literal"><span class="pre">py_processors_in_phi_direction</span></code>: <code class="docutils literal"><span class="pre">2</span></code></li>
 <li><code class="docutils literal"><span class="pre">pz_processors_in_r_direction</span></code>: <code class="docutils literal"><span class="pre">1</span></code></li>
 </ul>
-<p class="last">Please refer to the SES3D documentation for more information.</p>
+<p class="last">Please refer to the SES3D documentation for more information. The SES3D
+documentation can currently be obtained from the tarball found
+<a class="reference external" href="http://www.cos.ethz.ch/software/ses3d.html">here</a> (link most recently
+checked on 13 June 2016).</p>
 </div>
 </div>
 <div class="section" id="source-time-functions">
 <h2>9.2. Source Time Functions<a class="headerlink" href="#source-time-functions" title="Permalink to this headline">¶</a></h2>
-<p>The source time functions will be dynamically generated from the information
+<p>The source time functions will be generated dynamically from the information
 specified in the iteration XML files. Currently only one type of source time
 function, a filtered Heaviside function is supported. In the future, if
-desired, it could also be possible to use inverted source time functions.</p>
+desired, it could also become possible to use inverted source time functions.</p>
 <p>The source time function will always be defined for the number of time steps
-and time increment you specify in the solver settings. Furthermore all source
-time functions will be filtered with the same bandpass as the data.</p>
-<p>To get a quick look of the source time function for any given iteration, use
+and the time increment you specify in the solver settings. Furthermore, all
+source time functions will be filtered with the same bandpass as the data.</p>
+<p>To have a quick look at the source time function for any given iteration, use
 the <strong>plot_stf</strong> command with the iteration name:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_stf 1
 </pre></div>
@@ -372,11 +383,11 @@ couple of exemplary Q values with</p>
 <div class="figure">
 <img alt="../_images/08_a_new_iteration-2.png" src="../_images/08_a_new_iteration-2.png" />
 </div>
-<p>The two vertical lines in each plot mark the frequency range as specified in
+<p>The grey band in each plot marks the frequency range as specified in
 the iteration XML file.</p>
 <p>It is also possible to directly generate the relaxation times and weights for
-any frequency band. To generate a Q model approximately constant in a period
-band from 10 seconds to 100 seconds use</p>
+any frequency band. To generate a Q model that is approximately constant in
+a period band from 10 seconds to 100 seconds use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif calculate_constant_Q_model <span class="m">10</span> 100
 
 Starting to find optimal relaxation parameters.
@@ -394,19 +405,25 @@ cumulative rms error: 0.0163777833823
 <p class="last">You do not actually need to do this for the tutorial.</p>
 </div>
 <p>Data preprocessing is an essential step if one wants to compare data and
-seismograms. It serves several purposes: Restricting the frequency content of
-the data to that of the synthetics - what is not simulated can not be seen in
-synthetic seismograms. Remove the instrument response and convert to the same
-units used for the synthetics (usually <code class="docutils literal"><span class="pre">m/s</span></code>). Furthermore any linear  trends
-and static offset are removed and some processing has to be performed so
-that the data is available at the same points in time as the synthetics. The
-goal of the preprocessing within LASIF is to create data that is directly
+seismograms. It serves several purposes:</p>
+<ul class="simple">
+<li>Restricting the frequency content of the data to that of the synthetics &#8211;
+what is not simulated cannot be seen in synthetic seismograms.</li>
+<li>Removing the instrument response and converting the data to the same units
+used for the synthetics (usually <code class="docutils literal"><span class="pre">m/s</span></code>).</li>
+<li>Removal of any linear trends and static offset.</li>
+<li>Some processing also has to be performed to make the data available at
+the same points in time as the synthetics.</li>
+</ul>
+<p>The goal of the preprocessing within LASIF is to create data that is directly
 comparable to simulated data without any more processing.</p>
-<p>The applied processing is identified via the name:</p>
+<p>While the raw unprocessed data are stored in a folder <code class="docutils literal"><span class="pre">{{EVENT}}/raw</span></code>, the
+preprocessed data will be stored in a separate directory within each event,
+identified via the name:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">preprocessed_hp_0</span><span class="o">.</span><span class="mi">01000</span><span class="n">_lp_0</span><span class="o">.</span><span class="mi">02500</span><span class="n">_npts_2000_dt_0</span><span class="o">.</span><span class="mi">300000</span>
 </pre></div>
 </div>
-<p>or (in Python terms):</p>
+<p>(tutorial values). Or in Python terms:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
 <span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">40.0</span>
 <span class="n">npts</span> <span class="o">=</span> <span class="mi">2000</span>
@@ -417,36 +434,39 @@ comparable to simulated data without any more processing.</p>
                                                    <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">You can use any processing tool you want, but you have to adhere to the
-directory structure otherwise LASIF will not be able to work with the data.
-It is furthermore important that the processed filenames are identical to
-the unprocessed ones.</p>
-</div>
 <p>If you feel that additional identifiers are needed to uniquely identify the
 applied processing (in the limited setting of being useful for the here
-performed full waveform inversion) please contact the LASIF developers.</p>
-<p>You can of course also simply utilize LASIF&#8217;s built-in preprocessing. Using it
-is trivial, just launch the <strong>preprocess_data</strong> command together with the
+performed waveform inversion) please contact the LASIF developers.</p>
+<p>Although in principle you can use any processing tool you like, the simplest
+option is probably to make use of LASIF&#8217;s built-in preprocessing. Using it
+is trivial: just launch the <strong>preprocess_data</strong> command together with the
 iteration name.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif preprocess_data 1
 </pre></div>
 </div>
-<p>This will start a fully parallelized preprocessing for all data required for
-the specified iteration. It will utilize all your machine&#8217;s cores and might
-take a while. If you repeat the command it will only process data not already
-processed; an advantage is that you can cancel the processing at any time and
+<p>This will start a fully parallelized preprocessing run for all data required
+for the specified iteration. It will utilize all your machine&#8217;s cores and might
+take a while. If you repeat the command, it will only process data not already
+processed. An advantage is that you can cancel the processing at any time and
 then later on just execute the command again to continue where you left off.
 This usually only needs to be done every couple of iterations when you decide
 to go to higher frequencies or add new data.</p>
 <p>The preprocessed data will be put in the correct folder.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can use any processing tool you want, but you have to adhere to the
+directory structure &#8211; otherwise LASIF will not be able to work with
+the data.
+It is also important that the processed filenames are identical to
+the unprocessed ones.</p>
+</div>
 </div>
 <div class="section" id="data-rejection">
 <h2>9.5. Data Rejection<a class="headerlink" href="#data-rejection" title="Permalink to this headline">¶</a></h2>
-<p>Coming soon...watch this space.</p>
-<p>This concludes the initial setup for each iteration. The next steps is to
-actually simulate anything and LASIF of course also assists in that regard.</p>
+<p>Coming soon...watch this space. <em>(last updated 14 June 2016)</em></p>
+<p>This concludes the initial setup for each iteration. The next step is to
+actually simulate something &#8211; and LASIF, of course, also assists in that
+respect.</p>
 </div>
 </div>
 

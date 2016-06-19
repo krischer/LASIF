@@ -160,7 +160,8 @@
 have one Earth model per iteration with ideally the same name as the
 iteration. <strong>LASIF</strong> does not yet perform any work with the Earth models,
 it merely offers an organized way of storing and visualizing them.</p>
-<p><strong>LASIF</strong> can directly deal with the models used in SES3D. Each model has to
+<p><strong>LASIF</strong> can directly deal with the models used in SES3D (that is, the
+ready-to-go models with which a simulation is run). Each model has to
 be placed in a subfolder of <code class="docutils literal"><span class="pre">MODELS</span></code>. The folder name will again be used to
 identify the model.</p>
 <p>For the tutorial, we will work with two models: one based on PREM which we
@@ -183,36 +184,33 @@ the sigma being 200 km in horizontal and 50 km in the vertical direction.</p>
     True_Model
 </pre></div>
 </div>
-<p>LASIF has some functionality to view the models. To launch the model viewer use
-the <strong>plot_model</strong> command together with the model name.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_model True_Model
-
-Setup:
-    Latitude: -10.00 - 10.00
-    Longitude: -10.00 - 10.00
-    Depth in km: 0.00 - 471.00
-    Total element count: 10816
-    Total collocation point count: <span class="m">1352000</span> <span class="o">(</span>without duplicates: 716625<span class="o">)</span>
-Memory requirement per component: 2.7 MB
-Available components: A, B, C, lambda, mu, rhoinv
-Available derived components: rho, vp, vsh, vsv
-Parsed components:
-
-Enter <span class="s1">&#39;COMPONENT DEPTH&#39;</span> <span class="o">(</span><span class="s1">&#39;quit&#39;</span> to <span class="nb">exit</span><span class="o">)</span>:
+<p>LASIF has some functionality to view the models. To save a model slice to
+file, use the <strong>plot_model</strong> command together with the model name and some
+identifying parameters.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
-<p>This will print some information about the model like the available components
-and the components it can derive from these. Keep in mind that for plotting one
-of the derived components it potentially has to load two or more components so
-keep an eye on your machines memory. The tool can currently plot horizontal
-slices for arbitrary components at arbitrary depths. To do this, simply type
-the component name and the desired depth in kilometer and hit enter. This opens
-a new window, e.g. for <code class="docutils literal"><span class="pre">vsv</span> <span class="pre">50</span></code>:</p>
+<p>This will save a plot directly to file (but will not open a plot on the screen).
+.. This will print some information about the model like the available components
+.. and the components it can derive from these. Keep in mind that for plotting one
+.. of the derived components it potentially has to load two or more components so
+.. keep an eye on your machines memory. The tool can currently plot horizontal
+.. slices for arbitrary components at arbitrary depths. To do this, simply type
+.. the component name and the desired depth in kilometer and hit enter. This opens
+.. a new window, e.g. for <code class="docutils literal"><span class="pre">vsv</span> <span class="pre">50</span></code>:</p>
 <a class="reference internal image-reference" href="../_images/vsv_52km.png"><img alt="../_images/vsv_52km.png" class="align-center" src="../_images/vsv_52km.png" style="width: 90%;" /></a>
-<p>Closing the window will enable you to plot a different component or different
-depth. To leave the model viewer simply type <strong>quit</strong>.</p>
-<p>When running the numerical simulations the user is responsible to choose and
-copy the correct earth model file.</p>
+<p>Another option is to use the model graphical user interface. While still a
+bit clunky in operation, it provides a way to explore the models (and once
+these have been produced, also kernels for each iteration).</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif launch_model_gui
+</pre></div>
+</div>
+<p>This opens a more interactive viewer in which the user can choose which
+model to look at, walk through the different depth levels, and explore
+different (derived) components:</p>
+<a class="reference internal image-reference" href="../_images/model_gui.screenshot.2016-06-14.png"><img alt="../_images/model_gui.screenshot.2016-06-14.png" class="align-center" src="../_images/model_gui.screenshot.2016-06-14.png" style="width: 90%;" /></a>
+<p>When running the numerical simulations, <strong>the user is responsible to choose and
+copy the correct earth model file</strong>.</p>
 </div>
 
 

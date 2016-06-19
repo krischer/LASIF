@@ -55,7 +55,7 @@ just execute:
 
 .. note::
 
-    The local depth can is allowed to not be set. In that case it will be
+    The local depth is allowed to not be set. In that case it will be
     assumed to be zero. For all practical purposes the local depth does not
     matter for continental scale inversions.
 
@@ -312,6 +312,8 @@ command:
 
     $ lasif plot_raydensity
 
+Actually plotting this may take a fair while, depending on the amount of data
+you have.
 Keep in mind that this only results in a reasonable plot for large amounts of
 data; for the toy example used in the tutorial it will not work. It is not a
 physically accurate plot but helps in judging data coverage and directionality
