@@ -2,11 +2,11 @@ Misfit and Adjoint Source Calculation
 -------------------------------------
 
 In order to calculate sensitivity kernels (gradients) for a given combination
-of  model and data, one needs calculate the adjoint sources. An adjoint 
+of  model and data, one needs calculate the adjoint sources. An adjoint
 source is usually dependent on the misfit between the
 synthetics and real data.
 
-LASIF currently supports misfits in the time-frequency domain as defined by 
+LASIF currently supports misfits in the time-frequency domain as defined by
 `Fichtner et al. (GJI 2008) <https://doi.org/10.1111/j.1365-246X.2008.03923.x>`_
 Great care has to be taken to avoid cycle skips/phase jumps
 between synthetics and data. This is achieved by careful windowing.
@@ -25,7 +25,7 @@ as :math:`w_{event}` and within each event, the weight per station
 0.0 and 1.0. A weight of 0.0 corresponds to no weight at all, e.g. skip the
 event and a weight of 1.0 is the maximum weight.
 
-.. Within each event, it is possible to assign a weight :math:`w_{station}` to 
+.. Within each event, it is possible to assign a weight :math:`w_{station}` to
 .. each separate station. The station weights can also range from
 .. 0.0 to 1.0 and follow the same logic as the event weights, also editable in
 .. the iteration XML file.
@@ -39,11 +39,9 @@ event and a weight of 1.0 is the maximum weight.
       <event>
         <event_name>GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2</event_name>
         <event_weight>1.0</event_weight>
-        <time_correction_in_s>0.0</time_correction_in_s>
         <station>
           <station_id>LA.AA22</station_id>
           <station_weight>1.0</station_weight>
-          <time_correction_in_s>0.0</time_correction_in_s>
         </station>
         <station>
           ...
@@ -56,13 +54,13 @@ event and a weight of 1.0 is the maximum weight.
 
 You can furthermore choose an arbitrary number of windows per component for
 which the misfit and adjoint source will be calculated. Each window has a
-separate weight, with the only limitation being that the weight has to 
+separate weight, with the only limitation being that the weight has to
 be positive. These weights can be edited after the windows have been created
 (for example in the misfit GUI, see below).
 
 Assuming :math:`N` windows in a given component, the corresponding
-adjoint sources will be called :math:`adj\_source_{1..N}` while their 
-weights are :math:`w_{1..N}`. The final adjoint source for every component 
+adjoint sources will be called :math:`adj\_source_{1..N}` while their
+weights are :math:`w_{1..N}`. The final adjoint source for every component
 will be calculated according to the following formula:
 
 .. math::
@@ -88,7 +86,7 @@ This will open a window that looks like the following:
 
 In the top right part of the GUI, you can choose which iteration and which
 event you want to see the synthetics of. The scroll menu shows all the
-stations for which data are available, and you can go to the next station 
+stations for which data are available, and you can go to the next station
 using either mouse or keyboard up/down arrows. The map in the bottom right
 will show which event-station combination is currently plotted.
 
@@ -105,7 +103,7 @@ weight for that window.
 Right clicking on an already existing window will delete it, left clicking will
 plot the misfit once again.
 
-The windows are saved in the window XML files (saved on a 
+The windows are saved in the window XML files (saved on a
 per-station basis in the
 ``ADJOINT_SOURCES_AND_WINDOWS/WINDOWS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}/`` folder), and currently, this is the only place where the window
 weights can be adjusted.
@@ -131,13 +129,13 @@ weights can be adjusted.
 ..    GUI.
 
 As an alternative to going through each event-station pair, you can tell
-LASIF to select the windows automatically using 
+LASIF to select the windows automatically using
 
 .. code-block:: bash
 
    $ lasif select_windows 1 GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
 
-for a single event in iteration 1, or 
+for a single event in iteration 1, or
 
 .. code-block:: bash
 
