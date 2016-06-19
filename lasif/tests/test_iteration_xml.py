@@ -44,13 +44,6 @@ def test_reading_iteration_xml():
         "highpass_period": 100.0,
         "lowpass_period": 8.0
     }
-    assert iteration.rejection_criteria == {
-        "minimum_trace_length_in_s": 500.0,
-        "signal_to_noise": {
-            "test_interval_from_origin_in_s": 100.0,
-            "max_amplitude_ratio": 100.0
-        }
-    }
 
     # Test some settings. The rest should work just fine as this is parsed
     # by useing a recursive dictionary.

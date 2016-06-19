@@ -10,13 +10,6 @@
     <highpass_period>100.0</highpass_period>
     <lowpass_period>8.0</lowpass_period>
   </data_preprocessing>
-  <rejection_criteria>
-    <minimum_trace_length_in_s>500.0</minimum_trace_length_in_s>
-    <signal_to_noise>
-      <test_interval_from_origin_in_s>100.0</test_interval_from_origin_in_s>
-      <max_amplitude_ratio>100.0</max_amplitude_ratio>
-    </signal_to_noise>
-  </rejection_criteria>
   <solver_parameters>
     <solver>SES3D 4.1</solver>
     <solver_settings>

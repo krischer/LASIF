@@ -79,18 +79,6 @@ class Iteration(object):
         self.data_preprocessing["lowpass_period"] = \
             float(self._get(prep, "lowpass_period"))
 
-        self.rejection_criteria = {}
-        crits = root.find("rejection_criteria")
-        self.rejection_criteria["minimum_trace_length_in_s"] = \
-            float(self._get(crits, "minimum_trace_length_in_s"))
-        s_n = crits.find("signal_to_noise")
-        temp = {}
-        temp["test_interval_from_origin_in_s"] = \
-            float(self._get(s_n, "test_interval_from_origin_in_s"))
-        temp["max_amplitude_ratio"] = \
-            float(self._get(s_n, "max_amplitude_ratio"))
-        self.rejection_criteria["signal_to_noise"] = temp
-
         self.solver_settings = \
             _recursive_dict(root.find("solver_parameters"))[1]
 
@@ -267,21 +255,6 @@ class Iteration(object):
                 E.lowpass_period(
                     str(self.data_preprocessing["lowpass_period"]))
             ),
-            E.rejection_criteria(
-                E.minimum_trace_length_in_s(str(
-                    self.rejection_criteria["minimum_trace_length_in_s"]
-                )),
-                E.signal_to_noise(
-                    E.test_interval_from_origin_in_s(str(
-                        self.rejection_criteria["signal_to_noise"][
-                            "test_interval_from_origin_in_s"]
-                    )),
-                    E.max_amplitude_ratio(str(
-                        self.rejection_criteria["signal_to_noise"][
-                            "max_amplitude_ratio"]
-                    ))
-                )
-            ),
             E.solver_parameters(
                 E.solver(self.solver_settings["solver"]),
                 E.solver_settings(*solver_settings)
@@ -424,11 +397,6 @@ def create_iteration_xml_string(iteration_name, solver_name, events,
         E.data_preprocessing(
             E.highpass_period(str(max_period)),
             E.lowpass_period(str(min_period))),
-        E.rejection_criteria(
-            E.minimum_trace_length_in_s("500.0"),
-            E.signal_to_noise(
-                E.test_interval_from_origin_in_s("100.0"),
-                E.max_amplitude_ratio("100.0"))),
         E.solver_parameters(
             E.solver(solver_name),
             solver_doc),
