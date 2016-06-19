@@ -64,7 +64,7 @@ class AdjointSourcesComponent(Component):
             channel_id, str(starttime), str(endtime), str(taper),
             taper_percentage, ad_src_type))
 
-        if os.path.exists(filename):
+        if not plot and os.path.exists(filename):
             adsrc = joblib.load(filename)
             if not self._validate_return_value(adsrc):
                 os.remove(filename)
