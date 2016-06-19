@@ -87,8 +87,8 @@ def iris2quakeml(url, output_folder=None):
 
     # Set the origin and magnitudes of the event.
     mt = ev.focal_mechanisms[0].moment_tensor
-    ev.magnitudes = [mt.moment_magnitude_id.getReferredObject()]
-    ev.origins = [mt.derived_origin_id.getReferredObject()]
+    ev.magnitudes = [mt.moment_magnitude_id.get_referred_object()]
+    ev.origins = [mt.derived_origin_id.get_referred_object()]
 
     event_name = get_event_filename(ev, "GCMT")
 
