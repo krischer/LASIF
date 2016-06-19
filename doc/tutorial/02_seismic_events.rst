@@ -1,3 +1,5 @@
+.. centered:: Last updated on *June 19th 2016*.
+
 Seismic Events
 --------------
 Once the domain has been adjusted to your needs, you need to tell **LASIF**
@@ -38,12 +40,12 @@ project is the ``lasif list_events`` command.
     $ lasif list_events
 
     2 events in project:
-    +------------------------------------------------------------+--------------------------+---------------------+
-    | Event Name                                                 |  Lat/Lng/Depth(km)/Mag   | # raw/preproc/synth |
-    +------------------------------------------------------------+--------------------------+---------------------+
-    | GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             |   44.9 / 8.5  / 10 / 4.9 |    0 /     0 /    0 |
-    | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 |   43.3 / 20.8 /  9 / 5.9 |    0 /     0 /    0 |
-    +------------------------------------------------------------+------------------------+-----------------------+
+    +------------------------------------------------------------+-----------------------------+
+    | Event Name                                                 |    Lat/Lng/Depth(km)/Mag    |
+    +------------------------------------------------------------+-----------------------------+
+    | GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             |   44.9 /    8.5 /  15 / 4.9 |
+    | GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 |   43.4 /   21.4 /  10 / 5.9 |
+    +------------------------------------------------------------+-----------------------------+
 
 You will notice that events are identified via their filename minus the
 extension. This is an easy and flexible solution enabling you to tag the events
@@ -56,7 +58,7 @@ so that the authors can add a proper event renaming function.
 
 The ``lasif plot_events`` command will show a map with all events currently
 part of the project. With the same command, you can get histograms of depth
-distribution and origin time distribution by appending ``--type depth`` or 
+distribution and origin time distribution by appending ``--type depth`` or
 ``--type time``, respectively.
 
 .. code-block:: bash

@@ -1,13 +1,15 @@
+.. centered:: Last updated on *June 19th 2016*.
+
 Data Inspection
 ---------------
 
 Once waveform and station metadata has been downloaded (either with the
-built-in helpers or manually) and placed in the correct folders, LASIF can
+built-in helpers or manually) and placed in the correct folders, **LASIF** can
 start to work with it.
 
 .. note::
 
-    LASIF essentially needs three ingredients to be able to interpret waveform
+    **LASIF** essentially needs three ingredients to be able to interpret waveform
     data:
 
     * The actual waveforms
@@ -19,15 +21,15 @@ start to work with it.
     * MiniSEED and StationXML (strongloy preferred)
     * SAC data and RESP files (needed for legacy reasons)
     * MiniSEED and RESP files (this combination does not actually contain
-      location information but LASIF launches some web requests to get just the
+      location information but **LASIF** launches some web requests to get just the
       locations and stores them in a cache database)
     * Most other combinations should also work but have not been tested.
 
 
-At this point, LASIF is able to match available station and waveform
+At this point, **LASIF** is able to match available station and waveform
 information. Only stations where the three aforementioned ingredients are
 available will be considered to be stations that are good to be worked with by
-LASIF. Others will be ignored.
+**LASIF**. Others will be ignored.
 
 To get an overview, of what data is actually available for any given event,
 just execute:
@@ -37,8 +39,8 @@ just execute:
     $ lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
     Earthquake with 4.9 Mwc at NORTHERN ITALY
-    Latitude: 44.870, Longitude: 8.480, Depth: 10.0 km
-    2000-08-21T17:14:27.000000Z UTC
+	Latitude: 44.870, Longitude: 8.480, Depth: 15.0 km
+	2000-08-21T17:14:31.100000Z UTC
 
     Station and waveform information available at 51 stations:
 
@@ -305,7 +307,7 @@ including a very simple ray coverage plot with:
 
 
 If you are interested in getting a coverage plot of all events and data
-available for the current project, please execute the **plot_raydensity**
+available for the current project, please execute the ``plot_raydensity``
 command:
 
 .. code-block:: bash
@@ -317,7 +319,7 @@ you have.
 Keep in mind that this only results in a reasonable plot for large amounts of
 data; for the toy example used in the tutorial it will not work. It is not a
 physically accurate plot but helps in judging data coverage and directionality
-effects. An example from a larger LASIF project illustrates this:
+effects. An example from a larger **LASIF** project illustrates this:
 
 
 .. image:: ../images/raydensity.jpg
