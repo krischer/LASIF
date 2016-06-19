@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/Users/lion/workspace/code/LASIF/lasif/ses3d_model_gui/ses3d_model_gui.ui'
+# Form implementation generated from reading ui file '/home/nienkeblom/LASIF/lasif/ses3d_model_gui/ses3d_model_gui.ui'
 #
-# Created: Sat Feb 14 00:06:39 2015
-#      by: PyQt4 UI code generator 4.10.4
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -179,6 +178,12 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setStretch(3, 1)
         self.horizontalLayout_2.setStretch(4, 1)
         self.horizontalLayout_2.setStretch(5, 1)
+        self.colorbar.raise_()
+        self.line_2.raise_()
+        self.depth_slider.raise_()
+        self.line.raise_()
+        self.depth_profile.raise_()
+        self.groupBox.raise_()
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))

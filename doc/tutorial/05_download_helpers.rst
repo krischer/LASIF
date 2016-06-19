@@ -18,27 +18,28 @@ information but enables the use of many tools otherwise not possible.
 .. caution::
 
     IRIS changed their web services to the FDSN web service standard. LASIF
-    will need to be adopted. Work on this is almost done. In the meantime
+    will need to be adopted. Work on this is almost done. In the mean time
     the following commands will only be able to download data from the
     European ArcLink network.
 
-Downloading Waveforms
-^^^^^^^^^^^^^^^^^^^^^
+Downloading Data
+^^^^^^^^^^^^^^^^
 
-Waveforms are downloaded on a per event basis. The **config.xml** file contains
+Data are downloaded on a per event basis. The **config.xml** file contains
 some specification to detail the download.
 
-To download the waveform data for one event, choose one and run
+To download the data for an event, choose one and run
 
 .. code-block:: bash
 
-    $ lasif download_waveforms GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+    $ lasif download_data GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
 
-The command essentially just tries to download everything it can. It queries
+The command essentially just tries to download everything it can, both the 
+waveforms and station metadata. It queries
 the IRIS DMC and ArcLink for all stations available in the physical domain and
 then downloads the appropriate data. It accounts for the domain borders and
-possible domain rotations. It is influences by three parameters in the
+possible domain rotations. It is influenced by three parameters in the
 **config.xml** file:
 
 * The *arclink_username* tag should be your email. It will be send with all
@@ -52,7 +53,7 @@ possible domain rotations. It is influences by three parameters in the
   to download this many seconds for every waveform after the origin of the
   associated event. Adapt this to the size of your inversion domain.
 
-This, dependent on the domain size, event location, and origin time can take a
+Depending on the domain size, event location, and origin time, this can take a
 while. Executing the same command again will only attempt to download data not
 already present. All data will be placed in `DATA/EVENT_NAME/raw`.
 
@@ -62,21 +63,22 @@ already present. All data will be placed in `DATA/EVENT_NAME/raw`.
     that the user performs. All logs will be saved in the *LOGS* subfolder.
 
 
-Downloading Station Metadata
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. Downloading Station Metadata
+.. ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-LASIF also includes some functionality to download station metadata. It will,
-download RESP files from IRIS and dataless SEED files from ArcLink. It works
-the same as it does for the waveforms. To download all stations for one event
-simply execute
+.. LASIF also includes some functionality to download station metadata. It will,
+.. download RESP files from IRIS and dataless SEED files from ArcLink. It works
+.. the same as it does for the waveforms. To download all stations for one event
+.. simply execute
 
-.. code-block:: bash
+.. .. code-block:: bash
 
-    $ lasif download_stations GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
+..    $ lasif download_stations GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11
 
-The `lasif download_stations` command will, for the specified event, figure
-what waveform data is present in the `DATA/EVENT_NAME/raw` folder and download
-all missing station metadata information for these files.
+
+.. The `lasif download_stations` command will, for the specified event, figure
+.. what waveform data is present in the `DATA/EVENT_NAME/raw` folder and download
+.. all missing station metadata information for these files.
 
 .. note::
 

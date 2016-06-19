@@ -8,8 +8,8 @@ inversion with LASIF and SES3D on a simple toy example.
 .. caution::
 
     This tutorial is written by hand and thus might not always be completely
-    up to date. If for example there are slight necessary deviations to the
-    arguments of a command please refer to the command's documentation.
+    up to date. If, for example, there are slight necessary deviations to the
+    arguments of a command, please refer to the command's documentation.
 
     The rest of LASIF's documentation is generated from the actual code and
     thus is guaranteed to accurately reflect the code base.

@@ -1,11 +1,11 @@
 Waveform Data
 -------------
-Every inversion needs real data to be able to quantify misfits. The waveform
+Every inversion needs real data to be able to quantify misfit. The waveform
 data for all events are stored in the ``DATA`` subfolder. The data for each
 single event will be stored in a subfolder of the ``DATA`` folder with the
 **same name as the QuakeML file minus the .xml**.
 
-These folder are automatically created and updated each time a **LASIF**
+These folders are automatically created and updated each time a **LASIF**
 command is executed. If you followed the tutorial, your directory structure
 should resemble the following::
 
@@ -63,13 +63,13 @@ After a while, the structure might look like this::
         |...
     |...
 
-**The user is responsible** for adhering to that structure. Otherwise other
+**The user is responsible** for adhering to this structure. Otherwise other
 parts of LASIF cannot operate properly. Many commands shipping with LASIF ease
 that process.
 
 **LASIF** is able to deal with waveform data in essentially every common
 format thanks to being built on top of ObsPy. We recommend to use the
-MiniSEED format as that is the one actually shipped by effectively all data
+MiniSEED format as this is the format that is shipped by effectively all data
 centers.
 
 Tutorial Data

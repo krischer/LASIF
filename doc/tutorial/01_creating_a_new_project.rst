@@ -17,7 +17,7 @@ create a  new folder in whichever directory the command is executed in.
 This will create the following directory structure. A **LASIF** project is
 defined by the files it contains. All information it requires will be
 assembled from the available data. In the course of this tutorial you will
-learn what piece of data belongs where and how LASIF interacts with it.
+learn what piece of data belongs where and how **LASIF** interacts with it.
 
 .. code-block:: none
 
@@ -48,7 +48,7 @@ Each project stores its configuration values in the **config.xml** file; the
 location of this file also determines the root folder of the project. It is
 a simple, self-explanatory XML format. Please refer to the comments in the
 XML file to infer the meaning of the different settings. Immediately after the
-project has been initialized it looks akin to the following:
+project has been initialized, it will resemble the following:
 
 .. code-block:: xml
 
@@ -126,13 +126,13 @@ project has been initialized it looks akin to the following:
     </lasif_project>
 
 The nature of SES3D's coordinate system has the effect that simulation is most
-efficient in equatorial regions. Thus it is oftentimes  advantageous to rotate
+efficient in equatorial regions. Thus it is often advantageous to rotate
 the frame of reference so that the simulation happens close to the equator.
-A one chunk simulation with SPECFEM GLOBE does not suffer from this limitation
-but a domain can still only be specified by minimum and maximum extends as it
+A one chunk simulation with SPECFEM3D GLOBE does not suffer from this limitation,
+but a domain can still only be specified by minimum and maximum extents as it
 works with spherical sections.
 **LASIF** first defines the simulation domain; the actual simulation happens
-there (only when using SES3D; SPECFEM GLOBE directly simulates in the
+there (only when using SES3D; SPECFEM3D GLOBE directly simulates in the
 rotated domain). Optional rotation parameters define the physical location of
 the domain. The coordinate system for the rotation parameters is described in
 :py:mod:`lasif.rotations`.  You will have to edit the ``config.xml`` file to
@@ -149,9 +149,9 @@ domain.
     A one chunk simulation in SPECFEM3D GLOBE is not exactly identical with the
     domain definition in LASIF. A SES3D (and LASIF) domain is defined in
     geographical coordinates whereas a cubed sphere chunk uses great circles on
-    all boundaries. This is not a big limitation just keep in mind that the
+    all boundaries. This is not a big limitation - just keep in mind that the
     domain in SPECFEM is a bit smaller at the corners than the LASIF domain. If
-    this becomes an issue let us know and we'll add some more logic to LASIF.
+    this becomes an issue, let us know and we'll add some more logic to LASIF.
 
 For this tutorial we are going to work in a rotated domain across Europe.
 Please change the ``config.xml`` file to reflect the following domain
@@ -164,10 +164,10 @@ settings.
 * Rotation axis: ``1.0, 1.0, 0.2``
 * Rotation angle: ``-65.0°``
 
-In general one should only work with data not affected by the boundary
+In general, one should only work with data not affected by the boundary
 conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
 It is not advisable to use data that traverses these layers. SES3D defaults
-to two layer but more are possible. For this tutorial we will only consider
+to two layers but more are possible. For this tutorial we will only consider
 data which is at least three elements away from the border in a an attempt
 to avoid unphysical influences of the boundary conditions. This amounts to
 ``2.5°``.
@@ -199,6 +199,6 @@ defined boundary width.
 
 .. note::
 
-    The map projection and zoom should automatically adjust so it is suitable
-    for the dimensions and location of the chosen domain. If that is not the
-    case please file an issue on the project's Github page.
+    The map projection and zoom should automatically adjust so that it is suitable
+    for the dimensions and location of the chosen domain. If this is not the
+    case, please file an issue on the project's Github page.

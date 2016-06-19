@@ -1,8 +1,8 @@
 Generating SES3D Input Files
 ----------------------------
 
-LASIF is currently capable of producing input files for SES3D 4.1. It is very
-straightforward and knows what data is available for every event and thus can
+LASIF is currently capable of producing input files for SES3D 4.1. It knows 
+what data is available for every event and thus can
 generate these files fully automatically. In the future it might be worth
 investigating automatic job submission to high performance machines as this is
 essentially just repetitive and error-prone work.
@@ -22,7 +22,8 @@ The actual input file generation is now very straightforward:
 
 **TYPE** has to be one of
 
-    * *normal_simulation* - Use this if you want to get some waveforms.
+    * *normal_simulation* - Use this if you want to get some waveforms, but
+      do not need to save the whole forward wavefield.
     * *adjoint_forward* - Use this for the forward adjoint simulation. Please
       note that it requires a huge amount of disk space for the forward
       wavefield.
@@ -48,6 +49,7 @@ If you are working in a rotated domain, all station coordinates and moment
 tensors will automatically be rotated accordingly so that the actual simulation
 can take place in an unrotated frame of reference.
 
-Together with a models, these files can directly be used to run SES3D. For
-the first couple of runs it is likely a good idea to check these file by hand
-to verify your setup.
+Together with the model files for a given iteration model, these files 
+can directly be used to run SES3D. For
+the first couple of runs it is likely a good idea to check these files by
+hand in order to verify your setup.
