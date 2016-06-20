@@ -1,15 +1,17 @@
+.. centered:: Last updated on *June 19th 2016*.
+
 Misfit and Adjoint Source Calculation
 -------------------------------------
 
 In order to calculate sensitivity kernels (gradients) for a given combination
-of  model and data, one needs calculate the adjoint sources. An adjoint
-source is usually dependent on the misfit between the
-synthetics and real data.
+of  model and data, one needs calculate the adjoint sources. An adjoint source
+is usually dependent on the misfit between the synthetics and real data.
 
 LASIF currently supports misfits in the time-frequency domain as defined by
-`Fichtner et al. (GJI 2008) <https://doi.org/10.1111/j.1365-246X.2008.03923.x>`_
-Great care has to be taken to avoid cycle skips/phase jumps
-between synthetics and data. This is achieved by careful windowing.
+`Fichtner et al. (GJI 2008)
+<https://doi.org/10.1111/j.1365-246X.2008.03923.x>`_ Great care has to be taken
+to avoid cycle skips/phase jumps between synthetics and data. This is achieved
+by careful windowing.
 
 Weighting Scheme
 ^^^^^^^^^^^^^^^^
@@ -54,9 +56,8 @@ event and a weight of 1.0 is the maximum weight.
 
 You can furthermore choose an arbitrary number of windows per component for
 which the misfit and adjoint source will be calculated. Each window has a
-separate weight, with the only limitation being that the weight has to
-be positive. These weights can be edited after the windows have been created
-(for example in the misfit GUI, see below).
+separate weight, with the only limitation being that the weight has to be
+positive. These weights can be edited after the windows have been selected.
 
 Assuming :math:`N` windows in a given component, the corresponding
 adjoint sources will be called :math:`adj\_source_{1..N}` while their
@@ -85,51 +86,34 @@ This will open a window that looks like the following:
     :align: center
 
 In the top right part of the GUI, you can choose which iteration and which
-event you want to see the synthetics of. The scroll menu shows all the
-stations for which data are available, and you can go to the next station
-using either mouse or keyboard up/down arrows. The map in the bottom right
-will show which event-station combination is currently plotted.
+event you want to see the synthetics of. The scroll menu shows all the stations
+for which data are available, and you can go to the next station using either
+mouse or keyboard up/down arrows. The map in the bottom right will show which
+event-station combination is currently plotted.
 
 With the **Next** and **Prev** button you can jump from one station to the
-next. The **Reset Station** button will remove all windows for the current
-station.
+next. The **Delete All** button will remove all windows for the current
+station. **Autoselect** will run the automatic window selection algorithm for
+the currently selected station.
 
+To actually choose a window click twice - once for the start and once for the
+end of a window. It will be saved and the adjoint source will be calculated.
 
-To actually choose a window simply drag in any of the waveform windows. Upon
-mouse button release the window will be saved and the adjoint source will be
-calculated. The number in the top left of each chosen window reflects the
-weight for that window.
-
-Right clicking on an already existing window will delete it, left clicking will
-plot the misfit once again.
+Double clicking on an already existing window will delete it, ``Alt`` + double
+clicking will show the time frequency phase misfit as well as the calculated
+adjoint source.
 
 The windows are saved in the window XML files (saved on a
 per-station basis in the
 ``ADJOINT_SOURCES_AND_WINDOWS/WINDOWS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}/`` folder), and currently, this is the only place where the window
 weights can be adjusted.
 
-.. note::
 
-    The current interface is based purely on matplotlib. This has the advantage
-    of keeping dependencies to minimum. Unfortunately matplotlib is not a GUI
-    toolkit and therefore the GUI is not particularly pleasing from a UI/UX
-    point of view. Some operations might feel clunky. We might move to a proper
-    GUI toolkit in the future.
+Window Selection
+^^^^^^^^^^^^^^^^
 
-.. The weight for any window has to be chosen before the windows are picked. To
-.. chose the current weight, press the **w** key. At this point, the weight box
-.. will be red. Now simply type the desired new weight and press **Enter** to
-.. finish setting the new weight. All windows chosen from this point on will
-.. be assigned this weight.
-
-
-.. .. note::
-
-..    At any point you can press **h** to get an up-to-date help text for the
-..    GUI.
-
-As an alternative to going through each event-station pair, you can tell
-LASIF to select the windows automatically using
+As an alternative to going through each event-station pair, you can tell LASIF
+to select the windows automatically using
 
 .. code-block:: bash
 
@@ -141,7 +125,21 @@ for a single event in iteration 1, or
 
    $ lasif select_all_windows
 
-for all events in the iteration. **Use these tools with caution!**
+for all events in the iteration (the latter can also be run with ``mpirun -n X
+...``. **Use these tools with caution and check their result!**
+
+
+LASIF comes with a number of utilities to judge the quality of selected
+windows. One of these plots a summary of the temporal and epicentral distance
+distribution of selected events:
+
+.. code-block:: bash
+
+    $ lasif plot_windows --combine 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+
+.. image:: ../images/combined_selected_windows.png
+    :width: 90%
+    :align: center
 
 Final Adjoint Source Calculation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
