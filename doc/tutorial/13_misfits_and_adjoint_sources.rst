@@ -145,24 +145,62 @@ Final Adjoint Source Calculation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 During window selection, the adjoint source for each chosen window will be
-stored separately. To combine them, apply the weighting scheme and convert
-them to a format, that SES3D can actually use, run the
-**finalize_adjoint_sources** command with the iteration name and the event
-name.
+stored separately. To combine them, apply the weighting scheme and convert them
+to a format, that SES3D can actually use, run the ``finalize_adjoint_sources``
+command with the iteration name and the event name.
 
 .. code-block:: bash
 
     $ lasif finalize_adjoint_sources 1 GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+    $ lasif finalize_adjoint_sources 1 GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20
 
 This will also rotate the adjoint sources to the frame of reference used in the
 simulations.
 
 If you pick any more windows or change them in any way, you need to run the
-command again. The result of that command is a list of adjoint sources
-directly usable by SES3D in the ``OUTPUT`` folder.
+command again. The result of that command is a list of adjoint sources directly
+usable by SES3D in the ``OUTPUT`` folder.
 
-Copy these to the correct folder inside your SES3D installation,
-make sure to tell SES3D to perform an adjoint reverse simulation and launch
-it. Please refer to the SES3D manual for the necessary details.
+Copy these to the correct folder inside your SES3D installation, make sure to
+tell SES3D to perform an adjoint reverse simulation and launch it. Please refer
+to the SES3D manual for the necessary details.
 
-Now do the same for the second event.
+Gradient visualisation
+^^^^^^^^^^^^^^^^^^^^^^
+
+It is possible to view the raw gradients from a SES3D simulation.  To do this,
+simply put them, along with the ``boxfile`` that is used in SES3D, in the a
+folder according to the following scheme:
+
+``KERNELS/ITERATION_{{ITERATION_NAME}}/{{EVENT_NAME}}``
+
+For the example in the tutorial this results in the two folders:
+
+*  ``KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14``
+*  ``KERNELS/ITERATION_1/GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2``
+
+If the folder inside an iteration has the name of an event it is assumed to be
+the gradient from that particular event. If it has any other name it can still
+be plotted but you have to take care of the meaning.
+
+The ``plot_kernel`` command can be used to plot the gradients/kernels and
+usage is similar to the ``plot_events`` command. However, components are now
+called ``grad_{{COMPONENT}}`` -- the same component names as the files
+you copied into the kernels folder. So to plot the gradient for SV velocity
+at 50 km depth for the first event, type
+
+.. code-block:: bash
+
+    $ lasif plot_kernel KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17/ 50 grad_csv Kernel.050km.vsv.png
+
+Note that the kernel for vsv is called grad\_\ **c**\ sv -- likewise for the
+other velocities.
+
+Alternatively, you can again use the model gui in order to explore the
+kernels. This works exactly the same as before, just select your favourite
+``KERNEL: {{ITERATION_NAME}} | {{EVENT_NAME}}``. If all is well, it looks
+like this for the **raw, unsmoothed** vsv kernel:
+
+.. image:: ../images/model_gui_KERNEL.screenshot.2016-06-16.png
+    :width: 90%
+    :align: center
