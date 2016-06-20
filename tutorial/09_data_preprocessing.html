@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>7. Data Inspection &mdash; LASIF 0.1.x documentation</title>
+  <title>10. Data Preprocessing &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -32,8 +32,8 @@
   
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="8. Data Validation" href="07_data_validation.html"/>
-        <link rel="prev" title="6. Download Helpers" href="05_download_helpers.html"/> 
+        <link rel="next" title="11. Earth Model Handling" href="10_model_handling.html"/>
+        <link rel="prev" title="9. Defining a New Iteration" href="08_a_new_iteration.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -92,10 +92,10 @@
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">10. Data Preprocessing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
@@ -141,11 +141,11 @@
       
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
-    <li>7. Data Inspection</li>
+    <li>10. Data Preprocessing</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../_sources/tutorial/06_data_inspection.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/09_data_preprocessing.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -156,84 +156,74 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="data-inspection">
-<h1>7. Data Inspection<a class="headerlink" href="#data-inspection" title="Permalink to this headline">¶</a></h1>
-<p>Once waveform and station metadata has been downloaded (either with the
-built-in helpers or manually) and placed in the correct folders, <strong>LASIF</strong> can
-start to work with it.</p>
+<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="data-preprocessing">
+<h1>10. Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p><strong>LASIF</strong> essentially needs three ingredients to be able to interpret waveform
-data:</p>
+<p class="last">You do not actually need to do this for the tutorial as the proprocessed
+data has already been downloaded but this will be required for real
+inversions.</p>
+</div>
+<p>Data preprocessing is an essential step if one wants to compare data and
+seismograms. It serves several purposes:</p>
 <ul class="simple">
-<li>The actual waveforms</li>
-<li>The location of the recording seismometer</li>
-<li>The instrument response for each channel at the time of data recording</li>
+<li>Ensure a similar spectral bandwidth between observed and synthetic data to
+enable a meaningful comparison.</li>
+<li>Removing the instrument response and converting the data to the same units
+used for the synthetics (usually <code class="docutils literal"><span class="pre">m/s</span></code>).</li>
+<li>Removal of any linear trends and static offset.</li>
+<li>Interpolations to sample observed and synthetic data at exactly the same
+points in time.</li>
 </ul>
-<p>Some possibilities exist to specify these:</p>
-<ul class="last simple">
-<li>MiniSEED and StationXML (strongloy preferred)</li>
-<li>SAC data and RESP files (needed for legacy reasons)</li>
-<li>MiniSEED and RESP files (this combination does not actually contain
-location information but <strong>LASIF</strong> launches some web requests to get just the
-locations and stores them in a cache database)</li>
-<li>Most other combinations should also work but have not been tested.</li>
-</ul>
-</div>
-<p>At this point, <strong>LASIF</strong> is able to match available station and waveform
-information. Only stations where the three aforementioned ingredients are
-available will be considered to be stations that are good to be worked with by
-<strong>LASIF</strong>. Others will be ignored.</p>
-<p>To get an overview, of what data is actually available for any given event,
-just execute:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
-
-Earthquake with 4.9 Mwc at NORTHERN ITALY
-    Latitude: 44.870, Longitude: 8.480, Depth: 15.0 km
-    2000-08-21T17:14:31.100000Z UTC
-
-Station and waveform information available at <span class="m">51</span> stations:
-
-<span class="o">===========================================================================</span>
-         id       latitude      longitude elevation_in_m    <span class="nb">local</span> <span class="nv">depth</span>
-<span class="o">===========================================================================</span>
-    LA.AA00  44.4567283802  5.62467939102            0.0            0.0
-    LA.AA01   42.192951649  23.3492243512            0.0            0.0
-    LA.AA02  53.2426492521  16.0639363825            0.0            0.0
-    LA.AA03  34.5585730668   9.5857134452            0.0            0.0
-    LA.AA04  45.6821185764  15.1965770125            0.0            0.0
-    LA.AA05  50.2345625685  9.03513474669            0.0            0.0
-    ...
+<p>The goal of the preprocessing within <strong>LASIF</strong> is to create data that is directly
+comparable to simulated data without any more processing.</p>
+<p>While the raw unprocessed data are stored in a folder <code class="docutils literal"><span class="pre">{{EVENT}}/raw</span></code>, the
+preprocessed data will be stored in a separate directory within each event,
+identified via the name (values are valid for the tutorial):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">preprocessed_hp_0</span><span class="o">.</span><span class="mi">01000</span><span class="n">_lp_0</span><span class="o">.</span><span class="mi">02500</span><span class="n">_npts_2000_dt_0</span><span class="o">.</span><span class="mi">300000</span>
 </pre></div>
 </div>
+<p>Or in Python terms:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">highpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">100.0</span>
+<span class="n">lowpass</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="mf">40.0</span>
+<span class="n">npts</span> <span class="o">=</span> <span class="mi">2000</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+<span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
+                  <span class="s2">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">highpass</span><span class="o">=</span><span class="n">highpass</span><span class="p">,</span> <span class="n">lowpass</span><span class="o">=</span><span class="n">lowpass</span><span class="p">,</span>
+                                                   <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you feel that additional identifiers are needed to uniquely identify the
+applied processing (in the limited setting of being useful for the here
+performed waveform inversion) please contact the <strong>LASIF</strong> developers.</p>
+<p>Although in principle you can use any processing tool you like, the simplest
+option is probably to make use of <strong>LASIF</strong>&#8216;s built-in preprocessing. Using it
+is trivial: just launch the <strong>preprocess_data</strong> command together with the
+iteration name.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif preprocess_data 1
+</pre></div>
+</div>
+<p>or (this is faster as <code class="docutils literal"><span class="pre">-n</span></code> determines the number of processors it will run
+on):</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ mpirun -n <span class="m">4</span> lasif preprocess_data 1
+</pre></div>
+</div>
+<p>This will start a fully parallelized preprocessing run for all data required
+for the specified iteration. If you repeat the command, it will only process
+data not already processed. An advantage is that you can cancel the processing
+at any time and then later on just execute the command again to continue where
+you left off.  This usually only needs to be done every couple of iterations
+when you decide to go to higher frequencies or add new data.</p>
+<p>The preprocessed data will automatically be put in the correct folder.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The local depth is allowed to not be set. In that case it will be
-assumed to be zero. For all practical purposes the local depth does not
-matter for continental scale inversions.</p>
+<p class="last">You can use any processing tool you want, but you have to adhere to the
+directory structure &#8211; otherwise <strong>LASIF</strong> will not be able to work with
+the data.
+It is also important that the processed filenames are identical to
+the unprocessed ones.</p>
 </div>
-<p>It is furthermore possible to plot the availability information for one event
-including a very simple ray coverage plot with:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_event GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
-</pre></div>
-</div>
-<p>(<a class="reference external" href="../tutorial/06_data_inspection-1.py">Source code</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.png">png</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.pdf">pdf</a>)</p>
-<div class="figure">
-<img alt="../_images/06_data_inspection-1.png" src="../_images/06_data_inspection-1.png" />
-</div>
-<p>If you are interested in getting a coverage plot of all events and data
-available for the current project, please execute the <code class="docutils literal"><span class="pre">plot_raydensity</span></code>
-command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_raydensity
-</pre></div>
-</div>
-<p>Actually plotting this may take a fair while, depending on the amount of data
-you have.
-Keep in mind that this only results in a reasonable plot for large amounts of
-data; for the toy example used in the tutorial it will not work. It is not a
-physically accurate plot but helps in judging data coverage and directionality
-effects. An example from a larger <strong>LASIF</strong> project illustrates this:</p>
-<a class="reference internal image-reference" href="../_images/raydensity.jpg"><img alt="../_images/raydensity.jpg" class="align-center" src="../_images/raydensity.jpg" style="width: 70%;" /></a>
 </div>
 
 
@@ -243,10 +233,10 @@ effects. An example from a larger <strong>LASIF</strong> project illustrates thi
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="07_data_validation.html" class="btn btn-neutral float-right" title="8. Data Validation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="10_model_handling.html" class="btn btn-neutral float-right" title="11. Earth Model Handling" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="05_download_helpers.html" class="btn btn-neutral" title="6. Download Helpers" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="08_a_new_iteration.html" class="btn btn-neutral" title="9. Defining a New Iteration" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

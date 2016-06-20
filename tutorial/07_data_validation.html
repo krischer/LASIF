@@ -95,13 +95,14 @@
 <li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">8. Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_model_update.html">14. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_next_iterations.html">15. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_customizing_lasif.html">16. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -154,29 +155,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="data-validation">
+  <p class="centered">
+<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="data-validation">
 <h1>8. Data Validation<a class="headerlink" href="#data-validation" title="Permalink to this headline">¶</a></h1>
-<p>You might have noticed that LASIF projects can potentially contain many millions
-of files and it will thus be impossible to validate the data by hand. LASIF
+<p>You might have noticed that <strong>LASIF</strong> projects can potentially contain many millions
+of files and it will thus be impossible to validate the data by hand. <strong>LASIF</strong>
 therefore contains a number of functions attempting to check the data of a
 project. All of these can be called with</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif validate_data
 </pre></div>
 </div>
-<p>Please make sure no errors appear &#8211; otherwise LASIF cannot guarantee to work
+<p>Please make sure no errors appear &#8211; otherwise <strong>LASIF</strong> cannot guarantee to work
 correctly.  With time, more checks will be added to this function as more
 problems arise.</p>
 <p>This command will output a possibly very large report. All problems
-indicated in it should be solved to ensure LASIF can operate correctly. The
+indicated in it should be solved to ensure <strong>LASIF</strong> can operate correctly. The
 best strategy to it is to start at the very beginning of the file. Often,
-some errors are due to others and the <em>validate_data</em> command tries to be smart
+some errors are due to others and the <code class="docutils literal"><span class="pre">validate_data</span></code> command tries to be smart
 and checks for simple errors first. By default, the command will launch only a
 simplified validation function as some tests are rather slow. To get a full
 validation going use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif validate_data --full
+
+Validating <span class="m">2</span> event files ...
+    Validating against QuakeML 1.2 schema .. <span class="o">[</span>OK<span class="o">]</span>
+    Checking <span class="k">for</span> duplicate public IDs .. <span class="o">[</span>OK<span class="o">]</span>
+    Performing some basic sanity checks .. <span class="o">[</span>OK<span class="o">]</span>
+    Checking <span class="k">for</span> duplicates and events too close in <span class="nb">time</span> ..  <span class="o">[</span>OK<span class="o">]</span>
+    Assure all events are in chosen domain ..  <span class="o">[</span>OK<span class="o">]</span>
+Confirming that station metainformation files exist <span class="k">for</span> all waveforms .. <span class="o">[</span>OK<span class="o">]</span>
+Checking all waveform files .. <span class="o">[</span>OK<span class="o">]</span>
+Making sure raypaths are within boundaries .. <span class="o">[</span>OK<span class="o">]</span>
+
+ALL CHECKS PASSED
+The data seems to be valid. If we missed something please contact the developers.
 </pre></div>
 </div>
 <p>Be aware that this may take a while.</p>
+<p>If <strong>LASIF</strong> detects something is amiss it will complain and potentially create
+a script to remove the offending files. Review the script and execute it if
+appropriate.</p>
 </div>
 
 

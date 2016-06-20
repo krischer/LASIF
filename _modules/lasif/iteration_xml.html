@@ -216,18 +216,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;lowpass_period&quot;</span><span class="p">]</span> <span class="o">=</span> \
             <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="s2">&quot;lowpass_period&quot;</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">crits</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;rejection_criteria&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;minimum_trace_length_in_s&quot;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">crits</span><span class="p">,</span> <span class="s2">&quot;minimum_trace_length_in_s&quot;</span><span class="p">))</span>
-        <span class="n">s_n</span> <span class="o">=</span> <span class="n">crits</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">)</span>
-        <span class="n">temp</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">s_n</span><span class="p">,</span> <span class="s2">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">))</span>
-        <span class="n">temp</span><span class="p">[</span><span class="s2">&quot;max_amplitude_ratio&quot;</span><span class="p">]</span> <span class="o">=</span> \
-            <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">s_n</span><span class="p">,</span> <span class="s2">&quot;max_amplitude_ratio&quot;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span> <span class="o">=</span> \
             <span class="n">_recursive_dict</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;solver_parameters&quot;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
 
@@ -237,8 +225,6 @@
             <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">_i</span><span class="o">.</span><span class="n">text</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;event_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s2">&quot;event_weight&quot;</span><span class="p">)),</span>
-                <span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">)),</span>
                 <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">(),</span>
                 <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
             <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;station&quot;</span><span class="p">):</span>
@@ -248,8 +234,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">event_name</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="n">station_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="s2">&quot;station_weight&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span>
                                             <span class="s2">&quot;station_weight&quot;</span><span class="p">)),</span>
-                    <span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">_get</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">)),</span>
                     <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="n">comments</span><span class="p">}</span>
 
 <div class="viewcode-block" id="Iteration.get_source_time_function"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration.get_source_time_function">[docs]</a>    <span class="k">def</span> <span class="nf">get_source_time_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -404,21 +388,6 @@
                 <span class="n">E</span><span class="o">.</span><span class="n">lowpass_period</span><span class="p">(</span>
                     <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">[</span><span class="s2">&quot;lowpass_period&quot;</span><span class="p">]))</span>
             <span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">(</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">minimum_trace_length_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;minimum_trace_length_in_s&quot;</span><span class="p">]</span>
-                <span class="p">)),</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">signal_to_noise</span><span class="p">(</span>
-                    <span class="n">E</span><span class="o">.</span><span class="n">test_interval_from_origin_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">][</span>
-                            <span class="s2">&quot;test_interval_from_origin_in_s&quot;</span><span class="p">]</span>
-                    <span class="p">)),</span>
-                    <span class="n">E</span><span class="o">.</span><span class="n">max_amplitude_ratio</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">[</span><span class="s2">&quot;signal_to_noise&quot;</span><span class="p">][</span>
-                            <span class="s2">&quot;max_amplitude_ratio&quot;</span><span class="p">]</span>
-                    <span class="p">))</span>
-                <span class="p">)</span>
-            <span class="p">),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">solver_parameters</span><span class="p">(</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">[</span><span class="s2">&quot;solver&quot;</span><span class="p">]),</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">solver_settings</span><span class="p">(</span><span class="o">*</span><span class="n">solver_settings</span><span class="p">)</span>
@@ -430,15 +399,12 @@
             <span class="n">event</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">event</span><span class="p">(</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">event_name</span><span class="p">(</span><span class="n">key</span><span class="p">),</span>
                 <span class="n">E</span><span class="o">.</span><span class="n">event_weight</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;event_weight&quot;</span><span class="p">])),</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">])),</span>
                 <span class="o">*</span><span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_i</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">station_id</span><span class="p">,</span> <span class="n">station_value</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
                 <span class="n">event</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">station</span><span class="p">(</span>
                     <span class="n">E</span><span class="o">.</span><span class="n">station_id</span><span class="p">(</span><span class="n">station_id</span><span class="p">),</span>
                     <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">station_value</span><span class="p">[</span><span class="s2">&quot;station_weight&quot;</span><span class="p">])),</span>
-                    <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span>
-                        <span class="n">station_value</span><span class="p">[</span><span class="s2">&quot;time_correction_in_s&quot;</span><span class="p">])),</span>
                     <span class="o">*</span><span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">comment</span><span class="p">(</span><span class="n">_i</span><span class="p">)</span>
                       <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">station_value</span><span class="p">[</span><span class="s2">&quot;comments&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">_i</span><span class="p">]</span>
                 <span class="p">))</span>
@@ -545,12 +511,10 @@
     <span class="k">for</span> <span class="n">event_name</span><span class="p">,</span> <span class="n">stations</span> <span class="ow">in</span> <span class="n">events</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
         <span class="n">stations_doc</span> <span class="o">=</span> <span class="p">[</span><span class="n">E</span><span class="o">.</span><span class="n">station</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">station_id</span><span class="p">(</span><span class="n">station</span><span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="s2">&quot;0.0&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">]</span>
+            <span class="n">E</span><span class="o">.</span><span class="n">station_weight</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">stations</span><span class="p">]</span>
         <span class="n">events_doc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">event</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">event_name</span><span class="p">(</span><span class="n">event_name</span><span class="p">),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">event_weight</span><span class="p">(</span><span class="s2">&quot;1.0&quot;</span><span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">time_correction_in_s</span><span class="p">(</span><span class="s2">&quot;0.0&quot;</span><span class="p">),</span>
             <span class="o">*</span><span class="n">stations_doc</span><span class="p">))</span>
 
     <span class="n">doc</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">iteration</span><span class="p">(</span>
@@ -561,11 +525,6 @@
         <span class="n">E</span><span class="o">.</span><span class="n">data_preprocessing</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">highpass_period</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">max_period</span><span class="p">)),</span>
             <span class="n">E</span><span class="o">.</span><span class="n">lowpass_period</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">min_period</span><span class="p">))),</span>
-        <span class="n">E</span><span class="o">.</span><span class="n">rejection_criteria</span><span class="p">(</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">minimum_trace_length_in_s</span><span class="p">(</span><span class="s2">&quot;500.0&quot;</span><span class="p">),</span>
-            <span class="n">E</span><span class="o">.</span><span class="n">signal_to_noise</span><span class="p">(</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">test_interval_from_origin_in_s</span><span class="p">(</span><span class="s2">&quot;100.0&quot;</span><span class="p">),</span>
-                <span class="n">E</span><span class="o">.</span><span class="n">max_amplitude_ratio</span><span class="p">(</span><span class="s2">&quot;100.0&quot;</span><span class="p">))),</span>
         <span class="n">E</span><span class="o">.</span><span class="n">solver_parameters</span><span class="p">(</span>
             <span class="n">E</span><span class="o">.</span><span class="n">solver</span><span class="p">(</span><span class="n">solver_name</span><span class="p">),</span>
             <span class="n">solver_doc</span><span class="p">),</span>

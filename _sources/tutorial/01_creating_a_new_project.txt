@@ -1,3 +1,5 @@
+.. centered:: Last updated on *June 19th 2016*.
+
 Creating a New Project
 ----------------------
 
@@ -26,8 +28,17 @@ learn what piece of data belongs where and how **LASIF** interacts with it.
     │   ├── ADJOINT_SOURCES
     │   └── WINDOWS
     ├── CACHE
+    │   ├── config.xml_cache.pickle
+    │   ├── event_cache.sqlite
+    │   └── statistics
     ├── DATA
     ├── EVENTS
+    ├── FUNCTIONS
+    │   ├── __init__.py
+    │   ├── preprocessing_function.py
+    │   ├── process_synthetics.py
+    │   ├── source_time_function.py
+    │   └── window_picking_function.py
     ├── ITERATIONS
     ├── KERNELS
     ├── LOGS
@@ -40,6 +51,7 @@ learn what piece of data belongs where and how **LASIF** interacts with it.
     ├── SYNTHETICS
     ├── WAVEFIELDS
     └── config.xml
+
 
 Configuration File
 ^^^^^^^^^^^^^^^^^^
@@ -54,28 +66,12 @@ project has been initialized, it will resemble the following:
 
     <?xml version='1.0' encoding='UTF-8'?>
     <lasif_project>
-      <!-- Name of the LASIF project. Choose one you like. -->
       <name>Tutorial</name>
-      <!-- Optional description -->
       <description></description>
-      <!-- Groups settings related to (meta)data downloading. -->
       <download_settings>
-        <!-- The next two segments determine how much data is downloaded around
-             the origin time of an event. Should be adjusted to suite the
-             scale of your inversion. -->
         <seconds_before_event>300</seconds_before_event>
         <seconds_after_event>3600</seconds_after_event>
-        <!-- The minimum distance between two stations. Any station closer
-             to another than this will not be downloaded. -->
         <interstation_distance_in_m>1000.0</interstation_distance_in_m>
-        <!-- Most stations have data from more than one channel which usually
-             contain the same data but sampled at different intervals. This
-             group determines which channels are given priority if  available.
-             If no item matches the available channels nothing will be
-             downloaded from that particular station. The channel names roughly
-             determine the sampling rate of the channel. Please refer to the
-             SEED manual for additional details. Uses unix shell style
-             wildcards. -->
         <channel_priorities>
           <priority>BH[Z,N,E]</priority>
           <priority>LH[Z,N,E]</priority>
@@ -83,8 +79,6 @@ project has been initialized, it will resemble the following:
           <priority>EH[Z,N,E]</priority>
           <priority>MH[Z,N,E]</priority>
         </channel_priorities>
-        <!-- The same for the location codes. Unfortunately no clear rule to
-             infer the most suitable location code from any station exists. -->
         <location_priorities>
           <priority></priority>
           <priority>00</priority>
@@ -94,13 +88,8 @@ project has been initialized, it will resemble the following:
           <priority>02</priority>
         </location_priorities>
       </download_settings>
-      <!-- These settings determine the inversion domain -->
       <domain>
-        <!-- Global domain or not. The other domain settings will be ignored
-             if this is set to true -->
         <global>false</global>
-        <!-- The bounds of the domain. Only taken into account if the domain
-             is not global. -->
         <domain_bounds>
           <minimum_longitude>-20</minimum_longitude>
           <maximum_longitude>20</maximum_longitude>
@@ -108,14 +97,8 @@ project has been initialized, it will resemble the following:
           <maximum_latitude>20</maximum_latitude>
           <minimum_depth_in_km>0.0</minimum_depth_in_km>
           <maximum_depth_in_km>200.0</maximum_depth_in_km>
-          <!-- The boundary with of the domain. Used to set the boundary
-               conditions (usually PMLs) in the solvers. Also it is made
-               sure that no data crosses this boundary. -->
           <boundary_width_in_degree>3.0</boundary_width_in_degree>
         </domain_bounds>
-        <!-- The rotation settings of the domain. Only taken into account if
-             the domain is not global. Set the rotation angle to zero to
-             work in a non-rotated domain. -->
         <domain_rotation>
           <rotation_axis_x>1.0</rotation_axis_x>
           <rotation_axis_y>1.0</rotation_axis_y>

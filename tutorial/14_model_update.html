@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>7. Data Inspection &mdash; LASIF 0.1.x documentation</title>
+  <title>15. Model Update &mdash; LASIF 0.1.x documentation</title>
   
 
   
@@ -32,8 +32,8 @@
   
     <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
         <link rel="up" title="Tutorial" href="../tutorial.html"/>
-        <link rel="next" title="8. Data Validation" href="07_data_validation.html"/>
-        <link rel="prev" title="6. Download Helpers" href="05_download_helpers.html"/> 
+        <link rel="next" title="16. Next Iterations" href="15_next_iterations.html"/>
+        <link rel="prev" title="14. Misfit and Adjoint Source Calculation" href="13_misfits_and_adjoint_sources.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -92,7 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
@@ -100,7 +100,10 @@
 <li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">15. Model Update</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#actual-model-update">15.1. Actual model update</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
 </ul>
@@ -141,11 +144,11 @@
       
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
       
-    <li>7. Data Inspection</li>
+    <li>15. Model Update</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../_sources/tutorial/06_data_inspection.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/tutorial/14_model_update.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -156,84 +159,24 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="data-inspection">
-<h1>7. Data Inspection<a class="headerlink" href="#data-inspection" title="Permalink to this headline">¶</a></h1>
-<p>Once waveform and station metadata has been downloaded (either with the
-built-in helpers or manually) and placed in the correct folders, <strong>LASIF</strong> can
-start to work with it.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p><strong>LASIF</strong> essentially needs three ingredients to be able to interpret waveform
-data:</p>
-<ul class="simple">
-<li>The actual waveforms</li>
-<li>The location of the recording seismometer</li>
-<li>The instrument response for each channel at the time of data recording</li>
-</ul>
-<p>Some possibilities exist to specify these:</p>
-<ul class="last simple">
-<li>MiniSEED and StationXML (strongloy preferred)</li>
-<li>SAC data and RESP files (needed for legacy reasons)</li>
-<li>MiniSEED and RESP files (this combination does not actually contain
-location information but <strong>LASIF</strong> launches some web requests to get just the
-locations and stores them in a cache database)</li>
-<li>Most other combinations should also work but have not been tested.</li>
-</ul>
+<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="model-update">
+<h1>15. Model Update<a class="headerlink" href="#model-update" title="Permalink to this headline">¶</a></h1>
+<p><strong>LASIF</strong> per se does not aid you with actually updating the model. This is a
+concious design decision as a large part of the research or black art aspect in
+full seismic waveform inversions actually comes from the model update,
+potential preconditioning, and the actually employed numerical optimization
+scheme.</p>
+<p>This parts illustrates a simple update. When running a real inversion, please
+consider spending a couple of days to scripts model updates and everything else
+required around a given LASIF project.</p>
+<div class="section" id="actual-model-update">
+<h2>15.1. Actual model update<a class="headerlink" href="#actual-model-update" title="Permalink to this headline">¶</a></h2>
+<p>Because LASIF does not (yet) aid you with updating the model, you will have
+to do this manually. Keep in mind that the kernels SES3D produces initially
+are the raw gradients, and unsmoothed. You will probably need to smooth them
+before updating the model to get reasonable results without excessive
+focusing near sources and/or receivers.</p>
 </div>
-<p>At this point, <strong>LASIF</strong> is able to match available station and waveform
-information. Only stations where the three aforementioned ingredients are
-available will be considered to be stations that are good to be worked with by
-<strong>LASIF</strong>. Others will be ignored.</p>
-<p>To get an overview, of what data is actually available for any given event,
-just execute:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif event_info -v GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
-
-Earthquake with 4.9 Mwc at NORTHERN ITALY
-    Latitude: 44.870, Longitude: 8.480, Depth: 15.0 km
-    2000-08-21T17:14:31.100000Z UTC
-
-Station and waveform information available at <span class="m">51</span> stations:
-
-<span class="o">===========================================================================</span>
-         id       latitude      longitude elevation_in_m    <span class="nb">local</span> <span class="nv">depth</span>
-<span class="o">===========================================================================</span>
-    LA.AA00  44.4567283802  5.62467939102            0.0            0.0
-    LA.AA01   42.192951649  23.3492243512            0.0            0.0
-    LA.AA02  53.2426492521  16.0639363825            0.0            0.0
-    LA.AA03  34.5585730668   9.5857134452            0.0            0.0
-    LA.AA04  45.6821185764  15.1965770125            0.0            0.0
-    LA.AA05  50.2345625685  9.03513474669            0.0            0.0
-    ...
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The local depth is allowed to not be set. In that case it will be
-assumed to be zero. For all practical purposes the local depth does not
-matter for continental scale inversions.</p>
-</div>
-<p>It is furthermore possible to plot the availability information for one event
-including a very simple ray coverage plot with:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_event GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
-</pre></div>
-</div>
-<p>(<a class="reference external" href="../tutorial/06_data_inspection-1.py">Source code</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.png">png</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.hires.png">hires.png</a>, <a class="reference external" href="../tutorial/06_data_inspection-1.pdf">pdf</a>)</p>
-<div class="figure">
-<img alt="../_images/06_data_inspection-1.png" src="../_images/06_data_inspection-1.png" />
-</div>
-<p>If you are interested in getting a coverage plot of all events and data
-available for the current project, please execute the <code class="docutils literal"><span class="pre">plot_raydensity</span></code>
-command:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_raydensity
-</pre></div>
-</div>
-<p>Actually plotting this may take a fair while, depending on the amount of data
-you have.
-Keep in mind that this only results in a reasonable plot for large amounts of
-data; for the toy example used in the tutorial it will not work. It is not a
-physically accurate plot but helps in judging data coverage and directionality
-effects. An example from a larger <strong>LASIF</strong> project illustrates this:</p>
-<a class="reference internal image-reference" href="../_images/raydensity.jpg"><img alt="../_images/raydensity.jpg" class="align-center" src="../_images/raydensity.jpg" style="width: 70%;" /></a>
 </div>
 
 
@@ -243,10 +186,10 @@ effects. An example from a larger <strong>LASIF</strong> project illustrates thi
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="07_data_validation.html" class="btn btn-neutral float-right" title="8. Data Validation" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="15_next_iterations.html" class="btn btn-neutral float-right" title="16. Next Iterations" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="05_download_helpers.html" class="btn btn-neutral" title="6. Download Helpers" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="13_misfits_and_adjoint_sources.html" class="btn btn-neutral" title="14. Misfit and Adjoint Source Calculation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

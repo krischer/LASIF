@@ -1,3 +1,5 @@
+.. centered:: Last updated on *June 19th 2016*.
+
 Waveform Data
 -------------
 Every inversion needs real data to be able to quantify misfit. The waveform
@@ -14,12 +16,21 @@ should resemble the following::
     │   ├── ADJOINT_SOURCES
     │   └── WINDOWS
     ├── CACHE
+    │   ├── config.xml_cache.pickle
+    │   ├── event_cache.sqlite
+    │   └── statistics
     ├── DATA
-    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
-    │   ├── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+    │   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20
     ├── EVENTS
-    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14.xml
-    │   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2.xml
+    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17.xml
+    │   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20.xml
+    ├── FUNCTIONS
+    │   ├── __init__.py
+    │   ├── preprocessing_function.py
+    │   ├── process_synthetics.py
+    │   ├── source_time_function.py
+    │   └── window_picking_function.py
     ├── ITERATIONS
     ├── KERNELS
     ├── LOGS
@@ -30,11 +41,10 @@ should resemble the following::
     │   ├── SEED
     │   └── StationXML
     ├── SYNTHETICS
-    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
-    │   ├── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+    │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+    │   └── GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20
     ├── WAVEFIELDS
     └── config.xml
-
 
 All data in the ``DATA`` subfolder has to be processed or unprocessed actual
 data. The data is further structured by assigning a tag to every data set. A
@@ -49,7 +59,7 @@ the tags have to coincide with the iteration names. More on this later on.
 
 After a while, the structure might look like this::
 
-    TutorialAnatolia
+    Tutorial
     |-- DATA
     │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
             |-- raw
@@ -57,8 +67,8 @@ After a while, the structure might look like this::
         |...
     |-- SYNTHETICS
     │   ├── GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14
-            |-- INVERSION_1
-            |-- INVERSION_2
+            |-- ITERATION_1
+            |-- ITERATION_2
             |...
         |...
     |...

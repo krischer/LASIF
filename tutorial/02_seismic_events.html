@@ -95,13 +95,14 @@
 <li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_model_update.html">14. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_next_iterations.html">15. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_customizing_lasif.html">16. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -154,7 +155,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="seismic-events">
+  <p class="centered">
+<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="seismic-events">
 <h1>3. Seismic Events<a class="headerlink" href="#seismic-events" title="Permalink to this headline">¶</a></h1>
 <p>Once the domain has been adjusted to your needs, you need to tell <strong>LASIF</strong>
 which events you want to use for the inversion. This works by simply placing a
@@ -183,12 +185,12 @@ project is the <code class="docutils literal"><span class="pre">lasif</span> <sp
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif list_events
 
 <span class="m">2</span> events in project:
-+------------------------------------------------------------+--------------------------+---------------------+
-<span class="p">|</span> Event Name                                                 <span class="p">|</span>  Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag   <span class="p">|</span> <span class="c1"># raw/preproc/synth |</span>
-+------------------------------------------------------------+--------------------------+---------------------+
-<span class="p">|</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             <span class="p">|</span>   44.9 / 8.5  / <span class="m">10</span> / 4.9 <span class="p">|</span>    <span class="m">0</span> /     <span class="m">0</span> /    <span class="m">0</span> <span class="p">|</span>
-<span class="p">|</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 <span class="p">|</span>   43.3 / 20.8 /  <span class="m">9</span> / 5.9 <span class="p">|</span>    <span class="m">0</span> /     <span class="m">0</span> /    <span class="m">0</span> <span class="p">|</span>
-+------------------------------------------------------------+------------------------+-----------------------+
++------------------------------------------------------------+-----------------------------+
+<span class="p">|</span> Event Name                                                 <span class="p">|</span>    Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag    <span class="p">|</span>
++------------------------------------------------------------+-----------------------------+
+<span class="p">|</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             <span class="p">|</span>   44.9 /    8.5 /  <span class="m">15</span> / 4.9 <span class="p">|</span>
+<span class="p">|</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 <span class="p">|</span>   43.4 /   21.4 /  <span class="m">10</span> / 5.9 <span class="p">|</span>
++------------------------------------------------------------+-----------------------------+
 </pre></div>
 </div>
 <p>You will notice that events are identified via their filename minus the

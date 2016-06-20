@@ -98,13 +98,14 @@
 <li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="09_model_handling.html">10. Earth Model Handling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="10_generating_input_files.html">11. Generating SES3D Input Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="11_synthetic_waveforms.html">12. Synthetics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_misfits_and_adjoint_sources.html">13. Misfit and Adjoint Source Calculation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="13_model_update.html">14. Model Update</a></li>
-<li class="toctree-l2"><a class="reference internal" href="14_next_iterations.html">15. Next Iterations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="15_customizing_lasif.html">16. Customizing LASIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
@@ -157,7 +158,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="creating-a-new-project">
+  <p class="centered">
+<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="creating-a-new-project">
 <h1>2. Creating a New Project<a class="headerlink" href="#creating-a-new-project" title="Permalink to this headline">¶</a></h1>
 <p>The necessary first step, whether for starting a new inversion or migrating an
 already existing inversion to <strong>LASIF</strong>, is to create a new project with the
@@ -179,8 +181,17 @@ learn what piece of data belongs where and how <strong>LASIF</strong> interacts 
 │   ├── ADJOINT_SOURCES
 │   └── WINDOWS
 ├── CACHE
+│   ├── config.xml_cache.pickle
+│   ├── event_cache.sqlite
+│   └── statistics
 ├── DATA
 ├── EVENTS
+├── FUNCTIONS
+│   ├── __init__.py
+│   ├── preprocessing_function.py
+│   ├── process_synthetics.py
+│   ├── source_time_function.py
+│   └── window_picking_function.py
 ├── ITERATIONS
 ├── KERNELS
 ├── LOGS
@@ -204,28 +215,12 @@ XML file to infer the meaning of the different settings. Immediately after the
 project has been initialized, it will resemble the following:</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
 <span class="nt">&lt;lasif_project&gt;</span>
-  <span class="c">&lt;!-- Name of the LASIF project. Choose one you like. --&gt;</span>
   <span class="nt">&lt;name&gt;</span>Tutorial<span class="nt">&lt;/name&gt;</span>
-  <span class="c">&lt;!-- Optional description --&gt;</span>
   <span class="nt">&lt;description&gt;&lt;/description&gt;</span>
-  <span class="c">&lt;!-- Groups settings related to (meta)data downloading. --&gt;</span>
   <span class="nt">&lt;download_settings&gt;</span>
-    <span class="c">&lt;!-- The next two segments determine how much data is downloaded around</span>
-<span class="c">         the origin time of an event. Should be adjusted to suite the</span>
-<span class="c">         scale of your inversion. --&gt;</span>
     <span class="nt">&lt;seconds_before_event&gt;</span>300<span class="nt">&lt;/seconds_before_event&gt;</span>
     <span class="nt">&lt;seconds_after_event&gt;</span>3600<span class="nt">&lt;/seconds_after_event&gt;</span>
-    <span class="c">&lt;!-- The minimum distance between two stations. Any station closer</span>
-<span class="c">         to another than this will not be downloaded. --&gt;</span>
     <span class="nt">&lt;interstation_distance_in_m&gt;</span>1000.0<span class="nt">&lt;/interstation_distance_in_m&gt;</span>
-    <span class="c">&lt;!-- Most stations have data from more than one channel which usually</span>
-<span class="c">         contain the same data but sampled at different intervals. This</span>
-<span class="c">         group determines which channels are given priority if  available.</span>
-<span class="c">         If no item matches the available channels nothing will be</span>
-<span class="c">         downloaded from that particular station. The channel names roughly</span>
-<span class="c">         determine the sampling rate of the channel. Please refer to the</span>
-<span class="c">         SEED manual for additional details. Uses unix shell style</span>
-<span class="c">         wildcards. --&gt;</span>
     <span class="nt">&lt;channel_priorities&gt;</span>
       <span class="nt">&lt;priority&gt;</span>BH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
       <span class="nt">&lt;priority&gt;</span>LH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
@@ -233,8 +228,6 @@ project has been initialized, it will resemble the following:</p>
       <span class="nt">&lt;priority&gt;</span>EH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
       <span class="nt">&lt;priority&gt;</span>MH[Z,N,E]<span class="nt">&lt;/priority&gt;</span>
     <span class="nt">&lt;/channel_priorities&gt;</span>
-    <span class="c">&lt;!-- The same for the location codes. Unfortunately no clear rule to</span>
-<span class="c">         infer the most suitable location code from any station exists. --&gt;</span>
     <span class="nt">&lt;location_priorities&gt;</span>
       <span class="nt">&lt;priority&gt;&lt;/priority&gt;</span>
       <span class="nt">&lt;priority&gt;</span>00<span class="nt">&lt;/priority&gt;</span>
@@ -244,13 +237,8 @@ project has been initialized, it will resemble the following:</p>
       <span class="nt">&lt;priority&gt;</span>02<span class="nt">&lt;/priority&gt;</span>
     <span class="nt">&lt;/location_priorities&gt;</span>
   <span class="nt">&lt;/download_settings&gt;</span>
-  <span class="c">&lt;!-- These settings determine the inversion domain --&gt;</span>
   <span class="nt">&lt;domain&gt;</span>
-    <span class="c">&lt;!-- Global domain or not. The other domain settings will be ignored</span>
-<span class="c">         if this is set to true --&gt;</span>
     <span class="nt">&lt;global&gt;</span>false<span class="nt">&lt;/global&gt;</span>
-    <span class="c">&lt;!-- The bounds of the domain. Only taken into account if the domain</span>
-<span class="c">         is not global. --&gt;</span>
     <span class="nt">&lt;domain_bounds&gt;</span>
       <span class="nt">&lt;minimum_longitude&gt;</span>-20<span class="nt">&lt;/minimum_longitude&gt;</span>
       <span class="nt">&lt;maximum_longitude&gt;</span>20<span class="nt">&lt;/maximum_longitude&gt;</span>
@@ -258,14 +246,8 @@ project has been initialized, it will resemble the following:</p>
       <span class="nt">&lt;maximum_latitude&gt;</span>20<span class="nt">&lt;/maximum_latitude&gt;</span>
       <span class="nt">&lt;minimum_depth_in_km&gt;</span>0.0<span class="nt">&lt;/minimum_depth_in_km&gt;</span>
       <span class="nt">&lt;maximum_depth_in_km&gt;</span>200.0<span class="nt">&lt;/maximum_depth_in_km&gt;</span>
-      <span class="c">&lt;!-- The boundary with of the domain. Used to set the boundary</span>
-<span class="c">           conditions (usually PMLs) in the solvers. Also it is made</span>
-<span class="c">           sure that no data crosses this boundary. --&gt;</span>
       <span class="nt">&lt;boundary_width_in_degree&gt;</span>3.0<span class="nt">&lt;/boundary_width_in_degree&gt;</span>
     <span class="nt">&lt;/domain_bounds&gt;</span>
-    <span class="c">&lt;!-- The rotation settings of the domain. Only taken into account if</span>
-<span class="c">         the domain is not global. Set the rotation angle to zero to</span>
-<span class="c">         work in a non-rotated domain. --&gt;</span>
     <span class="nt">&lt;domain_rotation&gt;</span>
       <span class="nt">&lt;rotation_axis_x&gt;</span>1.0<span class="nt">&lt;/rotation_axis_x&gt;</span>
       <span class="nt">&lt;rotation_axis_y&gt;</span>1.0<span class="nt">&lt;/rotation_axis_y&gt;</span>

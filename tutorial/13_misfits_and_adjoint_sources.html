@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>14. Misfit and Adjoint Source Calculation &mdash; LASIF 0.1.x documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="LASIF 0.1.x documentation" href="../index.html"/>
+        <link rel="up" title="Tutorial" href="../tutorial.html"/>
+        <link rel="next" title="15. Model Update" href="14_model_update.html"/>
+        <link rel="prev" title="13. Synthetics" href="12_synthetic_waveforms.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> LASIF
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.x
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_seismic_events.html">3. Seismic Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_data_inspection.html">7. Data Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_data_validation.html">8. Data Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_a_new_iteration.html">9. Defining a New Iteration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_data_preprocessing.html">10. Data Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_model_handling.html">11. Earth Model Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_generating_input_files.html">12. Generating Input Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_synthetic_waveforms.html">13. Synthetics</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">14. Misfit and Adjoint Source Calculation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#weighting-scheme">14.1. Weighting Scheme</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#misfit-gui">14.2. Misfit GUI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#window-selection">14.3. Window Selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#final-adjoint-source-calculation">14.4. Final Adjoint Source Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gradient-visualisation">14.5. Gradient visualisation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="14_model_update.html">15. Model Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="16_customizing_lasif.html">17. Customizing LASIF</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../webinterface.html">Web Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">LASIF</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
+      
+    <li>14. Misfit and Adjoint Source Calculation</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorial/13_misfits_and_adjoint_sources.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p class="centered">
+<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="misfit-and-adjoint-source-calculation">
+<h1>14. Misfit and Adjoint Source Calculation<a class="headerlink" href="#misfit-and-adjoint-source-calculation" title="Permalink to this headline">¶</a></h1>
+<p>In order to calculate sensitivity kernels (gradients) for a given combination
+of  model and data, one needs calculate the adjoint sources. An adjoint source
+is usually dependent on the misfit between the synthetics and real data.</p>
+<p>LASIF currently supports misfits in the time-frequency domain as defined by
+<a class="reference external" href="https://doi.org/10.1111/j.1365-246X.2008.03923.x">Fichtner et al. (GJI 2008)</a> Great care has to be taken
+to avoid cycle skips/phase jumps between synthetics and data. This is achieved
+by careful windowing.</p>
+<div class="section" id="weighting-scheme">
+<h2>14.1. Weighting Scheme<a class="headerlink" href="#weighting-scheme" title="Permalink to this headline">¶</a></h2>
+<p>You may notice that at various points it is possible to
+distribute weights. These weights all contribute to the final adjoint source.
+The inversion scheme requires one adjoint source per iteration, event, station,
+and component.</p>
+<p>In each iteration&#8217;s XML file you can specify the weight for each event, denoted
+as <span class="math">\(w_{event}\)</span> and within each event, the weight per station
+<span class="math">\(w_{station}\)</span>. Both weights are allowed to range between
+0.0 and 1.0. A weight of 0.0 corresponds to no weight at all, e.g. skip the
+event and a weight of 1.0 is the maximum weight.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
+<span class="nt">&lt;iteration&gt;</span>
+  <span class="nt">&lt;iteration_name&gt;</span>1<span class="nt">&lt;/iteration_name&gt;</span>
+  ...
+  <span class="nt">&lt;event&gt;</span>
+    <span class="nt">&lt;event_name&gt;</span>GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2<span class="nt">&lt;/event_name&gt;</span>
+    <span class="nt">&lt;event_weight&gt;</span>1.0<span class="nt">&lt;/event_weight&gt;</span>
+    <span class="nt">&lt;station&gt;</span>
+      <span class="nt">&lt;station_id&gt;</span>LA.AA22<span class="nt">&lt;/station_id&gt;</span>
+      <span class="nt">&lt;station_weight&gt;</span>1.0<span class="nt">&lt;/station_weight&gt;</span>
+    <span class="nt">&lt;/station&gt;</span>
+    <span class="nt">&lt;station&gt;</span>
+      ...
+    <span class="nt">&lt;/station&gt;</span>
+  <span class="nt">&lt;/event&gt;</span>
+    ...
+  <span class="nt">&lt;event&gt;</span>
+  <span class="nt">&lt;/event&gt;</span>
+<span class="nt">&lt;/iteration&gt;</span>
+</pre></div>
+</div>
+<p>You can furthermore choose an arbitrary number of windows per component for
+which the misfit and adjoint source will be calculated. Each window has a
+separate weight, with the only limitation being that the weight has to be
+positive. These weights can be edited after the windows have been selected.</p>
+<p>Assuming <span class="math">\(N\)</span> windows in a given component, the corresponding
+adjoint sources will be called <span class="math">\(adj\_source_{1..N}\)</span> while their
+weights are <span class="math">\(w_{1..N}\)</span>. The final adjoint source for every component
+will be calculated according to the following formula:</p>
+<div class="math">
+\[adj\_source = w_{event} \cdot w_{station} \cdot \frac{1}{\sum_{i=1}^N w_i} \cdot \sum_{i=1}^N w_i \cdot ad\_src_i\]</div>
+</div>
+<div class="section" id="misfit-gui">
+<h2>14.2. Misfit GUI<a class="headerlink" href="#misfit-gui" title="Permalink to this headline">¶</a></h2>
+<p>LASIF comes with a graphical utility called the Misfit GUI, that helps to pick
+correct windows. To launch it, simply type</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif launch_misfit_gui
+</pre></div>
+</div>
+<p>This will open a window that looks like the following:</p>
+<a class="reference internal image-reference" href="../_images/misfit_gui.screenshot.2016-06-14.png"><img alt="../_images/misfit_gui.screenshot.2016-06-14.png" class="align-center" src="../_images/misfit_gui.screenshot.2016-06-14.png" style="width: 90%;" /></a>
+<p>In the top right part of the GUI, you can choose which iteration and which
+event you want to see the synthetics of. The scroll menu shows all the stations
+for which data are available, and you can go to the next station using either
+mouse or keyboard up/down arrows. The map in the bottom right will show which
+event-station combination is currently plotted.</p>
+<p>With the <strong>Next</strong> and <strong>Prev</strong> button you can jump from one station to the
+next. The <strong>Delete All</strong> button will remove all windows for the current
+station. <strong>Autoselect</strong> will run the automatic window selection algorithm for
+the currently selected station.</p>
+<p>To actually choose a window click twice - once for the start and once for the
+end of a window. It will be saved and the adjoint source will be calculated.</p>
+<p>Double clicking on an already existing window will delete it, <code class="docutils literal"><span class="pre">Alt</span></code> + double
+clicking will show the time frequency phase misfit as well as the calculated
+adjoint source.</p>
+<p>The windows are saved in the window XML files (saved on a
+per-station basis in the
+<code class="docutils literal"><span class="pre">ADJOINT_SOURCES_AND_WINDOWS/WINDOWS/{{EVENT_NAME}}/ITERATION_{{ITERATION_NAME}}/</span></code> folder), and currently, this is the only place where the window
+weights can be adjusted.</p>
+</div>
+<div class="section" id="window-selection">
+<h2>14.3. Window Selection<a class="headerlink" href="#window-selection" title="Permalink to this headline">¶</a></h2>
+<p>As an alternative to going through each event-station pair, you can tell LASIF
+to select the windows automatically using</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif select_windows <span class="m">1</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2
+</pre></div>
+</div>
+<p>for a single event in iteration 1, or</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif select_all_windows
+</pre></div>
+</div>
+<p>for all events in the iteration (the latter can also be run with <code class="docutils literal"><span class="pre">mpirun</span> <span class="pre">-n</span> <span class="pre">X</span>
+<span class="pre">...</span></code>. <strong>Use these tools with caution and check their result!</strong></p>
+<p>LASIF comes with a number of utilities to judge the quality of selected
+windows. One of these plots a summary of the temporal and epicentral distance
+distribution of selected events:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_windows --combine <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/combined_selected_windows.png"><img alt="../_images/combined_selected_windows.png" class="align-center" src="../_images/combined_selected_windows.png" style="width: 90%;" /></a>
+</div>
+<div class="section" id="final-adjoint-source-calculation">
+<h2>14.4. Final Adjoint Source Calculation<a class="headerlink" href="#final-adjoint-source-calculation" title="Permalink to this headline">¶</a></h2>
+<p>During window selection, the adjoint source for each chosen window will be
+stored separately. To combine them, apply the weighting scheme and convert them
+to a format, that SES3D can actually use, run the <code class="docutils literal"><span class="pre">finalize_adjoint_sources</span></code>
+command with the iteration name and the event name.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
+$ lasif finalize_adjoint_sources <span class="m">1</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20
+</pre></div>
+</div>
+<p>This will also rotate the adjoint sources to the frame of reference used in the
+simulations.</p>
+<p>If you pick any more windows or change them in any way, you need to run the
+command again. The result of that command is a list of adjoint sources directly
+usable by SES3D in the <code class="docutils literal"><span class="pre">OUTPUT</span></code> folder.</p>
+<p>Copy these to the correct folder inside your SES3D installation, make sure to
+tell SES3D to perform an adjoint reverse simulation and launch it. Please refer
+to the SES3D manual for the necessary details.</p>
+</div>
+<div class="section" id="gradient-visualisation">
+<h2>14.5. Gradient visualisation<a class="headerlink" href="#gradient-visualisation" title="Permalink to this headline">¶</a></h2>
+<p>It is possible to view the raw gradients from a SES3D simulation.  To do this,
+simply put them, along with the <code class="docutils literal"><span class="pre">boxfile</span></code> that is used in SES3D, in the a
+folder according to the following scheme:</p>
+<p><code class="docutils literal"><span class="pre">KERNELS/ITERATION_{{ITERATION_NAME}}/{{EVENT_NAME}}</span></code></p>
+<p>For the example in the tutorial this results in the two folders:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17-14</span></code></li>
+<li><code class="docutils literal"><span class="pre">KERNELS/ITERATION_1/GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20-2</span></code></li>
+</ul>
+<p>If the folder inside an iteration has the name of an event it is assumed to be
+the gradient from that particular event. If it has any other name it can still
+be plotted but you have to take care of the meaning.</p>
+<p>The <code class="docutils literal"><span class="pre">plot_kernel</span></code> command can be used to plot the gradients/kernels and
+usage is similar to the <code class="docutils literal"><span class="pre">plot_events</span></code> command. However, components are now
+called <code class="docutils literal"><span class="pre">grad_{{COMPONENT}}</span></code> &#8211; the same component names as the files
+you copied into the kernels folder. So to plot the gradient for SV velocity
+at 50 km depth for the first event, type</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_kernel KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17/ <span class="m">50</span> grad_csv Kernel.050km.vsv.png
+</pre></div>
+</div>
+<p>Note that the kernel for vsv is called grad_<strong>c</strong>sv &#8211; likewise for the
+other velocities.</p>
+<p>Alternatively, you can again use the model gui in order to explore the
+kernels. This works exactly the same as before, just select your favourite
+<code class="docutils literal"><span class="pre">KERNEL:</span> <span class="pre">{{ITERATION_NAME}}</span> <span class="pre">|</span> <span class="pre">{{EVENT_NAME}}</span></code>. If all is well, it looks
+like this for the <strong>raw, unsmoothed</strong> vsv kernel:</p>
+<a class="reference internal image-reference" href="../_images/model_gui_KERNEL.screenshot.2016-06-16.png"><img alt="../_images/model_gui_KERNEL.screenshot.2016-06-16.png" class="align-center" src="../_images/model_gui_KERNEL.screenshot.2016-06-16.png" style="width: 90%;" /></a>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="14_model_update.html" class="btn btn-neutral float-right" title="15. Model Update" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="12_synthetic_waveforms.html" class="btn btn-neutral" title="13. Synthetics" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Lion Krischer &amp; Andreas Fichtner.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1.x',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
