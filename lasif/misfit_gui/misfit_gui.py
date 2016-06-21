@@ -14,7 +14,7 @@ import imp
 import inspect
 import matplotlib.patheffects as PathEffects
 from obspy.geodetics import locations2degrees
-from obspy.taup.taup import getTravelTimes
+from obspy.taup import TauPyModel
 import os
 import random
 import sys
@@ -23,6 +23,9 @@ from ..colors import COLORS
 from .window_region_item import WindowLinearRegionItem
 
 import lasif.visualization
+
+
+taupy_model = TauPyModel("ak135")
 
 
 def compile_and_import_ui_files():
@@ -235,8 +238,9 @@ class Window(QtGui.QMainWindow):
         great_circle_distance = locations2degrees(
             event["latitude"], event["longitude"],
             wave.coordinates["latitude"], wave.coordinates["longitude"])
-        tts = getTravelTimes(great_circle_distance, event["depth_in_km"],
-                             model="ak135")
+        tts = taupy_model.get_travel_times(
+            source_depth_in_km=event["depth_in_km"],
+            distance_in_degree=great_circle_distance)
 
         windows_for_station = \
             self.current_window_manager.get_windows_for_station(
@@ -262,13 +266,13 @@ class Window(QtGui.QMainWindow):
 
             if data_tr or synth_tr:
                 for tt in tts:
-                    if tt["time"] >= times[-1]:
+                    if tt.time >= times[-1]:
                         continue
-                    if tt["phase_name"][0].lower() == "p":
+                    if tt.name[0].lower() == "p":
                         pen = "#008c2866"
                     else:
                         pen = "#95000066"
-                    plot_widget.addLine(x=tt["time"], pen=pen, z=-10)
+                    plot_widget.addLine(x=tt.time, pen=pen, z=-10)
 
             plot_widget.autoRange()
 
