@@ -99,7 +99,7 @@ the currently selected station.
 To actually choose a window click twice - once for the start and once for the
 end of a window. It will be saved and the adjoint source will be calculated.
 
-Double clicking on an already existing window will delete it, ``Alt`` + double
+Double clicking on an already existing window will delete it, ``Alt`` +
 clicking will show the time frequency phase misfit as well as the calculated
 adjoint source.
 
