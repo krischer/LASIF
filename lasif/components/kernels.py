@@ -46,13 +46,11 @@ class KernelsComponent(Component):
 
     def get(self, iteration, event):
         iteration = self.comm.iterations.get(iteration)
-        event = self.comm.events.get(event)
-        kernel_dir = os.path.join(self._folder, iteration.long_name,
-                                  event["event_name"])
+        kernel_dir = os.path.join(self._folder, iteration.long_name, event)
         if not os.path.exists(kernel_dir) or not os.path.isdir(kernel_dir):
             raise LASIFNotFoundError("Kernel for iteration %s and event %s "
                                      "not found" % (iteration.long_name,
-                                                    event["event_name"]))
+                                                    event))
         return kernel_dir
 
     def assert_has_boxfile(self, iteration, event):
