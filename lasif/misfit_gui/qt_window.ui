@@ -317,7 +317,7 @@
              </font>
             </property>
             <property name="text">
-             <string>* Alt + double click to plot the adjoint source of any window</string>
+             <string>* Alt + click to plot the adjoint source of any window</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>

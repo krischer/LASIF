@@ -29,10 +29,14 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         self.win.endtime = end
         self.win._Window__collection.write()
 
-    def mouseDoubleClickEvent(self, ev):
-        if ev.modifiers() == QtCore.Qt.AltModifier:
+    def mouseClickEvent(self, ev):
+        if ev.modifiers() & (
+                QtCore.Qt.AltModifier | QtCore.Qt.ShiftModifier |
+                QtCore.Qt.ControlModifier):
             self.win.plot_adjoint_source()
-        else:
+
+    def mouseDoubleClickEvent(self, ev):
+        if not ev.modifiers():
             coll = self.win._Window__collection
             coll.delete_window(self.win.starttime, self.win.endtime)
             coll.write()
