@@ -88,7 +88,10 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="00_interfaces.html">1. Interfaces</a></li>
 <li class="toctree-l2"><a class="reference internal" href="01_creating_a_new_project.html">2. Creating a New Project</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">3. Seismic Events</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">3. Seismic Events</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-event-selection">3.1. Automatic Event Selection</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="03_station_data.html">4. Station Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="04_waveform_data.html">5. Waveform Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_download_helpers.html">6. Download Helpers</a></li>
@@ -227,6 +230,25 @@ Station and waveform information available at <span class="m">0</span> stations.
 useful if the event has more than one origin and you want to know which one
 is actually used by <strong>LASIF</strong>. Notice that the event currently has no data associated
 with it. We will fix this in the next section.</p>
+<div class="section" id="automatic-event-selection">
+<h2>3.1. Automatic Event Selection<a class="headerlink" href="#automatic-event-selection" title="Permalink to this headline">¶</a></h2>
+<p>Selecting events becomes tedious when selecting a larger number of events. Thus
+<strong>LASIF</strong> comes with an automatic routine to select events from the GCMT
+catalog, the <code class="docutils literal"><span class="pre">lasif</span> <span class="pre">add_gcmt_events</span></code> command. Arguments are number of events
+to select, minimum magnitude, maximum magnitude, and the minimum distance
+between two events in kilometers. See its help method for more details.</p>
+<p>It will select events in an optimally distributed fashion by successively
+adding events that have the largest distance to the next closest station,
+approximating a Poisson disc distribution.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif add_gcmt_events <span class="m">40</span> <span class="m">5</span> 6.5 10
+
+LASIF currently contains GCMT data from <span class="m">2005</span> to 2016/2.
+...
+Selected <span class="m">40</span> events.
+Written EVENTS/GCMT_event_...
+...
+</pre></div>
+</div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">You do not need to add all events you plan to use in the inversion at the
@@ -235,6 +257,7 @@ beginning. Only add those you want to use for the very first inversion.
 weighting schemes, etc. for every iteration. It will keep track of what
 actually happened during each iteration so the project gains
 <strong>reproducibility and provenance</strong>.</p>
+</div>
 </div>
 </div>
 

@@ -135,6 +135,32 @@ useful if the event has more than one origin and you want to know which one
 is actually used by **LASIF**. Notice that the event currently has no data associated
 with it. We will fix this in the next section.
 
+
+Automatic Event Selection
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Selecting events becomes tedious when selecting a larger number of events. Thus
+**LASIF** comes with an automatic routine to select events from the GCMT
+catalog, the ``lasif add_gcmt_events`` command. Arguments are number of events
+to select, minimum magnitude, maximum magnitude, and the minimum distance
+between two events in kilometers. See its help method for more details.
+
+It will select events in an optimally distributed fashion by successively
+adding events that have the largest distance to the next closest station,
+approximating a Poisson disc distribution.
+
+.. code-block:: bash
+
+    $ lasif add_gcmt_events 40 5 6.5 10
+
+    LASIF currently contains GCMT data from 2005 to 2016/2.
+    ...
+    Selected 40 events.
+    Written EVENTS/GCMT_event_...
+    ...
+
+
+
 .. note::
 
     You do not need to add all events you plan to use in the inversion at the
