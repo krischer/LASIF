@@ -221,7 +221,8 @@ class RectangularSphericalSection(Domain):
 
         return True
 
-    def plot(self, plot_simulation_domain=False, ax=None, resolution=None):
+    def plot(self, plot_simulation_domain=False, ax=None, resolution=None,
+             skip_map_features=False):
         import matplotlib.pyplot as plt
         from mpl_toolkits.basemap import Basemap
 
@@ -272,7 +273,9 @@ class RectangularSphericalSection(Domain):
                         height=height, lat_0=self.center.latitude,
                         lon_0=self.center.longitude, ax=ax)
 
-        _plot_features(m, stepsize)
+        # This is fairly expensive and can thus be skipped.
+        if not skip_map_features:
+            _plot_features(m, stepsize)
 
         if plot_simulation_domain and self.rotation_angle_in_degree:
             _plot_lines(m, self.unrotated_border, color="red", lw=2,
