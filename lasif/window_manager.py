@@ -492,6 +492,9 @@ class Window(object):
 
     @property
     def adjoint_source(self):
+        return self.get_adjoint_source()
+
+    def get_adjoint_source(self, force_calculation=False):
         if self.comm is None:
             raise ValueError("Operation only possible with an active "
                              "communicator instance.")
@@ -501,7 +504,8 @@ class Window(object):
             self.__collection.event_name, self.__collection.synthetics_tag,
             self.__collection.channel_id,
             self.starttime, self.endtime, self.taper,
-            self.taper_percentage, self.misfit_type)
+            self.taper_percentage, self.misfit_type,
+            force_calculation=force_calculation)
         return adsrc
 
     def plot_adjoint_source(self):
@@ -533,7 +537,11 @@ class Window(object):
 
     @property
     def misfit_value(self):
-        return self.adjoint_source["misfit_value"]
+        return self.get_misfit_value()
+
+    def get_misfit_value(self, force_calculation=False):
+        return self.get_adjoint_source(force_calculation=force_calculation)[
+            "misfit_value"]
 
     def __eq__(self, other):
         if not isinstance(other, Window):

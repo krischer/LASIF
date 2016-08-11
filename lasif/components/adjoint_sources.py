@@ -37,7 +37,8 @@ class AdjointSourcesComponent(Component):
 
     def calculate_adjoint_source(self, event_name, iteration_name,
                                  channel_id, starttime, endtime, taper,
-                                 taper_percentage, ad_src_type, plot=False):
+                                 taper_percentage, ad_src_type, plot=False,
+                                 force_calculation=False):
         """
         Calculates an adjoint source for a single window.
 
@@ -128,7 +129,8 @@ class AdjointSourcesComponent(Component):
         adsrc = MISFIT_MAPPING[ad_src_type](
             t, data_d, synth_d,
             1.0 / process_parameters["lowpass"],
-            1.0 / process_parameters["highpass"], plot=plot)
+            1.0 / process_parameters["highpass"], plot=plot,
+            force_calculation=force_calculation)
         if plot:
             return
 

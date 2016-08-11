@@ -25,7 +25,7 @@ eps = np.spacing(1)
 
 
 def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
-                          plot=False):
+                          plot=False, force_calculation=False):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -154,7 +154,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     # compute the adjoint source when no phase jump detected ------------------
 
-    if criterion <= 7.0:
+    if force_calculation or criterion <= 7.0:
         # Make kernel for the inverse tf transform
         idp = ne.evaluate(
             "weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)")
