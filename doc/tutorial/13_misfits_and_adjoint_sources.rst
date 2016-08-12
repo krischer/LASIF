@@ -201,6 +201,6 @@ kernels. This works exactly the same as before, just select your favourite
 ``KERNEL: {{ITERATION_NAME}} | {{EVENT_NAME}}``. If all is well, it looks
 like this for the **raw, unsmoothed** vsv kernel:
 
-.. image:: ../images/model_gui_KERNEL.screenshot.2016-06-16.png
+.. image:: ../images/model_gui_KERNEL.screenshot.2016-06-16.jpg
     :width: 90%
     :align: center
