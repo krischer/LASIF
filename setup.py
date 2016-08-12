@@ -65,7 +65,6 @@ setup_config = dict(
         "nose",
         "numexpr",
         "pytest",
-        "flake8",
         "mock",
         "flask",
         "flask-cache",

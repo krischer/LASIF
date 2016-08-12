@@ -450,7 +450,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
 
         plt.plot(times, data, color="black", label="data", lw=1.5)
         plt.plot(synthetic_trace.times(), synth, color="#e41a1c",
-                 label="synthetics",  lw=1.5)
+                 label="synthetics", lw=1.5)
 
         # Symmetric around y axis.
         middle = data.mean()
