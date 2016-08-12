@@ -1,5 +1,13 @@
 .. centered:: Last updated on *August 12th 2016*.
 
+.. note::
+
+    The following links shows the example project as it should be just before
+    step 13. You can use this to check your progress or restart the tutorial at
+    this very point.
+
+    `After Step 13: Synthetics <https://github.com/krischer/LASIF_Tutorial/tree/after_step_13_synthetics>`_
+
 Misfit and Adjoint Source Calculation
 -------------------------------------
 

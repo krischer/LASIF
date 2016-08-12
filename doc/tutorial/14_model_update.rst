@@ -1,5 +1,13 @@
 .. centered:: Last updated on *August 12th 2016*.
 
+.. note::
+
+    The following links shows the example project as it should be just before
+    step 14. You can use this to check your progress or restart the tutorial at
+    this very point.
+
+    `After Step 14: Misfit and Adjoint Sources <https://github.com/krischer/LASIF_Tutorial/tree/after_step_14_misfit_and_adjoint_source>`_
+
 Model Update
 ------------
 
