@@ -970,6 +970,8 @@ def lasif_compare_misfits(parser, args):
         window_group_to = comm.windows.get(event, to_it)
         window_group_from = comm.windows.get(event, from_it)
 
+        event_weight = from_it.events[event]["event_weight"]
+
         # Get a list of channels shared amongst both.
         shared_channels = set(window_group_to.list()).intersection(
             set(window_group_from.list()))
@@ -989,6 +991,13 @@ def lasif_compare_misfits(parser, args):
                 pbar.update(_i)
             window_collection_from = window_group_from.get(channel)
             window_collection_to = window_group_to.get(channel)
+
+            station_weight = from_it.events[event]["stations"][
+                ".".join(channel.split(".")[:2])]["station_weight"]
+
+            channel_misfit_from = 0
+            channel_misfit_to = 0
+            total_channel_weight = 0
 
             for win_from in window_collection_from.windows:
                 try:
@@ -1015,12 +1024,21 @@ def lasif_compare_misfits(parser, args):
                     # Random penalty...but how else to compare?
                     misfit_to = 2.0 * misfit_from
 
-                total_misfit_from += misfit_from
-                total_misfit_to += misfit_to
+                channel_misfit_from += misfit_from * win_from.weight
+                channel_misfit_to += misfit_to * win_from.weight
+                total_channel_weight += win_from.weight
 
-                if (misfit_to - misfit_from) < -1.5:
-                    print(event, channel, misfit_from - misfit_to)
-                all_events[event].append(misfit_to - misfit_from)
+            # Make sure the misfits are consistent with the adjoint source
+            # calculations!
+            misfit_from *= event_weight * station_weight / total_channel_weight
+            misfit_to *= event_weight * station_weight / total_channel_weight
+
+            total_misfit_from += misfit_from
+            total_misfit_to += misfit_to
+
+            if (misfit_to - misfit_from) < -1.5:
+                print(event, channel, misfit_from - misfit_to)
+            all_events[event].append(misfit_to - misfit_from)
         if MPI.COMM_WORLD.rank == 0:
             pbar.finish()
 
