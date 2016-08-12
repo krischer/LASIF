@@ -1,3 +1,5 @@
+.. centered:: Last updated on *August 12th 2016*.
+
 Customizing LASIF
 -----------------
 

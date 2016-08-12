@@ -1,4 +1,4 @@
-.. centered:: Last updated on *June 19th 2016*.
+.. centered:: Last updated on *August 12th 2016*.
 
 Defining a New Iteration
 ------------------------

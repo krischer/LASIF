@@ -162,7 +162,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="customizing-lasif">
+  <p class="centered">
+<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="section" id="customizing-lasif">
 <h1>17. Customizing LASIF<a class="headerlink" href="#customizing-lasif" title="Permalink to this headline">¶</a></h1>
 <p>Sometimes the built-in configuration possibilities of LASIF just don&#8217;t cut
 it and you need to change things in a more profound way. To this end LASIF
@@ -277,7 +278,7 @@ work as expected.</p>
 component flips to get them to ZNE) to the synthetics but just
 uses them as is. If your workflow requires the synthetics to be processed,
 please do it in this function. It will be applied on the fly to each
-up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object of synthetic
+up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object of synthetic
 data.</p>
 <p>The default implementation is this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
@@ -286,7 +287,7 @@ data.</p>
 </div>
 <p>This is very useful for processing the synthetics in any fashion or to shift
 them time and similar endeavours. Make sure it returns a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.1) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <p><code class="docutils literal"><span class="pre">iteration</span></code> and <code class="docutils literal"><span class="pre">event</span></code> are the <a class="reference internal" href="../iteration_xml.html#lasif.iteration_xml.Iteration" title="lasif.iteration_xml.Iteration"><code class="xref py py-class docutils literal"><span class="pre">Iteration</span></code></a>
 object of the current iteration and a dictionary containing information about
 the data&#8217;s event, respectively.</p>

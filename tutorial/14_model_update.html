@@ -102,6 +102,8 @@
 <li class="toctree-l2"><a class="reference internal" href="13_misfits_and_adjoint_sources.html">14. Misfit and Adjoint Source Calculation</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">15. Model Update</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#actual-model-update">15.1. Actual model update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#line-search-model-update-check">15.2. Line Search/Model Update Check</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simple-update-script">15.3. Simple Update Script</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="15_next_iterations.html">16. Next Iterations</a></li>
@@ -159,7 +161,14 @@
            <div itemprop="articleBody">
             
   <p class="centered">
-<strong>Last updated on <em>June 19th 2016</em>.</strong></p><div class="section" id="model-update">
+<strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The following links shows the example project as it should be just before
+step 14. You can use this to check your progress or restart the tutorial at
+this very point.</p>
+<p class="last"><a class="reference external" href="https://github.com/krischer/LASIF_Tutorial/tree/after_step_14_misfit_and_adjoint_source">After Step 14: Misfit and Adjoint Sources</a></p>
+</div>
+<div class="section" id="model-update">
 <h1>15. Model Update<a class="headerlink" href="#model-update" title="Permalink to this headline">¶</a></h1>
 <p><strong>LASIF</strong> per se does not aid you with actually updating the model. This is a
 concious design decision as a large part of the research or black art aspect in
@@ -176,6 +185,231 @@ to do this manually. Keep in mind that the kernels SES3D produces initially
 are the raw gradients, and unsmoothed. You will probably need to smooth them
 before updating the model to get reasonable results without excessive
 focusing near sources and/or receivers.</p>
+</div>
+<div class="section" id="line-search-model-update-check">
+<h2>15.2. Line Search/Model Update Check<a class="headerlink" href="#line-search-model-update-check" title="Permalink to this headline">¶</a></h2>
+<p>At one point you will have to check the total misfit for a certain iteration
+and model - be it for a line search or to check a new test model. The
+recommended strategy to do this within LASIF is to use &#8220;side-iterations&#8221;, e.g.
+in the following we will test the misfit for a model update with a step length
+of 0.5:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif create_successive_iteration <span class="m">1</span> 1_steplength_0.5
+$ lasif migrate_windows <span class="m">1</span> 1_steplength_0.5
+<span class="c1"># Copy synthetics for the test iteration - then calculate both misfits.</span>
+$ mpirun -n <span class="m">4</span> lasif compare_misfits <span class="m">1</span> 1_steplength_0.5
+</pre></div>
+</div>
+<p>You will notice that the <code class="docutils literal"><span class="pre">compare_misfits</span></code> command always requires two
+iterations. This is necessary as any  misfit must be calculated for exactly the
+same stations, windows, and weights for two iterations to be comparable.  For
+steepest/gradient descent optimization methods it is fine to just take the
+current and next iteration, for others like conjugate gradient and L-BFGS make
+sure to choose the correct baseline iteration to get comparable misfit
+measurements!</p>
+</div>
+<div class="section" id="simple-update-script">
+<h2>15.3. Simple Update Script<a class="headerlink" href="#simple-update-script" title="Permalink to this headline">¶</a></h2>
+<p>The following is a short script that demonstrates the principles of how to
+perform a model update. It does a simple gradient descent update at various
+step lengths that then have to be tested. It requires the initial model as well
+as the kernels to be in the SES3D regular grid format and utilizes the Python
+tools shipping with SES3D.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="c1"># This is from the SES3D Python tools.</span>
+<span class="kn">import</span> <span class="nn">models</span> <span class="kn">as</span> <span class="nn">m</span>
+
+<span class="c1"># Input. ----------------------------------------------------------------------</span>
+<span class="c1"># Directory where the current model is located.</span>
+<span class="n">dir_current_model</span> <span class="o">=</span> <span class="s2">&quot;../MODELS/MODELS_3D/MODEL.66/&quot;</span>
+
+<span class="c1"># Directory where test models will be written.</span>
+<span class="n">dir_test_models</span> <span class="o">=</span> <span class="s2">&quot;../MODELS/MODELS_3D/MODEL.67/&quot;</span>
+
+<span class="c1"># Directory where current gradients are located.</span>
+<span class="n">dir_kernels</span> <span class="o">=</span> <span class="s2">&quot;../GRADIENTS/ITERATION_1/&quot;</span>
+
+<span class="c1"># List of events for which kernels are available.</span>
+<span class="n">eventlist</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20&quot;</span><span class="p">]</span>
+
+<span class="c1"># Smoothing iterations.</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="mf">3.0</span>
+
+<span class="c1"># Test step lengths.</span>
+<span class="n">gamma</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+
+<span class="c1"># Read current model. ---------------------------------------------------------</span>
+<span class="k">print</span> <span class="s2">&quot;read current model from directory &quot;</span> <span class="o">+</span> <span class="n">dir_current_model</span>
+
+<span class="n">csv</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">csh</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">cp</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+
+<span class="n">csv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_current_model</span><span class="p">,</span> <span class="s1">&#39;dvsv&#39;</span><span class="p">)</span>
+<span class="n">csh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_current_model</span><span class="p">,</span> <span class="s1">&#39;dvsh&#39;</span><span class="p">)</span>
+<span class="n">rho</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_current_model</span><span class="p">,</span> <span class="s1">&#39;drho&#39;</span><span class="p">)</span>
+<span class="n">cp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_current_model</span><span class="p">,</span> <span class="s1">&#39;dvp&#39;</span><span class="p">)</span>
+
+<span class="c1"># Read gradients of the current iteration. ------------------------------------</span>
+<span class="c1"># Initialisation.</span>
+<span class="n">grad_csv</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">grad_csh</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">grad_rho</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">grad_cp</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+
+<span class="n">grad_csv_k</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">grad_csh_k</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">grad_rho_k</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+<span class="n">grad_cp_k</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">ses3d_model</span><span class="p">()</span>
+
+<span class="c1"># Loop through events.</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">eventlist</span><span class="p">:</span>
+
+    <span class="k">print</span> <span class="s2">&quot;read kernels for event &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="n">eventlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+
+        <span class="c1">#  Read kernels.</span>
+        <span class="n">grad_csv</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_kernels</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;gradient_csv&#39;</span><span class="p">)</span>
+        <span class="n">grad_csh</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_kernels</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;gradient_csh&#39;</span><span class="p">)</span>
+        <span class="n">grad_rho</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_kernels</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;gradient_rho&#39;</span><span class="p">)</span>
+        <span class="n">grad_cp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_kernels</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;gradient_cp&#39;</span><span class="p">)</span>
+
+        <span class="c1">#  Clip the upper percentile to remove singularities.</span>
+        <span class="n">grad_csv</span><span class="o">.</span><span class="n">clip_percentile</span><span class="p">(</span><span class="mf">99.9</span><span class="p">)</span>
+        <span class="n">grad_csh</span><span class="o">.</span><span class="n">clip_percentile</span><span class="p">(</span><span class="mf">99.9</span><span class="p">)</span>
+        <span class="n">grad_cp</span><span class="o">.</span><span class="n">clip_percentile</span><span class="p">(</span><span class="mf">99.9</span><span class="p">)</span>
+        <span class="n">grad_rho</span><span class="o">.</span><span class="n">clip_percentile</span><span class="p">(</span><span class="mf">99.9</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="c1"># Read kernels.</span>
+        <span class="n">grad_csv_k</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_kernels</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;gradient_csv&#39;</span><span class="p">)</span>
+        <span class="n">grad_csh_k</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_kernels</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;gradient_csh&#39;</span><span class="p">)</span>
+        <span class="n">grad_rho_k</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_kernels</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;gradient_rho&#39;</span><span class="p">)</span>
+        <span class="n">grad_cp_k</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dir_kernels</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;gradient_cp&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Clip the upper percentile to remove singularities.</span>
+        <span class="n">grad_csv_k</span><span class="o">.</span><span class="n">clip_percentile</span><span class="p">(</span><span class="mf">99.9</span><span class="p">)</span>
+        <span class="n">grad_csh_k</span><span class="o">.</span><span class="n">clip_percentile</span><span class="p">(</span><span class="mf">99.9</span><span class="p">)</span>
+        <span class="n">grad_cp_k</span><span class="o">.</span><span class="n">clip_percentile</span><span class="p">(</span><span class="mf">99.9</span><span class="p">)</span>
+        <span class="n">grad_rho_k</span><span class="o">.</span><span class="n">clip_percentile</span><span class="p">(</span><span class="mf">99.9</span><span class="p">)</span>
+
+        <span class="c1"># Add to the previous kernels.</span>
+        <span class="n">grad_csv</span> <span class="o">=</span> <span class="n">grad_csv</span> <span class="o">+</span> <span class="n">grad_csv_k</span>
+        <span class="n">grad_csh</span> <span class="o">=</span> <span class="n">grad_csh</span> <span class="o">+</span> <span class="n">grad_csh_k</span>
+        <span class="n">grad_rho</span> <span class="o">=</span> <span class="n">grad_rho</span> <span class="o">+</span> <span class="n">grad_rho_k</span>
+        <span class="n">grad_cp</span> <span class="o">=</span> <span class="n">grad_cp</span> <span class="o">+</span> <span class="n">grad_cp_k</span>
+
+<span class="c1"># Compute the new descent direction. ------------------------------------------</span>
+<span class="c1"># Simple gradient descent.</span>
+<span class="n">h_csv</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">grad_csv</span>
+<span class="n">h_csh</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">grad_csh</span>
+<span class="n">h_cp</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">grad_cp</span>
+<span class="n">h_rho</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">grad_rho</span>
+
+<span class="c1"># Store new gradients and descent directions. ---------------------------------</span>
+<span class="n">grad_csv</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;gradient_csv_sum&#39;</span><span class="p">)</span>
+<span class="n">grad_csh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;gradient_csh_sum&#39;</span><span class="p">)</span>
+<span class="n">grad_rho</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;gradient_rho_sum&#39;</span><span class="p">)</span>
+<span class="n">grad_cp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;gradient_cp_sum&#39;</span><span class="p">)</span>
+
+<span class="n">h_csv</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;h_csv_sum&#39;</span><span class="p">)</span>
+<span class="n">h_csh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;h_csh_sum&#39;</span><span class="p">)</span>
+<span class="n">h_rho</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;h_rho_sum&#39;</span><span class="p">)</span>
+<span class="n">h_cp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;h_cp_sum&#39;</span><span class="p">)</span>
+
+<span class="c1"># Apply smoothing. ------------------------------------------------------------</span>
+<span class="k">print</span> <span class="s2">&quot;smoothing&quot;</span>
+
+<span class="n">h_csv</span><span class="o">.</span><span class="n">smooth_horizontal</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">filter_type</span><span class="o">=</span><span class="s1">&#39;neighbour&#39;</span><span class="p">)</span>
+<span class="n">h_csh</span><span class="o">.</span><span class="n">smooth_horizontal</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">filter_type</span><span class="o">=</span><span class="s1">&#39;neighbour&#39;</span><span class="p">)</span>
+<span class="n">h_cp</span><span class="o">.</span><span class="n">smooth_horizontal</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">filter_type</span><span class="o">=</span><span class="s1">&#39;neighbour&#39;</span><span class="p">)</span>
+<span class="n">h_rho</span><span class="o">.</span><span class="n">smooth_horizontal</span><span class="p">(</span><span class="n">sigma</span><span class="p">,</span> <span class="n">filter_type</span><span class="o">=</span><span class="s1">&#39;neighbour&#39;</span><span class="p">)</span>
+
+<span class="c1"># Relative importance of the kernels. -----------------------------------------</span>
+<span class="n">sum_csv</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">sum_csh</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">sum_rho</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">sum_cp</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">grad_csv</span><span class="o">.</span><span class="n">nsubvol</span><span class="p">):</span>
+
+    <span class="n">sum_csv</span> <span class="o">=</span> <span class="n">sum_csv</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_csv</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">))</span>
+    <span class="n">sum_csh</span> <span class="o">=</span> <span class="n">sum_csh</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_csh</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">))</span>
+    <span class="n">sum_rho</span> <span class="o">=</span> <span class="n">sum_rho</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_rho</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">))</span>
+    <span class="n">sum_cp</span> <span class="o">=</span> <span class="n">sum_cp</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_cp</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">))</span>
+
+<span class="n">max_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">sum_csv</span><span class="p">,</span> <span class="n">sum_csh</span><span class="p">,</span> <span class="n">sum_cp</span><span class="p">,</span> <span class="n">sum_rho</span><span class="p">])</span>
+
+<span class="n">scale_csv_total</span> <span class="o">=</span> <span class="n">sum_csv</span> <span class="o">/</span> <span class="n">max_sum</span>
+<span class="n">scale_csh_total</span> <span class="o">=</span> <span class="n">sum_csh</span> <span class="o">/</span> <span class="n">max_sum</span>
+<span class="n">scale_rho_total</span> <span class="o">=</span> <span class="n">sum_rho</span> <span class="o">/</span> <span class="n">max_sum</span>
+<span class="n">scale_cp_total</span> <span class="o">=</span> <span class="n">sum_cp</span> <span class="o">/</span> <span class="n">max_sum</span>
+
+<span class="k">print</span> <span class="n">scale_csv_total</span><span class="p">,</span> <span class="n">scale_csh_total</span><span class="p">,</span> <span class="n">scale_rho_total</span><span class="p">,</span> <span class="n">scale_cp_total</span>
+
+<span class="c1"># Depth scaling.---------------------------------------------------------------</span>
+<span class="n">max_csv</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">max_csh</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">max_rho</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">max_cp</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">h_csv</span><span class="o">.</span><span class="n">nsubvol</span><span class="p">):</span>
+
+    <span class="n">max_csv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_csv</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:])))</span>
+    <span class="n">max_csh</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_csh</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:])))</span>
+    <span class="n">max_rho</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_rho</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:])))</span>
+    <span class="n">max_cp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_cp</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:])))</span>
+
+<span class="n">max_csv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">max_csv</span><span class="p">)</span>
+<span class="n">max_csh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">max_csh</span><span class="p">)</span>
+<span class="n">max_rho</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">max_rho</span><span class="p">)</span>
+<span class="n">max_cp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">max_cp</span><span class="p">)</span>
+
+<span class="n">damp</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">h_csv</span><span class="o">.</span><span class="n">nsubvol</span><span class="p">):</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">h_csv</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">r</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+
+        <span class="n">h_csv</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">h_csv</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">damp</span> <span class="o">*</span> <span class="n">max_csv</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_csv</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">])))</span>
+        <span class="n">h_csh</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">h_csh</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">damp</span> <span class="o">*</span> <span class="n">max_csh</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_csh</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">])))</span>
+        <span class="n">h_rho</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">h_rho</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">damp</span> <span class="o">*</span> <span class="n">max_rho</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_rho</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">])))</span>
+        <span class="n">h_cp</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">h_cp</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span>
+            <span class="n">damp</span> <span class="o">*</span> <span class="n">max_cp</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">h_cp</span><span class="o">.</span><span class="n">m</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">v</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">])))</span>
+
+<span class="n">h_csv</span> <span class="o">=</span> <span class="n">scale_csv_total</span> <span class="o">*</span> <span class="n">h_csv</span>
+<span class="n">h_csh</span> <span class="o">=</span> <span class="n">scale_csh_total</span> <span class="o">*</span> <span class="n">h_csh</span>
+<span class="n">h_rho</span> <span class="o">=</span> <span class="n">scale_rho_total</span> <span class="o">*</span> <span class="n">h_rho</span>
+<span class="n">h_cp</span> <span class="o">=</span> <span class="n">scale_cp_total</span> <span class="o">*</span> <span class="n">h_cp</span>
+
+<span class="c1"># Store the smoothed descent directions. --------------------------------------</span>
+<span class="n">h_csv</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;h_csv_sum_smoothed&#39;</span><span class="p">)</span>
+<span class="n">h_csh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;h_csh_sum_smoothed&#39;</span><span class="p">)</span>
+<span class="n">h_rho</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;h_rho_sum_smoothed&#39;</span><span class="p">)</span>
+<span class="n">h_cp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_kernels</span><span class="p">,</span> <span class="s1">&#39;h_cp_sum_smoothed&#39;</span><span class="p">)</span>
+
+<span class="c1"># Compute and store updates. --------------------------------------------------</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gamma</span><span class="p">)):</span>
+    <span class="n">csv_new</span> <span class="o">=</span> <span class="n">csv</span> <span class="o">+</span> <span class="n">gamma</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">h_csv</span>
+    <span class="n">csh_new</span> <span class="o">=</span> <span class="n">csh</span> <span class="o">+</span> <span class="n">gamma</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">h_csh</span>
+    <span class="n">rho_new</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">+</span> <span class="n">gamma</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">h_rho</span>
+    <span class="n">cp_new</span> <span class="o">=</span> <span class="n">cp</span> <span class="o">+</span> <span class="n">gamma</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">h_cp</span>
+
+    <span class="n">csv_new</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_test_models</span><span class="p">,</span> <span class="s1">&#39;dvsv.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">gamma</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+    <span class="n">csh_new</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_test_models</span><span class="p">,</span> <span class="s1">&#39;dvsh.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">gamma</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+    <span class="n">rho_new</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_test_models</span><span class="p">,</span> <span class="s1">&#39;drho.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">gamma</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+    <span class="n">cp_new</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dir_test_models</span><span class="p">,</span> <span class="s1">&#39;dvp.&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">gamma</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+</pre></div>
+</div>
 </div>
 </div>
 

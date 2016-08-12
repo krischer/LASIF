@@ -1,4 +1,13 @@
-.. centered:: Last updated on *June 19th 2016*.
+.. centered:: Last updated on *August 12th 2016*.
+
+.. note::
+
+    The following links shows the example project as it should be just before
+    step 2. You can use this to check your progress or restart the tutorial at
+    this very point.
+
+    `After Step 2: Creating a new Project <https://github.com/krischer/LASIF_Tutorial/tree/after_step_2_creating_a_new_project>`_
+
 
 Seismic Events
 --------------
