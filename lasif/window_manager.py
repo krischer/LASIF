@@ -88,6 +88,8 @@ from lxml import etree
 from lxml.builder import E
 import os
 
+from lasif import LASIFAdjointSourceCalculationError
+
 # XXX: Change this!
 DEFAULT_AD_SRC_TYPE = "TimeFrequencyPhaseMisfitFichtner2008"
 
@@ -492,6 +494,13 @@ class Window(object):
 
     @property
     def adjoint_source(self):
+        adj_src = self.get_adjoint_source()
+        if adj_src["adjoint_source"] is None:
+            raise LASIFAdjointSourceCalculationError("Could not calculate "
+                                                     "adjoint source!")
+        return adj_src
+
+    def get_adjoint_source(self):
         if self.comm is None:
             raise ValueError("Operation only possible with an active "
                              "communicator instance.")
@@ -533,7 +542,8 @@ class Window(object):
 
     @property
     def misfit_value(self):
-        return self.adjoint_source["misfit_value"]
+        adj_src = self.get_adjoint_source()
+        return adj_src["misfit_value"]
 
     def __eq__(self, other):
         if not isinstance(other, Window):

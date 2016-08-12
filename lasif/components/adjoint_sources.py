@@ -128,7 +128,10 @@ class AdjointSourcesComponent(Component):
         adsrc = MISFIT_MAPPING[ad_src_type](
             t, data_d, synth_d,
             1.0 / process_parameters["lowpass"],
-            1.0 / process_parameters["highpass"], plot=plot)
+            1.0 / process_parameters["highpass"], plot=plot,
+            max_criterion=self.comm.project.config["misc_settings"][
+                "time_frequency_adjoint_source_criterion"]
+        )
         if plot:
             return
 
@@ -138,6 +141,12 @@ class AdjointSourcesComponent(Component):
             "misfit_value": adsrc["misfit_value"],
             "details": adsrc["details"]
         }
+
+        # If the adjoint source has not been calculated, the misfit might
+        # still have. Don't store the adjoint source in that case.
+        if ret_val["adjoint_source"] is None and \
+                isinstance(ret_val["misfit_value"], float):
+            return ret_val
 
         if not self._validate_return_value(ret_val):
             raise LASIFAdjointSourceCalculationError(

@@ -25,7 +25,7 @@ eps = np.spacing(1)
 
 
 def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
-                          plot=False):
+                          plot=False, max_criterion=7.0):
     """
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
@@ -134,12 +134,6 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     criterion_1 = np.sum([np.abs(np.diff(test_field, axis=0)) > 0.7])
     criterion_2 = np.sum([np.abs(np.diff(test_field, axis=1)) > 0.7])
     criterion = np.sum([criterion_1, criterion_2])
-    if criterion > 7.0:
-        warning = ("Possible phase jump detected. Misfit included. No "
-                   "adjoint source computed.")
-        warnings.warn(warning)
-        messages.append(warning)
-
     # Compute the phase misfit
     dnu = nu[1] - nu[0]
 
@@ -152,46 +146,55 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
         msg = "The phase misfit is NaN."
         raise LASIFAdjointSourceCalculationError(msg)
 
-    # compute the adjoint source when no phase jump detected ------------------
+    # The misfit can still be computed, even if not adjoint source is
+    # available.
+    if criterion > max_criterion:
+        warning = ("Possible phase jump detected. Misfit included. No "
+                   "adjoint source computed. Criterion: %.1f - Max allowed "
+                   "criterion: %.1f" % (criterion, max_criterion))
+        warnings.warn(warning)
+        messages.append(warning)
 
-    if criterion <= 7.0:
-        # Make kernel for the inverse tf transform
-        idp = ne.evaluate(
-            "weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)")
+        ret_dict = {
+            "adjoint_source": None,
+            "misfit_value": phase_misfit,
+            "details": {"messages": messages}
+        }
 
-        # Invert tf transform and make adjoint source
-        ad_src, it, I = time_frequency.itfa(tau, idp, width)
+        return ret_dict
 
-        # Interpolate both signals to the new time axis
-        ad_src = lanczos_interpolation(
-            # Pad with a couple of zeros in case some where lost in all
-            # these resampling operations. The first sample should not
-            # change the time.
-            data=np.concatenate([ad_src.imag, np.zeros(100)]),
-            old_start=tau[0],
-            old_dt=tau[1] - tau[0],
-            new_start=original_time[0],
-            new_dt=original_time[1] - original_time[0],
-            new_npts=len(original_time), a=8, window="blackmann")
+    # Make kernel for the inverse tf transform
+    idp = ne.evaluate(
+        "weight ** 2 * DP * tf_synth / (m + abs(tf_synth) ** 2)")
 
-        # Divide by the misfit and change sign.
-        ad_src /= (phase_misfit + eps)
-        ad_src = -1.0 * np.diff(ad_src) / (t[1] - t[0])
+    # Invert tf transform and make adjoint source
+    ad_src, it, I = time_frequency.itfa(tau, idp, width)
 
-        # Taper at both ends. Exploit ObsPy to not have to deal with all the
-        # nasty things.
-        ad_src = \
-            obspy.Trace(ad_src).taper(max_percentage=0.05, type="hann").data
+    # Interpolate both signals to the new time axis
+    ad_src = lanczos_interpolation(
+        # Pad with a couple of zeros in case some where lost in all
+        # these resampling operations. The first sample should not
+        # change the time.
+        data=np.concatenate([ad_src.imag, np.zeros(100)]),
+        old_start=tau[0],
+        old_dt=tau[1] - tau[0],
+        new_start=original_time[0],
+        new_dt=original_time[1] - original_time[0],
+        new_npts=len(original_time), a=8, window="blackmann")
 
-        # Reverse time and add a leading zero so the adjoint source has the
-        # same length as the input time series.
-        ad_src = ad_src[::-1]
-        ad_src = np.concatenate([[0.0], ad_src])
+    # Divide by the misfit and change sign.
+    ad_src /= (phase_misfit + eps)
+    ad_src = -1.0 * np.diff(ad_src) / (t[1] - t[0])
 
-    else:
-        # Criterion failed, no misfit and adjoint source calculated.
-        raise LASIFAdjointSourceCalculationError(
-            "Criterion failed, no misfit has been calculated.")
+    # Taper at both ends. Exploit ObsPy to not have to deal with all the
+    # nasty things.
+    ad_src = \
+        obspy.Trace(ad_src).taper(max_percentage=0.05, type="hann").data
+
+    # Reverse time and add a leading zero so the adjoint source has the
+    # same length as the input time series.
+    ad_src = ad_src[::-1]
+    ad_src = np.concatenate([[0.0], ad_src])
 
     # Plot if requested. ------------------------------------------------------
     if plot:

@@ -277,6 +277,19 @@ class Project(Component):
                 boundary_width_in_degree=float(
                     bounds.find("boundary_width_in_degree").text))
 
+        # Misc settings.
+        misc = root.find("misc_settings")
+        if misc is None:
+            self.config["misc_settings"] = {
+                "time_frequency_adjoint_source_criterion": 7.0
+            }
+        else:
+            self.config["misc_settings"] = {}
+            self.config["misc_settings"][
+                "time_frequency_adjoint_source_criterion"] = \
+                float(misc.find(
+                    "time_frequency_adjoint_source_criterion").text)
+
         # Write cache file.
         cf_cache = {}
         cf_cache["config"] = self.config
@@ -536,7 +549,10 @@ class Project(Component):
                     E.rotation_axis_x(str(1.0)),
                     E.rotation_axis_y(str(1.0)),
                     E.rotation_axis_z(str(1.0)),
-                    E.rotation_angle_in_degree(str(-45.0)))))
+                    E.rotation_angle_in_degree(str(-45.0)))),
+            E.misc_settings(
+                E.time_frequency_adjoint_source_criterion(str(7.0))
+            ))
 
         string_doc = etree.tostring(doc, pretty_print=True,
                                     xml_declaration=True, encoding="UTF-8")

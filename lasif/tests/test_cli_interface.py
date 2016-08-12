@@ -225,6 +225,10 @@ def test_project_init(cli):
         "      <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>",
         "    </domain_rotation>",
         "  </domain>",
+        "  <misc_settings>",
+        "    <time_frequency_adjoint_source_criterion>7.0"
+        "</time_frequency_adjoint_source_criterion>",
+        "  </misc_settings>",
         "</lasif_project>\n"])
     with open(os.path.join(project_dir, "config.xml"), "rt") as fh:
         actual = fh.read()

@@ -1008,19 +1008,19 @@ def lasif_compare_misfits(parser, args):
                 try:
                     misfit_to = win_to.misfit_value
                 except LASIFAdjointSourceCalculationError:
-                    # Random penalty...but else to compare?
+                    # Random penalty...but how else to compare?
                     misfit_to = 2.0 * misfit_from
                 except LASIFNotFoundError as e:
                     print str(e)
-                    # Random penalty...but else to compare?
+                    # Random penalty...but how else to compare?
                     misfit_to = 2.0 * misfit_from
 
                 total_misfit_from += misfit_from
                 total_misfit_to += misfit_to
 
-                all_events[event].append(
-                    (misfit_to - misfit_from) /
-                    (misfit_from * win_from.weight))
+                if (misfit_to - misfit_from) < -1.5:
+                    print(event, channel, misfit_from - misfit_to)
+                all_events[event].append(misfit_to - misfit_from)
         if MPI.COMM_WORLD.rank == 0:
             pbar.finish()
 
@@ -1054,7 +1054,7 @@ def lasif_compare_misfits(parser, args):
     import numpy as np
 
     plt.figure(figsize=(20, 3 * len(all_events)))
-    plt.suptitle("Relative misfit change of measurements going from iteration"
+    plt.suptitle("Misfit change of measurements going from iteration"
                  " '%s' to iteration '%s'" % (from_it.name, to_it.name))
     for i, event_name in enumerate(sorted(all_events.keys())):
         values = np.array(all_events[event_name])
@@ -1062,7 +1062,7 @@ def lasif_compare_misfits(parser, args):
         colors[values > 0] = "red"
         plt.subplot(len(all_events), 1, i + 1)
         plt.bar(np.arange(len(values)), values, color=colors)
-        plt.ylabel("rel. change")
+        plt.ylabel("difference")
         plt.xlim(0, len(values) - 1)
         plt.xticks([])
         plt.title("%i measurements with identical windows for event '%s'" %
