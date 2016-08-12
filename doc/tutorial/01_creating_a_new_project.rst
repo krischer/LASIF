@@ -106,6 +106,11 @@ project has been initialized, it will resemble the following:
           <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>
         </domain_rotation>
       </domain>
+      <misc_settings>
+        <time_frequency_adjoint_source_criterion>
+            25.0
+        </time_frequency_adjoint_source_criterion>
+      </misc_settings>
     </lasif_project>
 
 The nature of SES3D's coordinate system has the effect that simulation is most
