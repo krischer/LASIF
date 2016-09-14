@@ -1016,11 +1016,8 @@ def lasif_compare_misfits(parser, args):
 
                 try:
                     misfit_to = win_to.misfit_value
-                except LASIFAdjointSourceCalculationError:
-                    # Random penalty...but how else to compare?
-                    misfit_to = 2.0 * misfit_from
-                except LASIFNotFoundError as e:
-                    print str(e)
+                except Exception as e:
+                    print(e)
                     # Random penalty...but how else to compare?
                     misfit_to = 2.0 * misfit_from
 
