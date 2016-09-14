@@ -96,11 +96,8 @@ class VisualizationsComponent(Component):
         event_stations = []
         for event_name, event_info in \
                 self.comm.events.get_all_events().iteritems():
-            try:
-                stations = \
-                    self.comm.query.get_all_stations_for_event(event_name)
-            except LASIFError:
-                stations = {}
+            stations = \
+                self.comm.query.get_all_stations_for_event(event_name)
             event_stations.append((event_info, stations))
 
         visualization.plot_raydensity(map_object=map_object,
