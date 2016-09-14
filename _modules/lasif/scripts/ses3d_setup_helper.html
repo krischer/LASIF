@@ -337,7 +337,9 @@
 
         <span class="c1"># criterion approximately 0.3 for SES3D.</span>
         <span class="n">dt</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">*</span> <span class="n">dx_min</span> <span class="o">/</span> <span class="n">v_max</span>
-        <span class="n">minimum_period</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">max_element_size</span> <span class="o">/</span> <span class="n">v_min</span>
+        <span class="c1"># Well...the value to use here is kind of hand-wavy..1.6 seems to</span>
+        <span class="c1"># agree quite well with data.</span>
+        <span class="n">minimum_period</span> <span class="o">=</span> <span class="mf">1.6</span> <span class="o">*</span> <span class="n">max_element_size</span> <span class="o">/</span> <span class="n">v_min</span>
 
         <span class="k">print</span><span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span> <span class="o">+</span>
               <span class="s2">&quot;  Maximal recommended time step: </span><span class="si">%.3f</span><span class="s2"> s&quot;</span> <span class="o">%</span> <span class="n">dt</span><span class="p">)</span>
