@@ -200,7 +200,9 @@ def get_ses3d_settings(dx, dy, dz, nx, ny, nz, max_recommendations):
 
         # criterion approximately 0.3 for SES3D.
         dt = 0.3 * dx_min / v_max
-        minimum_period = 2.0 * max_element_size / v_min
+        # Well...the value to use here is kind of hand-wavy..1.6 seems to
+        # agree quite well with data.
+        minimum_period = 1.6 * max_element_size / v_min
 
         print(colorama.Fore.GREEN +
               "  Maximal recommended time step: %.3f s" % dt)
