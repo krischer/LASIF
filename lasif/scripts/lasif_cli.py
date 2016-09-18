@@ -1025,6 +1025,11 @@ def lasif_compare_misfits(parser, args):
                 channel_misfit_to += misfit_to * win_from.weight
                 total_channel_weight += win_from.weight
 
+            # Rare - but sometimes all windows for a certain channel fail
+            # the calculation.
+            if total_channel_weight == 0:
+                continue
+
             # Make sure the misfits are consistent with the adjoint source
             # calculations!
             misfit_from *= event_weight * station_weight / total_channel_weight
