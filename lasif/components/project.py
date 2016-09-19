@@ -208,6 +208,12 @@ class Project(Component):
                     default_download_settings.update(cf_cache["config"][
                         "download_settings"])
                     self.config = cf_cache["config"]
+
+                    # Transition to newer LASIF version.
+                    if "misc_settings" not in self.config:
+                        self.config["misc_settings"] = {
+                            "time_frequency_adjoint_source_criterion": 7.0}
+
                     self.config["download_settings"] = \
                         default_download_settings
                     self.domain = cf_cache["domain"]
@@ -279,11 +285,7 @@ class Project(Component):
 
         # Misc settings.
         misc = root.find("misc_settings")
-        if misc is None:
-            self.config["misc_settings"] = {
-                "time_frequency_adjoint_source_criterion": 7.0
-            }
-        else:
+        if misc is not None:
             self.config["misc_settings"] = {}
             self.config["misc_settings"][
                 "time_frequency_adjoint_source_criterion"] = \
