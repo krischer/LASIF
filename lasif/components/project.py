@@ -291,6 +291,9 @@ class Project(Component):
                 "time_frequency_adjoint_source_criterion"] = \
                 float(misc.find(
                     "time_frequency_adjoint_source_criterion").text)
+        else:
+            self.config["misc_settings"] = {
+                "time_frequency_adjoint_source_criterion": 7.0}
 
         # Write cache file.
         cf_cache = {}
