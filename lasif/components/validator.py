@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import collections
 import colorama
-import itertools
 import os
 import sys
 
@@ -250,35 +250,62 @@ class ValidatorComponent(Component):
 
         all_good = True
 
+        # Get all iterations.
+        iterations = self.comm.iterations.list()
+        # Also add the 'raw' iteration -> kind of a hack to ease the later
+        # flow. I'm too lazy to implement something fancy now.
+        iterations.append('__RAW__')
+
         # Loop over all events.
         for event_name in self.comm.events.list():
             self._flush_point()
-            try:
-                waveforms = self.comm.waveforms.get_metadata_raw(event_name)
-            except LASIFNotFoundError:
-                continue
-            # Groupby network_id.station_id
-            for key, stations in itertools.groupby(
-                    waveforms,
-                    key=lambda x: ".".join(x["channel_id"].split(".")[:2])):
-                stations = list(stations)
-                # Groupby location
-                xx = itertools.groupby(
-                    stations,
-                    key=lambda x: ".".join(x["channel_id"].split(".")[:2]))
-                locations = [i[0] for i in xx]
-                if len(locations) == 1:
-                    continue
-                all_good = False
-                files = sorted([_i["filename"] for _i in stations])
-                msg = ("The station '{station}' has more then one combination "
-                       "of location and channel type for event {event}. "
-                       "Please assure that only one combination is present. "
-                       "The offending files are: \n\t{files}").format(
-                    station=key,
-                    event=event_name,
-                    files="\n\t".join(["'%s'" % _i for _i in files]))
-                self._add_report(msg)
+
+            for iteration in iterations:
+                if iteration == "__RAW__":
+                    try:
+                        waveform_info = self.comm.waveforms.get_metadata_raw(
+                            event_name)
+                    except LASIFNotFoundError:
+                        print("NO RAW!!!")
+                        continue
+                else:
+                    try:
+                        waveform_info = \
+                            self.comm.waveforms.get_metadata_processed(
+                                event_name=event_name,
+                                tag=self.comm.iterations.get(
+                                    iteration).processing_tag)
+                    except LASIFNotFoundError:
+                        print("NO %s!!!" % iteration)
+                        continue
+
+                # Sort by network, station, and component.
+                info = collections.defaultdict(list)
+                for i in waveform_info:
+                    info[(i["network"], i["station"],
+                          i["channel"][-1].upper())].append(i["filename"])
+
+                s_keys = sorted(info.keys())
+
+                for key in s_keys:
+                    value = info[key]
+                    if len(value) == 1:
+                        continue
+                    all_good = False
+                    msg = (
+                        "Waveform files for {it_or_raw} for event '{event}' "
+                        "and station '{station}' have {count} waveform files "
+                        "for component {component}. Please make sure there is "
+                        "only 1 file per component! Offending files:"
+                        "\n\t{files}").format(
+                        it_or_raw="iteration '%s'" % iteration
+                        if iteration != "__RAW__" else "the raw waveforms",
+                        station=".".join(key[:2]),
+                        event=event_name,
+                        count=len(value),
+                        component=key[-1],
+                        files="\n\t".join(["'%s'" % _i for _i in value]))
+                    self._add_report(msg)
         if all_good:
             self._print_ok_message()
         else:
