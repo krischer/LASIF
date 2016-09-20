@@ -275,6 +275,32 @@ class QueryComponent(Component):
         coordinates = self.comm.query.get_coordinates_for_station(
             event["event_name"], station_id)
 
+        # Clear data and synthetics!
+        for _st, name in ((data, "observed"), (synthetics, "synthetic")):
+            # Get all components and loop over all components.
+            _comps = set(tr.stats.channel[-1].upper() for tr in _st)
+            for _c in _comps:
+                traces = [_i for _i in _st
+                          if _i.stats.channel[-1].upper() == _c]
+                if len(traces) == 1:
+                    continue
+                elif len(traces) > 1:
+                    traces = sorted(traces, key=lambda x: x.id)
+                    warnings.warn(
+                        "%s data for event '%s', iteration '%s', "
+                        "station '%s', and component '%s' has %i traces: "
+                        "%s. LASIF will select the first one, but please "
+                        "clean up your data." % (
+                            name.capitalize(), event["event_name"],
+                            iteration.iteration_name, station_id, _c,
+                            len(traces), ", ".join(tr.id for tr in traces)),
+                        LASIFWarning)
+                    for tr in traces[1:]:
+                        _st.remove(tr)
+                else:
+                    # Should not happen.
+                    raise NotImplementedError
+
         # Make sure all data has the corresponding synthetics. It should not
         # happen that one has three channels of data but only two channels
         # of synthetics...in that case, discard the additional data and
