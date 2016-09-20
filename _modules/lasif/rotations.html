@@ -173,7 +173,7 @@
 <span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 <span class="n">eps</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">epsilon</span>
@@ -569,7 +569,7 @@
 
     <span class="c1"># Rotate everything.</span>
     <span class="k">for</span> <span class="n">border</span> <span class="ow">in</span> <span class="p">[</span><span class="n">north_border</span><span class="p">,</span> <span class="n">south_border</span><span class="p">,</span> <span class="n">east_border</span><span class="p">,</span> <span class="n">west_border</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">number_of_points_per_side</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">number_of_points_per_side</span><span class="p">):</span>
             <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotate_lat_lon</span><span class="p">(</span>
                 <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">border</span><span class="p">[</span><span class="n">_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">rotation_axis</span><span class="p">,</span>
                 <span class="n">rotation_angle_in_degree</span><span class="p">)</span>

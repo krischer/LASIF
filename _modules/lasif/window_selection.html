@@ -158,10 +158,10 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">math</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">obspy</span> <span class="kn">import</span> <span class="n">geodetics</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">obspy</span> <span class="k">import</span> <span class="n">geodetics</span>
 <span class="kn">import</span> <span class="nn">obspy.signal.filter</span>
-<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">argrelextrema</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">argrelextrema</span>
 
 
 <div class="viewcode-block" id="flatnotmasked_contiguous"><a class="viewcode-back" href="../../window_selection.html#lasif.window_selection.flatnotmasked_contiguous">[docs]</a><span class="k">def</span> <span class="nf">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">):</span>
@@ -171,7 +171,7 @@
     <span class="n">fc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">flatnotmasked_contiguous</span><span class="p">(</span><span class="n">time_windows</span><span class="p">)</span>
     <span class="c1"># If nothing could be found, set the mask to true (which should already</span>
     <span class="c1"># be the case).</span>
-    <span class="k">if</span> <span class="n">fc</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">fc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fc</span></div>
@@ -297,7 +297,7 @@
     <span class="k">return</span> <span class="n">idx</span></div>
 
 
-<span class="k">def</span> <span class="nf">_plot_mask</span><span class="p">(</span><span class="n">new_mask</span><span class="p">,</span> <span class="n">old_mask</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_plot_mask</span><span class="p">(</span><span class="n">new_mask</span><span class="p">,</span> <span class="n">old_mask</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function plotting the remaining time segments after an elimination</span>
 <span class="sd">    stage.</span>
@@ -311,8 +311,8 @@
 <span class="sd">    :return:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Lazy imports as not needed by default.</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="kn">as</span> <span class="nn">plt</span>  <span class="c1"># NOQA</span>
-    <span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="kn">as</span> <span class="nn">PathEffects</span>  <span class="c1"># NOQA</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>  <span class="c1"># NOQA</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="k">as</span> <span class="nn">PathEffects</span>  <span class="c1"># NOQA</span>
 
     <span class="n">old_mask</span> <span class="o">=</span> <span class="n">old_mask</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">new_mask</span> <span class="o">=</span> <span class="n">new_mask</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -349,7 +349,7 @@
 <span class="sd">    :param window_width: The desired window width.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">window_start</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">window_end</span> <span class="o">=</span> <span class="n">window_start</span> <span class="o">+</span> <span class="n">window_width</span>
         <span class="k">if</span> <span class="n">window_end</span> <span class="o">&gt;</span> <span class="n">data_length</span><span class="p">:</span>
             <span class="k">break</span>
@@ -364,7 +364,7 @@
 <span class="sd">    :param tr_id: The id of the current trace.</span>
 <span class="sd">    :param msg: The message to be printed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">print</span> <span class="s2">&quot;[Window selection for </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tr_id</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s2">&quot;[Window selection for </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tr_id</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
 
 <span class="c1"># Dictionary to cache the TauPyModel so there is no need to reinitialize it</span>
 <span class="c1"># each time which is a fairly expensive operation.</span>
@@ -380,7 +380,7 @@
                    <span class="n">threshold_correlation</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">min_length_period</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
                    <span class="n">min_peaks_troughs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_energy_ratio</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
                    <span class="n">min_envelope_similarity</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
-                   <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+                   <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Window selection algorithm for picking windows suitable for misfit</span>
 <span class="sd">    calculation based on phase differences.</span>
@@ -458,7 +458,7 @@
 
     <span class="c1"># Fill cache if necessary.</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">TAUPY_MODEL_CACHE</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">obspy.taup</span> <span class="kn">import</span> <span class="n">TauPyModel</span>  <span class="c1"># NOQA</span>
+        <span class="kn">from</span> <span class="nn">obspy.taup</span> <span class="k">import</span> <span class="n">TauPyModel</span>  <span class="c1"># NOQA</span>
         <span class="n">TAUPY_MODEL_CACHE</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">TauPyModel</span><span class="p">(</span><span class="s2">&quot;AK135&quot;</span><span class="p">)</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">TAUPY_MODEL_CACHE</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
 
@@ -530,7 +530,7 @@
                               <span class="s2">&quot;Relative Noise Level: </span><span class="si">%e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">noise_relative</span><span class="p">)</span>
 
     <span class="c1"># Basic global rejection criteria.</span>
-    <span class="n">accept_traces</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">accept_traces</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">cc</span> <span class="o">&lt;</span> <span class="n">min_cc</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">noise_relative</span> <span class="o">&gt;</span> <span class="n">max_noise</span> <span class="o">/</span> <span class="mf">3.0</span><span class="p">):</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Correlation </span><span class="si">%.4f</span><span class="s2"> is below threshold of </span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cc</span><span class="p">,</span> <span class="n">min_cc</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
@@ -549,7 +549,7 @@
     <span class="c1"># that the amplitude of both is not too different over time and is</span>
     <span class="c1"># used as another selector. Only calculated if the trace is generally</span>
     <span class="c1"># accepted as it is fairly slow.</span>
-    <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">data_env</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">envelope</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">synth_env</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">signal</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">envelope</span><span class="p">(</span><span class="n">synth</span><span class="p">)</span>
 
@@ -563,13 +563,13 @@
     <span class="c1"># performance is minimal if plotting is turned off: all imports are lazy</span>
     <span class="c1"># and a couple of conditionals are cheap.</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="kn">as</span> <span class="nn">plt</span>  <span class="c1"># NOQA</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="kn">as</span> <span class="nn">PathEffects</span>  <span class="c1"># NOQA</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="k">as</span> <span class="nn">plt</span>  <span class="c1"># NOQA</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="k">as</span> <span class="nn">PathEffects</span>  <span class="c1"># NOQA</span>
 
-        <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
-                                <span class="n">wspace</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+                                <span class="n">wspace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
             <span class="n">grid</span> <span class="o">=</span> <span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Axes showing the data.</span>
@@ -579,7 +579,7 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
         <span class="c1"># Plot envelopes if needed.</span>
-        <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">data_env</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
                      <span class="n">label</span><span class="o">=</span><span class="s2">&quot;data envelope&quot;</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">synthetic_trace</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">synth_env</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#e41a1c&quot;</span><span class="p">,</span>
@@ -646,7 +646,7 @@
                  <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.15&quot;</span><span class="p">,</span>
                  <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span>
                      <span class="n">PathEffects</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                    <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;small&quot;</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([])</span>
 
@@ -661,19 +661,19 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Channel </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">data_trace</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;larger&quot;</span><span class="p">)</span>
 
     <span class="c1"># Show plot and return if not accepted.</span>
-        <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">txt</span> <span class="o">=</span> <span class="s2">&quot;Rejected: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">accept_traces</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
                     <span class="n">fontdict</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">),</span>
                     <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="n">fc</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">accept_traces</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="c1"># Initialise masked arrays. The mask will be set to True where no</span>
     <span class="c1"># windows are chosen.</span>
     <span class="n">time_windows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -683,8 +683,8 @@
     <span class="n">min_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">first_tt_arrival</span> <span class="o">-</span> <span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">))</span> <span class="o">/</span> <span class="n">dt</span><span class="p">)</span>
     <span class="n">max_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span>
         <span class="n">dist_in_km</span> <span class="o">/</span> <span class="n">min_velocity</span> <span class="o">+</span> <span class="n">minimum_period</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span><span class="p">))</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:</span><span class="n">min_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_idx</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:</span><span class="n">min_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_idx</span><span class="p">:]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -697,9 +697,9 @@
     <span class="c1"># -------------------------------------------------------------------------</span>
     <span class="c1"># Allocate arrays to collect the time dependent values.</span>
     <span class="n">sliding_time_shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
-    <span class="n">sliding_time_shift</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">sliding_time_shift</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">max_cc_coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
-    <span class="n">max_cc_coeff</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">max_cc_coeff</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">for</span> <span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span><span class="p">,</span> <span class="n">midpoint_idx</span> <span class="ow">in</span> <span class="n">_window_generator</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span>
                                                               <span class="n">window_length</span><span class="p">):</span>
@@ -715,7 +715,7 @@
         <span class="c1"># Elimination Stage 2: Skip windows that have essentially no energy</span>
         <span class="c1"># to avoid instabilities. No windows can be picked in these.</span>
         <span class="k">if</span> <span class="n">synthetic_window</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">synth</span><span class="o">.</span><span class="n">ptp</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">:</span>
-            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">midpoint_idx</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">continue</span>
 
         <span class="c1"># Calculate the time shift. Here this is defined as the shift of the</span>
@@ -757,7 +757,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                    <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;small&quot;</span><span class="p">)</span>
 
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
@@ -777,14 +777,14 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1800</span><span class="p">])</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                    <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;small&quot;</span><span class="p">)</span>
 
     <span class="c1"># Elimination Stage 3: Mark all areas where the normalized cross</span>
     <span class="c1"># correlation coefficient is under threshold_correlation as negative</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_cc_coeff</span> <span class="o">&lt;</span> <span class="n">threshold_correlation</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">max_cc_coeff</span> <span class="o">&lt;</span> <span class="n">threshold_correlation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -795,7 +795,7 @@
     <span class="c1"># negative</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold_shift</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold_shift</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -810,7 +810,7 @@
     <span class="n">sample_buffer</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">minimum_period</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">))</span>
     <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">sliding_time_shift</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
-        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="n">sample_buffer</span><span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">sample_buffer</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="n">sample_buffer</span><span class="p">:</span> <span class="n">index</span> <span class="o">+</span> <span class="n">sample_buffer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -829,7 +829,7 @@
     <span class="c1"># much.</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">ratio</span> <span class="o">&lt;</span> <span class="n">min_envelope_similarity</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">ratio</span> <span class="o">&lt;</span> <span class="n">min_envelope_similarity</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -851,7 +851,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="mi">300</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">1500</span><span class="p">,</span> <span class="mi">1800</span><span class="p">])</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">([])</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span> <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                    <span class="n">fontsize</span><span class="o">=</span><span class="s2">&quot;small&quot;</span><span class="p">)</span>
 
     <span class="c1"># First minimum window length elimination stage. This is cheap and if</span>
@@ -865,7 +865,7 @@
         <span class="c1"># Step 7: Throw away all windows with a length of less then</span>
         <span class="c1"># min_length_period the dominant period.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
-            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">26</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -899,7 +899,7 @@
                 <span class="n">end</span> <span class="o">=</span> <span class="n">synth_p</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">end</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="n">window_mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">window_mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">closest_troughs</span> <span class="o">=</span> <span class="n">find_closest</span><span class="p">(</span><span class="n">data_t</span><span class="p">,</span> <span class="n">synth_t</span><span class="p">)</span>
         <span class="n">diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">closest_troughs</span><span class="p">)</span>
@@ -913,7 +913,7 @@
                 <span class="n">end</span> <span class="o">=</span> <span class="n">synth_t</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">end</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="n">window_mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">window_mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">window_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">window_mask</span><span class="p">,</span>
                                          <span class="n">mask</span><span class="o">=</span><span class="n">window_mask</span><span class="p">)</span>
@@ -926,9 +926,9 @@
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="n">final_windows</span><span class="p">:</span>
-        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">27</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -945,7 +945,7 @@
         <span class="n">synth_p</span><span class="p">,</span> <span class="n">synth_t</span> <span class="o">=</span> <span class="n">find_local_extrema</span><span class="p">(</span><span class="n">synthetic_window</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">synth_p</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">synth_t</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_p</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_t</span><span class="p">)])</span> <span class="o">&lt;</span> \
                 <span class="n">min_peaks_troughs</span><span class="p">:</span>
-            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">28</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -960,7 +960,7 @@
         <span class="c1"># Step 7: Throw away all windows with a length of less then</span>
         <span class="c1"># min_length_period the dominant period.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_length</span><span class="p">:</span>
-            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">29</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">_plot_mask</span><span class="p">(</span><span class="n">time_windows</span><span class="p">,</span> <span class="n">old_time_windows</span><span class="p">,</span>
@@ -997,9 +997,9 @@
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">old_time_windows</span> <span class="o">=</span> <span class="n">time_windows</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:]</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[:]</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span> <span class="ow">in</span> <span class="n">final_windows</span><span class="p">:</span>
-        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">time_windows</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">subplot2grid</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rowspan</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1020,7 +1020,7 @@
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="c1"># Plot the final windows to the data axes.</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="kn">as</span> <span class="nn">mtransforms</span>  <span class="c1"># NOQA</span>
+        <span class="kn">import</span> <span class="nn">matplotlib.transforms</span> <span class="k">as</span> <span class="nn">mtransforms</span>  <span class="c1"># NOQA</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">data_plot</span>
         <span class="n">trans</span> <span class="o">=</span> <span class="n">mtransforms</span><span class="o">.</span><span class="n">blended_transform_factory</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span>
                                                       <span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>

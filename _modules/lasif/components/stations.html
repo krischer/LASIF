@@ -137,14 +137,14 @@
   <h1>Source code for lasif.components.stations</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">obspy</span>
 
-<span class="kn">from</span> <span class="nn">lasif</span> <span class="kn">import</span> <span class="n">LASIFNotFoundError</span>
-<span class="kn">from</span> <span class="nn">.component</span> <span class="kn">import</span> <span class="n">Component</span>
+<span class="kn">from</span> <span class="nn">lasif</span> <span class="k">import</span> <span class="n">LASIFNotFoundError</span>
+<span class="kn">from</span> <span class="nn">.component</span> <span class="k">import</span> <span class="n">Component</span>
 
 
 <div class="viewcode-block" id="StationsComponent"><a class="viewcode-back" href="../../../components/stations.html#lasif.components.stations.StationsComponent">[docs]</a><span class="k">class</span> <span class="nc">StationsComponent</span><span class="p">(</span><span class="n">Component</span><span class="p">):</span>
@@ -180,7 +180,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">resp_folder</span> <span class="o">=</span> <span class="n">resp_folder</span>
 
         <span class="c1"># Attribute will store the station cache if it has been initialized.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache_folder</span><span class="p">,</span>
                                        <span class="s2">&quot;station_cache.sqlite&quot;</span><span class="p">)</span>
 
@@ -191,7 +191,7 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cached access to the station cache.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_cache_update</span><span class="p">()</span>
@@ -220,7 +220,7 @@
 <span class="sd">        need it to be reflected immediatly. The next invocation of LASIF</span>
 <span class="sd">        will update the cache automatically.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">..tools.cache_helpers.station_cache</span> <span class="kn">import</span> <span class="n">StationCache</span>
+        <span class="kn">from</span> <span class="nn">..tools.cache_helpers.station_cache</span> <span class="k">import</span> <span class="n">StationCache</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__cached_station_cache</span> <span class="o">=</span> <span class="n">StationCache</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cache_file</span><span class="p">,</span>
             <span class="n">root_folder</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="s2">&quot;root&quot;</span><span class="p">],</span>
@@ -383,7 +383,7 @@
 <span class="sd">        u&#39;/.../IRIS_single_channel_with_response.xml&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_station_cache</span><span class="o">.</span><span class="n">get_station_filename</span><span class="p">(</span><span class="n">channel_id</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">LASIFNotFoundError</span><span class="p">(</span>
                 <span class="s2">&quot;Could not find a station file for channel &#39;</span><span class="si">%s</span><span class="s2">&#39; at </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="n">channel_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="p">)))</span>
@@ -421,10 +421,10 @@
         <span class="k">if</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;datalessSEED&quot;</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">seed_filename_generator</span><span class="p">():</span>
                 <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                     <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">seed_folder</span><span class="p">,</span>
-                        <span class="s2">&quot;dataless.{network}_{station}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="s2">&quot;dataless.</span><span class="si">{network}</span><span class="s2">_</span><span class="si">{station}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                             <span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">i</span><span class="p">:</span>
                         <span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;.</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span>
@@ -437,10 +437,10 @@
         <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;RESP&quot;</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">resp_filename_generator</span><span class="p">():</span>
                 <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                     <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">resp_folder</span><span class="p">,</span>
-                        <span class="s2">&quot;RESP.{network}.{station}.{location}.{channel}&quot;</span>
+                        <span class="s2">&quot;RESP.</span><span class="si">{network}</span><span class="s2">.</span><span class="si">{station}</span><span class="s2">.</span><span class="si">{location}</span><span class="s2">.</span><span class="si">{channel}</span><span class="s2">&quot;</span>
                         <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">,</span>
                                 <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">i</span><span class="p">:</span>
@@ -454,10 +454,10 @@
         <span class="k">elif</span> <span class="n">file_format</span> <span class="o">==</span> <span class="s2">&quot;StationXML&quot;</span><span class="p">:</span>
             <span class="k">def</span> <span class="nf">stationxml_filename_generator</span><span class="p">():</span>
                 <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                     <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">stationxml_folder</span><span class="p">,</span>
-                        <span class="s2">&quot;{network}_{station}{i}.xml&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="s2">&quot;</span><span class="si">{network}</span><span class="s2">_</span><span class="si">{station}{i}</span><span class="s2">.xml&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                             <span class="n">network</span><span class="o">=</span><span class="n">network</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">,</span>
                             <span class="n">i</span><span class="o">=</span><span class="s2">&quot;.</span><span class="si">%i</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
                     <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>

@@ -157,7 +157,7 @@
 <span class="kn">import</span> <span class="nn">traceback</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="k">import</span> <span class="n">MPI</span>
 
 
 <div class="viewcode-block" id="FunctionInfo"><a class="viewcode-back" href="../../../tools.parallel.html#lasif.tools.parallel_helpers.FunctionInfo">[docs]</a><span class="k">class</span> <span class="nc">FunctionInfo</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span>
@@ -215,13 +215,13 @@
 <span class="sd">    &gt;&gt;&gt; info.traceback</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_function_info</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-        <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">(</span><span class="n">record</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">w</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="bp">None</span>
-                <span class="n">exception</span> <span class="o">=</span> <span class="bp">None</span>
-                <span class="n">tb</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">exception</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">tb</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">func_args</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getcallargs</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">result</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -295,7 +295,7 @@
         <span class="n">total_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
         <span class="n">items</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Now each rank knows what it has to process. This still works</span>
     <span class="c1"># nicely with only one core, the overhead is negligible.</span>
@@ -307,7 +307,7 @@
         <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_execute_wrapped_function</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Approximately </span><span class="si">%i</span><span class="s2"> of </span><span class="si">%i</span><span class="s2"> items have been processed.&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Approximately </span><span class="si">%i</span><span class="s2"> of </span><span class="si">%i</span><span class="s2"> items have been processed.&quot;</span> <span class="o">%</span> <span class="p">(</span>
                 <span class="nb">min</span><span class="p">((</span><span class="n">_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">total_length</span><span class="p">),</span>
                 <span class="n">total_length</span><span class="p">))</span>
 
@@ -327,14 +327,14 @@
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">============</span><span class="se">\n</span><span class="s2">Item: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">get_name</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">func_args</span><span class="p">))</span>
-            <span class="n">has_exception</span> <span class="o">=</span> <span class="bp">False</span>
-            <span class="n">has_warning</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">has_exception</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">has_warning</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">exception</span><span class="p">:</span>
-                <span class="n">has_exception</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">has_exception</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">traceback</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">warnings</span><span class="p">:</span>
-                <span class="n">has_warning</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">has_warning</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">warnings</span><span class="p">:</span>
                     <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Warning: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
@@ -347,19 +347,19 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">successful_file_count</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Finished processing </span><span class="si">%i</span><span class="s2"> items. See the logfile for &quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Finished processing </span><span class="si">%i</span><span class="s2"> items. See the logfile for &quot;</span>
               <span class="s2">&quot;details.</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">total_file_count</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files failed being processed.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files failed being processed.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RED</span><span class="p">,</span> <span class="n">failed_file_count</span><span class="p">,</span>
                <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files raised warnings while being processed.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files raised warnings while being processed.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">YELLOW</span><span class="p">,</span> <span class="n">warning_file_count</span><span class="p">,</span>
                <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files have been processed without errors or warnings</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s%i</span><span class="s2"> files have been processed without errors or warnings</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
               <span class="p">(</span><span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span><span class="p">,</span> <span class="n">successful_file_count</span><span class="p">,</span>
                <span class="n">colorama</span><span class="o">.</span><span class="n">Fore</span><span class="o">.</span><span class="n">RESET</span><span class="p">))</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Logfile written to &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">logfile</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Logfile written to &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">logfile</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">results</span></div>
 </pre></div>

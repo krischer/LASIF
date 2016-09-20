@@ -146,14 +146,14 @@
 <span class="sd">    GNU General Public License, Version 3</span>
 <span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
-<span class="kn">from</span> <span class="nn">lxml.builder</span> <span class="kn">import</span> <span class="n">E</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="k">import</span> <span class="n">etree</span>
+<span class="kn">from</span> <span class="nn">lxml.builder</span> <span class="k">import</span> <span class="n">E</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
-<span class="kn">from</span> <span class="nn">lasif</span> <span class="kn">import</span> <span class="n">LASIFError</span>
+<span class="kn">from</span> <span class="nn">lasif</span> <span class="k">import</span> <span class="n">LASIFError</span>
 
 
 <div class="viewcode-block" id="Iteration"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration">[docs]</a><span class="k">class</span> <span class="nc">Iteration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -171,10 +171,10 @@
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">True</span>
-        <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
@@ -198,12 +198,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_if_available</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;scale_data_to_synthetics&quot;</span><span class="p">)</span>
 
         <span class="c1"># Defaults to True.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scale_data_to_synthetics</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Value &#39;</span><span class="si">%s</span><span class="s2">&#39; invalid for &quot;</span>
                              <span class="s2">&quot;&#39;scale_data_to_synthetics&#39;.&quot;</span> <span class="o">%</span>
@@ -279,9 +279,9 @@
 
     <span class="k">def</span> <span class="nf">_get_if_available</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
         <span class="n">item</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Iteration.get_process_params"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.Iteration.get_process_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_process_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -309,8 +309,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Generate a preprocessing tag. This will identify the used</span>
         <span class="c1"># preprocessing so that duplicates can be avoided.</span>
-        <span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;preprocessed_hp_{highpass:.5f}_lp_{lowpass:.5f}_&quot;</span>
-                          <span class="s2">&quot;npts_{npts}_dt_{dt:5f}&quot;</span><span class="p">)</span>\
+        <span class="n">processing_tag</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;preprocessed_hp_</span><span class="si">{highpass:.5f}</span><span class="s2">_lp_</span><span class="si">{lowpass:.5f}</span><span class="s2">_&quot;</span>
+                          <span class="s2">&quot;npts_</span><span class="si">{npts}</span><span class="s2">_dt_</span><span class="si">{dt:5f}</span><span class="s2">&quot;</span><span class="p">)</span>\
             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">get_process_params</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">processing_tag</span>
 
@@ -328,16 +328,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ret_str</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">&quot;LASIF Iteration</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Name: {self.iteration_name}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Description: {self.description}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;{comments}&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Name: </span><span class="si">{self.iteration_name}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Description: </span><span class="si">{self.description}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{comments}</span><span class="s2">&quot;</span>
             <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Preprocessing Settings:</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">Highpass Period: {hp:.3f} s</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">Lowpass Period: {lp:.3f} s</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Solver: {solver} | {timesteps} timesteps (dt: {dt}s)</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">{event_count} events recorded at {station_count} &quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">Highpass Period: </span><span class="si">{hp:.3f}</span><span class="s2"> s</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t\t</span><span class="s2">Lowpass Period: </span><span class="si">{lp:.3f}</span><span class="s2"> s</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Solver: </span><span class="si">{solver}</span><span class="s2"> | </span><span class="si">{timesteps}</span><span class="s2"> timesteps (dt: </span><span class="si">{dt}</span><span class="s2">s)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="si">{event_count}</span><span class="s2"> events recorded at </span><span class="si">{station_count}</span><span class="s2"> &quot;</span>
             <span class="s2">&quot;unique stations</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">{pair_count} event-station pairs (</span><span class="se">\&quot;</span><span class="s2">rays</span><span class="se">\&quot;</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="s2">&quot;</span><span class="se">\t</span><span class="si">{pair_count}</span><span class="s2"> event-station pairs (</span><span class="se">\&quot;</span><span class="s2">rays</span><span class="se">\&quot;</span><span class="s2">)&quot;</span><span class="p">)</span>
 
         <span class="n">comments</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Comment: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
                              <span class="n">comment</span> <span class="k">for</span> <span class="n">comment</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">comments</span><span class="p">)</span>
@@ -411,8 +411,8 @@
             <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
         <span class="n">doc</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">iteration</span><span class="p">(</span><span class="o">*</span><span class="n">contents</span><span class="p">)</span>
-        <span class="n">doc</span><span class="o">.</span><span class="n">getroottree</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                                <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span></div></div>
+        <span class="n">doc</span><span class="o">.</span><span class="n">getroottree</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_recursive_dict</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
@@ -431,11 +431,11 @@
             <span class="n">text</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="k">pass</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">elif</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="n">element</span><span class="o">.</span><span class="n">tag</span><span class="p">,</span> \
         <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_recursive_dict</span><span class="p">,</span> <span class="n">element</span><span class="p">))</span> <span class="ow">or</span> <span class="n">text</span>
 
@@ -444,7 +444,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to create a list of etree elements from a dict.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+    <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
     <span class="kn">import</span> <span class="nn">itertools</span>
 
     <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
@@ -465,16 +465,16 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">):</span>
             <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">key</span><span class="p">)(</span><span class="o">*</span><span class="n">_recursive_etree</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
             <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
-        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">False</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
         <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">key</span><span class="p">)(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">contents</span>
 
 
 <div class="viewcode-block" id="create_iteration_xml_string"><a class="viewcode-back" href="../../iteration_xml.html#lasif.iteration_xml.create_iteration_xml_string">[docs]</a><span class="k">def</span> <span class="nf">create_iteration_xml_string</span><span class="p">(</span><span class="n">iteration_name</span><span class="p">,</span> <span class="n">solver_name</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span>
-                                <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+                                <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates a new iteration string.</span>
 
@@ -530,12 +530,12 @@
             <span class="n">solver_doc</span><span class="p">),</span>
         <span class="o">*</span><span class="n">events_doc</span><span class="p">)</span>
 
-    <span class="n">string_doc</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
-                                <span class="n">xml_declaration</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
+    <span class="n">string_doc</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">string_doc</span></div>
 
 
-<span class="k">def</span> <span class="nf">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_default_solver_settings</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function returning etree representation of a solver&#39;s default</span>
 <span class="sd">    settings.</span>
@@ -545,8 +545,8 @@
     <span class="n">known_solvers</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ses3d_4_1&quot;</span><span class="p">,</span> <span class="s2">&quot;ses3d_2_0&quot;</span><span class="p">,</span> <span class="s2">&quot;specfem3d_cartesian&quot;</span><span class="p">,</span>
                      <span class="s2">&quot;specfem3d_globe_cem&quot;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ses3d_4_1&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">lasif.tools</span> <span class="kn">import</span> <span class="n">Q_discrete</span>
-        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_ses3d_4_1_template</span>
+        <span class="kn">from</span> <span class="nn">lasif.tools</span> <span class="k">import</span> <span class="n">Q_discrete</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="k">import</span> <span class="n">generate_ses3d_4_1_template</span>
 
         <span class="c1"># Generate the relaxation weights for SES3D.</span>
         <span class="n">w_p</span><span class="p">,</span> <span class="n">tau_p</span> <span class="o">=</span> <span class="n">Q_discrete</span><span class="o">.</span><span class="n">calculate_Q_model</span><span class="p">(</span>
@@ -560,13 +560,13 @@
 
         <span class="k">return</span> <span class="n">generate_ses3d_4_1_template</span><span class="p">(</span><span class="n">w_p</span><span class="p">,</span> <span class="n">tau_p</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;ses3d_2_0&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_ses3d_2_0_template</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="k">import</span> <span class="n">generate_ses3d_2_0_template</span>
         <span class="k">return</span> <span class="n">generate_ses3d_2_0_template</span><span class="p">()</span>
     <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;specfem3d_cartesian&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_specfem3d_cartesian_template</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="k">import</span> <span class="n">generate_specfem3d_cartesian_template</span>
         <span class="k">return</span> <span class="n">generate_specfem3d_cartesian_template</span><span class="p">()</span>
     <span class="k">elif</span> <span class="n">solver</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;specfem3d_globe_cem&quot;</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="kn">import</span> <span class="n">generate_specfem3d_globe_cem_template</span>
+        <span class="kn">from</span> <span class="nn">lasif.utils</span> <span class="k">import</span> <span class="n">generate_specfem3d_globe_cem_template</span>
         <span class="k">return</span> <span class="n">generate_specfem3d_globe_cem_template</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Solver &#39;</span><span class="si">%s</span><span class="s2">&#39; not known. Known solvers: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
