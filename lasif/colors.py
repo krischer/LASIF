@@ -47,6 +47,7 @@ def get_colormap(name):
     cm = LinearSegmentedColormap.from_list(name, colors=colors, N=256)
     return cm
 
+
 # Colormap for tomography with a linear lightness. This here is a diverging
 # one with reddish hues at the lower end, white in the middle, and blueish
 # hues on the upper end. The lightness ranges from 0.0 -> 1.0 -> 0.0,

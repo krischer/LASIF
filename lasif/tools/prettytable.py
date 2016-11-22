@@ -1650,6 +1650,7 @@ def from_html_one(html_code, **kwargs):
                         "Use from_html instead.")
     return tables[0]
 
+
 ##############################
 # MAIN (TEST FUNCTION)       #
 ##############################
@@ -1670,6 +1671,7 @@ def main():
     x.add_row(["Melbourne", 1566, 3806092, 646.9])
     x.add_row(["Perth", 5386, 1554769, 869.4])
     print(x)
+
 
 if __name__ == "__main__":
     main()

@@ -529,6 +529,7 @@ def get_max_extention_of_domain(min_lat, max_lat, min_lng, max_lng,
         "minimum_longitude": lngs.min(),
         "maximum_longitude": lngs.max()}
 
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

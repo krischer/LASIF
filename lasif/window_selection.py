@@ -229,6 +229,7 @@ def _log_window_selection(tr_id, msg):
     """
     print "[Window selection for %s] %s" % (tr_id, msg)
 
+
 # Dictionary to cache the TauPyModel so there is no need to reinitialize it
 # each time which is a fairly expensive operation.
 TAUPY_MODEL_CACHE = {}
