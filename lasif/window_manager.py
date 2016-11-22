@@ -538,7 +538,8 @@ class Window(object):
         Returns the misfit details. If not stored in the file, it will be
         calculated and thus is potentially an expensive operation.
         """
-        return self.__misfit_details
+        adj_src = self.get_adjoint_source()
+        return adj_src["details"]
 
     @property
     def misfit_value(self):
