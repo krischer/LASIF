@@ -72,8 +72,6 @@ class Project(Component):
                    "path or uninitialized project?")
             raise LASIFError(msg)
 
-        self.__project_function_cache = {}
-
         # Setup the communicator and register this component.
         self.__comm = Communicator()
         super(Project, self).__init__(self.__comm, "project")
@@ -85,6 +83,8 @@ class Project(Component):
 
         self._read_config_file()
 
+        # Functions will be cached here.
+        self.__project_function_cache = {}
         self.__copy_fct_templates(init_project=init_project)
 
     def __str__(self):
@@ -92,14 +92,11 @@ class Project(Component):
         Pretty string representation.
         """
         # Count all files and sizes.
-        ret_str = "LASIF project \"%s\"\n" % self.config["name"]
+        ret_str = "LASIF project \"%s\"\n" % self.config["project_name"]
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         ret_str += "\tContent:\n"
         ret_str += "\t\t%i events\n" % self.comm.events.count()
-
-        d = str(self.domain)
-        ret_str += "\n".join(["\t" + i for i in d.splitlines()])
 
         return ret_str
 
@@ -130,6 +127,9 @@ class Project(Component):
         """
         Parse the config file.
         """
+        import toml
+        with open(self.paths["config_file"], "r") as fh:
+            self.config = toml.load(fh)["lasif_project"]
 
     def get_communicator(self):
         return self.__comm
@@ -243,7 +243,7 @@ class Project(Component):
                 "interstation_distance_in_meters": 1000.0,
                 "channel_priorities": ["BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]",
                                        "EH[Z,N,E]", "MH[Z,N,E]"],
-                "location_priorities": ("", "00", "10", "20", "01", "02")
+                "location_priorities": ["", "00", "10", "20", "01", "02"]
         }}}
 
         with open(self.paths["config_file"], "w") as fh:
