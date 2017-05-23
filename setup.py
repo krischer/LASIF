@@ -3,12 +3,12 @@
 """
 LASIF (LArge-scale Seismic Inversion Framework)
 
-A collection of scripts that are useful for running a full waveform inversion
-workflow with SES3D 4.0.
+Data management for seismological full seismic waveform inversions using the
+Salvus suite of tools.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de) and
-    Andreas Fichtner (A.Fichtner@uu.nl) 2012-2016
+    Andreas Fichtner (A.Fichtner@uu.nl) 2012-2017
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
@@ -44,7 +44,7 @@ def get_package_data():
 
 setup_config = dict(
     name="lasif",
-    version="0.1.x",
+    version="2.0.0a",
     description="",
     author="Lion Krischer and Andreas Fichtner",
     author_email="krischer@geophysik.uni-muenchen.de",
@@ -52,37 +52,33 @@ setup_config = dict(
     packages=find_packages(),
     license="GNU General Public License, version 3 (GPLv3)",
     platforms="OS Independent",
+    classifiers=[
+        'Environment :: Console',
+        'Intended Audience :: Science/Research',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Physics'],
     install_requires=[
-        "obspy>=1.0.1",
-        "progressbar",
+        "obspy>=1.0.3",
+        "pyasdf",
+        "toml",
         "geographiclib",
-        "numpy",
         "colorama",
-        "matplotlib",
         "mpi4py",
-        "joblib",
-        "lxml",
-        "nose",
         "numexpr",
         "pytest",
-        "mock",
         "flask",
         "flask-cache",
         "geojson"],
     package_data={
         "lasif": get_package_data()},
     entry_points={
-        # Register the console scripts.
         "console_scripts": [
             "lasif = lasif.scripts.lasif_cli:main",
             "iris2quakeml = lasif.scripts.iris2quakeml:main"
-        ],
-        # Register the SES3D reading function with ObsPy.
-        "obspy.plugin.waveform":
-            "SES3D = lasif.file_handling.s3d_file_parser",
-        "obspy.plugin.waveform.SES3D": [
-            "isFormat = lasif.file_handling.ses3d_file_parser:is_SES3D",
-            "readFormat = lasif.file_handling.ses3d_file_parser:read_SES3D"
         ]
     }
 )
