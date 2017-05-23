@@ -11,10 +11,10 @@ Test suite for the windows component.
 """
 from __future__ import absolute_import
 
-import mock
 import numpy as np
 import os
 import pytest
+from unittest import mock
 
 from lasif import LASIFNotFoundError
 from lasif.window_manager import WindowGroupManager

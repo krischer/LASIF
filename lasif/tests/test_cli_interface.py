@@ -25,9 +25,9 @@ import matplotlib as mpl
 mpl.use("agg")
 
 import numpy as np
-import mock
 import os
 import shutil
+from unittest import mock
 
 import lasif
 from lasif.scripts import lasif_cli

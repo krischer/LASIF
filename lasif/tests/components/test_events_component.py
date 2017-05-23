@@ -4,11 +4,11 @@ from __future__ import absolute_import
 
 import inspect
 import io
-import mock
 import obspy
 import os
 import pytest
 import re
+from unittest import mock
 
 from lasif import LASIFNotFoundError, LASIFWarning
 from lasif.components.events import EventsComponent

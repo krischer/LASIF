@@ -4,10 +4,10 @@ from __future__ import absolute_import
 
 import glob
 import inspect
-import mock
 import obspy
 import os
 import pytest
+from unittest import mock
 
 from lasif import LASIFNotFoundError
 from lasif.components.stations import StationsComponent

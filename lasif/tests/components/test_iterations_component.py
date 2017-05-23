@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import mock
 import numpy as np
 import pytest
+from unittest import mock
 
 from lasif.components.iterations import IterationsComponent
 from lasif.components.communicator import Communicator

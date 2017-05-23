@@ -4,10 +4,10 @@ from __future__ import absolute_import
 
 from collections import namedtuple
 import inspect
-import mock
 import os
 import pytest
 import urllib2
+from unittest import mock
 
 from lasif.components.inventory_db import InventoryDBComponent
 from lasif.components.communicator import Communicator

@@ -15,13 +15,13 @@ import inspect
 import matplotlib as mpl
 import matplotlib.pylab as plt
 from matplotlib.testing.compare import compare_images as mpl_compare_images
-import mock
 import numpy as np
 import obspy
 import os
 import pytest
 import shutil
 import sys
+from unittest import mock
 
 from lasif.components.project import Project
 from lasif.scripts import lasif_cli

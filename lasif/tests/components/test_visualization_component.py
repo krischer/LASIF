@@ -3,11 +3,11 @@
 from __future__ import absolute_import
 
 import inspect
-import mock
 import numpy as np
 import os
 import pytest
 import shutil
+from unittest import mock
 
 from lasif.components.project import Project
 
