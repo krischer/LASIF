@@ -717,7 +717,7 @@ class ActionsComponent(Component):
                 event_name))
 
         gen.write(format=solver_format, output_dir=output_dir)
-        print "Written files to '%s'." % output_dir
+        print("Written files to '%s'." % output_dir)
 
     def calculate_all_adjoint_sources(self, iteration_name, event_name):
         """
@@ -786,7 +786,7 @@ class ActionsComponent(Component):
                 l, key=lambda x: ".".join(x.split(".")[:2])):
             if station not in iteration_stations:
                 continue
-            print ".",
+            print(".",)
             station_weight = iteration_stations[station]["station_weight"]
             channels = {}
             try:
@@ -934,5 +934,5 @@ class ActionsComponent(Component):
                         ele=coords["elevation_in_m"],
                         dep=coords["local_depth_in_m"]))
 
-        print "Wrote adjoint sources for %i station(s) to %s." % (
-            len(adjoint_source_stations), os.path.relpath(output_folder))
+        print("Wrote adjoint sources for %i station(s) to %s." % (
+            len(adjoint_source_stations), os.path.relpath(output_folder)))

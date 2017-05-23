@@ -15,7 +15,6 @@ needed.
 """
 from __future__ import absolute_import
 
-import cPickle
 import glob
 import imp
 import inspect
@@ -31,7 +30,6 @@ from .communicator import Communicator
 from .component import Component
 from .downloads import DownloadsComponent
 from .events import EventsComponent
-from .inventory_db import InventoryDBComponent
 from .iterations import IterationsComponent
 from .kernels import KernelsComponent
 from .models import ModelsComponent
@@ -73,6 +71,7 @@ class Project(Component):
             if not os.path.exists(project_root_path):
                 os.makedirs(project_root_path)
             self.__init_new_project(init_project)
+            return
 
         if not os.path.exists(self.paths["config_file"]):
             msg = ("Could not find the project's config file. Wrong project "
@@ -98,39 +97,12 @@ class Project(Component):
         """
         Pretty string representation.
         """
-        from lasif.utils import sizeof_fmt
         # Count all files and sizes.
-
-        raw_data_file_count = 0
-        processed_data_file_count = 0
-        synthetic_data_file_count = 0
-        project_filesize = 0
-
-        for dirpath, _, filenames in os.walk(self.paths["root"]):
-            size = sum([os.path.getsize(os.path.join(dirpath, _i))
-                        for _i in filenames])
-            project_filesize += size
-            if dirpath.startswith(self.paths["data"]):
-                if dirpath.endswith("raw"):
-                    raw_data_file_count += len(filenames)
-                elif "processed" in dirpath:
-                    processed_data_file_count += len(filenames)
-            elif dirpath.startswith(self.paths["synthetics"]):
-                synthetic_data_file_count += len(filenames)
-
         ret_str = "LASIF project \"%s\"\n" % self.config["name"]
         ret_str += "\tDescription: %s\n" % self.config["description"]
         ret_str += "\tProject root: %s\n" % self.paths["root"]
         ret_str += "\tContent:\n"
         ret_str += "\t\t%i events\n" % self.comm.events.count()
-        ret_str += "\t\t%i raw waveform files\n" % raw_data_file_count
-        ret_str += "\t\t%i processed waveform files \n" % \
-                   processed_data_file_count
-        ret_str += "\t\t%i synthetic waveform files\n" % \
-                   synthetic_data_file_count
-
-        ret_str += "\tTotal project size: %s\n\n" % \
-                   sizeof_fmt(project_filesize)
 
         d = str(self.domain)
         ret_str += "\n".join(["\t" + i for i in d.splitlines()])
@@ -169,172 +141,6 @@ class Project(Component):
         """
         Parse the config file.
         """
-        # Needed to transition from old config files to new config files.
-        default_download_settings = {
-            "seconds_before_event": 100.0,
-            "seconds_after_event": 3600.0,
-            "interstation_distance_in_m": 1000.0,
-            "channel_priorities": ["BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]",
-                                   "EH[Z,N,E]", "MH[Z,N,E]"],
-            "location_priorities": ["", "00", "10", "20", "01", "02"]
-        }
-
-        # Attempt to read the cached config file. This might seem excessive but
-        # since this file is read every single time a LASIF command is used it
-        # makes difference at least in the perceived speed of LASIF.
-        cfile = self.paths["config_file_cache"]
-        if os.path.exists(cfile):
-            try:
-                with open(cfile, "rb") as fh:
-                    cf_cache = cPickle.load(fh)
-                last_m_time = int(os.path.getmtime(self.paths["config_file"]))
-                if last_m_time == cf_cache["last_m_time"]:
-                    default_download_settings.update(cf_cache["config"][
-                        "download_settings"])
-                    self.config = cf_cache["config"]
-
-                    # Transition to newer LASIF version.
-                    if "misc_settings" not in self.config:
-                        self.config["misc_settings"] = {
-                            "time_frequency_adjoint_source_criterion": 7.0}
-
-                    self.config["download_settings"] = \
-                        default_download_settings
-                    self.domain = cf_cache["domain"]
-                    # XXX: Only until migration to new LASIF version happened.
-                    if isinstance(self.domain, dict):
-                        os.remove(cfile)
-                    else:
-                        return
-            except:
-                os.remove(cfile)
-
-        from lxml import etree
-        root = etree.parse(self.paths["config_file"]).getroot()
-
-        self.config = {}
-        self.config["name"] = root.find("name").text
-        self.config["description"] = root.find("description").text
-        # The description field is the only field allowed to be empty.
-        if self.config["description"] is None:
-            self.config["description"] = ""
-
-        self.config["download_settings"] = default_download_settings
-        dl_settings = root.find("download_settings")
-        self.config["download_settings"]["seconds_before_event"] = \
-            float(dl_settings.find("seconds_before_event").text)
-        self.config["download_settings"]["seconds_after_event"] = \
-            float(dl_settings.find("seconds_after_event").text)
-        # Only add if available, otherwise use defaults.
-        dist = dl_settings.find('interstation_distance_in_m')
-        if dist is not None:
-            self.config["download_settings"]["interstation_distance_in_m"] = \
-                float(dist.text)
-        c_p = dl_settings.find("channel_priorities")
-        if c_p is not None:
-            self.config["download_settings"]["channel_priorities"] = \
-                [str(_i.text) if _i.text else ""
-                 for _i in c_p.findall("priority")]
-        l_p = dl_settings.find("location_priorities")
-        if l_p is not None:
-            self.config["download_settings"]["location_priorities"] = \
-                [str(_i.text) if _i.text else ""
-                 for _i in l_p.findall("priority")]
-
-        # Read the domain.
-        domain = root.find("domain")
-
-        # Check if the domain is global.
-        is_global = domain.find("global")
-        if is_global is not None and is_global.text.strip().lower() == "true":
-            self.domain = lasif.domain.GlobalDomain()
-        else:
-            bounds = domain.find("domain_bounds")
-            rotation = domain.find("domain_rotation")
-            self.domain = lasif.domain.RectangularSphericalSection(
-                min_longitude=float(bounds.find("minimum_longitude").text),
-                max_longitude=float(bounds.find("maximum_longitude").text),
-                min_latitude=float(bounds.find("minimum_latitude").text),
-                max_latitude=float(bounds.find("maximum_latitude").text),
-                min_depth_in_km=float(bounds.find("minimum_depth_in_km").text),
-                max_depth_in_km=float(bounds.find("maximum_depth_in_km").text),
-                rotation_axis=[
-                    float(rotation.find("rotation_axis_x").text),
-                    float(rotation.find("rotation_axis_y").text),
-                    float(rotation.find("rotation_axis_z").text)],
-                rotation_angle_in_degree=float(
-                    rotation.find("rotation_angle_in_degree").text),
-                boundary_width_in_degree=float(
-                    bounds.find("boundary_width_in_degree").text))
-
-        # Misc settings.
-        misc = root.find("misc_settings")
-        if misc is not None:
-            self.config["misc_settings"] = {}
-            self.config["misc_settings"][
-                "time_frequency_adjoint_source_criterion"] = \
-                float(misc.find(
-                    "time_frequency_adjoint_source_criterion").text)
-        else:
-            self.config["misc_settings"] = {
-                "time_frequency_adjoint_source_criterion": 7.0}
-
-        # Write cache file.
-        cf_cache = {}
-        cf_cache["config"] = self.config
-        cf_cache["domain"] = self.domain
-        cf_cache["last_m_time"] = \
-            int(os.path.getmtime(self.paths["config_file"]))
-        with open(cfile, "wb") as fh:
-            cPickle.dump(cf_cache, fh, protocol=2)
-
-    def get_filecounts_for_event(self, event_name):
-        """
-        Gets the number of files associated with the current event.
-
-        :type event_name: str
-        :param event_name: The name of the event.
-
-        :rtype: dict
-        :returns: A dictionary with the following self-explaining keys:
-            * raw_waveform_file_count
-            * synthetic_waveform_file_count
-            * preprocessed_waveform_file_count
-        """
-        # Make sure the event exists.
-        if not self.comm.events.has_event(event_name):
-            msg = "Event '%s' not found in project." % event_name
-            raise ValueError(msg)
-
-        p_tags = self.comm.waveforms.get_available_processing_tags(event_name)
-        s_tags = self.comm.waveforms.get_available_synthetics(event_name)
-        synthetic_data_count = 0
-        processed_data_count = 0
-
-        try:
-            raw_data_count = self.comm.waveforms.get_waveform_cache(
-                event_name, "raw").file_count
-        except LASIFNotFoundError:
-            raw_data_count = 0
-        for tag in p_tags:
-            try:
-                processed_data_count += \
-                    self.comm.waveforms.get_waveform_cache(
-                        event_name, "processed", tag).file_count
-            except LASIFNotFoundError:
-                pass
-        for tag in s_tags:
-            try:
-                synthetic_data_count += \
-                    self.comm.waveforms.get_waveform_cache(
-                        event_name, "synthetic", tag).file_count
-            except LASIFNotFoundError:
-                pass
-
-        return {
-            "raw_waveform_file_count": raw_data_count,
-            "synthetic_waveform_file_count": synthetic_data_count,
-            "preprocessed_waveform_file_count": processed_data_count}
 
     def get_communicator(self):
         return self.__comm
@@ -414,9 +220,7 @@ class Project(Component):
 
         # Paths for various files.
         self.paths["config_file"] = os.path.join(root_path,
-                                                 "config_hp.xml")
-        self.paths["config_file_cache"] = \
-            os.path.join(self.paths["cache"], "config_hp.xml_cache.pickle")
+                                                 "lasif_config.toml")
 
         self.paths["windows_and_adjoint_sources"] = os.path.join(
             root_path, "ADJOINT_SOURCES_AND_WINDOWS")
@@ -425,7 +229,7 @@ class Project(Component):
         """
         Updates the folder structure of the project.
         """
-        for name, path in self.paths.iteritems():
+        for name, path in self.paths.items():
             if "file" in name or os.path.exists(path):
                 continue
             os.makedirs(path)
@@ -442,57 +246,26 @@ class Project(Component):
         default config file. The folder structure is checked and rebuilt every
         time the project is initialized anyways.
         """
-        from lxml import etree
-        from lxml.builder import E
+        import toml
 
         if not project_name:
             project_name = "LASIFProject"
 
-        doc = E.lasif_project(
-            E.name(project_name),
-            E.description(""),
-            E.download_settings(
-                E.seconds_before_event(str(300)),
-                E.seconds_after_event(str(3600)),
-                E.interstation_distance_in_m(str(1000.0)),
-                E.channel_priorities(
-                    E.priority("BH[Z,N,E]"),
-                    E.priority("LH[Z,N,E]"),
-                    E.priority("HH[Z,N,E]"),
-                    E.priority("EH[Z,N,E]"),
-                    E.priority("MH[Z,N,E]")),
-                E.location_priorities(
-                    E.priority(""),
-                    E.priority("00"),
-                    E.priority("10"),
-                    E.priority("20"),
-                    E.priority("01"),
-                    E.priority("02"))
-            ),
-            E.domain(
-                getattr(E, "global")("false"),
-                E.domain_bounds(
-                    E.minimum_longitude(str(-20)),
-                    E.maximum_longitude(str(20)),
-                    E.minimum_latitude(str(-20)),
-                    E.maximum_latitude(str(20)),
-                    E.minimum_depth_in_km(str(0.0)),
-                    E.maximum_depth_in_km(str(200.0)),
-                    E.boundary_width_in_degree(str(3.0))),
-                E.domain_rotation(
-                    E.rotation_axis_x(str(1.0)),
-                    E.rotation_axis_y(str(1.0)),
-                    E.rotation_axis_z(str(1.0)),
-                    E.rotation_angle_in_degree(str(-45.0)))),
-            E.misc_settings(
-                E.time_frequency_adjoint_source_criterion(str(7.0))
-            ))
+        config = {"lasif_project": {
+            "project_name": project_name,
+            "description": "",
+            "mesh_file": "",
+            "download_settings": {
+                "seconds_before_event": 300.0,
+                "seconds_after_event": 3600.0,
+                "interstation_distance_in_meters": 1000.0,
+                "channel_priorities": ["BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]",
+                                       "EH[Z,N,E]", "MH[Z,N,E]"],
+                "location_priorities": ("", "00", "10", "20", "01", "02")
+        }}}
 
-        string_doc = etree.tostring(doc, pretty_print=True,
-                                    xml_declaration=True, encoding="UTF-8")
-
-        with open(self.paths["config_file"], "wt") as open_file:
-            open_file.write(string_doc)
+        with open(self.paths["config_file"], "w") as fh:
+            toml.dump(config, fh)
 
     def get_project_function(self, fct_type):
         """

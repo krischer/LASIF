@@ -51,7 +51,6 @@ import collections
 import colorama
 import difflib
 import itertools
-import progressbar
 import sys
 import time
 import traceback
@@ -397,23 +396,6 @@ def lasif_list_events(parser, args):
 
 
 @command_group("Project Management")
-def lasif_build_all_caches(parser, args):
-    """
-    Build all caches to speed up subsequent operations.
-
-    This is optional and might take a while. Otherwise the caches are built
-    on demand which works fine but might impede on some workflows.
-    """
-    parser.add_argument("--quick", help="Only check caches for folders that "
-                                        "do not have a cache.",
-                        action="store_true")
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".")
-    comm.project.build_all_caches(quick=args.quick)
-
-
-@command_group("Project Management")
 def lasif_list_models(parser, args):
     """
     Print a list of all models in the project.
@@ -425,7 +407,7 @@ def lasif_list_models(parser, args):
     print("%i model%s in project:" % (len(models), "s" if len(models) != 1
           else ""))
     for model in models:
-        print ("\t%s" % model)
+        print("\t%s" % model)
 
 
 @command_group("Project Management")
@@ -980,10 +962,10 @@ def lasif_compare_misfits(parser, args):
         # Split into a number of events per MPI process.
         events = split(events, MPI.COMM_WORLD.size)
 
-        print " => Calculating misfit change from iteration '%s' to " \
-            "iteration '%s' ..." % (from_it.name, to_it.name)
-        print " => Launching calculations on %i core(s)\n" % \
-            MPI.COMM_WORLD.size
+        print(" => Calculating misfit change from iteration '%s' to " \
+            "iteration '%s' ..." % (from_it.name, to_it.name))
+        print(" => Launching calculations on %i core(s)\n" % \
+            MPI.COMM_WORLD.size)
 
     else:
         events = None
@@ -1042,7 +1024,7 @@ def lasif_compare_misfits(parser, args):
                 except LASIFAdjointSourceCalculationError:
                     continue
                 except LASIFNotFoundError as e:
-                    print str(e)
+                    print(str(e))
                     continue
 
                 try:
@@ -1091,15 +1073,15 @@ def lasif_compare_misfits(parser, args):
     if not all_events:
         raise LASIFCommandLineException("No misfit values could be compared.")
 
-    print "\nTotal misfit in Iteration %s: %g" % (from_it.name,
-                                                  total_misfit_from)
-    print "Total misfit in Iteration %s: %g" % (to_it.name,
-                                                total_misfit_to)
+    print("\nTotal misfit in Iteration %s: %g" % (from_it.name,
+                                                  total_misfit_from))
+    print("Total misfit in Iteration %s: %g" % (to_it.name,
+                                                total_misfit_to))
 
     _ending_time = time.time()
 
-    print "\n => Computation time: %.1f seconds" % (_ending_time -
-                                                    _starting_time)
+    print("\n => Computation time: %.1f seconds" % (_ending_time -
+                                                    _starting_time))
 
     import matplotlib.pylab as plt
     import numpy as np
@@ -1123,7 +1105,7 @@ def lasif_compare_misfits(parser, args):
         type="misfit_comparisons", tag="misfit_comparision")
     filename = os.path.join(output_folder, "misfit_comparision.pdf")
     plt.savefig(filename)
-    print "\nSaved figure to '%s'" % os.path.relpath(filename)
+    print("\nSaved figure to '%s'" % os.path.relpath(filename))
 
 
 @command_group("Iteration Management")
@@ -1141,8 +1123,8 @@ def lasif_migrate_windows(parser, args):
     from_it = comm.iterations.get(args.from_iteration)
     to_it = comm.iterations.get(args.to_iteration)
 
-    print "Migrating windows from iteration '%s' to iteration '%s'..." % (
-        from_it.name, to_it.name)
+    print("Migrating windows from iteration '%s' to iteration '%s'..." % (
+        from_it.name, to_it.name))
 
     for event_name, stations in to_it.events.items():
         stations = stations["stations"].keys()
@@ -1180,7 +1162,7 @@ def lasif_list_iterations(parser, args):
     print("%i iteration%s in project:" % (it_len,
           "s" if it_len != 1 else ""))
     for iteration in comm.iterations.list():
-        print ("\t%s" % iteration)
+        print("\t%s" % iteration)
 
 
 @command_group("Iteration Management")
@@ -1560,7 +1542,7 @@ def _print_generic_help(fcts):
     # Group the functions. Functions with no group will be placed in the group
     # "Misc".
     fct_groups = {}
-    for fct_name, fct in fcts.iteritems():
+    for fct_name, fct in fcts.items():
         group_name = fct.group_name if hasattr(fct, "group_name") else "Misc"
         fct_groups.setdefault(group_name, {})
         fct_groups[group_name][fct_name] = fct
@@ -1583,7 +1565,7 @@ def _get_argument_parser(fct):
     Helper function to create a proper argument parser.
     """
     parser = argparse.ArgumentParser(
-        prog="lasif %s" % fct.func_name.replace("lasif_", ""),
+        prog="lasif %s" % fct.__name__.replace("lasif_", ""),
         description=_get_cmd_description(fct))
 
     parser.add_argument(
@@ -1597,7 +1579,7 @@ def _get_argument_parser(fct):
     exceptions = ["lasif_tutorial", "lasif_init_project",
                   "lasif_build_all_caches"]
 
-    if fct.func_name in exceptions:
+    if fct.__name__ in exceptions:
         return parser
 
     return parser
@@ -1609,7 +1591,7 @@ def _get_functions():
     """
     # Get all functions in this script starting with "lasif_".
     fcts = {fct_name[len(FCT_PREFIX):]: fct for (fct_name, fct) in
-            globals().iteritems()
+            globals().items()
             if fct_name.startswith(FCT_PREFIX) and hasattr(fct, "__call__")}
     return fcts
 

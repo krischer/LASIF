@@ -154,7 +154,7 @@ class ValidatorComponent(Component):
 
         Returns a list of waveform files violating that assumtion.
         """
-        print "Making sure raypaths are within boundaries ",
+        print("Making sure raypaths are within boundaries ", end="")
 
         all_good = True
 
@@ -204,8 +204,8 @@ class ValidatorComponent(Component):
         """
         Checks that all waveform files have an associated station file.
         """
-        print ("Confirming that station metainformation files exist for "
-               "all waveforms "),
+        print("Confirming that station metainformation files exist for "
+              "all waveforms ", end="")
 
         all_good = True
 
@@ -246,7 +246,7 @@ class ValidatorComponent(Component):
 
         * each station only has data from one location for each event.
         """
-        print "Checking all waveform files ",
+        print("Checking all waveform files ", end="")
 
         all_good = True
 
@@ -334,10 +334,10 @@ class ValidatorComponent(Component):
         from obspy.io.quakeml.core import _validate as validate_quakeml
         from lxml import etree
 
-        print "Validating %i event files ..." % self.comm.events.count()
+        print("Validating %i event files ..." % self.comm.events.count())
 
         # Start with the schema validation.
-        print "\tValidating against QuakeML 1.2 schema ",
+        print("\tValidating against QuakeML 1.2 schema ", end="")
         all_valid = True
         for event in self.comm.events.get_all_events().values():
             filename = event["filename"]
@@ -368,7 +368,7 @@ class ValidatorComponent(Component):
             self._print_fail_message()
 
         # Now check for duplicate public IDs.
-        print "\tChecking for duplicate public IDs ",
+        print("\tChecking for duplicate public IDs ", end="")
         ids = collections.defaultdict(list)
         for event in self.comm.events.get_all_events().values():
             filename = event["filename"]
@@ -402,7 +402,7 @@ class ValidatorComponent(Component):
                                  msg=message))
 
         # Performing simple sanity checks.
-        print "\tPerforming some basic sanity checks ",
+        print("\tPerforming some basic sanity checks ", end="")
         all_good = True
         for event in self.comm.events.get_all_events().values():
             filename = event["filename"]
@@ -490,8 +490,8 @@ class ValidatorComponent(Component):
         event_infos = self.comm.events.get_all_events().values()
 
         # Now check the time distribution of events.
-        print "\tChecking for duplicates and events too close in time %s" % \
-              (self.comm.events.count() * "."),
+        print("\tChecking for duplicates and events too close in time %s" % \
+              (self.comm.events.count() * "."), end="")
         all_good = True
         # Sort the events by time.
         event_infos = sorted(event_infos, key=lambda x: x["origin_time"])
@@ -519,8 +519,8 @@ class ValidatorComponent(Component):
             self._print_fail_message()
 
         # Check that all events fall within the chosen boundaries.
-        print "\tAssure all events are in chosen domain %s" % \
-              (self.comm.events.count() * "."),
+        print("\tAssure all events are in chosen domain %s" % \
+              (self.comm.events.count() * "."), end="")
         all_good = True
         domain = self.comm.project.domain
         for event in event_infos:

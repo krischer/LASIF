@@ -8,7 +8,6 @@ import os
 
 from .component import Component
 from lasif import LASIFNotFoundError
-from lasif.tools.cache_helpers.event_cache import EventCache
 
 
 class EventsComponent(Component):
@@ -26,26 +25,6 @@ class EventsComponent(Component):
         super(EventsComponent, self).__init__(communicator, component_name)
         self.__event_info_cache = {}
         self.folder = folder
-        self.update_cache()
-
-    def update_cache(self):
-        """
-        Clears the cached events. Events are only cached within one instance
-        of the the EventsComponent in any case.
-        """
-        event_cache = EventCache(
-            cache_db_file=os.path.join(
-                self.comm.project.paths["cache"], "event_cache.sqlite"),
-            root_folder=self.comm.project.paths["root"],
-            event_folder=self.folder)
-
-        values = event_cache.get_values()
-
-        # Cache the event information so everything is only read once at max.
-        self.__event_info_cache = {
-            _i["event_name"]: _i for _i in values}
-        for value in self.__event_info_cache.values():
-            value["origin_time"] = obspy.UTCDateTime(value["origin_time"])
 
     def list(self):
         """
