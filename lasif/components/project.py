@@ -18,6 +18,7 @@ from __future__ import absolute_import
 import glob
 import imp
 import inspect
+import pathlib
 import os
 import warnings
 
@@ -47,33 +48,26 @@ class Project(Component):
 
     It represents the heart of LASIF.
     """
-    def __init__(self, project_root_path, init_project=False):
+    def __init__(self, project_root_path: pathlib.Path,
+                 init_project: bool=False):
         """
         Upon intialization, set the paths and read the config file.
 
-        :type project_root_path: str
         :param project_root_path: The root path of the project.
-        :type init_project: str
         :param init_project: Determines whether or not to initialize a new
             project, e.g. create the necessary folder structure. If a string is
             passed, the project will be given this name. Otherwise a default
             name will be chosen. Defaults to False.
         """
         # Setup the paths.
-        self.__setup_paths(project_root_path)
-        # Manually create the CACHE folder - it is needed for initializing
-        # some components and thus cannot use the folder creation logic for
-        # the rest of the project structure.
-        if not os.path.exists(self.paths["cache"]):
-            os.makedirs(self.paths["cache"])
+        self.__setup_paths(project_root_path.absolute())
 
         if init_project:
-            if not os.path.exists(project_root_path):
+            if not project_root_path.exists():
                 os.makedirs(project_root_path)
             self.__init_new_project(init_project)
-            return
 
-        if not os.path.exists(self.paths["config_file"]):
+        if not self.paths["config_file"].exists():
             msg = ("Could not find the project's config file. Wrong project "
                    "path or uninitialized project?")
             raise LASIFError(msg)
@@ -119,23 +113,18 @@ class Project(Component):
             this function will raise a warning to make users aware of the
             changes in LASIF.
         """
-        directory = os.path.abspath(os.path.join(
-            os.path.dirname(inspect.getfile(
-                inspect.currentframe())),
-            os.path.pardir,
-            "function_templates"))
-        for template_filename in glob.glob(os.path.join(directory, "*.py")):
-            filename = os.path.basename(template_filename)
-            new_filename = os.path.join(self.paths["functions"], filename)
-            if not os.path.exists(new_filename):
+        directory = pathlib.Path(__file__).parent.parent / "function_templates"
+        for filename in directory.glob("*.py"):
+            new_filename = self.paths["functions"] / filename.name
+            if not new_filename.exists():
                 if not init_project:
                     warnings.warn(
-                        "Function template '%s' did not exist. It does now. "
-                        "Did you update a later LASIF version? Please make "
-                        "sure you are aware of the changes." % filename,
+                        f"Function template '{filename.name}' did not exist. "
+                        "It does now. Did you update a later LASIF version? "
+                        "Please make sure you are aware of the changes.",
                         LASIFWarning)
                 import shutil
-                shutil.copy(src=template_filename, dst=new_filename)
+                shutil.copy(src=filename, dst=new_filename)
 
     def _read_config_file(self):
         """
@@ -196,7 +185,7 @@ class Project(Component):
         DownloadsComponent(communicator=self.comm,
                            component_name="downloads")
 
-    def __setup_paths(self, root_path):
+    def __setup_paths(self, root_path: pathlib.Path):
         """
         Central place to define all paths.
         """
@@ -205,40 +194,33 @@ class Project(Component):
         self.paths = {}
         self.paths["root"] = root_path
 
-        self.paths["events"] = os.path.join(root_path, "EVENTS")
-        self.paths["data"] = os.path.join(root_path, "DATA")
-        self.paths["cache"] = os.path.join(root_path, "CACHE")
-        self.paths["logs"] = os.path.join(root_path, "LOGS")
-        self.paths["models"] = os.path.join(root_path, "MODELS")
-        self.paths["wavefields"] = os.path.join(root_path, "WAVEFIELDS")
-        self.paths["iterations"] = os.path.join(root_path, "ITERATIONS")
-        self.paths["synthetics"] = os.path.join(root_path, "SYNTHETICS")
-        self.paths["kernels"] = os.path.join(root_path, "KERNELS")
-        self.paths["output"] = os.path.join(root_path, "OUTPUT")
+        self.paths["events"] = root_path / "EVENTS"
+        self.paths["data"] = root_path / "DATA"
+        self.paths["cache"] = root_path / "CACHE"
+        self.paths["logs"] = root_path / "LOGS"
+        self.paths["models"] = root_path / "MODELS"
+        self.paths["wavefields"] = root_path / "WAVEFIELDS"
+        self.paths["iterations"] = root_path / "ITERATIONS"
+        self.paths["synthetics"] = root_path / "SYNTHETICS"
+        self.paths["kernels"] = root_path / "KERNELS"
+        self.paths["output"] = root_path / "OUTPUT"
         # Path for the custom functions.
-        self.paths["functions"] = os.path.join(root_path, "FUNCTIONS")
+        self.paths["functions"] = root_path / "FUNCTIONS"
 
         # Paths for various files.
-        self.paths["config_file"] = os.path.join(root_path,
-                                                 "lasif_config.toml")
+        self.paths["config_file"] = root_path / "lasif_config.toml"
 
-        self.paths["windows_and_adjoint_sources"] = os.path.join(
-            root_path, "ADJOINT_SOURCES_AND_WINDOWS")
+        self.paths["windows_and_adjoint_sources"] = \
+            root_path / "ADJOINT_SOURCES_AND_WINDOWS"
 
     def __update_folder_structure(self):
         """
         Updates the folder structure of the project.
         """
         for name, path in self.paths.items():
-            if "file" in name or os.path.exists(path):
+            if "file" in name or path.exists():
                 continue
             os.makedirs(path)
-        events = self.comm.events.list()
-        for event in events:
-            event_folder = os.path.join(self.paths["data"], event)
-            if os.path.exists(event_folder):
-                continue
-            os.makedirs(event_folder)
 
     def __init_new_project(self, project_name):
         """

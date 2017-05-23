@@ -51,6 +51,7 @@ import collections
 import colorama
 import difflib
 import itertools
+import pathlib
 import sys
 import time
 import traceback
@@ -132,13 +133,13 @@ def _find_project_comm(folder):
     Will search upwards from the given folder until a folder containing a
     LASIF root structure is found. The absolute path to the root is returned.
     """
+    folder = pathlib.Path(folder).absolute()
     max_folder_depth = 10
     folder = folder
-    for _ in xrange(max_folder_depth):
-        if os.path.exists(os.path.join(folder, "config_hp.xml")):
-            return Project(
-                os.path.abspath(folder)).get_communicator()
-        folder = os.path.join(folder, os.path.pardir)
+    for _ in range(max_folder_depth):
+        if (folder / "lasif_config.toml").exists():
+            return Project(folder).get_communicator()
+        folder = folder.parent
     msg = "Not inside a LASIF project."
     raise LASIFCommandLineException(msg)
 
@@ -617,22 +618,20 @@ def lasif_init_project(parser, args):
     """
     parser.add_argument("folder_path", help="where to create the project")
     args = parser.parse_args(args)
-    folder_path = args.folder_path
+    folder_path = pathlib.Path(args.folder_path).absolute()
 
-    if os.path.exists(folder_path):
+    if folder_path.exists():
         msg = "The given FOLDER_PATH already exists. It must not exist yet."
         raise LASIFCommandLineException(msg)
-    folder_path = os.path.abspath(folder_path)
     try:
         os.makedirs(folder_path)
     except:
-        msg = "Failed creating directory %s. Permissions?" % folder_path
+        msg = f"Failed creating directory {folder_path}. Permissions?"
         raise LASIFCommandLineException(msg)
 
-    Project(project_root_path=folder_path,
-            init_project=os.path.basename(folder_path))
+    Project(project_root_path=folder_path, init_project=folder_path.name)
 
-    print("Initialized project in: \n\t%s" % folder_path)
+    print(f"Initialized project in: \n\t{folder_path}")
 
 
 @command_group("Iteration Management")
@@ -1548,7 +1547,7 @@ def _print_generic_help(fcts):
         fct_groups[group_name][fct_name] = fct
 
     # Print in a grouped manner.
-    for group_name in sorted(fct_groups.iterkeys()):
+    for group_name in sorted(fct_groups.keys()):
         print("{0:=>25s} Functions".format(" " + group_name))
         current_fcts = fct_groups[group_name]
         for name in sorted(current_fcts.keys()):
