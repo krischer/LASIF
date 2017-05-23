@@ -15,7 +15,26 @@ Salvus suite of tools.
 """
 import inspect
 import os
+import sys
 from setuptools import setup, find_packages
+
+
+# Be very visible with the requires Python version!
+_v = sys.version_info
+if (_v.major, _v.minor) != (3, 6):
+    print("\n\n============================================")
+    print("============================================")
+    print("        LASIF 2 requires Python 3.6!        ")
+    print("============================================")
+    print("============================================\n\n")
+    raise Exception("LASIF 2 requires Python 3.6")
+
+
+# Import the version string.
+path = os.path.join(os.path.abspath(os.path.dirname(inspect.getfile(
+    inspect.currentframe()))), "lasif")
+sys.path.insert(0, path)
+from version import get_git_version  # noqa
 
 
 def get_package_data():
@@ -44,7 +63,7 @@ def get_package_data():
 
 setup_config = dict(
     name="lasif",
-    version="2.0.0a",
+    version=get_git_version(),
     description="",
     author="Lion Krischer and Andreas Fichtner",
     author_email="krischer@geophysik.uni-muenchen.de",

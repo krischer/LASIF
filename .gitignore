@@ -5,3 +5,4 @@ lasif.egg-info/*
 htmlcov
 lasif/misfit_gui/qt_window.py
 .cache
+lasif/RELEASE-VERSION
