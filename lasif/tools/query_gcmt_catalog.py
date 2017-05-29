@@ -14,7 +14,8 @@ import obspy
 from obspy.core.event import Catalog
 import os
 import random
-
+import pyasdf
+import shutil
 from scipy.spatial import cKDTree
 
 EARTH_RADIUS = 6371.00
@@ -193,10 +194,15 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
         count -= 1
 
     print("Selected %i events." % len(chosen_events))
-
-    folder = comm.project.paths["events"]
+    folder = os.path.join(comm.project.paths['root'], "tmp")
+    os.mkdir(folder)
+    data_dir = comm.project.paths["data"]
     for event in chosen_events:
         filename = os.path.join(folder, get_event_filename(event, "GCMT"))
         Catalog(events=[event]).write(filename, format="quakeml",
                                       validate=True)
-        print("Written %s" % (os.path.relpath(filename)))
+        asdf_filename = os.path.join(data_dir, get_event_filename(event, "GCMT").rsplit('.', 1)[0] + ".h5")
+        ds = pyasdf.ASDFDataSet(asdf_filename, compression="gzip-3")
+        ds.add_quakeml(filename)
+        print("Written %s" % (os.path.relpath(asdf_filename)))
+    shutil.rmtree(folder)
