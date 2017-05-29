@@ -33,7 +33,6 @@ from .downloads import DownloadsComponent
 from .events import EventsComponent
 from .iterations import IterationsComponent
 from .kernels import KernelsComponent
-from .models import ModelsComponent
 from .query import QueryComponent
 from .stations import StationsComponent
 from .validator import ValidatorComponent
@@ -116,7 +115,7 @@ class Project(Component):
             if not new_filename.exists():
                 if not init_project:
                     warnings.warn(
-                        f"Function template '{filename.name}' did not exist. "
+                        "Function template '{filename.name}' did not exist. "
                         "It does now. Did you update a later LASIF version? "
                         "Please make sure you are aware of the changes.",
                         LASIFWarning)
@@ -130,6 +129,8 @@ class Project(Component):
         import toml
         with open(self.paths["config_file"], "r") as fh:
             self.config = toml.load(fh)["lasif_project"]
+
+        self.domain = lasif.domain.ExodusDomain(self.config['mesh_file'])
 
     def get_communicator(self):
         return self.__comm
@@ -149,9 +150,6 @@ class Project(Component):
         WaveformsComponent(data_folder=self.paths["data"],
                            synthetics_folder=self.paths["synthetics"],
                            communicator=self.comm, component_name="waveforms")
-        ModelsComponent(models_folder=self.paths["models"],
-                        communicator=self.comm,
-                        component_name="models")
         KernelsComponent(kernels_folder=self.paths["kernels"],
                          communicator=self.comm,
                          component_name="kernels")

@@ -57,11 +57,11 @@ def table_printer(header, data):
     :param data: A list of lists containing data items.
     """
     row_format = "{:>15}" * (len(header))
-    print row_format.format(*(["=" * 15] * len(header)))
-    print row_format.format(*header)
-    print row_format.format(*(["=" * 15] * len(header)))
+    print(row_format.format(*(["=" * 15] * len(header))))
+    print(row_format.format(*header))
+    print(row_format.format(*(["=" * 15] * len(header))))
     for row in data:
-        print row_format.format(*row)
+        print(row_format.format(*row))
 
 
 def recursive_dict(element):

@@ -14,11 +14,13 @@ import obspy
 from obspy.core.event import Catalog
 import os
 import random
+
 from scipy.spatial import cKDTree
 
 EARTH_RADIUS = 6371.00
 
 from lasif.utils import get_event_filename
+
 
 
 class SphericalNearestNeighbour(object):
