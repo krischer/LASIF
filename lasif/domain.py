@@ -18,7 +18,6 @@ from pyexodus import exodus
 from scipy.spatial import cKDTree
 
 from lasif.rotations import lat_lon_radius_to_xyz
-from lasif.utils import project_point_on_surface, cart2sph
 
 
 class Domain(object):
@@ -136,14 +135,14 @@ class ExodusDomain(Domain):
         if self.is_global_mesh:
             return True
         r_earth = 6371.0 * 1000.0
-        eq_loc_proj = lat_lon_radius_to_xyz(latitude, longitude, r_earth)
-        dist, _ = self.earth_surface_tree.query(eq_loc_proj, k=1)
+        point_on_surface = lat_lon_radius_to_xyz(latitude, longitude, r_earth)
+        dist, _ = self.earth_surface_tree.query(point_on_surface, k=1)
 
         # False if not close to domain surface
         if dist > 2 * self.approx_elem_width:
             return False
 
-        dist, _ = self.domain_edge_tree.query(eq_loc_proj, k=1)
+        dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
 
         # False if too close to edge of domain
         if dist < 7 * self.approx_elem_width:
