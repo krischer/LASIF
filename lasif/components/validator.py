@@ -8,7 +8,6 @@ import os
 import sys
 
 from .component import Component
-from ..domain import GlobalDomain
 from .. import LASIFNotFoundError
 
 
