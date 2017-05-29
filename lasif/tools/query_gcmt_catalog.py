@@ -108,7 +108,6 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     max_magnitude = float(max_magnitude)
 
     # Get the catalog.
-    #return True
     cat = _read_GCMT_catalog(min_year=min_year, max_year=max_year)
     # Filter with the magnitudes
     cat = cat.filter("magnitude >= %.2f" % min_magnitude,
