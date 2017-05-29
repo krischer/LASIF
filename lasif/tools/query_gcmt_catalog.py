@@ -12,14 +12,126 @@ import inspect
 import numpy as np
 import obspy
 from obspy.core.event import Catalog
+import toml
 import os
 import random
+
+from pyexodus import exodus
 from scipy.spatial import cKDTree
 
 EARTH_RADIUS = 6371.00
 
 from lasif.utils import get_event_filename
 
+
+def sph2cart(col, lon, rad):
+    """
+    Given spherical coordinates as input, returns their cartesian equivalent.
+    :param col: Colatitude [radians].
+    :param lon: Longitude [radians].
+    :param rad: Radius.
+    :return: x, y, z.
+    """
+
+    col, lon, rad = np.asarray(col), np.asarray(lon), np.asarray(rad)
+    if (0 > col).any() or (col > np.math.pi).any():
+        raise ValueError('Colatitude must be in range [0, pi].')
+
+    x = rad * np.sin(col) * np.cos(lon)
+    y = rad * np.sin(col) * np.sin(lon)
+    z = rad * np.cos(col)
+
+    return x, y, z
+
+def project_earthquake_on_surface(lat, lon):
+    """
+        This function takes lat/lon in degrees and returns x,y,z of eq location projected
+        on earth's surface
+        :param lat: Latitude [degrees] -90 - 90
+        :param lon: Longitude [degrees] 0 - 360
+        return: x, y, z
+    """
+    colat = 90.0 - lat
+    r_earth = 6371.0 * 1000.0
+    return np.array(sph2cart(np.radians(colat), np.radians(lon), r_earth))
+
+
+class CheckEQ:
+    def __init__(self, exodus_file):
+        self.e = exodus(exodus_file, mode='r')
+        self.is_global_mesh = False
+        self.domain_edge_tree = None
+        self.earth_surface_tree = None
+        self.approx_elem_width = None
+
+        self._initialize_kd_trees()
+
+    def _initialize_kd_trees(self):
+        """
+            Initialize KDTrees
+        """
+
+        # if less than 2 side sets, this must be a global mesh, return
+        if len(self.e.get_side_set_names()) < 2:
+            self.is_global_mesh = True
+            return
+
+        side_nodes = []
+        earth_surface_nodes = []
+        for side_set in self.e.get_side_set_names():
+            idx = self.e.get_side_set_ids()[
+                        self.e.get_side_set_names().index(side_set)]
+
+            if side_set == "r1":
+                _, earth_surface_nodes = self.e.get_side_set_node_list(idx)
+                continue
+
+            _, nodes_side_set = list(self.e.get_side_set_node_list(idx))
+            side_nodes.extend(nodes_side_set)
+
+        # Remove Duplicates
+        unique_nodes = np.unique(side_nodes)
+
+        # Get node numbers of the nodes specifying the domain boundaries
+        boundary_nodes = np.intersect1d(unique_nodes, earth_surface_nodes)
+
+        # Deduct 1 from the nodes to get correct indices
+        boundary_nodes -= 1
+        earth_surface_nodes -= 1
+
+        points = np.array(self.e.get_coords()).T
+        domain_edge_coords = points[boundary_nodes]
+        earth_surface_coords = points[earth_surface_nodes]
+
+        # Get approximation of element width
+        distances_to_node = domain_edge_coords - domain_edge_coords[0,:]
+        r = np.sum(distances_to_node ** 2, axis=1) ** 0.5
+        self.approx_elem_width = np.partition(r, 1)[1]
+
+        # build KDTree that can be used for querying later
+        self.earth_surface_tree = cKDTree(earth_surface_coords)
+        self.domain_edge_tree = cKDTree(domain_edge_coords)
+
+
+    def query_point(self,lat,lon):
+
+        if self.is_global_mesh:
+            return True
+
+        eq_loc = project_earthquake_on_surface(lat, lon)
+        dist, _ = self.earth_surface_tree.query(eq_loc, k=1)
+
+        # False if not close to domain surface
+        if dist > 2 * self.approx_elem_width:
+            return False
+
+        dist,_ = self.domain_edge_tree.query(eq_loc, k=1)
+
+        # False if too close to edge of domain
+        if dist < 7 * self.approx_elem_width:
+            return False
+
+        return True
 
 class SphericalNearestNeighbour(object):
     """
@@ -105,7 +217,11 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     min_magnitude = float(min_magnitude)
     max_magnitude = float(max_magnitude)
 
+    toml_file = os.path.abspath(comm.project.paths["config_file"])
+    mesh_file = toml.load(toml_file)['lasif_project']['mesh_file']
+
     # Get the catalog.
+    #return True
     cat = _read_GCMT_catalog(min_year=min_year, max_year=max_year)
     # Filter with the magnitudes
     cat = cat.filter("magnitude >= %.2f" % min_magnitude,
@@ -116,9 +232,10 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     # Coordinates and the Catalog will have the same order!
     temp_cat = Catalog()
     coordinates = []
+    eq_checker = CheckEQ(mesh_file)
     for event in cat:
         org = event.preferred_origin() or event.origins[0]
-        if not comm.query.point_in_domain(org.latitude, org.longitude):
+        if not eq_checker.query_point(org.latitude, org.longitude):
             continue
         temp_cat.events.append(event)
         coordinates.append((org.latitude, org.longitude))
