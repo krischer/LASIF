@@ -15,6 +15,62 @@ from fnmatch import fnmatch
 from lxml.builder import E
 
 from lasif import LASIFNotFoundError
+import numpy as np
+
+
+def sph2cart(col, lon, rad):
+    """
+    Given spherical coordinates as input, returns their cartesian equivalent.
+    :param col: Colatitude [radians].
+    :param lon: Longitude [radians].
+    :param rad: Radius.
+    :return: x, y, z.
+    """
+
+    col, lon, rad = np.asarray(col), np.asarray(lon), np.asarray(rad)
+    if (0 > col).any() or (col > np.math.pi).any():
+        raise ValueError('Colatitude must be in range [0, pi].')
+
+    x = rad * np.sin(col) * np.cos(lon)
+    y = rad * np.sin(col) * np.sin(lon)
+    z = rad * np.cos(col)
+
+    return x, y, z
+
+
+def cart2sph(x, y, z):
+    """
+    Given cartesian coordinates, returns their spherical equivalent.
+    :param x: x.
+    :param y: y.
+    :param z: z.
+    :return: colatitude, longitude, and radius
+    """
+
+    x, y, z = np.asarray(x), np.asarray(y), np.asarray(z)
+    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
+
+    # Handle division by zero at the core
+    with np.errstate(invalid='ignore'):
+        c = np.divide(z, r)
+        c = np.nan_to_num(c)
+
+    c = np.arccos(c)
+    l = np.arctan2(y, x)
+    return c, l, r
+
+
+def project_point_on_surface(longitude, latitude):
+    """
+        This function takes lat/lon in degrees and returns x,y,z of eq location projected
+        on earth's surface
+        :param lat: Latitude [degrees] -90 - 90
+        :param lon: Longitude [degrees] 0 - 360
+        return: x, y, z
+    """
+    colatitude = 90.0 - latitude
+    r_earth = 6371.0 * 1000.0
+    return np.array(sph2cart(np.radians(colatitude), np.radians(longitude), r_earth))
 
 
 def is_mpi_env():
@@ -57,11 +113,11 @@ def table_printer(header, data):
     :param data: A list of lists containing data items.
     """
     row_format = "{:>15}" * (len(header))
-    print row_format.format(*(["=" * 15] * len(header)))
-    print row_format.format(*header)
-    print row_format.format(*(["=" * 15] * len(header)))
+    print(row_format.format(*(["=" * 15] * len(header))))
+    print(row_format.format(*header))
+    print(row_format.format(*(["=" * 15] * len(header))))
     for row in data:
-        print row_format.format(*row)
+        print(row_format.format(*row))
 
 
 def recursive_dict(element):

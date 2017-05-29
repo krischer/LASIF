@@ -17,8 +17,11 @@ from abc import ABCMeta, abstractmethod
 import collections
 import math
 import numpy as np
+from pyexodus import exodus
+from scipy.spatial import cKDTree
 
 from lasif import rotations
+from lasif.utils import project_point_on_surface, cart2sph
 
 
 class Domain(object):
@@ -74,6 +77,127 @@ class Domain(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+
+class ExodusDomain(Domain):
+    def __init__(self, exodus_file):
+        self.e = exodus(exodus_file, mode='r')
+        self.is_global_mesh = False
+        self.domain_edge_tree = None
+        self.earth_surface_tree = None
+        self.approx_elem_width = None
+        self.domain_edge_coords = None
+
+        self._initialize_kd_trees()
+
+    def _initialize_kd_trees(self):
+        """
+            Initialize two KDTrees to determine whether a point lies inside the domain
+        """
+
+        # if less than 2 side sets, this must be a global mesh, return
+        if len(self.e.get_side_set_names()) < 2:
+            self.is_global_mesh = True
+            return
+
+        side_nodes = []
+        earth_surface_nodes = []
+        for side_set in self.e.get_side_set_names():
+            idx = self.e.get_side_set_ids()[
+                        self.e.get_side_set_names().index(side_set)]
+
+            if side_set == "r1":
+                _, earth_surface_nodes = self.e.get_side_set_node_list(idx)
+                continue
+
+            _, nodes_side_set = list(self.e.get_side_set_node_list(idx))
+            side_nodes.extend(nodes_side_set)
+
+        # Remove Duplicates
+        unique_nodes = np.unique(side_nodes)
+
+        # Get node numbers of the nodes specifying the domain boundaries
+        boundary_nodes = np.intersect1d(unique_nodes, earth_surface_nodes)
+
+        # Deduct 1 from the nodes to get correct indices
+        boundary_nodes -= 1
+        earth_surface_nodes -= 1
+
+        points = np.array(self.e.get_coords()).T
+        self.domain_edge_coords = points[boundary_nodes]
+        earth_surface_coords = points[earth_surface_nodes]
+
+        # Get approximation of element width
+        distances_to_node = self.domain_edge_coords - self.domain_edge_coords[0, :]
+        r = np.sum(distances_to_node ** 2, axis=1) ** 0.5
+        self.approx_elem_width = np.partition(r, 1)[1]
+
+        # build KDTree that can be used for querying later
+        self.earth_surface_tree = cKDTree(earth_surface_coords)
+        self.domain_edge_tree = cKDTree(self.domain_edge_coords)
+
+    def point_in_domain(self, longitude, latitude):
+        if self.is_global_mesh:
+            return True
+
+        eq_loc = project_point_on_surface(longitude, latitude)
+        dist, _ = self.earth_surface_tree.query(eq_loc, k=1)
+
+        # False if not close to domain surface
+        if dist > 2 * self.approx_elem_width:
+            return False
+
+        dist,_ = self.domain_edge_tree.query(eq_loc, k=1)
+
+        # False if too close to edge of domain
+        if dist < 7 * self.approx_elem_width:
+            return False
+        return True
+
+    def plot(self, plot_simulation_domain=False, ax=None):
+        """
+        Global domain is plotted using an equal area Mollweide projection.
+
+        :param plot_simulation_domain: Parameter has no effect for the
+            global domain.
+
+        :return: The created GeoAxes instance.
+        """
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.basemap import Basemap
+
+        if ax is None:
+            ax = plt.gca()
+        plt.subplots_adjust(left=0.05, right=0.95)
+
+
+        # Equal area mollweide projection.
+        m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
+
+        # Scatter plot domain edge nodes
+        x, y, z = self.domain_edge_coords.T
+        colats, lons, _ = np.degrees(cart2sph(x, y, z))
+        lats = 90 - colats
+        x, y = m(lons, lats)
+
+        m.scatter(x, y)
+        _plot_features(m, stepsize=45)
+        return m
+
+    def get_max_extent(self):
+        """
+        Returns the maximum extends of the domain.
+
+        Returns a dictionary with the following keys:
+            * minimum_latitude
+            * maximum_latitude
+            * minimum_longitude
+            * maximum_longitude
+        """
+        return {"minimum_latitude": -90.0, "maximum_latitude": 90.0,
+                "minimum_longitude": -180.0, "maximum_longitude": 180.0}
+
+    def __str__(self):
+        return "Exodus Domain"
 
 class RectangularSphericalSection(Domain):
     """
