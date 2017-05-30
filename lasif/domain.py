@@ -17,7 +17,7 @@ import numpy as np
 from pyexodus import exodus
 from scipy.spatial import cKDTree
 
-from lasif.rotations import lat_lon_radius_to_xyz
+from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
 class Domain(object):
@@ -170,8 +170,7 @@ class ExodusDomain(Domain):
 
         # Scatter plot domain edge nodes
         x, y, z = self.domain_edge_coords.T
-        colats, lons, _ = np.degrees(cart2sph(x, y, z))
-        lats = 90 - colats
+        lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
         x, y = m(lons, lats)
 
         m.scatter(x, y, color='k')
