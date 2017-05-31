@@ -10,7 +10,7 @@ Visualization scripts.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from itertools import izip, chain
+from itertools import chain
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -100,8 +100,8 @@ def plot_raydensity(map_object, station_events, domain):
         data.dtype = dtype
         return data.reshape(shape)
 
-    print "\nLaunching %i greatcircle calculations on %i CPUs..." % \
-        (circle_count, cpu_count)
+    print ("\nLaunching %i greatcircle calculations on %i CPUs..." % \
+        (circle_count, cpu_count))
 
     widgets = ["Progress: ", progressbar.Percentage(),
                progressbar.Bar(), "", progressbar.ETA()]
@@ -237,7 +237,7 @@ def plot_stations_for_event(map_object, station_dict, event_info,
 
     # Plot the ray paths.
     if raypaths:
-        for sta_lng, sta_lat in izip(lngs, lats):
+        for sta_lng, sta_lat in zip(lngs, lats):
             map_object.drawgreatcircle(
                 event_info["longitude"], event_info["latitude"], sta_lng,
                 sta_lat, lw=2, alpha=0.3)
@@ -286,7 +286,7 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
 
     if len(axes) != 3:
         msg = "Could not plot frequency limits!"
-        print msg
+        print(msg)
         plt.gcf().patch.set_alpha(0.0)
         plt.show()
         return
