@@ -145,7 +145,7 @@ class Project(Component):
         keep the references to the single components.
         """
         # Basic components.
-        EventsComponent(folder=self.paths["events"], communicator=self.comm,
+        EventsComponent(folder=self.paths["data"], communicator=self.comm,
                         component_name="events")
         WaveformsComponent(data_folder=self.paths["data"],
                            synthetics_folder=self.paths["synthetics"],

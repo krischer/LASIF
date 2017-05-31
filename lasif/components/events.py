@@ -3,11 +3,15 @@
 from __future__ import absolute_import
 
 import copy
-import obspy
+import warnings
+
 import os
+import glob
 
 from .component import Component
-from lasif import LASIFNotFoundError
+from lasif import LASIFNotFoundError, LASIFWarning
+from obspy.geodetics import FlinnEngdahl
+import pyasdf
 
 
 class EventsComponent(Component):
@@ -26,6 +30,83 @@ class EventsComponent(Component):
         self.__event_info_cache = {}
         self.folder = folder
 
+        self.index_values = [
+            ("filename"),
+            ("event_name"),
+            ("latitude"),
+            ("longitude"),
+            ("depth_in_km"),
+            ("origin_time"),
+            ("m_rr"),
+            ("m_pp"),
+            ("m_tt"),
+            ("m_rp"),
+            ("m_rt"),
+            ("m_tp"),
+            ("magnitude"),
+            ("magnitude_type"),
+            ("region")]
+
+        self.all_events = {}
+        self.fill_all_events()
+
+    def fill_all_events(self):
+        files = glob.glob(os.path.join(self.folder, 'GCMT*.h5'))
+        for file in files:
+            event_name = os.path.splitext(os.path.basename(file))[0]
+            self.all_events[event_name] = file
+
+    def update_cache(self):
+        files = glob.glob(os.path.join(self.folder, 'GCMT*.h5'))
+        for filename in files:
+            event_name = os.path.splitext(os.path.basename(filename))[0]
+            self.get(event_name)
+
+    @staticmethod
+    def _extract_index_values_quakeml(filename):
+        """
+        Reads QuakeML files and extracts some keys per channel. Only one
+        event per file is allows.
+        """
+        ds = pyasdf.ASDFDataSet(filename, compression="gzip-3")
+        event = ds.events[0]
+
+        # Extract information.
+        mag = event.preferred_magnitude() or event.magnitudes[0]
+        org = event.preferred_origin() or event.origins[0]
+        if org.depth is None:
+            warnings.warn("Origin contains no depth. Will be assumed to be 0",
+                          LASIFWarning)
+            org.depth = 0.0
+        if mag.magnitude_type is None:
+            warnings.warn("Magnitude has no specified type. Will be assumed "
+                          "to be Mw", LASIFWarning)
+            mag.magnitude_type = "Mw"
+
+        # Get the moment tensor.
+        fm = event.preferred_focal_mechanism() or event.focal_mechanisms[0]
+        mt = fm.moment_tensor.tensor
+
+        event_name = os.path.splitext(os.path.basename(filename))[0]
+
+        return [
+            str(filename),
+            str(event_name),
+            float(org.latitude),
+            float(org.longitude),
+            float(org.depth / 1000.0),
+            float(org.time.timestamp),
+            float(mt.m_rr),
+            float(mt.m_pp),
+            float(mt.m_tt),
+            float(mt.m_rp),
+            float(mt.m_rt),
+            float(mt.m_tp),
+            float(mag.mag),
+            str(mag.magnitude_type),
+            str(FlinnEngdahl().get_region(org.longitude, org.latitude))
+        ]
+
     def list(self):
         """
         List of all events.
@@ -35,6 +116,7 @@ class EventsComponent(Component):
         [u'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
          u'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
         """
+        self.update_cache()
         return sorted(self.__event_info_cache.keys())
 
     def count(self):
@@ -45,7 +127,7 @@ class EventsComponent(Component):
         >>> comm.events.count()
         2
         """
-        return len(self.__event_info_cache)
+        return len(self.all_events)
 
     def has_event(self, event_name):
         """
@@ -66,7 +148,7 @@ class EventsComponent(Component):
             event_name = event_name["event_name"]
         except (KeyError, TypeError):
             pass
-        return event_name in self.__event_info_cache
+        return event_name in self.all_events
 
     def get_all_events(self):
         """
@@ -80,6 +162,8 @@ class EventsComponent(Component):
         {u'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15': {...},
          u'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11': {...}}
         """
+        # make sure cache is filled
+        self.update_cache()
         return copy.deepcopy(self.__event_info_cache)
 
     def get(self, event_name):
@@ -122,15 +206,16 @@ class EventsComponent(Component):
         >>> ev == comm.events.get(ev)
         True
         """
-        # Make sure  it also works with existing event dictionaries. This
-        # has the potential to simplify lots of code.
+        if event_name not in self.all_events:
+            raise LASIFNotFoundError("Event '%s' not known to LASIF." %
+                                     event_name)
+
         try:
             event_name = event_name["event_name"]
         except (KeyError, TypeError):
             pass
 
         if event_name not in self.__event_info_cache:
-            raise LASIFNotFoundError("Event '%s' not known to LASIF." %
-                                     event_name)
-
+            values = dict(zip(self.index_values, self._extract_index_values_quakeml(self.all_events[event_name])))
+            self.__event_info_cache[event_name] = values
         return self.__event_info_cache[event_name]

@@ -82,8 +82,7 @@ class ExodusDomain(Domain):
         self.earth_surface_tree = None
         self.approx_elem_width = None
         self.domain_edge_coords = None
-
-        self._initialize_kd_trees()
+        self.kdtrees_initialized = False
 
     def _initialize_kd_trees(self):
         """
@@ -131,7 +130,12 @@ class ExodusDomain(Domain):
         self.earth_surface_tree = cKDTree(earth_surface_coords)
         self.domain_edge_tree = cKDTree(self.domain_edge_coords)
 
+        self.kdtrees_initialized = True
+
     def point_in_domain(self, longitude, latitude):
+        if not self.kdtrees_initialized:
+            self._initialize_kd_trees()
+
         if self.is_global_mesh:
             return True
         r_earth = 6371.0 * 1000.0
@@ -158,6 +162,9 @@ class ExodusDomain(Domain):
 
         :return: The created GeoAxes instance.
         """
+        if not self.kdtrees_initialized:
+            self._initialize_kd_trees()
+
         import matplotlib.pyplot as plt
         from mpl_toolkits.basemap import Basemap
 

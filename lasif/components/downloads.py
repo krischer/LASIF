@@ -2,13 +2,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import copy
 import logging
-import numpy as np
 import os
+import pyasdf
 
-from lasif import rotations
-import lasif.domain
 from .component import Component
 
 
@@ -23,45 +20,41 @@ class DownloadsComponent(Component):
         """
         """
         event = self.comm.events.get(event)
-
         from obspy.clients.fdsn.mass_downloader import MassDownloader, \
-            Restrictions, GlobalDomain
+            Restrictions
 
         proj = self.comm.project
 
-        if isinstance(proj.domain, lasif.domain.GlobalDomain):
-            domain = GlobalDomain()
-        else:
-            domain = self._get_spherical_section_domain(proj.domain)
-
+        domain = self._get_exodus_domain(proj.domain)
         event_time = event["origin_time"]
         ds = proj.config["download_settings"]
         starttime = event_time - ds["seconds_before_event"]
         endtime = event_time + ds["seconds_after_event"]
 
-        mseed_storage = os.path.join(proj.paths["data"], event["event_name"],
-                                     "raw")
 
-        # Attempt to get StationXML data for a very long time span. This has
-        # the nice side effect that StationXML files will mostly be shared
-        # between events.
         restrictions = Restrictions(
             starttime=starttime,
             endtime=endtime,
             # Go back 10 years.
-            station_starttime=starttime - 86400 * 365.25 * 10,
+            station_starttime=starttime - 86400 * 1,
             # Advance 10 years.
-            station_endtime=endtime + 86400 * 365.25 * 10,
+            station_endtime=endtime + 86400 * 1,
             network=None, station=None, location=None, channel=None,
             minimum_interstation_distance_in_m=ds[
-                "interstation_distance_in_m"],
+                "interstation_distance_in_meters"],
             reject_channels_with_gaps=True,
             minimum_length=0.95,
             location_priorities=ds["location_priorities"],
             channel_priorities=ds["channel_priorities"])
 
-        stationxml_storage = self._get_stationxml_storage_fct(starttime,
-                                                              endtime)
+        filename = proj.paths["data"] / (event["event_name"] + ".h5")
+        asdf_ds = pyasdf.ASDFDataSet(filename, compression="gzip-3")
+
+        stationxml_storage_path = proj.paths["root"] / "tmp_station_xml_storage"
+        stationxml_storage = self._get_stationxml_storage_fct(asdf_ds, starttime,
+                                                              endtime, stationxml_storage_path)
+        mseed_storage_path = proj.paths["data"] / "tmp_mseed_storage"
+        mseed_storage = self._get_mseed_storage_fct(asdf_ds, starttime, endtime, mseed_storage_path)
 
         # Also log to file for reasons of provenance and debugging.
         logger = logging.getLogger("obspy.clients.fdsn.mass_downloader")
@@ -78,24 +71,57 @@ class DownloadsComponent(Component):
                      mseed_storage=mseed_storage,
                      stationxml_storage=stationxml_storage)
 
-    def _get_stationxml_storage_fct(self, starttime, endtime):
-        # Get the stationxml storage function required by the download helpers.
-        time_of_interest = starttime + 0.5 * (endtime - starttime)
-        root_path = self.comm.project.paths["station_xml"]
+        import glob
+        files = glob.glob(str(mseed_storage_path / "*.mseed"))
+        for _i, filename in enumerate(files):
+            print("Adding file %i of %i ..." % (_i + 1, len(files)))
+            asdf_ds.add_waveforms(filename, tag="raw_recording", event_id=asdf_ds.events[0])
+
+        files = glob.glob(str(stationxml_storage_path /'*.xml'))
+
+        for _i, filename in enumerate(files):
+            print("Adding file %i of %i ..." % (_i + 1, len(files)))
+            asdf_ds.add_stationxml(filename)
+
+        import shutil
+        shutil.rmtree(stationxml_storage_path)
+        shutil.rmtree(mseed_storage_path)
+
+
+    def _get_mseed_storage_fct(self, ds, starttime, endtime, storage_path):
+
+        def get_mseed_storage(network, station, location, channel, starttime, endtime):
+            # Returning True means that neither the data nor the StationXML file
+            # will be downloaded.
+            net_sta = f"{network}.{station}"
+            if net_sta in ds.waveforms.list() and "raw_recording" in ds.waveforms[net_sta] and \
+                ds.waveforms[net_sta].raw_recording.select(
+                     network=network, station=station, location=location, channel=channel):
+                return True
+            return str(storage_path / f"{network}.{station}.{location}.{channel}.mseed")
+
+        return get_mseed_storage
+
+    def _get_stationxml_storage_fct(self, ds, starttime, endtime, storage_path):
+        if not os.path.isdir(storage_path):
+            os.mkdir(storage_path)
+
 
         def stationxml_storage(network, station, channels, startime, endtime):
             missing_channels = []
             available_channels = []
             for loc_code, cha_code in channels:
-                if not self.comm.stations.has_channel(
-                    "%s.%s.%s.%s" % (network, station, loc_code,
-                                     cha_code), time_of_interest):
-                    missing_channels.append((loc_code, cha_code))
-                else:
+                net_sta = f"{network}.{station}"
+
+                if net_sta in ds.waveforms.list() and \
+                        ds.waveforms[net_sta].StationXML.select(network=network, station=station, channel=cha_code):
                     available_channels.append((loc_code, cha_code))
+                else:
+                    missing_channels.append((loc_code, cha_code))
+
             _i = 0
             while True:
-                path = os.path.join(root_path, "%s.%s%s.xml" % (
+                path = os.path.join(storage_path, "%s.%s%s.xml" % (
                     network, station, _i if _i >= 1 else ""))
                 if os.path.exists(path):
                     _i += 1
@@ -110,74 +136,18 @@ class DownloadsComponent(Component):
 
         return stationxml_storage
 
-    def _get_spherical_section_domain(self, domain):
+    def _get_exodus_domain(self, domain):
         from obspy.clients.fdsn.mass_downloader import Domain
 
-        # Make copies to assure the closure binds correctly.
-        d = copy.deepcopy(domain)
-
-        class SphericalSectionDomain(Domain):
+        class ExodusDomain(Domain):
             def get_query_parameters(self):
-                center = d.center
-                return {
-                    "latitude": center.latitude,
-                    "longitude": center.longitude,
-                    "minradius": 0.0,
-                    "maxradius": d.max_extent / 2.0
-                }
+                """
+                Currently spans the whole globe
+                """
+                return {}
 
             def is_in_domain(self, latitude, longitude):
-                return d.point_in_domain(latitude=latitude,
+                return domain.point_in_domain(latitude=latitude,
                                          longitude=longitude)
 
-        return SphericalSectionDomain()
-
-    def _get_maximum_bounds(self, min_lat, max_lat, min_lng, max_lng,
-                            rotation_axis, rotation_angle_in_degree):
-        """
-        Small helper function to get the domain bounds of a rotated spherical
-        section.
-
-        :param min_lat: Minimum Latitude of the unrotated section.
-        :param max_lat: Maximum Latitude of the unrotated section.
-        :param min_lng: Minimum Longitude of the unrotated section.
-        :param max_lng: Maximum Longitude of the unrotated section.
-        :param rotation_axis: Rotation axis as a list in the form of [x, y, z]
-        :param rotation_angle_in_degree: Rotation angle in degree.
-        """
-        number_of_points_per_side = 50
-        north_border = np.empty((number_of_points_per_side, 2))
-        south_border = np.empty((number_of_points_per_side, 2))
-        east_border = np.empty((number_of_points_per_side, 2))
-        west_border = np.empty((number_of_points_per_side, 2))
-
-        north_border[:, 0] = np.linspace(min_lng, max_lng,
-                                         number_of_points_per_side)
-        north_border[:, 1] = min_lat
-
-        south_border[:, 0] = np.linspace(max_lng, min_lng,
-                                         number_of_points_per_side)
-        south_border[:, 1] = max_lat
-
-        east_border[:, 0] = max_lng
-        east_border[:, 1] = np.linspace(min_lat, max_lat,
-                                        number_of_points_per_side)
-
-        west_border[:, 0] = min_lng
-        west_border[:, 1] = np.linspace(max_lat, min_lat,
-                                        number_of_points_per_side)
-
-        # Rotate everything.
-        for border in [north_border, south_border, east_border, west_border]:
-            for _i in xrange(number_of_points_per_side):
-                border[_i, 1], border[_i, 0] = rotations.rotate_lat_lon(
-                    border[_i, 1], border[_i, 0], rotation_axis,
-                    rotation_angle_in_degree)
-
-        border = np.concatenate([north_border, south_border, east_border,
-                                 west_border])
-
-        min_lng, max_lng = border[:, 0].min(), border[:, 0].max()
-        min_lat, max_lat = border[:, 1].min(), border[:, 1].max()
-
-        return min_lat, max_lat, min_lng, max_lng
+        return ExodusDomain()
