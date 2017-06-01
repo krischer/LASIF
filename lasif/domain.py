@@ -16,7 +16,7 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 from pyexodus import exodus
 from scipy.spatial import cKDTree
-
+from lasif import LASIFError
 from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
@@ -76,7 +76,9 @@ class Domain(object):
 
 class ExodusDomain(Domain):
     def __init__(self, exodus_file):
-        self.e = exodus(exodus_file, mode='r')
+
+        self.exodus_file = exodus_file
+        self.e = None
         self.is_global_mesh = False
         self.domain_edge_tree = None
         self.earth_surface_tree = None
@@ -88,7 +90,15 @@ class ExodusDomain(Domain):
         """
             Initialize two KDTrees to determine whether a point lies inside the domain
         """
+        try:
+            self.e = exodus(self.exodus_file, mode='r')
+        except AssertionError:
+            msg = ("Could not open the project's mesh file. Please ensure that the path specified "
+                   "in config is correct.")
+            raise LASIFError(msg)
 
+        # except LASIFNotFoundError:
+        #     raise LASIFNotFoundError('bla')
         # if less than 2 side sets, this must be a global mesh, return
         if len(self.e.get_side_set_names()) < 2:
             self.is_global_mesh = True
