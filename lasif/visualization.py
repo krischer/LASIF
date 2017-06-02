@@ -47,7 +47,6 @@ def plot_raydensity(map_object, station_events, domain):
     """
     import ctypes as C
     from lasif import rotations
-    from lasif.domain import RectangularSphericalSection
     from lasif.tools.great_circle_binner import GreatCircleBinner
     from lasif.utils import Point
     import multiprocessing
@@ -100,8 +99,7 @@ def plot_raydensity(map_object, station_events, domain):
         data.dtype = dtype
         return data.reshape(shape)
 
-    print ("\nLaunching %i greatcircle calculations on %i CPUs..." % \
-        (circle_count, cpu_count))
+    print("\nLaunching %i greatcircle calculations on %i CPUs..." % (circle_count, cpu_count))
 
     widgets = ["Progress: ", progressbar.Percentage(),
                progressbar.Bar(), "", progressbar.ETA()]
@@ -221,7 +219,7 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     lngs = []
     lats = []
     station_ids = []
-    for key, value in station_dict.iteritems():
+    for key, value in station_dict.items():
         lngs.append(value["longitude"])
         lats.append(value["latitude"])
         station_ids.append(key)

@@ -277,7 +277,7 @@ def lasif_add_spud_event(parser, args):
     from lasif.scripts.iris2quakeml import iris2quakeml
 
     comm = _find_project_comm(".")
-    iris2quakeml(url, comm.project.paths["events"])
+    iris2quakeml(url, comm.project.paths["data"])
 
 
 @command_group("Data Acquisition")

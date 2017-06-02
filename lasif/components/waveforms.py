@@ -58,7 +58,7 @@ class WaveformsComponent(Component):
         :param tag_or_iteration: The processing tag or iteration name if any.
         """
         if data_type == "raw":
-            return os.path.join(self._data_folder, event_name, "raw.h5")
+            return os.path.join(self._data_folder, event_name + ".h5")
         elif data_type == "processed":
             if not tag_or_iteration:
                 msg = "Tag must be given for processed data."

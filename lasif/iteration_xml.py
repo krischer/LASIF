@@ -258,13 +258,13 @@ class Iteration(object):
         ])
 
         # Add all events.
-        for key, value in self.events.iteritems():
+        for key, value in self.events.items():
             event = E.event(
                 E.event_name(key),
                 E.event_weight(str(value["event_weight"])),
                 *[E.comment(_i) for _i in value["comments"] if _i]
             )
-            for station_id, station_value in value["stations"].iteritems():
+            for station_id, station_value in value["stations"].items():
                 event.append(E.station(
                     E.station_id(station_id),
                     E.station_weight(str(station_value["station_weight"])),
@@ -294,7 +294,7 @@ def _recursive_dict(element):
             text = float(text)
         except:
             pass
-    if isinstance(text, basestring):
+    if isinstance(text, str):
         if text.lower() == "false":
             text = False
         elif text.lower() == "true":
@@ -311,7 +311,7 @@ def _recursive_etree(dictionary):
     import itertools
 
     contents = []
-    for key, value in dictionary.iteritems():
+    for key, value in dictionary.items():
         if key == "relaxation_parameter_list":
             # Wild iterator to arrive at the desired etree. If somebody else
             # ever reads this just look at the output and do it some other
@@ -371,7 +371,7 @@ def create_iteration_xml_string(iteration_name, solver_name, events,
     # Loop over all events.
     events_doc = []
     # Also over all stations.
-    for event_name, stations in events.iteritems():
+    for event_name, stations in events.items():
         stations_doc = [E.station(
             E.station_id(station),
             E.station_weight("1.0")) for station in stations]

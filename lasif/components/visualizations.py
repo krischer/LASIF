@@ -95,7 +95,7 @@ class VisualizationsComponent(Component):
 
         event_stations = []
         for event_name, event_info in \
-                self.comm.events.get_all_events().iteritems():
+                self.comm.events.get_all_events().items():
             try:
                 stations = \
                     self.comm.query.get_all_stations_for_event(event_name)

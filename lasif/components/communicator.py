@@ -45,7 +45,7 @@ class Communicator(object):
     def __str__(self):
         return "Components registered with communicator:\n\t%s" % \
             "\n\t".join("%s: %s" % (str(key), repr(value)) for key, value in
-                        self.__components.iteritems())
+                        self.__components.items())
 
     def register(self, component_name, component):
         """

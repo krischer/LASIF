@@ -141,7 +141,7 @@ class IterationsComponent(Component):
                                                  quiet=quiet)
         with open(self.get_filename_for_iteration(iteration_name), "wt")\
                 as fh:
-            fh.write(xml_string)
+            fh.write(xml_string.decode())
 
         if create_folders:
             self.create_synthetics_folder_for_iteration(iteration_name)
