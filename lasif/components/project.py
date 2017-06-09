@@ -192,12 +192,8 @@ class Project(Component):
         self.paths = {}
         self.paths["root"] = root_path
 
-        self.paths["events"] = root_path / "EVENTS"
         self.paths["data"] = root_path / "DATA"
-        self.paths["cache"] = root_path / "CACHE"
         self.paths["logs"] = root_path / "LOGS"
-        self.paths["models"] = root_path / "MODELS"
-        self.paths["wavefields"] = root_path / "WAVEFIELDS"
         self.paths["iterations"] = root_path / "ITERATIONS"
         self.paths["synthetics"] = root_path / "SYNTHETICS"
         self.paths["kernels"] = root_path / "KERNELS"

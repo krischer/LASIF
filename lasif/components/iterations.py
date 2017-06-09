@@ -27,10 +27,16 @@ class IterationsComponent(Component):
         """
         Helper function returning the filename of an iteration.
         """
+        long_iter_name = self.get_long_iteration_name(iteration_name)
+        folder = os.path.join(self._folder, long_iter_name)
         return os.path.join(
-            self._folder,
-            self.get_long_iteration_name(iteration_name) + os.path.extsep +
-            "xml")
+            folder, long_iter_name + os.path.extsep + "xml")
+
+    def create_folder_for_iteration(self, iteration_name):
+        long_iter_name = self.get_long_iteration_name(iteration_name)
+        folder = os.path.join(self._folder, long_iter_name)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
     def get_iteration_dict(self):
         """
@@ -45,7 +51,7 @@ class IterationsComponent(Component):
          '2': '/.../ITERATION_2.xml'}
         """
         files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
-            self._folder, "ITERATION_*%sxml" % os.extsep))]
+            self._folder, "ITERATION_*/ITERATION_*%sxml" % os.extsep))]
         it_dict = {os.path.splitext(os.path.basename(_i))[0][10:]: _i
                    for _i in files}
         return it_dict
@@ -134,17 +140,53 @@ class IterationsComponent(Component):
             msg = "Iteration %s already exists." % iteration_name
             raise LASIFError(msg)
 
+        self.create_folder_for_iteration(iteration_name)
+
         from lasif.iteration_xml import create_iteration_xml_string
         xml_string = create_iteration_xml_string(iteration_name,
                                                  solver_name, events_dict,
                                                  min_period, max_period,
                                                  quiet=quiet)
+        self._write_iteration_toml(iteration_name, solver_name, events_dict, min_period, max_period)
+
         with open(self.get_filename_for_iteration(iteration_name), "wt")\
                 as fh:
             fh.write(xml_string.decode())
 
         if create_folders:
             self.create_synthetics_folder_for_iteration(iteration_name)
+            self.create_kernel_folder_for_iteration(iteration_name)
+            self.create_adjoint_sources_and_windows_folder_for_iteration(iteration_name)
+
+    def _write_iteration_toml(self, iteration_name, solver_name, events_dict, min_period, max_period):
+        import io
+        with io.open("iteration_{}.toml".format(iteration_name), "wt") as fh:
+            fh.write(self._get_toml_string(iteration_name, solver_name, events_dict, min_period, max_period))
+
+    @staticmethod
+    def _get_toml_string(iteration_number, solver_name, events_dict, min_period, max_period):
+        toml_string = "% This is the iteration file.\n\n"
+        iteration_str = "iteration_number = {iteration_number}\n\n" \
+                        .format(iteration_number=iteration_number)
+        data_preproc_str = "[[data_preprocessing]]\n" \
+                           "  highpass_period = {max_period}\n" \
+                           "  lowpass_period = {min_period}\n" \
+                           "\n".format(max_period=max_period, min_period=min_period)
+
+        toml_string += iteration_str + data_preproc_str
+        for event_name, stations in events_dict.items():
+            event_string = "[[event]]\n" \
+                           "  name = \"{event_name}\"\n" \
+                           "  weight = 1.0\n\n".format(event_name=event_name)
+            for station in stations:
+                event_string += "  [[event.station]]\n" \
+                                "    ID = \"{station}\"\n" \
+                                "    weight = 1.0 \n\n".format(station=station)
+            toml_string += event_string
+
+        return toml_string
+
+
 
     def create_synthetics_folder_for_iteration(self, iteration_name):
         """
@@ -154,10 +196,36 @@ class IterationsComponent(Component):
         """
         iteration = self.comm.iterations.get(iteration_name)
         path = self.comm.project.paths["synthetics"]
-        for event_name in iteration.events.keys():
-            folder = os.path.join(path, event_name, iteration.long_name)
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+
+        folder = os.path.join(path, iteration.long_name)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+    def create_kernel_folder_for_iteration(self, iteration_name):
+        """
+        Create the kernels folder if it does not yet exists.
+
+        :param iteration_name: The iteration for which to create the folders.
+        """
+        iteration = self.comm.iterations.get(iteration_name)
+        path = self.comm.project.paths["kernels"]
+
+        folder = os.path.join(path, iteration.long_name)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+    def create_adjoint_sources_and_windows_folder_for_iteration(self, iteration_name):
+        """
+        Create the adjoint_sources_and_windows folder if it does not yet exists.
+
+        :param iteration_name: The iteration for which to create the folders.
+        """
+        iteration = self.comm.iterations.get(iteration_name)
+        path = self.comm.project.paths["windows_and_adjoint_sources"]
+
+        folder = os.path.join(path, iteration.long_name)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
     def create_successive_iteration(self, existing_iteration_name,
                                     new_iteration_name, create_folders=True):
