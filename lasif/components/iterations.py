@@ -147,7 +147,13 @@ class IterationsComponent(Component):
                                                  solver_name, events_dict,
                                                  min_period, max_period,
                                                  quiet=quiet)
-        self._write_iteration_toml(iteration_name, solver_name, events_dict, min_period, max_period)
+
+        with open("some.toml", "wt") as fh:
+                fh.write(self._get_toml_string(iteration_name, events_dict, min_period, max_period))
+
+        from lasif.iteration_toml import Iteration
+        it = Iteration("some.toml", stf_fct=self.comm.project.get_project_function(
+                           "source_time_function"))
 
         with open(self.get_filename_for_iteration(iteration_name), "wt")\
                 as fh:
@@ -158,30 +164,40 @@ class IterationsComponent(Component):
             self.create_kernel_folder_for_iteration(iteration_name)
             self.create_adjoint_sources_and_windows_folder_for_iteration(iteration_name)
 
-    def _write_iteration_toml(self, iteration_name, solver_name, events_dict, min_period, max_period):
-        import io
-        with io.open("iteration_{}.toml".format(iteration_name), "wt") as fh:
-            fh.write(self._get_toml_string(iteration_name, solver_name, events_dict, min_period, max_period))
 
     @staticmethod
-    def _get_toml_string(iteration_number, solver_name, events_dict, min_period, max_period):
-        toml_string = "% This is the iteration file.\n\n"
-        iteration_str = "iteration_number = {iteration_number}\n\n" \
-                        .format(iteration_number=iteration_number)
-        data_preproc_str = "[[data_preprocessing]]\n" \
-                           "  highpass_period = {max_period}\n" \
-                           "  lowpass_period = {min_period}\n" \
-                           "\n".format(max_period=max_period, min_period=min_period)
+    def _get_toml_string(iteration_number, events_dict, min_period, max_period):
+        toml_string = "# This is the iteration file.\n\n"
+        iteration_str = f"[iteration]\n" \
+                        f"  name = {iteration_number}\n" \
+                        f"  description = \"\"\n" \
+                        f"  comment = \"\"\n" \
+                        f"  scale_data_to_synthetics = true\n\n"
 
-        toml_string += iteration_str + data_preproc_str
+        data_preproc_str = f"[data_preprocessing]\n" \
+                           f"  highpass_period = {max_period}\n" \
+                           f"  lowpass_period = {min_period}\n" \
+                           f"\n"
+
+        solver_par_str = "[solver]\n" \
+                         "  name = \"Salvus\"\n\n" \
+                         "  [solver.settings]\n" \
+                         "    adjoint_source_time_shift = -10\n\n" \
+                         "    [solver.settings.simulation_parameters]\n" \
+                         "      number_of_time_steps = 2000\n" \
+                         "      time_increment = 0.1\n\n" \
+                         "    [solver.settings.computational_setup]\n" \
+                         "      number_of_processors = 4\n\n"
+
+        toml_string += iteration_str + data_preproc_str + solver_par_str
         for event_name, stations in events_dict.items():
-            event_string = "[[event]]\n" \
-                           "  name = \"{event_name}\"\n" \
-                           "  weight = 1.0\n\n".format(event_name=event_name)
+            event_string = f"[[event]]\n" \
+                           f"  name = \"{event_name}\"\n" \
+                           f"  weight = 1.0\n\n"
             for station in stations:
-                event_string += "  [[event.station]]\n" \
-                                "    ID = \"{station}\"\n" \
-                                "    weight = 1.0 \n\n".format(station=station)
+                event_string += f"  [[event.station]]\n" \
+                                f"    ID = \"{station}\"\n" \
+                                f"    weight = 1.0 \n\n"
             toml_string += event_string
 
         return toml_string
@@ -195,6 +211,7 @@ class IterationsComponent(Component):
         :param iteration_name: The iteration for which to create the folders.
         """
         iteration = self.comm.iterations.get(iteration_name)
+        print(type(iteration))
         path = self.comm.project.paths["synthetics"]
 
         folder = os.path.join(path, iteration.long_name)
