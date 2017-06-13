@@ -396,87 +396,6 @@ def lasif_list_events(parser, args):
         print(tab)
 
 
-@command_group("Project Management")
-def lasif_list_models(parser, args):
-    """
-    Print a list of all models in the project.
-    """
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".")
-    models = comm.models.list()
-    print("%i model%s in project:" % (len(models), "s" if len(models) != 1
-          else ""))
-    for model in models:
-        print("\t%s" % model)
-
-
-@command_group("Project Management")
-def lasif_list_kernels(parser, args):
-    """
-    Print a list of all kernels in this project.
-    """
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".")
-    kernels = comm.kernels.list()
-    print("%i kernel%s in project:" % (
-        len(kernels), "s" if len(kernels) != 1 else ""))
-    for kernel in kernels:
-        print("\tIteration %3s and Event %s" % (kernel["iteration"],
-                                                kernel["event"]))
-
-
-@command_group("Plotting")
-def lasif_plot_wavefield(parser, args):
-    """
-    Plots a SES3D wavefield.
-    """
-    parser.add_argument("iteration_name", help="name_of_the_iteration")
-    parser.add_argument("event_name", help="name of the event")
-    args = parser.parse_args(args)
-
-    from lasif import ses3d_models
-
-    comm = _find_project_comm(".")
-
-    event_name = comm.events.get(args.event_name)["event_name"]
-    iteration_name = comm.iterations.get(args.iteration_name).long_name
-
-    wavefield_dir = os.path.join(comm.project.paths["wavefields"], event_name,
-                                 iteration_name)
-
-    if not os.path.exists(wavefield_dir) or not os.listdir(wavefield_dir):
-        msg = "No data available for event and iteration combination."
-        raise LASIFCommandLineException(msg)
-
-    handler = ses3d_models.RawSES3DModelHandler(
-        wavefield_dir, model_type="wavefield")
-    handler.rotation_axis = comm.project.domain["rotation_axis"]
-    handler.rotation_angle_in_degree = comm.project.domain["rotation_angle"]
-
-    while True:
-        print(handler)
-        print("")
-
-        inp = raw_input("Enter 'COMPONENT DEPTH' "
-                        "('quit/exit' to exit): ").strip()
-        if inp.lower() in ["quit", "q", "exit", "leave"]:
-            break
-        try:
-            component, timestep, depth = inp.split()
-        except:
-            continue
-
-        component = component = "%s %s" % (component, timestep)
-
-        try:
-            handler.parse_component(component)
-        except:
-            continue
-        handler.plot_depth_slice(component, float(depth))
-
-
 @command_group("Event Management")
 def lasif_event_info(parser, args):
     """
@@ -769,111 +688,6 @@ def lasif_launch_misfit_gui(parser, args):
     launch(comm)
 
 
-@command_group("Plotting")
-def lasif_launch_model_gui(parser, args):
-    """
-    Launch the model GUI.
-    """
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".")
-
-    from lasif.ses3d_model_gui.model_gui import launch
-    launch(comm)
-
-
-@command_group("Plotting")
-def lasif_plot_model(parser, args):
-    """
-    Directly plot a model to a file.
-
-    Useful for scripting LASIF.
-    """
-    parser.add_argument("model_name", help="name of the model")
-    parser.add_argument("depth", type=float, help="the depth at which to plot")
-    parser.add_argument("component", type=str,
-                        help="the component to plot")
-    parser.add_argument("filename", type=str,
-                        help="Output filename. Use '-' to not write to a "
-                             "file but directly show the kernel.")
-
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".", args.read_only_caches)
-
-    if args.model_name not in comm.models.list():
-        raise LASIFCommandLineException("Model '%s' not known to LASIF." %
-                                        args.model_name)
-
-    import matplotlib.pyplot as plt
-
-    plt.figure(figsize=(15, 15))
-
-    model = comm.models.get_model_handler(args.model_name)
-    model.parse_component(args.component)
-
-    m = comm.project.domain.plot()
-    im = model.plot_depth_slice(component=args.component,
-                                depth_in_km=args.depth, m=m)["mesh"]
-
-    # make a colorbar and title
-    m.colorbar(im, "right", size="3%", pad='2%')
-    plt.title(str(args.depth) + ' km')
-
-    if args.filename == "-":
-        plt.show()
-    else:
-        plt.savefig(args.filename, dpi=100)
-    plt.close()
-
-
-@command_group("Plotting")
-def lasif_plot_kernel(parser, args):
-    """
-    Directly plot a kernel to a file.
-
-    Useful for scripting LASIF. As they are not often in the LASIF project
-    this is one of the view commands that will work on data outside of LASIF.
-    """
-    parser.add_argument("folder", help="The folder containing the gradients.")
-    parser.add_argument("depth", type=float,
-                        help="The depth at which to plot.")
-    parser.add_argument("component", type=str,
-                        help="The component to plot.")
-    parser.add_argument("filename", type=str,
-                        help="Output filename. Use '-' to not write to a "
-                             "file but directly show the kernel.")
-
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".", args.read_only_caches)
-
-    import matplotlib.pyplot as plt
-    from lasif.ses3d_models import RawSES3DModelHandler
-
-    plt.figure(figsize=(15, 15))
-
-    model = RawSES3DModelHandler(
-        directory=args.folder, domain=comm.project.domain,
-        model_type="kernel")
-
-    model.parse_component(args.component)
-
-    m = comm.project.domain.plot()
-    im = model.plot_depth_slice(component=args.component,
-                                depth_in_km=args.depth, m=m)["mesh"]
-
-    # make a colorbar and title
-    m.colorbar(im, "right", size="3%", pad='2%')
-    plt.title(str(args.depth) + ' km')
-
-    if args.filename == "-":
-        plt.show()
-    else:
-        plt.savefig(args.filename, dpi=100)
-    plt.close()
-
-
 @command_group("Iteration Management")
 def lasif_create_new_iteration(parser, args):
     """
@@ -884,13 +698,9 @@ def lasif_create_new_iteration(parser, args):
                         help="the minimum period of the iteration")
     parser.add_argument("max_period", type=float,
                         help="the maximum period of the iteration")
-    parser.add_argument("solver_name", help="name of the solver",
-                        choices=("SES3D_4_1", "SES3D_2_0",
-                                 "SPECFEM3D_CARTESIAN",
-                                 "SPECFEM3D_GLOBE_CEM"))
+
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
-    solver_name = args.solver_name
     min_period = args.min_period
     max_period = args.max_period
     if min_period >= max_period:
@@ -900,7 +710,6 @@ def lasif_create_new_iteration(parser, args):
     comm = _find_project_comm(".")
     comm.iterations.create_new_iteration(
         iteration_name=iteration_name,
-        solver_name=solver_name,
         events_dict=comm.query.get_stations_for_all_events(),
         min_period=min_period,
         max_period=max_period)
@@ -1182,20 +991,6 @@ def lasif_iteration_info(parser, args):
     print(comm.iterations.get(iteration_name))
 
 
-@command_group("Project Management")
-def lasif_remove_empty_coordinate_entries(parser, args):
-    """
-    Remove all empty coordinate entries in the inventory cache.
-
-    This is useful if you want to try to download coordinates again.
-    """
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".")
-    comm.inventory_db.remove_coordinate_less_stations()
-
-    print("SUCCESS")
-
 
 @mpi_enabled
 @command_group("Iteration Management")
@@ -1239,22 +1034,6 @@ def lasif_preprocess_data(parser, args):
         raise LASIFCommandLineException(exceptions[0])
 
     comm.actions.preprocess_data(iteration_name, events)
-
-
-@command_group("Iteration Management")
-def lasif_plot_q_model(parser, args):
-    """
-    Plots the Q model for a given iteration.
-    """
-    parser.add_argument("iteration_name", help="name of iteration")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-
-    comm = _find_project_comm(".")
-    comm.iterations.plot_Q_model(iteration_name)
-
-    import matplotlib.pyplot as plt
-    plt.show()
 
 
 @command_group("Plotting")
@@ -1413,27 +1192,6 @@ def lasif_tutorial(parser, args):
 
     import webbrowser
     webbrowser.open("http://krischer.github.io/LASIF/")
-
-
-def lasif_calculate_constant_q_model(parser, args):
-    """
-    Calculate a constant Q model useable by SES3D.
-    """
-    from lasif.tools import Q_discrete
-
-    parser.add_argument("min_period", type=float,
-                        help="minimum period for the constant frequency band")
-    parser.add_argument("max_period", type=float,
-                        help="maximum period for the constant frequency band")
-    args = parser.parse_args(args)
-
-    weights, relaxation_times, = Q_discrete.calculate_Q_model(
-        N=3,
-        f_min=1.0 / args.max_period,
-        f_max=1.0 / args.min_period,
-        iterations=10000,
-        initial_temperature=0.1,
-        cooling_factor=0.9998)
 
 
 def lasif_debug(parser, args):

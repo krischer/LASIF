@@ -457,15 +457,14 @@ class ActionsComponent(Component):
         :param iteration_name: The name of the iteration.
         :param event_name: The name of the event for which to generate the
             input files.
-        :param simulate_type: The type of simulation to perform. Possible
+        :param simulation_type: The type of simulation to perform. Possible
             values are: 'normal simulate', 'adjoint forward', 'adjoint
             reverse'
         """
 
         # =====================================================================
-        # read iteration xml file, get event and list of stations
+        # read iteration toml file, get event and list of stations
         # =====================================================================
-
         iteration = self.comm.iterations.get(iteration_name)
 
         # Check that the event is part of the iterations.
@@ -476,63 +475,44 @@ class ActionsComponent(Component):
                        sorted(iteration.events.keys()))))
             raise ValueError(msg)
 
-        event = self.comm.events.get(event_name)
-
-
         asdf_file = self.comm.waveforms.get_asdf_filename(event_name=event_name, data_type="raw" )
 
         import pyasdf
-        import obspy
-
         ds = pyasdf.ASDFDataSet(asdf_file)
         event = ds.events[0]
 
+        # Build inventory of all stations present in ASDF file
         stations = ds.waveforms.list()
         inv = ds.waveforms[stations[0]].StationXML
         for station in stations[1:]:
             inv += ds.waveforms[station].StationXML
 
-
-
-        print(inv)
-        print(type(inv))
-        # get event catalog
-        # get receiver inventory
-        # get solver parameters
-
         import salvus_seismo
-        import pyasdf
+        src = salvus_seismo.Source.parse(event)
+        recs = salvus_seismo.Receiver.parse(inv)
 
-
-        print(event_name)
-
-
-        src = salvus_seismo.Source.parse(event) # Here event should be a catalog #ds.events[0]
-        recs = salvus_seismo.Receiver.parse(inv) # This should be an inventoru (ds.waveforms.list())
-
+        solver_settings = self.comm.project.solver['settings']
         # Choose a center frequency suitable for our mesh.
-        src.center_frequency = 1.0 / 15.0
+        src.center_frequency = solver_settings['simulation_parameters']['source_center_frequency']
         mesh_file = self.comm.project.config['mesh_file']
 
-        SALVUS_BIN = self.comm.project.paths['root']
-        # Generate the configuration object for salvus_seismo. Note the presence of "salvus_call"
-        # here. This can be use to pass any special commands, such as mpirun.
+        # Generate the configuration object for salvus_seismo
         config = salvus_seismo.Config(
             mesh_file=mesh_file,
-            end_time=120,
-            salvus_call="mpirun -n 1 %s" % SALVUS_BIN,
-            polynomial_order=4,
+            end_time=solver_settings['simulation_parameters']['end_time'],
+            salvus_call=solver_settings['computational_setup']['salvus_call'],
+            polynomial_order=solver_settings['simulation_parameters']['polynomial_order'],
             verbose=True,
-            dimensions=3)
+            dimensions=solver_settings['simulation_parameters']['dimensions'])
 
         # =================================================================
         # output
         # =================================================================
-        output_dir = self.comm.project.get_output_folder(
-            type="input_files",
-            tag="ITERATION_%s__%s__EVENT_%s" % (
-                iteration_name, simulation_type.replace(" ", "_"),
-                event_name))
+        iteration_folder = self.comm.iterations.get_folder_for_iteration(iteration_name)
+        output_dir = os.path.join(iteration_folder, "input_files", event_name)
+
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
         import shutil
         shutil.rmtree(output_dir)
@@ -540,241 +520,6 @@ class ActionsComponent(Component):
             source=src, receivers=recs, config=config,
             output_folder=output_dir,
             exodus_file=mesh_file)
-
-        # gen.write(format=solver_format, output_dir=output_dir)
-        # print("Written files to '%s'." % output_dir)
-        #
-        # stations_for_event = iteration.events[event_name]["stations"].keys()
-
-        # Get all stations and create a dictionary for the input file
-        # generator.
-        # stations = self.comm.query.get_all_stations_for_event(event_name)
-        # print(stations)
-        # stations = [{"id": key, "latitude": value["latitude"],
-        #              "longitude": value["longitude"],
-        #              "elevation_in_m": value["elevation_in_m"],
-        #              "local_depth_in_m": value["local_depth_in_m"]}
-        #             for key, value in stations.items()
-        #             if key in stations_for_event]
-
-        # =====================================================================
-        # set solver options
-        # =====================================================================
-        #
-        # solver = iteration.solver_settings
-        #
-        # # Currently only SES3D 4.1 is supported
-        # solver_format = solver["solver"].lower()
-        # if solver_format not in ["ses3d 4.1", "ses3d 2.0",
-        #                          "specfem3d cartesian", "specfem3d globe cem"]:
-        #     msg = ("Currently only SES3D 4.1, SES3D 2.0, SPECFEM3D "
-        #            "CARTESIAN, and SPECFEM3D GLOBE CEM are supported.")
-        #     raise ValueError(msg)
-        # solver_format = solver_format.replace(' ', '_')
-        # solver_format = solver_format.replace('.', '_')
-        #
-        # solver = solver["solver_settings"]
-
-        # =====================================================================
-        # create the input file generator, add event and stations,
-        # populate the configuration items
-        # =====================================================================
-
-        # # Add the event and the stations to the input file generator.
-        # gen = InputFileGenerator()
-        # gen.add_events(event["filename"])
-        # gen.add_stations(stations)
-        #
-        # if solver_format in ["ses3d_4_1", "ses3d_2_0"]:
-        #     # event tag
-        #     gen.config.event_tag = event_name
-        #
-        #     # Time configuration.
-        #     npts = solver["simulation_parameters"]["number_of_time_steps"]
-        #     delta = solver["simulation_parameters"]["time_increment"]
-        #     gen.config.number_of_time_steps = npts
-        #     gen.config.time_increment_in_s = delta
-        #
-        #     # SES3D specific configuration
-        #     gen.config.output_folder = solver["output_directory"].replace(
-        #         "{{EVENT_NAME}}", event_name.replace(" ", "_"))
-        #     gen.config.simulation_type = simulation_type
-        #
-        #     gen.config.adjoint_forward_wavefield_output_folder = \
-        #         solver["adjoint_output_parameters"][
-        #             "forward_field_output_directory"].replace(
-        #             "{{EVENT_NAME}}", event_name.replace(" ", "_"))
-        #     gen.config.adjoint_forward_sampling_rate = \
-        #         solver["adjoint_output_parameters"][
-        #             "sampling_rate_of_forward_field"]
-        #
-        #     # Visco-elastic dissipation
-        #     diss = solver["simulation_parameters"]["is_dissipative"]
-        #     gen.config.is_dissipative = diss
-        #
-        #     # Only SES3D 4.1 has the relaxation parameters.
-        #     if solver_format == "ses3d_4_1":
-        #         gen.config.Q_model_relaxation_times = \
-        #             solver["relaxation_parameter_list"]["tau"]
-        #         gen.config.Q_model_weights_of_relaxation_mechanisms = \
-        #             solver["relaxation_parameter_list"]["w"]
-        #
-        #     # Discretization
-        #     disc = solver["computational_setup"]
-        #     gen.config.nx_global = disc["nx_global"]
-        #     gen.config.ny_global = disc["ny_global"]
-        #     gen.config.nz_global = disc["nz_global"]
-        #     gen.config.px = disc["px_processors_in_theta_direction"]
-        #     gen.config.py = disc["py_processors_in_phi_direction"]
-        #     gen.config.pz = disc["pz_processors_in_r_direction"]
-        #     gen.config.lagrange_polynomial_degree = \
-        #         disc["lagrange_polynomial_degree"]
-        #
-        #     # Configure the mesh.
-        #     domain = self.comm.project.domain
-        #     gen.config.mesh_min_latitude = domain.min_latitude
-        #     gen.config.mesh_max_latitude = domain.max_latitude
-        #     gen.config.mesh_min_longitude = domain.min_longitude
-        #     gen.config.mesh_max_longitude = domain.max_longitude
-        #     gen.config.mesh_min_depth_in_km = domain.min_depth_in_km
-        #     gen.config.mesh_max_depth_in_km = domain.max_depth_in_km
-        #
-        #     # Set the rotation parameters.
-        #     gen.config.rotation_angle_in_degree = \
-        #         domain.rotation_angle_in_degree
-        #     gen.config.rotation_axis = domain.rotation_axis
-        #
-        #     # Make source time function
-        #     gen.config.source_time_function = \
-        #         iteration.get_source_time_function()["data"]
-        # elif solver_format == "specfem3d_cartesian":
-        #     gen.config.NSTEP = \
-        #         solver["simulation_parameters"]["number_of_time_steps"]
-        #     gen.config.DT = \
-        #         solver["simulation_parameters"]["time_increment"]
-        #     gen.config.NPROC = \
-        #         solver["computational_setup"]["number_of_processors"]
-        #     if simulation_type == "normal simulation":
-        #         msg = ("'normal_simulate' not supported for SPECFEM3D "
-        #                "Cartesian. Please choose either 'adjoint_forward' or "
-        #                "'adjoint_reverse'.")
-        #         raise NotImplementedError(msg)
-        #     elif simulation_type == "adjoint forward":
-        #         gen.config.SIMULATION_TYPE = 1
-        #     elif simulation_type == "adjoint reverse":
-        #         gen.config.SIMULATION_TYPE = 2
-        #     else:
-        #         raise NotImplementedError
-        #     solver_format = solver_format.upper()
-        #
-        # elif solver_format == "specfem3d_globe_cem":
-        #     cs = solver["computational_setup"]
-        #     gen.config.NPROC_XI = cs["number_of_processors_xi"]
-        #     gen.config.NPROC_ETA = cs["number_of_processors_eta"]
-        #     gen.config.NCHUNKS = cs["number_of_chunks"]
-        #     gen.config.NEX_XI = cs["elements_per_chunk_xi"]
-        #     gen.config.NEX_ETA = cs["elements_per_chunk_eta"]
-        #     gen.config.OCEANS = cs["simulate_oceans"]
-        #     gen.config.ELLIPTICITY = cs["simulate_ellipticity"]
-        #     gen.config.TOPOGRAPHY = cs["simulate_topography"]
-        #     gen.config.GRAVITY = cs["simulate_gravity"]
-        #     gen.config.ROTATION = cs["simulate_rotation"]
-        #     gen.config.ATTENUATION = cs["simulate_attenuation"]
-        #     gen.config.ABSORBING_CONDITIONS = True
-        #     if cs["fast_undo_attenuation"]:
-        #         gen.config.PARTIAL_PHYS_DISPERSION_ONLY = True
-        #         gen.config.UNDO_ATTENUATION = False
-        #     else:
-        #         gen.config.PARTIAL_PHYS_DISPERSION_ONLY = False
-        #         gen.config.UNDO_ATTENUATION = True
-        #     gen.config.GPU_MODE = cs["use_gpu"]
-        #     gen.config.SOURCE_TIME_FUNCTION = \
-        #         iteration.get_source_time_function()["data"]
-        #
-        #     if simulation_type == "normal simulation":
-        #         gen.config.SIMULATION_TYPE = 1
-        #         gen.config.SAVE_FORWARD = False
-        #     elif simulation_type == "adjoint forward":
-        #         gen.config.SIMULATION_TYPE = 1
-        #         gen.config.SAVE_FORWARD = True
-        #     elif simulation_type == "adjoint reverse":
-        #         gen.config.SIMULATION_TYPE = 2
-        #         gen.config.SAVE_FORWARD = True
-        #     else:
-        #         raise NotImplementedError
-        #
-        #     # Use the current domain setting to derive the bounds in the way
-        #     # SPECFEM specifies them.
-        #     domain = self.comm.project.domain
-        #
-        #     lat_range = domain.max_latitude - \
-        #         domain.min_latitude
-        #     lng_range = domain.max_longitude - \
-        #         domain.min_longitude
-        #
-        #     c_lat = \
-        #         domain.min_latitude + lat_range / 2.0
-        #     c_lng = \
-        #         domain.min_longitude + lng_range / 2.0
-        #
-        #     # Rotate the point.
-        #     c_lat_1, c_lng_1 = rotations.rotate_lat_lon(
-        #         c_lat, c_lng, domain.rotation_axis,
-        #         domain.rotation_angle_in_degree)
-        #
-        #     # SES3D rotation.
-        #     A = rotations._get_rotation_matrix(
-        #         domain.rotation_axis, domain.rotation_angle_in_degree)
-        #
-        #     latitude_rotation = -(c_lat_1 - c_lat)
-        #     longitude_rotation = c_lng_1 - c_lng
-        #
-        #     # Rotate the latitude. The rotation axis is latitude 0 and
-        #     # the center longitude + 90 degree
-        #     B = rotations._get_rotation_matrix(
-        #         rotations.lat_lon_radius_to_xyz(0.0, c_lng + 90, 1.0),
-        #         latitude_rotation)
-        #     # Rotate around the North pole.
-        #     C = rotations._get_rotation_matrix(
-        #         [0.0, 0.0, 1.0], longitude_rotation)
-        #
-        #     D = A * np.linalg.inv(C * B)
-        #
-        #     axis, angle = rotations._get_axis_and_angle_from_rotation_matrix(D)
-        #     rotated_axis = rotations.xyz_to_lat_lon_radius(*axis)
-        #
-        #     # Consistency check
-        #     if abs(rotated_axis[0] - c_lat_1) >= 0.01 or \
-        #             abs(rotated_axis[1] - c_lng_1) >= 0.01:
-        #         axis *= -1.0
-        #         angle *= -1.0
-        #         rotated_axis = rotations.xyz_to_lat_lon_radius(*axis)
-        #
-        #     if abs(rotated_axis[0] - c_lat_1) >= 0.01 or \
-        #             abs(rotated_axis[1] - c_lng_1) >= 0.01:
-        #         msg = "Failed to describe the domain in terms that SPECFEM " \
-        #               "understands. The domain definition in the output " \
-        #               "files will NOT BE CORRECT!"
-        #         warnings.warn(msg, LASIFWarning)
-        #
-        #     gen.config.ANGULAR_WIDTH_XI_IN_DEGREES = lng_range
-        #     gen.config.ANGULAR_WIDTH_ETA_IN_DEGREES = lat_range
-        #     gen.config.CENTER_LATITUDE_IN_DEGREES = c_lat_1
-        #     gen.config.CENTER_LONGITUDE_IN_DEGREES = c_lng_1
-        #     gen.config.GAMMA_ROTATION_AZIMUTH = angle
-        #
-        #     gen.config.MODEL = cs["model"]
-        #
-        #     pp = iteration.get_process_params()
-        #     gen.config.RECORD_LENGTH_IN_MINUTES = \
-        #         (pp["npts"] * pp["dt"]) / 60.0
-        #     solver_format = solver_format.upper()
-        #
-        # else:
-        #     msg = "Unknown solver '%s'." % solver_format
-        #     raise NotImplementedError(msg)
-
-
 
     def calculate_all_adjoint_sources(self, iteration_name, event_name):
         """

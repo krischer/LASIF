@@ -10,9 +10,7 @@ Functionality to deal with Iteration XML files.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from collections import OrderedDict
-from lxml import etree
-from lxml.builder import E
-import numpy as np
+
 import os
 import re
 
@@ -48,49 +46,38 @@ class Iteration(object):
         class instance.
         """
         import toml
+        self.iteration_info = toml.load(iteration_toml_filename)
 
-        iter_dict = toml.load(iteration_toml_filename)
+        # The iteration name is dependent on the filename.
+        self.iteration_name = re.sub(r"\.toml$", "", re.sub(
+            r"^ITERATION_", "", os.path.basename(iteration_toml_filename)))
 
-        print(iter_dict)
+        self.description = self.iteration_info['iteration']['description']
+        self.comments = self.iteration_info['iteration']['comment']
 
+        self.scale_data_to_synthetics = self.iteration_info['iteration']['scale_data_to_synthetics']
 
-    def get_source_time_function(self):
-        """
-        Returns the source time function for the given iteration.
+        # Defaults to True.
+        if self.scale_data_to_synthetics is None:
+            self.scale_data_to_synthetics = True
+        if self.scale_data_to_synthetics is not True or False:
+            raise ValueError("Value '%s' invalid for "
+                             "'scale_data_to_synthetics'." %
+                             self.scale_data_to_synthetics)
 
-        Will return a dictionary with the following keys:
-            * "delta": The time increment of the data.
-            * "data": The actual source time function as an array.
-        """
-        delta = float(self.solver_settings["solver_settings"][
-            "simulation_parameters"]["time_increment"])
-        npts = int(self.solver_settings["solver_settings"][
-            "simulation_parameters"]["number_of_time_steps"])
+        self.data_preprocessing = self.iteration_info['data_preprocessing']
 
-        freqmin = 1.0 / self.data_preprocessing["highpass_period"]
-        freqmax = 1.0 / self.data_preprocessing["lowpass_period"]
-
-        ret_dict = {"delta": delta}
-
-        # Get source time function.
-        ret_dict["data"] = self.stf_fct(
-            npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax,
-            iteration=self)
-        # Some sanity checks as the function might be user supplied.
-        if not isinstance(ret_dict["data"], np.ndarray):
-            raise ValueError("Custom source time function does not return a "
-                             "numpy array.")
-        elif ret_dict["data"].dtype != np.float64:
-            raise ValueError(
-                "Custom source time function must have dtype `float64`. Yours "
-                "has dtype `%s`." % (ret_dict["data"].dtype.__name__))
-        elif len(ret_dict["data"]) != npts:
-            raise ValueError(
-                "Source time function must return a float64 numpy array with "
-                "%i samples. Yours has %i samples." % (npts,
-                                                       len(ret_dict["data"])))
-
-        return ret_dict
+        self.events = OrderedDict()
+        for event in self.iteration_info['event']:
+            event_name = event['name']
+            self.events[event_name] = {
+                "event_weight": float(event['weight']),
+                "stations": OrderedDict()}
+            if 'station' in event:
+                for station in event['station']:
+                    station_id = station['ID']
+                    self.events[event_name]["stations"][station_id] = {
+                        "station_weight": float(station['weight'])}
 
     def get_process_params(self):
         """
@@ -100,16 +87,9 @@ class Iteration(object):
         highpass = 1.0 / self.data_preprocessing["highpass_period"]
         lowpass = 1.0 / self.data_preprocessing["lowpass_period"]
 
-        npts = self.solver_settings["solver_settings"][
-            "simulation_parameters"]["number_of_time_steps"]
-        dt = self.solver_settings["solver_settings"][
-            "simulation_parameters"]["time_increment"]
-
         return {
             "highpass": float(highpass),
-            "lowpass": float(lowpass),
-            "npts": int(npts),
-            "dt": float(dt)}
+            "lowpass": float(lowpass)}
 
     @property
     def processing_tag(self):
@@ -143,7 +123,6 @@ class Iteration(object):
             "\tPreprocessing Settings:\n"
             "\t\tHighpass Period: {hp:.3f} s\n"
             "\t\tLowpass Period: {lp:.3f} s\n"
-            "\tSolver: {solver} | {timesteps} timesteps (dt: {dt}s)\n"
             "\t{event_count} events recorded at {station_count} "
             "unique stations\n"
             "\t{pair_count} event-station pairs (\"rays\")")
@@ -154,19 +133,81 @@ class Iteration(object):
             comments += "\n"
 
         all_stations = []
-        for ev in self.events.itervalues():
-            all_stations.extend(ev["stations"].iterkeys())
+        for ev in self.events.values():
+            all_stations.extend(ev["stations"].keys())
 
         return ret_str.format(
             self=self, comments=comments,
             hp=self.data_preprocessing["highpass_period"],
             lp=self.data_preprocessing["lowpass_period"],
-            solver=self.solver_settings["solver"],
-            timesteps=self.solver_settings["solver_settings"][
-                "simulation_parameters"]["number_of_time_steps"],
-            dt=self.solver_settings["solver_settings"][
-                "simulation_parameters"]["time_increment"],
             event_count=len(self.events),
             pair_count=len(all_stations),
             station_count=len(set(all_stations)))
+
+    def write(self, filename):
+        """
+        Serialized the Iteration structure once again.
+
+        :param filename: The path that will be written to.
+        """
+
+        toml_string = "# This is the iteration file.\n\n"
+
+        if self.scale_data_to_synthetics:
+            scale_data_to_synthetics = "true"
+        else:
+            scale_data_to_synthetics = "false"
+
+        iteration_str = f"[iteration]\n" \
+                        f"  name = {self.iteration_name}\n" \
+                        f"  description = \"\"\n" \
+                        f"  comment = \"\"\n" \
+                        f"  scale_data_to_synthetics = {scale_data_to_synthetics}\n\n"
+
+        data_preproc_str = f"[data_preprocessing]\n" \
+                           f"  highpass_period = {self.data_preprocessing['highpass_period']}\n" \
+                           f"  lowpass_period = {self.data_preprocessing['lowpass_period']}\n" \
+                           f"\n"
+
+
+        toml_string += iteration_str + data_preproc_str
+        for event, event_info in self.events.items():
+            event_string = f"[[event]]\n" \
+                           f"  name = \"{event}\"\n" \
+                           f"  weight = {event_info['event_weight']}\n\n"
+
+            for station, station_info in event_info['stations'].items():
+                event_string += f"  [[event.station]]\n" \
+                                f"    ID = \"{station}\"\n" \
+                                f"    weight = {station_info['station_weight']} \n\n"
+            toml_string += event_string
+
+        with open(filename, "wt") as fh:
+            fh.write(toml_string)
+
+def create_iteration_toml_string(iteration_number, events_dict, min_period, max_period):
+    toml_string = "# This is the iteration file.\n\n"
+    iteration_str = f"[iteration]\n" \
+                    f"  name = {iteration_number}\n" \
+                    f"  description = \"\"\n" \
+                    f"  comment = \"\"\n" \
+                    f"  scale_data_to_synthetics = true\n\n"
+
+    data_preproc_str = f"[data_preprocessing]\n" \
+                       f"  highpass_period = {max_period}\n" \
+                       f"  lowpass_period = {min_period}\n" \
+                       f"\n"
+
+    toml_string += iteration_str + data_preproc_str
+    for event_name, stations in events_dict.items():
+        event_string = f"[[event]]\n" \
+                       f"  name = \"{event_name}\"\n" \
+                       f"  weight = 1.0\n\n"
+        for station in stations:
+            event_string += f"  [[event.station]]\n" \
+                            f"    ID = \"{station}\"\n" \
+                            f"    weight = 1.0 \n\n"
+        toml_string += event_string
+
+    return toml_string
 

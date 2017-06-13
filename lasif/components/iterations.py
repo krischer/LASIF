@@ -28,9 +28,17 @@ class IterationsComponent(Component):
         Helper function returning the filename of an iteration.
         """
         long_iter_name = self.get_long_iteration_name(iteration_name)
-        folder = os.path.join(self._folder, long_iter_name)
+        folder = self.get_folder_for_iteration(iteration_name)
         return os.path.join(
-            folder, long_iter_name + os.path.extsep + "xml")
+            folder, long_iter_name + os.path.extsep + "toml")
+
+    def get_folder_for_iteration(self, iteration_name):
+        """
+        Helper function returning the path of an iteration folder.
+        """
+        long_iter_name = self.get_long_iteration_name(iteration_name)
+        folder = os.path.join(self._folder, long_iter_name)
+        return folder
 
     def create_folder_for_iteration(self, iteration_name):
         long_iter_name = self.get_long_iteration_name(iteration_name)
@@ -51,7 +59,7 @@ class IterationsComponent(Component):
          '2': '/.../ITERATION_2.xml'}
         """
         files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
-            self._folder, "ITERATION_*/ITERATION_*%sxml" % os.extsep))]
+            self._folder, "ITERATION_*/ITERATION_*%stoml" % os.extsep))]
         it_dict = {os.path.splitext(os.path.basename(_i))[0][10:]: _i
                    for _i in files}
         return it_dict
@@ -109,15 +117,13 @@ class IterationsComponent(Component):
 
         return iteration_name in self.get_iteration_dict()
 
-    def create_new_iteration(self, iteration_name, solver_name, events_dict,
-                             min_period, max_period, quiet=False,
+    def create_new_iteration(self, iteration_name, events_dict,
+                             min_period, max_period,
                              create_folders=True):
         """
         Creates a new iteration XML file.
 
         :param iteration_name: The name of the iteration.
-        :param solver_name: The name of the solver to be used for the new
-            iteration.
         :param events_dict: A dictionary specifying the used events.
         :param min_period: The minimum period in seconds for the new iteration.
         :param max_period: The maximum period in seconds for the new iteration.
@@ -142,67 +148,13 @@ class IterationsComponent(Component):
 
         self.create_folder_for_iteration(iteration_name)
 
-        from lasif.iteration_xml import create_iteration_xml_string
-        xml_string = create_iteration_xml_string(iteration_name,
-                                                 solver_name, events_dict,
-                                                 min_period, max_period,
-                                                 quiet=quiet)
-
-        with open("some.toml", "wt") as fh:
-                fh.write(self._get_toml_string(iteration_name, events_dict, min_period, max_period))
-
-        from lasif.iteration_toml import Iteration
-        it = Iteration("some.toml", stf_fct=self.comm.project.get_project_function(
-                           "source_time_function"))
-
-        with open(self.get_filename_for_iteration(iteration_name), "wt")\
-                as fh:
-            fh.write(xml_string.decode())
+        from lasif.iteration_toml import create_iteration_toml_string
+        with open(self.get_filename_for_iteration(iteration_name), "wt") as fh:
+                fh.write(create_iteration_toml_string(iteration_name, events_dict, min_period, max_period))
 
         if create_folders:
             self.create_synthetics_folder_for_iteration(iteration_name)
-            self.create_kernel_folder_for_iteration(iteration_name)
             self.create_adjoint_sources_and_windows_folder_for_iteration(iteration_name)
-
-
-    @staticmethod
-    def _get_toml_string(iteration_number, events_dict, min_period, max_period):
-        toml_string = "# This is the iteration file.\n\n"
-        iteration_str = f"[iteration]\n" \
-                        f"  name = {iteration_number}\n" \
-                        f"  description = \"\"\n" \
-                        f"  comment = \"\"\n" \
-                        f"  scale_data_to_synthetics = true\n\n"
-
-        data_preproc_str = f"[data_preprocessing]\n" \
-                           f"  highpass_period = {max_period}\n" \
-                           f"  lowpass_period = {min_period}\n" \
-                           f"\n"
-
-        solver_par_str = "[solver]\n" \
-                         "  name = \"Salvus\"\n\n" \
-                         "  [solver.settings]\n" \
-                         "    adjoint_source_time_shift = -10\n\n" \
-                         "    [solver.settings.simulation_parameters]\n" \
-                         "      number_of_time_steps = 2000\n" \
-                         "      time_increment = 0.1\n\n" \
-                         "    [solver.settings.computational_setup]\n" \
-                         "      number_of_processors = 4\n\n"
-
-        toml_string += iteration_str + data_preproc_str + solver_par_str
-        for event_name, stations in events_dict.items():
-            event_string = f"[[event]]\n" \
-                           f"  name = \"{event_name}\"\n" \
-                           f"  weight = 1.0\n\n"
-            for station in stations:
-                event_string += f"  [[event.station]]\n" \
-                                f"    ID = \"{station}\"\n" \
-                                f"    weight = 1.0 \n\n"
-            toml_string += event_string
-
-        return toml_string
-
-
 
     def create_synthetics_folder_for_iteration(self, iteration_name):
         """
@@ -211,21 +163,7 @@ class IterationsComponent(Component):
         :param iteration_name: The iteration for which to create the folders.
         """
         iteration = self.comm.iterations.get(iteration_name)
-        print(type(iteration))
         path = self.comm.project.paths["synthetics"]
-
-        folder = os.path.join(path, iteration.long_name)
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-    def create_kernel_folder_for_iteration(self, iteration_name):
-        """
-        Create the kernels folder if it does not yet exists.
-
-        :param iteration_name: The iteration for which to create the folders.
-        """
-        iteration = self.comm.iterations.get(iteration_name)
-        path = self.comm.project.paths["kernels"]
 
         folder = os.path.join(path, iteration.long_name)
         if not os.path.exists(folder):
@@ -301,13 +239,12 @@ class IterationsComponent(Component):
             msg = "Iteration %s already exists." % new_iteration_name
             raise ValueError(msg)
 
-        from lasif.iteration_xml import Iteration
-
+        from lasif.iteration_toml import Iteration
         existing_iteration = Iteration(
             it_dict[existing_iteration_name],
             stf_fct=self.comm.project.get_project_function(
                 "source_time_function"))
-
+        self.create_folder_for_iteration(new_iteration_name)
         # Clone the old iteration, delete any comments and change the name.
         existing_iteration.comments = []
         existing_iteration.iteration_name = new_iteration_name
@@ -315,6 +252,7 @@ class IterationsComponent(Component):
 
         if create_folders:
             self.create_synthetics_folder_for_iteration(new_iteration_name)
+            self.create_adjoint_sources_and_windows_folder_for_iteration(new_iteration_name)
 
     def save_iteration(self, iteration):
         """
@@ -380,7 +318,7 @@ class IterationsComponent(Component):
             msg = "Iteration '%s' not found." % iteration_name
             raise LASIFNotFoundError(msg)
 
-        from lasif.iteration_xml import Iteration
+        from lasif.iteration_toml import Iteration
         it = Iteration(it_dict[iteration_name],
                        stf_fct=self.comm.project.get_project_function(
                            "source_time_function"))
@@ -389,26 +327,3 @@ class IterationsComponent(Component):
         self.__cached_iterations[iteration_name] = it
 
         return it
-
-    def plot_Q_model(self, iteration_name):
-        """
-        Plots the Q model for a given iteration. Will only work if the
-        iteration uses SES3D as its solver.
-        """
-        from lasif.tools.Q_discrete import plot
-
-        iteration = self.get(iteration_name)
-        if iteration.solver_settings["solver"].lower() != "ses3d 4.1":
-            msg = "Only works for SES3D 4.1"
-            raise LASIFError(msg)
-
-        proc_params = iteration.get_process_params()
-        f_min = proc_params["highpass"]
-        f_max = proc_params["lowpass"]
-
-        relax = iteration.solver_settings["solver_settings"][
-            "relaxation_parameter_list"]
-        tau_p = relax["tau"]
-        weights = relax["w"]
-
-        plot(D_p=weights, tau_p=tau_p, f_min=f_min, f_max=f_max)

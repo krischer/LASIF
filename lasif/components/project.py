@@ -32,7 +32,6 @@ from .component import Component
 from .downloads import DownloadsComponent
 from .events import EventsComponent
 from .iterations import IterationsComponent
-from .kernels import KernelsComponent
 from .query import QueryComponent
 from .stations import StationsComponent
 from .validator import ValidatorComponent
@@ -128,7 +127,10 @@ class Project(Component):
         """
         import toml
         with open(self.paths["config_file"], "r") as fh:
-            self.config = toml.load(fh)["lasif_project"]
+            config_dict = toml.load(fh)["lasif_project"]
+
+        self.config = config_dict['lasif_project']
+        self.solver = config_dict['solver']
 
         self.domain = lasif.domain.ExodusDomain(self.config['mesh_file'])
 
@@ -150,9 +152,6 @@ class Project(Component):
         WaveformsComponent(data_folder=self.paths["data"],
                            synthetics_folder=self.paths["synthetics"],
                            communicator=self.comm, component_name="waveforms")
-        KernelsComponent(kernels_folder=self.paths["kernels"],
-                         communicator=self.comm,
-                         component_name="kernels")
         IterationsComponent(iterations_folder=self.paths["iterations"],
                             communicator=self.comm,
                             component_name="iterations")
@@ -196,7 +195,6 @@ class Project(Component):
         self.paths["logs"] = root_path / "LOGS"
         self.paths["iterations"] = root_path / "ITERATIONS"
         self.paths["synthetics"] = root_path / "SYNTHETICS"
-        self.paths["kernels"] = root_path / "KERNELS"
         self.paths["output"] = root_path / "OUTPUT"
         # Path for the custom functions.
         self.paths["functions"] = root_path / "FUNCTIONS"
@@ -222,26 +220,41 @@ class Project(Component):
         default config file. The folder structure is checked and rebuilt every
         time the project is initialized anyways.
         """
-        import toml
-
         if not project_name:
             project_name = "LASIFProject"
 
-        config = {"lasif_project": {
-            "project_name": project_name,
-            "description": "",
-            "mesh_file": "",
-            "download_settings": {
-                "seconds_before_event": 300.0,
-                "seconds_after_event": 3600.0,
-                "interstation_distance_in_meters": 1000.0,
-                "channel_priorities": ["BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]",
-                                       "EH[Z,N,E]", "MH[Z,N,E]"],
-                "location_priorities": ["", "00", "10", "20", "01", "02"]
-        }}}
+        lasif_config_str = f"# Please fill in this config file before proceeding with using LASIF \n \n" \
+                           f"[lasif_project]\n" \
+                           f"  project_name = \"{project_name}\"\n" \
+                           f"  description = \"\"\n" \
+                           f"  mesh_file = \"\"\n\n" \
+                           f"  [lasif_project.download_settings]\n" \
+                           f"    seconds_before_event = 300.0\n" \
+                           f"    seconds_after_event = 3600.0\n" \
+                           f"    interstation_distance_in_meters = 1000.0\n" \
+                           f"    channel_priorities = [ \"BH[Z,N,E]\", \"LH[Z,N,E]\", \"HH[Z,N,E]\", \"EH[Z,N,E]\", \"MH[Z,N,E]\",]\n" \
+                           f"    location_priorities = [ \"\", \"00\", \"10\", \"20\", \"01\", \"02\",]\n" \
+                           f"\n"
+
+        solver_par_str = "[solver]\n" \
+                     "  name = \"Salvus\"\n\n" \
+                     "  [solver.settings]\n" \
+                     "    adjoint_source_time_shift = -10\n\n" \
+                     "    [solver.settings.simulation_parameters]\n" \
+                     "      number_of_time_steps = 2000\n" \
+                     "      time_increment = 0.1\n" \
+                     "      end_time = 2700.0\n" \
+                     "      source_center_frequency = 0.025\n" \
+                     "      polynomial_order = 4\n" \
+                     "      dimensions = 3\n\n" \
+                     "    [solver.settings.computational_setup]\n" \
+                     "      number_of_processors = 4\n" \
+                     "      salvus_call = \"mpirun -n 4 salvus_bin\"\n\n"
+
+        lasif_config_str += solver_par_str
 
         with open(self.paths["config_file"], "w") as fh:
-            toml.dump(config, fh)
+            fh.write(lasif_config_str)
 
     def get_project_function(self, fct_type):
         """
