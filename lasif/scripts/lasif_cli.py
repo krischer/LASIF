@@ -432,12 +432,11 @@ def lasif_event_info(parser, args):
         from lasif.utils import table_printer
         print("\nStation and waveform information available at %i "
               "stations:\n" % len(stations))
-        header = ["id", "latitude", "longitude", "elevation_in_m",
-                  "local depth"]
+        header = ["ID", "Latitude", "Longitude", "Elevation_in_m"]
         keys = sorted(stations.keys())
         data = [[
             key, stations[key]["latitude"], stations[key]["longitude"],
-            stations[key]["elevation_in_m"], stations[key]["local_depth_in_m"]]
+            stations[key]["elevation_in_m"]]
             for key in keys]
         table_printer(header, data)
     else:

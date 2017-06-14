@@ -265,7 +265,7 @@ def greatcircle_points(point_1, point_2, max_extension=None,
         npts = max_npts - 1
     if npts == 0:
         npts = 1
-    for i in xrange(npts + 1):
+    for i in range(npts + 1):
         line_point = line.Position(i * point["s12"] / float(npts))
         yield Point(line_point["lat2"], line_point["lon2"])
 
