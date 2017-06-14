@@ -127,7 +127,7 @@ class Project(Component):
         """
         import toml
         with open(self.paths["config_file"], "r") as fh:
-            config_dict = toml.load(fh)["lasif_project"]
+            config_dict = toml.load(fh)
 
         self.config = config_dict['lasif_project']
         self.solver = config_dict['solver']

@@ -186,11 +186,12 @@ class ExodusDomain(Domain):
         m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
 
         # Scatter plot domain edge nodes
-        x, y, z = self.domain_edge_coords.T
-        lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
-        x, y = m(lons, lats)
+        if not self.is_global_mesh:
+            x, y, z = self.domain_edge_coords.T
+            lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
+            x, y = m(lons, lats)
+            m.scatter(x, y, color='k')
 
-        m.scatter(x, y, color='k')
         _plot_features(m, stepsize=45)
         return m
 
