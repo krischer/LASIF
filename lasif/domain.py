@@ -397,7 +397,7 @@ def _plot_features(map_object, stepsize):
     import matplotlib.pyplot as plt
 
     map_object.drawmapboundary(fill_color='#bbbbbb')
-    map_object.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
+    map_object.fillcontinents(color='white', lake_color='#cccccc', zorder=1)
     plt.gcf().patch.set_alpha(0.0)
 
     # Style for parallels and meridians.
