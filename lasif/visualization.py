@@ -200,7 +200,8 @@ def plot_raydensity(map_object, station_events, domain):
                 lat, lng, domain.rotation_axis,
                 domain.rotation_angle_in_degree)
     ln, la = map_object(lngs, lats)
-    map_object.pcolormesh(ln, la, data, cmap=cmap, vmin=0, vmax=max_val)
+    map_object.pcolormesh(ln, la, data, cmap=cmap, vmin=0, vmax=max_val,
+                          zorder=10)
     # Draw the coastlines so they appear over the rays. Otherwise things are
     # sometimes hard to see.
     map_object.drawcoastlines()
