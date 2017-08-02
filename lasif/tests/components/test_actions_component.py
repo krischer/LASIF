@@ -608,5 +608,6 @@ def test_calculate_all_adjoint_sources_rotated_domain(patch, comm, capsys):
     # Make sure that three adjoint sources are written in the end.
     out = os.path.join(comm.project.paths["adjoint_sources"], event_name,
                        it.long_name)
-    # Joblib dumps two files per written array.
-    assert len(os.listdir(out)) == 2 * 3
+    # Joblib dumps one or two files per written array, depending on the
+    # version.
+    assert len(os.listdir(out)) >= 3
