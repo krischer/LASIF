@@ -352,7 +352,8 @@ class GlobalDomain(Domain):
         """
         return True
 
-    def plot(self, plot_simulation_domain=False, ax=None):
+    def plot(self, plot_simulation_domain=False, ax=None,
+             skip_map_features=False):
         """
         Global domain is plotted using an equal area Mollweide projection.
 
@@ -370,7 +371,8 @@ class GlobalDomain(Domain):
 
         # Equal area mollweide projection.
         m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
-        _plot_features(m, stepsize=45)
+        if not skip_map_features:
+            _plot_features(m, stepsize=45)
         return m
 
     def get_max_extent(self):
