@@ -39,7 +39,7 @@ def test_plotting_global_domain(tmpdir):
     Tests the plotting of a global domain.
     """
     domain.GlobalDomain().plot(plot_simulation_domain=True)
-    images_are_identical("domain_global", str(tmpdir))
+    images_are_identical("domain_global", str(tmpdir), tol=6.5)
 
 
 def test_plotting_domain_close_to_north_pole(tmpdir):
@@ -56,7 +56,7 @@ def test_plotting_domain_close_to_north_pole(tmpdir):
         boundary_width_in_degree=2.0,
         rotation_axis=[0, 1, 0],
         rotation_angle_in_degree=-57.5).plot(plot_simulation_domain=True)
-    images_are_identical("domain_with_north_pole", str(tmpdir))
+    images_are_identical("domain_with_north_pole", str(tmpdir), tol=6.5)
 
 
 def test_plotting_domain_anatolia(tmpdir):
@@ -90,7 +90,7 @@ def test_plotting_domain_north_america(tmpdir):
         boundary_width_in_degree=9.0,
         rotation_axis=[0.766044443118978, 0.6427876096865393, 0],
         rotation_angle_in_degree=-30.0).plot(plot_simulation_domain=True)
-    images_are_identical("domain_north_america", str(tmpdir))
+    images_are_identical("domain_north_america", str(tmpdir), tol=6.5)
 
 
 def test_simple_european_domain(tmpdir):
@@ -107,7 +107,7 @@ def test_simple_european_domain(tmpdir):
         boundary_width_in_degree=2.5,
         rotation_axis=[1.0, 1.0, 0.2],
         rotation_angle_in_degree=-65.0).plot(plot_simulation_domain=True)
-    images_are_identical("domain_simple_europe", str(tmpdir))
+    images_are_identical("domain_simple_europe", str(tmpdir), tol=6.5)
 
 
 def test_plotting_edge_case__domain(tmpdir):
@@ -125,7 +125,7 @@ def test_plotting_edge_case__domain(tmpdir):
         boundary_width_in_degree=2.5,
         rotation_axis=[1.0, 1.0, 0.2],
         rotation_angle_in_degree=-75.0).plot(plot_simulation_domain=True)
-    images_are_identical("domain_edge_case", str(tmpdir))
+    images_are_identical("domain_edge_case", str(tmpdir), tol=8)
 
 
 def test_domain_new_zealand(tmpdir):
@@ -139,7 +139,7 @@ def test_domain_new_zealand(tmpdir):
         boundary_width_in_degree=2.5,
         rotation_axis=[1.0, 1.0, 0.2],
         rotation_angle_in_degree=0.0).plot(plot_simulation_domain=True)
-    images_are_identical("domain_new_zealand", str(tmpdir))
+    images_are_identical("domain_new_zealand", str(tmpdir), tol=6.5)
 
 
 def test_domain_new_zealand_regional_dateline_wraparound(tmpdir):
