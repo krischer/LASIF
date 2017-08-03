@@ -4,7 +4,7 @@
 [![GPLv3](http://www.gnu.org/graphics/gplv3-88x31.png)](https://github.com/krischer/LASIF/blob/master/LICENSE)
 
 
-Documentation: [LASIF](http://krischer.github.io/LASIF)
+Documentation can be found here: [LASIF](http://krischer.github.io/LASIF)
 
 
 ### Paper
