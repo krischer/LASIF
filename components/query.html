@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
@@ -125,8 +131,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -135,27 +143,44 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
-      
+        
           <li><a href="components.html">API Components</a> &raquo;</li>
-      
-    <li>QueryComponent</li>
+        
+      <li>QueryComponent</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/components/query.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/components/query.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -173,8 +198,8 @@ components and integrating them in a meaningful way.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>communicator</strong> &#8211; The communicator instance.</li>
-<li><strong>component_name</strong> &#8211; The name of this component for the communicator.</li>
+<li><strong>communicator</strong> – The communicator instance.</li>
+<li><strong>component_name</strong> – The name of this component for the communicator.</li>
 </ul>
 </td>
 </tr>
@@ -193,16 +218,16 @@ found for the given event and station combination.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the event.</li>
-<li><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The id of the station in question.</li>
+<li><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The name of the event.</li>
+<li><strong>station_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The id of the station in question.</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first"><a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)">dict</a></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Return a dictionary with &#8220;processed&#8221; and &#8220;synthetic&#8221; keys.
-Both values will be a list of strings. In the case of &#8220;processed&#8221;
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Return a dictionary with “processed” and “synthetic” keys.
+Both values will be a list of strings. In the case of “processed”
 it will be a list of all available preprocessing tags. In the case
 of the synthetics it will be a list of all iterations for which
 synthetics are available.</p>
@@ -223,7 +248,7 @@ must be possible to derive coordinates for the station.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Name of the event.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Name of the event.</td>
 </tr>
 </tbody>
 </table>
@@ -274,8 +299,8 @@ integrates a lot of different information.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>iteration</strong> &#8211; The iteration which to query.</li>
-<li><strong>events</strong> &#8211; If given, only the events of those events will be
+<li><strong>iteration</strong> – The iteration which to query.</li>
+<li><strong>events</strong> – If given, only the events of those events will be
 queried. Otherwise all will be queried.</li>
 </ul>
 </td>
@@ -304,8 +329,8 @@ type.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>latitude</strong> &#8211; The latitude of the point.</li>
-<li><strong>longitude</strong> &#8211; The longitude of the point.</li>
+<li><strong>latitude</strong> – The latitude of the point.</li>
+<li><strong>longitude</strong> – The longitude of the point.</li>
 </ul>
 </td>
 </tr>
@@ -322,7 +347,7 @@ Useful as a debug function and to figure out what LASIF is doing.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> &#8211; The path to the file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> – The path to the file.</td>
 </tr>
 </tbody>
 </table>
@@ -334,15 +359,18 @@ Useful as a debug function and to figure out what LASIF is doing.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../how_lasif_finds_coordinates.html" class="btn btn-neutral float-right" title="How LASIF Finds Coordinates" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../how_lasif_finds_coordinates.html" class="btn btn-neutral float-right" title="How LASIF Finds Coordinates" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="waveforms.html" class="btn btn-neutral" title="WaveformsComponent" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="waveforms.html" class="btn btn-neutral" title="WaveformsComponent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -376,13 +404,14 @@ Useful as a debug function and to figure out what LASIF is doing.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

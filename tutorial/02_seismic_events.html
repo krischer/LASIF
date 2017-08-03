@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
@@ -127,8 +133,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -137,25 +145,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
-      
-    <li>3. Seismic Events</li>
+        
+      <li>3. Seismic Events</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/tutorial/02_seismic_events.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/tutorial/02_seismic_events.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -201,8 +226,8 @@ project is the <code class="docutils literal"><span class="pre">lasif</span> <sp
 +------------------------------------------------------------+-----------------------------+
 <span class="p">|</span> Event Name                                                 <span class="p">|</span>    Lat/Lng/Depth<span class="o">(</span>km<span class="o">)</span>/Mag    <span class="p">|</span>
 +------------------------------------------------------------+-----------------------------+
-<span class="p">|</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             <span class="p">|</span>   44.9 /    8.5 /  <span class="m">15</span> / 4.9 <span class="p">|</span>
-<span class="p">|</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 <span class="p">|</span>   43.4 /   21.4 /  <span class="m">10</span> / 5.9 <span class="p">|</span>
+<span class="p">|</span> GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17             <span class="p">|</span>   <span class="m">44</span>.9 /    <span class="m">8</span>.5 /  <span class="m">15</span> / <span class="m">4</span>.9 <span class="p">|</span>
+<span class="p">|</span> GCMT_event_NORTHWESTERN_BALKAN_REGION_Mag_5.9_1980-5-18-20 <span class="p">|</span>   <span class="m">43</span>.4 /   <span class="m">21</span>.4 /  <span class="m">10</span> / <span class="m">5</span>.9 <span class="p">|</span>
 +------------------------------------------------------------+-----------------------------+
 </pre></div>
 </div>
@@ -229,9 +254,9 @@ distribution and origin time distribution by appending <code class="docutils lit
 about a certain event:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif event_info GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17
 
-Earthquake with 4.9 Mwc at NORTHERN ITALY
-    Latitude: 44.870, Longitude: 8.480, Depth: 15.0 km
-    2000-08-21T17:14:31.100000Z UTC
+Earthquake with <span class="m">4</span>.9 Mwc at NORTHERN ITALY
+    Latitude: <span class="m">44</span>.870, Longitude: <span class="m">8</span>.480, Depth: <span class="m">15</span>.0 km
+    <span class="m">2000</span>-08-21T17:14:31.100000Z UTC
 
 Station and waveform information available at <span class="m">0</span> stations. Use <span class="s1">&#39;-v&#39;</span> to print them.
 </pre></div>
@@ -250,9 +275,9 @@ between two events in kilometers. See its help method for more details.</p>
 <p>It will select events in an optimally distributed fashion by successively
 adding events that have the largest distance to the next closest station,
 approximating a Poisson disc distribution.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif add_gcmt_events <span class="m">40</span> <span class="m">5</span> 6.5 10
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif add_gcmt_events <span class="m">40</span> <span class="m">5</span> <span class="m">6</span>.5 <span class="m">10</span>
 
-LASIF currently contains GCMT data from <span class="m">2005</span> to 2016/2.
+LASIF currently contains GCMT data from <span class="m">2005</span> to <span class="m">2016</span>/2.
 ...
 Selected <span class="m">40</span> events.
 Written EVENTS/GCMT_event_...
@@ -273,15 +298,18 @@ actually happened during each iteration so the project gains
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="03_station_data.html" class="btn btn-neutral float-right" title="4. Station Data" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="03_station_data.html" class="btn btn-neutral float-right" title="4. Station Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="01_creating_a_new_project.html" class="btn btn-neutral" title="2. Creating a New Project" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="01_creating_a_new_project.html" class="btn btn-neutral" title="2. Creating a New Project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -315,13 +343,14 @@ actually happened during each iteration so the project gains
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

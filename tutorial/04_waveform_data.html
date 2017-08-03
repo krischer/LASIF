@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
@@ -127,8 +133,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -137,25 +145,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
-      
-    <li>5. Waveform Data</li>
+        
+      <li>5. Waveform Data</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/tutorial/04_waveform_data.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/tutorial/04_waveform_data.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -219,7 +244,7 @@ data. The data is further structured by assigning a tag to every data set. A
 tag is assigned by simply placing a folder in <code class="docutils literal"><span class="pre">ROOT/DATA/EVENT_NAME</span></code> and
 putting all data in there. The special tag <code class="docutils literal"><span class="pre">raw</span></code> is reserved for the raw
 waveforms straight from the datacenters or some other source. Other tags should
-describe the filtering and processing applied to the data (LASIF&#8217;s built-in
+describe the filtering and processing applied to the data (LASIF’s built-in
 processing capabilities actually enforce certain tag names - this will be
 covered in more detail later on). The same is true for synthetic waveform data,
 except that in that case, the data resides in the <code class="docutils literal"><span class="pre">SYNTHETICS</span></code> folder and
@@ -259,15 +284,18 @@ be explained in the course of this tutorial.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="05_download_helpers.html" class="btn btn-neutral float-right" title="6. Download Helpers" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="05_download_helpers.html" class="btn btn-neutral float-right" title="6. Download Helpers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="03_station_data.html" class="btn btn-neutral" title="4. Station Data" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="03_station_data.html" class="btn btn-neutral" title="4. Station Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -301,13 +329,14 @@ be explained in the course of this tutorial.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

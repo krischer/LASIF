@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -44,6 +46,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -84,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation, Testing &amp; DevInfo</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
@@ -121,8 +127,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LASIF</a>
+        
       </nav>
 
 
@@ -131,23 +139,40 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Installation, Testing &amp; DevInfo</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation, Testing &amp; DevInfo</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/prerequisites.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/prerequisites.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -157,7 +182,7 @@
 <h1>Installation, Testing &amp; DevInfo<a class="headerlink" href="#installation-testing-devinfo" title="Permalink to this headline">¶</a></h1>
 <p>This page details installation instructions, how to run the tests, and some
 additional information if you want to develop new features for <strong>LASIF</strong>. If
-you encounter any issues, please don&#8217;t hesitate to contact us or
+you encounter any issues, please don’t hesitate to contact us or
 <a class="reference external" href="https://github.com/krischer/LASIF/issues/new">open an issue on GitHub</a>.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
@@ -191,7 +216,7 @@ environment. This is very useful to separate the installation from the rest of
 your system. Additionally it does not require root privileges and thus can be
 installed almost everywhere.</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span><span class="c1"># Create a new conda environment named &quot;lasif&quot;.</span>
-$ conda create -n lasif <span class="nv">python</span><span class="o">=</span>2.7
+$ conda create -n lasif <span class="nv">python</span><span class="o">=</span><span class="m">2</span>.7
 <span class="c1"># Activate that environment. You will have to do this every time you start LASIF.</span>
 <span class="c1"># If you don&#39;t want to do that: put that line in your .bashrc/.bash_profile</span>
 $ <span class="nb">source</span> activate lasif
@@ -246,7 +271,7 @@ required to assure that it works as expected.</p>
 <p>This will recursively find and execute all tests below the current working
 directory. The output should look akin to the following:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span><span class="o">=====================================</span> <span class="nb">test</span> session <span class="nv">starts</span> <span class="o">=====================================</span>
-platform darwin -- Python 2.7.11, pytest-2.9.1, py-1.4.31, pluggy-0.3.1
+platform darwin -- Python <span class="m">2</span>.7.11, pytest-2.9.1, py-1.4.31, pluggy-0.3.1
 rootdir: /Users/lion/workspace/code/LASIF, inifile: pytest.ini
 collected <span class="m">195</span> items
 
@@ -255,7 +280,7 @@ lasif/utils.py ..
 lasif/window_selection.py .
 ...
 
-<span class="o">=====================</span> <span class="m">189</span> passed, <span class="m">4</span> skipped, <span class="m">2</span> xfailed in 160.14 <span class="nv">seconds</span> <span class="o">======================</span>
+<span class="o">=====================</span> <span class="m">189</span> passed, <span class="m">4</span> skipped, <span class="m">2</span> xfailed in <span class="m">160</span>.14 <span class="nv">seconds</span> <span class="o">======================</span>
 </pre></div>
 </div>
 <p>No errors should occur. <strong>If you see nothing - make sure your MPI installation
@@ -267,7 +292,7 @@ quite a bit by using <code class="docutils literal"><span class="pre">pytest-xdi
 </div>
 <p>It enables to distribute the tests across cores. To run on, for example, eight
 cores, use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ py.test -n 8
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ py.test -n <span class="m">8</span>
 </pre></div>
 </div>
 </div>
@@ -333,15 +358,18 @@ the separate components should be called:</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="Welcome to LASIF" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="Welcome to LASIF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -375,13 +403,14 @@ the separate components should be called:</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

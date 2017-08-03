@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -117,8 +123,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LASIF</a>
+        
       </nav>
 
 
@@ -127,25 +135,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
           <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
-      
-    <li>lasif.rotations</li>
+        
+      <li>lasif.rotations</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/rotations.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/rotations.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -207,7 +232,7 @@ quite an error source.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>colat</strong> &#8211; The colatitude.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>colat</strong> – The colatitude.</td>
 </tr>
 </tbody>
 </table>
@@ -224,13 +249,13 @@ and return a list of points outlining the region. Useful for plotting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>min_lat</strong> &#8211; The minimum latitude.</li>
-<li><strong>max_lat</strong> &#8211; The maximum latitude.</li>
-<li><strong>min_lng</strong> &#8211; The minimum longitude.</li>
-<li><strong>max_lng</strong> &#8211; The maximum longitude.</li>
-<li><strong>number_of_points_per_side</strong> &#8211; The number of points per side desired.</li>
-<li><strong>rotation_axis</strong> &#8211; The rotation axis. Optional.</li>
-<li><strong>rotation_angle_in_degree</strong> &#8211; The rotation angle in degrees. Optional.</li>
+<li><strong>min_lat</strong> – The minimum latitude.</li>
+<li><strong>max_lat</strong> – The maximum latitude.</li>
+<li><strong>min_lng</strong> – The minimum longitude.</li>
+<li><strong>max_lng</strong> – The maximum longitude.</li>
+<li><strong>number_of_points_per_side</strong> – The number of points per side desired.</li>
+<li><strong>rotation_axis</strong> – The rotation axis. Optional.</li>
+<li><strong>rotation_angle_in_degree</strong> – The rotation angle in degrees. Optional.</li>
 </ul>
 </td>
 </tr>
@@ -247,8 +272,8 @@ and return a list of points outlining the region. Useful for plotting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>a</strong> &#8211; Angle A in degrees.</li>
-<li><strong>b</strong> &#8211; Angle B in degrees.</li>
+<li><strong>a</strong> – Angle A in degrees.</li>
+<li><strong>b</strong> – Angle B in degrees.</li>
 </ul>
 </td>
 </tr>
@@ -294,12 +319,12 @@ and return a list of points outlining the region. Useful for plotting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>min_lat</strong> &#8211; The minimum latitude.</li>
-<li><strong>max_lat</strong> &#8211; The maximum latitude.</li>
-<li><strong>min_lng</strong> &#8211; The minimum longitude.</li>
-<li><strong>max_lng</strong> &#8211; The maximum longitude.</li>
-<li><strong>rotation_axis</strong> &#8211; The rotation axis in degree.</li>
-<li><strong>rotation_angle_in_degree</strong> &#8211; The rotation angle in degree.</li>
+<li><strong>min_lat</strong> – The minimum latitude.</li>
+<li><strong>max_lat</strong> – The maximum latitude.</li>
+<li><strong>min_lng</strong> – The minimum longitude.</li>
+<li><strong>max_lng</strong> – The maximum longitude.</li>
+<li><strong>rotation_axis</strong> – The rotation axis in degree.</li>
+<li><strong>rotation_angle_in_degree</strong> – The rotation angle in degree.</li>
 </ul>
 </td>
 </tr>
@@ -318,8 +343,8 @@ are for earth.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lat</strong> &#8211; Latitude in degree</li>
-<li><strong>lon</strong> &#8211; Longitude in degree</li>
+<li><strong>lat</strong> – Latitude in degree</li>
+<li><strong>lon</strong> – Longitude in degree</li>
 </ul>
 </td>
 </tr>
@@ -348,7 +373,7 @@ quite an error source.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lat</strong> &#8211; The latitude.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lat</strong> – The latitude.</td>
 </tr>
 </tbody>
 </table>
@@ -363,9 +388,9 @@ quite an error source.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lat</strong> &#8211; The latitude.</li>
-<li><strong>lon</strong> &#8211; The longitude.</li>
-<li><strong>r</strong> &#8211; The radius.</li>
+<li><strong>lat</strong> – The latitude.</li>
+<li><strong>lon</strong> – The longitude.</li>
+<li><strong>r</strong> – The radius.</li>
 </ul>
 </td>
 </tr>
@@ -383,14 +408,14 @@ degrees around a given rotation axis.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>north_data</strong> &#8211; The north component of the data.</li>
-<li><strong>east_data</strong> &#8211; The east component of the data.</li>
-<li><strong>vertical_data</strong> &#8211; The vertical component of the data. Vertical is
+<li><strong>north_data</strong> – The north component of the data.</li>
+<li><strong>east_data</strong> – The east component of the data.</li>
+<li><strong>vertical_data</strong> – The vertical component of the data. Vertical is
 defined to be up, e.g. radially outwards.</li>
-<li><strong>lat</strong> &#8211; Latitude of the recording point.</li>
-<li><strong>lon</strong> &#8211; Longitude of the recording point.</li>
-<li><strong>rotation_axis</strong> &#8211; Rotation axis given as [x, y, z].</li>
-<li><strong>angle</strong> &#8211; Rotation angle in degree.</li>
+<li><strong>lat</strong> – Latitude of the recording point.</li>
+<li><strong>lon</strong> – Longitude of the recording point.</li>
+<li><strong>rotation_axis</strong> – Rotation axis given as [x, y, z].</li>
+<li><strong>angle</strong> – Rotation angle in degree.</li>
 </ul>
 </td>
 </tr>
@@ -409,10 +434,10 @@ by angle.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>lat</strong> &#8211; Latitude of original point</li>
-<li><strong>lon</strong> &#8211; Longitude of original point</li>
-<li><strong>rotation_axis</strong> &#8211; Rotation axis specified as [x, y, z].</li>
-<li><strong>angle</strong> &#8211; Rotation angle in degree.</li>
+<li><strong>lat</strong> – Latitude of original point</li>
+<li><strong>lon</strong> – Longitude of original point</li>
+<li><strong>rotation_axis</strong> – Rotation axis specified as [x, y, z].</li>
+<li><strong>angle</strong> – Rotation angle in degree.</li>
 </ul>
 </td>
 </tr>
@@ -432,16 +457,16 @@ coordinates.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>Mrr</strong> &#8211; A moment tensor component.</li>
-<li><strong>Mtt</strong> &#8211; A moment tensor component.</li>
-<li><strong>Mpp</strong> &#8211; A moment tensor component.</li>
-<li><strong>Mrt</strong> &#8211; A moment tensor component.</li>
-<li><strong>Mrp</strong> &#8211; A moment tensor component.</li>
-<li><strong>Mtp</strong> &#8211; A moment tensor component.</li>
-<li><strong>lat</strong> &#8211; Latitude of the recording point.</li>
-<li><strong>lon</strong> &#8211; Longitude of the recording point.</li>
-<li><strong>rotation_axis</strong> &#8211; Rotation axis given as [x, y, z].</li>
-<li><strong>angle</strong> &#8211; Rotation angle in degree.</li>
+<li><strong>Mrr</strong> – A moment tensor component.</li>
+<li><strong>Mtt</strong> – A moment tensor component.</li>
+<li><strong>Mpp</strong> – A moment tensor component.</li>
+<li><strong>Mrt</strong> – A moment tensor component.</li>
+<li><strong>Mrp</strong> – A moment tensor component.</li>
+<li><strong>Mtp</strong> – A moment tensor component.</li>
+<li><strong>lat</strong> – Latitude of the recording point.</li>
+<li><strong>lon</strong> – Longitude of the recording point.</li>
+<li><strong>rotation_axis</strong> – Rotation axis given as [x, y, z].</li>
+<li><strong>angle</strong> – Rotation angle in degree.</li>
 </ul>
 </td>
 </tr>
@@ -458,9 +483,9 @@ coordinates.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>vector</strong> &#8211; The vector to be rotated given as [x, y, z].</li>
-<li><strong>rotation_axis</strong> &#8211; The axis to be rotating around given as [x, y, z].</li>
-<li><strong>angle</strong> &#8211; The rotation angle in degree.</li>
+<li><strong>vector</strong> – The vector to be rotated given as [x, y, z].</li>
+<li><strong>rotation_axis</strong> – The axis to be rotating around given as [x, y, z].</li>
+<li><strong>angle</strong> – The rotation angle in degree.</li>
 </ul>
 </td>
 </tr>
@@ -494,15 +519,18 @@ coordinates.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="window_selection.html" class="btn btn-neutral float-right" title="lasif.window_selection" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="window_selection.html" class="btn btn-neutral float-right" title="lasif.window_selection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="iteration_xml.html" class="btn btn-neutral" title="lasif.iteration_xml" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="iteration_xml.html" class="btn btn-neutral" title="lasif.iteration_xml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -536,13 +564,14 @@ coordinates.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

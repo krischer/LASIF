@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
@@ -131,8 +137,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -141,25 +149,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
-      
-    <li>14. Misfit and Adjoint Source Calculation</li>
+        
+      <li>14. Misfit and Adjoint Source Calculation</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/tutorial/13_misfits_and_adjoint_sources.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/tutorial/13_misfits_and_adjoint_sources.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -188,7 +213,7 @@ by careful windowing.</p>
 distribute weights. These weights all contribute to the final adjoint source.
 The inversion scheme requires one adjoint source per iteration, event, station,
 and component.</p>
-<p>In each iteration&#8217;s XML file you can specify the weight for each event, denoted
+<p>In each iteration’s XML file you can specify the weight for each event, denoted
 as <span class="math">\(w_{event}\)</span> and within each event, the weight per station
 <span class="math">\(w_{station}\)</span>. Both weights are allowed to range between
 0.0 and 1.0. A weight of 0.0 corresponds to no weight at all, e.g. skip the
@@ -309,13 +334,13 @@ the gradient from that particular event. If it has any other name it can still
 be plotted but you have to take care of the meaning.</p>
 <p>The <code class="docutils literal"><span class="pre">plot_kernel</span></code> command can be used to plot the gradients/kernels and
 usage is similar to the <code class="docutils literal"><span class="pre">plot_events</span></code> command. However, components are now
-called <code class="docutils literal"><span class="pre">grad_{{COMPONENT}}</span></code> &#8211; the same component names as the files
+called <code class="docutils literal"><span class="pre">grad_{{COMPONENT}}</span></code> – the same component names as the files
 you copied into the kernels folder. So to plot the gradient for SV velocity
 at 50 km depth for the first event, type</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_kernel KERNELS/ITERATION_1/GCMT_event_NORTHERN_ITALY_Mag_4.9_2000-8-21-17/ <span class="m">50</span> grad_csv Kernel.050km.vsv.png
 </pre></div>
 </div>
-<p>Note that the kernel for vsv is called grad_<strong>c</strong>sv &#8211; likewise for the
+<p>Note that the kernel for vsv is called grad_<strong>c</strong>sv – likewise for the
 other velocities.</p>
 <p>Alternatively, you can again use the model gui in order to explore the
 kernels. This works exactly the same as before, just select your favourite
@@ -327,15 +352,18 @@ like this for the <strong>raw, unsmoothed</strong> vsv kernel:</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="14_model_update.html" class="btn btn-neutral float-right" title="15. Model Update" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="14_model_update.html" class="btn btn-neutral float-right" title="15. Model Update" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="12_synthetic_waveforms.html" class="btn btn-neutral" title="13. Synthetics" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="12_synthetic_waveforms.html" class="btn btn-neutral" title="13. Synthetics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -369,13 +397,14 @@ like this for the <strong>raw, unsmoothed</strong> vsv kernel:</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

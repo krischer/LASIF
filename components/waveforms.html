@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
@@ -125,8 +131,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -135,27 +143,44 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
-      
+        
           <li><a href="components.html">API Components</a> &raquo;</li>
-      
-    <li>WaveformsComponent</li>
+        
+      <li>WaveformsComponent</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/components/waveforms.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/components/waveforms.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -172,10 +197,10 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>data_folder</strong> &#8211; The data folder in a LASIF project.</li>
-<li><strong>synthetics_folder</strong> &#8211; The synthetics folder in a LASIF project.</li>
-<li><strong>communicator</strong> &#8211; The communicator instance.</li>
-<li><strong>component_name</strong> &#8211; The name of this component for the communicator.</li>
+<li><strong>data_folder</strong> – The data folder in a LASIF project.</li>
+<li><strong>synthetics_folder</strong> – The synthetics folder in a LASIF project.</li>
+<li><strong>communicator</strong> – The communicator instance.</li>
+<li><strong>component_name</strong> – The name of this component for the communicator.</li>
 </ul>
 </td>
 </tr>
@@ -189,7 +214,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> &#8211; The event name.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> – The event name.</td>
 </tr>
 </tbody>
 </table>
@@ -203,7 +228,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> &#8211; The event name.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> – The event name.</td>
 </tr>
 </tbody>
 </table>
@@ -217,7 +242,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>absolute_filename</strong> &#8211; The absolute path of the file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>absolute_filename</strong> – The absolute path of the file.</td>
 </tr>
 </tbody>
 </table>
@@ -232,8 +257,8 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>tag</strong> &#8211; The processing tag.</li>
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>tag</strong> – The processing tag.</li>
 </ul>
 </td>
 </tr>
@@ -251,9 +276,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>tag</strong> &#8211; The processing tag.</li>
-<li><strong>station_id</strong> &#8211; The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>tag</strong> – The processing tag.</li>
+<li><strong>station_id</strong> – The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -270,7 +295,7 @@ waveforms and the given event_name.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> &#8211; The name of the event.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> – The name of the event.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries, each describing channel level data
 at a particular point in time.</td>
@@ -331,8 +356,8 @@ waveforms and the given event_name at a certain station.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>station_id</strong> &#8211; The station id.</li>
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>station_id</strong> – The station id.</li>
 </ul>
 </td>
 </tr>
@@ -353,9 +378,9 @@ at a particular point in time.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>long_iteration_name</strong> &#8211; The long form of the iteration name.</li>
-<li><strong>station_id</strong> &#8211; The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>long_iteration_name</strong> – The long form of the iteration name.</li>
+<li><strong>station_id</strong> – The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -373,9 +398,9 @@ at a particular point in time.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>long_iteration_name</strong> &#8211; The long form of the iteration name.</li>
-<li><strong>station_id</strong> &#8211; The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>long_iteration_name</strong> – The long form of the iteration name.</li>
+<li><strong>station_id</strong> – The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -391,11 +416,11 @@ at a particular point in time.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>data_type</strong> &#8211; The data type.</li>
-<li><strong>tag_or_iteration</strong> &#8211; If processed data, the tag, if synthetic
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>data_type</strong> – The data type.</li>
+<li><strong>tag_or_iteration</strong> – If processed data, the tag, if synthetic
 data, the iteration.</li>
-<li><strong>dont_update</strong> &#8211; If True, an existing cache will not be updated
+<li><strong>dont_update</strong> – If True, an existing cache will not be updated
 but returned as is. If it does not exist, it will be updated
 regardless.</li>
 </ul>
@@ -414,10 +439,10 @@ regardless.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; Name of the event.</li>
-<li><strong>data_type</strong> &#8211; The type of data, one of <code class="docutils literal"><span class="pre">&quot;raw&quot;</span></code>,
+<li><strong>event_name</strong> – Name of the event.</li>
+<li><strong>data_type</strong> – The type of data, one of <code class="docutils literal"><span class="pre">&quot;raw&quot;</span></code>,
 <code class="docutils literal"><span class="pre">&quot;processed&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;synthetic&quot;</span></code></li>
-<li><strong>tag_or_iteration</strong> &#8211; The processing tag or iteration name if any.</li>
+<li><strong>tag_or_iteration</strong> – The processing tag or iteration name if any.</li>
 </ul>
 </td>
 </tr>
@@ -429,15 +454,15 @@ regardless.</li>
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_processed">
 <code class="descname">get_waveforms_processed</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em>, <em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_processed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_processed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the processed waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>station_id</strong> &#8211; The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
-<li><strong>tag</strong> &#8211; The processing tag.</li>
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>station_id</strong> – The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
+<li><strong>tag</strong> – The processing tag.</li>
 </ul>
 </td>
 </tr>
@@ -449,14 +474,14 @@ regardless.</li>
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_raw">
 <code class="descname">get_waveforms_raw</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_raw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_raw" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the raw waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>station_id</strong> &#8211; The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>station_id</strong> – The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -468,15 +493,15 @@ regardless.</li>
 <dt id="lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic">
 <code class="descname">get_waveforms_synthetic</code><span class="sig-paren">(</span><em>event_name</em>, <em>station_id</em>, <em>long_iteration_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/lasif/components/waveforms.html#WaveformsComponent.get_waveforms_synthetic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lasif.components.waveforms.WaveformsComponent.get_waveforms_synthetic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the synthetic waveforms for the given event and station as a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>event_name</strong> &#8211; The name of the event.</li>
-<li><strong>station_id</strong> &#8211; The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
-<li><strong>long_iteration_name</strong> &#8211; The long form of an iteration name.</li>
+<li><strong>event_name</strong> – The name of the event.</li>
+<li><strong>station_id</strong> – The id of the station in the form <code class="docutils literal"><span class="pre">NET.STA</span></code>.</li>
+<li><strong>long_iteration_name</strong> – The long form of an iteration name.</li>
 </ul>
 </td>
 </tr>
@@ -499,15 +524,18 @@ caches need to be reset at times.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="query.html" class="btn btn-neutral float-right" title="QueryComponent" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="query.html" class="btn btn-neutral float-right" title="QueryComponent" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="stations.html" class="btn btn-neutral" title="StationsComponent" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="stations.html" class="btn btn-neutral" title="StationsComponent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -541,13 +569,14 @@ caches need to be reset at times.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
@@ -129,8 +135,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -139,25 +147,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
-      
-    <li>9. Defining a New Iteration</li>
+        
+      <li>9. Defining a New Iteration</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/tutorial/08_a_new_iteration.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/tutorial/08_a_new_iteration.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -170,16 +195,16 @@
 of which is described by a single XML file. Within each file, the events and
 stations for this iterations, the solver settings, and other information is
 specified. Each iteration can have an arbitrary name. It is probably a good
-idea to give simple numeric names, like 1, 2, 3, ...</p>
-<p>Let&#8217;s start by creating the XML file for the first iteration with the
+idea to give simple numeric names, like 1, 2, 3, …</p>
+<p>Let’s start by creating the XML file for the first iteration with the
 <code class="docutils literal"><span class="pre">create_new_iteration</span></code> command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif create_new_iteration <span class="m">1</span> 40.0 100.0 SES3D_4_1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif create_new_iteration <span class="m">1</span> <span class="m">40</span>.0 <span class="m">100</span>.0 SES3D_4_1
 
 Starting to find optimal relaxation parameters.
-weights:              <span class="o">[</span>1.4171098866795313, 0.7083736187912052, 1.2711221163303799<span class="o">]</span>
-relaxation times:     <span class="o">[</span>2.1698930654135467, 8.8998280969528185, 30.931200043682129<span class="o">]</span>
-partial derivatives:  <span class="o">[</span>-2.03196917  0.04160294  2.85511248<span class="o">]</span>
-cumulative rms error: 0.0125298336474
+weights:              <span class="o">[</span><span class="m">1</span>.4171098866795313, <span class="m">0</span>.7083736187912052, <span class="m">1</span>.2711221163303799<span class="o">]</span>
+relaxation times:     <span class="o">[</span><span class="m">2</span>.1698930654135467, <span class="m">8</span>.8998280969528185, <span class="m">30</span>.931200043682129<span class="o">]</span>
+partial derivatives:  <span class="o">[</span>-2.03196917  <span class="m">0</span>.04160294  <span class="m">2</span>.85511248<span class="o">]</span>
+cumulative rms error: <span class="m">0</span>.0125298336474
 </pre></div>
 </div>
 <p>This command takes four arguments; the first being the iteration name. A simple
@@ -195,20 +220,20 @@ Each iteration will have its own file. To get a list of iterations, use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif list_iterations
 
 <span class="m">1</span> Iteration in project:
-    1
+    <span class="m">1</span>
 </pre></div>
 </div>
 <p>To get more information about a specific iteration,  use the <code class="docutils literal"><span class="pre">iteration_info</span></code>
 command.</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif iteration_info 1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif iteration_info <span class="m">1</span>
 
 LASIF Iteration
-    Name: 1
+    Name: <span class="m">1</span>
     Description: None
     Preprocessing Settings:
-        Highpass Period: 100.000 s
-        Lowpass Period: 40.000 s
-    Solver: SES3D 4.1 <span class="p">|</span> <span class="m">500</span> timesteps <span class="o">(</span>dt: 0.75s<span class="o">)</span>
+        Highpass Period: <span class="m">100</span>.000 s
+        Lowpass Period: <span class="m">40</span>.000 s
+    Solver: SES3D <span class="m">4</span>.1 <span class="p">|</span> <span class="m">500</span> timesteps <span class="o">(</span>dt: <span class="m">0</span>.75s<span class="o">)</span>
     <span class="m">2</span> events recorded at <span class="m">51</span> unique stations
     <span class="m">102</span> event-station pairs <span class="o">(</span><span class="s2">&quot;rays&quot;</span><span class="o">)</span>
 </pre></div>
@@ -259,7 +284,7 @@ differ per iteration.</li>
 <li>Each event contains a list of stations where data is available. Furthermore
 each station can have a different weight and time correction.</li>
 </ul>
-<p>Let&#8217;s have a quick look at the generated file. The <code class="docutils literal"><span class="pre">create_new_iteration</span></code>
+<p>Let’s have a quick look at the generated file. The <code class="docutils literal"><span class="pre">create_new_iteration</span></code>
 command will create a new iteration file with all the information currently
 present in the <strong>LASIF</strong> project.</p>
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&#39;1.0&#39; encoding=&#39;UTF-8&#39;?&gt;</span>
@@ -355,7 +380,7 @@ and the time increment you specify in the solver settings. Furthermore, all
 source time functions will be filtered with the same bandpass as the data.</p>
 <p>To have a quick look at the source time function for any given iteration, use
 the <code class="docutils literal"><span class="pre">plot_stf</span></code> command with the iteration name:</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_stf 1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_stf <span class="m">1</span>
 </pre></div>
 </div>
 <p>This command will read the corresponding iteration file and open a plot with a
@@ -374,7 +399,7 @@ optimization algorithm to find relaxation times and associated weights that
 will be nearly constant over the chosen frequency domain.</p>
 <p>At any point you can see the absorption-band model for a given iteration at a
 couple of exemplary Q values with</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_Q_model 1
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif plot_Q_model <span class="m">1</span>
 </pre></div>
 </div>
 <p>The single argument is the name of the iteration.</p>
@@ -387,13 +412,13 @@ the iteration XML file.</p>
 <p>It is also possible to directly generate the relaxation times and weights for
 any frequency band. To generate a Q model that is approximately constant in
 a period band from 10 seconds to 100 seconds use</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif calculate_constant_Q_model <span class="m">40</span> 100
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif calculate_constant_Q_model <span class="m">40</span> <span class="m">100</span>
 
 Starting to find optimal relaxation parameters.
-weights:              <span class="o">[</span>1.4474, 0.7336, 1.2757<span class="o">]</span>
-relaxation times:     <span class="o">[</span>2.0279, 8.7190, 31.0539<span class="o">]</span>
-partial derivatives:  <span class="o">[</span>-2.0727 -0.0131  2.8965<span class="o">]</span>
-cumulative rms error: 0.01255
+weights:              <span class="o">[</span><span class="m">1</span>.4474, <span class="m">0</span>.7336, <span class="m">1</span>.2757<span class="o">]</span>
+relaxation times:     <span class="o">[</span><span class="m">2</span>.0279, <span class="m">8</span>.7190, <span class="m">31</span>.0539<span class="o">]</span>
+partial derivatives:  <span class="o">[</span>-2.0727 -0.0131  <span class="m">2</span>.8965<span class="o">]</span>
+cumulative rms error: <span class="m">0</span>.01255
 </pre></div>
 </div>
 </div>
@@ -401,15 +426,18 @@ cumulative rms error: 0.01255
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="09_data_preprocessing.html" class="btn btn-neutral float-right" title="10. Data Preprocessing" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="09_data_preprocessing.html" class="btn btn-neutral float-right" title="10. Data Preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="07_data_validation.html" class="btn btn-neutral" title="8. Data Validation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="07_data_validation.html" class="btn btn-neutral" title="8. Data Validation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -443,13 +471,14 @@ cumulative rms error: 0.01255
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

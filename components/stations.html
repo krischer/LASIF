@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
@@ -125,8 +131,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -135,27 +143,44 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
-      
+        
           <li><a href="components.html">API Components</a> &raquo;</li>
-      
-    <li>StationsComponent</li>
+        
+      <li>StationsComponent</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/components/stations.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/components/stations.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -182,13 +207,13 @@ e.g. network, station , location, and channel codes.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stationxml_folder</strong> &#8211; The StationXML folder.</li>
-<li><strong>seed_folder</strong> &#8211; The dataless SEED folder.</li>
-<li><strong>resp_folder</strong> &#8211; The RESP files folder.</li>
-<li><strong>cache_folder</strong> &#8211; The folder where the cache file should be
+<li><strong>stationxml_folder</strong> – The StationXML folder.</li>
+<li><strong>seed_folder</strong> – The dataless SEED folder.</li>
+<li><strong>resp_folder</strong> – The RESP files folder.</li>
+<li><strong>cache_folder</strong> – The folder where the cache file should be
 stored. The file will be named <code class="docutils literal"><span class="pre">station_cache.sqlite</span></code>.</li>
-<li><strong>communicator</strong> &#8211; The communicator instance.</li>
-<li><strong>component_name</strong> &#8211; The name of this component for the
+<li><strong>communicator</strong> – The communicator instance.</li>
+<li><strong>component_name</strong> – The name of this component for the
 communicator.</li>
 </ul>
 </td>
@@ -252,7 +277,7 @@ a certain point in time.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a>) &#8211; The time or timestamp at which to return available
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>time</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a>) – The time or timestamp at which to return available
 channels.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">All available coordinates. The keys are the channel ids
@@ -288,8 +313,8 @@ given channel and time combination.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The id of the channel.</li>
-<li><strong>time</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a>) &#8211; The time at which to retrieve the information.</li>
+<li><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The id of the channel.</li>
+<li><strong>time</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a>) – The time at which to retrieve the information.</li>
 </ul>
 </td>
 </tr>
@@ -299,7 +324,7 @@ given channel and time combination.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>It works with <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a> objects</p>
+<p>It works with <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a> objects</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">get_channel_filename</span><span class="p">(</span>  
 <span class="gp">... </span>    <span class="s2">&quot;IU.ANMO.10.BHZ&quot;</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
 <span class="go">u&#39;/.../IRIS_single_channel_with_response.xml&#39;</span>
@@ -322,7 +347,7 @@ channel stored in it. Returns a list of dictionaries.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the station file.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The name of the station file.</td>
 </tr>
 </tbody>
 </table>
@@ -348,7 +373,7 @@ downloaders or other modules saving data to LASIF.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_format</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; &#8216;datalessSEED&#8217;, &#8216;StationXML&#8217;, or &#8216;RESP&#8217;</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_format</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – ‘datalessSEED’, ‘StationXML’, or ‘RESP’</td>
 </tr>
 </tbody>
 </table>
@@ -380,8 +405,8 @@ available.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The id of the channel.</li>
-<li><strong>time</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a>) &#8211; The time at which to retrieve the information.</li>
+<li><strong>channel_id</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The id of the channel.</li>
+<li><strong>time</strong> (<code class="docutils literal"><span class="pre">int</span></code> or <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a>) – The time at which to retrieve the information.</li>
 </ul>
 </td>
 </tr>
@@ -391,7 +416,7 @@ available.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span> <span class="o">=</span> <span class="n">getfixture</span><span class="p">(</span><span class="s1">&#39;stations_comm&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>It works with <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a> objects</p>
+<p>It works with <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.utcdatetime.UTCDateTime.html#obspy.core.utcdatetime.UTCDateTime" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">UTCDateTime</span></code></a> objects</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">comm</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">has_channel</span><span class="p">(</span><span class="s1">&#39;IU.ANMO.10.BHZ&#39;</span><span class="p">,</span>
 <span class="gp">... </span>                          <span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2012</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">))</span>
 <span class="go">True</span>
@@ -418,15 +443,18 @@ available.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="waveforms.html" class="btn btn-neutral float-right" title="WaveformsComponent" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="waveforms.html" class="btn btn-neutral float-right" title="WaveformsComponent" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="iterations.html" class="btn btn-neutral" title="IterationsComponent" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="iterations.html" class="btn btn-neutral" title="IterationsComponent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -460,13 +488,14 @@ available.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

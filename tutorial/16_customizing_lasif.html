@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
@@ -131,8 +137,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -141,25 +149,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
-      
-    <li>17. Customizing LASIF</li>
+        
+      <li>17. Customizing LASIF</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/tutorial/16_customizing_lasif.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/tutorial/16_customizing_lasif.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -168,7 +193,7 @@
   <p class="centered">
 <strong>Last updated on <em>August 12th 2016</em>.</strong></p><div class="section" id="customizing-lasif">
 <h1>17. Customizing LASIF<a class="headerlink" href="#customizing-lasif" title="Permalink to this headline">¶</a></h1>
-<p>Sometimes the built-in configuration possibilities of LASIF just don&#8217;t cut
+<p>Sometimes the built-in configuration possibilities of LASIF just don’t cut
 it and you need to change things in a more profound way. To this end LASIF
 offers per-project functions that will be called by LASIF on different
 occasions.</p>
@@ -257,9 +282,9 @@ work as expected.</p>
     <span class="s1">&#39;magnitude&#39;</span><span class="p">:</span> <span class="mf">6.5</span><span class="p">,</span>
     <span class="s1">&#39;magnitude_type&#39;</span><span class="p">:</span> <span class="s1">&#39;Mwc&#39;</span><span class="p">,</span>
     <span class="s1">&#39;origin_time&#39;</span><span class="p">:</span> <span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2011</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">200000</span><span class="p">),</span>
-    <span class="s1">&#39;region&#39;</span><span class="p">:</span> <span class="s1">u&#39;VANCOUVER ISLAND, CANADA REGION&#39;</span><span class="p">},</span>
- <span class="s1">&#39;input_filename&#39;</span><span class="p">:</span> <span class="s1">u&#39;/.../raw/7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
- <span class="s1">&#39;output_filename&#39;</span><span class="p">:</span> <span class="s1">u&#39;/.../processed_.../7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;region&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;VANCOUVER ISLAND, CANADA REGION&#39;</span><span class="p">},</span>
+ <span class="s1">&#39;input_filename&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;/.../raw/7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;output_filename&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;/.../processed_.../7D.FN01A..HHZ.mseed&#39;</span><span class="p">,</span>
  <span class="s1">&#39;process_params&#39;</span><span class="p">:</span> <span class="p">{</span>
     <span class="s1">&#39;dt&#39;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>
     <span class="s1">&#39;highpass&#39;</span><span class="p">:</span> <span class="mf">0.007142857142857143</span><span class="p">,</span>
@@ -271,7 +296,7 @@ work as expected.</p>
     <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">46.882</span><span class="p">,</span>
     <span class="s1">&#39;local_depth_in_m&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
     <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">124.3337</span><span class="p">},</span>
- <span class="s1">&#39;station_filename&#39;</span><span class="p">:</span> <span class="s1">u&#39;/.../STATIONS/RESP/RESP.7D.FN01A..HH*&#39;</span><span class="p">}</span>
+ <span class="s1">&#39;station_filename&#39;</span><span class="p">:</span> <span class="sa">u</span><span class="s1">&#39;/.../STATIONS/RESP/RESP.7D.FN01A..HH*&#39;</span><span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -281,7 +306,7 @@ work as expected.</p>
 component flips to get them to ZNE) to the synthetics but just
 uses them as is. If your workflow requires the synthetics to be processed,
 please do it in this function. It will be applied on the fly to each
-up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object of synthetic
+up-to-three component <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object of synthetic
 data.</p>
 <p>The default implementation is this:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process_synthetics</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
@@ -290,10 +315,10 @@ data.</p>
 </div>
 <p>This is very useful for processing the synthetics in any fashion or to shift
 them time and similar endeavours. Make sure it returns a
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.2) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
+<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" title="(in ObsPy Documentation (1.0.3) v1.0)"><code class="xref py py-class docutils literal"><span class="pre">Stream</span></code></a> object.</p>
 <p><code class="docutils literal"><span class="pre">iteration</span></code> and <code class="docutils literal"><span class="pre">event</span></code> are the <a class="reference internal" href="../iteration_xml.html#lasif.iteration_xml.Iteration" title="lasif.iteration_xml.Iteration"><code class="xref py py-class docutils literal"><span class="pre">Iteration</span></code></a>
 object of the current iteration and a dictionary containing information about
-the data&#8217;s event, respectively.</p>
+the data’s event, respectively.</p>
 </div>
 <div class="section" id="customize-window-picking">
 <h2>17.4. Customize Window Picking<a class="headerlink" href="#customize-window-picking" title="Permalink to this headline">¶</a></h2>
@@ -316,7 +341,7 @@ completely different window picking algorithm. Its function signature is:</p>
 <div class="section" id="customize-the-source-time-function">
 <h2>17.5. Customize the Source Time Function<a class="headerlink" href="#customize-the-source-time-function" title="Permalink to this headline">¶</a></h2>
 <p>This function is used to generate source time functions for SES3D. If you
-don&#8217;t use SES3D for the numerical wavefield simulations you can ignore this.
+don’t use SES3D for the numerical wavefield simulations you can ignore this.
 Its function signature is:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">source_time_function</span><span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">freqmin</span><span class="p">,</span> <span class="n">freqmax</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
     <span class="o">...</span>
@@ -329,15 +354,18 @@ Its function signature is:</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../cli.html" class="btn btn-neutral float-right" title="Command Line Interface" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../cli.html" class="btn btn-neutral float-right" title="Command Line Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="15_next_iterations.html" class="btn btn-neutral" title="16. Next Iterations" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="15_next_iterations.html" class="btn btn-neutral" title="16. Next Iterations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -371,13 +399,14 @@ Its function signature is:</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

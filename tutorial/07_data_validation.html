@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
@@ -124,8 +130,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -134,25 +142,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
-      
-    <li>8. Data Validation</li>
+        
+      <li>8. Data Validation</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/tutorial/07_data_validation.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/tutorial/07_data_validation.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -168,7 +193,7 @@ project. All of these can be called with</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif validate_data
 </pre></div>
 </div>
-<p>Please make sure no errors appear &#8211; otherwise <strong>LASIF</strong> cannot guarantee to work
+<p>Please make sure no errors appear – otherwise <strong>LASIF</strong> cannot guarantee to work
 correctly.  With time, more checks will be added to this function as more
 problems arise.</p>
 <p>This command will output a possibly very large report. All problems
@@ -181,7 +206,7 @@ validation going use</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ lasif validate_data --full
 
 Validating <span class="m">2</span> event files ...
-    Validating against QuakeML 1.2 schema .. <span class="o">[</span>OK<span class="o">]</span>
+    Validating against QuakeML <span class="m">1</span>.2 schema .. <span class="o">[</span>OK<span class="o">]</span>
     Checking <span class="k">for</span> duplicate public IDs .. <span class="o">[</span>OK<span class="o">]</span>
     Performing some basic sanity checks .. <span class="o">[</span>OK<span class="o">]</span>
     Checking <span class="k">for</span> duplicates and events too close in <span class="nb">time</span> ..  <span class="o">[</span>OK<span class="o">]</span>
@@ -202,15 +227,18 @@ appropriate.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="08_a_new_iteration.html" class="btn btn-neutral float-right" title="9. Defining a New Iteration" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="08_a_new_iteration.html" class="btn btn-neutral float-right" title="9. Defining a New Iteration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="06_data_inspection.html" class="btn btn-neutral" title="7. Data Inspection" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="06_data_inspection.html" class="btn btn-neutral" title="7. Data Inspection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -244,13 +272,14 @@ appropriate.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

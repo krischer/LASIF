@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -44,6 +46,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -84,7 +87,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -172,8 +178,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LASIF</a>
+        
       </nav>
 
 
@@ -182,23 +190,40 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
-    <li>Command Line Interface</li>
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Command Line Interface</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/cli.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/cli.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -247,7 +272,7 @@ while optional arguments can be passed if needed.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">All <strong>lasif</strong> commands work and use the correct project as long as they are
-executed somewhere <strong>inside a project&#8217;s folder structure</strong>. It will
+executed somewhere <strong>inside a project’s folder structure</strong>. It will
 recursively search the parent directories until it finds a
 <code class="code docutils literal"><span class="pre">config.xml</span></code> file. This will then be assumed to be the root folder
 of the project.</p>
@@ -257,7 +282,7 @@ of the project.</p>
 <p>LASIF employs a number of caches to keep it working fast enough.
 Information about each waveform, event, and station file for example is
 stored in the caches. The caches are usually automatically kept
-up-to-date: As soon as data is modified, deleted, added, ... the caches
+up-to-date: As soon as data is modified, deleted, added, … the caches
 will know about it.</p>
 <p class="last">Most commands have a <code class="docutils literal"><span class="pre">--read_only_caches</span></code> flag. If that argument is
 given, the caches will not be rebuilt but whatever is in the caches will
@@ -269,7 +294,7 @@ aware of what it means.</p>
 </div>
 <div class="section" id="mpi">
 <h2>MPI<a class="headerlink" href="#mpi" title="Permalink to this headline">¶</a></h2>
-<p>Some commands can be executed with MPI to speed up their execution. Don&#8217;t
+<p>Some commands can be executed with MPI to speed up their execution. Don’t
 use too many cores as the problem quickly becomes I/O bounds. For example to
 run the preprocessing on 16 cores, do</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>$ mpirun -n <span class="m">16</span> lasif preprocess_data <span class="m">1</span> GCMT_event_AZORES_ISLANDS
@@ -621,7 +646,7 @@ scripting bash.</td>
 </div>
 </div></blockquote>
 <p>Autoselect windows for a given event and iteration combination.</p>
-<p>This function works with MPI. Don&#8217;t use too many cores, I/O quickly
+<p>This function works with MPI. Don’t use too many cores, I/O quickly
 becomes the limiting factor. It also works without MPI but then only one
 core actually does any work.</p>
 <table border="1" class="docutils">
@@ -671,9 +696,9 @@ read-only</td>
 <dl class="docutils">
 <dt>TYPE denotes the type of simulation to run. Available types are</dt>
 <dd><ul class="first last simple">
-<li>&#8220;normal_simulation&#8221;</li>
-<li>&#8220;adjoint_forward&#8221;</li>
-<li>&#8220;adjoint_reverse&#8221;</li>
+<li>“normal_simulation”</li>
+<li>“adjoint_forward”</li>
+<li>“adjoint_reverse”</li>
 </ul>
 </dd>
 </dl>
@@ -854,9 +879,9 @@ read-only</td>
 <dl class="docutils">
 <dt>TYPE denotes the type of simulation to run. Available types are</dt>
 <dd><ul class="first last simple">
-<li>&#8220;normal_simulation&#8221;</li>
-<li>&#8220;adjoint_forward&#8221;</li>
-<li>&#8220;adjoint_reverse&#8221;</li>
+<li>“normal_simulation”</li>
+<li>“adjoint_forward”</li>
+<li>“adjoint_reverse”</li>
 </ul>
 </dd>
 </dl>
@@ -996,7 +1021,7 @@ read-only</td>
 </div>
 </div></blockquote>
 <p>Launch data preprocessing.</p>
-<p>This function works with MPI. Don&#8217;t use too many cores, I/O quickly
+<p>This function works with MPI. Don’t use too many cores, I/O quickly
 becomes the limiting factor. It also works without MPI but then only one
 core actually does any work.</p>
 <table border="1" class="docutils">
@@ -1044,7 +1069,7 @@ read-only</td>
 </div>
 </div></blockquote>
 <p>Autoselect all windows for a given iteration.</p>
-<p>This function works with MPI. Don&#8217;t use too many cores, I/O quickly
+<p>This function works with MPI. Don’t use too many cores, I/O quickly
 becomes the limiting factor. It also works without MPI but then only one
 core actually does any work.</p>
 <table border="1" class="docutils">
@@ -1440,8 +1465,8 @@ webbrowser.</td>
 </tr>
 <tr class="row-odd"><td><code class="docutils literal"><span class="pre">--debug</span></code></td>
 <td>Turn on debugging.
-Implies &#8216;&#8211;
-nobrowser&#8217;.</td>
+Implies ‘–
+nobrowser’.</td>
 </tr>
 <tr class="row-even"><td><code class="docutils literal"><span class="pre">--open_to_outside</span></code></td>
 <td>By default the
@@ -1697,7 +1722,7 @@ read-only</td>
 <td>the component to plot</td>
 </tr>
 <tr class="row-odd"><td><code class="docutils literal"><span class="pre">filename</span></code></td>
-<td>Output filename. Use &#8216;-&#8216; to not write to a file
+<td>Output filename. Use ‘-‘ to not write to a file
 but directly show the kernel.</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
@@ -1959,7 +1984,7 @@ this is one of the view commands that will work on data outside of LASIF.</p>
 <td>The component to plot.</td>
 </tr>
 <tr class="row-odd"><td><code class="docutils literal"><span class="pre">filename</span></code></td>
-<td>Output filename. Use &#8216;-&#8216; to not write to a file
+<td>Output filename. Use ‘-‘ to not write to a file
 but directly show the kernel.</td>
 </tr>
 <tr class="row-even"><td colspan="2"><strong>Optional Arguments</strong></td>
@@ -1990,7 +2015,7 @@ read-only</td>
 </pre></div>
 </div>
 </div></blockquote>
-<p>Plot the project&#8217;s domain on a map.</p>
+<p>Plot the project’s domain on a map.</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="56%" />
@@ -2015,7 +2040,7 @@ ipdb.</td>
 read-only</td>
 </tr>
 <tr class="row-odd"><td><code class="docutils literal"><span class="pre">--no_simulation_domain</span></code></td>
-<td>Don&#8217;t plot the
+<td>Don’t plot the
 simulation domain</td>
 </tr>
 </tbody>
@@ -2323,15 +2348,18 @@ not have a cache.</td>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="webinterface.html" class="btn btn-neutral float-right" title="Web Interface" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="webinterface.html" class="btn btn-neutral float-right" title="Web Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorial/16_customizing_lasif.html" class="btn btn-neutral" title="17. Customizing LASIF" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tutorial/16_customizing_lasif.html" class="btn btn-neutral" title="17. Customizing LASIF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -2365,13 +2393,14 @@ not have a cache.</td>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

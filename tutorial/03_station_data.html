@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../tutorial.html">Tutorial</a><ul class="current">
@@ -128,8 +134,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -138,25 +146,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../tutorial.html">Tutorial</a> &raquo;</li>
-      
-    <li>4. Station Data</li>
+        
+      <li>4. Station Data</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/tutorial/03_station_data.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/tutorial/03_station_data.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -201,7 +226,7 @@ and be named after the following scheme:</p>
 <p><code class="docutils literal"><span class="pre">NETWORK</span></code> and <code class="docutils literal"><span class="pre">STATION</span></code> should be replaced with the corresponding network
 and stations codes. It is possible that multiple files are needed for each
 station (e.g. different files for different time intervals/channels) and thus
-<code class="docutils literal"><span class="pre">.1</span></code>, <code class="docutils literal"><span class="pre">.2</span></code>, ... can be appended to the filename. LASIF will automatically
+<code class="docutils literal"><span class="pre">.1</span></code>, <code class="docutils literal"><span class="pre">.2</span></code>, … can be appended to the filename. LASIF will automatically
 choose the correct file in case they need to be accessed.</p>
 <p><strong>StationXML</strong></p>
 <p>All StationXML files are expected to be placed in the <code class="docutils literal"><span class="pre">STATIONS/StationXML</span></code>
@@ -234,15 +259,18 @@ station file as being actually available</strong>.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="04_waveform_data.html" class="btn btn-neutral float-right" title="5. Waveform Data" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="04_waveform_data.html" class="btn btn-neutral float-right" title="5. Waveform Data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="02_seismic_events.html" class="btn btn-neutral" title="3. Seismic Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -276,13 +304,14 @@ station file as being actually available</strong>.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

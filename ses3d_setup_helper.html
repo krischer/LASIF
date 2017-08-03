@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -120,8 +126,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LASIF</a>
+        
       </nav>
 
 
@@ -130,25 +138,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
           <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
-      
-    <li>SES3D Setup Assistant</li>
+        
+      <li>SES3D Setup Assistant</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/ses3d_setup_helper.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/ses3d_setup_helper.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -182,17 +207,17 @@ optional arguments:
 </pre></div>
 </div>
 <p>Exemplary output is</p>
-<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python -m lasif.scripts.ses3d_setup_helper <span class="m">30</span> <span class="m">47</span> <span class="m">1171</span> <span class="m">108</span> <span class="m">168</span> 64
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ python -m lasif.scripts.ses3d_setup_helper <span class="m">30</span> <span class="m">47</span> <span class="m">1171</span> <span class="m">108</span> <span class="m">168</span> <span class="m">64</span>
 SES3D Setup Assistant
 
 All calculations are <span class="k">done</span> quick and dirty so take them with a grain of salt.
 
 Possible recommended domain decompositions:
 
-Total CPU count:  1344<span class="p">;</span> CPUs in X:  <span class="m">12</span> <span class="o">(</span> <span class="m">9</span> elements/core<span class="o">)</span>, CPUs in Y:  <span class="m">14</span> <span class="o">(</span><span class="m">12</span> elements/core<span class="o">)</span>, CPUs in Z:   <span class="m">8</span> <span class="o">(</span> <span class="m">8</span> elements/core<span class="o">)</span>
-  Extent in latitudinal  <span class="o">(</span>X<span class="o">)</span> direction:  3339.6 km,  27.8 km/element,  <span class="m">120</span> elements
-  Extent in longitudinal <span class="o">(</span>Y<span class="o">)</span> direction:  5232.0 km,  28.7 km/element,  <span class="m">182</span> elements
-  Extent in depth        <span class="o">(</span>Z<span class="o">)</span> direction:  1171.0 km,  16.3 km/element,   <span class="m">72</span> elements
+Total CPU count:  <span class="m">1344</span><span class="p">;</span> CPUs in X:  <span class="m">12</span> <span class="o">(</span> <span class="m">9</span> elements/core<span class="o">)</span>, CPUs in Y:  <span class="m">14</span> <span class="o">(</span><span class="m">12</span> elements/core<span class="o">)</span>, CPUs in Z:   <span class="m">8</span> <span class="o">(</span> <span class="m">8</span> elements/core<span class="o">)</span>
+  Extent in latitudinal  <span class="o">(</span>X<span class="o">)</span> direction:  <span class="m">3339</span>.6 km,  <span class="m">27</span>.8 km/element,  <span class="m">120</span> elements
+  Extent in longitudinal <span class="o">(</span>Y<span class="o">)</span> direction:  <span class="m">5232</span>.0 km,  <span class="m">28</span>.7 km/element,  <span class="m">182</span> elements
+  Extent in depth        <span class="o">(</span>Z<span class="o">)</span> direction:  <span class="m">1171</span>.0 km,  <span class="m">16</span>.3 km/element,   <span class="m">72</span> elements
 </pre></div>
 </div>
 <hr class="docutils" />
@@ -218,7 +243,7 @@ Total CPU count:  1344<span class="p">;</span> CPUs in X:  <span class="m">12</s
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number for which to get divisors.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The number for which to get divisors.</td>
 </tr>
 </tbody>
 </table>
@@ -234,10 +259,10 @@ Total CPU count:  1344<span class="p">;</span> CPUs in X:  <span class="m">12</s
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>nx</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Elements in x direction.</li>
-<li><strong>ny</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Elements in y direction.</li>
-<li><strong>nz</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Elements in z direction.</li>
-<li><strong>max_recommendations</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number of recommendations to
+<li><strong>nx</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – Elements in x direction.</li>
+<li><strong>ny</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – Elements in y direction.</li>
+<li><strong>nz</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – Elements in z direction.</li>
+<li><strong>max_recommendations</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The maximum number of recommendations to
 return.</li>
 </ul>
 </td>
@@ -254,7 +279,7 @@ return.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The number for which to get factors and multiplicity.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The number for which to get factors and multiplicity.</td>
 </tr>
 </tbody>
 </table>
@@ -269,7 +294,7 @@ return.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The maximum number for which to generate primes.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – The maximum number for which to generate primes.</td>
 </tr>
 </tbody>
 </table>
@@ -281,15 +306,18 @@ return.</li>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="iteration_xml.html" class="btn btn-neutral float-right" title="lasif.iteration_xml" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="iteration_xml.html" class="btn btn-neutral float-right" title="lasif.iteration_xml" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="iris2quakeml.html" class="btn btn-neutral" title="lasif.scripts.iris2quakeml" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="iris2quakeml.html" class="btn btn-neutral" title="lasif.scripts.iris2quakeml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -323,13 +351,14 @@ return.</li>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
@@ -125,8 +131,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="../index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">LASIF</a>
+        
       </nav>
 
 
@@ -135,27 +143,44 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="../index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
           <li><a href="../api_doc.html">API Documentation</a> &raquo;</li>
-      
+        
           <li><a href="components.html">API Components</a> &raquo;</li>
-      
-    <li>IterationsComponent</li>
+        
+      <li>IterationsComponent</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="../_sources/components/iterations.txt" rel="nofollow"> View page source</a>
+            
+            <a href="../_sources/components/iterations.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -172,9 +197,9 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>iterations_folder</strong> &#8211; The folder with the iteration XML files.</li>
-<li><strong>communicator</strong> &#8211; The communicator instance.</li>
-<li><strong>component_name</strong> &#8211; The name of this component for the communicator.</li>
+<li><strong>iterations_folder</strong> – The folder with the iteration XML files.</li>
+<li><strong>communicator</strong> – The communicator instance.</li>
+<li><strong>component_name</strong> – The name of this component for the communicator.</li>
 </ul>
 </td>
 </tr>
@@ -200,14 +225,14 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>iteration_name</strong> &#8211; The name of the iteration.</li>
-<li><strong>solver_name</strong> &#8211; The name of the solver to be used for the new
+<li><strong>iteration_name</strong> – The name of the iteration.</li>
+<li><strong>solver_name</strong> – The name of the solver to be used for the new
 iteration.</li>
-<li><strong>events_dict</strong> &#8211; A dictionary specifying the used events.</li>
-<li><strong>min_period</strong> &#8211; The minimum period in seconds for the new iteration.</li>
-<li><strong>max_period</strong> &#8211; The maximum period in seconds for the new iteration.</li>
-<li><strong>quiet</strong> &#8211; Do not print anything if set to <cite>True</cite>.</li>
-<li><strong>create_folders</strong> &#8211; Create the folders for this iteration&#8217;s
+<li><strong>events_dict</strong> – A dictionary specifying the used events.</li>
+<li><strong>min_period</strong> – The minimum period in seconds for the new iteration.</li>
+<li><strong>max_period</strong> – The maximum period in seconds for the new iteration.</li>
+<li><strong>quiet</strong> – Do not print anything if set to <cite>True</cite>.</li>
+<li><strong>create_folders</strong> – Create the folders for this iteration’s
 synthetic waveforms</li>
 </ul>
 </td>
@@ -238,10 +263,10 @@ another iteration. Any comments will be deleted.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>existing_iteration_name</strong> &#8211; Name of the iteration to be used as
+<li><strong>existing_iteration_name</strong> – Name of the iteration to be used as
 a template.</li>
-<li><strong>new_iteration_name</strong> &#8211; Name of the new iteration.</li>
-<li><strong>create_folders</strong> &#8211; Create the folders for the next iteration&#8217;s
+<li><strong>new_iteration_name</strong> – Name of the new iteration.</li>
+<li><strong>create_folders</strong> – Create the folders for the next iteration’s
 synthetic waveforms</li>
 </ul>
 </td>
@@ -294,7 +319,7 @@ for testing purposes. In most cases you will want this to be <code class="docuti
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration_name</strong> &#8211; The iteration for which to create the folders.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration_name</strong> – The iteration for which to create the folders.</td>
 </tr>
 </tbody>
 </table>
@@ -308,7 +333,7 @@ for testing purposes. In most cases you will want this to be <code class="docuti
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration_name</strong> &#8211; The name of the iteration to retrieve.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration_name</strong> – The name of the iteration to retrieve.</td>
 </tr>
 </tbody>
 </table>
@@ -332,11 +357,11 @@ iteration is not known.</p>
 <p>It also works with the long iteration name and event an existing
 iteration object. This makes it simple to use, one path for all
 possibilities.
-&gt;&gt;&gt; it = comm.iterations.get(&#8220;ITERATION_1&#8221;)
+&gt;&gt;&gt; it = comm.iterations.get(“ITERATION_1”)
 &gt;&gt;&gt; it  # doctest: +ELLIPSIS
-&lt;lasif.iteration_xml.Iteration object at ...&gt;
+&lt;lasif.iteration_xml.Iteration object at …&gt;
 &gt;&gt;&gt; comm.iterations.get(it)
-&lt;lasif.iteration_xml.Iteration object at ...&gt;</p>
+&lt;lasif.iteration_xml.Iteration object at …&gt;</p>
 </dd></dl>
 
 <dl class="method">
@@ -378,7 +403,7 @@ values the iteration filenames.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the iteration.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration_name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The name of the iteration.</td>
 </tr>
 </tbody>
 </table>
@@ -422,15 +447,18 @@ iteration uses SES3D as its solver.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="stations.html" class="btn btn-neutral float-right" title="StationsComponent" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="stations.html" class="btn btn-neutral float-right" title="StationsComponent" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="inventory_db.html" class="btn btn-neutral" title="InventoryDBComponent" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="inventory_db.html" class="btn btn-neutral" title="InventoryDBComponent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -464,13 +492,14 @@ iteration uses SES3D as its solver.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="../_static/jquery.js"></script>
       <script type="text/javascript" src="../_static/underscore.js"></script>
       <script type="text/javascript" src="../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 

@@ -13,6 +13,8 @@
 
   
   
+  
+  
 
   
 
@@ -45,6 +47,7 @@
 
 <body class="wy-body-for-nav" role="document">
 
+   
   <div class="wy-grid-for-nav">
 
     
@@ -85,7 +88,10 @@
           
             
             
-                <ul class="current">
+              
+            
+            
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Installation, Testing &amp; DevInfo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
@@ -117,8 +123,10 @@
 
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
-        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="index.html">LASIF</a>
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LASIF</a>
+        
       </nav>
 
 
@@ -127,25 +135,42 @@
         <div class="rst-content">
           
 
- 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 <div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-    <li><a href="index.html">Docs</a> &raquo;</li>
-      
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
           <li><a href="api_doc.html">API Documentation</a> &raquo;</li>
-      
-    <li>lasif.tools.parallel</li>
+        
+      <li>lasif.tools.parallel</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
         
-          
-            <a href="_sources/tools.parallel.txt" rel="nofollow"> View page source</a>
+            
+            <a href="_sources/tools.parallel.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -184,14 +209,14 @@ works just fine when running on one core and not started with MPI.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>function</strong> &#8211; The function to be executed for each item.</li>
-<li><strong>items</strong> &#8211; The function will be executed once for each item. It
+<li><strong>function</strong> – The function to be executed for each item.</li>
+<li><strong>items</strong> – The function will be executed once for each item. It
 expects a list of dictionaries so that <code class="docutils literal"><span class="pre">function(**item)</span></code> can work.
 Only rank 0 needs to pass this. It will be ignored coming from other
 ranks.</li>
-<li><strong>get_name</strong> &#8211; Function to extract a name for each item to be able to
+<li><strong>get_name</strong> – Function to extract a name for each item to be able to
 produce better logfiles.</li>
-<li><strong>logfile</strong> &#8211; The logfile to write.</li>
+<li><strong>logfile</strong> – The logfile to write.</li>
 </ul>
 </td>
 </tr>
@@ -246,15 +271,18 @@ successfully.</p>
 
 
            </div>
+           <div class="articleComments">
+            
+           </div>
           </div>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tools.file_info_cache.html" class="btn btn-neutral float-right" title="lasif.tools.file_info_cache" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tools.file_info_cache.html" class="btn btn-neutral float-right" title="lasif.tools.file_info_cache" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tools.html" class="btn btn-neutral" title="lasif.tools" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="tools.html" class="btn btn-neutral" title="lasif.tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -288,13 +316,14 @@ successfully.</p>
             VERSION:'0.1.x',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
         };
     </script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
   
 
