@@ -26,6 +26,7 @@ mpl.use("agg")
 
 import numpy as np
 import mock
+import re
 import os
 import shutil
 
@@ -862,3 +863,71 @@ def test_lasif_serve(cli):
             assert serve_patch.call_args[1]["open_to_outside"] is True
             serve_patch.reset_mock()
             timer_patch.reset_mock()
+
+
+@mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
+def test_compare_misfit(patch, cli):
+    """
+    Tests the adjoint source finalization with an unrotated domain.
+    """
+    comm = cli.comm
+
+    # Speed up this test.
+    patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+                          np.array([0.59496, 3.7119, 22.2171]))
+
+    cli.run("lasif create_new_iteration 1 8 100 SES3D_4_1")
+
+    event_name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+    event = comm.events.get(event_name)
+    t = event["origin_time"]
+
+    # Get iteration.
+    it = comm.iterations.get("1")
+
+    # Fake preprocessed data by copying the synthetics and perturbing them a
+    # bit...
+    stations = ["HL.ARG", "HT.SIGR"]
+    np.random.seed(123456)
+    for station in stations:
+        s = comm.waveforms.get_waveforms_synthetic(event_name, station,
+                                                   it.long_name)
+        # Perturb data a bit.
+        for tr in s:
+            tr.data += np.random.random(len(tr.data)) * 2E-8
+        path = comm.waveforms.get_waveform_folder(event_name, "processed",
+                                                  it.processing_tag)
+        if not os.path.exists(path):
+            os.makedirs(path)
+        for tr in s:
+            tr.write(os.path.join(path, tr.id), format="mseed")
+
+    window_group_manager = comm.windows.get(event, it)
+
+    # Automatic window selection does not work for the terrible test data...
+    # Now add only windows that actually have data and synthetics but the
+    # data will be too bad to actually extract an adjoint source from.
+    for chan in ["HL.ARG..BHE", "HL.ARG..BHN", "HL.ARG..BHZ"]:
+        window_group = window_group_manager.get(chan)
+        window_group.add_window(starttime=t + 100, endtime=t + 200)
+        window_group.add_window(starttime=t + 200, endtime=t + 300)
+        window_group.write()
+
+    #######
+    # Now the actual test starts
+
+    # Manually calculate the misfit.
+    total_misfit = 0
+    for g in window_group_manager.get_windows_for_station("HL.ARG"):
+        channel_misfit = 0
+        for window in g.windows:
+            channel_misfit += window.misfit_value
+        # Two channels - thus divide misfit by two.
+        total_misfit += channel_misfit / 2.0
+
+    # Compare it against the output of `lasif compare_misfits`.
+    out = cli.run("lasif compare_misfits 1 1")
+    misfit = float(re.search(r"Total misfit in Iteration 1: (\d+\.\d+)",
+                             out.stdout).groups(0)[0])
+
+    np.testing.assert_allclose(misfit, total_misfit, rtol=1E-6)

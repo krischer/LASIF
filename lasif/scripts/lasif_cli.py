@@ -965,6 +965,7 @@ def lasif_compare_misfits(parser, args):
 
     all_events = collections.defaultdict(list)
 
+    # Loop over each event.
     for _i, event in enumerate(events):
         # Get the windows from both.
         window_group_to = comm.windows.get(event, to_it)
@@ -986,6 +987,7 @@ def lasif_compare_misfits(parser, args):
             pbar = progressbar.ProgressBar(
                 widgets=widgets, maxval=len(shared_channels)).start()
 
+        # Loop over each channel.
         for _i, channel in enumerate(shared_channels):
             if MPI.COMM_WORLD.rank == 0:
                 pbar.update(_i)
@@ -999,6 +1001,7 @@ def lasif_compare_misfits(parser, args):
             channel_misfit_to = 0
             total_channel_weight = 0
 
+            # Loop over each window in that channel.
             for win_from in window_collection_from.windows:
                 try:
                     idx = window_collection_to.windows.index(win_from)
@@ -1032,11 +1035,13 @@ def lasif_compare_misfits(parser, args):
 
             # Make sure the misfits are consistent with the adjoint source
             # calculations!
-            misfit_from *= event_weight * station_weight / total_channel_weight
-            misfit_to *= event_weight * station_weight / total_channel_weight
+            channel_misfit_from *= \
+                event_weight * station_weight / total_channel_weight
+            channel_misfit_to *= \
+                event_weight * station_weight / total_channel_weight
 
-            total_misfit_from += misfit_from
-            total_misfit_to += misfit_to
+            total_misfit_from += channel_misfit_from
+            total_misfit_to += channel_misfit_to
 
             if (misfit_to - misfit_from) < -1.5:
                 print(event, channel, misfit_from - misfit_to)
