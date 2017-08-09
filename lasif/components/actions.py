@@ -30,7 +30,6 @@ class ActionsComponent(Component):
             run. It will process all events if not given.
         """
         from mpi4py import MPI
-        from lasif.tools.parallel_helpers import distribute_across_ranks
 
         weight_set = self.comm.weights.get(weight_set_name)
         process_params = self.comm.project.preprocessing_params
@@ -59,14 +58,20 @@ class ActionsComponent(Component):
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
 
-                # Get the event.
+                # Test if event is available.
                 event = self.comm.events.get(event_name)
 
                 asdf_file_name = self.comm.waveforms.get_asdf_filename(event_name, data_type="raw")
                 lowpass_period = process_params["lowpass_period"]
                 highpass_period = process_params["highpass_period"]
                 preprocessing_tag = self.comm.waveforms.get_preprocessing_tag()
+
                 output_filename = os.path.join(output_folder, preprocessing_tag + ".h5")
+
+                # remove asdf file if it already exists
+                if os.path.exists(output_filename):
+                    os.remove(output_filename)
+
                 ret_dict = {
                     "process_params": process_params,
                     "asdf_input_filename": asdf_file_name,
@@ -92,13 +97,8 @@ class ActionsComponent(Component):
         preprocessing_function_asdf = self.comm.project.get_project_function(
             "preprocessing_function_asdf")
 
-        logfile = self.comm.project.get_log_file(
-            "DATA_PREPROCESSING", "processing_iteration")
-
-        distribute_across_ranks(
-            function=preprocessing_function_asdf, items=to_be_processed,
-            get_name=lambda x: x["processing_info"]["asdf_input_filename"],
-            logfile=logfile)
+        for event in to_be_processed:
+            preprocessing_function_asdf(event["processing_info"])
 
 
     def calculate_adjoint_sources(self, event, iteration, **kwargs):

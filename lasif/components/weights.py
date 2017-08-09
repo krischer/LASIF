@@ -11,14 +11,14 @@ from .component import Component
 
 class WeightsComponent(Component):
     """
-    Component dealing with the iteration xml files.
+    Component dealing with the weights toml files.
 
-    :param iterations_folder: The folder with the iteration XML files.
+    :param weights_folder: The folder with the iteration toml files.
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
     def __init__(self, weights_folder, communicator, component_name):
-        self.__cached_iterations = {}
+        self.__cached_weights = {}
         self._folder = weights_folder
         super(WeightsComponent, self).__init__(communicator,
                                                   component_name)
@@ -34,7 +34,7 @@ class WeightsComponent(Component):
 
     def get_folder_for_weight_set(self, weight_set_name):
         """
-        Helper function returning the path of an iteration folder.
+        Helper function returning the path of a weights folder.
         """
         long_weight_set_name = self.get_long_weight_set_name(weight_set_name)
         folder = os.path.join(self.comm.project.paths["weights"], long_weight_set_name)
@@ -72,7 +72,7 @@ class WeightsComponent(Component):
 
     def list(self):
         """
-        Get a list of all iterations managed by this component.
+        Get a list of all weight sets managed by this component.
 
         >>> comm = getfixture('iterations_comm')
         >>> comm.weights.list()
@@ -100,7 +100,7 @@ class WeightsComponent(Component):
         >>> comm = getfixture('iterations_comm')
         >>> comm.weights.has_weight_set("A")
         True
-        >>> comm.weights.has_iteration("99")
+        >>> comm.weights.has_weight_set("99")
         False
         """
         # Make it work with both the long and short version of the iteration
@@ -197,20 +197,18 @@ class WeightsComponent(Component):
             weight_set_name = weight_set_name.lstrip("WEIGHTS_")
 
         # Access cache.
-        if weight_set_name in self.__cached_iterations:
-            return self.__cached_iterations[weight_set_name]
+        if weight_set_name in self.__cached_weights:
+            return self.__cached_weights[weight_set_name]
 
         weights_dict = self.get_weight_set_dict()
         if weight_set_name not in weights_dict:
             msg = "Weights '%s' not found." % weight_set_name
             raise LASIFNotFoundError(msg)
 
-        from lasif.weights_toml import Iteration
-        it = Iteration(weights_dict[weight_set_name],
-                       stf_fct=self.comm.project.get_project_function(
-                           "source_time_function"))
+        from lasif.weights_toml import WeightSet
+        weight_set = WeightSet(weights_dict[weight_set_name])
 
         # Store in cache.
-        self.__cached_iterations[weight_set_name] = it
+        self.__cached_weights[weight_set_name] = weight_set
 
-        return it
+        return weight_set

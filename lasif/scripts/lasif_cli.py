@@ -940,7 +940,7 @@ def lasif_migrate_windows(parser, args):
 
 
 @command_group("Iteration Management")
-def lasif_list_weights(parser, args):
+def lasif_list_weight_sets(parser, args):
     """
     Print a list of all iterations in the project.
     """

@@ -50,14 +50,6 @@ class WeightSet(object):
         self.description = self.weight_info['weight_set']['description']
         self.comments = self.weight_info['weight_set']['comment']
 
-        # Defaults to True.
-        if self.scale_data_to_synthetics is None:
-            self.scale_data_to_synthetics = True
-        if self.scale_data_to_synthetics is not True or False:
-            raise ValueError("Value '%s' invalid for "
-                             "'scale_data_to_synthetics'." %
-                             self.scale_data_to_synthetics)
-
         self.events = OrderedDict()
         for event in self.weight_info['event']:
             event_name = event['name']
@@ -106,41 +98,12 @@ class WeightSet(object):
             pair_count=len(all_stations),
             station_count=len(set(all_stations)))
 
-    def write(self, filename):
-        """
-        Writes a weight_set toml file.
-
-        :param filename: The path that will be written to.
-        """
-
-        toml_string = "# This is the weights set file.\n\n"
-        weights_str = f"[weight_set]\n" \
-                      f"  name = \"{self.weight_set_name}\"\n" \
-                      f"  description = \"\"\n" \
-                      f"  comment = \"\"\n"
-
-        toml_string += weights_str
-        for event, event_info in self.events.items():
-            event_string = f"[[event]]\n" \
-                           f"  name = \"{event}\"\n" \
-                           f"  weight = {event_info['event_weight']}\n\n"
-
-            for station, station_info in event_info['stations'].items():
-                event_string += f"  [[event.station]]\n" \
-                                f"    ID = \"{station}\"\n" \
-                                f"    weight = {station_info['station_weight']} \n\n"
-            toml_string += event_string
-
-        with open(filename, "wt") as fh:
-            fh.write(toml_string)
-
-
 def create_weight_set_toml_string(weight_set_name, events_dict):
     toml_string = "# This is the weights set file.\n\n"
     weights_str = f"[weight_set]\n" \
                   f"  name = \"{weight_set_name}\"\n" \
                   f"  description = \"\"\n" \
-                  f"  comment = \"\"\n"
+                  f"  comment = \"\"\n\n"
 
     toml_string += weights_str
     for event_name, stations in events_dict.items():

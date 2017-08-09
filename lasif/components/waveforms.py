@@ -87,7 +87,7 @@ class WaveformsComponent(Component):
         """
         highpass_period = self.comm.project.preprocessing_params["highpass_period"]
         lowpass_period = self.comm.project.preprocessing_params["lowpass_period"]
-        return "preprocessed_{}_{}".format(highpass_period, lowpass_period)
+        return "preprocessed_%is_to_%is" % (int(highpass_period), int(lowpass_period))
 
     def get_waveforms_raw(self, event_name, station_id):
         """
