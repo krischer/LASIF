@@ -450,19 +450,20 @@ def lasif_plot_stf(parser, args):
     Plot the source time function for one iteration.
     """
     import lasif.visualization
-
-    parser.add_argument("iteration_name", help="name of the iteration")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-
     comm = _find_project_comm(".")
 
-    iteration = comm.iterations.get(iteration_name)
-    pp = iteration.get_process_params()
-    freqmin = pp["highpass"]
-    freqmax = pp["lowpass"]
+    freqmax = 1.0 / comm.project.preprocessing_params["highpass_period"]
+    freqmin = 1.0 / comm.project.preprocessing_params["lowpass_period"]
 
-    stf = iteration.get_source_time_function()
+    stf_fct = comm.project.get_project_function(
+        "source_time_function")
+
+    delta = comm.project.simulation_params["time_increment"]
+    npts = comm.project.simulation_params["number_of_time_steps"]
+
+    stf = {"delta": delta}
+
+    stf["data"] = stf_fct(npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax)
 
     # Ignore lots of potential warnings with some plotting functionality.
     lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
@@ -480,6 +481,7 @@ def lasif_generate_all_input_files(parser, args):
         * "adjoint_reverse"
     """
     parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("weight_set_name", help="name of the weight set")
     parser.add_argument("--simulation_type",
                         choices=("normal_simulation", "adjoint_forward",
                                  "adjoint_reverse"),
@@ -487,17 +489,19 @@ def lasif_generate_all_input_files(parser, args):
                         help="type of simulation to run")
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
+    weight_set_name = args.weight_set_name
+
     simulation_type = args.simulation_type
 
     comm = _find_project_comm(".")
     simulation_type = simulation_type.replace("_", " ")
 
-    it = comm.iterations.get(iteration_name)
-    events = sorted(it.events.keys())
+    weights = comm.weights.get(weight_set_name)
+    events = sorted(weights.events.keys())
     for _i, event in enumerate(events):
         print("Generating input files for event %i of %i..." % (_i + 1,
                                                                 len(events)))
-        comm.actions.generate_input_files(iteration_name, event,
+        comm.actions.generate_input_files(weight_set_name, iteration_name, event,
                                           simulation_type)
 
 
@@ -688,53 +692,33 @@ def lasif_launch_misfit_gui(parser, args):
 
 
 @command_group("Iteration Management")
-def lasif_create_new_iteration(parser, args):
+def lasif_create_weight_set(parser, args):
     """
-    Create a new iteration.
+    Create a new set of event and station weights.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("min_period", type=float,
-                        help="the minimum period of the iteration")
-    parser.add_argument("max_period", type=float,
-                        help="the maximum period of the iteration")
+    parser.add_argument("weight_set_name", help="name of the weight set, i.e. \"A\"")
+
+    args = parser.parse_args(args)
+    weight_set_name = args.weight_set_name
+
+    comm = _find_project_comm(".")
+    comm.weights.create_new_weight_set(
+        weight_set_name=weight_set_name,
+        events_dict=comm.query.get_stations_for_all_events())
+
+@command_group("Iteration Management")
+def lasif_setup_new_iteration(parser, args):
+    """
+    Creates directory structure for a new iteration.
+    """
+    parser.add_argument("iteration_name", help="name of the iteration, i.e. \"1\"")
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
-    min_period = args.min_period
-    max_period = args.max_period
-    if min_period >= max_period:
-        msg = "min_period needs to be smaller than max_period."
-        raise LASIFCommandLineException(msg)
 
     comm = _find_project_comm(".")
-    comm.iterations.create_new_iteration(
-        iteration_name=iteration_name,
-        events_dict=comm.query.get_stations_for_all_events(),
-        min_period=min_period,
-        max_period=max_period)
-
-
-@command_group("Iteration Management")
-def lasif_create_successive_iteration(parser, args):
-    """
-    Create an iteration based on an existing one.
-
-    It will take all settings in one iteration and transfers them to another
-    iteration. Any comments will be deleted.
-    """
-    parser.add_argument("existing_iteration",
-                        help="name of the existing iteration")
-    parser.add_argument("new_iteration", help="name of the new iteration")
-    args = parser.parse_args(args)
-    existing_iteration_name = args.existing_iteration
-    new_iteration_name = args.new_iteration
-
-    comm = _find_project_comm(".")
-
-    comm.iterations.create_successive_iteration(
-        existing_iteration_name=existing_iteration_name,
-        new_iteration_name=new_iteration_name)
-
+    comm.iterations.setup_directories_for_iteration(
+        iteration_name=iteration_name)
 
 @mpi_enabled
 @command_group("Iteration Management")
@@ -956,7 +940,7 @@ def lasif_migrate_windows(parser, args):
 
 
 @command_group("Iteration Management")
-def lasif_list_iterations(parser, args):
+def lasif_list_weights(parser, args):
     """
     Print a list of all iterations in the project.
     """
@@ -964,12 +948,12 @@ def lasif_list_iterations(parser, args):
 
     comm = _find_project_comm(".")
 
-    it_len = comm.iterations.count()
+    it_len = comm.weights.count()
 
-    print("%i iteration%s in project:" % (it_len,
+    print("%i weight set(s)%s in project:" % (it_len,
           "s" if it_len != 1 else ""))
-    for iteration in comm.iterations.list():
-        print("\t%s" % iteration)
+    for weights in comm.weights.list():
+        print("\t%s" % weights)
 
 
 @command_group("Iteration Management")
@@ -1001,12 +985,12 @@ def lasif_preprocess_data(parser, args):
     becomes the limiting factor. It also works without MPI but then only one
     core actually does any work.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("weight_set", help="name of the weight set")
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
     args = parser.parse_args(args)
-    iteration_name = args.iteration_name
+    weight_set_name = args.weight_set
     events = args.events if args.events else None
 
     comm = _find_project_comm_mpi(".")
@@ -1014,10 +998,10 @@ def lasif_preprocess_data(parser, args):
     # No need to perform these checks on all ranks.
     exceptions = []
     if MPI.COMM_WORLD.rank == 0:
-        if not comm.iterations.has_iteration(iteration_name):
-            msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to "
-                   "get a list of all available iterations.") % iteration_name
-            exceptions.append(msg)
+        if not comm.weights.has_weight_set(weight_set_name):
+           msg = ("Weights '%s' not found. Use 'lasif list_iterations' to "
+                  "get a list of all available iterations.") % weight_set_name
+           exceptions.append(msg)
 
         # Check if the event ids are valid.
         if not exceptions and events:
@@ -1032,7 +1016,7 @@ def lasif_preprocess_data(parser, args):
     if exceptions:
         raise LASIFCommandLineException(exceptions[0])
 
-    comm.actions.preprocess_data(iteration_name, events)
+    comm.actions.preprocess_data(weight_set_name, events)
 
 
 @command_group("Plotting")

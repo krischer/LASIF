@@ -46,7 +46,6 @@ def plot_raydensity(map_object, station_events, domain):
     Does require geographiclib to be installed.
     """
     import ctypes as C
-    from lasif import rotations
     from lasif.tools.great_circle_binner import GreatCircleBinner
     from lasif.utils import Point
     import multiprocessing
@@ -205,7 +204,12 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     lngs = []
     lats = []
     station_ids = []
+    #print(station_dict.items())
     for key, value in station_dict.items():
+        print('key:')
+        print(key)
+        print('value:')
+        print(value)
         lngs.append(value["longitude"])
         lats.append(value["latitude"])
         station_ids.append(key)
@@ -335,3 +339,7 @@ def plot_event_histogram(events, plot_type):
         plt.title("Hypocenter depth distribution (%i events)" % len(events))
 
     plt.tight_layout()
+
+
+
+

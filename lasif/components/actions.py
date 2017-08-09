@@ -20,7 +20,7 @@ class ActionsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
-    def preprocess_data(self, iteration_name, event_names=None):
+    def preprocess_data(self, weight_set_name, event_names=None):
         """
         Preprocesses all data for a given iteration.
 
@@ -32,10 +32,15 @@ class ActionsComponent(Component):
         from mpi4py import MPI
         from lasif.tools.parallel_helpers import distribute_across_ranks
 
-        iteration = self.comm.iterations.get(iteration_name)
+        weight_set = self.comm.weights.get(weight_set_name)
+        process_params = self.comm.project.preprocessing_params
+        solver_params = self.comm.project.solver
 
-        process_params = iteration.get_process_params()
-        processing_tag = iteration.processing_tag
+        simulation_params = solver_params["settings"]["simulation_parameters"]
+        npts = simulation_params["number_of_time_steps"]
+        sampling_rate = simulation_params["sampling_rate"]
+        dt = simulation_params["time_increment"]
+        salvus_start_time = simulation_params["start_time"]
 
         def processing_data_generator():
             """
@@ -43,113 +48,56 @@ class ActionsComponent(Component):
             waveform.
             """
             # Loop over the chosen events.
-            for event_name, event in iteration.events.iteritems():
+            for event_name, event in weight_set.events.items():
                 # None means to process all events, otherwise it will be a list
                 # of events.
                 if not ((event_names is None) or (event_name in event_names)):
                     continue
 
-                output_folder = self.comm.waveforms.get_waveform_folder(
-                    event_name=event_name, data_type="processed",
-                    tag_or_iteration=processing_tag)
+                output_folder = os.path.join(self.comm.project.paths["preprocessed_data"], event_name)
+
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
 
                 # Get the event.
                 event = self.comm.events.get(event_name)
 
-                try:
-                    # Get the stations.
-                    stations = self.comm.query\
-                        .get_all_stations_for_event(event_name)
-                    # Get the raw waveform data.
-                    waveforms = \
-                        self.comm.waveforms.get_metadata_raw(event_name)
-                except LASIFNotFoundError:
-                    warnings.warn(
-                        "No data found for event '%s'. Did you delete data "
-                        "after the iteration has been created?" % event_name)
-                    continue
-
-                # Group by station name.
-                def func(x):
-                    return ".".join(x["channel_id"].split(".")[:2])
-
-                waveforms.sort(key=func)
-                for station_name, channels in  \
-                        itertools.groupby(waveforms, func):
-                    channels = list(channels)
-                    # Filter waveforms with no available station files
-                    # or coordinates.
-                    if station_name not in stations:
-                        continue
-
-                    # Group by location.
-                    def get_loc_id(x):
-                        return x["channel_id"].split(".")[2]
-
-                    channels.sort(key=get_loc_id)
-                    locations = []
-                    for loc_id, chans in itertools.groupby(channels,
-                                                           get_loc_id):
-                        locations.append((loc_id, list(chans)))
-                    locations.sort(key=lambda x: x[0])
-
-                    if len(locations) > 1:
-                        msg = ("More than one location found for event "
-                               "'%s' at station '%s'. The alphabetically "
-                               "first one will be chosen." %
-                               (event_name, station_name))
-                        warnings.warn(msg, LASIFWarning)
-                    location = locations[0][1]
-
-                    # Loop over each found channel.
-                    for channel in location:
-                        channel.update(stations[station_name])
-                        input_filename = channel["filename"]
-                        output_filename = os.path.join(
-                            output_folder,
-                            os.path.basename(input_filename))
-                        # Skip already processed files.
-                        if os.path.exists(output_filename):
-                            continue
-
-                        ret_dict = {
-                            "process_params": process_params,
-                            "input_filename": input_filename,
-                            "output_filename": output_filename,
-                            "station_coordinates": {
-                                "latitude": channel["latitude"],
-                                "longitude": channel["longitude"],
-                                "elevation_in_m": channel["elevation_in_m"],
-                                "local_depth_in_m": channel[
-                                    "local_depth_in_m"],
-                            },
-                            "station_filename": self.comm.stations.
-                            get_channel_filename(channel["channel_id"],
-                                                 channel["starttime"]),
-                            "event_information": event,
-                        }
-                        yield ret_dict
+                asdf_file_name = self.comm.waveforms.get_asdf_filename(event_name, data_type="raw")
+                lowpass_period = process_params["lowpass_period"]
+                highpass_period = process_params["highpass_period"]
+                preprocessing_tag = self.comm.waveforms.get_preprocessing_tag()
+                output_filename = os.path.join(output_folder, preprocessing_tag + ".h5")
+                ret_dict = {
+                    "process_params": process_params,
+                    "asdf_input_filename": asdf_file_name,
+                    "asdf_output_filename": output_filename,
+                    "preprocessing_tag": preprocessing_tag,
+                    "dt": dt,
+                    "npts": npts,
+                    "sampling_rate": sampling_rate,
+                    "salvus_start_time": salvus_start_time,
+                    "lowpass_period": lowpass_period,
+                    "highpass_period": highpass_period
+                }
+                yield ret_dict
 
         # Only rank 0 needs to know what has to be processsed.
         if MPI.COMM_WORLD.rank == 0:
-            to_be_processed = [{"processing_info": _i, "iteration": iteration}
+            to_be_processed = [{"processing_info": _i}
                                for _i in processing_data_generator()]
         else:
             to_be_processed = None
 
         # Load project specific window selection function.
-        preprocessing_function = self.comm.project.get_project_function(
-            "preprocessing_function")
+        preprocessing_function_asdf = self.comm.project.get_project_function(
+            "preprocessing_function_asdf")
 
         logfile = self.comm.project.get_log_file(
-            "DATA_PREPROCESSING", "processing_iteration_%s" % (str(
-                iteration.name)))
+            "DATA_PREPROCESSING", "processing_iteration")
 
         distribute_across_ranks(
-            function=preprocessing_function, items=to_be_processed,
-            get_name=lambda x: x["processing_info"]["input_filename"],
+            function=preprocessing_function_asdf, items=to_be_processed,
+            get_name=lambda x: x["processing_info"]["asdf_input_filename"],
             logfile=logfile)
 
 
@@ -280,7 +228,7 @@ class ActionsComponent(Component):
                 event=event["event_name"], iteration=iteration,
                 adj_sources=results)
 
-    def select_windows(self, event, iteration, **kwargs):
+    def select_windows(self, event, weight_set_name, **kwargs):
         """
         Automatically select the windows for the given event and iteration.
 
@@ -295,7 +243,7 @@ class ActionsComponent(Component):
         import pyasdf
 
         event = self.comm.events.get(event)
-        iteration = self.comm.iterations.get(iteration)
+        iteration = self.comm.weights.get(iteration)
 
         # Get the ASDF filenames.
         processed_filename = self.comm.waveforms.get_asdf_filename(
@@ -449,7 +397,7 @@ class ActionsComponent(Component):
                 "station '%s'." % (event["event_name"], iteration.name,
                                    station))
 
-    def generate_input_files(self, iteration_name, event_name,
+    def generate_input_files(self, weight_set_name, iteration_name, event_name,
                              simulation_type):
         """
         Generate the input files for one event.
@@ -463,16 +411,16 @@ class ActionsComponent(Component):
         """
 
         # =====================================================================
-        # read iteration toml file, get event and list of stations
+        # read weights toml file, get event and list of stations
         # =====================================================================
-        iteration = self.comm.iterations.get(iteration_name)
+        weights = self.comm.weights.get(weight_set_name)
 
         # Check that the event is part of the iterations.
-        if event_name not in iteration.events:
+        if event_name not in weights.events:
             msg = ("Event '%s' not part of iteration '%s'.\nEvents available "
                    "in iteration:\n\t%s" %
-                   (event_name, iteration_name, "\n\t".join(
-                       sorted(iteration.events.keys()))))
+                   (event_name, weight_set_name, "\n\t".join(
+                       sorted(weights.events.keys()))))
             raise ValueError(msg)
 
         asdf_file = self.comm.waveforms.get_asdf_filename(event_name=event_name, data_type="raw" )
@@ -508,8 +456,10 @@ class ActionsComponent(Component):
         # =================================================================
         # output
         # =================================================================
-        iteration_folder = self.comm.iterations.get_folder_for_iteration(iteration_name)
-        output_dir = os.path.join(iteration_folder, "input_files", event_name)
+
+        long_iter_name = self.comm.iterations.get_long_iteration_name(iteration_name)
+        input_files_dir = self.comm.project.paths['input_files']
+        output_dir = os.path.join(input_files_dir, long_iter_name, event_name)
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)

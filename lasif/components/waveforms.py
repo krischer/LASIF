@@ -42,9 +42,10 @@ class WaveformsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
-    def __init__(self, data_folder, synthetics_folder, communicator,
+    def __init__(self, data_folder, preproc_data_folder, synthetics_folder, communicator,
                  component_name):
         self._data_folder = data_folder
+        self._preproc_data_folder = preproc_data_folder
         self._synthetics_folder = synthetics_folder
         super(WaveformsComponent, self).__init__(communicator, component_name)
 
@@ -63,7 +64,7 @@ class WaveformsComponent(Component):
             if not tag_or_iteration:
                 msg = "Tag must be given for processed data."
                 raise ValueError(msg)
-            return os.path.join(self._data_folder, event_name,
+            return os.path.join(self._preproc_data_folder, event_name,
                                 tag_or_iteration + ".h5")
         elif data_type == "synthetic":
             if not tag_or_iteration:
@@ -77,6 +78,16 @@ class WaveformsComponent(Component):
                 event_name + ".h5")
         else:
             raise ValueError("Invalid data type '%s'." % data_type)
+
+    def get_preprocessing_tag(self):
+        """
+        Gets the preprocessing tag for the lasif project, since each lasif project assumes a constant frequency
+        this only has to be one tag.
+        :return:
+        """
+        highpass_period = self.comm.project.preprocessing_params["highpass_period"]
+        lowpass_period = self.comm.project.preprocessing_params["lowpass_period"]
+        return "preprocessed_{}_{}".format(highpass_period, lowpass_period)
 
     def get_waveforms_raw(self, event_name, station_id):
         """
@@ -116,70 +127,11 @@ class WaveformsComponent(Component):
                                  data_type="synthetic",
                                  tag_or_iteration=iteration.long_name)
 
-        return self.rotate_and_process_synthetics(
-            st=st, station_id=station_id, iteration=iteration,
+        return self.process_synthetics(
+            st=st , iteration=iteration,
             event_name=event_name)
 
-    def rotate_and_process_synthetics(self, st, station_id, iteration,
-                                      event_name, coordinates=None):
-        import lasif.domain
-        from lasif import rotations
-
-        network, station = station_id.split(".")
-
-        # In the case of data coming from SES3D the components must be
-        # mapped to ZNE as it works in XYZ.
-        if "ses3d" in iteration.solver_settings["solver"].lower():
-            # This maps the synthetic channels to ZNE.
-            synthetic_coordinates_mapping = {"X": "N",
-                                             "x": "N",
-                                             "Y": "E",
-                                             "y": "E",
-                                             "Z": "Z",
-                                             "z": "Z"}
-
-            for tr in st:
-                tr.stats.network = network
-                tr.stats.station = station
-                # SES3D X points south. Reverse it to arrive at ZNE.
-                if tr.stats.channel in ["X", "x"]:
-                    tr.data *= -1.0
-                # SES3D files have no starttime. Set to the event time.
-                tr.stats.starttime = \
-                    self.comm.events.get(event_name)["origin_time"]
-                tr.stats.channel = \
-                    synthetic_coordinates_mapping[tr.stats.channel]
-
-            # Rotate if needed. Again only SES3D synthetics need to be rotated.
-            domain = self.comm.project.domain
-            if isinstance(domain, lasif.domain.RectangularSphericalSection) \
-                    and domain.rotation_angle_in_degree and \
-                    "ses3d" in iteration.solver_settings["solver"].lower():
-                # Coordinates are required for the rotation.
-                if not coordinates:
-                    coordinates = self.comm.query.get_coordinates_for_station(
-                        event_name, station_id)
-
-                # First rotate the station back to see, where it was
-                # recorded.
-                lat, lng = rotations.rotate_lat_lon(
-                    lat=coordinates["latitude"], lon=coordinates["longitude"],
-                    rotation_axis=domain.rotation_axis,
-                    angle=-domain.rotation_angle_in_degree)
-                # Rotate the synthetics.
-                n, e, z = rotations.rotate_data(
-                    st.select(channel="N")[0].data,
-                    st.select(channel="E")[0].data,
-                    st.select(channel="Z")[0].data,
-                    lat, lng,
-                    domain.rotation_axis,
-                    domain.rotation_angle_in_degree)
-                st.select(channel="N")[0].data = n
-                st.select(channel="E")[0].data = e
-                st.select(channel="Z")[0].data = z
-
-        st.sort()
-
+    def process_synthetics(self, st, iteration, event_name):
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("process_synthetics")
         return fct(st, iteration=iteration,
@@ -337,24 +289,6 @@ class WaveformsComponent(Component):
             information["synthetic"][iteration] = [
                 synthetic_coordinates_mapping[_i] for _i in components]
         return information
-
-    def get_available_processing_tags(self, event_name):
-        """
-        Returns the available processing tags for a given event.
-
-        :param event_name: The event name.
-        """
-        data_dir = os.path.join(self._data_folder, event_name)
-        if not os.path.exists(data_dir):
-            raise LASIFNotFoundError("No data for event '%s'." % event_name)
-        tags = []
-        for tag in os.listdir(data_dir):
-            # Only interested in preprocessed data.
-            if not tag.startswith("preprocessed") or \
-                    tag.endswith("_cache.sqlite"):
-                continue
-            tags.append(tag)
-        return tags
 
     def get_available_synthetics(self, event_name):
         """

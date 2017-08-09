@@ -31,6 +31,7 @@ from .communicator import Communicator
 from .component import Component
 from .downloads import DownloadsComponent
 from .events import EventsComponent
+from .weights import WeightsComponent
 from .iterations import IterationsComponent
 from .query import QueryComponent
 from .stations import StationsComponent
@@ -129,8 +130,10 @@ class Project(Component):
         with open(self.paths["config_file"], "r") as fh:
             config_dict = toml.load(fh)
 
-        self.config = config_dict['lasif_project']
-        self.solver = config_dict['solver']
+        self.config = config_dict["lasif_project"]
+        self.solver = config_dict["solver"]
+        self.simulation_params = self.solver["settings"]["simulation_parameters"]
+        self.preprocessing_params = config_dict["data_preprocessing"]
 
         self.domain = lasif.domain.ExodusDomain(self.config['mesh_file'])
 
@@ -149,11 +152,13 @@ class Project(Component):
         # Basic components.
         EventsComponent(folder=self.paths["data"], communicator=self.comm,
                         component_name="events")
-        WaveformsComponent(data_folder=self.paths["data"],
+        WaveformsComponent(data_folder=self.paths["data"], preproc_data_folder=self.paths["preprocessed_data"],
                            synthetics_folder=self.paths["synthetics"],
                            communicator=self.comm, component_name="waveforms")
-        IterationsComponent(iterations_folder=self.paths["iterations"],
+        WeightsComponent(weights_folder=self.paths["weights"],
                             communicator=self.comm,
+                            component_name="weights")
+        IterationsComponent(communicator=self.comm,
                             component_name="iterations")
 
         # Action and query components.
@@ -166,7 +171,7 @@ class Project(Component):
                            component_name="validator")
 
         WindowsAndAdjointSourcesComponent(
-            folder=self.paths["windows_and_adjoint_sources"],
+            folder=self.paths["adjoint_sources"],
             communicator=self.comm,
             component_name="wins_and_adj_sources")
         # # Window and adjoint source components.
@@ -188,22 +193,27 @@ class Project(Component):
         """
         # Every key containing the string "file" denotes a file, all others
         # should denote directories.
-        self.paths = {}
+        self.paths = dict()
         self.paths["root"] = root_path
 
         self.paths["data"] = root_path / "DATA"
         self.paths["logs"] = root_path / "LOGS"
-        self.paths["iterations"] = root_path / "ITERATIONS"
         self.paths["synthetics"] = root_path / "SYNTHETICS"
+        self.paths["preprocessed_data"] = root_path / "PREPROCESSED_DATA"
         self.paths["output"] = root_path / "OUTPUT"
+        self.paths["sets"] = root_path / "SETS"
+        self.paths["windows"] = root_path / "SETS" / "WINDOWS"
+        self.paths["weights"] = root_path / "SETS" / "WEIGHTS"
+        self.paths["input_files"] = root_path / "INPUT_FILES"
+
         # Path for the custom functions.
         self.paths["functions"] = root_path / "FUNCTIONS"
 
         # Paths for various files.
         self.paths["config_file"] = root_path / "lasif_config.toml"
 
-        self.paths["windows_and_adjoint_sources"] = \
-            root_path / "ADJOINT_SOURCES_AND_WINDOWS"
+        self.paths["adjoint_sources"] = \
+            root_path / "ADJOINT_SOURCES"
 
     def __update_folder_structure(self):
         """
@@ -236,14 +246,21 @@ class Project(Component):
                            f"    location_priorities = [ \"\", \"00\", \"10\", \"20\", \"01\", \"02\",]\n" \
                            f"\n"
 
+        data_preproc_str = f"[data_preprocessing]\n" \
+                           f"  highpass_period = 30.0\n" \
+                           f"  lowpass_period = 50.0\n" \
+                           f"\n"
+
         solver_par_str = "[solver]\n" \
                      "  name = \"Salvus\"\n\n" \
                      "  [solver.settings]\n" \
                      "    adjoint_source_time_shift = -10\n\n" \
                      "    [solver.settings.simulation_parameters]\n" \
                      "      number_of_time_steps = 2000\n" \
+                     "      sampling_rate = 20.0\n" \
                      "      time_increment = 0.1\n" \
                      "      end_time = 2700.0\n" \
+                     "      start_time = -10.0\n" \
                      "      source_center_frequency = 0.025\n" \
                      "      polynomial_order = 4\n" \
                      "      dimensions = 3\n\n" \
@@ -251,7 +268,7 @@ class Project(Component):
                      "      number_of_processors = 4\n" \
                      "      salvus_call = \"mpirun -n 4 salvus_bin\"\n\n"
 
-        lasif_config_str += solver_par_str
+        lasif_config_str += data_preproc_str + solver_par_str
 
         with open(self.paths["config_file"], "w") as fh:
             fh.write(lasif_config_str)
@@ -270,6 +287,7 @@ class Project(Component):
         fct_type_map = {
             "window_picking_function": "window_picking_function.py",
             "preprocessing_function": "preprocessing_function.py",
+            "preprocessing_function_asdf": "preprocessing_function_asdf.py",
             "process_synthetics": "process_synthetics.py",
             "source_time_function": "source_time_function.py"
         }
@@ -286,6 +304,7 @@ class Project(Component):
             raise LASIFNotFoundError(msg)
 
         fct_template = imp.load_source("_lasif_fct_template", filename)
+
         try:
             fct = getattr(fct_template, fct_type)
         except AttributeError:

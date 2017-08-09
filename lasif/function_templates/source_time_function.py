@@ -16,9 +16,9 @@ import numpy as np
 import obspy
 
 
-def source_time_function(npts, delta, freqmin, freqmax, iteration):
+def source_time_function(npts, delta, freqmin, freqmax):
     """
-    Source time function used for simulating with SES3D.
+    Optional source time function that can be used with Salvus
 
     Do whatever you wish in here but make sure it returns an array of
     ``npts`` samples. Furthermore the spectral content of source time
@@ -33,22 +33,6 @@ def source_time_function(npts, delta, freqmin, freqmax, iteration):
     :param delta: The sample spacing.
     :param freqmin: The minimum desired frequency.
     :param freqmax: The maximum desired frequency.
-    :param iteration: The current iteration.
-
-    Please note that you also got the iteration object here, so if you
-    want some parameters to change depending on the iteration, just use
-    if/else on the iteration objects.
-
-    >>> iteration.name  # doctest: +SKIP
-    '11'
-    >>> iteration.get_process_params()  # doctest: +SKIP
-    {'dt': 0.75,
-     'highpass': 0.01,
-     'lowpass': 0.02,
-     'npts': 500}
-
-    Use ``$ lasif shell`` to play around and figure out what the iteration
-    objects can do.
     """
     data = np.ones(npts * 2, dtype=np.float64)
     data[:npts] = 0.0
