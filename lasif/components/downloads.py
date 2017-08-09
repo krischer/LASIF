@@ -75,13 +75,13 @@ class DownloadsComponent(Component):
         import glob
         files = glob.glob(str(mseed_storage_path / "*.mseed"))
         for _i, filename in enumerate(files):
-            print("Adding file %i of %i ..." % (_i + 1, len(files)))
+            print("Adding raw_recording %i of %i ..." % (_i + 1, len(files)))
             asdf_ds.add_waveforms(filename, tag="raw_recording", event_id=asdf_ds.events[0])
 
         files = glob.glob(str(stationxml_storage_path /'*.xml'))
 
         for _i, filename in enumerate(files):
-            print("Adding file %i of %i ..." % (_i + 1, len(files)))
+            print("Adding stationxml %i of %i ..." % (_i + 1, len(files)))
             asdf_ds.add_stationxml(filename)
 
         import shutil
