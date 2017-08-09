@@ -46,49 +46,29 @@ def plot_raydensity(map_object, station_events, domain):
     Does require geographiclib to be installed.
     """
     import ctypes as C
-    from lasif import rotations
-    from lasif.domain import RectangularSphericalSection
     from lasif.tools.great_circle_binner import GreatCircleBinner
     from lasif.utils import Point
     import multiprocessing
     import progressbar
     from scipy.stats import scoreatpercentile
 
-    if not isinstance(domain, RectangularSphericalSection):
-        raise NotImplementedError(
-            "Raydensity currently only implemented for rectangular domains. "
-            "Should be easy to implement for other domains. Let me know.")
-
     # Merge everything so that a list with coordinate pairs is created. This
     # list is then distributed among all processors.
     station_event_list = []
     for event, stations in station_events:
-        if domain.rotation_angle_in_degree:
-            # Rotate point to the non-rotated domain.
-            e_point = Point(*rotations.rotate_lat_lon(
-                event["latitude"], event["longitude"], domain.rotation_axis,
-                -1.0 * domain.rotation_angle_in_degree))
-        else:
-            e_point = Point(event["latitude"], event["longitude"])
-        for station in stations.itervalues():
+        e_point = Point(event["latitude"], event["longitude"])
+        for station in stations.values():
             # Rotate point to the non-rotated domain if necessary.
-            if domain.rotation_angle_in_degree:
-                p = Point(*rotations.rotate_lat_lon(
-                    station["latitude"], station["longitude"],
-                    domain.rotation_axis,
-                    -1.0 * domain.rotation_angle_in_degree))
-            else:
-                p = Point(station["latitude"], station["longitude"])
+            p = Point(station["latitude"], station["longitude"])
             station_event_list.append((e_point, p))
 
     circle_count = len(station_event_list)
 
     # The granularity of the latitude/longitude discretization for the
     # raypaths. Attempt to get a somewhat meaningful result in any case.
-    lat_lng_count = 1000
     if circle_count < 1000:
         lat_lng_count = 1000
-    if circle_count < 10000:
+    elif circle_count < 10000:
         lat_lng_count = 2000
     else:
         lat_lng_count = 3000
@@ -100,8 +80,7 @@ def plot_raydensity(map_object, station_events, domain):
         data.dtype = dtype
         return data.reshape(shape)
 
-    print ("\nLaunching %i greatcircle calculations on %i CPUs..." % \
-        (circle_count, cpu_count))
+    print("\nLaunching %i greatcircle calculations on %i CPUs..." % (circle_count, cpu_count))
 
     widgets = ["Progress: ", progressbar.Percentage(),
                progressbar.Bar(), "", progressbar.ETA()]
@@ -110,10 +89,14 @@ def plot_raydensity(map_object, station_events, domain):
 
     def great_circle_binning(sta_evs, bin_data_buffer, bin_data_shape,
                              lock, counter):
+        min_latitude = -90.0
+        max_latitude = 90.0
+        min_longitude = -180.0
+        max_longitude = 180.0
         new_bins = GreatCircleBinner(
-            domain.min_latitude, domain.max_latitude,
-            lat_lng_count, domain.min_longitude,
-            domain.max_longitude, lat_lng_count)
+            min_latitude, max_latitude,
+            lat_lng_count, min_longitude,
+            max_longitude, lat_lng_count)
         for event, station in sta_evs:
             with lock:
                 counter.value += 1
@@ -136,11 +119,16 @@ def plot_raydensity(map_object, station_events, domain):
         return out
     chunks = chunk(station_event_list, cpu_count)
 
+    min_latitude = -90.0
+    max_latitude = 90.0
+    min_longitude = -180.0
+    max_longitude = 180.0
+
     # One instance that collects everything.
     collected_bins = GreatCircleBinner(
-        domain.min_latitude, domain.max_latitude,
-        lat_lng_count, domain.min_longitude,
-        domain.max_longitude, lat_lng_count)
+        min_latitude, max_latitude,
+        lat_lng_count, min_longitude,
+        max_longitude, lat_lng_count)
 
     # Use a multiprocessing shared memory array and map it to a numpy view.
     collected_bins_data = multiprocessing.Array(C.c_uint32,
@@ -153,7 +141,7 @@ def plot_raydensity(map_object, station_events, domain):
     processes = []
     lock = multiprocessing.Lock()
     counter = multiprocessing.Value("i", 0)
-    for _i in xrange(cpu_count):
+    for _i in range(cpu_count):
         processes.append(multiprocessing.Process(
             target=great_circle_binning, args=(chunks[_i], collected_bins_data,
                                                collected_bins.bins.shape, lock,
@@ -194,11 +182,6 @@ def plot_raydensity(map_object, station_events, domain):
 
     lngs, lats = collected_bins.coordinates
     # Rotate back if necessary!
-    if domain.rotation_angle_in_degree:
-        for lat, lng in zip(lats, lngs):
-            lat[:], lng[:] = rotations.rotate_lat_lon(
-                lat, lng, domain.rotation_axis,
-                domain.rotation_angle_in_degree)
     ln, la = map_object(lngs, lats)
     map_object.pcolormesh(ln, la, data, cmap=cmap, vmin=0, vmax=max_val)
     # Draw the coastlines so they appear over the rays. Otherwise things are
@@ -221,7 +204,12 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     lngs = []
     lats = []
     station_ids = []
-    for key, value in station_dict.iteritems():
+    #print(station_dict.items())
+    for key, value in station_dict.items():
+        print('key:')
+        print(key)
+        print('value:')
+        print(value)
         lngs.append(value["longitude"])
         lats.append(value["latitude"])
         station_ids.append(key)
@@ -351,3 +339,7 @@ def plot_event_histogram(events, plot_type):
         plt.title("Hypocenter depth distribution (%i events)" % len(events))
 
     plt.tight_layout()
+
+
+
+

@@ -227,7 +227,7 @@ def _log_window_selection(tr_id, msg):
     :param tr_id: The id of the current trace.
     :param msg: The message to be printed.
     """
-    print "[Window selection for %s] %s" % (tr_id, msg)
+    print("[Window selection for %s] %s" % (tr_id, msg))
 
 
 # Dictionary to cache the TauPyModel so there is no need to reinitialize it

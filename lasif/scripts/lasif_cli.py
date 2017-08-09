@@ -277,7 +277,7 @@ def lasif_add_spud_event(parser, args):
     from lasif.scripts.iris2quakeml import iris2quakeml
 
     comm = _find_project_comm(".")
-    iris2quakeml(url, comm.project.paths["events"])
+    iris2quakeml(url, comm.project.paths["data"])
 
 
 @command_group("Data Acquisition")
@@ -396,87 +396,6 @@ def lasif_list_events(parser, args):
         print(tab)
 
 
-@command_group("Project Management")
-def lasif_list_models(parser, args):
-    """
-    Print a list of all models in the project.
-    """
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".")
-    models = comm.models.list()
-    print("%i model%s in project:" % (len(models), "s" if len(models) != 1
-          else ""))
-    for model in models:
-        print("\t%s" % model)
-
-
-@command_group("Project Management")
-def lasif_list_kernels(parser, args):
-    """
-    Print a list of all kernels in this project.
-    """
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".")
-    kernels = comm.kernels.list()
-    print("%i kernel%s in project:" % (
-        len(kernels), "s" if len(kernels) != 1 else ""))
-    for kernel in kernels:
-        print("\tIteration %3s and Event %s" % (kernel["iteration"],
-                                                kernel["event"]))
-
-
-@command_group("Plotting")
-def lasif_plot_wavefield(parser, args):
-    """
-    Plots a SES3D wavefield.
-    """
-    parser.add_argument("iteration_name", help="name_of_the_iteration")
-    parser.add_argument("event_name", help="name of the event")
-    args = parser.parse_args(args)
-
-    from lasif import ses3d_models
-
-    comm = _find_project_comm(".")
-
-    event_name = comm.events.get(args.event_name)["event_name"]
-    iteration_name = comm.iterations.get(args.iteration_name).long_name
-
-    wavefield_dir = os.path.join(comm.project.paths["wavefields"], event_name,
-                                 iteration_name)
-
-    if not os.path.exists(wavefield_dir) or not os.listdir(wavefield_dir):
-        msg = "No data available for event and iteration combination."
-        raise LASIFCommandLineException(msg)
-
-    handler = ses3d_models.RawSES3DModelHandler(
-        wavefield_dir, model_type="wavefield")
-    handler.rotation_axis = comm.project.domain["rotation_axis"]
-    handler.rotation_angle_in_degree = comm.project.domain["rotation_angle"]
-
-    while True:
-        print(handler)
-        print("")
-
-        inp = raw_input("Enter 'COMPONENT DEPTH' "
-                        "('quit/exit' to exit): ").strip()
-        if inp.lower() in ["quit", "q", "exit", "leave"]:
-            break
-        try:
-            component, timestep, depth = inp.split()
-        except:
-            continue
-
-        component = component = "%s %s" % (component, timestep)
-
-        try:
-            handler.parse_component(component)
-        except:
-            continue
-        handler.plot_depth_slice(component, float(depth))
-
-
 @command_group("Event Management")
 def lasif_event_info(parser, args):
     """
@@ -513,12 +432,11 @@ def lasif_event_info(parser, args):
         from lasif.utils import table_printer
         print("\nStation and waveform information available at %i "
               "stations:\n" % len(stations))
-        header = ["id", "latitude", "longitude", "elevation_in_m",
-                  "local depth"]
+        header = ["ID", "Latitude", "Longitude", "Elevation_in_m"]
         keys = sorted(stations.keys())
         data = [[
             key, stations[key]["latitude"], stations[key]["longitude"],
-            stations[key]["elevation_in_m"], stations[key]["local_depth_in_m"]]
+            stations[key]["elevation_in_m"]]
             for key in keys]
         table_printer(header, data)
     else:
@@ -532,19 +450,20 @@ def lasif_plot_stf(parser, args):
     Plot the source time function for one iteration.
     """
     import lasif.visualization
-
-    parser.add_argument("iteration_name", help="name of the iteration")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-
     comm = _find_project_comm(".")
 
-    iteration = comm.iterations.get(iteration_name)
-    pp = iteration.get_process_params()
-    freqmin = pp["highpass"]
-    freqmax = pp["lowpass"]
+    freqmax = 1.0 / comm.project.preprocessing_params["highpass_period"]
+    freqmin = 1.0 / comm.project.preprocessing_params["lowpass_period"]
 
-    stf = iteration.get_source_time_function()
+    stf_fct = comm.project.get_project_function(
+        "source_time_function")
+
+    delta = comm.project.simulation_params["time_increment"]
+    npts = comm.project.simulation_params["number_of_time_steps"]
+
+    stf = {"delta": delta}
+
+    stf["data"] = stf_fct(npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax)
 
     # Ignore lots of potential warnings with some plotting functionality.
     lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
@@ -562,6 +481,7 @@ def lasif_generate_all_input_files(parser, args):
         * "adjoint_reverse"
     """
     parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("weight_set_name", help="name of the weight set")
     parser.add_argument("--simulation_type",
                         choices=("normal_simulation", "adjoint_forward",
                                  "adjoint_reverse"),
@@ -569,17 +489,19 @@ def lasif_generate_all_input_files(parser, args):
                         help="type of simulation to run")
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
+    weight_set_name = args.weight_set_name
+
     simulation_type = args.simulation_type
 
     comm = _find_project_comm(".")
     simulation_type = simulation_type.replace("_", " ")
 
-    it = comm.iterations.get(iteration_name)
-    events = sorted(it.events.keys())
+    weights = comm.weights.get(weight_set_name)
+    events = sorted(weights.events.keys())
     for _i, event in enumerate(events):
         print("Generating input files for event %i of %i..." % (_i + 1,
                                                                 len(events)))
-        comm.actions.generate_input_files(iteration_name, event,
+        comm.actions.generate_input_files(weight_set_name, iteration_name, event,
                                           simulation_type)
 
 
@@ -769,164 +691,34 @@ def lasif_launch_misfit_gui(parser, args):
     launch(comm)
 
 
-@command_group("Plotting")
-def lasif_launch_model_gui(parser, args):
+@command_group("Iteration Management")
+def lasif_create_weight_set(parser, args):
     """
-    Launch the model GUI.
+    Create a new set of event and station weights.
     """
+    parser.add_argument("weight_set_name", help="name of the weight set, i.e. \"A\"")
+
     args = parser.parse_args(args)
+    weight_set_name = args.weight_set_name
 
     comm = _find_project_comm(".")
-
-    from lasif.ses3d_model_gui.model_gui import launch
-    launch(comm)
-
-
-@command_group("Plotting")
-def lasif_plot_model(parser, args):
-    """
-    Directly plot a model to a file.
-
-    Useful for scripting LASIF.
-    """
-    parser.add_argument("model_name", help="name of the model")
-    parser.add_argument("depth", type=float, help="the depth at which to plot")
-    parser.add_argument("component", type=str,
-                        help="the component to plot")
-    parser.add_argument("filename", type=str,
-                        help="Output filename. Use '-' to not write to a "
-                             "file but directly show the kernel.")
-
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".", args.read_only_caches)
-
-    if args.model_name not in comm.models.list():
-        raise LASIFCommandLineException("Model '%s' not known to LASIF." %
-                                        args.model_name)
-
-    import matplotlib.pyplot as plt
-
-    plt.figure(figsize=(15, 15))
-
-    model = comm.models.get_model_handler(args.model_name)
-    model.parse_component(args.component)
-
-    m = comm.project.domain.plot()
-    im = model.plot_depth_slice(component=args.component,
-                                depth_in_km=args.depth, m=m)["mesh"]
-
-    # make a colorbar and title
-    m.colorbar(im, "right", size="3%", pad='2%')
-    plt.title(str(args.depth) + ' km')
-
-    if args.filename == "-":
-        plt.show()
-    else:
-        plt.savefig(args.filename, dpi=100)
-    plt.close()
-
-
-@command_group("Plotting")
-def lasif_plot_kernel(parser, args):
-    """
-    Directly plot a kernel to a file.
-
-    Useful for scripting LASIF. As they are not often in the LASIF project
-    this is one of the view commands that will work on data outside of LASIF.
-    """
-    parser.add_argument("folder", help="The folder containing the gradients.")
-    parser.add_argument("depth", type=float,
-                        help="The depth at which to plot.")
-    parser.add_argument("component", type=str,
-                        help="The component to plot.")
-    parser.add_argument("filename", type=str,
-                        help="Output filename. Use '-' to not write to a "
-                             "file but directly show the kernel.")
-
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".", args.read_only_caches)
-
-    import matplotlib.pyplot as plt
-    from lasif.ses3d_models import RawSES3DModelHandler
-
-    plt.figure(figsize=(15, 15))
-
-    model = RawSES3DModelHandler(
-        directory=args.folder, domain=comm.project.domain,
-        model_type="kernel")
-
-    model.parse_component(args.component)
-
-    m = comm.project.domain.plot()
-    im = model.plot_depth_slice(component=args.component,
-                                depth_in_km=args.depth, m=m)["mesh"]
-
-    # make a colorbar and title
-    m.colorbar(im, "right", size="3%", pad='2%')
-    plt.title(str(args.depth) + ' km')
-
-    if args.filename == "-":
-        plt.show()
-    else:
-        plt.savefig(args.filename, dpi=100)
-    plt.close()
-
+    comm.weights.create_new_weight_set(
+        weight_set_name=weight_set_name,
+        events_dict=comm.query.get_stations_for_all_events())
 
 @command_group("Iteration Management")
-def lasif_create_new_iteration(parser, args):
+def lasif_setup_new_iteration(parser, args):
     """
-    Create a new iteration.
+    Creates directory structure for a new iteration.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("min_period", type=float,
-                        help="the minimum period of the iteration")
-    parser.add_argument("max_period", type=float,
-                        help="the maximum period of the iteration")
-    parser.add_argument("solver_name", help="name of the solver",
-                        choices=("SES3D_4_1", "SES3D_2_0",
-                                 "SPECFEM3D_CARTESIAN",
-                                 "SPECFEM3D_GLOBE_CEM"))
+    parser.add_argument("iteration_name", help="name of the iteration, i.e. \"1\"")
+
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
-    solver_name = args.solver_name
-    min_period = args.min_period
-    max_period = args.max_period
-    if min_period >= max_period:
-        msg = "min_period needs to be smaller than max_period."
-        raise LASIFCommandLineException(msg)
 
     comm = _find_project_comm(".")
-    comm.iterations.create_new_iteration(
-        iteration_name=iteration_name,
-        solver_name=solver_name,
-        events_dict=comm.query.get_stations_for_all_events(),
-        min_period=min_period,
-        max_period=max_period)
-
-
-@command_group("Iteration Management")
-def lasif_create_successive_iteration(parser, args):
-    """
-    Create an iteration based on an existing one.
-
-    It will take all settings in one iteration and transfers them to another
-    iteration. Any comments will be deleted.
-    """
-    parser.add_argument("existing_iteration",
-                        help="name of the existing iteration")
-    parser.add_argument("new_iteration", help="name of the new iteration")
-    args = parser.parse_args(args)
-    existing_iteration_name = args.existing_iteration
-    new_iteration_name = args.new_iteration
-
-    comm = _find_project_comm(".")
-
-    comm.iterations.create_successive_iteration(
-        existing_iteration_name=existing_iteration_name,
-        new_iteration_name=new_iteration_name)
-
+    comm.iterations.setup_directories_for_iteration(
+        iteration_name=iteration_name)
 
 @mpi_enabled
 @command_group("Iteration Management")
@@ -1148,7 +940,7 @@ def lasif_migrate_windows(parser, args):
 
 
 @command_group("Iteration Management")
-def lasif_list_iterations(parser, args):
+def lasif_list_weight_sets(parser, args):
     """
     Print a list of all iterations in the project.
     """
@@ -1156,12 +948,12 @@ def lasif_list_iterations(parser, args):
 
     comm = _find_project_comm(".")
 
-    it_len = comm.iterations.count()
+    it_len = comm.weights.count()
 
-    print("%i iteration%s in project:" % (it_len,
+    print("%i weight set(s)%s in project:" % (it_len,
           "s" if it_len != 1 else ""))
-    for iteration in comm.iterations.list():
-        print("\t%s" % iteration)
+    for weights in comm.weights.list():
+        print("\t%s" % weights)
 
 
 @command_group("Iteration Management")
@@ -1182,20 +974,6 @@ def lasif_iteration_info(parser, args):
     print(comm.iterations.get(iteration_name))
 
 
-@command_group("Project Management")
-def lasif_remove_empty_coordinate_entries(parser, args):
-    """
-    Remove all empty coordinate entries in the inventory cache.
-
-    This is useful if you want to try to download coordinates again.
-    """
-    args = parser.parse_args(args)
-
-    comm = _find_project_comm(".")
-    comm.inventory_db.remove_coordinate_less_stations()
-
-    print("SUCCESS")
-
 
 @mpi_enabled
 @command_group("Iteration Management")
@@ -1207,12 +985,12 @@ def lasif_preprocess_data(parser, args):
     becomes the limiting factor. It also works without MPI but then only one
     core actually does any work.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("weight_set", help="name of the weight set")
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
     args = parser.parse_args(args)
-    iteration_name = args.iteration_name
+    weight_set_name = args.weight_set
     events = args.events if args.events else None
 
     comm = _find_project_comm_mpi(".")
@@ -1220,10 +998,10 @@ def lasif_preprocess_data(parser, args):
     # No need to perform these checks on all ranks.
     exceptions = []
     if MPI.COMM_WORLD.rank == 0:
-        if not comm.iterations.has_iteration(iteration_name):
-            msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to "
-                   "get a list of all available iterations.") % iteration_name
-            exceptions.append(msg)
+        if not comm.weights.has_weight_set(weight_set_name):
+           msg = ("Weights '%s' not found. Use 'lasif list_iterations' to "
+                  "get a list of all available iterations.") % weight_set_name
+           exceptions.append(msg)
 
         # Check if the event ids are valid.
         if not exceptions and events:
@@ -1238,23 +1016,7 @@ def lasif_preprocess_data(parser, args):
     if exceptions:
         raise LASIFCommandLineException(exceptions[0])
 
-    comm.actions.preprocess_data(iteration_name, events)
-
-
-@command_group("Iteration Management")
-def lasif_plot_q_model(parser, args):
-    """
-    Plots the Q model for a given iteration.
-    """
-    parser.add_argument("iteration_name", help="name of iteration")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-
-    comm = _find_project_comm(".")
-    comm.iterations.plot_Q_model(iteration_name)
-
-    import matplotlib.pyplot as plt
-    plt.show()
+    comm.actions.preprocess_data(weight_set_name, events)
 
 
 @command_group("Plotting")
@@ -1413,27 +1175,6 @@ def lasif_tutorial(parser, args):
 
     import webbrowser
     webbrowser.open("http://krischer.github.io/LASIF/")
-
-
-def lasif_calculate_constant_q_model(parser, args):
-    """
-    Calculate a constant Q model useable by SES3D.
-    """
-    from lasif.tools import Q_discrete
-
-    parser.add_argument("min_period", type=float,
-                        help="minimum period for the constant frequency band")
-    parser.add_argument("max_period", type=float,
-                        help="maximum period for the constant frequency band")
-    args = parser.parse_args(args)
-
-    weights, relaxation_times, = Q_discrete.calculate_Q_model(
-        N=3,
-        f_min=1.0 / args.max_period,
-        f_max=1.0 / args.min_period,
-        iterations=10000,
-        initial_temperature=0.1,
-        cooling_factor=0.9998)
 
 
 def lasif_debug(parser, args):

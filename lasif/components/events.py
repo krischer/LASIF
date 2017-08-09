@@ -8,6 +8,8 @@ import warnings
 import os
 import glob
 
+import obspy
+
 from .component import Component
 from lasif import LASIFNotFoundError, LASIFWarning
 from obspy.geodetics import FlinnEngdahl
@@ -217,5 +219,6 @@ class EventsComponent(Component):
 
         if event_name not in self.__event_info_cache:
             values = dict(zip(self.index_values, self._extract_index_values_quakeml(self.all_events[event_name])))
+            values["origin_time"] = obspy.UTCDateTime(values["origin_time"])
             self.__event_info_cache[event_name] = values
         return self.__event_info_cache[event_name]
