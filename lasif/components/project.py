@@ -152,7 +152,7 @@ class Project(Component):
         # Basic components.
         EventsComponent(folder=self.paths["data"], communicator=self.comm,
                         component_name="events")
-        WaveformsComponent(data_folder=self.paths["data"], preproc_data_folder=self.paths["preprocessed_data"],
+        WaveformsComponent(data_folder=self.paths["data"], preproc_data_folder=self.paths["preproc_data"],
                            synthetics_folder=self.paths["synthetics"],
                            communicator=self.comm, component_name="waveforms")
         WeightsComponent(weights_folder=self.paths["weights"],
@@ -196,24 +196,32 @@ class Project(Component):
         self.paths = dict()
         self.paths["root"] = root_path
 
+        # Data
         self.paths["data"] = root_path / "DATA"
-        self.paths["logs"] = root_path / "LOGS"
+        self.paths["corr_data"] = root_path / "DATA" / "CORRELATIONS"
+        self.paths["eq_data"] = root_path / "DATA" / "EARTHQUAKES"
+
         self.paths["synthetics"] = root_path / "SYNTHETICS"
-        self.paths["preprocessed_data"] = root_path / "PREPROCESSED_DATA"
-        self.paths["output"] = root_path / "OUTPUT"
+        self.paths["corr_synthetics"] = root_path / "SYNTHETICS" / "CORRELATIONS"
+        self.paths["eq_synthetics"] = root_path / "SYNTHETICS" / "EARTHQUAKES"
+
+        self.paths["preproc_data"] = root_path / "PREPROCESSED_DATA"
+        self.paths["preproc_eq_data"] = root_path / "PREPROCESSED_DATA" / "EARTHQUAKES"
+        self.paths["preproc_corr_data"] = root_path / "PREPROCESSED_DATA" / "CORRELATIONS"
+
         self.paths["sets"] = root_path / "SETS"
         self.paths["windows"] = root_path / "SETS" / "WINDOWS"
         self.paths["weights"] = root_path / "SETS" / "WEIGHTS"
-        self.paths["input_files"] = root_path / "INPUT_FILES"
+
+        self.paths["adjoint_sources"] = root_path / "ADJOINT_SOURCES"
+        self.paths["output"] = root_path / "OUTPUT"
+        self.paths["salvus_input"] = root_path / "SALVUS_INPUT_FILES"
 
         # Path for the custom functions.
         self.paths["functions"] = root_path / "FUNCTIONS"
 
         # Paths for various files.
         self.paths["config_file"] = root_path / "lasif_config.toml"
-
-        self.paths["adjoint_sources"] = \
-            root_path / "ADJOINT_SOURCES"
 
     def __update_folder_structure(self):
         """
