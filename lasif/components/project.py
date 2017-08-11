@@ -150,9 +150,9 @@ class Project(Component):
         keep the references to the single components.
         """
         # Basic components.
-        EventsComponent(folder=self.paths["data"], communicator=self.comm,
+        EventsComponent(folder=self.paths["eq_data"], communicator=self.comm,
                         component_name="events")
-        WaveformsComponent(data_folder=self.paths["data"], preproc_data_folder=self.paths["preproc_data"],
+        WaveformsComponent(data_folder=self.paths["eq_data"], preproc_data_folder=self.paths["preproc_data"],
                            synthetics_folder=self.paths["synthetics"],
                            communicator=self.comm, component_name="waveforms")
         WeightsComponent(weights_folder=self.paths["weights"],
@@ -215,6 +215,7 @@ class Project(Component):
 
         self.paths["adjoint_sources"] = root_path / "ADJOINT_SOURCES"
         self.paths["output"] = root_path / "OUTPUT"
+        self.paths["logs"] = root_path / "OUTPUT" / "LOGS"
         self.paths["salvus_input"] = root_path / "SALVUS_INPUT_FILES"
 
         # Path for the custom functions.

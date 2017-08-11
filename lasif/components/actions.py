@@ -64,7 +64,7 @@ class ActionsComponent(Component):
                 asdf_file_name = self.comm.waveforms.get_asdf_filename(event_name, data_type="raw")
                 lowpass_period = process_params["lowpass_period"]
                 highpass_period = process_params["highpass_period"]
-                preprocessing_tag = self.comm.waveforms.get_preprocessing_tag()
+                preprocessing_tag = self.comm.waveforms.preprocessing_tag
 
                 output_filename = os.path.join(output_folder, preprocessing_tag + ".h5")
 
@@ -228,7 +228,7 @@ class ActionsComponent(Component):
                 event=event["event_name"], iteration=iteration,
                 adj_sources=results)
 
-    def select_windows(self, event, weight_set_name, **kwargs):
+    def select_windows(self, event, iteration_name, **kwargs):
         """
         Automatically select the windows for the given event and iteration.
 
@@ -243,17 +243,16 @@ class ActionsComponent(Component):
         import pyasdf
 
         event = self.comm.events.get(event)
-        iteration = self.comm.weights.get(iteration)
 
         # Get the ASDF filenames.
         processed_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="processed",
-            tag_or_iteration=iteration.processing_tag)
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag)
         synthetic_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="synthetic",
-            tag_or_iteration=iteration.name)
+            tag_or_iteration=iteration_name)
 
         if not os.path.exists(processed_filename):
             msg = "File '%s' does not exists." % processed_filename
@@ -267,9 +266,9 @@ class ActionsComponent(Component):
         select_windows = self.comm.project.get_project_function(
             "window_picking_function")
 
-        process_params = iteration.get_process_params()
-        minimum_period = 1.0 / process_params["lowpass"]
-        maximum_period = 1.0 / process_params["highpass"]
+        process_params = self.comm.project.preprocessing_params
+        minimum_period = process_params["highpass_period"]
+        maximum_period = process_params["lowpass_period"]
 
         def process(observed_station, synthetic_station):
             obs_tag = observed_station.get_waveform_tags()
@@ -294,10 +293,8 @@ class ActionsComponent(Component):
             coordinates=observed_station.coordinates
 
             # Process and rotate the synthetics.
-            st_syn = self.comm.waveforms.rotate_and_process_synthetics(
-                st=st_syn.copy(), station_id=observed_station._station_name,
-                iteration=iteration, event_name=event["event_name"],
-                coordinates=coordinates)
+            st_syn = self.comm.waveforms.process_synthetics(
+                st=st_syn.copy(), iteration=iteration_name, event_name=event["event_name"])
 
             all_windows = {}
 
@@ -315,7 +312,7 @@ class ActionsComponent(Component):
                     coordinates["longitude"],
                     minimum_period=minimum_period,
                     maximum_period=maximum_period,
-                    iteration=iteration, **kwargs)
+                    iteration=iteration_name, **kwargs)
 
                 if not windows:
                     continue

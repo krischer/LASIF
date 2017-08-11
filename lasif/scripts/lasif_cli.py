@@ -277,7 +277,7 @@ def lasif_add_spud_event(parser, args):
     from lasif.scripts.iris2quakeml import iris2quakeml
 
     comm = _find_project_comm(".")
-    iris2quakeml(url, comm.project.paths["data"])
+    iris2quakeml(url, comm.project.paths["eq_data"])
 
 
 @command_group("Data Acquisition")
@@ -622,16 +622,16 @@ def lasif_select_windows(parser, args):
     becomes the limiting factor. It also works without MPI but then only one
     core actually does any work.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("iteration", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
     args = parser.parse_args(args)
 
-    iteration = args.iteration_name
+    iteration_name = args.iteration
     event = args.event_name
 
     comm = _find_project_comm_mpi(".")
 
-    comm.actions.select_windows(event, iteration)
+    comm.actions.select_windows(event, iteration_name)
 
 
 @mpi_enabled

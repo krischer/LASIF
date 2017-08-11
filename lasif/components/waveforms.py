@@ -79,7 +79,8 @@ class WaveformsComponent(Component):
         else:
             raise ValueError("Invalid data type '%s'." % data_type)
 
-    def get_preprocessing_tag(self):
+    @property
+    def preprocessing_tag(self):
         """
         Gets the preprocessing tag for the lasif project, since each lasif project assumes a constant frequency
         this only has to be one tag.
@@ -273,7 +274,6 @@ class WaveformsComponent(Component):
             filename = self.get_asdf_filename(
                 event_name=event_name, data_type="synthetic",
                 tag_or_iteration=iteration)
-            print(filename)
             if not os.path.exists(filename):
                 continue
             with pyasdf.ASDFDataSet(filename, mode="r") as ds:
