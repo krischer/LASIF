@@ -46,15 +46,15 @@ class DownloadsComponent(Component):
             location_priorities=ds["location_priorities"],
             channel_priorities=ds["channel_priorities"])
 
-        filename = proj.paths["data"] / (event["event_name"] + ".h5")
+        filename = proj.paths["eq_data"] / (event["event_name"] + ".h5")
 
         import pyasdf
         asdf_ds = pyasdf.ASDFDataSet(filename, compression="gzip-3")
 
-        stationxml_storage_path = proj.paths["data"] / f"tmp_station_xml_storage_{event_name}"
+        stationxml_storage_path = proj.paths["eq_data"] / f"tmp_station_xml_storage_{event_name}"
         stationxml_storage = self._get_stationxml_storage_fct(asdf_ds, starttime,
                                                               endtime, stationxml_storage_path)
-        mseed_storage_path = proj.paths["data"] / f"tmp_mseed_storage_{event_name}"
+        mseed_storage_path = proj.paths["eq_data"] / f"tmp_mseed_storage_{event_name}"
         mseed_storage = self._get_mseed_storage_fct(asdf_ds, starttime, endtime, mseed_storage_path)
 
         # Also log to file for reasons of provenance and debugging.

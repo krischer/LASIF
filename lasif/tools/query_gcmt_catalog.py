@@ -196,7 +196,7 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     print("Selected %i events." % len(chosen_events))
     folder = os.path.join(comm.project.paths['root'], "tmp")
     os.mkdir(folder)
-    data_dir = comm.project.paths["data"]
+    data_dir = comm.project.paths["eq_data"]
     for event in chosen_events:
         filename = os.path.join(folder, get_event_filename(event, "GCMT"))
         Catalog(events=[event]).write(filename, format="quakeml",
