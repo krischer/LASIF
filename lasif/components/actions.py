@@ -53,7 +53,7 @@ class ActionsComponent(Component):
                 if not ((event_names is None) or (event_name in event_names)):
                     continue
 
-                output_folder = os.path.join(self.comm.project.paths["preprocessed_data"], event_name)
+                output_folder = os.path.join(self.comm.project.paths["preproc_eq_data"], event_name)
 
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
@@ -245,10 +245,20 @@ class ActionsComponent(Component):
         event = self.comm.events.get(event)
 
         # Get the ASDF filenames.
+
+        # I can mock this by hardcoding a false synthetic waveform here
+        # and then proceeding as if this data was the preprocessed data
+        # then I can store the windows, perhaps in a sqlite3 database
+        # or even mocking the preprocessed_data itself.
+        # processed_filename = self.comm.waveforms.get_asdf_filename(
+        #     event_name=event["event_name"],
+        #     data_type="processed",
+        #     tag_or_iteration=self.comm.waveforms.preprocessing_tag)
+
         processed_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
-            data_type="processed",
-            tag_or_iteration=self.comm.waveforms.preprocessing_tag)
+            data_type="synthetic",
+            tag_or_iteration="2")
         synthetic_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="synthetic",
@@ -292,7 +302,7 @@ class ActionsComponent(Component):
             # Extract coordinates once.
             coordinates=observed_station.coordinates
 
-            # Process and rotate the synthetics.
+            #Process and rotate the synthetics.
             st_syn = self.comm.waveforms.process_synthetics(
                 st=st_syn.copy(), iteration=iteration_name, event_name=event["event_name"])
 
@@ -331,8 +341,9 @@ class ActionsComponent(Component):
 
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
+            print(results)
             self.comm.wins_and_adj_sources.write_windows(
-                event=event["event_name"], iteration=iteration,
+                event=event["event_name"], iteration=iteration_name,
                 windows=results)
 
     def select_windows_for_station(self, event, iteration, station, **kwargs):
@@ -455,7 +466,7 @@ class ActionsComponent(Component):
         # =================================================================
 
         long_iter_name = self.comm.iterations.get_long_iteration_name(iteration_name)
-        input_files_dir = self.comm.project.paths['input_files']
+        input_files_dir = self.comm.project.paths['salvus_input']
         output_dir = os.path.join(input_files_dir, long_iter_name, event_name)
 
         if not os.path.exists(output_dir):

@@ -203,17 +203,17 @@ class QueryComponent(Component):
             raise ValueError("'station_or_channel_id' must either have "
                              "2 or 4 parts.")
 
-        iteration = self.comm.iterations.get(iteration)
+        iteration_long_name = self.comm.iterations.get_long_iteration_name(iteration)
         event = self.comm.events.get(event)
 
         # Get the metadata for the processed and synthetics for this
         # particular station.
         data = self.comm.waveforms.get_waveforms_processed(
             event["event_name"], station_id,
-            tag=iteration.processing_tag)
+            tag=self.comm.waveforms.preprocessing_tag)
         synthetics = self.comm.waveforms.get_waveforms_synthetic(
             event["event_name"], station_id,
-            long_iteration_name=iteration.long_name)
+            long_iteration_name=iteration_long_name)
         coordinates = self.comm.query.get_coordinates_for_station(
             event["event_name"], station_id)
 
@@ -234,7 +234,7 @@ class QueryComponent(Component):
                         "%s. LASIF will select the first one, but please "
                         "clean up your data." % (
                             name.capitalize(), event["event_name"],
-                            iteration.iteration_name, station_id, _c,
+                            iteration, station_id, _c,
                             len(traces), ", ".join(tr.id for tr in traces)),
                         LASIFWarning)
                     for tr in traces[1:]:
@@ -266,7 +266,9 @@ class QueryComponent(Component):
                              station_id)
 
         # Scale the data if required.
-        if iteration.scale_data_to_synthetics:
+        #if iteration.scale_data_to_synthetics:
+        #TODO fix this
+        if True:
             for data_tr in data:
                 synthetic_tr = [
                     tr for tr in synthetics

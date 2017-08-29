@@ -152,8 +152,8 @@ class Project(Component):
         # Basic components.
         EventsComponent(folder=self.paths["eq_data"], communicator=self.comm,
                         component_name="events")
-        WaveformsComponent(data_folder=self.paths["eq_data"], preproc_data_folder=self.paths["preproc_data"],
-                           synthetics_folder=self.paths["synthetics"],
+        WaveformsComponent(data_folder=self.paths["eq_data"], preproc_data_folder=self.paths["preproc_eq_data"],
+                           synthetics_folder=self.paths["eq_synthetics"],
                            communicator=self.comm, component_name="waveforms")
         WeightsComponent(weights_folder=self.paths["weights"],
                             communicator=self.comm,

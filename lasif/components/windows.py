@@ -48,9 +48,9 @@ class WindowsAndAdjointSourcesComponent(Component):
         :param iteration: The iteration.
         """
         event = self.comm.events.get(event)
-        iteration = self.comm.iterations.get(iteration)
+        iteration_long_name = self.comm.iterations.get_long_iteration_name(iteration)
 
-        folder = os.path.join(self._folder, iteration.long_name)
+        folder = os.path.join(self._folder, iteration_long_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
 
@@ -77,10 +77,10 @@ class WindowsAndAdjointSourcesComponent(Component):
         # we are already in MPI but only rank 0 will enter here and that
         # will confuse pyasdf otherwise.
         with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
-            for value in windows.itervalues():
+            for value in windows.values():
                 if not value:
                     continue
-                for c_id, windows in value.iteritems():
+                for c_id, windows in value.items():
                     net, sta, loc, cha = c_id.split(".")
                     for _i, window in enumerate(windows):
                         ds.add_auxiliary_data(
@@ -149,7 +149,7 @@ class WindowsAndAdjointSourcesComponent(Component):
 
             for station in ds.auxiliary_data.Windows:
                 for channel in station:
-                    aux_type = channel.get_auxiliary_data_type()
+                    aux_type = channel.auxiliary_data_type
                     _, sta, cha = aux_type.split("/")
                     net, sta = sta.split("_")
                     _, loc, cha = cha.split("_")
@@ -158,7 +158,10 @@ class WindowsAndAdjointSourcesComponent(Component):
                         windows.append((
                             obspy.UTCDateTime(window.parameters["starttime"]),
                             obspy.UTCDateTime(window.parameters["endtime"])))
-                    all_windows["%s.%s.%s.%s" % (net, sta, loc, cha)] = windows
+
+                    if "%s.%s" % (net, sta) not in all_windows.keys():
+                        all_windows["%s.%s" % (net, sta)] = {}
+                    all_windows["%s.%s" % (net, sta)]["%s.%s.%s.%s" % (net, sta, loc, cha)] = windows
 
         return all_windows
 

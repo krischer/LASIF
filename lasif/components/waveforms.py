@@ -75,7 +75,8 @@ class WaveformsComponent(Component):
             return os.path.join(
                 self._synthetics_folder,
                 tag_or_iteration,
-                event_name + ".h5")
+                event_name,
+                "receivers.h5")
         else:
             raise ValueError("Invalid data type '%s'." % data_type)
 
@@ -122,20 +123,19 @@ class WaveformsComponent(Component):
         :param station_id: The id of the station in the form ``NET.STA``.
         :param long_iteration_name: The long form of an iteration name.
         """
-        iteration = self.comm.iterations.get(long_iteration_name)
 
         st = self._get_waveforms(event_name, station_id,
                                  data_type="synthetic",
-                                 tag_or_iteration=iteration.long_name)
+                                 tag_or_iteration=long_iteration_name)
 
         return self.process_synthetics(
-            st=st , iteration=iteration,
+            st=st ,
             event_name=event_name)
 
-    def process_synthetics(self, st, iteration, event_name):
+    def process_synthetics(self, st, event_name):
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("process_synthetics")
-        return fct(st, iteration=iteration,
+        return fct(st,
                    event=self.comm.events.get(event_name))
 
     def _get_waveforms(self, event_name, station_id, data_type,
@@ -198,9 +198,9 @@ class WaveformsComponent(Component):
                 "The tag for station '%s' in file '%s' must contain "
                 "'processed' for processed data." % (station_id, filename))
         elif data_type == "synthetic":
-            assert "synthetic" in tag, (
+            assert "displacement" in tag, (
                 "The tag for station '%s' in file '%s' must contain "
-                "'synthetic' for synthetic data." % (station_id, filename))
+                "'displacement' for displacement data." % (station_id, filename))
         else:
             raise ValueError
 

@@ -46,16 +46,16 @@ def compile_and_import_ui_files():
         if not os.path.exists(py_ui_file) or \
                 (os.path.getmtime(ui_file) >= os.path.getmtime(py_ui_file)):
             from PyQt4 import uic
-            print "Compiling ui file: %s" % ui_file
+            print("Compiling ui file: %s" % ui_file)
             with open(py_ui_file, 'w') as open_file:
                 uic.compileUi(ui_file, open_file)
         # Import the (compiled) file.
         try:
             import_name = os.path.splitext(os.path.basename(py_ui_file))[0]
             globals()[import_name] = imp.load_source(import_name, py_ui_file)
-        except ImportError, e:
-            print "Error importing %s" % py_ui_file
-            print e.message
+        except ImportError as e:
+            print("Error importing %s" % py_ui_file)
+            print(e.message)
 
 
 path_effects = [PathEffects.withStroke(linewidth=5, foreground="white")]
@@ -131,12 +131,15 @@ class Window(QtGui.QMainWindow):
         value = str(value).strip()
         if not value:
             return
-        it = self.comm.iterations.get(value)
+        #it = self.comm.iterations.get(value)
+        events = self.comm.events.list()
         self.ui.event_selection_comboBox.setEnabled(True)
         self.ui.event_selection_comboBox.clear()
-        self.ui.event_selection_comboBox.addItems(sorted(it.events.keys()))
+        self.ui.event_selection_comboBox.addItems(events)
 
-        if it.scale_data_to_synthetics:
+        #TODO fix this down here, add a setting to config
+        #if it.scale_data_to_synthetics:
+        if True:
             self.ui.status_label.setText("Data scaled to synthetics for "
                                          "this iteration")
         else:
@@ -193,12 +196,14 @@ class Window(QtGui.QMainWindow):
         value = str(value).strip()
         if not value:
             return
-        it = self.comm.iterations.get(self.current_iteration)
+        #it = self.comm.iterations.get(self.current_iteration)
         self.ui.stations_listWidget.clear()
-        self.ui.stations_listWidget.addItems(
-            sorted(it.events[value]["stations"].keys()))
+        stations = self.comm.query.get_all_stations_for_event(value)
 
-        self.current_window_manager = self.comm.windows.get(
+        self.ui.stations_listWidget.addItems(
+            sorted(stations.keys()))
+
+        self.current_window_manager = self.comm.wins_and_adj_sources.read_all_windows(
             self.current_event, self.current_iteration)
 
         self._reset_all_plots()
@@ -221,6 +226,11 @@ class Window(QtGui.QMainWindow):
 
         self._reset_all_plots()
 
+        # moved outside for the try except for debugging
+        wave = self.comm.query.get_matching_waveforms(
+            self.current_event, self.current_iteration,
+            self.current_station)
+
         try:
             wave = self.comm.query.get_matching_waveforms(
                 self.current_event, self.current_iteration,
@@ -242,9 +252,9 @@ class Window(QtGui.QMainWindow):
             source_depth_in_km=event["depth_in_km"],
             distance_in_degree=great_circle_distance)
 
+
         windows_for_station = \
-            self.current_window_manager.get_windows_for_station(
-                self.current_station)
+            self.current_window_manager[self.current_station]
 
         for component in ["Z", "N", "E"]:
             plot_widget = getattr(self.ui, "%s_graph" % component.lower())
@@ -276,11 +286,14 @@ class Window(QtGui.QMainWindow):
 
             plot_widget.autoRange()
 
-            window = [_i for _i in windows_for_station
-                      if _i.channel_id[-1].upper() == component]
+            #TODO window here, used to be the WindowManager object, which does not work anymore
+            #TODO Therefore similar functionalities have to be reimplemented with an sqlite database
+
+            window = [windows_for_station[_i] for _i in windows_for_station
+                      if _i[-1].upper() == component]
             if window:
-                plot_widget.windows = window[0]
-                for win in window[0].windows:
+                plot_widget.windows = window #[0]
+                for win in window[0]: #[0].windows:
                     WindowLinearRegionItem(win, event, parent=plot_widget)
 
         self._update_raypath(wave.coordinates)

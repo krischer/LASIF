@@ -3,13 +3,17 @@
 from PyQt4 import QtCore
 import pyqtgraph
 
+from obspy.core import UTCDateTime
 
 class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
     def __init__(self, window, event, parent, **kwargs):
         self.win = window
         self.event_time = event["origin_time"]
-        start = self.win.starttime - event["origin_time"]
-        end = self.win.endtime - event["origin_time"]
+
+
+        # Here self.win[0] is given as the real physical time, in my mocking example this therefore does not work
+        start = self.win[0] - event["origin_time"]
+        end = self.win[1] - event["origin_time"]
 
         values = [start, end]
 

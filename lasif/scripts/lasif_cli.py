@@ -687,6 +687,7 @@ def lasif_launch_misfit_gui(parser, args):
 
     comm = _find_project_comm(".")
 
+    #TODO fix the ugly prints coming from this function
     from lasif.misfit_gui.misfit_gui import launch
     launch(comm)
 

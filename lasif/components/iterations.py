@@ -48,7 +48,7 @@ class IterationsComponent(Component):
 
         :param iteration_name: The iteration for which to create the folders.
         """
-        path = self.comm.project.paths["synthetics"]
+        path = self.comm.project.paths["eq_synthetics"]
 
         folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):
@@ -60,7 +60,7 @@ class IterationsComponent(Component):
 
         :param iteration_name: The iteration for which to create the folders.
         """
-        path = self.comm.project.paths["input_files"]
+        path = self.comm.project.paths["salvus_input"]
 
         folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):
@@ -76,4 +76,16 @@ class IterationsComponent(Component):
 
         folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):
-            os.makedirs(folder)\
+            os.makedirs(folder)
+
+    def list(self):
+
+        """
+        Returns a list of all the iterations known to LASIF.
+        """
+        files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
+            self.comm.project.paths["eq_synthetics"], "ITERATION_*"))]
+        iterations = [os.path.splitext(os.path.basename(_i))[0][10:]
+                       for _i in files]
+
+        return sorted(iterations)

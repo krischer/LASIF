@@ -11,7 +11,7 @@ Project specific function for modifying synthetics on the fly.
 """
 
 
-def process_synthetics(st, iteration, event):  # NOQA
+def process_synthetics(st, event):  # NOQA
     """
     This function is called after a synthetic file has been read.
 
