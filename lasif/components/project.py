@@ -258,6 +258,7 @@ class Project(Component):
         data_preproc_str = f"[data_preprocessing]\n" \
                            f"  highpass_period = 30.0\n" \
                            f"  lowpass_period = 50.0\n" \
+                           f"  scale_data_to_synthethics = true" \
                            f"\n"
 
         solver_par_str = "[solver]\n" \
@@ -266,7 +267,6 @@ class Project(Component):
                      "    adjoint_source_time_shift = -10\n\n" \
                      "    [solver.settings.simulation_parameters]\n" \
                      "      number_of_time_steps = 2000\n" \
-                     "      sampling_rate = 20.0\n" \
                      "      time_increment = 0.1\n" \
                      "      end_time = 2700.0\n" \
                      "      start_time = -10.0\n" \

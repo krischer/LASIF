@@ -60,7 +60,7 @@ def preprocessing_function_asdf(processing_info):
 
     # Pass these from config file
     npts = processing_info["npts"]
-    sampling_rate = processing_info["sampling_rate"]
+    sampling_rate = 1.0 / processing_info["dt"]
     min_period = processing_info["highpass_period"]
     max_period = processing_info["lowpass_period"]
 
