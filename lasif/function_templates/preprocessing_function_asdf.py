@@ -51,27 +51,33 @@ def preprocessing_function_asdf(processing_info):
     # Read ASDF file
     # =========================================================================
 
-    ds = ASDFDataSet(processing_info["asdf_input_filename"])
+    ds = ASDFDataSet(processing_info["asdf_input_filename"], compression=None)
     event = ds.events[0]
 
-    origin = event.preferred_origin() or event.origins[0]
-
-    starttime = origin.time + processing_info["salvus_start_time"]
-
-    # Pass these from config file
+    # Get processing_info
     npts = processing_info["npts"]
-    sampling_rate = processing_info["sampling_rate"]
+    sampling_rate = 1.0 / processing_info["dt"]
     min_period = processing_info["highpass_period"]
     max_period = processing_info["lowpass_period"]
 
-    f2 = 1.0 / max_period
-    f3 = 1.0 / min_period
-    f1 = 0.8 * f2
-    f4 = 1.2 * f3
+    origin = event.preferred_origin() or event.origins[0]
+    starttime = origin.time + processing_info["salvus_start_time"]
+    endtime = starttime + processing_info["dt"] * (npts - 1)
+    duration = endtime - starttime
+
+    f2 = 0.9 / max_period
+    f3 = 1.1 / min_period
+    # Recommendations from the SAC manual.
+    f1 = 0.5 * f2
+    f4 = 2.0 * f3
     pre_filt = (f1, f2, f3, f4)
 
     def process_function(st, inv):
         for tr in st:
+            # Trim to reduce processing costs
+            tr.trim(starttime - 0.2 * duration, endtime + 0.2 * duration)
+
+            # Decimation
             while True:
                 decimation_factor = int(processing_info["dt"] /
                                         tr.stats.delta)
@@ -86,24 +92,39 @@ def preprocessing_function_asdf(processing_info):
                 else:
                     break
 
+        # Detrend and taper
         st.detrend("linear")
         st.detrend("demean")
         st.taper(max_percentage=0.05, type="hann")
 
+        # Instrument correction
         st.attach_response(inv)
         st.remove_response(output="DISP", pre_filt=pre_filt, zero_mean=False,
                            taper=False)
 
+        # Bandpass filtering
         st.detrend("linear")
         st.detrend("demean")
-        st.taper(max_percentage=0.05, type="hann")
+        st.taper(0.05, type="cosine")
+        st.filter("bandpass", freqmin=1.0/max_period, freqmax=1.0/min_period, corners=3,
+                  zerophase=True)
 
-        st.interpolate(sampling_rate=sampling_rate, starttime=starttime,
-                       npts=npts)
+        st.detrend("linear")
+        st.detrend("demean")
+        st.taper(0.05, type="cosine")
+        st.filter("bandpass", freqmin=1.0/max_period, freqmax=1.0/min_period, corners=3,
+                  zerophase=True)
+
+        # Sinc interpolation
+        for tr in st:
+            tr.data = np.require(tr.data, requirements="C")
+
+        st.interpolate(sampling_rate=sampling_rate, method="lanczos", starttime=starttime,
+                       window="blackman", a=12, npts=npts)
 
         # Convert to single precision to save space.
         for tr in st:
-            tr.data = np.require(tr.data, dtype="float32")
+            tr.data = np.require(tr.data, dtype="float32", requirements="C")
 
         return st
 
