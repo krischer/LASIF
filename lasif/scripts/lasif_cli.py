@@ -516,6 +516,7 @@ def lasif_generate_input_files(parser, args):
         * "adjoint_reverse"
     """
     parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("weight_set_name", help="name of the weight set")
     parser.add_argument("event_name", help="name of the event")
     parser.add_argument("--simulation_type",
                         choices=("normal_simulation", "adjoint_forward",
@@ -524,12 +525,13 @@ def lasif_generate_input_files(parser, args):
                         help="type of simulation to run")
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
+    weight_set_name = args.weight_set_name
     event_name = args.event_name
     simulation_type = args.simulation_type
 
     comm = _find_project_comm(".")
     simulation_type = simulation_type.replace("_", " ")
-    comm.actions.generate_input_files(iteration_name, event_name,
+    comm.actions.generate_input_files(weight_set_name, iteration_name, event_name,
                                       simulation_type)
 
 
