@@ -133,7 +133,7 @@ def images_are_identical(image_name, temp_dir, dpi=None, tol=5):
     # freetype and possibly agg versions. matplotlib uses a tolerance of 13.
     result = mpl_compare_images(expected, actual, tol=tol, in_decorator=True)
     if result is not None:
-        print result
+        print(result)
     assert result is None
 
 

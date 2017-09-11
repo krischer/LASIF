@@ -34,7 +34,6 @@ from .events import EventsComponent
 from .weights import WeightsComponent
 from .iterations import IterationsComponent
 from .query import QueryComponent
-from .stations import StationsComponent
 from .validator import ValidatorComponent
 from .visualizations import VisualizationsComponent
 from .waveforms import WaveformsComponent
