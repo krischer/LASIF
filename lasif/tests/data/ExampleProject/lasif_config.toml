@@ -1,0 +1,37 @@
+# Please fill in this config file before proceeding with using LASIF 
+ 
+[lasif_project]
+  project_name = "ExampleProject"
+  description = "Toy Project used in the Test Suite"
+  mesh_file = "./SphericalChunk3D_prem_ani_150.e"
+
+  [lasif_project.download_settings]
+    seconds_before_event = 300.0
+    seconds_after_event = 3600.0
+    interstation_distance_in_meters = 1000.0
+    channel_priorities = [ "BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]", "EH[Z,N,E]", "MH[Z,N,E]",]
+    location_priorities = [ "", "00", "10", "20", "01", "02",]
+
+[data_preprocessing]
+  highpass_period = 30.0
+  lowpass_period = 50.0
+  scale_data_to_synthethics = true
+[solver]
+  name = "Salvus"
+
+  [solver.settings]
+    adjoint_source_time_shift = -10
+
+    [solver.settings.simulation_parameters]
+      number_of_time_steps = 2000
+      time_increment = 0.1
+      end_time = 2700.0
+      start_time = -10.0
+      source_center_frequency = 0.025
+      polynomial_order = 4
+      dimensions = 3
+
+    [solver.settings.computational_setup]
+      number_of_processors = 4
+      salvus_call = "mpirun -n 4 salvus_bin"
+

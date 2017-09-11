@@ -81,7 +81,7 @@ def test_string_representation(comm, capsys):
     print(out)
     assert "\"ExampleProject\"" in out
     assert "Toy Project used in the Test Suite" in out
-    assert "1 events" in out
+    assert "2 events" in out
 
 
 def test_log_filename_creation(comm):
