@@ -24,12 +24,14 @@ class IterationsComponent(Component):
 
     def get_long_iteration_name(self, iteration_name):
         """
-        Returns the long form of an iteration from its short name.
+        Returns the long form of an iteration from its short or long name.
 
         >>> comm = getfixture('iterations_comm')
         >>> comm.iterations.get_long_iteration_name("1")
         'ITERATION_1'
         """
+
+        iteration_name = iteration_name.lstrip("ITERATION_")
         return "ITERATION_%s" % iteration_name
 
     def setup_directories_for_iteration(self, iteration_name):

@@ -725,6 +725,19 @@ def lasif_setup_new_iteration(parser, args):
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration_name)
 
+@command_group("Iteration Management")
+def lasif_list_iterations(parser, args):
+    """
+    Creates directory structure for a new iteration.
+    """
+    args = parser.parse_args(args)
+
+    comm = _find_project_comm(".")
+    iterations = comm.iterations.list()
+    print("Iterations known to LASIF: \n")
+    for iteration in iterations:
+        print(comm.iterations.get_long_iteration_name(iteration), "\n")
+
 @mpi_enabled
 @command_group("Iteration Management")
 def lasif_compare_misfits(parser, args):
@@ -902,46 +915,6 @@ def lasif_compare_misfits(parser, args):
     filename = os.path.join(output_folder, "misfit_comparision.pdf")
     plt.savefig(filename)
     print("\nSaved figure to '%s'" % os.path.relpath(filename))
-
-
-@command_group("Iteration Management")
-def lasif_migrate_windows(parser, args):
-    """
-    Migrates windows from one iteration to the next.
-    """
-    parser.add_argument("from_iteration",
-                        help="iteration containing windows")
-    parser.add_argument("to_iteration", help="iteration windows will "
-                                             "be migrated to")
-    args = parser.parse_args(args)
-    comm = _find_project_comm(".")
-
-    from_it = comm.iterations.get(args.from_iteration)
-    to_it = comm.iterations.get(args.to_iteration)
-
-    print("Migrating windows from iteration '%s' to iteration '%s'..." % (
-        from_it.name, to_it.name))
-
-    for event_name, stations in to_it.events.items():
-        stations = stations["stations"].keys()
-
-        window_group_from = comm.windows.get(event_name, from_it.name)
-        window_group_to = comm.windows.get(event_name, to_it.name)
-        contents_to = set(window_group_to.list())
-        contents_from = set(window_group_from.list())
-        contents = contents_from - contents_to
-
-        # Remove all not part of this iterations station.
-        filtered_contents = itertools.ifilter(
-            lambda x: ".".join(x.split(".")[:2]) in stations,
-            contents)
-
-        for channel_id in filtered_contents:
-            coll = window_group_from.get(channel_id)
-            coll.synthetics_tag = to_it.name
-            f = window_group_to._get_window_filename(channel_id)
-            coll.filename = f
-            coll.write()
 
 
 @command_group("Iteration Management")
@@ -1138,38 +1111,6 @@ def lasif_validate_data(parser, args):
     comm.validator.validate_data(
         station_file_availability=station_file_availability,
         raypaths=raypaths, waveforms=waveforms)
-
-
-@command_group("Iteration Management")
-def lasif_iteration_status(parser, args):
-    """
-    Query the current status of an iteration.
-    """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-
-    comm = _find_project_comm(".")
-    status = comm.query.get_iteration_status(iteration_name)
-    iteration = comm.iterations.get(iteration_name)
-
-    print("Iteration %s is defined for %i events:" % (iteration_name,
-                                                      len(iteration.events)))
-    for event in sorted(status.keys()):
-        st = status[event]
-        print("\t%s" % event)
-
-        print("\t\t%.2f %% of the events stations have picked windows" %
-              (st["fraction_of_stations_that_have_windows"] * 100))
-        if st["missing_raw"]:
-            print("\t\tLacks raw data for %i stations" %
-                  len(st["missing_raw"]))
-        if st["missing_processed"]:
-            print("\t\tLacks processed data for %i stations" %
-                  len(st["missing_processed"]))
-        if st["missing_synthetic"]:
-            print("\t\tLacks synthetic data for %i stations" %
-                  len(st["missing_synthetic"]))
 
 
 def lasif_tutorial(parser, args):
