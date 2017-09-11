@@ -10,6 +10,7 @@ Project specific function processing observed data.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
+from lasif import LASIFError
 from scipy import signal
 from pyasdf import ASDFDataSet
 
@@ -98,9 +99,18 @@ def preprocessing_function_asdf(processing_info):
         st.taper(max_percentage=0.05, type="hann")
 
         # Instrument correction
-        st.attach_response(inv)
-        st.remove_response(output="DISP", pre_filt=pre_filt, zero_mean=False,
-                           taper=False)
+        try:
+            st.attach_response(inv)
+            st.remove_response(output="DISP", pre_filt=pre_filt, zero_mean=False,
+                               taper=False)
+        except Exception as e:
+            net = inv.get_contents()['channels'][0].split('.', 2)[0]
+            sta = inv.get_contents()['channels'][0].split('.', 2)[1]
+
+            msg = ("Station: %s.%s could not be corrected with the help of "
+                   "asdf file: '%s'. Due to: '%s'  Will be skipped.") \
+                  % (net, sta, processing_info["asdf_input_filename"], e.__repr__()),
+            raise LASIFError(msg)
 
         # Bandpass filtering
         st.detrend("linear")

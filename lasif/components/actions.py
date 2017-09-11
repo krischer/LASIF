@@ -8,7 +8,7 @@ import os
 import warnings
 
 from lasif import LASIFError, LASIFWarning, LASIFNotFoundError
-from lasif import rotations
+
 from .component import Component
 
 
@@ -30,7 +30,6 @@ class ActionsComponent(Component):
             run. It will process all events if not given.
         """
         from mpi4py import MPI
-
         weight_set = self.comm.weights.get(weight_set_name)
         process_params = self.comm.project.preprocessing_params
         solver_params = self.comm.project.solver
@@ -69,8 +68,9 @@ class ActionsComponent(Component):
                 output_filename = os.path.join(output_folder, preprocessing_tag + ".h5")
 
                 # remove asdf file if it already exists
-                if os.path.exists(output_filename):
-                    os.remove(output_filename)
+                if MPI.COMM_WORLD.rank == 0:
+                    if os.path.exists(output_filename):
+                        os.remove(output_filename)
 
                 ret_dict = {
                     "process_params": process_params,
@@ -86,19 +86,19 @@ class ActionsComponent(Component):
                 }
                 yield ret_dict
 
-        # Only rank 0 needs to know what has to be processsed.
-        if MPI.COMM_WORLD.rank == 0:
-            to_be_processed = [{"processing_info": _i}
-                               for _i in processing_data_generator()]
-        else:
-            to_be_processed = None
+
+        to_be_processed = [{"processing_info": _i}
+                           for _i in processing_data_generator()]
 
         # Load project specific window selection function.
         preprocessing_function_asdf = self.comm.project.get_project_function(
             "preprocessing_function_asdf")
 
+        MPI.COMM_WORLD.Barrier()
         for event in to_be_processed:
             preprocessing_function_asdf(event["processing_info"])
+            MPI.COMM_WORLD.Barrier()
+
 
 
     def calculate_adjoint_sources(self, event, iteration, **kwargs):
@@ -228,7 +228,7 @@ class ActionsComponent(Component):
                 event=event["event_name"], iteration=iteration,
                 adj_sources=results)
 
-    def select_windows(self, event, iteration_name, **kwargs):
+    def select_windows(self, event, iteration_name, window_set_name, **kwargs):
         """
         Automatically select the windows for the given event and iteration.
 
@@ -245,20 +245,10 @@ class ActionsComponent(Component):
         event = self.comm.events.get(event)
 
         # Get the ASDF filenames.
-
-        # I can mock this by hardcoding a false synthetic waveform here
-        # and then proceeding as if this data was the preprocessed data
-        # then I can store the windows, perhaps in a sqlite3 database
-        # or even mocking the preprocessed_data itself.
-        # processed_filename = self.comm.waveforms.get_asdf_filename(
-        #     event_name=event["event_name"],
-        #     data_type="processed",
-        #     tag_or_iteration=self.comm.waveforms.preprocessing_tag)
-
         processed_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
-            data_type="synthetic",
-            tag_or_iteration="2")
+            data_type="processed",
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag)
         synthetic_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="synthetic",
@@ -302,9 +292,9 @@ class ActionsComponent(Component):
             # Extract coordinates once.
             coordinates=observed_station.coordinates
 
-            #Process and rotate the synthetics.
+            #Process the synthetics.
             st_syn = self.comm.waveforms.process_synthetics(
-                st=st_syn.copy(), iteration=iteration_name, event_name=event["event_name"])
+                st=st_syn.copy(), event_name=event["event_name"])
 
             all_windows = {}
 
@@ -312,6 +302,14 @@ class ActionsComponent(Component):
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
+
+                    # Scale Data to synthetics
+                    if True:
+                        scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
+
                 except LASIFNotFoundError:
                     continue
 
@@ -336,17 +334,15 @@ class ActionsComponent(Component):
 
         # Launch the processing. This will be executed in parallel across
         # ranks.
-        results = ds.process_two_files_without_parallel_output(ds_synth,
-                                                               process)
+        results = ds.process_two_files_without_parallel_output(ds_synth, process)
 
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
-            print(results)
-            self.comm.wins_and_adj_sources.write_windows(
-                event=event["event_name"], iteration=iteration_name,
-                windows=results)
+            print("Selected windows: ", results)
+            self.comm.wins_and_adj_sources.write_windows_to_sql(event_name=event["event_name"], windows=results,
+                                                                window_set_name=window_set_name)
 
-    def select_windows_for_station(self, event, iteration, station, **kwargs):
+    def select_windows_for_station(self, event, iteration, station, window_set_name, **kwargs):
         """
         Selects windows for the given event, iteration, and station. Will
         delete any previously existing windows for that station if any.
@@ -362,17 +358,18 @@ class ActionsComponent(Component):
             "window_picking_function")
 
         event = self.comm.events.get(event)
-        iteration = self.comm.iterations.get(iteration)
-        data = self.comm.query.get_matching_waveforms(event, iteration,
+        data = self.comm.query.get_matching_waveforms(event["event_name"], iteration,
                                                       station)
 
-        process_params = iteration.get_process_params()
-        minimum_period = 1.0 / process_params["lowpass"]
-        maximum_period = 1.0 / process_params["highpass"]
+        process_params = self.comm.project.preprocessing_params
+        minimum_period = process_params["highpass_period"]
+        maximum_period = process_params["lowpass_period"]
 
-        window_group_manager = self.comm.windows.get(event, iteration)
+        window_group_manager = self.comm.wins_and_adj_sources.get(window_set_name)
+
         # Delete the windows for this stations.
-        window_group_manager.delete_windows_for_station(station)
+        print(station)
+        #window_group_manager.(station)
 
         found_something = False
         for component in ["E", "N", "Z"]:
@@ -380,6 +377,8 @@ class ActionsComponent(Component):
                 data_tr = select_component_from_stream(data.data, component)
                 synth_tr = select_component_from_stream(data.synthetics,
                                                         component)
+                # delete preexisting windows
+                window_group_manager.del_all_windows_from_event_channel(event["event_name"], data_tr.id)
             except LASIFNotFoundError:
                 continue
             found_something = True
@@ -394,10 +393,10 @@ class ActionsComponent(Component):
             if not windows:
                 continue
 
-            window_group = window_group_manager.get(data_tr.id)
             for starttime, endtime in windows:
-                window_group.add_window(starttime=starttime, endtime=endtime)
-            window_group.write()
+                window_group_manager.add_window_to_event_channel(event_name=event["event_name"],
+                                                                 channel_name=data_tr.id,
+                                                                 start_time=starttime, end_time=endtime)
 
         if found_something is False:
             raise LASIFNotFoundError(
@@ -444,7 +443,7 @@ class ActionsComponent(Component):
             inv += ds.waveforms[station].StationXML
 
         import salvus_seismo
-        src = salvus_seismo.Source.parse(event)
+        src = salvus_seismo.Source.parse(event, sliprate="delta")
         recs = salvus_seismo.Receiver.parse(inv)
 
         solver_settings = self.comm.project.solver['settings']

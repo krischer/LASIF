@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1463</width>
+    <width>1037</width>
     <height>813</height>
    </rect>
   </property>
@@ -165,6 +165,16 @@
            <string/>
           </property>
          </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Windows</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="window_set_selection_comboBox"/>
         </item>
        </layout>
       </item>

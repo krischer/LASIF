@@ -626,14 +626,16 @@ def lasif_select_windows(parser, args):
     """
     parser.add_argument("iteration", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
+    parser.add_argument("window_set_name", help="name of the window_set")
     args = parser.parse_args(args)
 
     iteration_name = args.iteration
     event = args.event_name
+    window_set_name = args.window_set_name
 
     comm = _find_project_comm_mpi(".")
 
-    comm.actions.select_windows(event, iteration_name)
+    comm.actions.select_windows(event, iteration_name, window_set_name)
 
 
 @mpi_enabled

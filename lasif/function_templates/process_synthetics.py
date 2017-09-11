@@ -12,7 +12,7 @@ Project specific function for modifying synthetics on the fly.
 import numpy as np
 from obspy.signal.invsim import cosine_sac_taper
 
-def process_synthetics(st, event):  # NOQA
+def process_synthetics(st, processing_params, event):  # NOQA
     """
     This function is called after a synthetic file has been read.
 
@@ -68,9 +68,8 @@ def process_synthetics(st, event):  # NOQA
     # * inv: The obspy.Inventory object with the metadata.
     # * tag: The name of the currently selected tag.
 
-    # TODO add parameter to pass these:
-    freqmax = 1 / 60.0
-    freqmin = 1 / 100.0
+    freqmax = 1.0 / processing_params['highpass_period']
+    freqmin = 1.0 / processing_params['lowpass_period']
     f2 = 0.9 * freqmin
     f3 = 1.1 * freqmax
     f1 = 0.5 * f2
@@ -118,7 +117,5 @@ def process_synthetics(st, event):  # NOQA
         tr.taper(0.05, type="cosine")
         tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3, zerophase=True)
 
-    for tr in st:
-        tr.stats.starttime = 0
     return st
 

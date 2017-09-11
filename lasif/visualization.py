@@ -206,10 +206,6 @@ def plot_stations_for_event(map_object, station_dict, event_info,
     station_ids = []
     #print(station_dict.items())
     for key, value in station_dict.items():
-        print('key:')
-        print(key)
-        print('value:')
-        print(value)
         lngs.append(value["longitude"])
         lats.append(value["latitude"])
         station_ids.append(key)

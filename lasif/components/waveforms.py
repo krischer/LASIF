@@ -135,7 +135,8 @@ class WaveformsComponent(Component):
     def process_synthetics(self, st, event_name):
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("process_synthetics")
-        return fct(st,
+        processing_parmams = self.comm.project.preprocessing_params
+        return fct(st, processing_parmams,
                    event=self.comm.events.get(event_name))
 
     def _get_waveforms(self, event_name, station_id, data_type,
