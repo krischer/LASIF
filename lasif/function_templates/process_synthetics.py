@@ -76,6 +76,7 @@ def process_synthetics(st, processing_params, event):  # NOQA
     f4 = 2.0 * f3
     pre_filt = (f1, f2, f3, f4)
 
+
     # Detrend and taper.
     st.detrend("linear")
     st.detrend("demean")
@@ -83,6 +84,8 @@ def process_synthetics(st, processing_params, event):  # NOQA
 
     # Assuming displacement seismograms
     for tr in st:
+        # set starttime to event start time
+        tr.stats.starttime = event["origin_time"] + processing_params["salvus_start_time"]
 
         data = tr.data.astype(np.float64)
         orig_len = len(data)

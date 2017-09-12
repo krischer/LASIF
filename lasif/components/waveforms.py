@@ -136,6 +136,7 @@ class WaveformsComponent(Component):
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("process_synthetics")
         processing_parmams = self.comm.project.preprocessing_params
+        processing_parmams["salvus_start_time"] = self.comm.project.simulation_params["start_time"]
         return fct(st, processing_parmams,
                    event=self.comm.events.get(event_name))
 
