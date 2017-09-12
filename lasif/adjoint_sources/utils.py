@@ -93,8 +93,8 @@ def cross_correlation(f, g):
     N = len(cc)
     cc_new = np.zeros(N)
 
-    cc_new[0: (N + 1) / 2] = cc[(N + 1) / 2 - 1: N]
-    cc_new[(N + 1) / 2: N] = cc[0: (N + 1) / 2 - 1]
+    cc_new[0: (N + 1) // 2] = cc[(N + 1) // 2 - 1: N]
+    cc_new[(N + 1) // 2: N] = cc[0: (N + 1) // 2 - 1]
     return cc_new
 
 

@@ -38,7 +38,7 @@ def time_frequency_transform(t, s, width, threshold=1E-2):
 
     threshold = np.abs(s).max() * threshold
 
-    for k in xrange(N):
+    for k in range(N):
         # Window the signals
         f = utils.gaussian_window(t - t[k], width) * s
 
@@ -85,7 +85,7 @@ def time_frequency_cc_difference(t, s1, s2, width, threshold=1E-2):
 
     threshold = np.abs(s1).max() * threshold
 
-    for k in xrange(len(t)):
+    for k in range(len(t)):
         # Window the signals
         w = utils.gaussian_window(t - tau[k], width)
         f1 = w * s1
@@ -112,7 +112,7 @@ def itfa(tau, tfs, width, threshold=1E-2):
     I = np.zeros((N, N), dtype="complex128")
 
     # IFFT and scaling.
-    for k in xrange(N):
+    for k in range(N):
         if np.abs(tfs[k, :]).max() < threshold:
             continue
         I[k, :] = scipy.fftpack.ifft(tfs[k, :])
@@ -121,7 +121,7 @@ def itfa(tau, tfs, width, threshold=1E-2):
     # time integration
     s = np.zeros(N, dtype="complex128")
 
-    for k in xrange(N):
+    for k in range(N):
         f = utils.gaussian_window(tau[k] - tau, width) * I[:, k].transpose()
         s[k] = np.sum(f) * dt
     s *= dt / np.sqrt(2.0 * np.pi)
