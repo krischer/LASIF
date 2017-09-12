@@ -4,20 +4,16 @@ from __future__ import absolute_import
 
 import copy
 import glob
-import json
 import os
-import shutil
 
-from lasif import LASIFNotFoundError, LASIFAdjointSourceCalculationError
+from lasif import LASIFAdjointSourceCalculationError
 from .component import Component
-from ..window_manager_sql import WindowGroupManager
 
 from ..adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 from ..adjoint_sources.ad_src_l2_norm_misfit import adsrc_l2_norm_misfit
 from ..adjoint_sources.ad_src_cc_time_shift import adsrc_cc_time_shift
 
 import numpy as np
-import obspy
 
 from ..window_manager_sql import WindowGroupManager
 
@@ -184,7 +180,7 @@ class WindowsAndAdjointSourcesComponent(Component):
 
     def calculate_adjoint_source(self, data, synth, starttime, endtime, taper,
                                  taper_percentage, min_period,
-                                 max_period, ad_src_type):
+                                 max_period, ad_src_type, plot=False):
         """
         Calculates an adjoint source for a single window.
 
@@ -235,7 +231,8 @@ class WindowsAndAdjointSourcesComponent(Component):
 
         #  compute misfit and adjoint source
         adsrc = MISFIT_MAPPING[ad_src_type](
-            t, data_d, synth_d, min_period=min_period, max_period=max_period)
+            t, data_d, synth_d, min_period=min_period, max_period=max_period, plot=plot)
+
 
         # Recreate dictionary for clarity.
         ret_val = {
@@ -243,6 +240,8 @@ class WindowsAndAdjointSourcesComponent(Component):
             "misfit_value": adsrc["misfit_value"],
             "details": adsrc["details"]
         }
+        if plot:
+            return
 
         if not self._validate_return_value(ret_val):
             raise LASIFAdjointSourceCalculationError(

@@ -231,6 +231,7 @@ class WindowGroupManager(object):
                         self.add_window(trace_id=trace_id, start_time=window[0], end_time=window[1], weight=1.0)
 
     def get_all_windows_for_event(self, event_name):
+        """Returns a dictionary with all list of windows for each channel for each station for an event"""
         event_id = self.get_event_id(event_name)
         with self.sqlite_cursor() as c:
             c.execute("""SELECT event_traces.channel_name, windows.start_time, windows.end_time, windows.weight
@@ -255,6 +256,29 @@ class WindowGroupManager(object):
 
             start_end = (start_time, end_time)
             results[station][channel_name].append(start_end)
+        return results
+
+    def get_all_windows_for_event_station(self, event_name, station):
+        """Returns a dictionary with a list of windows for each channel for a given station and event"""
+        event_id = self.get_event_id(event_name)
+        with self.sqlite_cursor() as c:
+            c.execute("""SELECT * FROM 
+                        (SELECT event_traces.channel_name, windows.start_time, windows.end_time, windows.weight
+                        FROM (SELECT * FROM traces WHERE event_id=?) event_traces, windows
+                        WHERE event_traces.trace_id = windows.trace_id)
+                        WHERE channel_name LIKE ?""", (event_id, '%' + station + '%'))
+            rows = c.fetchall()
+
+        results = {}
+        for row in rows:
+            channel_name, start_time, end_time, weight = row
+
+            # Add channel to station
+            if channel_name not in results.keys():
+                results[channel_name] = []
+
+            start_end = (start_time, end_time)
+            results[channel_name].append(start_end)
         return results
 
     def add_window_to_event_channel(self, event_name, channel_name, start_time, end_time, weight=1.0):

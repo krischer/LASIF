@@ -271,8 +271,8 @@ class Window(QtGui.QMainWindow):
 
         # Try to obtain windows for a station, if it fails continue plotting the data
         try:
-            windows_for_event = self.current_window_manager.get_all_windows_for_event(self.current_event)
-            windows_for_station = windows_for_event[self.current_station]
+            windows_for_station = self.current_window_manager.get_all_windows_for_event_station(
+                self.current_event, self.current_station)
         except:
             pass
 
@@ -316,8 +316,9 @@ class Window(QtGui.QMainWindow):
                 if windows:
                     plot_widget.windows = windows #[0]
                     for win in windows:
-                        WindowLinearRegionItem(self.current_window_manager, channel_name, start=win[0], end=win[1],
-                                               event=event, parent=plot_widget)
+                        WindowLinearRegionItem(self.current_window_manager, channel_name,
+                                               self.current_iteration, start=win[0], end=win[1],
+                                               event=event, parent=plot_widget, comm=self.comm)
             except:
                 # Only print this message one time
                 if component == "Z":
