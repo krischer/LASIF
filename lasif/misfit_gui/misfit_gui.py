@@ -244,6 +244,9 @@ class Window(QtGui.QMainWindow):
             return
 
         self._reset_all_plots()
+        wave = self.comm.query.get_matching_waveforms(
+            self.current_event, self.current_iteration,
+            self.current_station)
 
         try:
             wave = self.comm.query.get_matching_waveforms(
@@ -266,12 +269,12 @@ class Window(QtGui.QMainWindow):
             source_depth_in_km=event["depth_in_km"],
             distance_in_degree=great_circle_distance)
 
+        # Try to obtain windows for a station, if it fails continue plotting the data
         try:
             windows_for_event = self.current_window_manager.get_all_windows_for_event(self.current_event)
             windows_for_station = windows_for_event[self.current_station]
-        except LASIFNotFoundError as e:
-            print(e)
-            windows_for_station = None
+        except:
+            pass
 
         for component in ["Z", "N", "E"]:
             plot_widget = getattr(self.ui, "%s_graph" % component.lower())
@@ -312,11 +315,13 @@ class Window(QtGui.QMainWindow):
                         channel_name = channel
                 if windows:
                     plot_widget.windows = windows #[0]
-                    for win in windows: #[0].windows:
+                    for win in windows:
                         WindowLinearRegionItem(self.current_window_manager, channel_name, start=win[0], end=win[1],
                                                event=event, parent=plot_widget)
             except:
-                print("no windows available for: ", self.current_station)
+                # Only print this message one time
+                if component == "Z":
+                    print("no windows available for: ", self.current_station)
 
         self._update_raypath(wave.coordinates)
 
