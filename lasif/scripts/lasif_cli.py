@@ -580,38 +580,56 @@ def lasif_calculate_all_adjoint_sources(parser, args):
     Calculates all adjoint sources for a given iteration.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("window_set_name", help="name of the window_set")
+    parser.add_argument(
+        "events", help="One or more events. If none given, all will be done.",
+        nargs="*")
+
     args = parser.parse_args(args)
-
     iteration = args.iteration_name
-
+    window_set_name = args.window_set_name
     comm = _find_project_comm_mpi(".")
 
-    events = comm.events.list()
+    # some basic checks
+    if not comm.wins_and_adj_sources.has_window_set(window_set_name):
+        if MPI.COMM_WORLD.rank == 0:
+            raise LASIFNotFoundError("Window set {} not known to LASIF".format(window_set_name))
+        return
+
+    if not comm.iterations.has_iteration(iteration):
+        if MPI.COMM_WORLD.rank == 0:
+            raise LASIFNotFoundError("Iteration {} not known to LASIF".format(iteration))
+        return
+
+    events = args.events if args.events else comm.events.list()
 
     for _i, event in enumerate(events):
-        if MPI.COMM_WORLD.rank == 0:
-            print("\n{green}"
-                  "==========================================================="
-                  "{reset}".format(green=colorama.Fore.GREEN,
-                                   reset=colorama.Style.RESET_ALL))
-            print("Starting adjoint source calculation for event %i of "
-                  "%i..." % (_i + 1, len(events)))
-            print("{green}"
-                  "==========================================================="
-                  "{reset}\n".format(green=colorama.Fore.GREEN,
-                                     reset=colorama.Style.RESET_ALL))
+        if not comm.events.has_event(event):
+            if MPI.COMM_WORLD.rank == 0:
+                print("Event '%s' not known to LASIF. No adjoint sources for "
+                      "this event will be calculated. " % event)
+            continue
+        print("\n{green}"
+              "==========================================================="
+              "{reset}".format(green=colorama.Fore.GREEN,
+                               reset=colorama.Style.RESET_ALL))
+        print("Starting adjoint source calculation for event %i of "
+              "%i..." % (_i + 1, len(events)))
+        print("{green}"
+              "==========================================================="
+              "{reset}\n".format(green=colorama.Fore.GREEN,
+                                 reset=colorama.Style.RESET_ALL))
 
-        # Windows file must exist!
+        # Get adjoint sources_filename
         filename = comm.wins_and_adj_sources.get_filename(event=event,
                                                           iteration=iteration)
-        if not os.path.exists(filename):
-            if MPI.COMM_WORLD.rank == 0:
-                print("File '%s' does not exists. No adjoint sources for "
-                      "event '%s' will be calculated." % (filename, event))
-            continue
+        # remove adjoint sources if they already exist
+        if MPI.COMM_WORLD.rank == 0:
+            if os.path.exists(filename):
+                os.remove(filename)
 
         MPI.COMM_WORLD.barrier()
-        comm.actions.calculate_adjoint_sources(event, iteration)
+        comm.actions.calculate_adjoint_sources(event, iteration, window_set_name)
 
 
 @mpi_enabled
@@ -712,18 +730,23 @@ def lasif_create_weight_set(parser, args):
         events_dict=comm.query.get_stations_for_all_events())
 
 @command_group("Iteration Management")
-def lasif_setup_new_iteration(parser, args):
+def lasif_setup_iteration(parser, args):
     """
-    Creates directory structure for a new iteration.
+    Creates or removes directory structure for an iteration.
     """
     parser.add_argument("iteration_name", help="name of the iteration, i.e. \"1\"")
+    parser.add_argument(
+        "--remove_dirs",
+        help="Removes all directories related to the specified iteration. ",
+        action="store_true")
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
+    remove_dirs = args.remove_dirs
 
     comm = _find_project_comm(".")
     comm.iterations.setup_directories_for_iteration(
-        iteration_name=iteration_name)
+        iteration_name=iteration_name, remove_dirs=remove_dirs)
 
 @command_group("Iteration Management")
 def lasif_list_iterations(parser, args):

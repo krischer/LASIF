@@ -69,12 +69,25 @@ class WindowsAndAdjointSourcesComponent(Component):
         return WindowGroupManager(filename)
 
     def list(self):
+        """
+        Returns a list of window sets currenly present within the LASIF project.
+        """
         files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
             self.comm.project.paths["windows"], "*.sqlite"))]
         window_sets = [os.path.splitext(os.path.basename(_i))[0][:]
                        for _i in files]
 
         return sorted(window_sets)
+
+    def has_window_set(self, window_set_name):
+        """
+        Checks whether a window set is alreadu defined.
+        ReturnsL True or False
+        :param window_set_name: name of the window set
+        """
+        if window_set_name in self.list():
+            return True
+        return False
 
     def get_window_set_filename(self, window_set_name):
         """
@@ -140,10 +153,6 @@ class WindowsAndAdjointSourcesComponent(Component):
 
         filename = self.get_filename(event=event, iteration=iteration)
 
-        if not os.path.exists(filename):
-            raise ValueError("Window and adjoint source file '%s' must "
-                             "already exist." % filename)
-
         print("\nStarting to write adjoint sources to ASDF file ...")
 
         adj_src_counter = 0
@@ -152,10 +161,10 @@ class WindowsAndAdjointSourcesComponent(Component):
         # we are already in MPI but only rank 0 will enter here and that
         # will confuse pyasdf otherwise.
         with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
-            for value in adj_sources.itervalues():
+            for value in adj_sources.values():
                 if not value:
                     continue
-                for c_id, adj_source in value.iteritems():
+                for c_id, adj_source in value.items():
                     net, sta, loc, cha = c_id.split(".")
                     ds.add_auxiliary_data(
                         data=adj_source["adj_source"],
