@@ -30,5 +30,5 @@ def comm(tmpdir):
     proj_dir = os.path.join(tmpdir, "proj")
     folder_path = pathlib.Path(proj_dir).absolute()
     project = Project(project_root_path=folder_path, init_project=False)
-    
+
     return project.comm
