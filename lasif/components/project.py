@@ -15,28 +15,24 @@ needed.
 """
 from __future__ import absolute_import
 
-import glob
-import imp
-import inspect
-import pathlib
+import importlib.machinery
 import os
+import pathlib
 import warnings
 
-from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 import lasif.domain
-
+from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 from .actions import ActionsComponent
-from .adjoint_sources import AdjointSourcesComponent
 from .communicator import Communicator
 from .component import Component
 from .downloads import DownloadsComponent
 from .events import EventsComponent
-from .weights import WeightsComponent
 from .iterations import IterationsComponent
 from .query import QueryComponent
 from .validator import ValidatorComponent
 from .visualizations import VisualizationsComponent
 from .waveforms import WaveformsComponent
+from .weights import WeightsComponent
 from .windows import WindowsAndAdjointSourcesComponent
 
 
@@ -130,9 +126,9 @@ class Project(Component):
             config_dict = toml.load(fh)
 
         self.config = config_dict["lasif_project"]
-        self.solver = config_dict["solver"]
-        self.simulation_params = self.solver["settings"]["simulation_parameters"]
-        self.preprocessing_params = config_dict["data_preprocessing"]
+        self.solver_settings = config_dict["solver_settings"]
+        self.simulation_params = self.solver_settings["simulation_parameters"]
+        self.processing_params = config_dict["data_processing"]
 
         self.domain = lasif.domain.ExodusDomain(self.config['mesh_file'])
 
@@ -173,14 +169,6 @@ class Project(Component):
             folder=self.paths["adjoint_sources"],
             communicator=self.comm,
             component_name="wins_and_adj_sources")
-        # # Window and adjoint source components.
-        # WindowsAndAdjointSourcesComponent(
-        #     folder=self.paths["windows_and_adjoint_sources"],
-        #     communicator=self.comm,
-        #     component_name="win_adjoint")
-        # AdjointSourcesComponent(ad_src_folder=self.paths["adjoint_sources"],
-        #                         communicator=self.comm,
-        #                         component_name="adjoint_sources")
 
         # Data downloading component.
         DownloadsComponent(communicator=self.comm,
@@ -241,40 +229,45 @@ class Project(Component):
         if not project_name:
             project_name = "LASIFProject"
 
-        lasif_config_str = f"# Please fill in this config file before proceeding with using LASIF \n \n" \
+        lasif_config_str = f"# Please fill in this config file before proceeding with using LASIF. \n \n" \
                            f"[lasif_project]\n" \
                            f"  project_name = \"{project_name}\"\n" \
-                           f"  description = \"\"\n" \
+                           f"  description = \"\"\n\n" \
+                           f"  # Name of the exodus file used for the simulation. Without a mesh file, LASIF" \
+                           f" will not work.\n" \
                            f"  mesh_file = \"\"\n\n" \
                            f"  [lasif_project.download_settings]\n" \
                            f"    seconds_before_event = 300.0\n" \
                            f"    seconds_after_event = 3600.0\n" \
                            f"    interstation_distance_in_meters = 1000.0\n" \
-                           f"    channel_priorities = [ \"BH[Z,N,E]\", \"LH[Z,N,E]\", \"HH[Z,N,E]\", \"EH[Z,N,E]\", \"MH[Z,N,E]\",]\n" \
+                           f"    channel_priorities = [ \"BH[Z,N,E]\", \"LH[Z,N,E]\", " \
+                           f"    \"HH[Z,N,E]\", \"EH[Z,N,E]\", \"MH[Z,N,E]\",]\n" \
                            f"    location_priorities = [ \"\", \"00\", \"10\", \"20\", \"01\", \"02\",]\n" \
                            f"\n"
 
-        data_preproc_str = f"[data_preprocessing]\n" \
-                           f"  highpass_period = 30.0\n" \
-                           f"  lowpass_period = 50.0\n" \
-                           f"  scale_data_to_synthethics = true" \
-                           f"\n"
+        data_preproc_str = "# Data processing settings,. high- and lowpass period are given in seconds.\n" \
+                           "[data_processing]\n" \
+                           "  highpass_period = 30.0\n" \
+                           "  lowpass_period = 50.0\n\n" \
+                           "  # You most likely want to keep this setting at true.\n" \
+                           "  scale_data_to_synthethics = true\n\n" \
 
-        solver_par_str = "[solver]\n" \
-                     "  name = \"Salvus\"\n\n" \
-                     "  [solver.settings]\n" \
-                     "    adjoint_source_time_shift = -10\n\n" \
-                     "    [solver.settings.simulation_parameters]\n" \
-                     "      number_of_time_steps = 2000\n" \
-                     "      time_increment = 0.1\n" \
-                     "      end_time = 2700.0\n" \
-                     "      start_time = -10.0\n" \
-                     "      source_center_frequency = 0.025\n" \
-                     "      polynomial_order = 4\n" \
-                     "      dimensions = 3\n\n" \
-                     "    [solver.settings.computational_setup]\n" \
-                     "      number_of_processors = 4\n" \
-                     "      salvus_call = \"mpirun -n 4 salvus_bin\"\n\n"
+        solver_par_str = "[solver_settings]\n" \
+                         "  [solver_settings.simulation_parameters]\n" \
+                         "    number_of_time_steps = 2000\n" \
+                         "    time_increment = 0.1\n" \
+                         "    end_time = 2700.0\n" \
+                         "    start_time = -10.0\n" \
+                         "    dimensions = 3\n\n" \
+                         "  [solver_settings.computational_setup]\n" \
+                         "    salvus_bin = \"salvus_wave/build/salvus\"\n" \
+                         "    number_of_processors = 4\n" \
+                         "    salvus_call = \"mpirun -n 4\"\n" \
+                         "    with_anisotropy = true\n\n" \
+                         "    # Source time function type, currently \"delta\" and \"ricker\" are supported \n" \
+                         "    # When a ricker wavelet is used, please provide the center frequency.\n" \
+                         "    source_time_function_type = \"delta\"\n"  \
+                         "    source_center_frequency = 0.025\n\n" \
 
         lasif_config_str += data_preproc_str + solver_par_str
 
@@ -310,8 +303,9 @@ class Project(Component):
         if not os.path.exists(filename):
             msg = "No file '%s' in existence." % filename
             raise LASIFNotFoundError(msg)
-
-        fct_template = imp.load_source("_lasif_fct_template", filename)
+        fct_template = importlib.machinery.SourceFileLoader("_lasif_fct_template", filename).\
+            load_module("_lasif_fct_template")
+        #fct_template = imp.load_source("_lasif_fct_template", filename)
 
         try:
             fct = getattr(fct_template, fct_type)

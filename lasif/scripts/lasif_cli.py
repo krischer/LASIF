@@ -345,9 +345,6 @@ def lasif_list_events(parser, args):
     """
     Print a list of all events in the project.
     """
-    parser.add_argument("--details", help="print details of filecounts for "
-                                          "all events",
-                        action="store_true")
     parser.add_argument("--list", help="Show only a list of events. Good for "
                                        "scripting bash.",
                         action="store_true")
@@ -357,31 +354,11 @@ def lasif_list_events(parser, args):
 
     comm = _find_project_comm(".")
 
-    if args.list and args.details:
-        raise LASIFCommandLineException("--list and --details cannot both "
-                                        "be specified.")
-
     if args.list is False:
         print("%i event%s in project:" % (comm.events.count(),
               "s" if comm.events.count() != 1 else ""))
 
-    if args.details is True:
-        tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag",
-                           "# raw/preproc/synth"])
-        tab.align["Event Name"] = "l"
-        for event in comm.events.list():
-            ev = comm.events.get(event)
-            count = comm.project.get_filecounts_for_event(event)
-            tab.add_row([
-                event, "%6.1f / %6.1f / %3i / %3.1f" % (
-                    ev["latitude"], ev["longitude"], int(ev["depth_in_km"]),
-                    ev["magnitude"]),
-                "%4i / %5i / %4i" % (
-                    count["raw_waveform_file_count"],
-                    count["preprocessed_waveform_file_count"],
-                    count["synthetic_waveform_file_count"])])
-        print(tab)
-    elif args.list is True:
+    if args.list is True:
         for event in sorted(comm.events.list()):
             print(event)
     else:
@@ -471,68 +448,39 @@ def lasif_plot_stf(parser, args):
 
 
 @command_group("Iteration Management")
-def lasif_generate_all_input_files(parser, args):
+def lasif_generate_input_files(parser, args):
     """
-    Generates all input files for a certain iteration.
-
-    TYPE denotes the type of simulation to run. Available types are
-        * "normal_simulation"
-        * "adjoint_forward"
-        * "adjoint_reverse"
+    Generate input files for the waveform solver.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("weight_set_name", help="name of the weight set")
-    parser.add_argument("--simulation_type",
-                        choices=("normal_simulation", "adjoint_forward",
-                                 "adjoint_reverse"),
-                        default="normal_simulation",
-                        help="type of simulation to run")
+    parser.add_argument(
+        "events", help="One or more events. If none given, all will be done.",
+        nargs="*")
+
+    # parser.add_argument("--simulation_type",
+    #                     choices=("normal_simulation", "adjoint_forward",
+    #                              "adjoint_reverse"),
+    #                     default="normal_simulation",
+    #                     help="type of simulation to run")
+
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
     weight_set_name = args.weight_set_name
-
     simulation_type = args.simulation_type
 
     comm = _find_project_comm(".")
+    events = args.events if args.events else comm.events.list()
     simulation_type = simulation_type.replace("_", " ")
 
-    weights = comm.weights.get(weight_set_name)
-    events = sorted(weights.events.keys())
     for _i, event in enumerate(events):
+        if not comm.events.has_event(event):
+                print("Event '%s' not known to LASIF. No input files for this event will be generated. " % event)
         print("Generating input files for event %i of %i..." % (_i + 1,
                                                                 len(events)))
         comm.actions.generate_input_files(weight_set_name, iteration_name, event,
                                           simulation_type)
 
-
-@command_group("Iteration Management")
-def lasif_generate_input_files(parser, args):
-    """
-    Generate the input files for the waveform solver.
-
-    TYPE denotes the type of simulation to run. Available types are
-        * "normal_simulation"
-        * "adjoint_forward"
-        * "adjoint_reverse"
-    """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("weight_set_name", help="name of the weight set")
-    parser.add_argument("event_name", help="name of the event")
-    parser.add_argument("--simulation_type",
-                        choices=("normal_simulation", "adjoint_forward",
-                                 "adjoint_reverse"),
-                        default="normal_simulation",
-                        help="type of simulation to run")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-    weight_set_name = args.weight_set_name
-    event_name = args.event_name
-    simulation_type = args.simulation_type
-
-    comm = _find_project_comm(".")
-    simulation_type = simulation_type.replace("_", " ")
-    comm.actions.generate_input_files(weight_set_name, iteration_name, event_name,
-                                      simulation_type)
 
 
 @command_group("Project Management")
@@ -575,9 +523,9 @@ def lasif_finalize_adjoint_sources(parser, args):
 
 @mpi_enabled
 @command_group("Iteration Management")
-def lasif_calculate_all_adjoint_sources(parser, args):
+def lasif_calculate_adjoint_sources(parser, args):
     """
-    Calculates all adjoint sources for a given iteration.
+    Calculates adjoint sources for a given iteration.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("window_set_name", help="name of the window_set")
@@ -978,9 +926,9 @@ def lasif_iteration_info(parser, args):
 
 @mpi_enabled
 @command_group("Iteration Management")
-def lasif_preprocess_data(parser, args):
+def lasif_process_data(parser, args):
     """
-    Launch data preprocessing.
+    Launch data processing.
 
     This function works with MPI. Don't use too many cores, I/O quickly
     becomes the limiting factor. It also works without MPI but then only one
@@ -1017,7 +965,7 @@ def lasif_preprocess_data(parser, args):
     if exceptions:
         raise LASIFCommandLineException(exceptions[0])
 
-    comm.actions.preprocess_data(weight_set_name, events)
+    comm.actions.process_data(weight_set_name, events)
 
 
 @command_group("Plotting")
