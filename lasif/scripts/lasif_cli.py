@@ -730,7 +730,7 @@ def lasif_create_weight_set(parser, args):
         events_dict=comm.query.get_stations_for_all_events())
 
 @command_group("Iteration Management")
-def lasif_setup_iteration(parser, args):
+def lasif_set_up_iteration(parser, args):
     """
     Creates or removes directory structure for an iteration.
     """
