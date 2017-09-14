@@ -97,7 +97,7 @@ class IterationsComponent(Component):
         """
         Checks for existance of an iteration
         """
-        long_iteration_name = self.get_long_iteration_name(iteration_name)
-        if long_iteration_name in self.list():
+        iteration_name = iteration_name.lstrip("ITERATION_")
+        if iteration_name in self.list():
             return True
         return False

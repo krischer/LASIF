@@ -72,7 +72,7 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         data = self.comm.query.get_matching_waveforms(self.event_name, self.iteration,
                                                       self.channel_name)
 
-        process_params = self.comm.project.preprocessing_params
+        process_params = self.comm.project.processing_params
         self.comm.wins_and_adj_sources.calculate_adjoint_source(
             data=data.data[0], synth=data.synthetics[0], starttime=self.start,
             endtime=self.end, taper="hann",

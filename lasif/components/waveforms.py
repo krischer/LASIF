@@ -87,8 +87,8 @@ class WaveformsComponent(Component):
         this only has to be one tag.
         :return:
         """
-        highpass_period = self.comm.project.preprocessing_params["highpass_period"]
-        lowpass_period = self.comm.project.preprocessing_params["lowpass_period"]
+        highpass_period = self.comm.project.processing_params["highpass_period"]
+        lowpass_period = self.comm.project.processing_params["lowpass_period"]
         return "preprocessed_%is_to_%is" % (int(highpass_period), int(lowpass_period))
 
     def get_waveforms_raw(self, event_name, station_id):
@@ -113,6 +113,21 @@ class WaveformsComponent(Component):
         return self._get_waveforms(event_name, station_id,
                                    data_type="processed", tag_or_iteration=tag)
 
+    def get_waveforms_processed_on_the_fly(self, event_name, station_id):
+        """
+        Gets the processed waveforms for the given event and station as a
+        :class:`~obspy.core.stream.Stream` object.
+
+        :param event_name: The name of the event.
+        :param station_id: The id of the station in the form ``NET.STA``.
+        :param tag: The processing tag.
+        """
+        st, inv = self._get_waveforms(event_name, station_id,
+                                   data_type="raw", get_inventory=True)
+        return self.process_data(st, inv, event_name)
+
+
+
     def get_waveforms_synthetic(self, event_name, station_id,
                                 long_iteration_name):
         """
@@ -135,13 +150,27 @@ class WaveformsComponent(Component):
     def process_synthetics(self, st, event_name):
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("process_synthetics")
-        processing_parmams = self.comm.project.preprocessing_params
+        processing_parmams = self.comm.project.processing_params
         processing_parmams["salvus_start_time"] = self.comm.project.simulation_params["start_time"]
         return fct(st, processing_parmams,
                    event=self.comm.events.get(event_name))
 
+    def process_data(self, st, inv, event_name):
+        """ This will process the data on the fly"""
+        # Apply the project function that modifies synthetics on the fly.
+        fct = self.comm.project.get_project_function("processing_function")
+
+        processing_parmams = self.comm.project.processing_params
+        processing_parmams["salvus_start_time"] = self.comm.project.simulation_params["start_time"]
+        processing_parmams["dt"] = self.comm.project.simulation_params["time_increment"]
+        processing_parmams["npts"] = self.comm.project.simulation_params["number_of_time_steps"]
+        processing_parmams["end_time"] = self.comm.project.simulation_params["end_time"]
+
+        return fct(st, inv, processing_parmams, event=self.comm.events.get(event_name))
+
+
     def _get_waveforms(self, event_name, station_id, data_type,
-                       tag_or_iteration=None):
+                       tag_or_iteration=None, get_inventory=False):
         import pyasdf
 
         filename = self.get_asdf_filename(event_name=event_name,
@@ -172,6 +201,10 @@ class WaveformsComponent(Component):
                 warnings.warn(msg, LASIFWarning)
 
                 st = st.filter(location=locs[0])
+
+            if get_inventory:
+                inv = station_group["StationXML"]
+                return st, inv
 
             return st
 

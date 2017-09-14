@@ -1,7 +1,7 @@
 # Please fill in this config file before proceeding with using LASIF. 
  
 [lasif_project]
-  project_name = "bal"
+  project_name = "ExampleProject"
   description = "Toy Project used in the Test Suite"
 
   # Name of the exodus file used for the simulation. Without a mesh file, LASIF will not work.

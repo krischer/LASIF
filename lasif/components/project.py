@@ -128,6 +128,7 @@ class Project(Component):
         self.config = config_dict["lasif_project"]
         self.solver_settings = config_dict["solver_settings"]
         self.simulation_params = self.solver_settings["simulation_parameters"]
+        self.computational_setup = self.solver_settings["computational_setup"]
         self.processing_params = config_dict["data_processing"]
 
         self.domain = lasif.domain.ExodusDomain(self.config['mesh_file'])
@@ -192,9 +193,9 @@ class Project(Component):
         self.paths["corr_synthetics"] = root_path / "SYNTHETICS" / "CORRELATIONS"
         self.paths["eq_synthetics"] = root_path / "SYNTHETICS" / "EARTHQUAKES"
 
-        self.paths["preproc_data"] = root_path / "PREPROCESSED_DATA"
-        self.paths["preproc_eq_data"] = root_path / "PREPROCESSED_DATA" / "EARTHQUAKES"
-        self.paths["preproc_corr_data"] = root_path / "PREPROCESSED_DATA" / "CORRELATIONS"
+        self.paths["preproc_data"] = root_path / "PROCESSED_DATA"
+        self.paths["preproc_eq_data"] = root_path / "PROCESSED_DATA" / "EARTHQUAKES"
+        self.paths["preproc_corr_data"] = root_path / "PROCESSED_DATA" / "CORRELATIONS"
 
         self.paths["sets"] = root_path / "SETS"
         self.paths["windows"] = root_path / "SETS" / "WINDOWS"
@@ -250,7 +251,7 @@ class Project(Component):
                            "  highpass_period = 30.0\n" \
                            "  lowpass_period = 50.0\n\n" \
                            "  # You most likely want to keep this setting at true.\n" \
-                           "  scale_data_to_synthethics = true\n\n" \
+                           "  scale_data_to_synthetics = true\n\n" \
 
         solver_par_str = "[solver_settings]\n" \
                          "  [solver_settings.simulation_parameters]\n" \
@@ -258,7 +259,8 @@ class Project(Component):
                          "    time_increment = 0.1\n" \
                          "    end_time = 2700.0\n" \
                          "    start_time = -10.0\n" \
-                         "    dimensions = 3\n\n" \
+                         "    dimensions = 3\n" \
+                         "    polynomial_order = 4\n\n" \
                          "  [solver_settings.computational_setup]\n" \
                          "    salvus_bin = \"salvus_wave/build/salvus\"\n" \
                          "    number_of_processors = 4\n" \
@@ -287,7 +289,7 @@ class Project(Component):
         # type / filename map
         fct_type_map = {
             "window_picking_function": "window_picking_function.py",
-            "preprocessing_function": "preprocessing_function.py",
+            "processing_function": "process_data.py",
             "preprocessing_function_asdf": "preprocessing_function_asdf.py",
             "process_synthetics": "process_synthetics.py",
             "source_time_function": "source_time_function.py"

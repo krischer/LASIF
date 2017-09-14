@@ -211,6 +211,9 @@ class QueryComponent(Component):
         data = self.comm.waveforms.get_waveforms_processed(
             event["event_name"], station_id,
             tag=self.comm.waveforms.preprocessing_tag)
+        # data_fly = self.comm.waveforms.get_waveforms_processed_on_the_fly(
+        #     event["event_name"], station_id)
+
         synthetics = self.comm.waveforms.get_waveforms_synthetic(
             event["event_name"], station_id,
             long_iteration_name=iteration_long_name)
@@ -266,9 +269,7 @@ class QueryComponent(Component):
                              station_id)
 
         # Scale the data if required.
-        #if iteration.scale_data_to_synthetics:
-        #TODO fix this
-        if True:
+        if self.comm.project.processing_params["scale_data_to_synthetics"]:
             for data_tr in data:
                 synthetic_tr = [
                     tr for tr in synthetics

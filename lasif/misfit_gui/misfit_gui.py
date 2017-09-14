@@ -227,26 +227,11 @@ class Window(QtGui.QMainWindow):
         self._reset_all_plots()
         self._update_event_map()
 
-
-    def _window_region_callback(self, *args, **kwargs):
-        start, end = args[0].getRegion()
-        win = args[0].window_object
-        event_starttime = args[0].event_starttime
-        start = event_starttime + start
-        end = event_starttime + end
-
-        win.starttime = start
-        win.endtime = end
-        win._Window__collection.write()
-
     def on_stations_listWidget_currentItemChanged(self, current, previous):
         if current is None:
             return
 
         self._reset_all_plots()
-        wave = self.comm.query.get_matching_waveforms(
-            self.current_event, self.current_iteration,
-            self.current_station)
 
         try:
             wave = self.comm.query.get_matching_waveforms(

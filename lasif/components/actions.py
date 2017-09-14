@@ -21,7 +21,7 @@ class ActionsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def process_data(self, weight_set_name, event_names=None):
+    def process_data(self, events):
         """
         Preprocesses all data for a given iteration.
 
@@ -31,13 +31,9 @@ class ActionsComponent(Component):
             run. It will process all events if not given.
         """
         from mpi4py import MPI
-        weight_set = self.comm.weights.get(weight_set_name)
-        process_params = self.comm.project.preprocessing_params
-        solver_params = self.comm.project.solver
-
-        simulation_params = solver_params["settings"]["simulation_parameters"]
+        process_params = self.comm.project.processing_params
+        simulation_params = self.comm.project.simulation_params
         npts = simulation_params["number_of_time_steps"]
-        sampling_rate = simulation_params["sampling_rate"]
         dt = simulation_params["time_increment"]
         salvus_start_time = simulation_params["start_time"]
 
@@ -47,19 +43,11 @@ class ActionsComponent(Component):
             waveform.
             """
             # Loop over the chosen events.
-            for event_name, event in weight_set.events.items():
-                # None means to process all events, otherwise it will be a list
-                # of events.
-                if not ((event_names is None) or (event_name in event_names)):
-                    continue
-
+            for event_name in events:
                 output_folder = os.path.join(self.comm.project.paths["preproc_eq_data"], event_name)
 
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
-
-                # Test if event is available.
-                event = self.comm.events.get(event_name)
 
                 asdf_file_name = self.comm.waveforms.get_asdf_filename(event_name, data_type="raw")
                 lowpass_period = process_params["lowpass_period"]
@@ -80,7 +68,6 @@ class ActionsComponent(Component):
                     "preprocessing_tag": preprocessing_tag,
                     "dt": dt,
                     "npts": npts,
-                    "sampling_rate": sampling_rate,
                     "salvus_start_time": salvus_start_time,
                     "lowpass_period": lowpass_period,
                     "highpass_period": highpass_period
@@ -134,7 +121,7 @@ class ActionsComponent(Component):
             all_windows = {}
         all_windows = MPI.COMM_WORLD.bcast(all_windows, root=0)
 
-        process_params = self.comm.project.preprocessing_params
+        process_params = self.comm.project.processing_params
 
         def process(observed_station, synthetic_station):
             obs_tag = observed_station.get_waveform_tags()
@@ -169,11 +156,11 @@ class ActionsComponent(Component):
                 except LASIFNotFoundError:
                     continue
 
-                # Scale Data to synthetics
-                scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
-                # Store and apply the scaling.
-                data_tr.stats.scaling_factor = scaling_factor
-                data_tr.data *= scaling_factor
+                if self.comm.project.processing_params["scale_data_to_synthetics"]:
+                    scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
+                    # Store and apply the scaling.
+                    data_tr.stats.scaling_factor = scaling_factor
+                    data_tr.data *= scaling_factor
 
                 net, sta, cha = data_tr.id.split(".", 2)
                 station = net + "." + sta
@@ -268,7 +255,7 @@ class ActionsComponent(Component):
         select_windows = self.comm.project.get_project_function(
             "window_picking_function")
 
-        process_params = self.comm.project.preprocessing_params
+        process_params = self.comm.project.processing_params
         minimum_period = process_params["highpass_period"]
         maximum_period = process_params["lowpass_period"]
 
@@ -305,11 +292,11 @@ class ActionsComponent(Component):
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
 
-                    # Scale Data to synthetics
-                    scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
-                    # Store and apply the scaling.
-                    data_tr.stats.scaling_factor = scaling_factor
-                    data_tr.data *= scaling_factor
+                    if self.comm.project.processing_params["scale_data_to_synthetics"]:
+                        scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
 
                 except LASIFNotFoundError:
                     continue
@@ -362,7 +349,7 @@ class ActionsComponent(Component):
         data = self.comm.query.get_matching_waveforms(event["event_name"], iteration,
                                                       station)
 
-        process_params = self.comm.project.preprocessing_params
+        process_params = self.comm.project.processing_params
         minimum_period = process_params["highpass_period"]
         maximum_period = process_params["lowpass_period"]
 
@@ -401,32 +388,18 @@ class ActionsComponent(Component):
                 "station '%s'." % (event["event_name"], iteration.name,
                                    station))
 
-    def generate_input_files(self, weight_set_name, iteration_name, event_name,
-                             simulation_type):
+    def generate_input_files(self, iteration_name, event_name):
         """
         Generate the input files for one event.
 
         :param iteration_name: The name of the iteration.
         :param event_name: The name of the event for which to generate the
             input files.
-        :param simulation_type: The type of simulation to perform. Possible
-            values are: 'normal simulate', 'adjoint forward', 'adjoint
-            reverse'
         """
 
         # =====================================================================
         # read weights toml file, get event and list of stations
         # =====================================================================
-        weights = self.comm.weights.get(weight_set_name)
-
-        # Check that the event is part of the iterations.
-        if event_name not in weights.events:
-            msg = ("Event '%s' not part of iteration '%s'.\nEvents available "
-                   "in iteration:\n\t%s" %
-                   (event_name, weight_set_name, "\n\t".join(
-                       sorted(weights.events.keys()))))
-            raise ValueError(msg)
-
         asdf_file = self.comm.waveforms.get_asdf_filename(event_name=event_name, data_type="raw")
 
         import pyasdf
@@ -440,12 +413,13 @@ class ActionsComponent(Component):
             inv += ds.waveforms[station].StationXML
 
         import salvus_seismo
-        src = salvus_seismo.Source.parse(event, sliprate="delta")
+        src = salvus_seismo.Source.parse(event,
+                                         sliprate=self.comm.project.computational_setup['source_time_function_type'])
         recs = salvus_seismo.Receiver.parse(inv)
 
-        solver_settings = self.comm.project.solver['settings']
+        solver_settings = self.comm.project.solver_settings
         # Choose a center frequency suitable for our mesh.
-        src.center_frequency = solver_settings['simulation_parameters']['source_center_frequency']
+        src.center_frequency = self.comm.project.computational_setup['source_center_frequency']
         mesh_file = self.comm.project.config['mesh_file']
 
         # Generate the configuration object for salvus_seismo
@@ -455,12 +429,12 @@ class ActionsComponent(Component):
             salvus_call=solver_settings['computational_setup']['salvus_call'],
             polynomial_order=solver_settings['simulation_parameters']['polynomial_order'],
             verbose=True,
-            dimensions=solver_settings['simulation_parameters']['dimensions'])
+            dimensions=solver_settings['simulation_parameters']['dimensions'],
+            with_anisotropy=self.comm.project.computational_setup['with_anisotropy'])
 
         # =================================================================
         # output
         # =================================================================
-
         long_iter_name = self.comm.iterations.get_long_iteration_name(iteration_name)
         input_files_dir = self.comm.project.paths['salvus_input']
         output_dir = os.path.join(input_files_dir, long_iter_name, event_name)
@@ -518,7 +492,7 @@ class ActionsComponent(Component):
         iteration_stations = iteration_event_def["stations"]
 
         # For now assume that the adjoint sources have the same
-        # sampling rate as the synthetics which in LASIF's workflow
+        # g rate as the synthetics which in LASIF's workflow
         # actually has to be true.
         dt = iteration.get_process_params()["dt"]
 

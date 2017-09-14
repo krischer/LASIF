@@ -429,8 +429,8 @@ def lasif_plot_stf(parser, args):
     import lasif.visualization
     comm = _find_project_comm(".")
 
-    freqmax = 1.0 / comm.project.preprocessing_params["highpass_period"]
-    freqmin = 1.0 / comm.project.preprocessing_params["lowpass_period"]
+    freqmax = 1.0 / comm.project.processing_params["highpass_period"]
+    freqmin = 1.0 / comm.project.processing_params["lowpass_period"]
 
     stf_fct = comm.project.get_project_function(
         "source_time_function")
@@ -450,36 +450,31 @@ def lasif_plot_stf(parser, args):
 @command_group("Iteration Management")
 def lasif_generate_input_files(parser, args):
     """
-    Generate input files for the waveform solver.
+    Generate input files for the forward simulation of the waveform solver.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("weight_set_name", help="name of the weight set")
+    parser.add_argument("iteration_name", help="name of the iteration ")
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
 
-    # parser.add_argument("--simulation_type",
-    #                     choices=("normal_simulation", "adjoint_forward",
-    #                              "adjoint_reverse"),
-    #                     default="normal_simulation",
-    #                     help="type of simulation to run")
+    #TODO possible extend this function to allow for generating input_files for the adjoint run \
+    #TODO otherwise implement this functionality in finalize adjoint sources
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
-    weight_set_name = args.weight_set_name
-    simulation_type = args.simulation_type
 
     comm = _find_project_comm(".")
     events = args.events if args.events else comm.events.list()
-    simulation_type = simulation_type.replace("_", " ")
+
+    if not comm.iterations.has_iteration(iteration_name):
+        raise LASIFNotFoundError(f"Could not find iteration: {iteration_name}")
 
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
                 print("Event '%s' not known to LASIF. No input files for this event will be generated. " % event)
         print("Generating input files for event %i of %i..." % (_i + 1,
                                                                 len(events)))
-        comm.actions.generate_input_files(weight_set_name, iteration_name, event,
-                                          simulation_type)
+        comm.actions.generate_input_files(iteration_name, event)
 
 
 
@@ -894,9 +889,7 @@ def lasif_list_weight_sets(parser, args):
     Print a list of all iterations in the project.
     """
     args = parser.parse_args(args)
-
     comm = _find_project_comm(".")
-
     it_len = comm.weights.count()
 
     print("%i weight set(s)%s in project:" % (it_len,
@@ -934,24 +927,16 @@ def lasif_process_data(parser, args):
     becomes the limiting factor. It also works without MPI but then only one
     core actually does any work.
     """
-    parser.add_argument("weight_set", help="name of the weight set")
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
     args = parser.parse_args(args)
-    weight_set_name = args.weight_set
-    events = args.events if args.events else None
-
     comm = _find_project_comm_mpi(".")
+    events = args.events if args.events else comm.events.list()
 
     # No need to perform these checks on all ranks.
     exceptions = []
     if MPI.COMM_WORLD.rank == 0:
-        if not comm.weights.has_weight_set(weight_set_name):
-           msg = ("Weights '%s' not found. Use 'lasif list_iterations' to "
-                  "get a list of all available iterations.") % weight_set_name
-           exceptions.append(msg)
-
         # Check if the event ids are valid.
         if not exceptions and events:
             for event_name in events:
@@ -964,8 +949,7 @@ def lasif_process_data(parser, args):
     exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
     if exceptions:
         raise LASIFCommandLineException(exceptions[0])
-
-    comm.actions.process_data(weight_set_name, events)
+    comm.actions.process_data(events)
 
 
 @command_group("Plotting")
@@ -977,7 +961,6 @@ def lasif_plot_window_statistics(parser, args):
     args = parser.parse_args(args)
 
     iteration_name = args.iteration_name
-
     comm = _find_project_comm(".")
 
     if args.combine:
