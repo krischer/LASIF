@@ -83,6 +83,7 @@ setup_config = dict(
     install_requires=[
         "obspy>=1.0.3",
         "pyasdf",
+        "pyexodus",
         "toml",
         "geographiclib",
         "colorama",
