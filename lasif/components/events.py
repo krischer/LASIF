@@ -70,7 +70,7 @@ class EventsComponent(Component):
         Reads QuakeML files and extracts some keys per channel. Only one
         event per file is allows.
         """
-        ds = pyasdf.ASDFDataSet(filename, compression="gzip-3")
+        ds = pyasdf.ASDFDataSet(filename, mode='r')
         event = ds.events[0]
 
         # Extract information.
@@ -115,8 +115,8 @@ class EventsComponent(Component):
 
         >>> comm = getfixture('events_comm')
         >>> comm.events.list() #  doctest: +NORMALIZE_WHITESPACE
-        [u'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
-         u'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
+        ['GCMT_event_ICELAND_Mag_5.5_2014-10-7-10',
+        'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13']
         """
         self.update_cache()
         return sorted(self.__event_info_cache.keys())
@@ -139,7 +139,7 @@ class EventsComponent(Component):
         :param event_name: The name of the event.
 
         >>> comm = getfixture('events_comm')
-        >>> comm.events.has_event('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15')
+        >>> comm.events.has_event('GCMT_event_ICELAND_Mag_5.5_2014-10-7-10')
         True
         >>> comm.events.has_event('random')
         False
@@ -161,8 +161,8 @@ class EventsComponent(Component):
         >>> comm = getfixture('events_comm')
         >>> comm.events.get_all_events() \
         # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-        {u'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15': {...},
-         u'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11': {...}}
+        {'GCMT_event_ICELAND_Mag_5.5_2014-10-7-10': {...},
+         'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13': {...}}
         """
         # make sure cache is filled
         self.update_cache()
@@ -180,22 +180,20 @@ class EventsComponent(Component):
         :rtype: dict
 
         >>> comm = getfixture('events_comm')
-        >>> comm.events.get('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15') \
+        >>> comm.events.get('GCMT_event_ICELAND_Mag_5.5_2014-10-7-10') \
         # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-        {'m_tp': -2.17e+17, 'm_tt': 8.92e+17, 'depth_in_km': 7.0,
-        'event_name': u'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15',
-        'region': u'TURKEY', 'longitude': 29.1,
-        'filename': u'/.../GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.xml',
-        'm_rr': -8.07e+17, 'magnitude': 5.9, 'magnitude_type': u'Mwc',
-        'latitude': 39.15,
-        'origin_time': UTCDateTime(2011, 5, 19, 20, 15, 22, 900000),
-        'm_rp': -5.3e+16, 'm_pp': -8.5e+16, 'm_rt': 2.8e+16}
+        {'filename': '...',
+        'event_name': 'GCMT_event_ICELAND_Mag_5.5_2014-10-7-10', 'latitude': 64.62,
+        'longitude': -17.26, 'depth_in_km': 12.0, 'origin_time':
+        UTCDateTime(2014, 10, 7, 10, 22, 34, 100000), 'm_rr': -2.97e+17, 'm_pp': 1.23e+17,
+        'm_tt': 1.74e+17, 'm_rp': -7.74e+16, 'm_rt': 3.87e+16, 'm_tp':
+        -1900000000000000.0, 'magnitude': 5.53, 'magnitude_type': 'Mwc', 'region': 'ICELAND'}
 
         The moment tensor components are in ``Nm``. The dictionary will
         contain the following keys:
 
         >>> sorted(comm.events.get(
-        ...     'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15').keys()) \
+        ...     'GCMT_event_ICELAND_Mag_5.5_2014-10-7-10').keys()) \
         # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
          ['depth_in_km', 'event_name', 'filename', 'latitude', 'longitude',
           'm_pp', 'm_rp', 'm_rr', 'm_rt', 'm_tp', 'm_tt', 'magnitude',
@@ -204,18 +202,18 @@ class EventsComponent(Component):
         It also works with an existing event dictionary. This eases calling
         the function under certain circumstances.
 
-        >>> ev = comm.events.get('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15')
+        >>> ev = comm.events.get('GCMT_event_ICELAND_Mag_5.5_2014-10-7-10')
         >>> ev == comm.events.get(ev)
         True
         """
-        if event_name not in self.all_events:
-            raise LASIFNotFoundError("Event '%s' not known to LASIF." %
-                                     event_name)
-
         try:
             event_name = event_name["event_name"]
         except (KeyError, TypeError):
             pass
+
+        if event_name not in self.all_events:
+            raise LASIFNotFoundError("Event '%s' not known to LASIF." %
+                                     event_name)
 
         if event_name not in self.__event_info_cache:
             values = dict(zip(self.index_values, self._extract_index_values_quakeml(self.all_events[event_name])))

@@ -37,7 +37,7 @@ from lasif.tests.testing_helpers import reset_matplotlib
 
 # Get a list of all available commands.
 CMD_LIST = [key.replace("lasif_", "")
-            for (key, value) in lasif_cli.__dict__.iteritems()
+            for (key, value) in lasif_cli.__dict__.items()
             if (key.startswith("lasif_") and callable(value))]
 
 

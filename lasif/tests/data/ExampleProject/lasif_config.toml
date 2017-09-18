@@ -1,0 +1,43 @@
+# Please fill in this config file before proceeding with using LASIF. 
+ 
+[lasif_project]
+  project_name = "ExampleProject"
+  description = "Toy Project used in the Test Suite"
+
+  # Name of the exodus file used for the simulation. Without a mesh file, LASIF will not work.
+  mesh_file = "./SphericalChunk3D_prem_ani_150.e"
+
+  [lasif_project.download_settings]
+    seconds_before_event = 300.0
+    seconds_after_event = 3600.0
+    interstation_distance_in_meters = 1000.0
+    channel_priorities = [ "BH[Z,N,E]", "LH[Z,N,E]",     "HH[Z,N,E]", "EH[Z,N,E]", "MH[Z,N,E]",]
+    location_priorities = [ "", "00", "10", "20", "01", "02",]
+
+# Data processing settings,. high- and lowpass period are given in seconds.
+[data_processing]
+  highpass_period = 30.0
+  lowpass_period = 50.0
+
+  # You most likely want to keep this setting at true.
+  scale_data_to_synthethics = true
+
+[solver_settings]
+  [solver_settings.simulation_parameters]
+    number_of_time_steps = 2000
+    time_increment = 0.1
+    end_time = 2700.0
+    start_time = -10.0
+    dimensions = 3
+
+  [solver_settings.computational_setup]
+    salvus_bin = "salvus_wave/build/salvus"
+    number_of_processors = 4
+    salvus_call = "mpirun -n 4"
+    with_anisotropy = true
+
+    # Source time function type, currently "delta" and "ricker" are supported 
+    # When a ricker wavelet is used, please provide the center frequency.
+    source_time_function_type = "delta"
+    source_center_frequency = 0.025
+

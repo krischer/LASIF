@@ -6,6 +6,8 @@ from PyQt4 import QtGui
 from PyQt4.QtCore import pyqtSlot
 import pyqtgraph as pg
 # Default to antialiased drawing.
+from lasif import LASIFNotFoundError
+
 pg.setConfigOptions(antialias=True, foreground=(50, 50, 50), background=None)
 
 
@@ -81,9 +83,11 @@ class Window(QtGui.QMainWindow):
 
         self.ui.status_label = QtGui.QLabel("")
         self.ui.statusbar.addPermanentWidget(self.ui.status_label)
-
         self.ui.iteration_selection_comboBox.addItems(
             self.comm.iterations.list())
+        self.ui.window_set_selection_comboBox.addItems(self.comm.wins_and_adj_sources.list())
+
+
         for component in ["z", "n", "e"]:
             p = getattr(self.ui, "%s_graph" % component)
             # p.setBackground(None)
@@ -120,6 +124,10 @@ class Window(QtGui.QMainWindow):
         return str(self.ui.event_selection_comboBox.currentText())
 
     @property
+    def current_window_set(self):
+        return str(self.ui.window_set_selection_comboBox.currentText())
+
+    @property
     def current_station(self):
         cur_item = self.ui.stations_listWidget.currentItem()
         if cur_item is None:
@@ -133,10 +141,10 @@ class Window(QtGui.QMainWindow):
             return
         #it = self.comm.iterations.get(value)
         events = self.comm.events.list()
+
         self.ui.event_selection_comboBox.setEnabled(True)
         self.ui.event_selection_comboBox.clear()
         self.ui.event_selection_comboBox.addItems(events)
-
         #TODO fix this down here, add a setting to config
         #if it.scale_data_to_synthetics:
         if True:
@@ -144,6 +152,19 @@ class Window(QtGui.QMainWindow):
                                          "this iteration")
         else:
             self.ui.status_label.setText("")
+
+    @pyqtSlot(str)
+    def on_window_set_selection_comboBox_currentIndexChanged(self, value):
+        value = str(value).strip()
+        if not value:
+            return
+        self.current_window_manager = self.comm.wins_and_adj_sources.get(value)
+        self._reset_all_plots()
+
+        if self.current_station is not None:
+            self.on_stations_listWidget_currentItemChanged(True, False)
+
+        self._update_event_map()
 
     def _update_raypath(self, coordinates):
         if hasattr(self, "_current_raypath") and self._current_raypath:
@@ -203,33 +224,14 @@ class Window(QtGui.QMainWindow):
         self.ui.stations_listWidget.addItems(
             sorted(stations.keys()))
 
-        self.current_window_manager = self.comm.wins_and_adj_sources.read_all_windows(
-            self.current_event, self.current_iteration)
-
         self._reset_all_plots()
         self._update_event_map()
-
-    def _window_region_callback(self, *args, **kwargs):
-        start, end = args[0].getRegion()
-        win = args[0].window_object
-        event_starttime = args[0].event_starttime
-        start = event_starttime + start
-        end = event_starttime + end
-
-        win.starttime = start
-        win.endtime = end
-        win._Window__collection.write()
 
     def on_stations_listWidget_currentItemChanged(self, current, previous):
         if current is None:
             return
 
         self._reset_all_plots()
-
-        # moved outside for the try except for debugging
-        wave = self.comm.query.get_matching_waveforms(
-            self.current_event, self.current_iteration,
-            self.current_station)
 
         try:
             wave = self.comm.query.get_matching_waveforms(
@@ -252,9 +254,12 @@ class Window(QtGui.QMainWindow):
             source_depth_in_km=event["depth_in_km"],
             distance_in_degree=great_circle_distance)
 
-
-        windows_for_station = \
-            self.current_window_manager[self.current_station]
+        # Try to obtain windows for a station, if it fails continue plotting the data
+        try:
+            windows_for_station = self.current_window_manager.get_all_windows_for_event_station(
+                self.current_event, self.current_station)
+        except:
+            pass
 
         for component in ["Z", "N", "E"]:
             plot_widget = getattr(self.ui, "%s_graph" % component.lower())
@@ -286,15 +291,23 @@ class Window(QtGui.QMainWindow):
 
             plot_widget.autoRange()
 
-            #TODO window here, used to be the WindowManager object, which does not work anymore
-            #TODO Therefore similar functionalities have to be reimplemented with an sqlite database
-
-            window = [windows_for_station[_i] for _i in windows_for_station
-                      if _i[-1].upper() == component]
-            if window:
-                plot_widget.windows = window #[0]
-                for win in window[0]: #[0].windows:
-                    WindowLinearRegionItem(win, event, parent=plot_widget)
+            channel_name = None
+            windows = []
+            try:
+                for channel in windows_for_station:
+                    if channel[-1].upper() == component:
+                        windows = windows_for_station[channel]
+                        channel_name = channel
+                if windows:
+                    plot_widget.windows = windows #[0]
+                    for win in windows:
+                        WindowLinearRegionItem(self.current_window_manager, channel_name,
+                                               self.current_iteration, start=win[0], end=win[1],
+                                               event=event, parent=plot_widget, comm=self.comm)
+            except:
+                # Only print this message one time
+                if component == "Z":
+                    print("no windows available for: ", self.current_station)
 
         self._update_raypath(wave.coordinates)
 
@@ -309,15 +322,12 @@ class Window(QtGui.QMainWindow):
                 self, "", "Can only create windows if data is available.")
             return
 
+        channel_name = id
         event = self.comm.events.get(self.current_event)
 
-        window = self.current_window_manager.get(id)
-        window.add_window(
-            starttime=event["origin_time"] + x_1,
-            endtime=event["origin_time"] + x_2,
-            weight=1.0
-        )
-        window.write()
+        self.current_window_manager.add_window_to_event_channel(
+            self.current_event, channel_name, start_time=event["origin_time"] + x_1, end_time=event["origin_time"] + x_2,
+            weight=1.0)
 
         self.on_stations_listWidget_currentItemChanged(True, False)
 
@@ -341,16 +351,22 @@ class Window(QtGui.QMainWindow):
     def on_delete_all_Button_released(self):
         for component in ["Z", "N", "E"]:
             plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-            if not hasattr(plot_widget, "windows"):
-                continue
-            plot_widget.windows.windows[:] = []
-            plot_widget.windows.write()
+            # if not hasattr(plot_widget, "windows"):
+            #     continue
+            id = plot_widget.data_id
+            self.current_window_manager.del_all_windows_from_event_channel(
+                event_name=self.current_event, channel_name=id)
+            # plot_widget.windows.windows[:] = []
+            # plot_widget.windows.write()
         self.on_stations_listWidget_currentItemChanged(True, False)
 
     def on_autoselect_Button_released(self):
-        windows_for_station = \
-            self.current_window_manager.get_windows_for_station(
-                self.current_station)
+        windows_for_event = self.current_window_manager.get_all_windows_for_event(self.current_event)
+        if self.current_station in windows_for_event:
+            windows_for_station = windows_for_event[self.current_station]
+        else:
+            windows_for_station = False
+
         if windows_for_station:
             QtGui.QMessageBox.information(
                 self, "", "Autoselection only works if no windows exists for "
@@ -359,7 +375,8 @@ class Window(QtGui.QMainWindow):
 
         self.comm.actions.select_windows_for_station(self.current_event,
                                                      self.current_iteration,
-                                                     self.current_station)
+                                                     self.current_station,
+                                                     self.current_window_set)
         self.on_stations_listWidget_currentItemChanged(True, False)
 
 

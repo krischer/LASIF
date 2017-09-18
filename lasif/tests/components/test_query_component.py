@@ -4,6 +4,8 @@ from __future__ import absolute_import
 
 import glob
 import inspect
+import pathlib
+
 import numpy as np
 import os
 import pytest
@@ -23,7 +25,8 @@ def comm(tmpdir):
     shutil.copytree(proj_dir, os.path.join(tmpdir, "proj"))
     proj_dir = os.path.join(tmpdir, "proj")
 
-    project = Project(project_root_path=proj_dir, init_project=False)
+    folder_path = pathlib.Path(proj_dir).absolute()
+    project = Project(project_root_path=folder_path, init_project=False)
 
     return project.comm
 

@@ -244,7 +244,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                    threshold_correlation=0.75, min_length_period=1.5,
                    min_peaks_troughs=2, max_energy_ratio=10.0,
                    min_envelope_similarity=0.2,
-                   verbose=False, plot=False):
+                   verbose=True, plot=False):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.

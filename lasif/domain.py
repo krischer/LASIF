@@ -16,7 +16,7 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 from pyexodus import exodus
 from scipy.spatial import cKDTree
-from lasif import LASIFError
+from lasif import LASIFNotFoundError, LASIFError
 from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
@@ -74,32 +74,42 @@ class Domain(object):
         return not self.__eq__(other)
 
 
+
 class ExodusDomain(Domain):
     def __init__(self, exodus_file):
-
         self.exodus_file = exodus_file
+        self.r_earth = 6371000
         self.e = None
         self.is_global_mesh = False
         self.domain_edge_tree = None
         self.earth_surface_tree = None
         self.approx_elem_width = None
         self.domain_edge_coords = None
-        self.kdtrees_initialized = False
+        self.earth_surface_coords = None
+        self.KDTrees_initialized = False
+        self.edge_coord_dict = None
+        self.min_lat = None
+        self.max_lat = None
+        self.min_lon = None
+        self.max_lon = None
+        self.center_lat = None
+        self.center_lon = None
+        self.is_read = False
 
-    def _initialize_kd_trees(self):
+    def _read(self):
         """
-            Initialize two KDTrees to determine whether a point lies inside the domain
+        Reads the exodus file and gathers basic information such as the coordinates of the edge nodes.
+        In the case of domain that spans the entire earth, all points will lie inside the domain, therefore
+        further processing is not necessary.
         """
         try:
             self.e = exodus(self.exodus_file, mode='r')
         except AssertionError:
             msg = ("Could not open the project's mesh file. Please ensure that the path specified "
                    "in config is correct.")
-            raise LASIFError(msg)
+            raise LASIFNotFoundError(msg)
 
-        # except LASIFNotFoundError:
-        #     raise LASIFNotFoundError('bla')
-        # if less than 2 side sets, this must be a global mesh, return
+        # if less than 2 side sets, this must be a global mesh.  Return
         if len(self.e.get_side_set_names()) < 2:
             self.is_global_mesh = True
             return
@@ -107,6 +117,8 @@ class ExodusDomain(Domain):
         side_nodes = []
         earth_surface_nodes = []
         for side_set in self.e.get_side_set_names():
+            if side_set == "r0":
+                continue
             idx = self.e.get_side_set_ids()[
                         self.e.get_side_set_names().index(side_set)]
 
@@ -118,38 +130,83 @@ class ExodusDomain(Domain):
             side_nodes.extend(nodes_side_set)
 
         # Remove Duplicates
-        unique_nodes = np.unique(side_nodes)
+        side_nodes = np.unique(side_nodes)
 
         # Get node numbers of the nodes specifying the domain boundaries
-        boundary_nodes = np.intersect1d(unique_nodes, earth_surface_nodes)
+        boundary_nodes = np.intersect1d(side_nodes, earth_surface_nodes)
 
-        # Deduct 1 from the nodes to get correct indices
+        # Deduct 1 from the nodes indices to get correct indices (exodus is 1 based)
         boundary_nodes -= 1
         earth_surface_nodes -= 1
 
+        # Get coordinates
         points = np.array(self.e.get_coords()).T
         self.domain_edge_coords = points[boundary_nodes]
-        earth_surface_coords = points[earth_surface_nodes]
+        self.earth_surface_coords = points[earth_surface_nodes]
 
-        # Get approximation of element width
-        distances_to_node = self.domain_edge_coords - self.domain_edge_coords[0, :]
+        # Get the 4 boundaries
+        side_sets = ["p0", "p1", "t0", "t1"]
+        self.edge_coord_dict = {}
+        for side_set in side_sets:
+            idx = self.e.get_side_set_ids()[
+                        self.e.get_side_set_names().index(side_set)]
+            _, nodes_side_set = list(self.e.get_side_set_node_list(idx))
+            nodes_side_set -= 1
+            edge_nodes = np.intersect1d(nodes_side_set, boundary_nodes)
+            self.edge_coord_dict[side_set] = points[edge_nodes]
+
+
+        # Get approximation of element width, take second smallest value
+        first_node = self.domain_edge_coords[0, :]
+        distances_to_node = self.domain_edge_coords - first_node
         r = np.sum(distances_to_node ** 2, axis=1) ** 0.5
-        self.approx_elem_width = np.partition(r, 1)[1]
+        self.approx_elem_width = np.partition(r, 1)[2]
+
+        # Get extent and center of domain
+        x, y, z = self.domain_edge_coords.T
+
+        # get center lat/lon, use a summed vector instead of mean to prevent problems near the poles
+        x_cen, y_cen, z_cen = np.sum(x), np.sum(y), np.sum(z)
+        self.center_lat, self.center_lon, _ = xyz_to_lat_lon_radius(x_cen, y_cen, z_cen)
+
+        # get extent
+        lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
+        self.min_lat = min(lats)
+        self.max_lat = max(lats)
+        self.min_lon = min(lons)
+        self.max_lon = max(lons)
+
+        self.is_read = True
+
+        # Close file
+        self.e.close()
+
+    def _initialize_kd_trees(self):
+        if not self.is_read:
+            self._read()
+
+        # KDTrees not needed in the case of a global mesh
+        if self.is_global_mesh:
+            return
 
         # build KDTree that can be used for querying later
-        self.earth_surface_tree = cKDTree(earth_surface_coords)
+        self.earth_surface_tree = cKDTree(self.earth_surface_coords)
         self.domain_edge_tree = cKDTree(self.domain_edge_coords)
+        self.KDTrees_initialized = True
 
-        self.kdtrees_initialized = True
-
-    def point_in_domain(self, longitude, latitude):
-        if not self.kdtrees_initialized:
+    def point_in_domain(self, longitude, latitude, num_elems_buffer=8):
+        """
+        :param longitude: longitude in degrees
+        :param latitude: latitude in degrees
+        :param num_elems_buffer: number of elements of buffer, points within this distance away from
+        the domain edge will be flagged as not inside the domain
+        """
+        if not self.KDTrees_initialized:
             self._initialize_kd_trees()
 
         if self.is_global_mesh:
             return True
-        r_earth = 6371.0 * 1000.0
-        point_on_surface = lat_lon_radius_to_xyz(latitude, longitude, r_earth)
+        point_on_surface = lat_lon_radius_to_xyz(latitude, longitude, self.r_earth)
         dist, _ = self.earth_surface_tree.query(point_on_surface, k=1)
 
         # False if not close to domain surface
@@ -159,11 +216,11 @@ class ExodusDomain(Domain):
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
 
         # False if too close to edge of domain
-        if dist < 7 * self.approx_elem_width:
+        if dist < num_elems_buffer * self.approx_elem_width:
             return False
         return True
 
-    def plot(self, plot_simulation_domain=False, ax=None):
+    def plot(self, plot_simulation_domain=False, ax=None, plot_lines=True):
         """
         Global domain is plotted using an equal area Mollweide projection.
 
@@ -172,8 +229,8 @@ class ExodusDomain(Domain):
 
         :return: The created GeoAxes instance.
         """
-        if not self.kdtrees_initialized:
-            self._initialize_kd_trees()
+        if not self.is_read:
+            self._read()
 
         import matplotlib.pyplot as plt
         from mpl_toolkits.basemap import Basemap
@@ -182,18 +239,98 @@ class ExodusDomain(Domain):
             ax = plt.gca()
         plt.subplots_adjust(left=0.05, right=0.95)
 
-        # Equal area mollweide projection.
-        m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
 
-        # Scatter plot domain edge nodes
-        if not self.is_global_mesh:
+        # if global mesh return moll
+        if self.is_global_mesh:
+            m = Basemap(projection='moll', lon_0=0, resolution="c", ax=ax)
+            _plot_features(m, stepsize=45.0)
+            return m
+
+        lat_extent = self.max_lat-self.min_lat
+        lon_extent = self.max_lon-self.min_lon
+        max_extent = max(lat_extent, lon_extent)
+
+        # Use a global plot for very large domains.
+        if lat_extent >= 180.0 and lon_extent >= 180.0:
+            m = Basemap(projection='moll', lon_0=self.center_lon, lat_0=self.center_lat, resolution="c",
+                        ax=ax)
+            stepsize = 45.0
+
+        elif max_extent >= 75.0:
+            m = Basemap(projection='ortho', lon_0=self.center_lon, lat_0=self.center_lat, resolution="c",
+                        ax=ax)
+            stepsize = 10.0
+        else:
+            resolution = "l"
+
+            # Calculate approximate width and height in meters.
+            width = lon_extent
+            height = lat_extent
+
+            if width > 50.0:
+                stepsize = 10.0
+            elif 20.0 < width <= 50.0:
+                stepsize = 5.0
+            elif 5.0 < width <= 20.0:
+                stepsize = 2.0
+            else:
+                stepsize = 1.0
+
+            width *= 110000 * 1.1
+            height *= 110000 * 1.3
+
+            m = Basemap(projection='lcc', resolution=resolution, width=width,
+                        height=height, lat_0=self.center_lat,
+                        lon_0=self.center_lon, ax=ax)
+
+        if plot_lines:
+            sorted_indices = self.get_sorted_edge_coords()
+            x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
+            lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
+            lines = np.array([lats, lons]).T
+            _plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
+        else:
+            # Scatter all edge nodes on the plotted domain, line would be nicer here, requires some extra work
             x, y, z = self.domain_edge_coords.T
             lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
             x, y = m(lons, lats)
-            m.scatter(x, y, color='k')
+            m.scatter(x, y, color='k', label="Edge nodes")
 
-        _plot_features(m, stepsize=45)
+        plt.legend(framealpha=0.5)
+        _plot_features(m, stepsize=stepsize)
+
         return m
+
+
+    def get_sorted_edge_coords(self):
+        """
+        Gets the indices of a sorted array of domain edge nodes, this method should work, as long as the
+        top surfaces of the elements are approximately square
+        """
+
+        if not self.KDTrees_initialized:
+            self._initialize_kd_trees()
+
+        # For each point get the indices of the three nearest point, the closest point is the point itself
+        # the other two are the two nearest neighbours
+        _, indices_nearest = self.domain_edge_tree.query(self.domain_edge_coords, k=3)
+
+        num_edge_points = len(self.domain_edge_coords)
+        indices_sorted = np.zeros(num_edge_points, dtype=int)
+
+        # start sorting with the first node
+        indices_sorted[0] = 0
+        for i in range(num_edge_points)[1:]:
+            prev_idx = indices_sorted[i-1]
+            closest_indices = indices_nearest[prev_idx, 1:]
+            if not closest_indices[0] in indices_sorted:
+                indices_sorted[i] = closest_indices[0]
+            elif not closest_indices[1] in indices_sorted:
+                indices_sorted[i] = closest_indices[1]
+            else:
+                raise LASIFError("Edge node sort algorithm only works for reasonably square elements")
+        return indices_sorted
+
 
     def get_max_extent(self):
         """
@@ -205,8 +342,16 @@ class ExodusDomain(Domain):
             * minimum_longitude
             * maximum_longitude
         """
-        return {"minimum_latitude": -90.0, "maximum_latitude": 90.0,
-                "minimum_longitude": -180.0, "maximum_longitude": 180.0}
+        if not self.KDTrees_initialized:
+            self._initialize_kd_trees()
+
+        if self.is_global_mesh:
+            return {"minimum_latitude": -90.0, "maximum_latitude": 90.0,
+                    "minimum_longitude": -180.0, "maximum_longitude": 180.0}
+
+
+        return {"minimum_latitude": self.min_lat, "maximum_latitude": self.max_lat,
+                "minimum_longitude": self.min_lon, "maximum_longitude": self.max_lon}
 
     def __str__(self):
         return "Exodus Domain"

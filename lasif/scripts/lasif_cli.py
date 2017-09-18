@@ -345,9 +345,6 @@ def lasif_list_events(parser, args):
     """
     Print a list of all events in the project.
     """
-    parser.add_argument("--details", help="print details of filecounts for "
-                                          "all events",
-                        action="store_true")
     parser.add_argument("--list", help="Show only a list of events. Good for "
                                        "scripting bash.",
                         action="store_true")
@@ -357,31 +354,11 @@ def lasif_list_events(parser, args):
 
     comm = _find_project_comm(".")
 
-    if args.list and args.details:
-        raise LASIFCommandLineException("--list and --details cannot both "
-                                        "be specified.")
-
     if args.list is False:
         print("%i event%s in project:" % (comm.events.count(),
               "s" if comm.events.count() != 1 else ""))
 
-    if args.details is True:
-        tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag",
-                           "# raw/preproc/synth"])
-        tab.align["Event Name"] = "l"
-        for event in comm.events.list():
-            ev = comm.events.get(event)
-            count = comm.project.get_filecounts_for_event(event)
-            tab.add_row([
-                event, "%6.1f / %6.1f / %3i / %3.1f" % (
-                    ev["latitude"], ev["longitude"], int(ev["depth_in_km"]),
-                    ev["magnitude"]),
-                "%4i / %5i / %4i" % (
-                    count["raw_waveform_file_count"],
-                    count["preprocessed_waveform_file_count"],
-                    count["synthetic_waveform_file_count"])])
-        print(tab)
-    elif args.list is True:
+    if args.list is True:
         for event in sorted(comm.events.list()):
             print(event)
     else:
@@ -452,8 +429,8 @@ def lasif_plot_stf(parser, args):
     import lasif.visualization
     comm = _find_project_comm(".")
 
-    freqmax = 1.0 / comm.project.preprocessing_params["highpass_period"]
-    freqmin = 1.0 / comm.project.preprocessing_params["lowpass_period"]
+    freqmax = 1.0 / comm.project.processing_params["highpass_period"]
+    freqmin = 1.0 / comm.project.processing_params["lowpass_period"]
 
     stf_fct = comm.project.get_project_function(
         "source_time_function")
@@ -471,66 +448,34 @@ def lasif_plot_stf(parser, args):
 
 
 @command_group("Iteration Management")
-def lasif_generate_all_input_files(parser, args):
-    """
-    Generates all input files for a certain iteration.
-
-    TYPE denotes the type of simulation to run. Available types are
-        * "normal_simulation"
-        * "adjoint_forward"
-        * "adjoint_reverse"
-    """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("weight_set_name", help="name of the weight set")
-    parser.add_argument("--simulation_type",
-                        choices=("normal_simulation", "adjoint_forward",
-                                 "adjoint_reverse"),
-                        default="normal_simulation",
-                        help="type of simulation to run")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-    weight_set_name = args.weight_set_name
-
-    simulation_type = args.simulation_type
-
-    comm = _find_project_comm(".")
-    simulation_type = simulation_type.replace("_", " ")
-
-    weights = comm.weights.get(weight_set_name)
-    events = sorted(weights.events.keys())
-    for _i, event in enumerate(events):
-        print("Generating input files for event %i of %i..." % (_i + 1,
-                                                                len(events)))
-        comm.actions.generate_input_files(weight_set_name, iteration_name, event,
-                                          simulation_type)
-
-
-@command_group("Iteration Management")
 def lasif_generate_input_files(parser, args):
     """
-    Generate the input files for the waveform solver.
-
-    TYPE denotes the type of simulation to run. Available types are
-        * "normal_simulation"
-        * "adjoint_forward"
-        * "adjoint_reverse"
+    Generate input files for the forward simulation of the waveform solver.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("event_name", help="name of the event")
-    parser.add_argument("--simulation_type",
-                        choices=("normal_simulation", "adjoint_forward",
-                                 "adjoint_reverse"),
-                        default="normal_simulation",
-                        help="type of simulation to run")
+    parser.add_argument("iteration_name", help="name of the iteration ")
+    parser.add_argument(
+        "events", help="One or more events. If none given, all will be done.",
+        nargs="*")
+
+    #TODO possible extend this function to allow for generating input_files for the adjoint run \
+    #TODO otherwise implement this functionality in finalize adjoint sources
+
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
-    event_name = args.event_name
-    simulation_type = args.simulation_type
 
     comm = _find_project_comm(".")
-    simulation_type = simulation_type.replace("_", " ")
-    comm.actions.generate_input_files(iteration_name, event_name,
-                                      simulation_type)
+    events = args.events if args.events else comm.events.list()
+
+    if not comm.iterations.has_iteration(iteration_name):
+        raise LASIFNotFoundError(f"Could not find iteration: {iteration_name}")
+
+    for _i, event in enumerate(events):
+        if not comm.events.has_event(event):
+                print("Event '%s' not known to LASIF. No input files for this event will be generated. " % event)
+        print("Generating input files for event %i of %i..." % (_i + 1,
+                                                                len(events)))
+        comm.actions.generate_input_files(iteration_name, event)
+
 
 
 @command_group("Project Management")
@@ -573,43 +518,61 @@ def lasif_finalize_adjoint_sources(parser, args):
 
 @mpi_enabled
 @command_group("Iteration Management")
-def lasif_calculate_all_adjoint_sources(parser, args):
+def lasif_calculate_adjoint_sources(parser, args):
     """
-    Calculates all adjoint sources for a given iteration.
+    Calculates adjoint sources for a given iteration.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("window_set_name", help="name of the window_set")
+    parser.add_argument(
+        "events", help="One or more events. If none given, all will be done.",
+        nargs="*")
+
     args = parser.parse_args(args)
-
     iteration = args.iteration_name
-
+    window_set_name = args.window_set_name
     comm = _find_project_comm_mpi(".")
 
-    events = comm.events.list()
+    # some basic checks
+    if not comm.wins_and_adj_sources.has_window_set(window_set_name):
+        if MPI.COMM_WORLD.rank == 0:
+            raise LASIFNotFoundError("Window set {} not known to LASIF".format(window_set_name))
+        return
+
+    if not comm.iterations.has_iteration(iteration):
+        if MPI.COMM_WORLD.rank == 0:
+            raise LASIFNotFoundError("Iteration {} not known to LASIF".format(iteration))
+        return
+
+    events = args.events if args.events else comm.events.list()
 
     for _i, event in enumerate(events):
-        if MPI.COMM_WORLD.rank == 0:
-            print("\n{green}"
-                  "==========================================================="
-                  "{reset}".format(green=colorama.Fore.GREEN,
-                                   reset=colorama.Style.RESET_ALL))
-            print("Starting adjoint source calculation for event %i of "
-                  "%i..." % (_i + 1, len(events)))
-            print("{green}"
-                  "==========================================================="
-                  "{reset}\n".format(green=colorama.Fore.GREEN,
-                                     reset=colorama.Style.RESET_ALL))
+        if not comm.events.has_event(event):
+            if MPI.COMM_WORLD.rank == 0:
+                print("Event '%s' not known to LASIF. No adjoint sources for "
+                      "this event will be calculated. " % event)
+            continue
+        print("\n{green}"
+              "==========================================================="
+              "{reset}".format(green=colorama.Fore.GREEN,
+                               reset=colorama.Style.RESET_ALL))
+        print("Starting adjoint source calculation for event %i of "
+              "%i..." % (_i + 1, len(events)))
+        print("{green}"
+              "==========================================================="
+              "{reset}\n".format(green=colorama.Fore.GREEN,
+                                 reset=colorama.Style.RESET_ALL))
 
-        # Windows file must exist!
+        # Get adjoint sources_filename
         filename = comm.wins_and_adj_sources.get_filename(event=event,
                                                           iteration=iteration)
-        if not os.path.exists(filename):
-            if MPI.COMM_WORLD.rank == 0:
-                print("File '%s' does not exists. No adjoint sources for "
-                      "event '%s' will be calculated." % (filename, event))
-            continue
+        # remove adjoint sources if they already exist
+        if MPI.COMM_WORLD.rank == 0:
+            if os.path.exists(filename):
+                os.remove(filename)
 
         MPI.COMM_WORLD.barrier()
-        comm.actions.calculate_adjoint_sources(event, iteration)
+        comm.actions.calculate_adjoint_sources(event, iteration, window_set_name)
 
 
 @mpi_enabled
@@ -624,14 +587,16 @@ def lasif_select_windows(parser, args):
     """
     parser.add_argument("iteration", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
+    parser.add_argument("window_set_name", help="name of the window_set")
     args = parser.parse_args(args)
 
     iteration_name = args.iteration
     event = args.event_name
+    window_set_name = args.window_set_name
 
     comm = _find_project_comm_mpi(".")
 
-    comm.actions.select_windows(event, iteration_name)
+    comm.actions.select_windows(event, iteration_name, window_set_name)
 
 
 @mpi_enabled
@@ -708,18 +673,36 @@ def lasif_create_weight_set(parser, args):
         events_dict=comm.query.get_stations_for_all_events())
 
 @command_group("Iteration Management")
-def lasif_setup_new_iteration(parser, args):
+def lasif_set_up_iteration(parser, args):
     """
-    Creates directory structure for a new iteration.
+    Creates or removes directory structure for an iteration.
     """
     parser.add_argument("iteration_name", help="name of the iteration, i.e. \"1\"")
+    parser.add_argument(
+        "--remove_dirs",
+        help="Removes all directories related to the specified iteration. ",
+        action="store_true")
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
+    remove_dirs = args.remove_dirs
 
     comm = _find_project_comm(".")
     comm.iterations.setup_directories_for_iteration(
-        iteration_name=iteration_name)
+        iteration_name=iteration_name, remove_dirs=remove_dirs)
+
+@command_group("Iteration Management")
+def lasif_list_iterations(parser, args):
+    """
+    Creates directory structure for a new iteration.
+    """
+    args = parser.parse_args(args)
+
+    comm = _find_project_comm(".")
+    iterations = comm.iterations.list()
+    print("Iterations known to LASIF: \n")
+    for iteration in iterations:
+        print(comm.iterations.get_long_iteration_name(iteration), "\n")
 
 @mpi_enabled
 @command_group("Iteration Management")
@@ -901,54 +884,12 @@ def lasif_compare_misfits(parser, args):
 
 
 @command_group("Iteration Management")
-def lasif_migrate_windows(parser, args):
-    """
-    Migrates windows from one iteration to the next.
-    """
-    parser.add_argument("from_iteration",
-                        help="iteration containing windows")
-    parser.add_argument("to_iteration", help="iteration windows will "
-                                             "be migrated to")
-    args = parser.parse_args(args)
-    comm = _find_project_comm(".")
-
-    from_it = comm.iterations.get(args.from_iteration)
-    to_it = comm.iterations.get(args.to_iteration)
-
-    print("Migrating windows from iteration '%s' to iteration '%s'..." % (
-        from_it.name, to_it.name))
-
-    for event_name, stations in to_it.events.items():
-        stations = stations["stations"].keys()
-
-        window_group_from = comm.windows.get(event_name, from_it.name)
-        window_group_to = comm.windows.get(event_name, to_it.name)
-        contents_to = set(window_group_to.list())
-        contents_from = set(window_group_from.list())
-        contents = contents_from - contents_to
-
-        # Remove all not part of this iterations station.
-        filtered_contents = itertools.ifilter(
-            lambda x: ".".join(x.split(".")[:2]) in stations,
-            contents)
-
-        for channel_id in filtered_contents:
-            coll = window_group_from.get(channel_id)
-            coll.synthetics_tag = to_it.name
-            f = window_group_to._get_window_filename(channel_id)
-            coll.filename = f
-            coll.write()
-
-
-@command_group("Iteration Management")
 def lasif_list_weight_sets(parser, args):
     """
     Print a list of all iterations in the project.
     """
     args = parser.parse_args(args)
-
     comm = _find_project_comm(".")
-
     it_len = comm.weights.count()
 
     print("%i weight set(s)%s in project:" % (it_len,
@@ -978,32 +919,24 @@ def lasif_iteration_info(parser, args):
 
 @mpi_enabled
 @command_group("Iteration Management")
-def lasif_preprocess_data(parser, args):
+def lasif_process_data(parser, args):
     """
-    Launch data preprocessing.
+    Launch data processing.
 
     This function works with MPI. Don't use too many cores, I/O quickly
     becomes the limiting factor. It also works without MPI but then only one
     core actually does any work.
     """
-    parser.add_argument("weight_set", help="name of the weight set")
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
     args = parser.parse_args(args)
-    weight_set_name = args.weight_set
-    events = args.events if args.events else None
-
     comm = _find_project_comm_mpi(".")
+    events = args.events if args.events else comm.events.list()
 
     # No need to perform these checks on all ranks.
     exceptions = []
     if MPI.COMM_WORLD.rank == 0:
-        if not comm.weights.has_weight_set(weight_set_name):
-           msg = ("Weights '%s' not found. Use 'lasif list_iterations' to "
-                  "get a list of all available iterations.") % weight_set_name
-           exceptions.append(msg)
-
         # Check if the event ids are valid.
         if not exceptions and events:
             for event_name in events:
@@ -1016,8 +949,7 @@ def lasif_preprocess_data(parser, args):
     exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
     if exceptions:
         raise LASIFCommandLineException(exceptions[0])
-
-    comm.actions.preprocess_data(weight_set_name, events)
+    comm.actions.process_data(events)
 
 
 @command_group("Plotting")
@@ -1029,7 +961,6 @@ def lasif_plot_window_statistics(parser, args):
     args = parser.parse_args(args)
 
     iteration_name = args.iteration_name
-
     comm = _find_project_comm(".")
 
     if args.combine:
@@ -1134,38 +1065,6 @@ def lasif_validate_data(parser, args):
     comm.validator.validate_data(
         station_file_availability=station_file_availability,
         raypaths=raypaths, waveforms=waveforms)
-
-
-@command_group("Iteration Management")
-def lasif_iteration_status(parser, args):
-    """
-    Query the current status of an iteration.
-    """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-
-    comm = _find_project_comm(".")
-    status = comm.query.get_iteration_status(iteration_name)
-    iteration = comm.iterations.get(iteration_name)
-
-    print("Iteration %s is defined for %i events:" % (iteration_name,
-                                                      len(iteration.events)))
-    for event in sorted(status.keys()):
-        st = status[event]
-        print("\t%s" % event)
-
-        print("\t\t%.2f %% of the events stations have picked windows" %
-              (st["fraction_of_stations_that_have_windows"] * 100))
-        if st["missing_raw"]:
-            print("\t\tLacks raw data for %i stations" %
-                  len(st["missing_raw"]))
-        if st["missing_processed"]:
-            print("\t\tLacks processed data for %i stations" %
-                  len(st["missing_processed"]))
-        if st["missing_synthetic"]:
-            print("\t\tLacks synthetic data for %i stations" %
-                  len(st["missing_synthetic"]))
 
 
 def lasif_tutorial(parser, args):

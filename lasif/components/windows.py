@@ -3,21 +3,19 @@
 from __future__ import absolute_import
 
 import copy
-import json
+import glob
 import os
-import shutil
 
-from lasif import LASIFNotFoundError, LASIFAdjointSourceCalculationError
+from lasif import LASIFAdjointSourceCalculationError
 from .component import Component
-from ..window_manager import WindowGroupManager
 
 from ..adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 from ..adjoint_sources.ad_src_l2_norm_misfit import adsrc_l2_norm_misfit
 from ..adjoint_sources.ad_src_cc_time_shift import adsrc_cc_time_shift
 
 import numpy as np
-import obspy
 
+from ..window_manager_sql import WindowGroupManager
 
 # Map the adjoint source type names to functions implementing them.
 MISFIT_MAPPING = {
@@ -56,6 +54,56 @@ class WindowsAndAdjointSourcesComponent(Component):
 
         return os.path.join(
             folder, "ADJ_SRC_AND_WINDOWS_" + event["event_name"] + ".h5")
+
+    def get(self, window_set_name):
+        """
+        Returns the window manager instance for a window set.
+
+        :param window_set_name: The name of the window set.
+        """
+        filename = self.get_window_set_filename(window_set_name)
+        return WindowGroupManager(filename)
+
+    def list(self):
+        """
+        Returns a list of window sets currenly present within the LASIF project.
+        """
+        files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
+            self.comm.project.paths["windows"], "*.sqlite"))]
+        window_sets = [os.path.splitext(os.path.basename(_i))[0][:]
+                       for _i in files]
+
+        return sorted(window_sets)
+
+    def has_window_set(self, window_set_name):
+        """
+        Checks whether a window set is alreadu defined.
+        ReturnsL True or False
+        :param window_set_name: name of the window set
+        """
+        if window_set_name in self.list():
+            return True
+        return False
+
+    def get_window_set_filename(self, window_set_name):
+        """
+        Retrieves the filename for a given window set
+        :param window_set_name: The name of the window set
+        :return: filename of the window set
+        """
+        filename = os.path.join(self.comm.project.paths['windows'], window_set_name + ".sqlite")
+        return filename
+
+    def write_windows_to_sql(self, event_name, window_set_name, windows):
+        """
+        Writes windows to the sql database
+        :param event_name: The name of the event
+        :param window_set_name: The name of the window set
+        :param windows: The actual windows, structured in a dictionary(stations) of dicts(channels) of lists(windowS)
+        of tuples (start- and end times)
+        """
+        window_group_manager = self.get(window_set_name)
+        window_group_manager.write_windows(event_name, windows)
 
     def write_windows(self, event, iteration, windows):
         """
@@ -101,10 +149,6 @@ class WindowsAndAdjointSourcesComponent(Component):
 
         filename = self.get_filename(event=event, iteration=iteration)
 
-        if not os.path.exists(filename):
-            raise ValueError("Window and adjoint source file '%s' must "
-                             "already exist." % filename)
-
         print("\nStarting to write adjoint sources to ASDF file ...")
 
         adj_src_counter = 0
@@ -113,10 +157,10 @@ class WindowsAndAdjointSourcesComponent(Component):
         # we are already in MPI but only rank 0 will enter here and that
         # will confuse pyasdf otherwise.
         with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
-            for value in adj_sources.itervalues():
+            for value in adj_sources.values():
                 if not value:
                     continue
-                for c_id, adj_source in value.iteritems():
+                for c_id, adj_source in value.items():
                     net, sta, loc, cha = c_id.split(".")
                     ds.add_auxiliary_data(
                         data=adj_source["adj_source"],
@@ -126,48 +170,17 @@ class WindowsAndAdjointSourcesComponent(Component):
                     adj_src_counter += 1
         print("Wrote %i adjoint_sources to the ASDF file." % adj_src_counter)
 
-    def read_all_windows(self, event, iteration):
+    def read_all_windows(self, event, window_set_name):
         """
-        Return a flat dictionary with all windows. This should always be
+        Return a flat dictionary with all windows for a specific event. This should always be
         fairly small.
         """
-        import pyasdf
-
-        filename = self.get_filename(event=event, iteration=iteration)
-
-        if not os.path.exists(filename):
-            raise ValueError("Window and adjoint source file '%s' does "
-                             "not exists." % filename)
-
-        # Collect in flat dictionary structure.
-        all_windows = {}
-
-        with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
-
-            if "Windows" not in ds.auxiliary_data:
-                raise ValueError("Auxiliary data group 'Windows' not found.")
-
-            for station in ds.auxiliary_data.Windows:
-                for channel in station:
-                    aux_type = channel.auxiliary_data_type
-                    _, sta, cha = aux_type.split("/")
-                    net, sta = sta.split("_")
-                    _, loc, cha = cha.split("_")
-                    windows = []
-                    for window in channel:
-                        windows.append((
-                            obspy.UTCDateTime(window.parameters["starttime"]),
-                            obspy.UTCDateTime(window.parameters["endtime"])))
-
-                    if "%s.%s" % (net, sta) not in all_windows.keys():
-                        all_windows["%s.%s" % (net, sta)] = {}
-                    all_windows["%s.%s" % (net, sta)]["%s.%s.%s.%s" % (net, sta, loc, cha)] = windows
-
-        return all_windows
+        window_group_manager = self.get(window_set_name)
+        return window_group_manager.get_all_windows_for_event(event_name=event)
 
     def calculate_adjoint_source(self, data, synth, starttime, endtime, taper,
                                  taper_percentage, min_period,
-                                 max_period, ad_src_type):
+                                 max_period, ad_src_type, plot=False):
         """
         Calculates an adjoint source for a single window.
 
@@ -218,7 +231,8 @@ class WindowsAndAdjointSourcesComponent(Component):
 
         #  compute misfit and adjoint source
         adsrc = MISFIT_MAPPING[ad_src_type](
-            t, data_d, synth_d, min_period=min_period, max_period=max_period)
+            t, data_d, synth_d, min_period=min_period, max_period=max_period, plot=plot)
+
 
         # Recreate dictionary for clarity.
         ret_val = {
@@ -226,6 +240,8 @@ class WindowsAndAdjointSourcesComponent(Component):
             "misfit_value": adsrc["misfit_value"],
             "details": adsrc["details"]
         }
+        if plot:
+            return
 
         if not self._validate_return_value(ret_val):
             raise LASIFAdjointSourceCalculationError(

@@ -52,19 +52,19 @@ def _get_vector(*args):
     >>> vec = _get_vector(1, 2, 3)
     >>> vec
     array([ 1.,  2.,  3.])
-    >>> print vec.dtype
+    >>> print(vec.dtype)
     float64
 
     >>> vec = _get_vector([1, 2, 3])
     >>> vec
     array([ 1.,  2.,  3.])
-    >>> print vec.dtype
+    >>> print(vec.dtype)
     float64
 
     >>> vec = _get_vector(np.array([1, 2, 3], dtype="int32"))
     >>> vec
     array([ 1.,  2.,  3.])
-    >>> print vec.dtype
+    >>> print(vec.dtype)
     float64
     """
     if len(args) == 1 and isinstance(args[0], np.ndarray):
@@ -146,7 +146,7 @@ def _get_rotation_matrix(axis, angle):
     """
     Returns the rotation matrix for the specified axis and angle.
     """
-    axis = map(float, axis) / np.linalg.norm(axis)
+    axis = np.array(axis, dtype=float) / np.linalg.norm(axis)
     angle = np.deg2rad(angle)
 
     # Use c1, c2, and c3 as shortcuts for the rotation axis.
