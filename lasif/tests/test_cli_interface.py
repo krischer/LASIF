@@ -692,31 +692,6 @@ def test_iteration_status_command(cli):
     ]
 
 
-def test_Q_model_plotting(cli):
-    """
-    Tests the Q model plotting via mocking.
-    """
-    cli.run("lasif create_new_iteration 1 7.0 70.0 SES3D_4_1")
-    with mock.patch("lasif.tools.Q_discrete.plot") as patch:
-        out = cli.run("lasif plot_Q_model 1")
-
-    assert out.stderr == ""
-    assert patch.call_count == 1
-    kwargs = patch.call_args[1]
-
-    assert round(kwargs["f_min"] - 1.0 / 70.0, 5) == 0
-    assert round(kwargs["f_max"] - 1.0 / 7.0, 5) == 0
-
-
-def test_Q_model_calculating(cli):
-    """
-    Tests the Q model calculation via mocking.
-    """
-    # Mocked in the fixture's run() function.
-    out = cli.run("lasif calculate_constant_Q_model 12 234").stdout
-    assert out == ''
-
-
 def test_debug_information(cli):
     """
     Tests the debugging information.
@@ -739,20 +714,6 @@ def test_version_str(cli):
     out = cli.run("lasif --version")
     assert out.stderr == ""
     assert out.stdout.strip() == "LASIF version %s" % lasif.__version__
-
-
-def test_building_all_cached(cli):
-    """
-    Tests the build all caches routine.
-    """
-    out = cli.run("lasif build_all_caches")
-    assert out.stderr == ""
-
-    assert "Building/updating station cache" in out.stdout
-    assert ("Building/updating data cache for event "
-            "'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11'") in out.stdout
-    assert ("Building/updating data cache for event "
-            "'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15'") in out.stdout
 
 
 def test_lasif_serve(cli):
