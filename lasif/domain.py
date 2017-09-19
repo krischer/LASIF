@@ -342,8 +342,8 @@ class ExodusDomain(Domain):
             * minimum_longitude
             * maximum_longitude
         """
-        if not self.KDTrees_initialized:
-            self._initialize_kd_trees()
+        if not self.is_read:
+            self._read()
 
         if self.is_global_mesh:
             return {"minimum_latitude": -90.0, "maximum_latitude": 90.0,
