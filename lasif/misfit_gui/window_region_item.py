@@ -3,9 +3,9 @@
 from PyQt4 import QtCore
 import pyqtgraph
 
-
-#TODO FIX this
+# TODO make DEFAULT_AD_SRC_TYPE a variable in config
 DEFAULT_AD_SRC_TYPE = "TimeFrequencyPhaseMisfitFichtner2008"
+
 
 class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
     def __init__(self, window_group_manager, channel_name, iteration,
@@ -24,7 +24,6 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         self.comm = comm
         self.iteration = iteration
 
-        # Here self.win[0] is given as the real physical time, in my mocking example this therefore does not work
         self.start = start
         self.end = end
 
@@ -44,8 +43,9 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         start, end = args[0].getRegion()
         start = self.event_time + start
         end = self.event_time + end
-        self.win_grp_manager.add_window_to_event_channel(self.event_name, self.channel_name,
-                                                         start_time=start, end_time=end, weight=1.0)
+        self.win_grp_manager.add_window_to_event_channel(
+            self.event_name, self.channel_name,
+            start_time=start, end_time=end, weight=1.0)
 
     def mouseClickEvent(self, ev):
         if ev.modifiers() & (
@@ -69,7 +69,8 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         plt.close("all")
         plt.figure(figsize=(15, 10))
 
-        data = self.comm.query.get_matching_waveforms(self.event_name, self.iteration,
+        data = self.comm.query.get_matching_waveforms(self.event_name,
+                                                      self.iteration,
                                                       self.channel_name)
 
         process_params = self.comm.project.processing_params
@@ -81,4 +82,3 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
             max_period=process_params["lowpass_period"],
             ad_src_type="TimeFrequencyPhaseMisfitFichtner2008", plot=True)
         plt.show()
-

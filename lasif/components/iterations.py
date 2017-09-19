@@ -8,11 +8,11 @@ import os
 from .component import Component
 import shutil
 
+
 class IterationsComponent(Component):
     """
     Component dealing with the iteration xml files.
 
-    :param iterations_folder: The folder with the iteration XML files.
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
@@ -33,18 +33,23 @@ class IterationsComponent(Component):
         iteration_name = iteration_name.lstrip("ITERATION_")
         return "ITERATION_%s" % iteration_name
 
-    def setup_directories_for_iteration(self, iteration_name, remove_dirs=False):
+    def setup_directories_for_iteration(self, iteration_name,
+                                        remove_dirs=False):
         """
         Sets up the directory structure required for the iteration
         :param iteration_name: The iteration for which to create the folders.
         :param remove_dirs: Boolean if set to True the iteration is removed
         """
         long_iter_name = self.get_long_iteration_name(iteration_name)
-        self._create_synthetics_folder_for_iteration(long_iter_name, remove_dirs)
-        self._create_input_files_folder_for_iteration(long_iter_name, remove_dirs)
-        self._create_adjoint_sources_and_windows_folder_for_iteration(long_iter_name, remove_dirs)
+        self._create_synthetics_folder_for_iteration(long_iter_name,
+                                                     remove_dirs)
+        self._create_input_files_folder_for_iteration(long_iter_name,
+                                                      remove_dirs)
+        self._create_adjoint_sources_and_windows_folder_for_iteration(
+            long_iter_name, remove_dirs)
 
-    def _create_synthetics_folder_for_iteration(self, long_iteration_name, remove_dirs=False):
+    def _create_synthetics_folder_for_iteration(self, long_iteration_name,
+                                                remove_dirs=False):
         """
         Create the synthetics folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
@@ -57,7 +62,8 @@ class IterationsComponent(Component):
         if remove_dirs:
             shutil.rmtree(folder)
 
-    def _create_input_files_folder_for_iteration(self, long_iteration_name, remove_dirs=False):
+    def _create_input_files_folder_for_iteration(self, long_iteration_name,
+                                                 remove_dirs=False):
         """
         Create the synthetics folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
@@ -70,7 +76,8 @@ class IterationsComponent(Component):
         if remove_dirs:
             shutil.rmtree(folder)
 
-    def _create_adjoint_sources_and_windows_folder_for_iteration(self, long_iteration_name,remove_dirs=False):
+    def _create_adjoint_sources_and_windows_folder_for_iteration(
+            self, long_iteration_name, remove_dirs=False):
         """
         Create the adjoint_sources_and_windows folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
@@ -90,7 +97,7 @@ class IterationsComponent(Component):
         files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
             self.comm.project.paths["eq_synthetics"], "ITERATION_*"))]
         iterations = [os.path.splitext(os.path.basename(_i))[0][10:]
-                       for _i in files]
+                      for _i in files]
         return sorted(iterations)
 
     def has_iteration(self, iteration_name):

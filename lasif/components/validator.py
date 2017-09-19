@@ -101,7 +101,7 @@ class ValidatorComponent(Component):
 
         files_failing_raypath_test = []
         if raypaths:
-            if isinstance(self.comm.project.domain, GlobalDomain):
+            if self.comm.project.domain.is_global_domain():
                 print("%sSkipping raypath checks for global domain...%s" % (
                     colorama.Fore.YELLOW, colorama.Fore.RESET))
             else:
@@ -489,7 +489,7 @@ class ValidatorComponent(Component):
         event_infos = self.comm.events.get_all_events().values()
 
         # Now check the time distribution of events.
-        print("\tChecking for duplicates and events too close in time %s" % \
+        print("\tChecking for duplicates and events too close in time %s" %
               (self.comm.events.count() * "."), end="")
         all_good = True
         # Sort the events by time.
@@ -518,7 +518,7 @@ class ValidatorComponent(Component):
             self._print_fail_message()
 
         # Check that all events fall within the chosen boundaries.
-        print("\tAssure all events are in chosen domain %s" % \
+        print("\tAssure all events are in chosen domain %s" %
               (self.comm.events.count() * "."), end="")
         all_good = True
         domain = self.comm.project.domain

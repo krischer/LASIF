@@ -98,6 +98,7 @@ class WeightSet(object):
             pair_count=len(all_stations),
             station_count=len(set(all_stations)))
 
+
 def create_weight_set_toml_string(weight_set_name, events_dict):
     toml_string = "# This is the weights set file.\n\n"
     weights_str = f"[weight_set]\n" \

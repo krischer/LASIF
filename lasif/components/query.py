@@ -36,11 +36,13 @@ class QueryComponent(Component):
         :type event_name: str
         :param event_name: Name of the event.
 
-        >>> import pprint
-        >>> comm = getfixture('query_comm')
+        >>> import pprint # doctest: +SKIP
+        >>> comm = getfixture('query_comm') # doctest: +SKIP
         >>> pprint.pprint(comm.query.get_all_stations_for_event(
         ...     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")) \
+        # doctest: +SKIP
         # doctest: +NORMALIZE_WHITESPACE
+
         {u'HL.ARG': {'elevation_in_m': 170.0, 'latitude': 36.216,
                      'longitude': 28.126},
          u'HT.SIGR': {'elevation_in_m': 93.0, 'latitude': 39.2114,
@@ -54,7 +56,8 @@ class QueryComponent(Component):
         Raises a :class:`~lasif.LASIFNotFoundError` if the event does not
         exist.
 
-        >>> comm.query.get_all_stations_for_event("RandomEvent")
+        >>> comm.query.get_all_stations_for_event("RandomEvent") \
+        # doctest: +SKIP
         Traceback (most recent call last):
             ...
         LASIFNotFoundError: ...
@@ -203,7 +206,8 @@ class QueryComponent(Component):
             raise ValueError("'station_or_channel_id' must either have "
                              "2 or 4 parts.")
 
-        iteration_long_name = self.comm.iterations.get_long_iteration_name(iteration)
+        iteration_long_name = self.comm.iterations.get_long_iteration_name(
+            iteration)
         event = self.comm.events.get(event)
 
         # Get the metadata for the processed and synthetics for this

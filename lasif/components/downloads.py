@@ -51,11 +51,15 @@ class DownloadsComponent(Component):
         import pyasdf
         asdf_ds = pyasdf.ASDFDataSet(filename, compression="gzip-3")
 
-        stationxml_storage_path = proj.paths["eq_data"] / f"tmp_station_xml_storage_{event_name}"
-        stationxml_storage = self._get_stationxml_storage_fct(asdf_ds, starttime,
-                                                              endtime, stationxml_storage_path)
-        mseed_storage_path = proj.paths["eq_data"] / f"tmp_mseed_storage_{event_name}"
-        mseed_storage = self._get_mseed_storage_fct(asdf_ds, starttime, endtime, mseed_storage_path)
+        stationxml_storage_path = proj.paths["eq_data"] / \
+            f"tmp_station_xml_storage_{event_name}"
+        stationxml_storage = self._get_stationxml_storage_fct(
+            asdf_ds, starttime, endtime, stationxml_storage_path)
+        mseed_storage_path = proj.paths["eq_data"] / \
+            f"tmp_mseed_storage_{event_name}"
+        mseed_storage = self._get_mseed_storage_fct(asdf_ds, starttime,
+                                                    endtime,
+                                                    mseed_storage_path)
 
         # Also log to file for reasons of provenance and debugging.
         logger = logging.getLogger("obspy.clients.fdsn.mass_downloader")
@@ -76,9 +80,10 @@ class DownloadsComponent(Component):
         files = glob.glob(str(mseed_storage_path / "*.mseed"))
         for _i, filename in enumerate(files):
             print("Adding raw_recording %i of %i ..." % (_i + 1, len(files)))
-            asdf_ds.add_waveforms(filename, tag="raw_recording", event_id=asdf_ds.events[0])
+            asdf_ds.add_waveforms(filename, tag="raw_recording",
+                                  event_id=asdf_ds.events[0])
 
-        files = glob.glob(str(stationxml_storage_path /'*.xml'))
+        files = glob.glob(str(stationxml_storage_path / '*.xml'))
 
         for _i, filename in enumerate(files):
             print("Adding stationxml %i of %i ..." % (_i + 1, len(files)))
@@ -88,25 +93,28 @@ class DownloadsComponent(Component):
         shutil.rmtree(stationxml_storage_path)
         shutil.rmtree(mseed_storage_path)
 
-
     def _get_mseed_storage_fct(self, ds, starttime, endtime, storage_path):
 
-        def get_mseed_storage(network, station, location, channel, starttime, endtime):
-            # Returning True means that neither the data nor the StationXML file
-            # will be downloaded.
+        def get_mseed_storage(network, station, location, channel, starttime,
+                              endtime):
+            # Returning True means that neither the data nor the
+            # StationXML file will be downloaded.
             net_sta = f"{network}.{station}"
-            if net_sta in ds.waveforms.list() and "raw_recording" in ds.waveforms[net_sta] and \
+            if net_sta in ds.waveforms.list() and \
+                "raw_recording" in ds.waveforms[net_sta] and \
                 ds.waveforms[net_sta].raw_recording.select(
-                     network=network, station=station, location=location, channel=channel):
+                    network=network, station=station, location=location,
+                    channel=channel):
                 return True
-            return str(storage_path / f"{network}.{station}.{location}.{channel}.mseed")
+            return str(storage_path /
+                       f"{network}.{station}.{location}.{channel}.mseed")
 
         return get_mseed_storage
 
-    def _get_stationxml_storage_fct(self, ds, starttime, endtime, storage_path):
+    def _get_stationxml_storage_fct(self, ds, starttime, endtime,
+                                    storage_path):
         if not os.path.isdir(storage_path):
             os.mkdir(storage_path)
-
 
         def stationxml_storage(network, station, channels, startime, endtime):
             missing_channels = []
@@ -115,7 +123,9 @@ class DownloadsComponent(Component):
                 net_sta = f"{network}.{station}"
 
                 if net_sta in ds.waveforms.list() and \
-                        ds.waveforms[net_sta].StationXML.select(network=network, station=station, channel=cha_code):
+                        ds.waveforms[net_sta].StationXML.select(
+                            network=network,
+                            station=station, channel=cha_code):
                     available_channels.append((loc_code, cha_code))
                 else:
                     missing_channels.append((loc_code, cha_code))
@@ -141,14 +151,12 @@ class DownloadsComponent(Component):
         from obspy.clients.fdsn.mass_downloader import Domain
 
         class ExodusDomain(Domain):
+
             def get_query_parameters(self):
-                """
-                Currently spans the whole globe
-                """
                 return {}
 
             def is_in_domain(self, latitude, longitude):
                 return domain.point_in_domain(latitude=latitude,
-                                         longitude=longitude)
+                                              longitude=longitude)
 
         return ExodusDomain()

@@ -432,7 +432,7 @@ def get_border_latlng_list(
 
     # Rotate everything.
     for border in [north_border, south_border, east_border, west_border]:
-        for _i in xrange(number_of_points_per_side):
+        for _i in range(number_of_points_per_side):
             border[_i, 0], border[_i, 1] = rotate_lat_lon(
                 border[_i, 0], border[_i, 1], rotation_axis,
                 rotation_angle_in_degree)

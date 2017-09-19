@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import flask
-from flask.ext.cache import Cache
+from flask_cache import Cache
 
 import matplotlib.pylab as plt
 from matplotlib.colors import hex2color
@@ -55,7 +55,7 @@ def get_info():
     Returns some basic information about the project.
     """
     info = {
-        "project_name": app.comm.project.config["name"],
+        "project_name": app.comm.project.config["project_name"],
         "project_root": app.comm.project.paths["root"]
     }
     return flask.jsonify(**info)
@@ -237,9 +237,10 @@ def list_events():
     Returns a list of events.
     """
     events = copy.deepcopy(app.comm.events.get_all_events())
-    for value in events.itervalues():
+    for value in events.values():
         value["origin_time"] = str(value["origin_time"])
-    return flask.jsonify(events=events.values())
+
+    return flask.jsonify(events=list(events.values()))
 
 
 @app.route("/rest/event/<event_name>")
@@ -345,10 +346,10 @@ def serve(comm, port=8008, debug=False, open_to_outside=False):
         server cannot be accessed from other PCs. Set this to True to enable
         access from other computers.
     """
-    cache.init_app(app, config={
-        "CACHE_TYPE": "filesystem",
-        "CACHE_DIR": os.path.join(comm.project.paths["cache"],
-                                  "webapp_cache")})
+    # cache.init_app(app, config={
+    #     "CACHE_TYPE": "filesystem",
+    #     "CACHE_DIR": os.path.join(comm.project.paths["cache"],
+    #                               "webapp_cache")})
 
     if open_to_outside is True:
         host = "0.0.0.0"

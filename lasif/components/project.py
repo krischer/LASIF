@@ -148,12 +148,13 @@ class Project(Component):
         # Basic components.
         EventsComponent(folder=self.paths["eq_data"], communicator=self.comm,
                         component_name="events")
-        WaveformsComponent(data_folder=self.paths["eq_data"], preproc_data_folder=self.paths["preproc_eq_data"],
+        WaveformsComponent(data_folder=self.paths["eq_data"],
+                           preproc_data_folder=self.paths["preproc_eq_data"],
                            synthetics_folder=self.paths["eq_synthetics"],
                            communicator=self.comm, component_name="waveforms")
         WeightsComponent(weights_folder=self.paths["weights"],
-                            communicator=self.comm,
-                            component_name="weights")
+                         communicator=self.comm,
+                         component_name="weights")
         IterationsComponent(communicator=self.comm,
                             component_name="iterations")
 
@@ -165,7 +166,6 @@ class Project(Component):
                          component_name="actions")
         ValidatorComponent(communicator=self.comm,
                            component_name="validator")
-
         WindowsAndAdjointSourcesComponent(
             folder=self.paths["adjoint_sources"],
             communicator=self.comm,
@@ -190,12 +190,15 @@ class Project(Component):
         self.paths["eq_data"] = root_path / "DATA" / "EARTHQUAKES"
 
         self.paths["synthetics"] = root_path / "SYNTHETICS"
-        self.paths["corr_synthetics"] = root_path / "SYNTHETICS" / "CORRELATIONS"
+        self.paths["corr_synthetics"] = \
+            root_path / "SYNTHETICS" / "CORRELATIONS"
         self.paths["eq_synthetics"] = root_path / "SYNTHETICS" / "EARTHQUAKES"
 
         self.paths["preproc_data"] = root_path / "PROCESSED_DATA"
-        self.paths["preproc_eq_data"] = root_path / "PROCESSED_DATA" / "EARTHQUAKES"
-        self.paths["preproc_corr_data"] = root_path / "PROCESSED_DATA" / "CORRELATIONS"
+        self.paths["preproc_eq_data"] =\
+            root_path / "PROCESSED_DATA" / "EARTHQUAKES"
+        self.paths["preproc_corr_data"] =\
+            root_path / "PROCESSED_DATA" / "CORRELATIONS"
 
         self.paths["sets"] = root_path / "SETS"
         self.paths["windows"] = root_path / "SETS" / "WINDOWS"
@@ -230,27 +233,35 @@ class Project(Component):
         if not project_name:
             project_name = "LASIFProject"
 
-        lasif_config_str = f"# Please fill in this config file before proceeding with using LASIF. \n \n" \
+        lasif_config_str = f"# Please fill in this config file before " \
+                           f"proceeding with using LASIF. \n \n" \
                            f"[lasif_project]\n" \
                            f"  project_name = \"{project_name}\"\n" \
                            f"  description = \"\"\n\n" \
-                           f"  # Name of the exodus file used for the simulation. Without a mesh file, LASIF" \
+                           f"  # Name of the exodus file used for the " \
+                           f"simulation. Without a mesh file, LASIF" \
                            f" will not work.\n" \
                            f"  mesh_file = \"\"\n\n" \
                            f"  [lasif_project.download_settings]\n" \
                            f"    seconds_before_event = 300.0\n" \
                            f"    seconds_after_event = 3600.0\n" \
                            f"    interstation_distance_in_meters = 1000.0\n" \
-                           f"    channel_priorities = [ \"BH[Z,N,E]\", \"LH[Z,N,E]\", " \
-                           f"    \"HH[Z,N,E]\", \"EH[Z,N,E]\", \"MH[Z,N,E]\",]\n" \
-                           f"    location_priorities = [ \"\", \"00\", \"10\", \"20\", \"01\", \"02\",]\n" \
+                           f"    channel_priorities = [ \"BH[Z,N,E]\", " \
+                           f"\"LH[Z,N,E]\", " \
+                           f"    \"HH[Z,N,E]\", \"EH[Z,N,E]\", " \
+                           f"\"MH[Z,N,E]\",]\n" \
+                           f"    location_priorities = " \
+                           f"[ \"\", \"00\", \"10\", \"20\"," \
+                           f" \"01\", \"02\",]\n" \
                            f"\n"
 
-        data_preproc_str = "# Data processing settings,. high- and lowpass period are given in seconds.\n" \
+        data_preproc_str = "# Data processing settings,  " \
+                           "high- and lowpass period are given in seconds.\n" \
                            "[data_processing]\n" \
                            "  highpass_period = 30.0\n" \
                            "  lowpass_period = 50.0\n\n" \
-                           "  # You most likely want to keep this setting at true.\n" \
+                           "  # You most likely want to keep this" \
+                           " setting at true.\n" \
                            "  scale_data_to_synthetics = true\n\n" \
 
         solver_par_str = "[solver_settings]\n" \
@@ -266,8 +277,11 @@ class Project(Component):
                          "    number_of_processors = 4\n" \
                          "    salvus_call = \"mpirun -n 4\"\n" \
                          "    with_anisotropy = true\n\n" \
-                         "    # Source time function type, currently \"delta\" and \"ricker\" are supported \n" \
-                         "    # When a ricker wavelet is used, please provide the center frequency.\n" \
+                         "    # Source time function type, " \
+                         "currently \"delta\" and \"ricker\" are" \
+                         " supported \n" \
+                         "    # When a ricker wavelet is used, " \
+                         "please provide the center frequency.\n" \
                          "    source_time_function_type = \"delta\"\n"  \
                          "    source_center_frequency = 0.025\n\n" \
 
@@ -305,9 +319,8 @@ class Project(Component):
         if not os.path.exists(filename):
             msg = "No file '%s' in existence." % filename
             raise LASIFNotFoundError(msg)
-        fct_template = importlib.machinery.SourceFileLoader("_lasif_fct_template", filename).\
-            load_module("_lasif_fct_template")
-        #fct_template = imp.load_source("_lasif_fct_template", filename)
+        fct_template = importlib.machinery.SourceFileLoader(
+            "_lasif_fct_template", filename).load_module("_lasif_fct_template")
 
         try:
             fct = getattr(fct_template, fct_type)

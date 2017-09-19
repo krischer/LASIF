@@ -183,11 +183,14 @@ class EventsComponent(Component):
         >>> comm.events.get('GCMT_event_ICELAND_Mag_5.5_2014-10-7-10') \
         # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
         {'filename': '...',
-        'event_name': 'GCMT_event_ICELAND_Mag_5.5_2014-10-7-10', 'latitude': 64.62,
+        'event_name': 'GCMT_event_ICELAND_Mag_5.5_2014-10-7-10',
+        'latitude': 64.62,
         'longitude': -17.26, 'depth_in_km': 12.0, 'origin_time':
-        UTCDateTime(2014, 10, 7, 10, 22, 34, 100000), 'm_rr': -2.97e+17, 'm_pp': 1.23e+17,
+        UTCDateTime(2014, 10, 7, 10, 22, 34, 100000), 'm_rr': -2.97e+17,
+         'm_pp': 1.23e+17,
         'm_tt': 1.74e+17, 'm_rp': -7.74e+16, 'm_rt': 3.87e+16, 'm_tp':
-        -1900000000000000.0, 'magnitude': 5.53, 'magnitude_type': 'Mwc', 'region': 'ICELAND'}
+        -1900000000000000.0, 'magnitude': 5.53, 'magnitude_type': 'Mwc',
+         'region': 'ICELAND'}
 
         The moment tensor components are in ``Nm``. The dictionary will
         contain the following keys:
@@ -216,7 +219,9 @@ class EventsComponent(Component):
                                      event_name)
 
         if event_name not in self.__event_info_cache:
-            values = dict(zip(self.index_values, self._extract_index_values_quakeml(self.all_events[event_name])))
+            values = dict(zip(self.index_values,
+                              self._extract_index_values_quakeml(
+                                  self.all_events[event_name])))
             values["origin_time"] = obspy.UTCDateTime(values["origin_time"])
             self.__event_info_cache[event_name] = values
         return self.__event_info_cache[event_name]

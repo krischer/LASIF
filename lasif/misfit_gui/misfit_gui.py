@@ -5,11 +5,9 @@ from __future__ import absolute_import
 from PyQt4 import QtGui
 from PyQt4.QtCore import pyqtSlot
 import pyqtgraph as pg
+
 # Default to antialiased drawing.
-from lasif import LASIFNotFoundError
-
 pg.setConfigOptions(antialias=True, foreground=(50, 50, 50), background=None)
-
 
 from glob import iglob
 import imp
@@ -85,8 +83,8 @@ class Window(QtGui.QMainWindow):
         self.ui.statusbar.addPermanentWidget(self.ui.status_label)
         self.ui.iteration_selection_comboBox.addItems(
             self.comm.iterations.list())
-        self.ui.window_set_selection_comboBox.addItems(self.comm.wins_and_adj_sources.list())
-
+        self.ui.window_set_selection_comboBox.addItems(
+            self.comm.wins_and_adj_sources.list())
 
         for component in ["z", "n", "e"]:
             p = getattr(self.ui, "%s_graph" % component)
@@ -139,15 +137,12 @@ class Window(QtGui.QMainWindow):
         value = str(value).strip()
         if not value:
             return
-        #it = self.comm.iterations.get(value)
         events = self.comm.events.list()
 
         self.ui.event_selection_comboBox.setEnabled(True)
         self.ui.event_selection_comboBox.clear()
         self.ui.event_selection_comboBox.addItems(events)
-        #TODO fix this down here, add a setting to config
-        #if it.scale_data_to_synthetics:
-        if True:
+        if self.comm.processing["scale_data_to_synthetics"]:
             self.ui.status_label.setText("Data scaled to synthetics for "
                                          "this iteration")
         else:
@@ -217,7 +212,6 @@ class Window(QtGui.QMainWindow):
         value = str(value).strip()
         if not value:
             return
-        #it = self.comm.iterations.get(self.current_iteration)
         self.ui.stations_listWidget.clear()
         stations = self.comm.query.get_all_stations_for_event(value)
 
@@ -254,10 +248,12 @@ class Window(QtGui.QMainWindow):
             source_depth_in_km=event["depth_in_km"],
             distance_in_degree=great_circle_distance)
 
-        # Try to obtain windows for a station, if it fails continue plotting the data
+        # Try to obtain windows for a station,
+        # if it fails continue plotting the data
         try:
-            windows_for_station = self.current_window_manager.get_all_windows_for_event_station(
-                self.current_event, self.current_station)
+            windows_for_station = \
+                self.current_window_manager.get_all_windows_for_event_station(
+                    self.current_event, self.current_station)
         except:
             pass
 
@@ -299,16 +295,17 @@ class Window(QtGui.QMainWindow):
                         windows = windows_for_station[channel]
                         channel_name = channel
                 if windows:
-                    plot_widget.windows = windows #[0]
+                    plot_widget.windows = windows
                     for win in windows:
-                        WindowLinearRegionItem(self.current_window_manager, channel_name,
-                                               self.current_iteration, start=win[0], end=win[1],
-                                               event=event, parent=plot_widget, comm=self.comm)
+                        WindowLinearRegionItem(self.current_window_manager,
+                                               channel_name,
+                                               self.current_iteration,
+                                               start=win[0], end=win[1],
+                                               event=event, parent=plot_widget,
+                                               comm=self.comm)
             except:
-                # Only print this message one time
-                if component == "Z":
-                    print("no windows available for: ", self.current_station)
-
+                print(f"no windows available for {component}-component of"
+                      f"station {self.current_station}")
         self._update_raypath(wave.coordinates)
 
     def on_reset_view_Button_released(self):
@@ -326,8 +323,9 @@ class Window(QtGui.QMainWindow):
         event = self.comm.events.get(self.current_event)
 
         self.current_window_manager.add_window_to_event_channel(
-            self.current_event, channel_name, start_time=event["origin_time"] + x_1, end_time=event["origin_time"] + x_2,
-            weight=1.0)
+            self.current_event, channel_name,
+            start_time=event["origin_time"] + x_1,
+            end_time=event["origin_time"] + x_2, weight=1.0)
 
         self.on_stations_listWidget_currentItemChanged(True, False)
 
@@ -361,7 +359,9 @@ class Window(QtGui.QMainWindow):
         self.on_stations_listWidget_currentItemChanged(True, False)
 
     def on_autoselect_Button_released(self):
-        windows_for_event = self.current_window_manager.get_all_windows_for_event(self.current_event)
+        windows_for_event = \
+            self.current_window_manager.get_all_windows_for_event(
+                self.current_event)
         if self.current_station in windows_for_event:
             windows_for_station = windows_for_event[self.current_station]
         else:

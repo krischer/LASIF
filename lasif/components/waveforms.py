@@ -42,8 +42,8 @@ class WaveformsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
-    def __init__(self, data_folder, preproc_data_folder, synthetics_folder, communicator,
-                 component_name):
+    def __init__(self, data_folder, preproc_data_folder, synthetics_folder,
+                 communicator, component_name):
         self._data_folder = data_folder
         self._preproc_data_folder = preproc_data_folder
         self._synthetics_folder = synthetics_folder
@@ -83,13 +83,17 @@ class WaveformsComponent(Component):
     @property
     def preprocessing_tag(self):
         """
-        Gets the preprocessing tag for the lasif project, since each lasif project assumes a constant frequency
+        Gets the preprocessing tag for the lasif project, since each
+         lasif project assumes a constant frequency
         this only has to be one tag.
         :return:
         """
-        highpass_period = self.comm.project.processing_params["highpass_period"]
-        lowpass_period = self.comm.project.processing_params["lowpass_period"]
-        return "preprocessed_%is_to_%is" % (int(highpass_period), int(lowpass_period))
+        highpass_period = \
+            self.comm.project.processing_params["highpass_period"]
+        lowpass_period = \
+            self.comm.project.processing_params["lowpass_period"]
+        return "preprocessed_%is_to_%is" % (int(highpass_period),
+                                            int(lowpass_period))
 
     def get_waveforms_raw(self, event_name, station_id):
         """
@@ -123,10 +127,8 @@ class WaveformsComponent(Component):
         :param tag: The processing tag.
         """
         st, inv = self._get_waveforms(event_name, station_id,
-                                   data_type="raw", get_inventory=True)
+                                      data_type="raw", get_inventory=True)
         return self.process_data(st, inv, event_name)
-
-
 
     def get_waveforms_synthetic(self, event_name, station_id,
                                 long_iteration_name):
@@ -143,15 +145,14 @@ class WaveformsComponent(Component):
                                  data_type="synthetic",
                                  tag_or_iteration=long_iteration_name)
 
-        return self.process_synthetics(
-            st=st ,
-            event_name=event_name)
+        return self.process_synthetics(st=st, event_name=event_name)
 
     def process_synthetics(self, st, event_name):
         # Apply the project function that modifies synthetics on the fly.
         fct = self.comm.project.get_project_function("process_synthetics")
         processing_parmams = self.comm.project.processing_params
-        processing_parmams["salvus_start_time"] = self.comm.project.simulation_params["start_time"]
+        processing_parmams["salvus_start_time"] = \
+            self.comm.project.simulation_params["start_time"]
         return fct(st, processing_parmams,
                    event=self.comm.events.get(event_name))
 
@@ -161,13 +162,17 @@ class WaveformsComponent(Component):
         fct = self.comm.project.get_project_function("processing_function")
 
         processing_parmams = self.comm.project.processing_params
-        processing_parmams["salvus_start_time"] = self.comm.project.simulation_params["start_time"]
-        processing_parmams["dt"] = self.comm.project.simulation_params["time_increment"]
-        processing_parmams["npts"] = self.comm.project.simulation_params["number_of_time_steps"]
-        processing_parmams["end_time"] = self.comm.project.simulation_params["end_time"]
+        processing_parmams["salvus_start_time"] = \
+            self.comm.project.simulation_params["start_time"]
+        processing_parmams["dt"] = \
+            self.comm.project.simulation_params["time_increment"]
+        processing_parmams["npts"] = \
+            self.comm.project.simulation_params["number_of_time_steps"]
+        processing_parmams["end_time"] =\
+            self.comm.project.simulation_params["end_time"]
 
-        return fct(st, inv, processing_parmams, event=self.comm.events.get(event_name))
-
+        return fct(st, inv, processing_parmams,
+                   event=self.comm.events.get(event_name))
 
     def _get_waveforms(self, event_name, station_id, data_type,
                        tag_or_iteration=None, get_inventory=False):
@@ -235,7 +240,8 @@ class WaveformsComponent(Component):
         elif data_type == "synthetic":
             assert "displacement" in tag, (
                 "The tag for station '%s' in file '%s' must contain "
-                "'displacement' for displacement data." % (station_id, filename))
+                "'displacement' for displacement data." % (station_id,
+                                                           filename))
         else:
             raise ValueError
 
