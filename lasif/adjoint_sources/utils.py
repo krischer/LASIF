@@ -69,7 +69,7 @@ def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
     # Time integration
     u = np.zeros(len(t))
 
-    for _i in xrange(len(t)):
+    for _i in range(len(t)):
         u[_i] = np.sum(w * np.cos(w * t[_i] - w * distance / c) * dw)
 
     # Add body waves
@@ -93,8 +93,8 @@ def cross_correlation(f, g):
     N = len(cc)
     cc_new = np.zeros(N)
 
-    cc_new[0: (N + 1) / 2] = cc[(N + 1) / 2 - 1: N]
-    cc_new[(N + 1) / 2: N] = cc[0: (N + 1) / 2 - 1]
+    cc_new[0: (N + 1) // 2] = cc[(N + 1) // 2 - 1: N]
+    cc_new[(N + 1) // 2: N] = cc[0: (N + 1) // 2 - 1]
     return cc_new
 
 

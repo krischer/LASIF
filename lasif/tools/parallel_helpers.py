@@ -63,7 +63,7 @@ def function_info(traceback_limit=10):
     >>> info.func_args
     {'a': 4, 'b': 1}
     >>> info.result
-    4
+    4.0
 
     ``warnings`` is empty if no warning has been raised. Otherwise it will
     collect all warnings.

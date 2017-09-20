@@ -37,7 +37,6 @@ import random
 import re
 import sys
 import textwrap
-import itertools
 import unicodedata
 
 py3k = sys.version_info[0] >= 3
@@ -48,16 +47,9 @@ if py3k:
     iterzip = zip
     uni_chr = chr
     from html.parser import HTMLParser
-else:
-    itermap = itertools.imap
-    iterzip = itertools.izip
-    uni_chr = unichr
-    from HTMLParser import HTMLParser
 
 if py3k and sys.version_info[1] >= 2:
     from html import escape
-else:
-    from cgi import escape
 
 # hrule styles
 FRAME = 0

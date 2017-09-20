@@ -8,7 +8,7 @@ import os
 import warnings
 
 from lasif import LASIFError, LASIFWarning, LASIFNotFoundError
-from lasif import rotations
+
 from .component import Component
 
 
@@ -20,7 +20,8 @@ class ActionsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
-    def preprocess_data(self, iteration_name, event_names=None):
+
+    def process_data(self, events):
         """
         Preprocesses all data for a given iteration.
 
@@ -30,12 +31,11 @@ class ActionsComponent(Component):
             run. It will process all events if not given.
         """
         from mpi4py import MPI
-        from lasif.tools.parallel_helpers import distribute_across_ranks
-
-        iteration = self.comm.iterations.get(iteration_name)
-
-        process_params = iteration.get_process_params()
-        processing_tag = iteration.processing_tag
+        process_params = self.comm.project.processing_params
+        simulation_params = self.comm.project.simulation_params
+        npts = simulation_params["number_of_time_steps"]
+        dt = simulation_params["time_increment"]
+        salvus_start_time = simulation_params["start_time"]
 
         def processing_data_generator():
             """
@@ -43,134 +43,70 @@ class ActionsComponent(Component):
             waveform.
             """
             # Loop over the chosen events.
-            for event_name, event in iteration.events.iteritems():
-                # None means to process all events, otherwise it will be a list
-                # of events.
-                if not ((event_names is None) or (event_name in event_names)):
-                    continue
+            for event_name in events:
+                output_folder = os.path.join(
+                    self.comm.project.paths["preproc_eq_data"], event_name)
 
-                output_folder = self.comm.waveforms.get_waveform_folder(
-                    event_name=event_name, data_type="processed",
-                    tag_or_iteration=processing_tag)
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
 
-                # Get the event.
-                event = self.comm.events.get(event_name)
+                asdf_file_name = self.comm.waveforms.get_asdf_filename(
+                    event_name, data_type="raw")
+                lowpass_period = process_params["lowpass_period"]
+                highpass_period = process_params["highpass_period"]
+                preprocessing_tag = self.comm.waveforms.preprocessing_tag
 
-                try:
-                    # Get the stations.
-                    stations = self.comm.query\
-                        .get_all_stations_for_event(event_name)
-                    # Get the raw waveform data.
-                    waveforms = \
-                        self.comm.waveforms.get_metadata_raw(event_name)
-                except LASIFNotFoundError:
-                    warnings.warn(
-                        "No data found for event '%s'. Did you delete data "
-                        "after the iteration has been created?" % event_name)
-                    continue
+                output_filename = os.path.join(output_folder,
+                                               preprocessing_tag + ".h5")
 
-                # Group by station name.
-                def func(x):
-                    return ".".join(x["channel_id"].split(".")[:2])
+                # remove asdf file if it already exists
+                if MPI.COMM_WORLD.rank == 0:
+                    if os.path.exists(output_filename):
+                        os.remove(output_filename)
 
-                waveforms.sort(key=func)
-                for station_name, channels in  \
-                        itertools.groupby(waveforms, func):
-                    channels = list(channels)
-                    # Filter waveforms with no available station files
-                    # or coordinates.
-                    if station_name not in stations:
-                        continue
+                ret_dict = {
+                    "process_params": process_params,
+                    "asdf_input_filename": asdf_file_name,
+                    "asdf_output_filename": output_filename,
+                    "preprocessing_tag": preprocessing_tag,
+                    "dt": dt,
+                    "npts": npts,
+                    "salvus_start_time": salvus_start_time,
+                    "lowpass_period": lowpass_period,
+                    "highpass_period": highpass_period
+                }
+                yield ret_dict
 
-                    # Group by location.
-                    def get_loc_id(x):
-                        return x["channel_id"].split(".")[2]
-
-                    channels.sort(key=get_loc_id)
-                    locations = []
-                    for loc_id, chans in itertools.groupby(channels,
-                                                           get_loc_id):
-                        locations.append((loc_id, list(chans)))
-                    locations.sort(key=lambda x: x[0])
-
-                    if len(locations) > 1:
-                        msg = ("More than one location found for event "
-                               "'%s' at station '%s'. The alphabetically "
-                               "first one will be chosen." %
-                               (event_name, station_name))
-                        warnings.warn(msg, LASIFWarning)
-                    location = locations[0][1]
-
-                    # Loop over each found channel.
-                    for channel in location:
-                        channel.update(stations[station_name])
-                        input_filename = channel["filename"]
-                        output_filename = os.path.join(
-                            output_folder,
-                            os.path.basename(input_filename))
-                        # Skip already processed files.
-                        if os.path.exists(output_filename):
-                            continue
-
-                        ret_dict = {
-                            "process_params": process_params,
-                            "input_filename": input_filename,
-                            "output_filename": output_filename,
-                            "station_coordinates": {
-                                "latitude": channel["latitude"],
-                                "longitude": channel["longitude"],
-                                "elevation_in_m": channel["elevation_in_m"],
-                                "local_depth_in_m": channel[
-                                    "local_depth_in_m"],
-                            },
-                            "station_filename": self.comm.stations.
-                            get_channel_filename(channel["channel_id"],
-                                                 channel["starttime"]),
-                            "event_information": event,
-                        }
-                        yield ret_dict
-
-        # Only rank 0 needs to know what has to be processsed.
-        if MPI.COMM_WORLD.rank == 0:
-            to_be_processed = [{"processing_info": _i, "iteration": iteration}
-                               for _i in processing_data_generator()]
-        else:
-            to_be_processed = None
+        to_be_processed = [{"processing_info": _i}
+                           for _i in processing_data_generator()]
 
         # Load project specific window selection function.
-        preprocessing_function = self.comm.project.get_project_function(
-            "preprocessing_function")
+        preprocessing_function_asdf = self.comm.project.get_project_function(
+            "preprocessing_function_asdf")
 
-        logfile = self.comm.project.get_log_file(
-            "DATA_PREPROCESSING", "processing_iteration_%s" % (str(
-                iteration.name)))
+        MPI.COMM_WORLD.Barrier()
+        for event in to_be_processed:
+            preprocessing_function_asdf(event["processing_info"])
+            MPI.COMM_WORLD.Barrier()
 
-        distribute_across_ranks(
-            function=preprocessing_function, items=to_be_processed,
-            get_name=lambda x: x["processing_info"]["input_filename"],
-            logfile=logfile)
-
-
-    def calculate_adjoint_sources(self, event, iteration, **kwargs):
+    def calculate_adjoint_sources(self, event, iteration, window_set_name,
+                                  **kwargs):
         from lasif.utils import select_component_from_stream
 
         from mpi4py import MPI
         import pyasdf
 
         event = self.comm.events.get(event)
-        iteration = self.comm.iterations.get(iteration)
 
         # Get the ASDF filenames.
         processed_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="processed",
-            tag_or_iteration=iteration.processing_tag)
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag)
         synthetic_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="synthetic",
-            tag_or_iteration=iteration.name)
+            tag_or_iteration=iteration)
 
         if not os.path.exists(processed_filename):
             msg = "File '%s' does not exists." % processed_filename
@@ -183,13 +119,13 @@ class ActionsComponent(Component):
         # Read all windows on rank 0 and broadcast.
         if MPI.COMM_WORLD.rank == 0:
             all_windows = self.comm.wins_and_adj_sources.read_all_windows(
-                event=event, iteration=iteration
+                event=event["event_name"], window_set_name=window_set_name
             )
         else:
             all_windows = {}
         all_windows = MPI.COMM_WORLD.bcast(all_windows, root=0)
 
-        process_params = iteration.get_process_params()
+        process_params = self.comm.project.processing_params
 
         def process(observed_station, synthetic_station):
             obs_tag = observed_station.get_waveform_tags()
@@ -210,14 +146,9 @@ class ActionsComponent(Component):
             st_obs = observed_station[obs_tag]
             st_syn = synthetic_station[syn_tag]
 
-            # Extract coordinates once.
-            coordinates = observed_station.coordinates
-
-            # Process and rotate the synthetics.
-            st_syn = self.comm.waveforms.rotate_and_process_synthetics(
-                st=st_syn.copy(), station_id=observed_station._station_name,
-                iteration=iteration, event_name=event["event_name"],
-                coordinates=coordinates)
+            # Process the synthetics.
+            st_syn = self.comm.waveforms.process_synthetics(
+                st=st_syn.copy(), event_name=event["event_name"])
 
             adjoint_sources = {}
 
@@ -225,27 +156,40 @@ class ActionsComponent(Component):
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
+
                 except LASIFNotFoundError:
                     continue
 
-                if data_tr.id not in all_windows:
-                    # No windows existing for components. Skipping.
+                if self.comm.project.processing_params["scale_data_"
+                                                       "to_synthetics"]:
+                    scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
+                    # Store and apply the scaling.
+                    data_tr.stats.scaling_factor = scaling_factor
+                    data_tr.data *= scaling_factor
+
+                net, sta, cha = data_tr.id.split(".", 2)
+                station = net + "." + sta
+
+                if station not in all_windows:
+                    continue
+                if data_tr.id not in all_windows[station]:
                     continue
 
                 # Collect all.
                 adj_srcs = []
-
-                windows = all_windows[data_tr.id]
+                windows = all_windows[station][data_tr.id]
                 try:
                     for starttime, endtime in windows:
                         asrc = \
-                            self.comm.wins_and_adj_sources.calculate_adjoint_source(
-                            data=data_tr, synth=synth_tr, starttime=starttime,
-                            endtime=endtime, taper="hann",
-                            taper_percentage=0.05,
-                            min_period=1.0/process_params["lowpass"],
-                            max_period=1.0/process_params["highpass"],
-                            ad_src_type="TimeFrequencyPhaseMisfitFichtner2008")
+                            self.comm.\
+                            wins_and_adj_sources.calculate_adjoint_source(
+                                data=data_tr, synth=synth_tr,
+                                starttime=starttime, endtime=endtime,
+                                taper="hann", taper_percentage=0.05,
+                                min_period=process_params["highpass_period"],
+                                max_period=process_params["lowpass_period"],
+                                ad_src_type="TimeFrequency"
+                                            "PhaseMisfitFichtner2008")
                         adj_srcs.append(asrc)
                 except:
                     # Either pass or fail for the whole component.
@@ -280,7 +224,7 @@ class ActionsComponent(Component):
                 event=event["event_name"], iteration=iteration,
                 adj_sources=results)
 
-    def select_windows(self, event, iteration, **kwargs):
+    def select_windows(self, event, iteration_name, window_set_name, **kwargs):
         """
         Automatically select the windows for the given event and iteration.
 
@@ -295,17 +239,16 @@ class ActionsComponent(Component):
         import pyasdf
 
         event = self.comm.events.get(event)
-        iteration = self.comm.iterations.get(iteration)
 
         # Get the ASDF filenames.
         processed_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="processed",
-            tag_or_iteration=iteration.processing_tag)
+            tag_or_iteration=self.comm.waveforms.preprocessing_tag)
         synthetic_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event["event_name"],
             data_type="synthetic",
-            tag_or_iteration=iteration.name)
+            tag_or_iteration=iteration_name)
 
         if not os.path.exists(processed_filename):
             msg = "File '%s' does not exists." % processed_filename
@@ -319,9 +262,9 @@ class ActionsComponent(Component):
         select_windows = self.comm.project.get_project_function(
             "window_picking_function")
 
-        process_params = iteration.get_process_params()
-        minimum_period = 1.0 / process_params["lowpass"]
-        maximum_period = 1.0 / process_params["highpass"]
+        process_params = self.comm.project.processing_params
+        minimum_period = process_params["highpass_period"]
+        maximum_period = process_params["lowpass_period"]
 
         def process(observed_station, synthetic_station):
             obs_tag = observed_station.get_waveform_tags()
@@ -343,13 +286,11 @@ class ActionsComponent(Component):
             st_syn = synthetic_station[syn_tag]
 
             # Extract coordinates once.
-            coordinates=observed_station.coordinates
+            coordinates = observed_station.coordinates
 
-            # Process and rotate the synthetics.
-            st_syn = self.comm.waveforms.rotate_and_process_synthetics(
-                st=st_syn.copy(), station_id=observed_station._station_name,
-                iteration=iteration, event_name=event["event_name"],
-                coordinates=coordinates)
+            # Process the synthetics.
+            st_syn = self.comm.waveforms.process_synthetics(
+                st=st_syn.copy(), event_name=event["event_name"])
 
             all_windows = {}
 
@@ -357,6 +298,15 @@ class ActionsComponent(Component):
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
+
+                    if self.comm.project.processing_params["scale_data_"
+                                                           "to_synthetics"]:
+                        scaling_factor = \
+                            synth_tr.data.ptp() / data_tr.data.ptp()
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
+
                 except LASIFNotFoundError:
                     continue
 
@@ -367,7 +317,7 @@ class ActionsComponent(Component):
                     coordinates["longitude"],
                     minimum_period=minimum_period,
                     maximum_period=maximum_period,
-                    iteration=iteration, **kwargs)
+                    iteration=iteration_name, **kwargs)
 
                 if not windows:
                     continue
@@ -381,16 +331,18 @@ class ActionsComponent(Component):
 
         # Launch the processing. This will be executed in parallel across
         # ranks.
-        results = ds.process_two_files_without_parallel_output(ds_synth,
-                                                               process)
+        results = ds.process_two_files_without_parallel_output(
+            ds_synth, process)
 
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
-            self.comm.wins_and_adj_sources.write_windows(
-                event=event["event_name"], iteration=iteration,
-                windows=results)
+            print("Selected windows: ", results)
+            self.comm.wins_and_adj_sources.write_windows_to_sql(
+                event_name=event["event_name"], windows=results,
+                window_set_name=window_set_name)
 
-    def select_windows_for_station(self, event, iteration, station, **kwargs):
+    def select_windows_for_station(self, event, iteration, station,
+                                   window_set_name, **kwargs):
         """
         Selects windows for the given event, iteration, and station. Will
         delete any previously existing windows for that station if any.
@@ -406,17 +358,15 @@ class ActionsComponent(Component):
             "window_picking_function")
 
         event = self.comm.events.get(event)
-        iteration = self.comm.iterations.get(iteration)
-        data = self.comm.query.get_matching_waveforms(event, iteration,
-                                                      station)
+        data = self.comm.query.get_matching_waveforms(event["event_name"],
+                                                      iteration, station)
 
-        process_params = iteration.get_process_params()
-        minimum_period = 1.0 / process_params["lowpass"]
-        maximum_period = 1.0 / process_params["highpass"]
+        process_params = self.comm.project.processing_params
+        minimum_period = process_params["highpass_period"]
+        maximum_period = process_params["lowpass_period"]
 
-        window_group_manager = self.comm.windows.get(event, iteration)
-        # Delete the windows for this stations.
-        window_group_manager.delete_windows_for_station(station)
+        window_group_manager = self.comm.wins_and_adj_sources.get(
+            window_set_name)
 
         found_something = False
         for component in ["E", "N", "Z"]:
@@ -424,6 +374,9 @@ class ActionsComponent(Component):
                 data_tr = select_component_from_stream(data.data, component)
                 synth_tr = select_component_from_stream(data.synthetics,
                                                         component)
+                # delete preexisting windows
+                window_group_manager.del_all_windows_from_event_channel(
+                    event["event_name"], data_tr.id)
             except LASIFNotFoundError:
                 continue
             found_something = True
@@ -438,10 +391,11 @@ class ActionsComponent(Component):
             if not windows:
                 continue
 
-            window_group = window_group_manager.get(data_tr.id)
             for starttime, endtime in windows:
-                window_group.add_window(starttime=starttime, endtime=endtime)
-            window_group.write()
+                window_group_manager.add_window_to_event_channel(
+                    event_name=event["event_name"],
+                    channel_name=data_tr.id,
+                    start_time=starttime, end_time=endtime)
 
         if found_something is False:
             raise LASIFNotFoundError(
@@ -449,275 +403,73 @@ class ActionsComponent(Component):
                 "station '%s'." % (event["event_name"], iteration.name,
                                    station))
 
-    def generate_input_files(self, iteration_name, event_name,
-                             simulation_type):
+    def generate_input_files(self, iteration_name, event_name):
         """
         Generate the input files for one event.
 
         :param iteration_name: The name of the iteration.
         :param event_name: The name of the event for which to generate the
             input files.
-        :param simulate_type: The type of simulation to perform. Possible
-            values are: 'normal simulate', 'adjoint forward', 'adjoint
-            reverse'
         """
-        from wfs_input_generator import InputFileGenerator
 
         # =====================================================================
-        # read iteration xml file, get event and list of stations
+        # read weights toml file, get event and list of stations
         # =====================================================================
+        asdf_file = self.comm.waveforms.get_asdf_filename(
+            event_name=event_name, data_type="raw")
 
-        iteration = self.comm.iterations.get(iteration_name)
+        import pyasdf
+        ds = pyasdf.ASDFDataSet(asdf_file)
+        event = ds.events[0]
 
-        # Check that the event is part of the iterations.
-        if event_name not in iteration.events:
-            msg = ("Event '%s' not part of iteration '%s'.\nEvents available "
-                   "in iteration:\n\t%s" %
-                   (event_name, iteration_name, "\n\t".join(
-                       sorted(iteration.events.keys()))))
-            raise ValueError(msg)
+        # Build inventory of all stations present in ASDF file
+        stations = ds.waveforms.list()
+        inv = ds.waveforms[stations[0]].StationXML
+        for station in stations[1:]:
+            inv += ds.waveforms[station].StationXML
 
-        event = self.comm.events.get(event_name)
-        stations_for_event = iteration.events[event_name]["stations"].keys()
+        import salvus_seismo
+        src = salvus_seismo.Source.parse(
+            event,
+            sliprate=self.comm.
+            project.computational_setup['source_time_function_type'])
+        recs = salvus_seismo.Receiver.parse(inv)
 
-        # Get all stations and create a dictionary for the input file
-        # generator.
-        stations = self.comm.query.get_all_stations_for_event(event_name)
-        stations = [{"id": key, "latitude": value["latitude"],
-                     "longitude": value["longitude"],
-                     "elevation_in_m": value["elevation_in_m"],
-                     "local_depth_in_m": value["local_depth_in_m"]}
-                    for key, value in stations.iteritems()
-                    if key in stations_for_event]
+        solver_settings = self.comm.project.solver_settings
+        # Choose a center frequency suitable for our mesh.
+        src.center_frequency = \
+            self.comm.project.computational_setup['source_center_frequency']
+        mesh_file = self.comm.project.config['mesh_file']
 
-        # =====================================================================
-        # set solver options
-        # =====================================================================
-
-        solver = iteration.solver_settings
-
-        # Currently only SES3D 4.1 is supported
-        solver_format = solver["solver"].lower()
-        if solver_format not in ["ses3d 4.1", "ses3d 2.0",
-                                 "specfem3d cartesian", "specfem3d globe cem"]:
-            msg = ("Currently only SES3D 4.1, SES3D 2.0, SPECFEM3D "
-                   "CARTESIAN, and SPECFEM3D GLOBE CEM are supported.")
-            raise ValueError(msg)
-        solver_format = solver_format.replace(' ', '_')
-        solver_format = solver_format.replace('.', '_')
-
-        solver = solver["solver_settings"]
-
-        # =====================================================================
-        # create the input file generator, add event and stations,
-        # populate the configuration items
-        # =====================================================================
-
-        # Add the event and the stations to the input file generator.
-        gen = InputFileGenerator()
-        gen.add_events(event["filename"])
-        gen.add_stations(stations)
-
-        if solver_format in ["ses3d_4_1", "ses3d_2_0"]:
-            # event tag
-            gen.config.event_tag = event_name
-
-            # Time configuration.
-            npts = solver["simulation_parameters"]["number_of_time_steps"]
-            delta = solver["simulation_parameters"]["time_increment"]
-            gen.config.number_of_time_steps = npts
-            gen.config.time_increment_in_s = delta
-
-            # SES3D specific configuration
-            gen.config.output_folder = solver["output_directory"].replace(
-                "{{EVENT_NAME}}", event_name.replace(" ", "_"))
-            gen.config.simulation_type = simulation_type
-
-            gen.config.adjoint_forward_wavefield_output_folder = \
-                solver["adjoint_output_parameters"][
-                    "forward_field_output_directory"].replace(
-                    "{{EVENT_NAME}}", event_name.replace(" ", "_"))
-            gen.config.adjoint_forward_sampling_rate = \
-                solver["adjoint_output_parameters"][
-                    "sampling_rate_of_forward_field"]
-
-            # Visco-elastic dissipation
-            diss = solver["simulation_parameters"]["is_dissipative"]
-            gen.config.is_dissipative = diss
-
-            # Only SES3D 4.1 has the relaxation parameters.
-            if solver_format == "ses3d_4_1":
-                gen.config.Q_model_relaxation_times = \
-                    solver["relaxation_parameter_list"]["tau"]
-                gen.config.Q_model_weights_of_relaxation_mechanisms = \
-                    solver["relaxation_parameter_list"]["w"]
-
-            # Discretization
-            disc = solver["computational_setup"]
-            gen.config.nx_global = disc["nx_global"]
-            gen.config.ny_global = disc["ny_global"]
-            gen.config.nz_global = disc["nz_global"]
-            gen.config.px = disc["px_processors_in_theta_direction"]
-            gen.config.py = disc["py_processors_in_phi_direction"]
-            gen.config.pz = disc["pz_processors_in_r_direction"]
-            gen.config.lagrange_polynomial_degree = \
-                disc["lagrange_polynomial_degree"]
-
-            # Configure the mesh.
-            domain = self.comm.project.domain
-            gen.config.mesh_min_latitude = domain.min_latitude
-            gen.config.mesh_max_latitude = domain.max_latitude
-            gen.config.mesh_min_longitude = domain.min_longitude
-            gen.config.mesh_max_longitude = domain.max_longitude
-            gen.config.mesh_min_depth_in_km = domain.min_depth_in_km
-            gen.config.mesh_max_depth_in_km = domain.max_depth_in_km
-
-            # Set the rotation parameters.
-            gen.config.rotation_angle_in_degree = \
-                domain.rotation_angle_in_degree
-            gen.config.rotation_axis = domain.rotation_axis
-
-            # Make source time function
-            gen.config.source_time_function = \
-                iteration.get_source_time_function()["data"]
-        elif solver_format == "specfem3d_cartesian":
-            gen.config.NSTEP = \
-                solver["simulation_parameters"]["number_of_time_steps"]
-            gen.config.DT = \
-                solver["simulation_parameters"]["time_increment"]
-            gen.config.NPROC = \
-                solver["computational_setup"]["number_of_processors"]
-            if simulation_type == "normal simulation":
-                msg = ("'normal_simulate' not supported for SPECFEM3D "
-                       "Cartesian. Please choose either 'adjoint_forward' or "
-                       "'adjoint_reverse'.")
-                raise NotImplementedError(msg)
-            elif simulation_type == "adjoint forward":
-                gen.config.SIMULATION_TYPE = 1
-            elif simulation_type == "adjoint reverse":
-                gen.config.SIMULATION_TYPE = 2
-            else:
-                raise NotImplementedError
-            solver_format = solver_format.upper()
-
-        elif solver_format == "specfem3d_globe_cem":
-            cs = solver["computational_setup"]
-            gen.config.NPROC_XI = cs["number_of_processors_xi"]
-            gen.config.NPROC_ETA = cs["number_of_processors_eta"]
-            gen.config.NCHUNKS = cs["number_of_chunks"]
-            gen.config.NEX_XI = cs["elements_per_chunk_xi"]
-            gen.config.NEX_ETA = cs["elements_per_chunk_eta"]
-            gen.config.OCEANS = cs["simulate_oceans"]
-            gen.config.ELLIPTICITY = cs["simulate_ellipticity"]
-            gen.config.TOPOGRAPHY = cs["simulate_topography"]
-            gen.config.GRAVITY = cs["simulate_gravity"]
-            gen.config.ROTATION = cs["simulate_rotation"]
-            gen.config.ATTENUATION = cs["simulate_attenuation"]
-            gen.config.ABSORBING_CONDITIONS = True
-            if cs["fast_undo_attenuation"]:
-                gen.config.PARTIAL_PHYS_DISPERSION_ONLY = True
-                gen.config.UNDO_ATTENUATION = False
-            else:
-                gen.config.PARTIAL_PHYS_DISPERSION_ONLY = False
-                gen.config.UNDO_ATTENUATION = True
-            gen.config.GPU_MODE = cs["use_gpu"]
-            gen.config.SOURCE_TIME_FUNCTION = \
-                iteration.get_source_time_function()["data"]
-
-            if simulation_type == "normal simulation":
-                gen.config.SIMULATION_TYPE = 1
-                gen.config.SAVE_FORWARD = False
-            elif simulation_type == "adjoint forward":
-                gen.config.SIMULATION_TYPE = 1
-                gen.config.SAVE_FORWARD = True
-            elif simulation_type == "adjoint reverse":
-                gen.config.SIMULATION_TYPE = 2
-                gen.config.SAVE_FORWARD = True
-            else:
-                raise NotImplementedError
-
-            # Use the current domain setting to derive the bounds in the way
-            # SPECFEM specifies them.
-            domain = self.comm.project.domain
-
-            lat_range = domain.max_latitude - \
-                domain.min_latitude
-            lng_range = domain.max_longitude - \
-                domain.min_longitude
-
-            c_lat = \
-                domain.min_latitude + lat_range / 2.0
-            c_lng = \
-                domain.min_longitude + lng_range / 2.0
-
-            # Rotate the point.
-            c_lat_1, c_lng_1 = rotations.rotate_lat_lon(
-                c_lat, c_lng, domain.rotation_axis,
-                domain.rotation_angle_in_degree)
-
-            # SES3D rotation.
-            A = rotations._get_rotation_matrix(
-                domain.rotation_axis, domain.rotation_angle_in_degree)
-
-            latitude_rotation = -(c_lat_1 - c_lat)
-            longitude_rotation = c_lng_1 - c_lng
-
-            # Rotate the latitude. The rotation axis is latitude 0 and
-            # the center longitude + 90 degree
-            B = rotations._get_rotation_matrix(
-                rotations.lat_lon_radius_to_xyz(0.0, c_lng + 90, 1.0),
-                latitude_rotation)
-            # Rotate around the North pole.
-            C = rotations._get_rotation_matrix(
-                [0.0, 0.0, 1.0], longitude_rotation)
-
-            D = A * np.linalg.inv(C * B)
-
-            axis, angle = rotations._get_axis_and_angle_from_rotation_matrix(D)
-            rotated_axis = rotations.xyz_to_lat_lon_radius(*axis)
-
-            # Consistency check
-            if abs(rotated_axis[0] - c_lat_1) >= 0.01 or \
-                    abs(rotated_axis[1] - c_lng_1) >= 0.01:
-                axis *= -1.0
-                angle *= -1.0
-                rotated_axis = rotations.xyz_to_lat_lon_radius(*axis)
-
-            if abs(rotated_axis[0] - c_lat_1) >= 0.01 or \
-                    abs(rotated_axis[1] - c_lng_1) >= 0.01:
-                msg = "Failed to describe the domain in terms that SPECFEM " \
-                      "understands. The domain definition in the output " \
-                      "files will NOT BE CORRECT!"
-                warnings.warn(msg, LASIFWarning)
-
-            gen.config.ANGULAR_WIDTH_XI_IN_DEGREES = lng_range
-            gen.config.ANGULAR_WIDTH_ETA_IN_DEGREES = lat_range
-            gen.config.CENTER_LATITUDE_IN_DEGREES = c_lat_1
-            gen.config.CENTER_LONGITUDE_IN_DEGREES = c_lng_1
-            gen.config.GAMMA_ROTATION_AZIMUTH = angle
-
-            gen.config.MODEL = cs["model"]
-
-            pp = iteration.get_process_params()
-            gen.config.RECORD_LENGTH_IN_MINUTES = \
-                (pp["npts"] * pp["dt"]) / 60.0
-            solver_format = solver_format.upper()
-
-        else:
-            msg = "Unknown solver '%s'." % solver_format
-            raise NotImplementedError(msg)
+        # Generate the configuration object for salvus_seismo
+        config = salvus_seismo.Config(
+            mesh_file=mesh_file,
+            end_time=solver_settings['simulation_parameters']['end_time'],
+            salvus_call=solver_settings['computational_setup']['salvus_call'],
+            polynomial_order=solver_settings
+            ['simulation_parameters']['polynomial_order'],
+            verbose=True,
+            dimensions=solver_settings['simulation_parameters']['dimensions'],
+            with_anisotropy=self.comm.project.
+            computational_setup['with_anisotropy'])
 
         # =================================================================
         # output
         # =================================================================
-        output_dir = self.comm.project.get_output_folder(
-            type="input_files",
-            tag="ITERATION_%s__%s__EVENT_%s" % (
-                iteration_name, simulation_type.replace(" ", "_"),
-                event_name))
+        long_iter_name = self.comm.iterations.get_long_iteration_name(
+            iteration_name)
+        input_files_dir = self.comm.project.paths['salvus_input']
+        output_dir = os.path.join(input_files_dir, long_iter_name, event_name)
 
-        gen.write(format=solver_format, output_dir=output_dir)
-        print("Written files to '%s'." % output_dir)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        import shutil
+        shutil.rmtree(output_dir)
+        salvus_seismo.generate_cli_call(
+            source=src, receivers=recs, config=config,
+            output_folder=output_dir,
+            exodus_file=mesh_file)
 
     def calculate_all_adjoint_sources(self, iteration_name, event_name):
         """
@@ -762,7 +514,7 @@ class ActionsComponent(Component):
         iteration_stations = iteration_event_def["stations"]
 
         # For now assume that the adjoint sources have the same
-        # sampling rate as the synthetics which in LASIF's workflow
+        # g rate as the synthetics which in LASIF's workflow
         # actually has to be true.
         dt = iteration.get_process_params()["dt"]
 

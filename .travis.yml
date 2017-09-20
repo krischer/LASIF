@@ -1,35 +1,41 @@
 language: python
 
 python:
-  - "2.7"
+  - "3.6"
 
-env:
-  global:
-    secure: GStdSQ10ql5pKTEH0HGpZsZjlQnX2CgRAccZ0Pr4aTk7KbaCpZyAJQXdBTSaM1qzZo5QFn5tmIwBXljI4nncdwhAMM5NIKSTZwY+wmpCrLvRI0WrJarfGuK8lwV4NrPWkfCd8qfKx/6MERgrCvCUviXLFZf3YamB5o8icuur7jo=
+#env:
+#  global:
+#    secure: GStdSQ10ql5pKTEH0HGpZsZjlQnX2CgRAccZ0Pr4aTk7KbaCpZyAJQXdBTSaM1qzZo5QFn5tmIwBXljI4nncdwhAMM5NIKSTZwY+wmpCrLvRI0WrJarfGuK8lwV4NrPWkfCd8qfKx/6MERgrCvCUviXLFZf3YamB5o8icuur7jo=
 
 before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
   - ./miniconda.sh -b -p $HOME/miniconda
   - export PATH=$HOME/miniconda/bin:$PATH
+  - conda config --add channels conda-forge
   - conda update --yes conda
   - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
   - conda install --yes -n condaenv pip
   - source activate condaenv
-  - conda install --yes -c obspy obspy nomkl basemap progressbar colorama joblib pytest nose mock pyqt==4.11.4 pyqtgraph pip python=$TRAVIS_PYTHON_VERSION mpi4py sphinx sphinx_rtd_theme numexpr
+  - conda install --yes obspy nomkl basemap progressbar2
+  - conda install --yes colorama joblib pytest nose mock pyqt==4.11.4 pyqtgraph pip
+  - conda install --yes mpi4py sphinx sphinx_rtd_theme numexpr
   - pip install geographiclib flask-cache geojson flake8
-  - pip install --no-deps https://github.com/krischer/wfs_input_generator/archive/master.zip
+  - cd ..
+  - git clone https://github.com/SalvusHub/pyexodus.git
+  - cd pyexodus
+  - pip install .
 
 install:
-  - pip install .
+  - cd $TRAVIS_BUILD_DIR; pip install .
 
 script:
   - cd $TRAVIS_BUILD_DIR; py.test
-  - cd $TRAVIS_BUILD_DIR/doc; make html
+#  - cd $TRAVIS_BUILD_DIR/doc; make html
 
-# Upload any potentially produced diffs and produced images to imgur after a test failure.
-after_failure:
-  - wget "https://raw.githubusercontent.com/tremby/imgur.sh/master/imgur.sh"
-  - "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgur.sh %"
-after_success:
-  - bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh
+## Upload any potentially produced diffs and produced images to imgur after a test failure.
+#after_failure:
+#- wget "https://raw.githubusercontent.com/tremby/imgur.sh/master/imgur.sh"
+#- "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgur.sh %"
+##after_success:
+##  - bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh

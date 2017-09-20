@@ -227,7 +227,7 @@ def _log_window_selection(tr_id, msg):
     :param tr_id: The id of the current trace.
     :param msg: The message to be printed.
     """
-    print "[Window selection for %s] %s" % (tr_id, msg)
+    print("[Window selection for %s] %s" % (tr_id, msg))
 
 
 # Dictionary to cache the TauPyModel so there is no need to reinitialize it
@@ -244,7 +244,7 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                    threshold_correlation=0.75, min_length_period=1.5,
                    min_peaks_troughs=2, max_energy_ratio=10.0,
                    min_envelope_similarity=0.2,
-                   verbose=False, plot=False):
+                   verbose=True, plot=False):
     """
     Window selection algorithm for picking windows suitable for misfit
     calculation based on phase differences.

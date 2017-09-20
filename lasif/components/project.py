@@ -15,29 +15,24 @@ needed.
 """
 from __future__ import absolute_import
 
-import glob
-import imp
-import inspect
-import pathlib
+import importlib.machinery
 import os
+import pathlib
 import warnings
 
-from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 import lasif.domain
-
+from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 from .actions import ActionsComponent
-from .adjoint_sources import AdjointSourcesComponent
 from .communicator import Communicator
 from .component import Component
 from .downloads import DownloadsComponent
 from .events import EventsComponent
 from .iterations import IterationsComponent
-from .kernels import KernelsComponent
 from .query import QueryComponent
-from .stations import StationsComponent
 from .validator import ValidatorComponent
 from .visualizations import VisualizationsComponent
 from .waveforms import WaveformsComponent
+from .weights import WeightsComponent
 from .windows import WindowsAndAdjointSourcesComponent
 
 
@@ -115,9 +110,9 @@ class Project(Component):
             if not new_filename.exists():
                 if not init_project:
                     warnings.warn(
-                        "Function template '{filename.name}' did not exist. "
-                        "It does now. Did you update a later LASIF version? "
-                        "Please make sure you are aware of the changes.",
+                        f"Function template '{filename.name}' did not exist. "
+                        f"It does now. Did you update a later LASIF version? "
+                        f"Please make sure you are aware of the changes.",
                         LASIFWarning)
                 import shutil
                 shutil.copy(src=filename, dst=new_filename)
@@ -128,7 +123,13 @@ class Project(Component):
         """
         import toml
         with open(self.paths["config_file"], "r") as fh:
-            self.config = toml.load(fh)["lasif_project"]
+            config_dict = toml.load(fh)
+
+        self.config = config_dict["lasif_project"]
+        self.solver_settings = config_dict["solver_settings"]
+        self.simulation_params = self.solver_settings["simulation_parameters"]
+        self.computational_setup = self.solver_settings["computational_setup"]
+        self.processing_params = config_dict["data_processing"]
 
         self.domain = lasif.domain.ExodusDomain(self.config['mesh_file'])
 
@@ -145,16 +146,16 @@ class Project(Component):
         keep the references to the single components.
         """
         # Basic components.
-        EventsComponent(folder=self.paths["data"], communicator=self.comm,
+        EventsComponent(folder=self.paths["eq_data"], communicator=self.comm,
                         component_name="events")
-        WaveformsComponent(data_folder=self.paths["data"],
-                           synthetics_folder=self.paths["synthetics"],
+        WaveformsComponent(data_folder=self.paths["eq_data"],
+                           preproc_data_folder=self.paths["preproc_eq_data"],
+                           synthetics_folder=self.paths["eq_synthetics"],
                            communicator=self.comm, component_name="waveforms")
-        KernelsComponent(kernels_folder=self.paths["kernels"],
+        WeightsComponent(weights_folder=self.paths["weights"],
                          communicator=self.comm,
-                         component_name="kernels")
-        IterationsComponent(iterations_folder=self.paths["iterations"],
-                            communicator=self.comm,
+                         component_name="weights")
+        IterationsComponent(communicator=self.comm,
                             component_name="iterations")
 
         # Action and query components.
@@ -165,19 +166,10 @@ class Project(Component):
                          component_name="actions")
         ValidatorComponent(communicator=self.comm,
                            component_name="validator")
-
         WindowsAndAdjointSourcesComponent(
-            folder=self.paths["windows_and_adjoint_sources"],
+            folder=self.paths["adjoint_sources"],
             communicator=self.comm,
             component_name="wins_and_adj_sources")
-        # # Window and adjoint source components.
-        # WindowsAndAdjointSourcesComponent(
-        #     folder=self.paths["windows_and_adjoint_sources"],
-        #     communicator=self.comm,
-        #     component_name="win_adjoint")
-        # AdjointSourcesComponent(ad_src_folder=self.paths["adjoint_sources"],
-        #                         communicator=self.comm,
-        #                         component_name="adjoint_sources")
 
         # Data downloading component.
         DownloadsComponent(communicator=self.comm,
@@ -189,27 +181,39 @@ class Project(Component):
         """
         # Every key containing the string "file" denotes a file, all others
         # should denote directories.
-        self.paths = {}
+        self.paths = dict()
         self.paths["root"] = root_path
 
-        self.paths["events"] = root_path / "EVENTS"
+        # Data
         self.paths["data"] = root_path / "DATA"
-        self.paths["cache"] = root_path / "CACHE"
-        self.paths["logs"] = root_path / "LOGS"
-        self.paths["models"] = root_path / "MODELS"
-        self.paths["wavefields"] = root_path / "WAVEFIELDS"
-        self.paths["iterations"] = root_path / "ITERATIONS"
+        self.paths["corr_data"] = root_path / "DATA" / "CORRELATIONS"
+        self.paths["eq_data"] = root_path / "DATA" / "EARTHQUAKES"
+
         self.paths["synthetics"] = root_path / "SYNTHETICS"
-        self.paths["kernels"] = root_path / "KERNELS"
+        self.paths["corr_synthetics"] = \
+            root_path / "SYNTHETICS" / "CORRELATIONS"
+        self.paths["eq_synthetics"] = root_path / "SYNTHETICS" / "EARTHQUAKES"
+
+        self.paths["preproc_data"] = root_path / "PROCESSED_DATA"
+        self.paths["preproc_eq_data"] =\
+            root_path / "PROCESSED_DATA" / "EARTHQUAKES"
+        self.paths["preproc_corr_data"] =\
+            root_path / "PROCESSED_DATA" / "CORRELATIONS"
+
+        self.paths["sets"] = root_path / "SETS"
+        self.paths["windows"] = root_path / "SETS" / "WINDOWS"
+        self.paths["weights"] = root_path / "SETS" / "WEIGHTS"
+
+        self.paths["adjoint_sources"] = root_path / "ADJOINT_SOURCES"
         self.paths["output"] = root_path / "OUTPUT"
+        self.paths["logs"] = root_path / "OUTPUT" / "LOGS"
+        self.paths["salvus_input"] = root_path / "SALVUS_INPUT_FILES"
+
         # Path for the custom functions.
         self.paths["functions"] = root_path / "FUNCTIONS"
 
         # Paths for various files.
         self.paths["config_file"] = root_path / "lasif_config.toml"
-
-        self.paths["windows_and_adjoint_sources"] = \
-            root_path / "ADJOINT_SOURCES_AND_WINDOWS"
 
     def __update_folder_structure(self):
         """
@@ -226,26 +230,65 @@ class Project(Component):
         default config file. The folder structure is checked and rebuilt every
         time the project is initialized anyways.
         """
-        import toml
-
         if not project_name:
             project_name = "LASIFProject"
 
-        config = {"lasif_project": {
-            "project_name": project_name,
-            "description": "",
-            "mesh_file": "",
-            "download_settings": {
-                "seconds_before_event": 300.0,
-                "seconds_after_event": 3600.0,
-                "interstation_distance_in_meters": 1000.0,
-                "channel_priorities": ["BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]",
-                                       "EH[Z,N,E]", "MH[Z,N,E]"],
-                "location_priorities": ["", "00", "10", "20", "01", "02"]
-        }}}
+        lasif_config_str = f"# Please fill in this config file before " \
+                           f"proceeding with using LASIF. \n \n" \
+                           f"[lasif_project]\n" \
+                           f"  project_name = \"{project_name}\"\n" \
+                           f"  description = \"\"\n\n" \
+                           f"  # Name of the exodus file used for the " \
+                           f"simulation. Without a mesh file, LASIF" \
+                           f" will not work.\n" \
+                           f"  mesh_file = \"\"\n\n" \
+                           f"  [lasif_project.download_settings]\n" \
+                           f"    seconds_before_event = 300.0\n" \
+                           f"    seconds_after_event = 3600.0\n" \
+                           f"    interstation_distance_in_meters = 1000.0\n" \
+                           f"    channel_priorities = [ \"BH[Z,N,E]\", " \
+                           f"\"LH[Z,N,E]\", " \
+                           f"    \"HH[Z,N,E]\", \"EH[Z,N,E]\", " \
+                           f"\"MH[Z,N,E]\",]\n" \
+                           f"    location_priorities = " \
+                           f"[ \"\", \"00\", \"10\", \"20\"," \
+                           f" \"01\", \"02\",]\n" \
+                           f"\n"
+
+        data_preproc_str = "# Data processing settings,  " \
+                           "high- and lowpass period are given in seconds.\n" \
+                           "[data_processing]\n" \
+                           "  highpass_period = 30.0\n" \
+                           "  lowpass_period = 50.0\n\n" \
+                           "  # You most likely want to keep this" \
+                           " setting at true.\n" \
+                           "  scale_data_to_synthetics = true\n\n" \
+
+        solver_par_str = "[solver_settings]\n" \
+                         "  [solver_settings.simulation_parameters]\n" \
+                         "    number_of_time_steps = 2000\n" \
+                         "    time_increment = 0.1\n" \
+                         "    end_time = 2700.0\n" \
+                         "    start_time = -10.0\n" \
+                         "    dimensions = 3\n" \
+                         "    polynomial_order = 4\n\n" \
+                         "  [solver_settings.computational_setup]\n" \
+                         "    salvus_bin = \"salvus_wave/build/salvus\"\n" \
+                         "    number_of_processors = 4\n" \
+                         "    salvus_call = \"mpirun -n 4\"\n" \
+                         "    with_anisotropy = true\n\n" \
+                         "    # Source time function type, " \
+                         "currently \"delta\" and \"ricker\" are" \
+                         " supported \n" \
+                         "    # When a ricker wavelet is used, " \
+                         "please provide the center frequency.\n" \
+                         "    source_time_function_type = \"delta\"\n"  \
+                         "    source_center_frequency = 0.025\n\n" \
+
+        lasif_config_str += data_preproc_str + solver_par_str
 
         with open(self.paths["config_file"], "w") as fh:
-            toml.dump(config, fh)
+            fh.write(lasif_config_str)
 
     def get_project_function(self, fct_type):
         """
@@ -260,7 +303,8 @@ class Project(Component):
         # type / filename map
         fct_type_map = {
             "window_picking_function": "window_picking_function.py",
-            "preprocessing_function": "preprocessing_function.py",
+            "processing_function": "process_data.py",
+            "preprocessing_function_asdf": "preprocessing_function_asdf.py",
             "process_synthetics": "process_synthetics.py",
             "source_time_function": "source_time_function.py"
         }
@@ -275,8 +319,9 @@ class Project(Component):
         if not os.path.exists(filename):
             msg = "No file '%s' in existence." % filename
             raise LASIFNotFoundError(msg)
+        fct_template = importlib.machinery.SourceFileLoader(
+            "_lasif_fct_template", filename).load_module("_lasif_fct_template")
 
-        fct_template = imp.load_source("_lasif_fct_template", filename)
         try:
             fct = getattr(fct_template, fct_type)
         except AttributeError:

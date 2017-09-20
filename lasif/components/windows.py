@@ -3,21 +3,19 @@
 from __future__ import absolute_import
 
 import copy
-import json
+import glob
 import os
-import shutil
 
-from lasif import LASIFNotFoundError, LASIFAdjointSourceCalculationError
+from lasif import LASIFAdjointSourceCalculationError
 from .component import Component
-from ..window_manager import WindowGroupManager
 
 from ..adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 from ..adjoint_sources.ad_src_l2_norm_misfit import adsrc_l2_norm_misfit
 from ..adjoint_sources.ad_src_cc_time_shift import adsrc_cc_time_shift
 
 import numpy as np
-import obspy
 
+from ..window_manager_sql import WindowGroupManager
 
 # Map the adjoint source type names to functions implementing them.
 MISFIT_MAPPING = {
@@ -48,14 +46,68 @@ class WindowsAndAdjointSourcesComponent(Component):
         :param iteration: The iteration.
         """
         event = self.comm.events.get(event)
-        iteration = self.comm.iterations.get(iteration)
+        iteration_long_name = self.comm.iterations.get_long_iteration_name(
+            iteration)
 
-        folder = os.path.join(self._folder, iteration.long_name)
+        folder = os.path.join(self._folder, iteration_long_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
 
         return os.path.join(
             folder, "ADJ_SRC_AND_WINDOWS_" + event["event_name"] + ".h5")
+
+    def get(self, window_set_name):
+        """
+        Returns the window manager instance for a window set.
+
+        :param window_set_name: The name of the window set.
+        """
+        filename = self.get_window_set_filename(window_set_name)
+        return WindowGroupManager(filename)
+
+    def list(self):
+        """
+        Returns a list of window sets currently
+        present within the LASIF project.
+        """
+        files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
+            self.comm.project.paths["windows"], "*.sqlite"))]
+        window_sets = [os.path.splitext(os.path.basename(_i))[0][:]
+                       for _i in files]
+
+        return sorted(window_sets)
+
+    def has_window_set(self, window_set_name):
+        """
+        Checks whether a window set is alreadu defined.
+        ReturnsL True or False
+        :param window_set_name: name of the window set
+        """
+        if window_set_name in self.list():
+            return True
+        return False
+
+    def get_window_set_filename(self, window_set_name):
+        """
+        Retrieves the filename for a given window set
+        :param window_set_name: The name of the window set
+        :return: filename of the window set
+        """
+        filename = os.path.join(self.comm.project.paths['windows'],
+                                window_set_name + ".sqlite")
+        return filename
+
+    def write_windows_to_sql(self, event_name, window_set_name, windows):
+        """
+        Writes windows to the sql database
+        :param event_name: The name of the event
+        :param window_set_name: The name of the window set
+        :param windows: The actual windows, structured in a
+        dictionary(stations) of dicts(channels) of lists(windowS)
+        of tuples (start- and end times)
+        """
+        window_group_manager = self.get(window_set_name)
+        window_group_manager.write_windows(event_name, windows)
 
     def write_windows(self, event, iteration, windows):
         """
@@ -77,10 +129,10 @@ class WindowsAndAdjointSourcesComponent(Component):
         # we are already in MPI but only rank 0 will enter here and that
         # will confuse pyasdf otherwise.
         with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
-            for value in windows.itervalues():
+            for value in windows.values():
                 if not value:
                     continue
-                for c_id, windows in value.iteritems():
+                for c_id, windows in value.items():
                     net, sta, loc, cha = c_id.split(".")
                     for _i, window in enumerate(windows):
                         ds.add_auxiliary_data(
@@ -101,10 +153,6 @@ class WindowsAndAdjointSourcesComponent(Component):
 
         filename = self.get_filename(event=event, iteration=iteration)
 
-        if not os.path.exists(filename):
-            raise ValueError("Window and adjoint source file '%s' must "
-                             "already exist." % filename)
-
         print("\nStarting to write adjoint sources to ASDF file ...")
 
         adj_src_counter = 0
@@ -113,10 +161,10 @@ class WindowsAndAdjointSourcesComponent(Component):
         # we are already in MPI but only rank 0 will enter here and that
         # will confuse pyasdf otherwise.
         with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
-            for value in adj_sources.itervalues():
+            for value in adj_sources.values():
                 if not value:
                     continue
-                for c_id, adj_source in value.iteritems():
+                for c_id, adj_source in value.items():
                     net, sta, loc, cha = c_id.split(".")
                     ds.add_auxiliary_data(
                         data=adj_source["adj_source"],
@@ -126,45 +174,18 @@ class WindowsAndAdjointSourcesComponent(Component):
                     adj_src_counter += 1
         print("Wrote %i adjoint_sources to the ASDF file." % adj_src_counter)
 
-    def read_all_windows(self, event, iteration):
+    def read_all_windows(self, event, window_set_name):
         """
-        Return a flat dictionary with all windows. This should always be
+        Return a flat dictionary with all windows for a specific event.
+        This should always be
         fairly small.
         """
-        import pyasdf
-
-        filename = self.get_filename(event=event, iteration=iteration)
-
-        if not os.path.exists(filename):
-            raise ValueError("Window and adjoint source file '%s' does "
-                             "not exists." % filename)
-
-        # Collect in flat dictionary structure.
-        all_windows = {}
-
-        with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
-
-            if "Windows" not in ds.auxiliary_data:
-                raise ValueError("Auxiliary data group 'Windows' not found.")
-
-            for station in ds.auxiliary_data.Windows:
-                for channel in station:
-                    aux_type = channel.get_auxiliary_data_type()
-                    _, sta, cha = aux_type.split("/")
-                    net, sta = sta.split("_")
-                    _, loc, cha = cha.split("_")
-                    windows = []
-                    for window in channel:
-                        windows.append((
-                            obspy.UTCDateTime(window.parameters["starttime"]),
-                            obspy.UTCDateTime(window.parameters["endtime"])))
-                    all_windows["%s.%s.%s.%s" % (net, sta, loc, cha)] = windows
-
-        return all_windows
+        window_group_manager = self.get(window_set_name)
+        return window_group_manager.get_all_windows_for_event(event_name=event)
 
     def calculate_adjoint_source(self, data, synth, starttime, endtime, taper,
                                  taper_percentage, min_period,
-                                 max_period, ad_src_type):
+                                 max_period, ad_src_type, plot=False):
         """
         Calculates an adjoint source for a single window.
 
@@ -215,7 +236,8 @@ class WindowsAndAdjointSourcesComponent(Component):
 
         #  compute misfit and adjoint source
         adsrc = MISFIT_MAPPING[ad_src_type](
-            t, data_d, synth_d, min_period=min_period, max_period=max_period)
+            t, data_d, synth_d, min_period=min_period,
+            max_period=max_period, plot=plot)
 
         # Recreate dictionary for clarity.
         ret_val = {
@@ -223,6 +245,8 @@ class WindowsAndAdjointSourcesComponent(Component):
             "misfit_value": adsrc["misfit_value"],
             "details": adsrc["details"]
         }
+        if plot:
+            return
 
         if not self._validate_return_value(ret_val):
             raise LASIFAdjointSourceCalculationError(
@@ -230,7 +254,8 @@ class WindowsAndAdjointSourcesComponent(Component):
 
         return ret_val
 
-    def _validate_return_value(self, adsrc):
+    @staticmethod
+    def _validate_return_value(adsrc):
         if not isinstance(adsrc, dict):
             return False
         elif sorted(adsrc.keys()) != ["adjoint_source", "details",
@@ -243,166 +268,3 @@ class WindowsAndAdjointSourcesComponent(Component):
         elif not isinstance(adsrc["details"], dict):
             return False
         return True
-
-    # def list(self):
-    #     """
-    #     Lists all events with windows.
-    #     """
-    #     return sorted([_i for _i in os.listdir(self._folder) if
-    #                    os.path.isdir(os.path.join(self._folder, _i))])
-
-    # def list_for_event(self, event_name):
-    #     """
-    #     List of all iterations with windows for an event.
-    #
-    #     :param event_name: The name of the event.
-    #     """
-    #     event_folder = os.path.join(self._folder, event_name)
-    #     if not os.path.exists(event_folder):
-    #         msg = "No windows for event '%s'." % event_name
-    #         raise LASIFNotFoundError(msg)
-    #
-    #     return sorted([_i.lstrip("ITERATION_")
-    #                    for _i in os.listdir(event_folder) if
-    #                    os.path.isdir(os.path.join(event_folder, _i)) and
-    #                    _i.startswith("ITERATION_")])
-
-    # def get(self, event, iteration):
-    #     """
-    #     Returns the window manager instance for a given event and iteration.
-    #
-    #     :param event_name: The name of the event.
-    #     :param iteration_name: The name of the iteration.
-    #     """
-    #     event = self.comm.events.get(event)
-    #     iteration = self.comm.iterations.get(iteration)
-    #     event_name = event["event_name"]
-    #     iteration_name = iteration.name
-    #
-    #     if not self.comm.events.has_event(event_name):
-    #         msg = "Event '%s' not known." % event_name
-    #         raise LASIFNotFoundError(msg)
-    #
-    #     if not self.comm.iterations.has_iteration(iteration_name):
-    #         msg = "Iteration '%s' not known." % iteration_name
-    #         raise LASIFNotFoundError(msg)
-    #
-    #     iteration = self.comm.iterations.get(iteration_name)
-    #     if event_name not in iteration.events:
-    #         msg = "Event '%s' not part of iteration '%s'." % (event_name,
-    #                                                           iteration_name)
-    #         raise ValueError(msg)
-    #
-    #     folder = os.path.join(self._folder, event_name,
-    #                           self.comm.iterations.get_long_iteration_name(
-    #                               iteration_name))
-    #     return WindowGroupManager(folder, iteration_name, event_name,
-    #                               comm=self.comm)
-    #
-    # def _clear_window_statistics_cache(self):
-    #     """
-    #     Clears the window statistics cache.
-    #     """
-    #     if os.path.exists(self._statistics_cache_folder):
-    #         shutil.rmtree(self._statistics_cache_folder)
-    #
-    #     if not os.path.exists(self._statistics_cache_folder):
-    #         os.makedirs(self._statistics_cache_folder)
-    #
-    # def get_window_statistics(self, iteration, cache=True):
-    #     """
-    #     Get a dictionary with window statistics for an iteration per event.
-    #
-    #     Depending on the size of your inversion and chosen iteration,
-    #     this might take a while...
-    #
-    #     :param iteration: The iteration for which to calculate everything.
-    #     :param cache: Use cache (if available). Otherwise cached value will
-    #         be deleted.
-    #     """
-    #     from obspy.geodetics.base import locations2degrees
-    #
-    #     it = self.comm.iterations.get(iteration)
-    #
-    #     cache_file = os.path.join(self._statistics_cache_folder,
-    #                               "window_statistics_iteration_%s.json" %
-    #                               it.name)
-    #
-    #     if os.path.exists(cache_file):
-    #         if cache is True:
-    #             try:
-    #                 with open(cache_file) as fh:
-    #                     data = json.load(fh)
-    #             except Exception as e:
-    #                 print("Loading cache failed due to: %s" % str(e))
-    #             print("Loading statistics from cache.")
-    #             return data
-    #         else:
-    #             print("Removing existing cached file ...")
-    #             os.remove(cache_file)
-    #
-    #     statistics = {}
-    #
-    #     for _i, event in enumerate(list(sorted(it.events.keys()))):
-    #         print("Collecting statistics for event %i of %i ..." % (
-    #             _i + 1, len(it.events)))
-    #
-    #         wm = self.get(event=event, iteration=iteration)
-    #
-    #         event_obj = self.comm.events.get(event)
-    #         station_details = copy.deepcopy(
-    #             self.comm.query.get_all_stations_for_event(event))
-    #
-    #         component_window_count = {"E": 0, "N": 0, "Z": 0}
-    #         component_length_sum = {"E": 0, "N": 0, "Z": 0}
-    #         stations_with_windows_count = 0
-    #         stations_without_windows_count = 0
-    #
-    #         stations = {}
-    #
-    #         for station in it.events[event]["stations"].keys():
-    #             s = station_details[station]
-    #             stations[station] = s
-    #
-    #             s["epicentral_distance"] = locations2degrees(
-    #                 event_obj["latitude"], event_obj["longitude"],
-    #                 s["latitude"], s["longitude"])
-    #
-    #             s["windows"] = {"Z": [], "E": [], "N": []}
-    #
-    #             wins = wm.get_windows_for_station(station)
-    #             has_windows = False
-    #             for coll in wins:
-    #                 component = coll.channel_id[-1].upper()
-    #                 total_length = sum([_i.length for _i in coll.windows])
-    #                 if not total_length:
-    #                     continue
-    #                 for win in coll.windows:
-    #                     s["windows"][component].append(win.length)
-    #                 has_windows = True
-    #                 component_window_count[component] += 1
-    #                 component_length_sum[component] += total_length
-    #             if has_windows:
-    #                 stations_with_windows_count += 1
-    #             else:
-    #                 stations_without_windows_count += 1
-    #
-    #         statistics[event] = {
-    #             "total_station_count": len(it.events[event]["stations"]),
-    #             "stations_with_windows": stations_with_windows_count,
-    #             "stations_without_windows": stations_without_windows_count,
-    #             "stations_with_vertical_windows": component_window_count["Z"],
-    #             "stations_with_north_windows": component_window_count["N"],
-    #             "stations_with_east_windows": component_window_count["E"],
-    #             "total_window_length": sum(component_length_sum.values()),
-    #             "window_length_vertical_components": component_length_sum["Z"],
-    #             "window_length_north_components": component_length_sum["N"],
-    #             "window_length_east_components": component_length_sum["E"],
-    #             "stations": stations
-    #         }
-    #
-    #     # Store in cache.
-    #     with open(cache_file, "w") as fh:
-    #         json.dump(statistics, fh)
-    #
-    #     return statistics

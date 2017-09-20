@@ -265,7 +265,7 @@ def greatcircle_points(point_1, point_2, max_extension=None,
         npts = max_npts - 1
     if npts == 0:
         npts = 1
-    for i in xrange(npts + 1):
+    for i in range(npts + 1):
         line_point = line.Position(i * point["s12"] / float(npts))
         yield Point(line_point["lat2"], line_point["lon2"])
 
@@ -313,7 +313,7 @@ def get_event_filename(event, prefix):
 
     >>> from obspy import read_events
     >>> event = read_events()[0]
-    >>> print get_event_filename(event, "GCMT")
+    >>> print(get_event_filename(event, "GCMT"))
     GCMT_event_KYRGYZSTAN-XINJIANG_BORDER_REG._Mag_4.4_2012-4-4-14.xml
     """
     from obspy.geodetics import FlinnEngdahl

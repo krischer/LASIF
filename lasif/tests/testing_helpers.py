@@ -9,19 +9,20 @@ Utility functionality for the LASIF test suite.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import pathlib
 from collections import namedtuple
 import copy
 import inspect
 import matplotlib as mpl
 import matplotlib.pylab as plt
 from matplotlib.testing.compare import compare_images as mpl_compare_images
-import numpy as np
+# import numpy as np
 import obspy
 import os
 import pytest
 import shutil
 import sys
-from unittest import mock
+# from unittest import mock
 
 from lasif.components.project import Project
 from lasif.scripts import lasif_cli
@@ -63,9 +64,10 @@ def communicator(tmpdir):
     example_project = os.path.join(DATA, "ExampleProject")
     project_path = os.path.join(str(tmpdir), "ExampleProject")
     shutil.copytree(example_project, project_path)
+    folder_path = pathlib.Path(project_path).absolute()
 
     # Init it. This will create the missing paths.
-    return Project(project_path).comm
+    return Project(project_root_path=folder_path).comm
 
 
 @pytest.fixture
@@ -92,14 +94,14 @@ def cli(communicator, request, capsys):
                 raise Exception(msg)
             sys.argv = components
             # Greatly speed up some tests.
-            with mock.patch("lasif.tools.Q_discrete.calculate_Q_model") as p:
-                p.return_value = (np.array([1.6341, 1.0513, 1.5257]),
-                                  np.array([0.59496, 3.7119, 22.2171]))
-                capsys.readouterr()
-                try:
-                    lasif_cli.main()
-                except SystemExit:
-                    pass
+            # with mock.patch("lasif.tools.Q_discrete.calculate_Q_model") as p:
+            #     p.return_value = (np.array([1.6341, 1.0513, 1.5257]),
+            #                       np.array([0.59496, 3.7119, 22.2171]))
+            #     capsys.readouterr()
+            try:
+                lasif_cli.main()
+            except SystemExit:
+                pass
         except Exception as exc:
             raise exc
         finally:
@@ -133,7 +135,7 @@ def images_are_identical(image_name, temp_dir, dpi=None, tol=5):
     # freetype and possibly agg versions. matplotlib uses a tolerance of 13.
     result = mpl_compare_images(expected, actual, tol=tol, in_decorator=True)
     if result is not None:
-        print result
+        print(result)
     assert result is None
 
 
