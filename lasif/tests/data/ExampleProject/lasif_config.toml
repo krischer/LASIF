@@ -7,6 +7,10 @@
   # Name of the exodus file used for the simulation. Without a mesh file, LASIF will not work.
   mesh_file = "./SphericalChunk3D_prem_ani_150.e"
 
+  # Number of buffer elements at the domain edges, no events or receivers will be placed there.
+  # A minimum amount of 3 is advised.
+  num_buffer_elements = 8
+
   [lasif_project.download_settings]
     seconds_before_event = 300.0
     seconds_after_event = 3600.0

@@ -82,8 +82,9 @@ class Domain(object):
 
 
 class ExodusDomain(Domain):
-    def __init__(self, exodus_file):
+    def __init__(self, exodus_file, num_buffer_elems):
         self.exodus_file = exodus_file
+        self.num_buffer_elems = num_buffer_elems
         self.r_earth = 6371000
         self.e = None
         self.is_global_mesh = False
@@ -203,16 +204,12 @@ class ExodusDomain(Domain):
         self.domain_edge_tree = cKDTree(self.domain_edge_coords)
         self.KDTrees_initialized = True
 
-    def point_in_domain(self, longitude, latitude, num_elems_buffer=8):
+    def point_in_domain(self, longitude, latitude):
         """
-        "Test wheter a point lies inside the domain, a buffer region of
-        eight elements is used by default.
+        "Test whether a point lies inside the domain,
 
         :param longitude: longitude in degrees
         :param latitude: latitude in degrees
-        :param num_elems_buffer: number of elements of buffer, points within
-        this distance away from the domain edge will be flagged
-        as not inside the domain
         """
         if not self.KDTrees_initialized:
             self._initialize_kd_trees()
@@ -221,17 +218,20 @@ class ExodusDomain(Domain):
             return True
         point_on_surface = lat_lon_radius_to_xyz(
             latitude, longitude, self.r_earth)
+
         dist, _ = self.earth_surface_tree.query(point_on_surface, k=1)
 
-        # False if not close to domain surface
+        # False if not close enough to domain surface, this might go wrong
+        # fpr meshes with significant topography/ellipticity in
+        # combination with a small element size.
         if dist > 2 * self.approx_elem_width:
             return False
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
-
         # False if too close to edge of domain
-        if dist < num_elems_buffer * self.approx_elem_width:
+        if dist < (self.num_buffer_elems * self.approx_elem_width):
             return False
+
         return True
 
     def plot(self, plot_simulation_domain=False, ax=None, plot_lines=True):
