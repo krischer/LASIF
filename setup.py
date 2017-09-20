@@ -76,7 +76,6 @@ setup_config = dict(
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Physics'],
