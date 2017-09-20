@@ -12,7 +12,8 @@
 # import os
 # import warnings
 #
-# from lasif.tools.parallel_helpers import function_info, distribute_across_ranks
+# from lasif.tools.parallel_helpers import function_info,\
+#    distribute_across_ranks
 #
 #
 # def test_function_info_decorator():
@@ -128,8 +129,8 @@
 #
 #     assert os.path.exists(logfile)
 #
-#     # Sort them with the expected result to be able to compare them. The order
-#     # is not guaranteed when using multiple processes.
+#     # Sort them with the expected result to be able to compare them.
+#     # The order is not guaranteed when using multiple processes.
 #     results.sort(key=lambda x: x.result)
 #
 #     assert results[0].result is None

@@ -3,9 +3,10 @@
 # """
 # Test cases for the CLI interface.
 #
-# Many of these test are very similar to the project tests. But this is what the
-# CLI interface is supposed to provide: an easy way to interface with the
-# project's components.
+# Many of these test are very similar to the project tests.
+# But this is what the
+# CLI interface is supposed to provide:
+#  an easy way to interface with the project's components.
 #
 # Furthermore many tests are simple mock tests only asserting that the proper
 # methods are called.
@@ -77,7 +78,8 @@
 #         # Both invocations should work
 #         assert cli.run("lasif %s --help" % cmd) == \
 #             cli.run("lasif help %s" % cmd)
-#         # Some things should always be shown. This also more or less tests that
+#         # Some things should always be shown.
+#           This also more or less tests that
 #         # the argparse parser is used everywhere.
 #         help_string = cli.run("lasif %s --help" % cmd).stdout
 #         assert help_string.startswith("usage: lasif %s" % cmd)
@@ -114,8 +116,8 @@
 #
 # def test_fuzzy_command_matching(cli):
 #     """
-#     If the user enters a slightly wrong subcommand, the user should be notified
-#     of alternatives.
+#     If the user enters a slightly wrong subcommand,
+#     the user should be notified of alternatives.
 #     """
 #     out = cli.run("lasif infi")
 #     assert out.stdout == ""
@@ -127,7 +129,8 @@
 #     out = cli.run("lasif plot_eventos")
 #     assert out.stdout == ""
 #     assert out.stderr == (
-#         "lasif: 'plot_eventos' is not a LASIF command. See 'lasif --help'.\n\n"
+#         "lasif: 'plot_eventos' is not a LASIF command.
+#           See 'lasif --help'.\n\n"
 #         "Did you mean one of these?\n"
 #         "    list_events\n"
 #         "    plot_event\n"
@@ -172,68 +175,7 @@
 #     assert out.stderr == ""
 #     assert "Initialized project in" in out.stdout
 #
-#     # Make sure all the expected things are there.
-#     project_dir = os.path.join(root_path, "TestDummy")
-#     assert os.path.exists(project_dir)
-#     contents = sorted(os.listdir(project_dir))
-#     assert contents == sorted([
-#         "ADJOINT_SOURCES_AND_WINDOWS", "CACHE", "config.xml", "DATA", "EVENTS",
-#         "ITERATIONS", "KERNELS", "LOGS", "MODELS", "OUTPUT", "STATIONS",
-#         "SYNTHETICS", "WAVEFIELDS", "FUNCTIONS"])
-#
-#     # Test the generated config file.
-#     expected = "\n".join([
-#         "<?xml version='1.0' encoding='UTF-8'?>",
-#         "<lasif_project>",
-#         "  <name>TestDummy</name>",
-#         "  <description></description>",
-#         "  <download_settings>",
-#         "    <seconds_before_event>300</seconds_before_event>",
-#         "    <seconds_after_event>3600</seconds_after_event>",
-#         "    <interstation_distance_in_m>1000.0</interstation_distance_in_m>",
-#         "    <channel_priorities>",
-#         "      <priority>BH[Z,N,E]</priority>",
-#         "      <priority>LH[Z,N,E]</priority>",
-#         "      <priority>HH[Z,N,E]</priority>",
-#         "      <priority>EH[Z,N,E]</priority>",
-#         "      <priority>MH[Z,N,E]</priority>",
-#         "    </channel_priorities>",
-#         "    <location_priorities>",
-#         "      <priority></priority>",
-#         "      <priority>00</priority>",
-#         "      <priority>10</priority>",
-#         "      <priority>20</priority>",
-#         "      <priority>01</priority>",
-#         "      <priority>02</priority>",
-#         "    </location_priorities>",
-#         "  </download_settings>",
-#         "  <domain>",
-#         "    <global>false</global>",
-#         "    <domain_bounds>",
-#         "      <minimum_longitude>-20</minimum_longitude>",
-#         "      <maximum_longitude>20</maximum_longitude>",
-#         "      <minimum_latitude>-20</minimum_latitude>",
-#         "      <maximum_latitude>20</maximum_latitude>",
-#         "      <minimum_depth_in_km>0.0</minimum_depth_in_km>",
-#         "      <maximum_depth_in_km>200.0</maximum_depth_in_km>",
-#         "      <boundary_width_in_degree>3.0</boundary_width_in_degree>",
-#         "    </domain_bounds>",
-#         "    <domain_rotation>",
-#         "      <rotation_axis_x>1.0</rotation_axis_x>",
-#         "      <rotation_axis_y>1.0</rotation_axis_y>",
-#         "      <rotation_axis_z>1.0</rotation_axis_z>",
-#         "      <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>",
-#         "    </domain_rotation>",
-#         "  </domain>",
-#         "  <misc_settings>",
-#         "    <time_frequency_adjoint_source_criterion>7.0"
-#         "</time_frequency_adjoint_source_criterion>",
-#         "  </misc_settings>",
-#         "</lasif_project>\n"])
-#     with open(os.path.join(project_dir, "config.xml"), "rt") as fh:
-#         actual = fh.read()
-#     assert actual == expected
-#
+
 #
 # def test_plotting_functions(cli):
 #     """
@@ -617,7 +559,8 @@
 #                     '.is_event_station_raypath_within_boundaries') as p:
 #         p.return_value = False
 #         out = cli.run("lasif validate_data --full")
-#         assert "Some files failed the raypath in domain checks." in out.stdout
+#         assert "Some files failed the raypath
+#              in domain checks." in out.stdout
 #         # Created script that deletes the extraneous files.
 #         filename = out.stdout.splitlines()[-1].strip().strip("'")
 #         assert os.path.exists(filename)
@@ -643,9 +586,9 @@
 #
 # def test_iteration_status_command(cli):
 #     """
-#     The iteration status command returns the current state of any iteration. It
-#     returns the number of already preprocessed data files, how many synthetics
-#     are available, the windows and adjoint sources.
+#     The iteration status command returns the current state of any iteration.
+#     It returns the number of already preprocessed data files,
+#     how many synthetics are available, the windows and adjoint sources.
 #     """
 #     cli.run("lasif create_new_iteration 1 8.0 100.0 SES3D_4_1")
 #     out = cli.run("lasif iteration_status 1").stdout.splitlines()

@@ -41,6 +41,9 @@ should scale fairly well and makes it trivial to add new methods.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import os
+
+import progressbar
+
 import lasif
 from lasif import LASIFError
 
@@ -50,7 +53,6 @@ import argparse
 import collections
 import colorama
 import difflib
-import itertools
 import pathlib
 import sys
 import time
@@ -58,7 +60,6 @@ import traceback
 import warnings
 
 from mpi4py import MPI
-
 from lasif import LASIFNotFoundError
 from lasif.components.project import Project
 
@@ -440,7 +441,8 @@ def lasif_plot_stf(parser, args):
 
     stf = {"delta": delta}
 
-    stf["data"] = stf_fct(npts=npts, delta=delta, freqmin=freqmin, freqmax=freqmax)
+    stf["data"] = stf_fct(npts=npts, delta=delta,
+                          freqmin=freqmin, freqmax=freqmax)
 
     # Ignore lots of potential warnings with some plotting functionality.
     lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
@@ -457,8 +459,9 @@ def lasif_generate_input_files(parser, args):
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
 
-    #TODO possible extend this function to allow for generating input_files for the adjoint run \
-    #TODO otherwise implement this functionality in finalize adjoint sources
+    # TODO possible extend this function to allow for
+    # TODO generating input_files for the adjoint run \
+    # TODO otherwise implement this functionality in finalize adjoint sources
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
@@ -471,11 +474,12 @@ def lasif_generate_input_files(parser, args):
 
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
-                print("Event '%s' not known to LASIF. No input files for this event will be generated. " % event)
+                print("Event '%s' not known to LASIF. "
+                      "No input files for this event"
+                      " will be generated. " % event)
         print("Generating input files for event %i of %i..." % (_i + 1,
                                                                 len(events)))
         comm.actions.generate_input_files(iteration_name, event)
-
 
 
 @command_group("Project Management")
@@ -536,12 +540,14 @@ def lasif_calculate_adjoint_sources(parser, args):
     # some basic checks
     if not comm.wins_and_adj_sources.has_window_set(window_set_name):
         if MPI.COMM_WORLD.rank == 0:
-            raise LASIFNotFoundError("Window set {} not known to LASIF".format(window_set_name))
+            raise LASIFNotFoundError(
+                "Window set {} not known to LASIF".format(window_set_name))
         return
 
     if not comm.iterations.has_iteration(iteration):
         if MPI.COMM_WORLD.rank == 0:
-            raise LASIFNotFoundError("Iteration {} not known to LASIF".format(iteration))
+            raise LASIFNotFoundError(
+                "Iteration {} not known to LASIF".format(iteration))
         return
 
     events = args.events if args.events else comm.events.list()
@@ -572,7 +578,8 @@ def lasif_calculate_adjoint_sources(parser, args):
                 os.remove(filename)
 
         MPI.COMM_WORLD.barrier()
-        comm.actions.calculate_adjoint_sources(event, iteration, window_set_name)
+        comm.actions.calculate_adjoint_sources(event, iteration,
+                                               window_set_name)
 
 
 @mpi_enabled
@@ -635,7 +642,8 @@ def lasif_select_all_windows(parser, args):
                                                           iteration=iteration)
         if os.path.exists(filename):
             if MPI.COMM_WORLD.rank == 0:
-                print("File '%s' already exists. Will not pick windows for that "
+                print("File '%s' already exists. "
+                      "Will not pick windows for that "
                       "event. Delete the file to repick windows." % filename)
             continue
 
@@ -649,10 +657,8 @@ def lasif_launch_misfit_gui(parser, args):
     Launch the misfit GUI.
     """
     args = parser.parse_args(args)
-
     comm = _find_project_comm(".")
 
-    #TODO fix the ugly prints coming from this function
     from lasif.misfit_gui.misfit_gui import launch
     launch(comm)
 
@@ -662,7 +668,8 @@ def lasif_create_weight_set(parser, args):
     """
     Create a new set of event and station weights.
     """
-    parser.add_argument("weight_set_name", help="name of the weight set, i.e. \"A\"")
+    parser.add_argument("weight_set_name",
+                        help="name of the weight set, i.e. \"A\"")
 
     args = parser.parse_args(args)
     weight_set_name = args.weight_set_name
@@ -672,12 +679,14 @@ def lasif_create_weight_set(parser, args):
         weight_set_name=weight_set_name,
         events_dict=comm.query.get_stations_for_all_events())
 
+
 @command_group("Iteration Management")
 def lasif_set_up_iteration(parser, args):
     """
     Creates or removes directory structure for an iteration.
     """
-    parser.add_argument("iteration_name", help="name of the iteration, i.e. \"1\"")
+    parser.add_argument("iteration_name",
+                        help="name of the iteration, i.e. \"1\"")
     parser.add_argument(
         "--remove_dirs",
         help="Removes all directories related to the specified iteration. ",
@@ -691,6 +700,7 @@ def lasif_set_up_iteration(parser, args):
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration_name, remove_dirs=remove_dirs)
 
+
 @command_group("Iteration Management")
 def lasif_list_iterations(parser, args):
     """
@@ -703,6 +713,7 @@ def lasif_list_iterations(parser, args):
     print("Iterations known to LASIF: \n")
     for iteration in iterations:
         print(comm.iterations.get_long_iteration_name(iteration), "\n")
+
 
 @mpi_enabled
 @command_group("Iteration Management")
@@ -737,10 +748,10 @@ def lasif_compare_misfits(parser, args):
         # Split into a number of events per MPI process.
         events = split(events, MPI.COMM_WORLD.size)
 
-        print(" => Calculating misfit change from iteration '%s' to " \
-            "iteration '%s' ..." % (from_it.name, to_it.name))
-        print(" => Launching calculations on %i core(s)\n" % \
-            MPI.COMM_WORLD.size)
+        print(" => Calculating misfit change from iteration '%s' to "
+              "iteration '%s' ..." % (from_it.name, to_it.name))
+        print(" => Launching calculations on %i core(s)\n" %
+              MPI.COMM_WORLD.size)
 
     else:
         events = None
@@ -914,7 +925,6 @@ def lasif_iteration_info(parser, args):
         raise LASIFCommandLineException(msg)
 
     print(comm.iterations.get(iteration_name))
-
 
 
 @mpi_enabled

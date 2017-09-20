@@ -101,36 +101,37 @@ def preprocessing_function_asdf(processing_info):
         # Instrument correction
         try:
             st.attach_response(inv)
-            st.remove_response(output="DISP", pre_filt=pre_filt, zero_mean=False,
-                               taper=False)
+            st.remove_response(output="DISP", pre_filt=pre_filt,
+                               zero_mean=False, taper=False)
         except Exception as e:
             net = inv.get_contents()['channels'][0].split('.', 2)[0]
             sta = inv.get_contents()['channels'][0].split('.', 2)[1]
 
             msg = ("Station: %s.%s could not be corrected with the help of "
                    "asdf file: '%s'. Due to: '%s'  Will be skipped.") \
-                  % (net, sta, processing_info["asdf_input_filename"], e.__repr__()),
+                % (net, sta,
+                   processing_info["asdf_input_filename"], e.__repr__()),
             raise LASIFError(msg)
 
         # Bandpass filtering
         st.detrend("linear")
         st.detrend("demean")
         st.taper(0.05, type="cosine")
-        st.filter("bandpass", freqmin=1.0/max_period, freqmax=1.0/min_period, corners=3,
-                  zerophase=True)
+        st.filter("bandpass", freqmin=1.0 / max_period,
+                  freqmax=1.0 / min_period, corners=3, zerophase=True)
 
         st.detrend("linear")
         st.detrend("demean")
         st.taper(0.05, type="cosine")
-        st.filter("bandpass", freqmin=1.0/max_period, freqmax=1.0/min_period, corners=3,
-                  zerophase=True)
+        st.filter("bandpass", freqmin=1.0 / max_period,
+                  freqmax=1.0 / min_period, corners=3, zerophase=True)
 
         # Sinc interpolation
         for tr in st:
             tr.data = np.require(tr.data, requirements="C")
 
-        st.interpolate(sampling_rate=sampling_rate, method="lanczos", starttime=starttime,
-                       window="blackman", a=12, npts=npts)
+        st.interpolate(sampling_rate=sampling_rate, method="lanczos",
+                       starttime=starttime, window="blackman", a=12, npts=npts)
 
         # Convert to single precision to save space.
         for tr in st:

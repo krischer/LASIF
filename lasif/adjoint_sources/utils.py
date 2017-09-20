@@ -69,7 +69,7 @@ def get_dispersed_wavetrain(dw=0.001, distance=1500.0, t_min=0, t_max=900, a=4,
     # Time integration
     u = np.zeros(len(t))
 
-    for _i in xrange(len(t)):
+    for _i in range(len(t)):
         u[_i] = np.sum(w * np.cos(w * t[_i] - w * distance / c) * dw)
 
     # Add body waves

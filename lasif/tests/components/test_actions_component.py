@@ -27,45 +27,6 @@
 #     return project.comm
 #
 #
-# @mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
-# def test_input_files_are_actually_generated(patch, comm):
-#     """
-#     Tests if the input file generation actually creates some files and works in
-#     the first place.
-#
-#     Does not test the input files. That is the responsibility of the input file
-#     generator module.
-#     """
-#     # Speed up this test.
-#     patch.return_value = (np.array([1.6341, 1.0513, 1.5257]),
-#                           np.array([0.59496, 3.7119, 22.2171]))
-#
-#     assert os.listdir(comm.project.paths["output"]) == []
-#     comm.iterations.create_new_iteration(
-#         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
-#
-#     output = os.path.join(comm.project.paths["output"], "input_files")
-#
-#     # Normal simulation.
-#     comm.actions.generate_input_files(
-#         "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "normal simulation")
-#     output_dir = [_i for _i in os.listdir(output)
-#                   if "normal_simulation" in _i][0]
-#     assert len(os.listdir(os.path.join(output, output_dir))) != 0
-#
-#     # Adjoint forward.
-#     comm.actions.generate_input_files(
-#         "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "adjoint forward")
-#     output_dir = [_i for _i in os.listdir(output)
-#                   if "adjoint_forward" in _i][0]
-#     assert len(os.listdir(os.path.join(output, output_dir))) != 0
-#
-#     # Adjoint reverse.
-#     comm.actions.generate_input_files(
-#         "1", "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11", "adjoint reverse")
-#     output_dir = [_i for _i in os.listdir(output)
-#                   if "adjoint_reverse" in _i][0]
-#     assert len(os.listdir(os.path.join(output, output_dir))) != 0
 #
 #
 # @mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
@@ -132,20 +93,23 @@
 #     # Now actually create a new iteration.
 #     comm.iterations.create_new_iteration(
 #         "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
-#     assert os.listdir(comm.project.paths["iterations"]) == ["ITERATION_1.xml"]
+#     assert os.listdir(comm.project.paths[
+#        "iterations"]) == ["ITERATION_1.xml"]
 #
 #     # Creating an already existing iteration raises.
 #     with pytest.raises(LASIFError) as excinfo:
 #         comm.iterations.create_new_iteration(
-#             "1", "ses3d_4_1", comm.query.get_stations_for_all_events(), 8, 100)
+#             "1", "ses3d_4_1", comm.query.
+#         get_stations_for_all_events(), 8, 100)
 #     assert excinfo.value.message.lower() == "iteration 1 already exists."
 #
 #
 # @mock.patch("lasif.tools.Q_discrete.calculate_Q_model")
 # def test_preprocessing_runs(patch, comm):
 #     """
-#     Simple tests to assure the preprocessing actually runs. Does not test if it
-#     does the right thing but will at least assure the program flow works as
+#     Simple tests to assure the preprocessing actually runs.
+#     Does not test if it does the right thing but will at
+#     least assure the program flow works as
 #     expected.
 #     """
 #     # Speed up this test.

@@ -110,9 +110,9 @@ class Project(Component):
             if not new_filename.exists():
                 if not init_project:
                     warnings.warn(
-                        "Function template '{filename.name}' did not exist. "
-                        "It does now. Did you update a later LASIF version? "
-                        "Please make sure you are aware of the changes.",
+                        f"Function template '{filename.name}' did not exist. "
+                        f"It does now. Did you update a later LASIF version? "
+                        f"Please make sure you are aware of the changes.",
                         LASIFWarning)
                 import shutil
                 shutil.copy(src=filename, dst=new_filename)

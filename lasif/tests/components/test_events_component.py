@@ -3,14 +3,12 @@
 from __future__ import absolute_import
 
 import inspect
-import io
 import obspy
 import os
 import pytest
-import re
 from unittest import mock
 
-from lasif import LASIFNotFoundError, LASIFWarning
+from lasif import LASIFNotFoundError
 from lasif.components.events import EventsComponent
 from lasif.components.communicator import Communicator
 
@@ -72,12 +70,15 @@ def test_get_event(comm):
         'origin_time': obspy.UTCDateTime(2014, 10, 7, 10, 22, 34, 100000),
         'region': u'ICELAND'}
 
-    ev = comm.events.get("GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13")
+    ev = comm.events.get("GCMT_event_IRAN-IRAQ_BORDER_"
+                         "REGION_Mag_5.8_2014-10-15-13")
     ev["filename"] = os.path.basename(ev["filename"])
     assert ev == {
         'depth_in_km': 12.0,
-        'event_name': 'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13',
-        'filename': 'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13.h5',
+        'event_name':
+            'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13',
+        'filename':
+            'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13.h5',
         'latitude': 32.45,
         'longitude': 47.87,
         'm_pp': 4.36e+16,
@@ -100,5 +101,6 @@ def test_get_all_events(comm):
         "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10":
             comm.events.get("GCMT_event_ICELAND_Mag_5.5_2014-10-7-10"),
         "GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13":
-            comm.events.get("GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13")}
+            comm.events.get("GCMT_event_IRAN-IRAQ_"
+                            "BORDER_REGION_Mag_5.8_2014-10-15-13")}
     assert events == comm.events.get_all_events()

@@ -11,10 +11,8 @@ Test suite for the domain definitions in LASIF.
 """
 from __future__ import absolute_import
 
-import copy
-
-from lasif import domain
-from .testing_helpers import images_are_identical, reset_matplotlib
+# from lasif import domain
+from .testing_helpers import reset_matplotlib
 
 
 def setup_function(function):

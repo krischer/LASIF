@@ -16,13 +16,13 @@ import inspect
 import matplotlib as mpl
 import matplotlib.pylab as plt
 from matplotlib.testing.compare import compare_images as mpl_compare_images
-import numpy as np
+# import numpy as np
 import obspy
 import os
 import pytest
 import shutil
 import sys
-from unittest import mock
+# from unittest import mock
 
 from lasif.components.project import Project
 from lasif.scripts import lasif_cli
@@ -64,10 +64,7 @@ def communicator(tmpdir):
     example_project = os.path.join(DATA, "ExampleProject")
     project_path = os.path.join(str(tmpdir), "ExampleProject")
     shutil.copytree(example_project, project_path)
-
-    proj_dir = os.path.join(tmpdir, "proj")
     folder_path = pathlib.Path(project_path).absolute()
-    Project(project_root_path=folder_path)
 
     # Init it. This will create the missing paths.
     return Project(project_root_path=folder_path).comm

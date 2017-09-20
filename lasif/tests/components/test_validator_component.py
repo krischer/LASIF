@@ -46,7 +46,8 @@
 #     assert comm.validator.validate_raypaths_in_domain() == []
 #     event = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
 #     folder = os.path.join(comm.project.paths["data"], event, "raw")
-#     filenames = sorted([os.path.join(folder, _i) for _i in os.listdir(folder)])
+#     filenames = sorted([os.path.join(folder, _i)
+#       for _i in os.listdir(folder)])
 #
 #     # Have the raypath check fail.
 #     with mock.patch('lasif.components.validator.ValidatorComponent'

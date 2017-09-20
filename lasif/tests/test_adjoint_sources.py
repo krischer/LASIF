@@ -16,8 +16,9 @@
 # import obspy
 # from scipy.io import loadmat
 #
-# from lasif.adjoint_sources import utils, time_frequency, ad_src_tf_phase_misfit
-#
+# from lasif.adjoint_sources import utils, time_frequency,\
+#     ad_src_tf_phase_misfit
+
 # from .testing_helpers import images_are_identical, reset_matplotlib
 #
 #
@@ -36,9 +37,12 @@
 #     """
 #     Tests the Matlab range command.
 #     """
-#     np.testing.assert_array_equal(utils.matlab_range(0, 5, 1), np.arange(6))
-#     np.testing.assert_array_equal(utils.matlab_range(0, 5.5, 1), np.arange(6))
-#     np.testing.assert_array_equal(utils.matlab_range(0, 4.9, 1), np.arange(5))
+#     np.testing.assert_array_equal(utils.matlab_range(0, 5, 1),
+#                                   np.arange(6))
+#     np.testing.assert_array_equal(utils.matlab_range(0, 5.5, 1),
+#                                   np.arange(6))
+#     np.testing.assert_array_equal(utils.matlab_range(0, 4.9, 1),
+#                                   np.arange(5))
 #
 #
 # def test_dispersive_wavetrain():
@@ -116,7 +120,8 @@
 #     """
 #     Tests the plot for a time-frequency misfit adjoint source.
 #     """
-#     obs, syn = obspy.read(os.path.join(data_dir, "adj_src_test.mseed")).traces
+#     obs, syn = obspy.read(
+#         os.path.join(data_dir, "adj_src_test.mseed")).traces
 #
 #     import matplotlib.pyplot as plt
 #     plt.figure(figsize=(15, 10))
@@ -135,7 +140,8 @@
 #     """
 #     Test the time frequency misfit and adjoint source.
 #     """
-#     obs, syn = obspy.read(os.path.join(data_dir, "adj_src_test.mseed")).traces
+#     obs, syn = obspy.read(os.path.join(data_dir,
+#                                        "adj_src_test.mseed")).traces
 #     ret_val = ad_src_tf_phase_misfit.adsrc_tf_phase_misfit(
 #         obs.times(), obs.data, syn.data, 20.0, 100.0)
 #

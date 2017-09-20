@@ -90,7 +90,7 @@ def iris2quakeml(url, output_folder=None):
     cat.write(event_name, format="quakeml", validate=True)
 
     import pyasdf
-    event_asdf = event_name.rsplit(".",1)[0] + ".h5"
+    event_asdf = event_name.rsplit(".", 1)[0] + ".h5"
     ds = pyasdf.ASDFDataSet(event_asdf)
     ds.add_quakeml(event_name)
     print("Written file", event_asdf)

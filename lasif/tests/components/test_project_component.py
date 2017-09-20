@@ -45,8 +45,8 @@ def test_config_file_creation_and_parsing(tmpdir):
         "BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]", "EH[Z,N,E]", "MH[Z,N,E]"]
     assert pr.config["download_settings"]["location_priorities"] == [
         "", "00", "10", "20", "01", "02"]
-    assert pr.config["download_settings"]["interstation_distance_in_meters"] == \
-        1000.0
+    assert pr.config["download_settings"]["interstation_"
+                                          "distance_in_meters"] == 1000.0
     assert pr.config["download_settings"]["seconds_after_event"] == 3600.0
     assert pr.config["download_settings"]["seconds_before_event"] == 300.0
 

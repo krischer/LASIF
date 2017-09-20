@@ -69,8 +69,8 @@
 #     """
 #     comm.visualizations.plot_raydensity(save_plot=False)
 #     # Use a low dpi to keep the test filesize in check.
-#     images_are_identical("simple_raydensity_plot", comm.project.paths["root"],
-#                          dpi=25)
+#     images_are_identical("simple_raydensity_plot",
+#                          comm.project.paths["root"], dpi=25)
 #
 #
 # def test_simple_raydensity_with_stations(comm):
