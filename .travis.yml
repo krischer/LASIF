@@ -16,7 +16,7 @@ before_install:
   - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
   - conda install --yes -n condaenv pip
   - source activate condaenv
-  - conda install --yes -c obspy obspy nomkl basemap progressbar2
+  - conda install --yes obspy nomkl basemap progressbar2
   - conda install --yes colorama joblib pytest nose mock pyqt==4.11.4 pyqtgraph pip
   - conda install --yes mpi4py sphinx sphinx_rtd_theme numexpr
   - pip install geographiclib flask-cache geojson flake8
