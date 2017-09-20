@@ -21,6 +21,10 @@ before_install:
   - conda install --yes colorama joblib pytest nose mock pyqt==4.11.4 pyqtgraph pip
   - conda install --yes mpi4py sphinx sphinx_rtd_theme numexpr
   - pip install geographiclib flask-cache geojson flake8
+  - git clone https://github.com/SalvusHub/pyexodus.git
+  - cd pyexodus
+  - pip install .
+  - cd ..
 
 install:
   - pip install .
