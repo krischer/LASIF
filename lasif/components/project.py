@@ -131,7 +131,8 @@ class Project(Component):
         self.computational_setup = self.solver_settings["computational_setup"]
         self.processing_params = config_dict["data_processing"]
 
-        self.domain = lasif.domain.ExodusDomain(self.config['mesh_file'])
+        self.domain = lasif.domain.ExodusDomain(
+            self.config["mesh_file"], self.config["num_buffer_elements"])
 
     def get_communicator(self):
         return self.__comm
@@ -242,6 +243,11 @@ class Project(Component):
                            f"simulation. Without a mesh file, LASIF" \
                            f" will not work.\n" \
                            f"  mesh_file = \"\"\n\n" \
+                           f"  # Number of buffer elements at the domain" \
+                           f" edges, no events or receivers will be placed" \
+                           f" there.\n" \
+                           f"  # A minimum amount of 3 is advised.\n" \
+                           f"  num_buffer_elements = 8\n\n" \
                            f"  [lasif_project.download_settings]\n" \
                            f"    seconds_before_event = 300.0\n" \
                            f"    seconds_after_event = 3600.0\n" \
