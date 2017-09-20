@@ -31,11 +31,11 @@ install:
 
 script:
   - cd $TRAVIS_BUILD_DIR; py.test
-  - cd $TRAVIS_BUILD_DIR/doc; make html
+#  - cd $TRAVIS_BUILD_DIR/doc; make html
 
-# Upload any potentially produced diffs and produced images to imgur after a test failure.
-after_failure:
-  - wget "https://raw.githubusercontent.com/tremby/imgur.sh/master/imgur.sh"
-  - "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgur.sh %"
-after_success:
-  - bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh
+## Upload any potentially produced diffs and produced images to imgur after a test failure.
+#after_failure:
+#- wget "https://raw.githubusercontent.com/tremby/imgur.sh/master/imgur.sh"
+#- "find /tmp/pytest-* -name \"*.png\" | xargs -I % bash imgur.sh %"
+##after_success:
+##  - bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh
