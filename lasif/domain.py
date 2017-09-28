@@ -341,6 +341,8 @@ class ExodusDomain(Domain):
                 indices_sorted[i] = closest_indices[0]
             elif not closest_indices[1] in indices_sorted:
                 indices_sorted[i] = closest_indices[1]
+            elif not closest_indices[2] in indices_sorted:
+                indices_sorted[i] = closest_indices[2]
             else:
                 raise LASIFError("Edge node sort algorithm only works "
                                  "for reasonably square elements")
