@@ -178,16 +178,17 @@ def plot_raydensity(map_object, station_events, domain):
     cmap._lut[:120, -1] = np.linspace(0, 1.0, 120) ** 2
 
     # Slightly change the appearance of the map so it suits the rays.
-    map_object.fillcontinents(color='#dddddd', lake_color='#dddddd', zorder=0)
+    map_object.fillcontinents(color='#dddddd', lake_color='#dddddd', zorder=2)
 
     lngs, lats = collected_bins.coordinates
     # Rotate back if necessary!
     ln, la = map_object(lngs, lats)
-    map_object.pcolormesh(ln, la, data, cmap=cmap, vmin=0, vmax=max_val)
+    map_object.pcolormesh(ln, la, data, cmap=cmap, vmin=0, vmax=max_val,
+                          zorder=10)
     # Draw the coastlines so they appear over the rays. Otherwise things are
     # sometimes hard to see.
-    map_object.drawcoastlines()
-    map_object.drawcountries(linewidth=0.2)
+    map_object.drawcoastlines(zorder=3)
+    map_object.drawcountries(linewidth=0.2, zorder=3)
 
 
 def plot_stations_for_event(map_object, station_dict, event_info,
