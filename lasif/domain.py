@@ -341,6 +341,8 @@ class ExodusDomain(Domain):
                 indices_sorted[i] = closest_indices[0]
             elif not closest_indices[1] in indices_sorted:
                 indices_sorted[i] = closest_indices[1]
+            elif not closest_indices[2] in indices_sorted:
+                indices_sorted[i] = closest_indices[2]
             else:
                 raise LASIFError("Edge node sort algorithm only works "
                                  "for reasonably square elements")
@@ -389,7 +391,7 @@ def _plot_features(map_object, stepsize):
     import matplotlib.pyplot as plt
 
     map_object.drawmapboundary(fill_color='#bbbbbb')
-    map_object.fillcontinents(color='white', lake_color='#cccccc', zorder=0)
+    map_object.fillcontinents(color='white', lake_color='#cccccc', zorder=1)
     plt.gcf().patch.set_alpha(0.0)
 
     # Style for parallels and meridians.
