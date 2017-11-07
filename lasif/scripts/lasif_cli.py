@@ -266,6 +266,28 @@ def lasif_plot_raydensity(parser, args):
     comm.visualizations.plot_raydensity(plot_stations=args.plot_stations)
 
 
+@command_group("Plotting")
+def lasif_plot_section(parser, args):
+    """
+    Plot a binned section plot of the processed data for an event. \
+    Requires processed data to be present.
+    """
+    parser.add_argument("event_name", help="name of the event to plot")
+    parser.add_argument("--num_bins", default=1, type=int,
+                        help="number of bins to be used for binning the "
+                             "event-station offsets")
+    parser.add_argument("--traces_per_bin", default=500, type=int,
+                        help="number of traces per bin")
+    args = parser.parse_args(args)
+    event_name = args.event_name
+    traces_per_bin = args.traces_per_bin
+    num_bins = args.num_bins
+
+    comm = _find_project_comm(".")
+    comm.visualizations.plot_section(event_name=event_name, num_bins=num_bins,
+                                     traces_per_bin=traces_per_bin)
+
+
 @command_group("Data Acquisition")
 def lasif_add_spud_event(parser, args):
     """

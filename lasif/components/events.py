@@ -53,13 +53,13 @@ class EventsComponent(Component):
         self.fill_all_events()
 
     def fill_all_events(self):
-        files = glob.glob(os.path.join(self.folder, 'GCMT*.h5'))
+        files = glob.glob(os.path.join(self.folder, '*.h5'))
         for file in files:
             event_name = os.path.splitext(os.path.basename(file))[0]
             self.all_events[event_name] = file
 
     def update_cache(self):
-        files = glob.glob(os.path.join(self.folder, 'GCMT*.h5'))
+        files = glob.glob(os.path.join(self.folder, '*.h5'))
         for filename in files:
             event_name = os.path.splitext(os.path.basename(filename))[0]
             self.get(event_name)
