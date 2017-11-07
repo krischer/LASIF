@@ -90,8 +90,10 @@ class DownloadsComponent(Component):
             asdf_ds.add_stationxml(filename)
 
         import shutil
-        shutil.rmtree(stationxml_storage_path)
-        shutil.rmtree(mseed_storage_path)
+        if os.path.exists(stationxml_storage_path):
+            shutil.rmtree(stationxml_storage_path)
+        if os.path.exists(mseed_storage_path):
+            shutil.rmtree(mseed_storage_path)
 
     def _get_mseed_storage_fct(self, ds, starttime, endtime, storage_path):
 
