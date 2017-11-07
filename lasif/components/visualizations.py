@@ -493,8 +493,8 @@ class VisualizationsComponent(Component):
 
         outfile = os.path.join(
             self.comm.project.get_output_folder(
-                type="section_plots", tag=event_name),
-            f"{data_type}.png")
+                type="section_plots", tag=event_name, timestamp=False),
+            f"{tag}.png")
 
         section_st.plot(type='section', dist_degree=True,
                         ev_coord=ev_coord,
