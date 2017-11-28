@@ -80,14 +80,31 @@ class DownloadsComponent(Component):
         files = glob.glob(str(mseed_storage_path / "*.mseed"))
         for _i, filename in enumerate(files):
             print("Adding raw_recording %i of %i ..." % (_i + 1, len(files)))
-            asdf_ds.add_waveforms(filename, tag="raw_recording",
-                                  event_id=asdf_ds.events[0])
+
+            try:
+                asdf_ds.add_waveforms(filename, tag="raw_recording",
+                                      event_id=asdf_ds.events[0])
+            except Exception as e:
+                print(e)
 
         files = glob.glob(str(stationxml_storage_path / '*.xml'))
 
         for _i, filename in enumerate(files):
             print("Adding stationxml %i of %i ..." % (_i + 1, len(files)))
-            asdf_ds.add_stationxml(filename)
+            try:
+                asdf_ds.add_stationxml(filename)
+            except Exception as e:
+                print(e)
+
+        # remove stations with missing information
+        for station in asdf_ds.waveforms.list():
+            station_inventory = asdf_ds.waveforms[station].list()
+            if "StationXML" not in station_inventory or \
+                    len(station_inventory) < 2:
+                del asdf_ds.waveforms[station]
+                msg = f"Removed station {station} due to missing " \
+                      f"StationXMl or waveform information"
+                print(msg)
 
         import shutil
         if os.path.exists(stationxml_storage_path):
@@ -124,7 +141,8 @@ class DownloadsComponent(Component):
             for loc_code, cha_code in channels:
                 net_sta = f"{network}.{station}"
 
-                if net_sta in ds.waveforms.list() and \
+                if net_sta in ds.waveforms.list() and "StationXML" in \
+                    ds.waveforms[net_sta].list() and \
                         ds.waveforms[net_sta].StationXML.select(
                             network=network,
                             station=station, channel=cha_code):
