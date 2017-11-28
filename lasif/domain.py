@@ -94,7 +94,6 @@ class ExodusDomain(Domain):
         self.domain_edge_coords = None
         self.earth_surface_coords = None
         self.KDTrees_initialized = False
-        self.edge_coord_dict = None
         self.min_lat = None
         self.max_lat = None
         self.min_lon = None
@@ -126,7 +125,7 @@ class ExodusDomain(Domain):
         side_nodes = []
         earth_surface_nodes = []
         for side_set in self.e.get_side_set_names():
-            if side_set == "r0":
+            if side_set == "r0" or side_set == "surface":
                 continue
             idx = self.e.get_side_set_ids()[
                 self.e.get_side_set_names().index(side_set)]
@@ -153,23 +152,12 @@ class ExodusDomain(Domain):
         self.domain_edge_coords = points[boundary_nodes]
         self.earth_surface_coords = points[earth_surface_nodes]
 
-        # Get the 4 boundaries
-        side_sets = ["p0", "p1", "t0", "t1"]
-        self.edge_coord_dict = {}
-        for side_set in side_sets:
-            idx = self.e.get_side_set_ids()[
-                self.e.get_side_set_names().index(side_set)]
-
-            _, nodes_side_set = list(self.e.get_side_set_node_list(idx))
-            nodes_side_set -= 1
-            edge_nodes = np.intersect1d(nodes_side_set, boundary_nodes)
-            self.edge_coord_dict[side_set] = points[edge_nodes]
-
         # Get approximation of element width, take second smallest value
         first_node = self.domain_edge_coords[0, :]
         distances_to_node = self.domain_edge_coords - first_node
-        r = np.sum(distances_to_node ** 2, axis=1) ** 0.5
-        self.approx_elem_width = np.partition(r, 1)[2]
+        r = np.sqrt(np.sum(distances_to_node ** 2, axis=1))
+
+        self.approx_elem_width = np.sort(r)[2]
 
         # Get extent and center of domain
         x, y, z = self.domain_edge_coords.T
@@ -216,6 +204,8 @@ class ExodusDomain(Domain):
 
         if self.is_global_mesh:
             return True
+
+        # Assuming a spherical Earth without topography
         point_on_surface = lat_lon_radius_to_xyz(
             latitude, longitude, self.r_earth)
 
@@ -264,7 +254,7 @@ class ExodusDomain(Domain):
         max_extent = max(lat_extent, lon_extent)
 
         # Use a global plot for very large domains.
-        if lat_extent >= 180.0 and lon_extent >= 180.0:
+        if lat_extent >= 120.0 and lon_extent >= 120.0:
             m = Basemap(projection='moll', lon_0=self.center_lon,
                         lat_0=self.center_lat, resolution="c", ax=ax)
             stepsize = 45.0
@@ -295,7 +285,7 @@ class ExodusDomain(Domain):
             m = Basemap(projection='lcc', resolution=resolution, width=width,
                         height=height, lat_0=self.center_lat,
                         lon_0=self.center_lon, ax=ax)
-
+        plot_lines=True
         if plot_lines:
             sorted_indices = self.get_sorted_edge_coords()
             x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
@@ -307,7 +297,7 @@ class ExodusDomain(Domain):
             x, y, z = self.domain_edge_coords.T
             lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
             x, y = m(lons, lats)
-            m.scatter(x, y, color='k', label="Edge nodes")
+            m.scatter(x, y, color='k', label="Edge nodes", zorder=3000)
 
         plt.legend(framealpha=0.5)
         _plot_features(m, stepsize=stepsize)
@@ -324,10 +314,10 @@ class ExodusDomain(Domain):
         if not self.KDTrees_initialized:
             self._initialize_kd_trees()
 
-        # For each point get the indices of the three nearest points, of
+        # For each point get the indices of the five nearest points, of
         # which the first one is the point itself.
         _, indices_nearest = self.domain_edge_tree.query(
-            self.domain_edge_coords, k=3)
+            self.domain_edge_coords, k=5)
 
         num_edge_points = len(self.domain_edge_coords)
         indices_sorted = np.zeros(num_edge_points, dtype=int)
@@ -336,6 +326,7 @@ class ExodusDomain(Domain):
         indices_sorted[0] = 0
         for i in range(num_edge_points)[1:]:
             prev_idx = indices_sorted[i - 1]
+            # take 4 closest points
             closest_indices = indices_nearest[prev_idx, 1:]
             if not closest_indices[0] in indices_sorted:
                 indices_sorted[i] = closest_indices[0]
@@ -343,6 +334,8 @@ class ExodusDomain(Domain):
                 indices_sorted[i] = closest_indices[1]
             elif not closest_indices[2] in indices_sorted:
                 indices_sorted[i] = closest_indices[2]
+            elif not closest_indices[3] in indices_sorted:
+                indices_sorted[i] = closest_indices[3]
             else:
                 raise LASIFError("Edge node sort algorithm only works "
                                  "for reasonably square elements")
@@ -443,7 +436,7 @@ def _plot_lines(map_object, lines, color, lw, alpha=1.0, label=None,
         lats = np.ma.array(lats, mask=False)
         lngs = np.ma.array(lngs, mask=False)
         max_jump = 0.3 * min(
-            map_object.xmax - map_object.xmin,
+            map_object.xmax - map_object.xmin,  
             map_object.ymax - map_object.ymin)
         idx_1 = np.where(np.abs(x) > max_jump)
         idx_2 = np.where(np.abs(y) > max_jump)

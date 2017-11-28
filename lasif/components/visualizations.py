@@ -431,3 +431,112 @@ class VisualizationsComponent(Component):
             plt.close()
 
         return ax
+
+    def plot_section(self, event_name, data_type="processed", component="Z",
+                     num_bins=1, traces_per_bin=500):
+        """
+        Create a section plot of an event and store the plot in Output. Useful
+        for quickly inspecting if an event is good for usage.
+
+        :param event_name: Name of the event
+        :param data_type: The type of data, one of ``"raw"``,
+            ``"processed"``
+        :param component: Component of the data Z, N, E
+        :param num_bins: number of offset bins
+        :param traces_per_bin: number of traces per bin
+        """
+        import pyasdf
+        import obspy
+
+        from pathlib import Path
+
+        event = self.comm.events.get(event_name)
+        tag = self.comm.waveforms.preprocessing_tag
+        asdf_filename = self.comm.waveforms.\
+            get_asdf_filename(event_name=event_name, data_type=data_type,
+                              tag_or_iteration=tag)
+
+        asdf_file = Path(asdf_filename)
+        if not asdf_file.is_file():
+            raise LASIFNotFoundError(f"Could not find {asdf_file.name}")
+
+        ds = pyasdf.ASDFDataSet(asdf_filename)
+
+        # get event coords
+        ev_coord = [event['latitude'], event['longitude']]
+
+        section_st = obspy.core.stream.Stream()
+        for station in ds.waveforms.list():
+            sta = ds.waveforms[station]
+            st = obspy.core.stream.Stream()
+
+            tags = sta.get_waveform_tags()
+            if tags:
+                st = sta[tags[0]]
+
+            st = st.select(component=component)
+            if len(st) > 0:
+                st[0].stats['coordinates'] = sta.coordinates
+                lat = sta.coordinates['latitude']
+                lon = sta.coordinates['longitude']
+                offset = np.sqrt(
+                    (ev_coord[0] - lat) ** 2 + (ev_coord[1] - lon) ** 2)
+                st[0].stats['offset'] = offset
+
+            section_st += st
+
+        if num_bins > 1:
+            section_st = get_binned_stream(section_st, num_bins=num_bins,
+                                           num_bin_tr=traces_per_bin)
+        else:
+            section_st = section_st[:traces_per_bin]
+
+        outfile = os.path.join(
+            self.comm.project.get_output_folder(
+                type="section_plots", tag=event_name, timestamp=False),
+            f"{tag}.png")
+
+        section_st.plot(type='section', dist_degree=True,
+                        ev_coord=ev_coord,
+                        scale=2.0, outfile=outfile)
+        print("Saved picture at %s" % outfile)
+
+
+def get_binned_stream(section_st, num_bins, num_bin_tr):
+    from obspy.core.stream import Stream
+    # build array
+    offsets = []
+    idx = 0
+    for tr in section_st:
+        offsets += [[tr.stats.offset, idx]]
+        idx += 1
+    offsets = np.array(offsets)
+
+    # define bins
+    min_offset = np.min(offsets[:, 0])
+    max_offset = np.max(offsets[:, 0])
+    bins = np.linspace(min_offset, max_offset, num_bins + 1)
+
+    # first bin
+    extr_offsets = offsets[np.where(
+        np.logical_and(offsets[:, 0] >= bins[0],
+                       offsets[:, 0] <= bins[1]))][:num_bin_tr]
+
+    # rest of bins
+    for i in range(num_bins)[1:]:
+        bin_start = bins[i]
+        bin_end = bins[i + 1]
+
+        offsets_bin = offsets[np.where(
+            np.logical_and(offsets[:, 0] > bin_start,
+                           offsets[:, 0] <= bin_end))][:num_bin_tr]
+        extr_offsets = np.concatenate((extr_offsets,
+                                       offsets_bin), axis=0)
+
+    # write selected traces to new stream object
+    selected_st = Stream()
+    indices = extr_offsets[:, 1]
+
+    for tr_idx in indices:
+        selected_st += section_st[int(tr_idx)]
+    return selected_st

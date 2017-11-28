@@ -90,14 +90,10 @@ def plot_raydensity(map_object, station_events, domain):
 
     def great_circle_binning(sta_evs, bin_data_buffer, bin_data_shape,
                              lock, counter):
-        min_latitude = -90.0
-        max_latitude = 90.0
-        min_longitude = -180.0
-        max_longitude = 180.0
         new_bins = GreatCircleBinner(
-            min_latitude, max_latitude,
-            lat_lng_count, min_longitude,
-            max_longitude, lat_lng_count)
+            domain.min_lat, domain.max_lat,
+            lat_lng_count, domain.min_lon,
+            domain.max_lon, lat_lng_count)
         for event, station in sta_evs:
             with lock:
                 counter.value += 1
@@ -120,16 +116,11 @@ def plot_raydensity(map_object, station_events, domain):
         return out
     chunks = chunk(station_event_list, cpu_count)
 
-    min_latitude = -90.0
-    max_latitude = 90.0
-    min_longitude = -180.0
-    max_longitude = 180.0
-
     # One instance that collects everything.
     collected_bins = GreatCircleBinner(
-        min_latitude, max_latitude,
-        lat_lng_count, min_longitude,
-        max_longitude, lat_lng_count)
+        domain.min_lat, domain.max_lat,
+        lat_lng_count, domain.min_lon,
+        domain.max_lon, lat_lng_count)
 
     # Use a multiprocessing shared memory array and map it to a numpy view.
     collected_bins_data = multiprocessing.Array(C.c_uint32,

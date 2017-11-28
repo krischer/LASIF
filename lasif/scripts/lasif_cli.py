@@ -266,6 +266,28 @@ def lasif_plot_raydensity(parser, args):
     comm.visualizations.plot_raydensity(plot_stations=args.plot_stations)
 
 
+@command_group("Plotting")
+def lasif_plot_section(parser, args):
+    """
+    Plot a binned section plot of the processed data for an event. \
+    Requires processed data to be present.
+    """
+    parser.add_argument("event_name", help="name of the event to plot")
+    parser.add_argument("--num_bins", default=1, type=int,
+                        help="number of bins to be used for binning the "
+                             "event-station offsets")
+    parser.add_argument("--traces_per_bin", default=500, type=int,
+                        help="number of traces per bin")
+    args = parser.parse_args(args)
+    event_name = args.event_name
+    traces_per_bin = args.traces_per_bin
+    num_bins = args.num_bins
+
+    comm = _find_project_comm(".")
+    comm.visualizations.plot_section(event_name=event_name, num_bins=num_bins,
+                                     traces_per_bin=traces_per_bin)
+
+
 @command_group("Data Acquisition")
 def lasif_add_spud_event(parser, args):
     """
@@ -422,31 +444,31 @@ def lasif_event_info(parser, args):
               "Use '-v' to print them." % len(stations))
 
 
-@command_group("Plotting")
-def lasif_plot_stf(parser, args):
-    """
-    Plot the source time function for one iteration.
-    """
-    import lasif.visualization
-    comm = _find_project_comm(".")
-
-    freqmax = 1.0 / comm.project.processing_params["highpass_period"]
-    freqmin = 1.0 / comm.project.processing_params["lowpass_period"]
-
-    stf_fct = comm.project.get_project_function(
-        "source_time_function")
-
-    delta = comm.project.simulation_params["time_increment"]
-    npts = comm.project.simulation_params["number_of_time_steps"]
-
-    stf = {"delta": delta}
-
-    stf["data"] = stf_fct(npts=npts, delta=delta,
-                          freqmin=freqmin, freqmax=freqmax)
-
-    # Ignore lots of potential warnings with some plotting functionality.
-    lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
-                                freqmax=freqmax)
+# @command_group("Plotting")
+# def lasif_plot_stf(parser, args):
+#     """
+#     Plot the source time function for one iteration.
+#     """
+#     import lasif.visualization
+#     comm = _find_project_comm(".")
+#
+#     freqmax = 1.0 / comm.project.processing_params["highpass_period"]
+#     freqmin = 1.0 / comm.project.processing_params["lowpass_period"]
+#
+#     stf_fct = comm.project.get_project_function(
+#         "source_time_function")
+#
+#     delta = comm.project.simulation_params["time_increment"]
+#     npts = comm.project.simulation_params["number_of_time_steps"]
+#
+#     stf = {"delta": delta}
+#
+#     stf["data"] = stf_fct(npts=npts, delta=delta,
+#                           freqmin=freqmin, freqmax=freqmax)
+#
+#     # Ignore lots of potential warnings with some plotting functionality.
+#     lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
+#                                 freqmax=freqmax)
 
 
 @command_group("Iteration Management")
@@ -606,49 +628,49 @@ def lasif_select_windows(parser, args):
     comm.actions.select_windows(event, iteration_name, window_set_name)
 
 
-@mpi_enabled
-@command_group("Iteration Management")
-def lasif_select_all_windows(parser, args):
-    """
-    Autoselect all windows for a given iteration.
-
-    This function works with MPI. Don't use too many cores, I/O quickly
-    becomes the limiting factor. It also works without MPI but then only one
-    core actually does any work.
-    """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    args = parser.parse_args(args)
-
-    iteration = args.iteration_name
-
-    comm = _find_project_comm_mpi(".")
-
-    events = comm.events.list()
-
-    for _i, event in enumerate(events):
-        if MPI.COMM_WORLD.rank == 0:
-            print("\n{green}"
-                  "==========================================================="
-                  "{reset}".format(green=colorama.Fore.GREEN,
-                                   reset=colorama.Style.RESET_ALL))
-            print("Starting window selection for event %i of %i..." % (
-                  _i + 1, len(events)))
-            print("{green}"
-                  "==========================================================="
-                  "{reset}\n".format(green=colorama.Fore.GREEN,
-                                     reset=colorama.Style.RESET_ALL))
-
-        filename = comm.wins_and_adj_sources.get_filename(event=event,
-                                                          iteration=iteration)
-        if os.path.exists(filename):
-            if MPI.COMM_WORLD.rank == 0:
-                print("File '%s' already exists. "
-                      "Will not pick windows for that "
-                      "event. Delete the file to repick windows." % filename)
-            continue
-
-        MPI.COMM_WORLD.barrier()
-        comm.actions.select_windows(event, iteration)
+# @mpi_enabled
+# @command_group("Iteration Management")
+# def lasif_select_all_windows(parser, args):
+#     """
+#     Autoselect all windows for a given iteration.
+#
+#     This function works with MPI. Don't use too many cores, I/O quickly
+#     becomes the limiting factor. It also works without MPI but then only one
+#     core actually does any work.
+#     """
+#     parser.add_argument("iteration_name", help="name of the iteration")
+#     args = parser.parse_args(args)
+#
+#     iteration = args.iteration_name
+#
+#     comm = _find_project_comm_mpi(".")
+#
+#     events = comm.events.list()
+#
+#     for _i, event in enumerate(events):
+#         if MPI.COMM_WORLD.rank == 0:
+#             print("\n{green}"
+#                   "==========================================================="
+#                   "{reset}".format(green=colorama.Fore.GREEN,
+#                                    reset=colorama.Style.RESET_ALL))
+#             print("Starting window selection for event %i of %i..." % (
+#                   _i + 1, len(events)))
+#             print("{green}"
+#                   "==========================================================="
+#                   "{reset}\n".format(green=colorama.Fore.GREEN,
+#                                      reset=colorama.Style.RESET_ALL))
+#
+#         filename = comm.wins_and_adj_sources.get_filename(event=event,
+#                                                           iteration=iteration)
+#         if os.path.exists(filename):
+#             if MPI.COMM_WORLD.rank == 0:
+#                 print("File '%s' already exists. "
+#                       "Will not pick windows for that "
+#                       "event. Delete the file to repick windows." % filename)
+#             continue
+#
+#         MPI.COMM_WORLD.barrier()
+#         comm.actions.select_windows(event, iteration)
 
 
 @command_group("Iteration Management")
