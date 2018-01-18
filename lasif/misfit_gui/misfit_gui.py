@@ -91,7 +91,7 @@ class Window(QtGui.QMainWindow):
             # p.setBackground(None)
             # for d in ("left", "bottom", "top", "right"):
             #     p.getAxis(d).setPen("#333")
-            p.setLabel("left", "Velocity", units="m/s")
+            p.setLabel("left", "Displacement", units="m")
             p.setLabel("bottom", "Time since event", units="s")
 
             label = {"z": "vertical", "e": "east", "n": "north"}
