@@ -403,7 +403,8 @@ class ActionsComponent(Component):
                 "station '%s'." % (event["event_name"], iteration.name,
                                    station))
 
-    def generate_input_files(self, iteration_name, event_name):
+    def generate_input_files(self, iteration_name, event_name,
+                             simulation_type="forward"):
         """
         Generate the input files for one event.
 
@@ -429,31 +430,42 @@ class ActionsComponent(Component):
             inv += ds.waveforms[station].StationXML
 
         import salvus_seismo
+
+        src_time_func = self.comm.project.\
+            computational_setup["source_time_function_type"]
+
+        if src_time_func == "bandpass_filtered_heaviside":
+            salvus_seismo_src_time_func = "heaviside"
+        else:
+            salvus_seismo_src_time_func = src_time_func
+
         src = salvus_seismo.Source.parse(
             event,
-            sliprate=self.comm.
-            project.computational_setup['source_time_function_type'])
+            sliprate=salvus_seismo_src_time_func)
         recs = salvus_seismo.Receiver.parse(inv)
 
-        solver_settings = self.comm.project.solver_settings
-        # Choose a center frequency suitable for our mesh.
-        src.center_frequency = \
-            self.comm.project.computational_setup['source_center_frequency']
-        mesh_file = self.comm.project.config['mesh_file']
+        simulation_parameters = self.comm.project.simulation_params
+        mesh_file = self.comm.project.config["mesh_file"]
 
         # Generate the configuration object for salvus_seismo
         config = salvus_seismo.Config(
             mesh_file=mesh_file,
-            end_time=solver_settings['simulation_parameters']['end_time'],
-            salvus_call=solver_settings['computational_setup']['salvus_call'],
-            polynomial_order=solver_settings
-            ['simulation_parameters']['polynomial_order'],
+            start_time=simulation_parameters["start_time"],
+            time_step=simulation_parameters["time_increment"],
+            end_time=simulation_parameters["end_time"],
+            salvus_call=self.comm.project.
+                computational_setup["salvus_call"],
+            polynomial_order=simulation_parameters["polynomial_order"],
             verbose=True,
-            dimensions=solver_settings['simulation_parameters']['dimensions'],
+            dimensions=3,
+            num_absorbing_layers=
+            simulation_parameters["number_of_absorbing_layers"],
             with_anisotropy=self.comm.project.
-            computational_setup['with_anisotropy'])
+            computational_setup["with_anisotropy"],
+            wavefield_file_name="wavefield.h5",
+            wavefield_fields="adjoint")
 
-        # =================================================================
+        # ==============================================================j===
         # output
         # =================================================================
         long_iter_name = self.comm.iterations.get_long_iteration_name(
@@ -470,6 +482,62 @@ class ActionsComponent(Component):
             source=src, receivers=recs, config=config,
             output_folder=output_dir,
             exodus_file=mesh_file)
+
+        if src_time_func == "bandpass_filtered_heaviside":
+            self.write_custom_stf(output_dir)
+
+        run_salvus = os.path.join(output_dir, "run_salvus.sh")
+        with open(run_salvus, "a") as fh:
+            fh.write(" --io-sampling-rate-volume 10"
+                     " --io-memory-per-rank-in-MB 5000")
+
+    def write_custom_stf(self, output_dir):
+        import toml
+        import h5py
+
+        source_toml = os.path.join(output_dir, "source.toml")
+        with open(source_toml, "r") as fh:
+            source_dict = toml.load(fh)['source'][0]
+
+        location = source_dict['location']
+        moment_tensor = source_dict['scale']
+
+        freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
+        freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
+
+        delta = self.comm.project.simulation_params["time_increment"]
+        npts = self.comm.project.simulation_params["number_of_time_steps"]
+
+        stf_fct = self.comm.project.get_project_function(
+            "source_time_function")
+
+        stf = stf_fct(npts=npts, delta=delta,
+                              freqmin=freqmin, freqmax=freqmax)
+
+        stf_mat = np.zeros((len(stf), len(moment_tensor)))
+        for i, moment in enumerate(moment_tensor):
+            stf_mat[:, i] = stf * moment
+
+        heaviside_file_name = os.path.join(output_dir, "Heaviside.h5")
+        f = h5py.File(heaviside_file_name, 'w')
+
+        source = f.create_dataset("source", data=stf_mat)
+        source.attrs["dt"] = delta
+        source.attrs["location"] = location
+        source.attrs["spatial-type"] = np.string_("moment_tensor")
+        source.attrs["starttime"] = -delta
+
+        f.close()
+
+        # remove source toml and write new one
+        os.remove(source_toml)
+        source_str = f"source_input_file = \"{heaviside_file_name}\"\n\n" \
+                     f"[[source]]\n" \
+                     f"name = \"source\"\n" \
+                     f"dataset_name = \"/source\""
+
+        with open(source_toml, "w") as fh:
+            fh.write(source_str)
 
     def calculate_all_adjoint_sources(self, iteration_name, event_name):
         """
@@ -503,188 +571,105 @@ class ActionsComponent(Component):
         """
         Finalizes the adjoint sources.
         """
-        from itertools import izip
-        import numpy as np
-        from lasif import rotations
+        import pyasdf
+        import toml
+        import h5py
 
-        window_manager = self.comm.windows.get(event_name, iteration_name)
+        # This will do stuff for each event and a single iteration
+
+        # Step one, read adj_src file that should have been created already
         event = self.comm.events.get(event_name)
-        iteration = self.comm.iterations.get(iteration_name)
-        iteration_event_def = iteration.events[event["event_name"]]
-        iteration_stations = iteration_event_def["stations"]
+        iteration = self.comm.iterations.get_long_iteration_name(iteration_name)
 
-        # For now assume that the adjoint sources have the same
-        # g rate as the synthetics which in LASIF's workflow
-        # actually has to be true.
-        dt = iteration.get_process_params()["dt"]
+        adj_src_file = self.comm.wins_and_adj_sources.get_filename(event, iteration)
 
-        # Current domain and solver.
-        domain = self.comm.project.domain
-        solver = iteration.solver_settings["solver"].lower()
+        ds = pyasdf.ASDFDataSet(adj_src_file)
+        adj_srcs = ds.auxiliary_data["AdjointSources"]
 
-        adjoint_source_stations = set()
+        # Load receiver toml file
+        long_iter_name = self.comm.iterations.get_long_iteration_name(
+            iteration_name)
+        input_files_dir = self.comm.project.paths['salvus_input']
+        output_dir = os.path.join(input_files_dir, long_iter_name, event_name)
 
-        if "ses3d" in solver:
-            ses3d_all_coordinates = []
+        receivers = toml.load(os.path.join(output_dir, "receivers.toml"))["receiver"]
 
-        event_weight = iteration_event_def["event_weight"]
 
-        output_folder = self.comm.project.get_output_folder(
-            type="adjoint_sources",
-            tag="ITERATION_%s__%s" % (iteration_name, event_name))
+        adjoint_source_file_name = "adjoint_source.h5"
+        toml_file_name = "adjoint.toml"
 
-        l = sorted(window_manager.list())
-        for station, windows in itertools.groupby(
-                l, key=lambda x: ".".join(x.split(".")[:2])):
-            if station not in iteration_stations:
-                continue
-            print(".",)
-            station_weight = iteration_stations[station]["station_weight"]
-            channels = {}
-            try:
-                for w in windows:
-                    w = window_manager.get(w)
-                    channel_weight = 0
-                    srcs = []
-                    for window in w:
-                        ad_src = window.adjoint_source
-                        if not ad_src["adjoint_source"].ptp():
-                            continue
-                        srcs.append(ad_src["adjoint_source"] * window.weight)
-                        channel_weight += window.weight
-                    if not srcs:
-                        continue
-                    # Final adjoint source for that channel and apply all
-                    # weights.
-                    adjoint_source = np.sum(srcs, axis=0) / channel_weight * \
-                        event_weight * station_weight
-                    channels[w.channel_id[-1]] = adjoint_source
-            except LASIFError as e:
-                print("Could not calculate adjoint source for iteration %s "
-                      "and station %s. Repick windows? Reason: %s" % (
-                          iteration.name, station, str(e)))
-                continue
-            if not channels:
-                continue
-            # Now all adjoint sources of a window should have the same length.
-            length = set(len(v) for v in channels.values())
-            assert len(length) == 1
-            length = length.pop()
-            # All missing channels will be replaced with a zero array.
-            for c in ["Z", "N", "E"]:
-                if c in channels:
-                    continue
-                channels[c] = np.zeros(length)
+        toml_string = "source_input_file = \"{}\"\n\n".format(adjoint_source_file_name)
 
-            # Get the station coordinates
-            coords = self.comm.query.get_coordinates_for_station(event_name,
-                                                                 station)
+        f = h5py.File(adjoint_source_file_name, 'w')
 
-            # Rotate. if needed
-            rec_lat = coords["latitude"]
-            rec_lng = coords["longitude"]
 
-            # The adjoint sources depend on the solver.
-            if "ses3d" in solver:
-                # Rotate if needed.
-                if domain.rotation_angle_in_degree:
-                    # Rotate the adjoint source location.
-                    r_rec_lat, r_rec_lng = rotations.rotate_lat_lon(
-                        rec_lat, rec_lng, domain.rotation_axis,
-                        -domain.rotation_angle_in_degree)
-                    # Rotate the adjoint sources.
-                    channels["N"], channels["E"], channels["Z"] = \
-                        rotations.rotate_data(
-                            channels["N"], channels["E"],
-                            channels["Z"], rec_lat, rec_lng,
-                            domain.rotation_axis,
-                            -domain.rotation_angle_in_degree)
-                else:
-                    r_rec_lat = rec_lat
-                    r_rec_lng = rec_lng
-                r_rec_depth = 0.0
-                r_rec_colat = rotations.lat2colat(r_rec_lat)
+        for adj_src in adj_srcs:
+            station_name = adj_src.auxiliary_data_type.split("/")[1]
+            channels = adj_src.list()
 
-                # Now once again map from ZNE to the XYZ of SES3D.
-                CHANNEL_MAPPING = {"X": "N", "Y": "E", "Z": "Z"}
-                adjoint_source_stations.add(station)
-                adjoint_src_filename = os.path.join(
-                    output_folder, "ad_src_%i" % len(adjoint_source_stations))
-                ses3d_all_coordinates.append(
-                    (r_rec_colat, r_rec_lng, r_rec_depth))
+            e_comp = np.zeros_like(adj_src[channels[0]].data.value)
+            n_comp = np.zeros_like(adj_src[channels[0]].data.value)
+            z_comp = np.zeros_like(adj_src[channels[0]].data.value)
 
-                # Actually write the adjoint source file in SES3D specific
-                # format.
-                with open(adjoint_src_filename, "wt") as open_file:
-                    open_file.write("-- adjoint source ------------------\n")
-                    open_file.write(
-                        "-- source coordinates (colat,lon,depth)\n")
-                    open_file.write("%f %f %f\n" % (r_rec_colat, r_rec_lng,
-                                                    r_rec_depth))
-                    open_file.write("-- source time function (x, y, z) --\n")
-                    # Revert the X component as it has to point south in SES3D.
-                    for x, y, z in izip(-1.0 * channels[CHANNEL_MAPPING["X"]],
-                                        channels[CHANNEL_MAPPING["Y"]],
-                                        channels[CHANNEL_MAPPING["Z"]]):
-                        open_file.write("%e %e %e\n" % (x, y, z))
-                    open_file.write("\n")
-            elif "specfem" in solver:
-                s_set = iteration.solver_settings["solver_settings"]
-                if "adjoint_source_time_shift" not in s_set:
-                    warnings.warn("No <adjoint_source_time_shift> tag in the "
-                                  "iteration XML file. No time shift for the "
-                                  "adjoint sources will be applied.",
-                                  LASIFWarning)
-                    src_time_shift = 0
-                else:
-                    src_time_shift = float(s_set["adjoint_source_time_shift"])
-                adjoint_source_stations.add(station)
-                # Write all components. The adjoint sources right now are
-                # not time shifted.
-                for component in ["Z", "N", "E"]:
-                    # XXX: M band code could be different.
-                    adjoint_src_filename = os.path.join(
-                        output_folder, "%s.MX%s.adj" % (station, component))
-                    adj_src = channels[component]
-                    l = len(adj_src)
-                    to_write = np.empty((l, 2))
-                    to_write[:, 0] = \
-                        np.linspace(0, (l - 1) * dt, l) + src_time_shift
+            for channel in channels:
+                # check channel and set component
+                if channel[-1] == "E":
+                    e_comp = adj_src[channel].data.value
+                elif channel[-1] == "N":
+                    n_comp = adj_src[channel].data.value
+                elif channel[-1] == "Z":
+                    z_comp = adj_src[channel].data.value
+                print(np.sum(z_comp))
+                zne = np.array((z_comp, n_comp, e_comp)).T
 
-                    # SPECFEM expects non-time reversed adjoint sources and
-                    # the sign is different for some reason.
-                    to_write[:, 1] = -1.0 * adj_src[::-1]
+            for receiver in receivers:
 
-                    np.savetxt(adjoint_src_filename, to_write)
-            else:
-                raise NotImplementedError(
-                    "Adjoint source writing for solver '%s' not yet "
-                    "implemented." % iteration.solver_settings["solver"])
+                station = receiver["network"] + "_" + receiver["station"]
 
-        if not adjoint_source_stations:
-            print("Could not create a single adjoint source.")
-            return
 
-        if "ses3d" in solver:
-            with open(os.path.join(output_folder, "ad_srcfile"), "wt") as fh:
-                fh.write("%i\n" % len(adjoint_source_stations))
-                for line in ses3d_all_coordinates:
-                    fh.write("%.6f %.6f %.6f\n" % (line[0], line[1], line[2]))
-                fh.write("\n")
-        elif "specfem" in solver:
-            adjoint_source_stations = sorted(list(adjoint_source_stations))
-            with open(os.path.join(output_folder, "STATIONS_ADJOINT"),
-                      "wt") as fh:
-                for station in adjoint_source_stations:
-                    coords = self.comm.query.get_coordinates_for_station(
-                        event_name, station)
-                    fh.write("{sta} {net} {lat} {lng} {ele} {dep}\n".format(
-                        sta=station.split(".")[1],
-                        net=station.split(".")[0],
-                        lat=coords["latitude"],
-                        lng=coords["longitude"],
-                        ele=coords["elevation_in_m"],
-                        dep=coords["local_depth_in_m"]))
+                if station == station_name:
+                    print("writing source")
+                    transform_mat = np.array(receiver["transform_matrix"])
+                    xyz = np.dot(zne, transform_mat.T)
 
-        print("Wrote adjoint sources for %i station(s) to %s." % (
-            len(adjoint_source_stations), os.path.relpath(output_folder)))
+                    source = f.create_dataset(station, data=xyz)
+                    source.attrs["dt"] = self.comm.project.simulation_params["time_increment"]
+                    source.attrs['location'] = np.array(receiver["salvus_coordinates"])
+                    source.attrs['spatial-type'] = np.string_("vector")
+                    source.attrs['starttime'] = self.comm.project.simulation_params["start_time"]
+
+                    toml_string += f"[[source]]\n" \
+                                   f"name = \"{station}\"\n" \
+                                   f"dataset_name = \"/{station}\"\n\n"
+
+        f.close()
+        with open(toml_file_name, "w") as fh:
+            fh.write(toml_string)
+
+        # step two loop through all adjoint sources, rotate them and write to
+        # an h5 file
+
+        # step 3 write a source toml, suitable for an adjoint run
+
+
+
+
+        # iteration = self.comm.iterations.get(iteration_name)
+        # iteration_event_def = iteration.events[event["event_name"]]
+        # iteration_stations = iteration_event_def["stations"]
+        #
+        # # For now assume that the adjoint sources have the same
+        # # g rate as the synthetics which in LASIF's workflow
+        # # actually has to be true.
+        # dt = iteration.get_process_params()["dt"]
+        #
+        # adjoint_source_stations = set()
+        #
+        #
+        # output_folder = self.comm.project.get_output_folder(
+        #
+        #
+        #
+        #
+        # print("Wrote adjoint sources for %i station(s) to %s." % (
+        #     len(adjoint_source_stations), os.path.relpath(output_folder)))
