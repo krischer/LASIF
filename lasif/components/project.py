@@ -128,6 +128,13 @@ class Project(Component):
         self.config = config_dict["lasif_project"]
         self.solver_settings = config_dict["solver_settings"]
         self.simulation_params = self.solver_settings["simulation_parameters"]
+
+        self.simulation_params["start_time"] = \
+            -self.simulation_params["time_increment"]
+        self.simulation_params["number_of_time_steps"] = int(round((
+            self.simulation_params["end_time"] -
+            self.simulation_params["start_time"]) /
+            self.simulation_params["time_increment"]) + 1)
         self.computational_setup = self.solver_settings["computational_setup"]
         self.processing_params = config_dict["data_processing"]
 
@@ -272,24 +279,19 @@ class Project(Component):
 
         solver_par_str = "[solver_settings]\n" \
                          "  [solver_settings.simulation_parameters]\n" \
-                         "    number_of_time_steps = 2000\n" \
-                         "    time_increment = 0.1\n" \
+                         "    number_of_absorbing_layers = 7\n" \
                          "    end_time = 2700.0\n" \
-                         "    start_time = -10.0\n" \
-                         "    dimensions = 3\n" \
+                         "    time_increment = 0.1\n" \
                          "    polynomial_order = 4\n\n" \
                          "  [solver_settings.computational_setup]\n" \
                          "    salvus_bin = \"salvus_wave/build/salvus\"\n" \
                          "    number_of_processors = 4\n" \
-                         "    salvus_call = \"mpirun -n 4\"\n" \
-                         "    with_anisotropy = true\n\n" \
+                         "    salvus_call = \"mpirun -n 4\"\n\n" \
+                         "    with_anisotropy = true\n" \
+                         "    with_attenuation = false\n\n" \
                          "    # Source time function type, " \
-                         "currently \"delta\" and \"ricker\" are" \
-                         " supported \n" \
-                         "    # When a ricker wavelet is used, " \
-                         "please provide the center frequency.\n" \
-                         "    source_time_function_type = \"delta\"\n"  \
-                         "    source_center_frequency = 0.025\n\n" \
+                         "currently only \"heaviside\" is supported \n" \
+                         "    source_time_function_type = \"heaviside\"\n"  \
 
         lasif_config_str += data_preproc_str + solver_par_str
 
