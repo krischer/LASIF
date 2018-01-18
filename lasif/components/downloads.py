@@ -103,9 +103,35 @@ class DownloadsComponent(Component):
                     len(station_inventory) < 2:
                 del asdf_ds.waveforms[station]
                 msg = f"Removed station {station} due to missing " \
-                      f"StationXMl or waveform information"
+                      f"StationXMl or waveform information."
                 print(msg)
+                continue
 
+            # if coordinates are specified at the channel and are different
+            # skip and remove, perhaps add a tolerance here in the future.
+            else:
+                obspy_station = asdf_ds.waveforms[station].StationXML[0][0]
+                if not obspy_station.channels:
+                    continue
+                else:
+                    coords = set(
+                        (_i.latitude, _i.longitude, _i.depth) for _i in
+                        obspy_station.channels)
+                    if len(coords) != 1:
+                        del asdf_ds.waveforms[station]
+                        msg = f"Removed station {station} due to " \
+                              f"inconsistent channel coordinates."
+                        print(msg)
+
+        for station in asdf_ds.waveforms.list():
+            obspy_inv = asdf_ds.waveforms[station].StationXML
+            lat = obspy_inv.get_coordinates(
+                obspy_inv.get_contents()['channels'][0])['latitude']
+            if lat > 40.0:
+                del asdf_ds.waveforms[station]
+                print(f"deleted station {station}")
+
+        # clean up temporary download directories
         import shutil
         if os.path.exists(stationxml_storage_path):
             shutil.rmtree(stationxml_storage_path)
