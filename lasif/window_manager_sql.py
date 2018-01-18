@@ -258,7 +258,12 @@ class WindowGroupManager(object):
         Returns a dictionary with all list of windows for each channel
         for each station for an event
         """
-        event_id = self.get_event_id(event_name)
+        if self.event_in_db(event_name):
+            event_id = self.get_event_id(event_name)
+        else:
+            self.add_event(event_name)
+            event_id = self.get_event_id(event_name)
+
         with self.sqlite_cursor() as c:
             c.execute("""SELECT event_traces.channel_name, windows.start_time,
                         windows.end_time, windows.weight
