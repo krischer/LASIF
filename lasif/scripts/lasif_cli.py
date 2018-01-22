@@ -269,8 +269,7 @@ def lasif_plot_raydensity(parser, args):
 @command_group("Plotting")
 def lasif_plot_section(parser, args):
     """
-    Plot a binned section plot of the processed data for an event. \
-    Requires processed data to be present.
+    Plot a binned section plot of the processed data for an event.
     """
     parser.add_argument("event_name", help="name of the event to plot")
     parser.add_argument("--num_bins", default=1, type=int,
@@ -444,31 +443,31 @@ def lasif_event_info(parser, args):
               "Use '-v' to print them." % len(stations))
 
 
-# @command_group("Plotting")
-# def lasif_plot_stf(parser, args):
-#     """
-#     Plot the source time function for one iteration.
-#     """
-#     import lasif.visualization
-#     comm = _find_project_comm(".")
-#
-#     freqmax = 1.0 / comm.project.processing_params["highpass_period"]
-#     freqmin = 1.0 / comm.project.processing_params["lowpass_period"]
-#
-#     stf_fct = comm.project.get_project_function(
-#         "source_time_function")
-#
-#     delta = comm.project.simulation_params["time_increment"]
-#     npts = comm.project.simulation_params["number_of_time_steps"]
-#
-#     stf = {"delta": delta}
-#
-#     stf["data"] = stf_fct(npts=npts, delta=delta,
-#                           freqmin=freqmin, freqmax=freqmax)
-#
-#     # Ignore lots of potential warnings with some plotting functionality.
-#     lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
-#                                 freqmax=freqmax)
+@command_group("Plotting")
+def lasif_plot_stf(parser, args):
+    """
+    Plot the source time function for one iteration.
+    """
+    import lasif.visualization
+    comm = _find_project_comm(".")
+
+    freqmax = 1.0 / comm.project.processing_params["highpass_period"]
+    freqmin = 1.0 / comm.project.processing_params["lowpass_period"]
+
+    stf_fct = comm.project.get_project_function(
+        "source_time_function")
+
+    delta = comm.project.simulation_params["time_increment"]
+    npts = comm.project.simulation_params["number_of_time_steps"]
+
+    stf = {"delta": delta}
+
+    stf["data"] = stf_fct(npts=npts, delta=delta,
+                          freqmin=freqmin, freqmax=freqmax)
+
+    # Ignore lots of potential warnings with some plotting functionality.
+    lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
+                                freqmax=freqmax)
 
 
 @command_group("Iteration Management")
@@ -480,13 +479,17 @@ def lasif_generate_input_files(parser, args):
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
-
-    # TODO possible extend this function to allow for
-    # TODO generating input_files for the adjoint run \
-    # TODO otherwise implement this functionality in finalize adjoint sources
+    parser.add_argument("simulation_type", help="forward, step_length, adjoint",
+                        default="forward")
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
+    simulation_type = args.simulation_type
+
+    simulation_type_options = ["forward", "step_length", "adjoint"]
+    if simulation_type not in simulation_type_options:
+        raise LASIFError("Please choose simulation_type from: "
+                         "[%s]" % ", ".join(map(str, simulation_type_options)))
 
     comm = _find_project_comm(".")
     events = args.events if args.events else comm.events.list()
@@ -501,7 +504,10 @@ def lasif_generate_input_files(parser, args):
                       " will be generated. " % event)
         print("Generating input files for event %i of %i..." % (_i + 1,
                                                                 len(events)))
-        comm.actions.generate_input_files(iteration_name, event)
+        if simulation_type == "adjoint":
+            comm.actions.finalize_adjoint_sources(iteration_name, event)
+        else:
+            comm.actions.generate_input_files(iteration_name, event, simulation_type)
 
 
 @command_group("Project Management")
@@ -525,21 +531,6 @@ def lasif_init_project(parser, args):
     Project(project_root_path=folder_path, init_project=folder_path.name)
 
     print(f"Initialized project in: \n\t{folder_path}")
-
-
-@command_group("Iteration Management")
-def lasif_finalize_adjoint_sources(parser, args):
-    """
-    Finalize the adjoint sources.
-    """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    parser.add_argument("event_name", help="name of the event")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-    event_name = args.event_name
-
-    comm = _find_project_comm(".")
-    comm.actions.finalize_adjoint_sources(iteration_name, event_name)
 
 
 @mpi_enabled

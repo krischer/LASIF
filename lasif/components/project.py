@@ -290,8 +290,9 @@ class Project(Component):
                          "    with_anisotropy = true\n" \
                          "    with_attenuation = false\n\n" \
                          "    # Source time function type, " \
-                         "currently only \"heaviside\" is supported \n" \
-                         "    source_time_function_type = \"heaviside\"\n"  \
+                         "currently only \"heaviside\" and " \
+                         "bandpass_filtered_heaviside\" are supported \n" \
+                         "    source_time_function_type = \"bandpass_filtered_heaviside\"\n"  \
 
         lasif_config_str += data_preproc_str + solver_par_str
 

@@ -448,22 +448,39 @@ class ActionsComponent(Component):
         mesh_file = self.comm.project.config["mesh_file"]
 
         # Generate the configuration object for salvus_seismo
-        config = salvus_seismo.Config(
-            mesh_file=mesh_file,
-            start_time=simulation_parameters["start_time"],
-            time_step=simulation_parameters["time_increment"],
-            end_time=simulation_parameters["end_time"],
-            salvus_call=self.comm.project.
-                computational_setup["salvus_call"],
-            polynomial_order=simulation_parameters["polynomial_order"],
-            verbose=True,
-            dimensions=3,
-            num_absorbing_layers=
-            simulation_parameters["number_of_absorbing_layers"],
-            with_anisotropy=self.comm.project.
-            computational_setup["with_anisotropy"],
-            wavefield_file_name="wavefield.h5",
-            wavefield_fields="adjoint")
+        if simulation_type == "forward":
+            config = salvus_seismo.Config(
+                mesh_file=mesh_file,
+                start_time=simulation_parameters["start_time"],
+                time_step=simulation_parameters["time_increment"],
+                end_time=simulation_parameters["end_time"],
+                salvus_call=self.comm.project.
+                    computational_setup["salvus_call"],
+                polynomial_order=simulation_parameters["polynomial_order"],
+                verbose=True,
+                dimensions=3,
+                num_absorbing_layers=
+                simulation_parameters["number_of_absorbing_layers"],
+                with_anisotropy=self.comm.project.
+                computational_setup["with_anisotropy"],
+                wavefield_file_name="wavefield.h5",
+                wavefield_fields="adjoint")
+
+        elif simulation_type == "step_length":
+            config = salvus_seismo.Config(
+                mesh_file=mesh_file,
+                start_time=simulation_parameters["start_time"],
+                time_step=simulation_parameters["time_increment"],
+                end_time=simulation_parameters["end_time"],
+                salvus_call=self.comm.project.
+                    computational_setup["salvus_call"],
+                polynomial_order=simulation_parameters["polynomial_order"],
+                verbose=True,
+                dimensions=3,
+                num_absorbing_layers=
+                simulation_parameters["number_of_absorbing_layers"],
+                with_anisotropy=self.comm.project.
+                computational_setup["with_anisotropy"])
 
         # ==============================================================j===
         # output
@@ -471,7 +488,8 @@ class ActionsComponent(Component):
         long_iter_name = self.comm.iterations.get_long_iteration_name(
             iteration_name)
         input_files_dir = self.comm.project.paths['salvus_input']
-        output_dir = os.path.join(input_files_dir, long_iter_name, event_name)
+        output_dir = os.path.join(input_files_dir, long_iter_name, event_name,
+                                  simulation_type)
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -487,9 +505,10 @@ class ActionsComponent(Component):
             self.write_custom_stf(output_dir)
 
         run_salvus = os.path.join(output_dir, "run_salvus.sh")
-        with open(run_salvus, "a") as fh:
-            fh.write(" --io-sampling-rate-volume 10"
-                     " --io-memory-per-rank-in-MB 5000")
+        if simulation_type == "forward":
+            with open(run_salvus, "a") as fh:
+                fh.write(" --io-sampling-rate-volume 10"
+                         " --io-memory-per-rank-in-MB 5000")
 
     def write_custom_stf(self, output_dir):
         import toml
@@ -574,6 +593,7 @@ class ActionsComponent(Component):
         import pyasdf
         import toml
         import h5py
+        import shutil
 
         # This will do stuff for each event and a single iteration
 
@@ -590,13 +610,18 @@ class ActionsComponent(Component):
         long_iter_name = self.comm.iterations.get_long_iteration_name(
             iteration_name)
         input_files_dir = self.comm.project.paths['salvus_input']
-        output_dir = os.path.join(input_files_dir, long_iter_name, event_name)
+        receiver_dir = os.path.join(input_files_dir, long_iter_name, event_name,
+                                  "forward")
+        output_dir = os.path.join(input_files_dir, long_iter_name, event_name,
+                                  "adjoint")
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
+        os.mkdir(output_dir)
 
-        receivers = toml.load(os.path.join(output_dir, "receivers.toml"))["receiver"]
+        receivers = toml.load(os.path.join(receiver_dir, "receivers.toml"))["receiver"]
 
-
-        adjoint_source_file_name = "adjoint_source.h5"
-        toml_file_name = "adjoint.toml"
+        adjoint_source_file_name = os.path.join(output_dir, "adjoint_source.h5")
+        toml_file_name = os.path.join(output_dir, "adjoint.toml")
 
         toml_string = "source_input_file = \"{}\"\n\n".format(adjoint_source_file_name)
 
@@ -646,30 +671,35 @@ class ActionsComponent(Component):
         with open(toml_file_name, "w") as fh:
             fh.write(toml_string)
 
-        # step two loop through all adjoint sources, rotate them and write to
-        # an h5 file
+        mesh_file = self.comm.project.config["mesh_file"]
+        simulation_params = self.comm.project.simulation_params
+        start_time = simulation_params["start_time"]
+        end_time = simulation_params["end_time"]
+        time_step = simulation_params["time_increment"]
+        num_absorbing_layers = simulation_params["number_of_absorbing_layers"]
+        polynomial_order = simulation_params["polynomial_order"]
 
-        # step 3 write a source toml, suitable for an adjoint run
+        possible_boundaries = set(("r0", "t0", "t1", "p0", "p1",
+                                   "inner_boundary"))
+        absorbing_boundaries = \
+            possible_boundaries.intersection(set(self.comm.project.domain.get_side_set_names()))
+        if absorbing_boundaries:
+            absorbing_boundaries = ",".join(sorted(absorbing_boundaries))
+            print("Automatically determined the following absorbing "
+                  "boundary side sets: %s" % absorbing_boundaries)
 
 
-
-
-        # iteration = self.comm.iterations.get(iteration_name)
-        # iteration_event_def = iteration.events[event["event_name"]]
-        # iteration_stations = iteration_event_def["stations"]
-        #
-        # # For now assume that the adjoint sources have the same
-        # # g rate as the synthetics which in LASIF's workflow
-        # # actually has to be true.
-        # dt = iteration.get_process_params()["dt"]
-        #
-        # adjoint_source_stations = set()
-        #
-        #
-        # output_folder = self.comm.project.get_output_folder(
-        #
-        #
-        #
-        #
-        # print("Wrote adjoint sources for %i station(s) to %s." % (
-        #     len(adjoint_source_stations), os.path.relpath(output_folder)))
+        salvus_command = \
+            f"mpirun -n 4 --dimension 3 --mesh-file {mesh_file} " \
+            f"--model-file {mesh_file} --start-time {start_time} " \
+            f"--time-step {time_step} --num-absorbing-layers {num_absorbing_layers} " \
+            f"--end-time {end_time} --polynomial-order {polynomial_order} " \
+            f"--adjoint --kernel-file kernel_{event_name}.e --load-fields adjoint " \
+            f"--load-wavefield-file wavefield.h5 --save-static-fields gradient " \
+            f"--save-static-file-name {event_name}.h5 --kernel-fields TTI " \
+            f"--io-memory-per-rank-in-MB 5000 --with-anisotropy " \
+            f"--absorbing-boundaries {absorbing_boundaries} " \
+            f"--source-toml {toml_file_name}"
+        salvus_command_file = os.path.join(output_dir, "run_salvus.sh")
+        with open(salvus_command_file, "w") as fh:
+            fh.write(salvus_command)

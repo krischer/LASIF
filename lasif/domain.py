@@ -101,6 +101,7 @@ class ExodusDomain(Domain):
         self.center_lat = None
         self.center_lon = None
         self.is_read = False
+        self.side_set_names = None
 
     def _read(self):
         """
@@ -118,17 +119,18 @@ class ExodusDomain(Domain):
             raise LASIFNotFoundError(msg)
 
         # if less than 2 side sets, this must be a global mesh.  Return
-        if len(self.e.get_side_set_names()) < 2:
+        self.side_set_names = self.e.get_side_set_names()
+        if len(self.side_set_names) < 2:
             self.is_global_mesh = True
             return
 
         side_nodes = []
         earth_surface_nodes = []
-        for side_set in self.e.get_side_set_names():
+        for side_set in self.side_set_names:
             if side_set == "r0" or side_set == "surface":
                 continue
             idx = self.e.get_side_set_ids()[
-                self.e.get_side_set_names().index(side_set)]
+                self.side_set_names.index(side_set)]
 
             if side_set == "r1":
                 _, earth_surface_nodes = self.e.get_side_set_node_list(idx)
@@ -191,6 +193,12 @@ class ExodusDomain(Domain):
         self.earth_surface_tree = cKDTree(self.earth_surface_coords)
         self.domain_edge_tree = cKDTree(self.domain_edge_coords)
         self.KDTrees_initialized = True
+
+
+    def get_side_set_names(self):
+        if not self.is_read:
+            self._read()
+        return self.side_set_names
 
     def point_in_domain(self, longitude, latitude):
         """
