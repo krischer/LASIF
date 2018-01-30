@@ -200,6 +200,9 @@ class WindowGroupManager(object):
 
         """
         assert end_time > start_time, "end_time must be larger than start_time"
+        start_time = start_time.datetime
+        end_time = end_time.datetime
+
         with self.sqlite_cursor() as c:
             # delete overlapping windows if they exist
             c.execute("""
