@@ -230,7 +230,7 @@ time series and a time frequency representation of the source time function.
 
     from lasif.function_templates import source_time_function
     data = source_time_function.source_time_function(2000, 0.3, 1.0 / 100.0,
-                                                     1.0 / 40.0, None)
+                                                     1.0 / 40.0)
     lasif.visualization.plot_tf(data, 0.3, freqmin=1.0 / 100.0,
                                 freqmax=1.0 / 40.0)
 
@@ -254,18 +254,6 @@ couple of exemplary Q values with
 
 
 The single argument is the name of the iteration.
-
-
-.. plot::
-
-    from lasif.tools import Q_discrete
-    weights = [1.6264684983257656, 1.0142952434286228, 1.5007527644957979]
-    relaxation_times = [0.68991741458188449, 4.1538611409236301,
-                        23.537531778655516]
-
-    Q_discrete.plot(weights, relaxation_times, f_min=1.0 / 100.0,
-                    f_max=1.0 / 10.0)
-
 
 The grey band in each plot marks the frequency range as specified in
 the iteration XML file.

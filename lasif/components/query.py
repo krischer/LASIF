@@ -35,33 +35,8 @@ class QueryComponent(Component):
 
         :type event_name: str
         :param event_name: Name of the event.
-
-        >>> import pprint # doctest: +SKIP
-        >>> comm = getfixture('query_comm') # doctest: +SKIP
-        >>> pprint.pprint(comm.query.get_all_stations_for_event(
-        ...     "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11")) \
-        # doctest: +SKIP
-        # doctest: +NORMALIZE_WHITESPACE
-
-        {u'HL.ARG': {'elevation_in_m': 170.0, 'latitude': 36.216,
-                     'longitude': 28.126},
-         u'HT.SIGR': {'elevation_in_m': 93.0, 'latitude': 39.2114,
-                      'longitude': 25.8553},
-         u'KO.KULA': {'elevation_in_m': 915.0, 'latitude': 38.5145,
-                      'longitude': 28.6607},
-         u'KO.RSDY': {'elevation_in_m': 0.0, 'latitude': 40.3972,
-                      'longitude': 37.3273}}
-
-
-        Raises a :class:`~lasif.LASIFNotFoundError` if the event does not
-        exist.
-
-        >>> comm.query.get_all_stations_for_event("RandomEvent") \
-        # doctest: +SKIP
-        Traceback (most recent call last):
-            ...
-        LASIFNotFoundError: ...
         """
+
         import pyasdf
 
         waveform_file = self.comm.waveforms.get_asdf_filename(
