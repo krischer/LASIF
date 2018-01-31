@@ -448,8 +448,8 @@ class ActionsComponent(Component):
         if simulation_parameters["number_of_absorbing_layers"] == 0:
             num_absorbing_layers = None
         else:
-            num_absorbing_layers = simulation_parameters
-            ["number_of_absorbing_layers"]
+            num_absorbing_layers = \
+                simulation_parameters["number_of_absorbing_layers"]
 
         # Generate the configuration object for salvus_seismo
         if simulation_type == "forward":
@@ -571,9 +571,9 @@ class ActionsComponent(Component):
         iteration_event_def = iteration.events[event["event_name"]]
         iteration_stations = iteration_event_def["stations"]
 
-        l = sorted(window_manager.list())
+        window_list = sorted(window_manager.list())
         for station, windows in itertools.groupby(
-                l, key=lambda x: ".".join(x.split(".")[:2])):
+                window_list, key=lambda x: ".".join(x.split(".")[:2])):
             if station not in iteration_stations:
                 continue
             try:
