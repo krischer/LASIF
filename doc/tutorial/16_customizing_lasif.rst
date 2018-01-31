@@ -38,10 +38,6 @@ Common Features of the Custom Functions
     A simple way to keep track of the differences in these function is to
     branch based on the current iteration.
 
-All of the custom function are passed an
-:class:`~lasif.iteration_xml.Iteration` object, thus code like the following
-is the preferred way to handle differences in these function per iterations.
-
 .. code-block:: python
 
     def custom_function(arg1, iteration):
@@ -150,10 +146,6 @@ This is very useful for processing the synthetics in any fashion or to shift
 them time and similar endeavours. Make sure it returns a
 :class:`~obspy.core.stream.Stream` object.
 
-``iteration`` and ``event`` are the :class:`~lasif.iteration_xml.Iteration`
-object of the current iteration and a dictionary containing information about
-the data's event, respectively.
-
 
 Customize Window Picking
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -188,7 +180,7 @@ Its function signature is:
 .. code-block:: python
 
 
-    def source_time_function(npts, delta, freqmin, freqmax, iteration):
+    def source_time_function(npts, delta, freqmin, freqmax):
         ...
         # Make sure it returns a float64 NumPy array with `npts` samples.
         return np.array(data, dtype=np.float64)

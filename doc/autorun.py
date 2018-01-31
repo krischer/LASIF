@@ -71,12 +71,11 @@ class RunBlock(Directive):
 
         # Run the code
         stdout, stderr = proc.communicate(code)
-
         # Process output 
         if stdout:
-            out = ''.join(stdout).decode(output_encoding)
+            out = ''.join(stdout.decode(output_encoding))
         elif stderr:
-            out = ''.join(stderr).decode(output_encoding)
+            out = ''.join(stderr.decode(output_encoding))
         else:
             out = ''
 
