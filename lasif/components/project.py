@@ -292,7 +292,8 @@ class Project(Component):
                          "    # Source time function type, " \
                          "currently only \"heaviside\" and " \
                          "bandpass_filtered_heaviside\" are supported \n" \
-                         "    source_time_function_type = \"bandpass_filtered_heaviside\"\n"  \
+                         "    source_time_function_type = " \
+                         "\"bandpass_filtered_heaviside\"\n"  \
 
         lasif_config_str += data_preproc_str + solver_par_str
 

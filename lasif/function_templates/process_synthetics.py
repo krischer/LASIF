@@ -9,8 +9,8 @@ Project specific function for modifying synthetics on the fly.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-import numpy as np
-from obspy.signal.invsim import cosine_sac_taper
+# import numpy as np
+# from obspy.signal.invsim import cosine_sac_taper
 
 def process_synthetics(st, processing_params, event):  # NOQA
     """
