@@ -5,9 +5,8 @@ from __future__ import absolute_import
 import itertools
 import numpy as np
 import os
-import warnings
 
-from lasif import LASIFError, LASIFWarning, LASIFNotFoundError
+from lasif import LASIFError, LASIFNotFoundError
 
 from .component import Component
 
@@ -446,6 +445,11 @@ class ActionsComponent(Component):
 
         simulation_parameters = self.comm.project.simulation_params
         mesh_file = self.comm.project.config["mesh_file"]
+        if simulation_parameters["number_of_absorbing_layers"] == 0:
+            num_absorbing_layers = None
+        else:
+            num_absorbing_layers = \
+                simulation_parameters["number_of_absorbing_layers"]
 
         # Generate the configuration object for salvus_seismo
         if simulation_type == "forward":
@@ -455,12 +459,11 @@ class ActionsComponent(Component):
                 time_step=simulation_parameters["time_increment"],
                 end_time=simulation_parameters["end_time"],
                 salvus_call=self.comm.project.
-                    computational_setup["salvus_call"],
+                computational_setup["salvus_call"],
                 polynomial_order=simulation_parameters["polynomial_order"],
                 verbose=True,
                 dimensions=3,
-                num_absorbing_layers=
-                simulation_parameters["number_of_absorbing_layers"],
+                num_absorbing_layers=num_absorbing_layers,
                 with_anisotropy=self.comm.project.
                 computational_setup["with_anisotropy"],
                 wavefield_file_name="wavefield.h5",
@@ -473,12 +476,11 @@ class ActionsComponent(Component):
                 time_step=simulation_parameters["time_increment"],
                 end_time=simulation_parameters["end_time"],
                 salvus_call=self.comm.project.
-                    computational_setup["salvus_call"],
+                computational_setup["salvus_call"],
                 polynomial_order=simulation_parameters["polynomial_order"],
                 verbose=True,
                 dimensions=3,
-                num_absorbing_layers=
-                simulation_parameters["number_of_absorbing_layers"],
+                num_absorbing_layers=num_absorbing_layers,
                 with_anisotropy=self.comm.project.
                 computational_setup["with_anisotropy"])
 
@@ -531,7 +533,7 @@ class ActionsComponent(Component):
             "source_time_function")
 
         stf = stf_fct(npts=npts, delta=delta,
-                              freqmin=freqmin, freqmax=freqmax)
+                      freqmin=freqmin, freqmax=freqmax)
 
         stf_mat = np.zeros((len(stf), len(moment_tensor)))
         for i, moment in enumerate(moment_tensor):
@@ -569,9 +571,9 @@ class ActionsComponent(Component):
         iteration_event_def = iteration.events[event["event_name"]]
         iteration_stations = iteration_event_def["stations"]
 
-        l = sorted(window_manager.list())
+        window_list = sorted(window_manager.list())
         for station, windows in itertools.groupby(
-                l, key=lambda x: ".".join(x.split(".")[:2])):
+                window_list, key=lambda x: ".".join(x.split(".")[:2])):
             if station not in iteration_stations:
                 continue
             try:
@@ -599,9 +601,11 @@ class ActionsComponent(Component):
 
         # Step one, read adj_src file that should have been created already
         event = self.comm.events.get(event_name)
-        iteration = self.comm.iterations.get_long_iteration_name(iteration_name)
+        iteration = self.comm.iterations.\
+            get_long_iteration_name(iteration_name)
 
-        adj_src_file = self.comm.wins_and_adj_sources.get_filename(event, iteration)
+        adj_src_file = self.comm.wins_and_adj_sources.\
+            get_filename(event, iteration)
 
         ds = pyasdf.ASDFDataSet(adj_src_file)
         adj_srcs = ds.auxiliary_data["AdjointSources"]
@@ -610,23 +614,24 @@ class ActionsComponent(Component):
         long_iter_name = self.comm.iterations.get_long_iteration_name(
             iteration_name)
         input_files_dir = self.comm.project.paths['salvus_input']
-        receiver_dir = os.path.join(input_files_dir, long_iter_name, event_name,
-                                  "forward")
-        output_dir = os.path.join(input_files_dir, long_iter_name, event_name,
-                                  "adjoint")
+        receiver_dir = os.path.join(input_files_dir, long_iter_name,
+                                    event_name, "forward")
+        output_dir = os.path.join(input_files_dir, long_iter_name,
+                                  event_name, "adjoint")
+
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
         os.mkdir(output_dir)
 
-        receivers = toml.load(os.path.join(receiver_dir, "receivers.toml"))["receiver"]
+        receivers = toml.load(
+            os.path.join(receiver_dir, "receivers.toml"))["receiver"]
 
-        adjoint_source_file_name = os.path.join(output_dir, "adjoint_source.h5")
+        adjoint_source_file_name = os.path.join(
+            output_dir, "adjoint_source.h5")
         toml_file_name = os.path.join(output_dir, "adjoint.toml")
 
-        toml_string = "source_input_file = \"{}\"\n\n".format(adjoint_source_file_name)
-
+        toml_string = f"source_input_file = \"{adjoint_source_file_name}\"\n\n"
         f = h5py.File(adjoint_source_file_name, 'w')
-
 
         for adj_src in adj_srcs:
             station_name = adj_src.auxiliary_data_type.split("/")[1]
@@ -651,17 +656,19 @@ class ActionsComponent(Component):
 
                 station = receiver["network"] + "_" + receiver["station"]
 
-
                 if station == station_name:
                     print("writing source")
                     transform_mat = np.array(receiver["transform_matrix"])
                     xyz = np.dot(zne, transform_mat.T)
 
                     source = f.create_dataset(station, data=xyz)
-                    source.attrs["dt"] = self.comm.project.simulation_params["time_increment"]
-                    source.attrs['location'] = np.array(receiver["salvus_coordinates"])
+                    source.attrs["dt"] = self.comm.project.\
+                        simulation_params["time_increment"]
+                    source.attrs['location'] = np.array(
+                        receiver["salvus_coordinates"])
                     source.attrs['spatial-type'] = np.string_("vector")
-                    source.attrs['starttime'] = self.comm.project.simulation_params["start_time"]
+                    source.attrs['starttime'] = self.comm.project.\
+                        simulation_params["start_time"]
 
                     toml_string += f"[[source]]\n" \
                                    f"name = \"{station}\"\n" \
@@ -682,24 +689,30 @@ class ActionsComponent(Component):
         possible_boundaries = set(("r0", "t0", "t1", "p0", "p1",
                                    "inner_boundary"))
         absorbing_boundaries = \
-            possible_boundaries.intersection(set(self.comm.project.domain.get_side_set_names()))
+            possible_boundaries.intersection(
+                set(self.comm.project.domain.get_side_set_names()))
         if absorbing_boundaries:
             absorbing_boundaries = ",".join(sorted(absorbing_boundaries))
             print("Automatically determined the following absorbing "
                   "boundary side sets: %s" % absorbing_boundaries)
 
-
         salvus_command = \
             f"mpirun -n 4 --dimension 3 --mesh-file {mesh_file} " \
             f"--model-file {mesh_file} --start-time {start_time} " \
-            f"--time-step {time_step} --num-absorbing-layers {num_absorbing_layers} " \
+            f"--time-step {time_step} " \
             f"--end-time {end_time} --polynomial-order {polynomial_order} " \
-            f"--adjoint --kernel-file kernel_{event_name}.e --load-fields adjoint " \
-            f"--load-wavefield-file wavefield.h5 --save-static-fields gradient " \
+            f"--adjoint --kernel-file kernel_{event_name}.e " \
+            f"--load-fields adjoint " \
+            f"--load-wavefield-file wavefield.h5 " \
+            f"--save-static-fields gradient " \
             f"--save-static-file-name {event_name}.h5 --kernel-fields TTI " \
             f"--io-memory-per-rank-in-MB 5000 --with-anisotropy " \
             f"--absorbing-boundaries {absorbing_boundaries} " \
             f"--source-toml {toml_file_name}"
+
+        if num_absorbing_layers > 0:
+            salvus_command += f" --num-absorbing-layers {num_absorbing_layers}"
+
         salvus_command_file = os.path.join(output_dir, "run_salvus.sh")
         with open(salvus_command_file, "w") as fh:
             fh.write(salvus_command)

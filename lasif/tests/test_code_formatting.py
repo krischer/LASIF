@@ -52,7 +52,8 @@ def test_flake8():
     # Import the legacy API as flake8 3.0 currently has not official
     # public API - this has to be changed at some point.
     from flake8.api import legacy as flake8
-    style_guide = flake8.get_style_guide(ignore=("F811", "E402"))
+    style_guide = flake8.get_style_guide(ignore=("F811", "E402", "E722",
+                                                 "E741"))
     report = style_guide.check_files(files)
 
     # Make sure no error occured.

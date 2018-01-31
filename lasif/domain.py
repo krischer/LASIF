@@ -194,7 +194,6 @@ class ExodusDomain(Domain):
         self.domain_edge_tree = cKDTree(self.domain_edge_coords)
         self.KDTrees_initialized = True
 
-
     def get_side_set_names(self):
         if not self.is_read:
             self._read()
@@ -293,7 +292,7 @@ class ExodusDomain(Domain):
             m = Basemap(projection='lcc', resolution=resolution, width=width,
                         height=height, lat_0=self.center_lat,
                         lon_0=self.center_lon, ax=ax)
-        plot_lines=True
+
         if plot_lines:
             sorted_indices = self.get_sorted_edge_coords()
             x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
@@ -444,7 +443,7 @@ def _plot_lines(map_object, lines, color, lw, alpha=1.0, label=None,
         lats = np.ma.array(lats, mask=False)
         lngs = np.ma.array(lngs, mask=False)
         max_jump = 0.3 * min(
-            map_object.xmax - map_object.xmin,  
+            map_object.xmax - map_object.xmin,
             map_object.ymax - map_object.ymin)
         idx_1 = np.where(np.abs(x) > max_jump)
         idx_2 = np.where(np.abs(y) > max_jump)

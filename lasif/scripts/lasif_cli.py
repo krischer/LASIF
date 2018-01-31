@@ -349,8 +349,8 @@ def lasif_download_data(parser, args):
     """
     Download waveform and station data for one event.
     """
-    parser.add_argument("event_name", help="name of the event. Possible to add "
-                        "more than one event separated by a comma")
+    parser.add_argument("event_name", help="name of the event. Possible to add"
+                        " more than one event separated by a comma")
     parser.add_argument("--providers", default=None,
                         type=str, nargs="+",
                         help="FDSN providers to query. Will use all known "
@@ -362,8 +362,8 @@ def lasif_download_data(parser, args):
     comm = _find_project_comm(".")
     events = event_name.split(',')
     for event in events:
-        comm.downloads.download_data(event,providers=providers)
-        
+        comm.downloads.download_data(event, providers=providers)
+
 
 @command_group("Event Management")
 def lasif_list_events(parser, args):
@@ -482,7 +482,8 @@ def lasif_generate_input_files(parser, args):
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
-    parser.add_argument("simulation_type", help="forward, step_length, adjoint",
+    parser.add_argument("simulation_type", help="forward, "
+                                                "step_length, adjoint",
                         default="forward")
 
     args = parser.parse_args(args)
@@ -510,7 +511,8 @@ def lasif_generate_input_files(parser, args):
         if simulation_type == "adjoint":
             comm.actions.finalize_adjoint_sources(iteration_name, event)
         else:
-            comm.actions.generate_input_files(iteration_name, event, simulation_type)
+            comm.actions.generate_input_files(iteration_name, event,
+                                              simulation_type)
 
 
 @command_group("Project Management")
