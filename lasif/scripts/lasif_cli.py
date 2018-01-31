@@ -349,7 +349,8 @@ def lasif_download_data(parser, args):
     """
     Download waveform and station data for one event.
     """
-    parser.add_argument("event_name", help="name of the event")
+    parser.add_argument("event_name", help="name of the event. Possible to add "
+                        "more than one event separated by a comma")
     parser.add_argument("--providers", default=None,
                         type=str, nargs="+",
                         help="FDSN providers to query. Will use all known "
@@ -359,8 +360,10 @@ def lasif_download_data(parser, args):
     providers = args.providers
 
     comm = _find_project_comm(".")
-    comm.downloads.download_data(event_name, providers=providers)
-
+    events = event_name.split(',')
+    for event in events:
+        comm.downloads.download_data(event,providers=providers)
+        
 
 @command_group("Event Management")
 def lasif_list_events(parser, args):
@@ -617,51 +620,6 @@ def lasif_select_windows(parser, args):
     comm = _find_project_comm_mpi(".")
 
     comm.actions.select_windows(event, iteration_name, window_set_name)
-
-
-# @mpi_enabled
-# @command_group("Iteration Management")
-# def lasif_select_all_windows(parser, args):
-#     """
-#     Autoselect all windows for a given iteration.
-#
-#     This function works with MPI. Don't use too many cores, I/O quickly
-#     becomes the limiting factor. It also works without MPI but then only one
-#     core actually does any work.
-#     """
-#     parser.add_argument("iteration_name", help="name of the iteration")
-#     args = parser.parse_args(args)
-#
-#     iteration = args.iteration_name
-#
-#     comm = _find_project_comm_mpi(".")
-#
-#     events = comm.events.list()
-#
-#     for _i, event in enumerate(events):
-#         if MPI.COMM_WORLD.rank == 0:
-#             print("\n{green}"
-#                   "==========================================================="
-#                   "{reset}".format(green=colorama.Fore.GREEN,
-#                                    reset=colorama.Style.RESET_ALL))
-#             print("Starting window selection for event %i of %i..." % (
-#                   _i + 1, len(events)))
-#             print("{green}"
-#                   "==========================================================="
-#                   "{reset}\n".format(green=colorama.Fore.GREEN,
-#                                      reset=colorama.Style.RESET_ALL))
-#
-#         filename = comm.wins_and_adj_sources.get_filename(event=event,
-#                                                           iteration=iteration)
-#         if os.path.exists(filename):
-#             if MPI.COMM_WORLD.rank == 0:
-#                 print("File '%s' already exists. "
-#                       "Will not pick windows for that "
-#                       "event. Delete the file to repick windows." % filename)
-#             continue
-#
-#         MPI.COMM_WORLD.barrier()
-#         comm.actions.select_windows(event, iteration)
 
 
 @command_group("Iteration Management")
@@ -1216,7 +1174,7 @@ def _print_generic_help(fcts):
         current_fcts = fct_groups[group_name]
         for name in sorted(current_fcts.keys()):
             print("%s  %32s: %s%s%s" % (colorama.Fore.YELLOW, name,
-                  colorama.Fore.BLUE,
+                  colorama.Fore.CYAN,
                   _get_cmd_description(fcts[name]),
                   colorama.Style.RESET_ALL))
     print("\nTo get help for a specific function type")
