@@ -352,7 +352,7 @@ def lasif_download_data(parser, args):
     parser.add_argument("event_name", help="name of the event. Possible to add"
                         " more than one event separated by a space. If "
                         "argument is left empty. data will be downloaded "
-                        "for all events",nargs="*")
+                        "for all events", nargs="*")
     parser.add_argument("--providers", default=None,
                         type=str, nargs="+",
                         help="FDSN providers to query. Will use all known "
