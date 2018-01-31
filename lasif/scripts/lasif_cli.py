@@ -350,18 +350,20 @@ def lasif_download_data(parser, args):
     Download waveform and station data for one event.
     """
     parser.add_argument("event_name", help="name of the event. Possible to add"
-                        " more than one event separated by a comma")
+                        " more than one event separated by a space. If "
+                        "argument is left empty. data will be downloaded "
+                        "for all events", nargs="*")
     parser.add_argument("--providers", default=None,
                         type=str, nargs="+",
                         help="FDSN providers to query. Will use all known "
                              "ones if not set.")
     args = parser.parse_args(args)
-    event_name = args.event_name
     providers = args.providers
 
     comm = _find_project_comm(".")
-    events = event_name.split(',')
-    for event in events:
+    event_name = args.event_name if args.event_name else comm.events.list()
+
+    for event in event_name:
         comm.downloads.download_data(event, providers=providers)
 
 
