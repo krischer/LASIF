@@ -123,14 +123,6 @@ class DownloadsComponent(Component):
                               f"inconsistent channel coordinates."
                         print(msg)
 
-        for station in asdf_ds.waveforms.list():
-            obspy_inv = asdf_ds.waveforms[station].StationXML
-            lat = obspy_inv.get_coordinates(
-                obspy_inv.get_contents()['channels'][0])['latitude']
-            if lat > 40.0:
-                del asdf_ds.waveforms[station]
-                print(f"deleted station {station}")
-
         # clean up temporary download directories
         import shutil
         if os.path.exists(stationxml_storage_path):
