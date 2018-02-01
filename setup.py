@@ -87,6 +87,7 @@ setup_config = dict(
         "geographiclib",
         "colorama",
         "mpi4py",
+        "numpy",
         "numexpr",
         "pytest",
         "flask",
