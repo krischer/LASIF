@@ -8,7 +8,7 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   git config --global user.name "Travis"
 
   # Using token clone gh-pages branch. Pipe to /dev/null to avoid printing the decrypted key.
-  git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/krischer/LASIF.git  gh-pages > /dev/null
+  git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/dirkphilip/LASIF_2.0.git  gh-pages > /dev/null
 
   # Go there, and overwrite everything with the freshly built contents.
   cd gh-pages
