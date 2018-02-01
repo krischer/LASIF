@@ -122,6 +122,10 @@ class ExodusDomain(Domain):
         self.side_set_names = self.e.get_side_set_names()
         if len(self.side_set_names) < 2:
             self.is_global_mesh = True
+            self.min_lat = -90.0
+            self.max_lat = 90.0
+            self.min_lon = -180.0
+            self.max_lon = 180.0
             return
 
         side_nodes = []
