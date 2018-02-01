@@ -2,9 +2,9 @@ Installation, Testing & DevInfo
 ===============================
 
 This page details installation instructions, how to run the tests, and some
-additional information if you want to develop new features for **LASIF**. If
+additional information if you want to develop new features for **LASIF 2.0**. If
 you encounter any issues, please don't hesitate to contact us or
-`open an issue on GitHub <https://github.com/krischer/LASIF/issues/new>`_.
+`open an issue on GitHub <https://github.com/dirkphilip/LASIF_2.0/issues/new>`_.
 
 
 Installation
@@ -18,22 +18,6 @@ are listed here. It might well work with other versions but only the versions
 listed here have been tested and are officially supported. It has been
 tested on Linux and Mac OS X but should also run just fine on Windows.
 
-* ``obspy >= 1.0.1`` (`www.obspy.org <http://www.obspy.org/>`_)
-* ``numpy >= 1.8``
-* ``numexpr`` (newer versions are also oftentimes faster)
-* ``matplotlib >= 1.3``
-* ``basemap >= 1.0.7``
-* ``wfs_input_generator`` (`website <http://github.com/krischer/wfs_input_generator>`_)
-* ``geographiclib``
-* ``progressbar`` and ``colorama``
-* ``mpi4py`` and ``joblib``
-* *For the webinterface, you additionally need:* ``flask``, ``flask-cache``,
-  *and* ``geojson``.
-* *The misfit GUI requires* ``pyqt`` *and* ``pyqtgraph``.
-* *And for running the tests you need* ``pytest``, ``mock``, ``nose``, *and*
-  ``flake8``.
-
-
 If you know what you are doing, just make sure these dependencies are
 available, otherwise please do yourself a favor and download the `Anaconda
 <https://www.continuum.io/downloads>`_ Python distribution, a free package
@@ -45,26 +29,12 @@ installed almost everywhere.
 
 .. code-block:: bash
 
-    # Create a new conda environment named "lasif".
-    $ conda create -n lasif python=2.7
-    # Activate that environment. You will have to do this every time you start LASIF.
-    # If you don't want to do that: put that line in your .bashrc/.bash_profile
-    $ source activate lasif
-    # Install most things via conda.
-    $ conda install -c obspy obspy basemap progressbar colorama joblib flask pyqt pyqtgraph pytest nose mock flake8 pip numexpr
-    # Install some missing things over pip.
-    $ pip install geographiclib flask-cache geojson
-    # Install the wfs_input_generator package.
-    $ pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
-
-
-.. code-block:: bash
-
     # Create a new conda environment which will here be called "lasif".
     $ conda create -n lasif python=3.6
     # Activate the lasif environment. This will always be needed when LASIF is started.
     $ source activate lasif
     # Start installing dependencies
+    $ conda config --add channels conda-forge
     $ conda install -c obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
     $ conda install -c pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov
     # Install more packages via pip
@@ -86,7 +56,7 @@ Make sure that pyasdf is working as it should by running the following command
 
 .. code-block:: bash
 
-    $ python -c "import pyaasdf; pyasdf.print_sys_info()"
+    $ python -c "import pyasdf; pyasdf.print_sys_info()"
 
 .. code-block:: bash
 
@@ -126,7 +96,7 @@ The actual **LASIF** module can then be installed with
 
 .. code-block:: bash
 
-    $ git clone git clone https://github.com/dirkphilip/LASIF_2.0.git
+    $ git clone https://github.com/dirkphilip/LASIF_2.0.git
     $ cd LASIF_2.0
     $ pip install -v -e .
 
@@ -136,24 +106,12 @@ installed correctly and works as intended on your machine.
 Updating LASIF
 ^^^^^^^^^^^^^^
 
-To update **LASIF**, change into the **LASIF** directory and type
+To update **LASIF 2.0**, change into the **LASIF 2.0** directory and type
 
 .. code-block:: bash
 
     $ git pull
     $ pip install -v -e .
-
-Additionally you might have to update the `wfs_input_generator`:
-
-.. code-block:: bash
-
-    $ pip install https://github.com/krischer/wfs_input_generator/archive/master.zi
-
-Please note, that updating **LASIF** will not update your custom, user-defined
-functions within your projects (see :doc:`tutorial/16_customizing_lasif`).  If
-you want to update those as well: delete them and execute any **LASIF**
-function - this will copy the latest versions of these files to your project
-directory. **Make sure to save any changes you made to those functions!!**
 
 
 Testing
@@ -165,7 +123,7 @@ required to assure that it works as expected.
 Running the Tests
 ^^^^^^^^^^^^^^^^^
 
-To run the tests, cd into the toplevel ``LASIF`` directory and execute:
+To run the tests, cd into the toplevel ``LASIF_2.0`` directory and execute:
 
 
 .. code-block:: bash
@@ -173,21 +131,7 @@ To run the tests, cd into the toplevel ``LASIF`` directory and execute:
     $ py.test
 
 This will recursively find and execute all tests below the current working
-directory. The output should look akin to the following:
-
-.. code-block:: bash
-
-    ===================================== test session starts =====================================
-    platform darwin -- Python 2.7.11, pytest-2.9.1, py-1.4.31, pluggy-0.3.1
-    rootdir: /Users/lion/workspace/code/LASIF, inifile: pytest.ini
-    collected 195 items
-
-    lasif/rotations.py .......
-    lasif/utils.py ..
-    lasif/window_selection.py .
-    ...
-
-    ===================== 189 passed, 4 skipped, 2 xfailed in 160.14 seconds ======================
+directory.
 
 No errors should occur. **If you see nothing - make sure your MPI installation
 is correct (see above)**.
@@ -207,45 +151,24 @@ cores, use
     $ py.test -n 8
 
 
-Building the Documentation
---------------------------
-
-``sphinx`` is used to build the documentation so it needs to be installed. The
-theme is the standalone **readthedocs** theme. We will use the most up-to-date
-repository version here.
-
-.. code-block:: bash
-
-    $ conda install sphinx sphinx_rtd_theme
-
-To actually build the documentation (in this case in the HTML format), run
-
-.. code-block:: bash
-
-    $ cd doc
-    $ make html
-
-This might take a while if run for the first time. Subsequent runs are faster.
-
 
 Developer Information
 ---------------------
 
 
-The following rules should be followed when developing for **LASIF**:
+The following rules should be followed when developing for **LASIF 2.0**:
 
-* **LASIF** is written entirely in Python 2.7. Adding support for 3.x would
-  not be a big issue if necessary.
+* **LASIF 2.0** is written entirely in Python 3.6.
 * `Document <http://lukeplant.me.uk/blog/posts/docs-or-it-doesnt-exist/>`_ the
   code.
 * Adhere to `PEP8 <http://www.python.org/dev/peps/pep-0008/>`_.
 * All contributed code must be contributed under the GPLv3.
 * Write tests where reasonable.
 
-    * **LASIF** utilizes `Travis CI <https://travis-ci.org/krischer/LASIF>`_
+    * **LASIF 2.0** utilizes `Travis CI <https://travis-ci.org/krischer/LASIF>`_
       for continuous integration testing. This means that every commit will be
       automatically tested and the responsible developer will receive an email
-      in case her/his commit breaks **LASIF**.
+      in case her/his commit breaks **LASIF 2.0**.
     * The tests also verify the PEP8 conformance of the entire code base.
 
 
