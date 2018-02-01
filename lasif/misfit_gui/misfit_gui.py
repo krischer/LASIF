@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from PyQt4 import QtGui
-from PyQt4.QtCore import pyqtSlot
+from PyQt5 import QtGui
+from PyQt5.QtCore import pyqtSlot
 import pyqtgraph as pg
 
 # Default to antialiased drawing.
@@ -383,9 +383,10 @@ class Window(QtGui.QMainWindow):
 def launch(comm):
     # Automatically compile all ui files if they have been changed.
     compile_and_import_ui_files()
-
+    from PyQt5 import QtWidgets
     # Launch and open the window.
-    app = QtGui.QApplication(sys.argv, QtGui.QApplication.GuiClient)
+    app = QtWidgets.QApplication(sys.argv)
+    #app = QtGui.QApplication(sys.argv, QtGui.QApplication.GuiClient)
     window = Window(comm)
 
     # Move window to center of screen.
