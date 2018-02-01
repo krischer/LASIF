@@ -81,7 +81,7 @@ class LasifCLIDirective(Directive):
         # Group the functions. Functions with no group will be placed in the
         # group "Misc".
         fct_groups = {}
-        for fct_name, fct in fcts.iteritems():
+        for fct_name, fct in fcts.items():
             group_name = fct.group_name \
                 if hasattr(fct, "group_name") else "Misc"
             fct_groups.setdefault(group_name, {})
@@ -90,7 +90,7 @@ class LasifCLIDirective(Directive):
         all_nodes = []
 
         # Print in a grouped manner.
-        for group_name, fcts in sorted(fct_groups.iteritems()):
+        for group_name, fcts in sorted(fct_groups.items()):
             node = nodes.section()
             node.document = self.state.document
             result = ViewList()
@@ -114,7 +114,7 @@ class LasifCLIDirective(Directive):
                     result.append("    " + line,
                                   "<lasif_cli_list>")
 
-            for fct_name, fct in fcts.iteritems():
+            for fct_name, fct in fcts.items():
                 parser = lasif_cli._get_argument_parser(fct)
 
                 # The parser receive all their options just before they are
@@ -130,7 +130,7 @@ class LasifCLIDirective(Directive):
 
                 try:
                     fct(parser, [])
-                except TempException:
+                except:
                     pass
 
                 for i in scan_programs(parser):
@@ -171,7 +171,7 @@ class LasifCLIDirective(Directive):
                         table.append(("**Positional Arguments**",))
 
                     for option_strings, help_ in positional_args:
-                        for i, j in itertools.izip_longest(
+                        for i, j in itertools.zip_longest(
                                 (", ".join(["``%s``" % _i
                                             for _i in option_strings]),),
                                 textwrap.wrap(help_, 50),
@@ -182,7 +182,7 @@ class LasifCLIDirective(Directive):
                         table.append(("**Optional Arguments**",))
 
                     for option_strings, help_ in optional_args:
-                        for i, j in itertools.izip_longest(
+                        for i, j in itertools.zip_longest(
                                 (", ".join(["``%s``" % _i
                                             for _i in option_strings]),),
                                  textwrap.wrap(help_, 20),
@@ -249,7 +249,7 @@ class LasifMPICLIDirective(Directive):
 
         mpi_enabled = []
         # Find function that have MPI.
-        for fct_name, fct in fcts.iteritems():
+        for fct_name, fct in fcts.items():
             if not hasattr(fct, "_is_mpi_enabled") or not fct._is_mpi_enabled:
                 continue
             mpi_enabled.append(fct_name)

@@ -35,9 +35,6 @@ already check if out. Its features boil down to being an interactive
 visualization platform of the current state of a LASIF project. You should be
 able to see the two events including different types of waveform data.
 
-In case you use SES3D, LASIF ships with a simple helper script assisting in
-finding suitable SES3D settings: :doc:`../ses3d_setup_helper`.
-
 
 Recap
 ^^^^^
