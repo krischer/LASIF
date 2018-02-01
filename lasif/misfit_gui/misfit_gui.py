@@ -386,7 +386,6 @@ def launch(comm):
     from PyQt5 import QtWidgets
     # Launch and open the window.
     app = QtWidgets.QApplication(sys.argv)
-    #app = QtGui.QApplication(sys.argv, QtGui.QApplication.GuiClient)
     window = Window(comm)
 
     # Move window to center of screen.
