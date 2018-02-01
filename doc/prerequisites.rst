@@ -57,7 +57,6 @@ installed almost everywhere.
     # Install the wfs_input_generator package.
     $ pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
 
-Blessadur
 
 .. code-block:: bash
 
