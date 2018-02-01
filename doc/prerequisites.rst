@@ -13,7 +13,7 @@ Installation
 Requirements
 ^^^^^^^^^^^^
 
-**LASIF** is a Python based program and has a number of dependencies which
+**LASIF 2.0** is a Python based program and has a number of dependencies which
 are listed here. It might well work with other versions but only the versions
 listed here have been tested and are officially supported. It has been
 tested on Linux and Mac OS X but should also run just fine on Windows.
@@ -57,6 +57,69 @@ installed almost everywhere.
     # Install the wfs_input_generator package.
     $ pip install https://github.com/krischer/wfs_input_generator/archive/master.zip
 
+Blessadur
+
+.. code-block:: bash
+
+    # Create a new conda environment which will here be called "lasif".
+    $ conda create -n lasif python=3.6
+    # Activate the lasif environment. This will always be needed when LASIF is started.
+    $ source activate lasif
+    # Start installing dependencies
+    $ conda install -c obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
+    $ conda install -c pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov
+    # Install more packages via pip
+    $ pip install geographiclib flask-cache geojson flake8 toml==0.9.2
+    # Pick a directory where you want to store pyexodus and move into it
+    $ git clone https://github.com/SalvusHub/pyexodus.git
+    $ cd pyexodus
+    $ pip install .
+    # Make sure you do not have an active installation of mpi4py from conda
+    $ conda uninstall mpi4py
+    # re-install it using pip
+    $ pip install mpi4py
+    # Install a parallel version of hdf5
+    $ conda install -c spectraldns h5py-parallel
+    # Install pyasdf
+    $ pip install pyasdf
+
+Make sure that pyasdf is working as it should by running the following command
+
+.. code-block:: bash
+
+    $ python -c "import pyaasdf; pyasdf.print_sys_info()"
+
+.. code-block:: bash
+
+    pyasdf version 0.3.0
+    ===============================================================================
+    CPython 3.6.4, compiler: GCC 4.2.1 Compatible Apple LLVM 6.1.0 (clang-602.0.53)
+    Darwin 16.7.0 64bit
+    Machine: x86_64, Processor: i386 with 4 cores
+    ===============================================================================
+    HDF5 version 1.8.14, h5py version: 2.6.0
+    MPI: MPICH, version: 3.2.0, mpi4py version: 3.0.0
+    Parallel I/O support: True
+    Problematic multiprocessing: None
+    ===============================================================================
+    Other_modules:
+	    dill: 0.2.7.1
+	    lxml: 4.1.1
+	    numpy: 1.14.0
+	    obspy: 1.1.0
+
+which should print something like the following lines:
+
+We now need a component of `Salvus <https://www.salvus.io>`_ salvus seismo.
+
+.. code-block:: bash
+
+    # Move to a directory where you want to store salvus seismo and then execute
+    $ git clone https://gitlab.com/Salvus/salvus_seismo
+    $ cd salvus_seismo/py
+    $ pip install -v -e .
+
+
 Installing LASIF
 ^^^^^^^^^^^^^^^^
 
@@ -64,8 +127,8 @@ The actual **LASIF** module can then be installed with
 
 .. code-block:: bash
 
-    $ git clone https://github.com/krischer/LASIF.git
-    $ cd LASIF
+    $ git clone git clone https://github.com/dirkphilip/LASIF_2.0.git
+    $ cd LASIF_2.0
     $ pip install -v -e .
 
 After the installation one should run the tests to ensure everything is

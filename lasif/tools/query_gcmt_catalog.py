@@ -152,7 +152,7 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
 
     while count:
         if not coordinates:
-            print("\tNo events left to select from. Stoping here.")
+            print("\tNo events left to select from. Stopping here.")
             break
         # Build kdtree and query for the point furthest away from any other
         # point.
@@ -170,7 +170,7 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
 
         if distance < threshold_distance_in_km:
             print("\tNo events left with distance to the next closest event "
-                  "of more then %.1f km. Stoping here." %
+                  "of more then %.1f km. Stopping here." %
                   threshold_distance_in_km)
             break
 
