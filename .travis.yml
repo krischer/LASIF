@@ -18,7 +18,7 @@ before_install:
 - git clone https://github.com/SalvusHub/pyexodus.git
 - cd pyexodus
 - pip install .
-- conda install -c spectraldns h5py-parallel
+- conda install --yes -c spectraldns h5py-parallel
 - cd ..
 - pip install pyasdf
 - git clone https://gitlab.com/Salvus/salvus_seismo
