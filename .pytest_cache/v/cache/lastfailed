@@ -1,4 +1,0 @@
-{
-  "lasif/rotations.py::lasif.rotations._get_axis_and_angle_from_rotation_matrix": true,
-  "lasif/rotations.py::lasif.rotations._get_vector": true
-}
