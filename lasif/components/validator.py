@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import collections
 import colorama
 import os
 import sys
 
 from .component import Component
-from .. import LASIFNotFoundError
 
 
 class ValidatorComponent(Component):
@@ -94,8 +92,7 @@ class ValidatorComponent(Component):
                 print("%sSkipping raypath checks for global domain...%s" % (
                     colorama.Fore.YELLOW, colorama.Fore.RESET))
             else:
-                files_failing_raypath_test = \
-                    self.validate_raypaths_in_domain()
+                self.validate_raypaths_in_domain()
         else:
             print("%sSkipping raypath checks.%s" % (
                 colorama.Fore.YELLOW, colorama.Fore.RESET))
@@ -122,7 +119,6 @@ class ValidatorComponent(Component):
                   (colorama.Fore.RED, colorama.Fore.RESET,
                    self._total_error_count, os.path.relpath(filename)))
 
-
     def validate_raypaths_in_domain(self):
         """
         Checks that all raypaths are within the specified domain boundaries.
@@ -132,9 +128,6 @@ class ValidatorComponent(Component):
         print("Making sure raypaths are within boundaries ", end="")
 
         all_good = True
-
-        # Collect list of files to be deleted.
-        stations_to_be_deleted = []
 
         for event_name, event in self.comm.events.get_all_events().items():
             self._flush_point()
@@ -149,20 +142,17 @@ class ValidatorComponent(Component):
                         raypath_steps=12):
                     continue
                 all_good = False
-                stations_to_be_deleted.append(station_id)
                 self._add_report(
-                        f"WARNING: "
-                        f"The event-station raypath for the "
-                        f"station\n\t'{station_id}'\n "
-                        f"does not fully lay within the domain. You might want "
-                        f"to remove the file or change the domain "
-                        f"specifications.")
+                    f"WARNING: "
+                    f"The event-station raypath for the "
+                    f"station\n\t'{station_id}'\n "
+                    f"does not fully lay within the domain. You might want"
+                    f" to remove the file or change the domain "
+                    f"specifications.")
         if all_good:
             self._print_ok_message()
         else:
             self._print_fail_message()
-
-        return stations_to_be_deleted
 
     def _validate_station_and_waveform_availability(self):
         """

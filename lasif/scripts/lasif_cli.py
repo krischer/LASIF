@@ -1027,21 +1027,19 @@ def lasif_validate_data(parser, args):
     parser.add_argument(
         "--raypaths", help="assert that all raypaths are within the "
         "set boundaries. Very slow.", action="store_true")
-
-
     parser.add_argument("--full", help="run all validations.",
                         action="store_true")
 
     args = parser.parse_args(args)
     full_check = args.full
-    data_and_station_file_availability = args.data_and_station_file_availability
+    data_and_station_file_availability = \
+        args.data_and_station_file_availability
     raypaths = args.raypaths
 
     # If full check, check everything.
     if full_check:
         data_and_station_file_availability = True
         raypaths = True
-
 
     comm = _find_project_comm(".")
     comm.validator.validate_data(
