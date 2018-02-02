@@ -462,8 +462,8 @@ def lasif_plot_stf(parser, args):
     stf_fct = comm.project.get_project_function(
         "source_time_function")
 
-    delta = comm.project.simulation_params["time_increment"]
-    npts = comm.project.simulation_params["number_of_time_steps"]
+    delta = comm.project.solver_settings["time_increment"]
+    npts = comm.project.solver_settings["number_of_time_steps"]
 
     stf = {"delta": delta}
 

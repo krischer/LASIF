@@ -152,7 +152,7 @@ class WaveformsComponent(Component):
         fct = self.comm.project.get_project_function("process_synthetics")
         processing_parmams = self.comm.project.processing_params
         processing_parmams["salvus_start_time"] = \
-            self.comm.project.simulation_params["start_time"]
+            self.comm.project.solver_settings["start_time"]
         return fct(st, processing_parmams,
                    event=self.comm.events.get(event_name))
 
@@ -163,13 +163,13 @@ class WaveformsComponent(Component):
 
         processing_parmams = self.comm.project.processing_params
         processing_parmams["salvus_start_time"] = \
-            self.comm.project.simulation_params["start_time"]
+            self.comm.project.solver_settings["start_time"]
         processing_parmams["dt"] = \
-            self.comm.project.simulation_params["time_increment"]
+            self.comm.project.solver_settings["time_increment"]
         processing_parmams["npts"] = \
-            self.comm.project.simulation_params["number_of_time_steps"]
+            self.comm.project.solver_settings["number_of_time_steps"]
         processing_parmams["end_time"] =\
-            self.comm.project.simulation_params["end_time"]
+            self.comm.project.solver_settings["end_time"]
 
         return fct(st, inv, processing_parmams,
                    event=self.comm.events.get(event_name))

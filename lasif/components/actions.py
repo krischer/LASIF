@@ -31,10 +31,10 @@ class ActionsComponent(Component):
         """
         from mpi4py import MPI
         process_params = self.comm.project.processing_params
-        simulation_params = self.comm.project.simulation_params
-        npts = simulation_params["number_of_time_steps"]
-        dt = simulation_params["time_increment"]
-        salvus_start_time = simulation_params["start_time"]
+        solver_settings = self.comm.project.solver_settings
+        npts = solver_settings["number_of_time_steps"]
+        dt = solver_settings["time_increment"]
+        salvus_start_time = solver_settings["start_time"]
 
         def processing_data_generator():
             """
@@ -430,8 +430,8 @@ class ActionsComponent(Component):
 
         import salvus_seismo
 
-        src_time_func = self.comm.project.\
-            computational_setup["source_time_function_type"]
+        src_time_func = self.comm.project. \
+            solver_settings["source_time_function_type"]
 
         if src_time_func == "bandpass_filtered_heaviside":
             salvus_seismo_src_time_func = "heaviside"
@@ -443,46 +443,46 @@ class ActionsComponent(Component):
             sliprate=salvus_seismo_src_time_func)
         recs = salvus_seismo.Receiver.parse(inv)
 
-        simulation_parameters = self.comm.project.simulation_params
+        solver_settings = self.comm.project.solver_settings
         mesh_file = self.comm.project.config["mesh_file"]
-        if simulation_parameters["number_of_absorbing_layers"] == 0:
+        if solver_settings["number_of_absorbing_layers"] == 0:
             num_absorbing_layers = None
         else:
             num_absorbing_layers = \
-                simulation_parameters["number_of_absorbing_layers"]
+                solver_settings["number_of_absorbing_layers"]
 
         # Generate the configuration object for salvus_seismo
         if simulation_type == "forward":
             config = salvus_seismo.Config(
                 mesh_file=mesh_file,
-                start_time=simulation_parameters["start_time"],
-                time_step=simulation_parameters["time_increment"],
-                end_time=simulation_parameters["end_time"],
+                start_time=solver_settings["start_time"],
+                time_step=solver_settings["time_increment"],
+                end_time=solver_settings["end_time"],
                 salvus_call=self.comm.project.
-                computational_setup["salvus_call"],
-                polynomial_order=simulation_parameters["polynomial_order"],
+                solver_settings["salvus_call"],
+                polynomial_order=solver_settings["polynomial_order"],
                 verbose=True,
                 dimensions=3,
                 num_absorbing_layers=num_absorbing_layers,
                 with_anisotropy=self.comm.project.
-                computational_setup["with_anisotropy"],
+                solver_settings["with_anisotropy"],
                 wavefield_file_name="wavefield.h5",
                 wavefield_fields="adjoint")
 
         elif simulation_type == "step_length":
             config = salvus_seismo.Config(
                 mesh_file=mesh_file,
-                start_time=simulation_parameters["start_time"],
-                time_step=simulation_parameters["time_increment"],
-                end_time=simulation_parameters["end_time"],
+                start_time=solver_settings["start_time"],
+                time_step=solver_settings["time_increment"],
+                end_time=solver_settings["end_time"],
                 salvus_call=self.comm.project.
-                computational_setup["salvus_call"],
-                polynomial_order=simulation_parameters["polynomial_order"],
+                solver_settings["salvus_call"],
+                polynomial_order=solver_settings["polynomial_order"],
                 verbose=True,
                 dimensions=3,
                 num_absorbing_layers=num_absorbing_layers,
                 with_anisotropy=self.comm.project.
-                computational_setup["with_anisotropy"])
+                solver_settings["with_anisotropy"])
 
         # ==============================================================j===
         # output
@@ -507,10 +507,14 @@ class ActionsComponent(Component):
             self.write_custom_stf(output_dir)
 
         run_salvus = os.path.join(output_dir, "run_salvus.sh")
+        io_sampling_rate = self.comm.project. \
+            solver_settings["io_samping_rate_volume"]
+        memory_per_rank = self.comm.project.\
+            solver_settings["io_memory_per_rank_in_MB"]
         if simulation_type == "forward":
             with open(run_salvus, "a") as fh:
-                fh.write(" --io-sampling-rate-volume 10"
-                         " --io-memory-per-rank-in-MB 5000")
+                fh.write(f" --io-sampling-rate-volume {io_sampling_rate}"
+                         f" --io-memory-per-rank-in-MB {memory_per_rank}")
 
     def write_custom_stf(self, output_dir):
         import toml
@@ -526,8 +530,8 @@ class ActionsComponent(Component):
         freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
         freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
 
-        delta = self.comm.project.simulation_params["time_increment"]
-        npts = self.comm.project.simulation_params["number_of_time_steps"]
+        delta = self.comm.project.solver_settings["time_increment"]
+        npts = self.comm.project.solver_settings["number_of_time_steps"]
 
         stf_fct = self.comm.project.get_project_function(
             "source_time_function")
@@ -662,13 +666,13 @@ class ActionsComponent(Component):
                     xyz = np.dot(zne, transform_mat.T)
 
                     source = f.create_dataset(station, data=xyz)
-                    source.attrs["dt"] = self.comm.project.\
-                        simulation_params["time_increment"]
+                    source.attrs["dt"] = self.comm.project. \
+                        solver_settings["time_increment"]
                     source.attrs['location'] = np.array(
                         receiver["salvus_coordinates"])
                     source.attrs['spatial-type'] = np.string_("vector")
-                    source.attrs['starttime'] = self.comm.project.\
-                        simulation_params["start_time"]
+                    source.attrs['starttime'] = self.comm.project. \
+                        solver_settings["start_time"]
 
                     toml_string += f"[[source]]\n" \
                                    f"name = \"{station}\"\n" \
@@ -679,12 +683,12 @@ class ActionsComponent(Component):
             fh.write(toml_string)
 
         mesh_file = self.comm.project.config["mesh_file"]
-        simulation_params = self.comm.project.simulation_params
-        start_time = simulation_params["start_time"]
-        end_time = simulation_params["end_time"]
-        time_step = simulation_params["time_increment"]
-        num_absorbing_layers = simulation_params["number_of_absorbing_layers"]
-        polynomial_order = simulation_params["polynomial_order"]
+        solver_settings = self.comm.project.solver_settings
+        start_time = solver_settings["start_time"]
+        end_time = solver_settings["end_time"]
+        time_step = solver_settings["time_increment"]
+        num_absorbing_layers = solver_settings["number_of_absorbing_layers"]
+        polynomial_order = solver_settings["polynomial_order"]
 
         possible_boundaries = set(("r0", "t0", "t1", "p0", "p1",
                                    "inner_boundary"))
