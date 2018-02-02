@@ -48,10 +48,10 @@ def _get_vector(*args):
 
     Creates a three component column vector from either a list or three single
     numbers. If it already is a correct vector, do nothing.
-    # doctest: +NORMALIZE_WHITESPACE
+
 
     >>> vec = _get_vector(1, 2, 3)
-    >>> vec
+    >>> vec # doctest: +NORMALIZE_WHITESPACE
     array([ 1.,  2.,  3.])
     >>> print(vec.dtype)
     float64
