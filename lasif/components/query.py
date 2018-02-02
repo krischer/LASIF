@@ -7,6 +7,7 @@ import os
 import warnings
 
 from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
+import pyasdf
 
 from .component import Component
 
@@ -36,9 +37,6 @@ class QueryComponent(Component):
         :type event_name: str
         :param event_name: Name of the event.
         """
-
-        import pyasdf
-
         waveform_file = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw")
 
@@ -51,8 +49,6 @@ class QueryComponent(Component):
 
         Must be in sync with :meth:`~.get_all_stations_for_event`.
         """
-        import pyasdf
-
         waveform_file = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw")
 
@@ -71,103 +67,6 @@ class QueryComponent(Component):
                 continue
             events[event] = data
         return events
-
-    def get_iteration_status(self, iteration, events=None):
-        """
-        Return the status of an iteration. This is a query command as it
-        integrates a lot of different information.
-
-        :param iteration: The iteration which to query.
-        :param events: If given, only the events of those events will be
-            queried. Otherwise all will be queried.
-
-        Returns a dictionary of events, each containing the following keys:
-        ``"missing_raw"``, ``"missing_processed"``,
-        ``"missing_synthetic"``, ``"fraction_of_stations_that_have_windows"``
-
-        Each of those is a list of stations missing for that particular data
-        type.
-        """
-        iteration = self.comm.iterations.get(iteration)
-
-        # Collect the status information per event.
-        status = collections.defaultdict(dict)
-
-        # Make sure events is a list of event names to ease the later check.
-        if events:
-            events = [self.comm.events.get(_i)["event_name"] for _i in events]
-
-        # Get all the data.
-        for event_name, event_dict in iteration.events.items():
-            # Skip events if some are specified.
-            if events and event_name not in events:
-                    continue
-
-            # Get all stations that should be defined for the current
-            # iteration.
-            stations = set(event_dict["stations"].keys())
-
-            # Raw data.
-            try:
-                raw = self.comm.waveforms.get_metadata_raw(event_name)
-                # Get a list of all stations
-                raw = set((
-                    "{network}.{station}".format(**_i) for _i in raw))
-                # Get the missing raw stations.
-                missing_raw = stations.difference(raw)
-            except LASIFNotFoundError:
-                missing_raw = set(stations)
-            status[event_name]["missing_raw"] = missing_raw
-
-            # Processed data.
-            try:
-                processed = self.comm.waveforms.get_metadata_processed(
-                    event_name, iteration.processing_tag)
-                # Get a list of all stations
-                processed = set((
-                    "{network}.{station}".format(**_i) for _i in processed))
-                # Get all stations in raw that are also defined for the
-                # current iteration.
-                # Get the missing raw stations.
-                missing_processed = stations.difference(processed)
-            except LASIFNotFoundError:
-                missing_processed = set(stations)
-            status[event_name]["missing_processed"] = missing_processed
-
-            # Synthetic data.
-            try:
-                synthetic = self.comm.waveforms.get_metadata_synthetic(
-                    event_name, iteration.long_name)
-                # Get a list of all stations
-                synthetic = set((
-                    "{network}.{station}".format(**_i) for _i in synthetic))
-                # Get all stations in raw that are also defined for the
-                # current iteration.
-                missing_synthetic = stations.difference(synthetic)
-            except LASIFNotFoundError:
-                missing_synthetic = set(stations)
-            status[event_name]["missing_synthetic"] = missing_synthetic
-
-            try:
-                windows = self.comm.windows.get(event_name, iteration)
-            except LASIFNotFoundError:
-                windows = 0
-            if windows:
-                # Get the windows per station.
-                windows = set(".".join(_i.split(".")[:2]) for _i in
-                              windows.list())
-                windows = stations.intersection(windows)
-            status[event_name]["fraction_of_stations_that_have_windows"] = \
-                float(len(windows)) / float(len(stations))
-
-        return dict(status)
-
-    def get_data_and_synthetics_iterator(self, iteration, event):
-        """
-        Get the processed data and matching synthetics for a particular event.
-        """
-        from ..tools.data_synthetics_iterator import DataSyntheticIterator
-        return DataSyntheticIterator(self.comm, iteration, event)
 
     def get_matching_waveforms(self, event, iteration, station_or_channel_id):
         seed_id = station_or_channel_id.split(".")
