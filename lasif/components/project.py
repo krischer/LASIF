@@ -127,15 +127,13 @@ class Project(Component):
 
         self.config = config_dict["lasif_project"]
         self.solver_settings = config_dict["solver_settings"]
-        self.simulation_params = self.solver_settings["simulation_parameters"]
+        self.solver_settings["start_time"] = \
+            - self.solver_settings["time_increment"]
+        self.solver_settings["number_of_time_steps"] = int(round((
+            self.solver_settings["end_time"] -
+            self.solver_settings["start_time"]) /
+            self.solver_settings["time_increment"]) + 1)
 
-        self.simulation_params["start_time"] = \
-            -self.simulation_params["time_increment"]
-        self.simulation_params["number_of_time_steps"] = int(round((
-            self.simulation_params["end_time"] -
-            self.simulation_params["start_time"]) /
-            self.simulation_params["time_increment"]) + 1)
-        self.computational_setup = self.solver_settings["computational_setup"]
         self.processing_params = config_dict["data_processing"]
 
         self.domain = lasif.domain.ExodusDomain(
@@ -279,14 +277,14 @@ class Project(Component):
                            "  scale_data_to_synthetics = true\n\n" \
 
         solver_par_str = "[solver_settings]\n" \
-                         "  [solver_settings.simulation_parameters]\n" \
                          "    number_of_absorbing_layers = 7\n" \
                          "    end_time = 2700.0\n" \
                          "    time_increment = 0.1\n" \
                          "    polynomial_order = 4\n\n" \
-                         "  [solver_settings.computational_setup]\n" \
                          "    salvus_bin = \"salvus_wave/build/salvus\"\n" \
                          "    number_of_processors = 4\n" \
+                         "    io_sampling_rate_volume = 20\n" \
+                         "    io_memory_per_rank_in_MB = 5000\n" \
                          "    salvus_call = \"mpirun -n 4\"\n\n" \
                          "    with_anisotropy = true\n" \
                          "    with_attenuation = false\n\n" \

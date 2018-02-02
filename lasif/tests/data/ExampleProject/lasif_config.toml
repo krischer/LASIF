@@ -18,30 +18,28 @@
     channel_priorities = [ "BH[Z,N,E]", "LH[Z,N,E]",     "HH[Z,N,E]", "EH[Z,N,E]", "MH[Z,N,E]",]
     location_priorities = [ "", "00", "10", "20", "01", "02",]
 
-# Data processing settings,. high- and lowpass period are given in seconds.
+# Data processing settings,  high- and lowpass period are given in seconds.
 [data_processing]
   highpass_period = 30.0
   lowpass_period = 50.0
 
   # You most likely want to keep this setting at true.
-  scale_data_to_synthethics = true
+  scale_data_to_synthetics = true
 
 [solver_settings]
-  [solver_settings.simulation_parameters]
-    number_of_time_steps = 2000
-    time_increment = 0.1
+    number_of_absorbing_layers = 7
     end_time = 2700.0
-    start_time = -10.0
-    dimensions = 3
+    time_increment = 0.1
+    polynomial_order = 4
 
-  [solver_settings.computational_setup]
     salvus_bin = "salvus_wave/build/salvus"
     number_of_processors = 4
+    io_sampling_rate_volume = 20
+    io_memory_per_rank_in_MB = 5000
     salvus_call = "mpirun -n 4"
+
     with_anisotropy = true
+    with_attenuation = false
 
-    # Source time function type, currently "delta" and "ricker" are supported 
-    # When a ricker wavelet is used, please provide the center frequency.
-    source_time_function_type = "delta"
-    source_center_frequency = 0.025
-
+    # Source time function type, currently only "heaviside" and bandpass_filtered_heaviside" are supported
+    source_time_function_type = "bandpass_filtered_heaviside"
