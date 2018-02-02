@@ -22,6 +22,7 @@ import warnings
 
 import lasif.domain
 from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
+from .adjoint_sources import AdjointSourcesComponent
 from .actions import ActionsComponent
 from .communicator import Communicator
 from .component import Component
@@ -33,7 +34,7 @@ from .validator import ValidatorComponent
 from .visualizations import VisualizationsComponent
 from .waveforms import WaveformsComponent
 from .weights import WeightsComponent
-from .windows import WindowsAndAdjointSourcesComponent
+from .windows import WindowsComponent
 
 
 class Project(Component):
@@ -172,10 +173,13 @@ class Project(Component):
                          component_name="actions")
         ValidatorComponent(communicator=self.comm,
                            component_name="validator")
-        WindowsAndAdjointSourcesComponent(
+        AdjointSourcesComponent(
             folder=self.paths["adjoint_sources"],
             communicator=self.comm,
-            component_name="wins_and_adj_sources")
+            component_name="adj_sources")
+        WindowsComponent(
+            communicator=self.comm,
+            component_name="windows")
 
         # Data downloading component.
         DownloadsComponent(communicator=self.comm,

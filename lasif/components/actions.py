@@ -117,7 +117,7 @@ class ActionsComponent(Component):
 
         # Read all windows on rank 0 and broadcast.
         if MPI.COMM_WORLD.rank == 0:
-            all_windows = self.comm.wins_and_adj_sources.read_all_windows(
+            all_windows = self.comm.windows.read_all_windows(
                 event=event["event_name"], window_set_name=window_set_name
             )
         else:
@@ -181,7 +181,7 @@ class ActionsComponent(Component):
                     for starttime, endtime in windows:
                         asrc = \
                             self.comm.\
-                            wins_and_adj_sources.calculate_adjoint_source(
+                            adjoint_sources.calculate_adjoint_source(
                                 data=data_tr, synth=synth_tr,
                                 starttime=starttime, endtime=endtime,
                                 taper="hann", taper_percentage=0.05,
@@ -219,7 +219,7 @@ class ActionsComponent(Component):
 
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
-            self.comm.wins_and_adj_sources.write_adjoint_sources(
+            self.comm.adj_sources.write_adjoint_sources(
                 event=event["event_name"], iteration=iteration,
                 adj_sources=results)
 
@@ -336,7 +336,7 @@ class ActionsComponent(Component):
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
             print("Selected windows: ", results)
-            self.comm.wins_and_adj_sources.write_windows_to_sql(
+            self.comm.windows.write_windows_to_sql(
                 event_name=event["event_name"], windows=results,
                 window_set_name=window_set_name)
 
@@ -364,7 +364,7 @@ class ActionsComponent(Component):
         minimum_period = process_params["highpass_period"]
         maximum_period = process_params["lowpass_period"]
 
-        window_group_manager = self.comm.wins_and_adj_sources.get(
+        window_group_manager = self.comm.windows.get(
             window_set_name)
 
         found_something = False
@@ -608,7 +608,7 @@ class ActionsComponent(Component):
         iteration = self.comm.iterations.\
             get_long_iteration_name(iteration_name)
 
-        adj_src_file = self.comm.wins_and_adj_sources.\
+        adj_src_file = self.comm.adj_sources.\
             get_filename(event, iteration)
 
         ds = pyasdf.ASDFDataSet(adj_src_file)

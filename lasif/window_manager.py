@@ -506,7 +506,7 @@ class Window(object):
                              "communicator instance.")
         if self.misfit_type is None:
             self.misfit_type = DEFAULT_AD_SRC_TYPE
-        adsrc = self.comm.adjoint_sources.calculate_adjoint_source(
+        adsrc = self.comm.adj_sources.calculate_adjoint_source(
             self.__collection.event_name, self.__collection.synthetics_tag,
             self.__collection.channel_id,
             self.starttime, self.endtime, self.taper,
@@ -524,7 +524,7 @@ class Window(object):
         plt.close("all")
         plt.figure(figsize=(15, 10))
 
-        self.comm.adjoint_sources.calculate_adjoint_source(
+        self.comm.adj_sources.calculate_adjoint_source(
             self.__collection.event_name, self.__collection.synthetics_tag,
             self.__collection.channel_id,
             self.starttime, self.endtime, self.taper,

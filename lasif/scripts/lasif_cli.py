@@ -558,7 +558,7 @@ def lasif_calculate_adjoint_sources(parser, args):
     comm = _find_project_comm_mpi(".")
 
     # some basic checks
-    if not comm.wins_and_adj_sources.has_window_set(window_set_name):
+    if not comm.windows.has_window_set(window_set_name):
         if MPI.COMM_WORLD.rank == 0:
             raise LASIFNotFoundError(
                 "Window set {} not known to LASIF".format(window_set_name))
@@ -590,8 +590,8 @@ def lasif_calculate_adjoint_sources(parser, args):
                                  reset=colorama.Style.RESET_ALL))
 
         # Get adjoint sources_filename
-        filename = comm.wins_and_adj_sources.get_filename(event=event,
-                                                          iteration=iteration)
+        filename = comm.adj_sources.get_filename(event=event,
+                                                 iteration=iteration)
         # remove adjoint sources if they already exist
         if MPI.COMM_WORLD.rank == 0:
             if os.path.exists(filename):

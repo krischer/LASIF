@@ -6,6 +6,7 @@ import collections
 import fnmatch
 import os
 import warnings
+import pyasdf
 
 from lasif import LASIFNotFoundError, LASIFWarning
 from .component import Component
@@ -176,8 +177,6 @@ class WaveformsComponent(Component):
 
     def _get_waveforms(self, event_name, station_id, data_type,
                        tag_or_iteration=None, get_inventory=False):
-        import pyasdf
-
         filename = self.get_asdf_filename(event_name=event_name,
                                           data_type=data_type,
                                           tag_or_iteration=tag_or_iteration)
@@ -256,8 +255,6 @@ class WaveformsComponent(Component):
         :param event_name: The event name.
         :param station_id: The station id.
         """
-        import pyasdf
-
         information = {
             "raw": {},
             "processed": {},

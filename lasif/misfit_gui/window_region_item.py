@@ -74,7 +74,7 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
                                                       self.channel_name)
 
         process_params = self.comm.project.processing_params
-        self.comm.wins_and_adj_sources.calculate_adjoint_source(
+        self.comm.adj_sources.calculate_adjoint_source(
             data=data.data[0], synth=data.synthetics[0], starttime=self.start,
             endtime=self.end, taper="hann",
             taper_percentage=0.05,

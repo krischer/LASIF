@@ -84,7 +84,7 @@ class Window(QtGui.QMainWindow):
         self.ui.iteration_selection_comboBox.addItems(
             self.comm.iterations.list())
         self.ui.window_set_selection_comboBox.addItems(
-            self.comm.wins_and_adj_sources.list())
+            self.comm.windows.list())
 
         for component in ["z", "n", "e"]:
             p = getattr(self.ui, "%s_graph" % component)
@@ -153,7 +153,7 @@ class Window(QtGui.QMainWindow):
         value = str(value).strip()
         if not value:
             return
-        self.current_window_manager = self.comm.wins_and_adj_sources.get(value)
+        self.current_window_manager = self.comm.windows.get(value)
         self._reset_all_plots()
 
         if self.current_station is not None:
