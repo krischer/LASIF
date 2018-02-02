@@ -52,19 +52,19 @@ def _get_vector(*args):
 
     >>> vec = _get_vector(1, 2, 3)
     >>> vec # doctest: +NORMALIZE_WHITESPACE
-    array([ 1.,  2.,  3.])
+    array([1., 2., 3.])
     >>> print(vec.dtype)
     float64
 
     >>> vec = _get_vector([1, 2, 3])
     >>> vec
-    array([ 1.,  2.,  3.])
+    array([1., 2., 3.])
     >>> print(vec.dtype)
     float64
 
     >>> vec = _get_vector(np.array([1, 2, 3], dtype="int32"))
     >>> vec
-    array([ 1.,  2.,  3.])
+    array([1., 2., 3.])
     >>> print(vec.dtype)
     float64
 
@@ -251,28 +251,6 @@ def lat_lon_radius_to_xyz(lat, lon, r):
     y = r * np.sin(colat) * np.sin(lon)
     z = r * np.cos(colat)
     return _get_vector(x, y, z)
-
-
-def _get_axis_and_angle_from_rotation_matrix(M):
-    """
-    Extracts the axis and angle from a rotation matrix.
-
-    >>> M = _get_rotation_matrix([0.26726124, 0.53452248, 0.80178373], 40)
-    >>> _get_axis_and_angle_from_rotation_matrix(M)  \
-    # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    (array([ 0.26726124,  0.53452248,  0.80178373]), 40.00...)
-    """
-    x = M[2, 1] - M[1, 2]
-    y = M[0, 2] - M[2, 0]
-    z = M[1, 0] - M[0, 1]
-
-    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
-    t = M[0, 0] + M[1, 1] + M[2, 2]
-    theta = np.arctan2(r, t - 1)
-    axis = [x, y, z]
-    axis /= np.linalg.norm(axis)
-
-    return axis, np.rad2deg(theta)
 
 
 def _get_rotation_and_base_transfer_matrix(lat, lon, rotation_axis, angle):
