@@ -1020,36 +1020,33 @@ def lasif_validate_data(parser, args):
           intended to detect values specified in wrong units.
     """
     parser.add_argument(
-        "--station_file_availability",
-        help="asserts that all waveform files have corresponding station "
-        "files. Very slow.",
+        "--data_and_station_file_availability",
+        help="asserts that all stations have corresponding station "
+        "files and all stations have waveforms. Very slow.",
         action="store_true")
     parser.add_argument(
         "--raypaths", help="assert that all raypaths are within the "
         "set boundaries. Very slow.", action="store_true")
-    parser.add_argument(
-        "--waveforms", help="asserts that waveforms for one event have only "
-        "a single location and channel type. Fast.", action="store_true")
+
 
     parser.add_argument("--full", help="run all validations.",
                         action="store_true")
 
     args = parser.parse_args(args)
     full_check = args.full
-    station_file_availability = args.station_file_availability
+    data_and_station_file_availability = args.data_and_station_file_availability
     raypaths = args.raypaths
-    waveforms = args.waveforms
 
     # If full check, check everything.
     if full_check:
-        station_file_availability = True
+        data_and_station_file_availability = True
         raypaths = True
-        waveforms = True
+
 
     comm = _find_project_comm(".")
     comm.validator.validate_data(
-        station_file_availability=station_file_availability,
-        raypaths=raypaths, waveforms=waveforms)
+        data_and_station_file_availability=data_and_station_file_availability,
+        raypaths=raypaths)
 
 
 def lasif_tutorial(parser, args):
