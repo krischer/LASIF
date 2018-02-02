@@ -216,6 +216,7 @@ class Project(Component):
         self.paths["output"] = root_path / "OUTPUT"
         self.paths["logs"] = root_path / "OUTPUT" / "LOGS"
         self.paths["salvus_input"] = root_path / "SALVUS_INPUT_FILES"
+        self.paths["models"] = root_path / "MODELS"
 
         # Path for the custom functions.
         self.paths["functions"] = root_path / "FUNCTIONS"
