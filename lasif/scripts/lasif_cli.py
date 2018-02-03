@@ -1054,36 +1054,7 @@ def lasif_tutorial(parser, args):
     parser.parse_args(args)
 
     import webbrowser
-    webbrowser.open("http://krischer.github.io/LASIF/")
-
-
-def lasif_debug(parser, args):
-    """
-    Print information LASIF can gather from a list of files.
-    """
-    parser.add_argument(
-        "files", help="filenames to print debug information about", nargs="+")
-    args = parser.parse_args(args)
-    comm = _find_project_comm(".")
-
-    for filename in args.files:
-        filename = os.path.relpath(filename)
-        if not os.path.exists(filename):
-            print("{red}Path '{f}' does not exist.{reset}\n".format(
-                f=filename, red=colorama.Fore.RED,
-                reset=colorama.Style.RESET_ALL))
-            continue
-        print("{green}Path '{f}':{reset}".format(
-            f=filename, green=colorama.Fore.GREEN,
-            reset=colorama.Style.RESET_ALL))
-
-        try:
-            info = comm.query.what_is(filename)
-        except LASIFError as e:
-            info = "Error: %s" % e.message
-
-        print("\t" + info)
-        print("")
+    webbrowser.open("http://dirkphilip.github.io/LASIF_2.0/")
 
 
 @command_group("Misc")
