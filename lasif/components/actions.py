@@ -181,7 +181,7 @@ class ActionsComponent(Component):
                     for starttime, endtime in windows:
                         asrc = \
                             self.comm.\
-                            adjoint_sources.calculate_adjoint_source(
+                            adj_sources.calculate_adjoint_source(
                                 data=data_tr, synth=synth_tr,
                                 starttime=starttime, endtime=endtime,
                                 taper="hann", taper_percentage=0.05,
@@ -508,7 +508,7 @@ class ActionsComponent(Component):
 
         run_salvus = os.path.join(output_dir, "run_salvus.sh")
         io_sampling_rate = self.comm.project. \
-            solver_settings["io_samping_rate_volume"]
+            solver_settings["io_sampling_rate_volume"]
         memory_per_rank = self.comm.project.\
             solver_settings["io_memory_per_rank_in_MB"]
         if simulation_type == "forward":
@@ -653,15 +653,13 @@ class ActionsComponent(Component):
                     n_comp = adj_src[channel].data.value
                 elif channel[-1] == "Z":
                     z_comp = adj_src[channel].data.value
-                print(np.sum(z_comp))
                 zne = np.array((z_comp, n_comp, e_comp)).T
-
             for receiver in receivers:
 
                 station = receiver["network"] + "_" + receiver["station"]
 
                 if station == station_name:
-                    print("writing source")
+                    print(f"writing adjoint source for station: {station}")
                     transform_mat = np.array(receiver["transform_matrix"])
                     xyz = np.dot(zne, transform_mat.T)
 
