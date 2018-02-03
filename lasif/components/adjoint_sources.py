@@ -51,7 +51,7 @@ class AdjointSourcesComponent(Component):
             os.makedirs(folder)
 
         return os.path.join(
-            folder, "ADJ_SRC" + event["event_name"] + ".h5")
+            folder, "ADJ_SRC_" + event["event_name"] + ".h5")
 
     def write_adjoint_sources(self, event, iteration, adj_sources):
         """
@@ -97,6 +97,9 @@ class AdjointSourcesComponent(Component):
         :param ad_src_type: The type of adjoint source. Currently supported
             are ``"TimeFrequencyPhaseMisfitFichtner2008"`` and ``"L2Norm"``.
         """
+        # copy because otherwise the passed traces get modified
+        data = copy.deepcopy(data)
+        synth = copy.deepcopy(synth)
         if ad_src_type not in MISFIT_MAPPING:
             raise LASIFAdjointSourceCalculationError(
                 "Adjoint source type '%s' not supported. Supported types: %s"
