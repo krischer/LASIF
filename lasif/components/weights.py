@@ -28,11 +28,11 @@ class WeightsComponent(Component):
         Helper function returning the filename of a weight set.
         """
         long_weight_set_name = self.get_long_weight_set_name(weight_set)
-        folder = self.get_folder_for_weight_set(weight_set)
+        folder = self._get_folder_for_weight_set(weight_set)
         return os.path.join(
             folder, long_weight_set_name + os.path.extsep + "toml")
 
-    def get_folder_for_weight_set(self, weight_set_name):
+    def _get_folder_for_weight_set(self, weight_set_name):
         """
         Helper function returning the path of a weights folder.
         """

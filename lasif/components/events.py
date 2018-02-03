@@ -58,7 +58,7 @@ class EventsComponent(Component):
             event_name = os.path.splitext(os.path.basename(file))[0]
             self.all_events[event_name] = file
 
-    def update_cache(self):
+    def _update_cache(self):
         files = glob.glob(os.path.join(self.folder, '*.h5'))
         for filename in files:
             event_name = os.path.splitext(os.path.basename(filename))[0]
@@ -118,7 +118,7 @@ class EventsComponent(Component):
         ['GCMT_event_ICELAND_Mag_5.5_2014-10-7-10',
         'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13']
         """
-        self.update_cache()
+        self._update_cache()
         return sorted(self.__event_info_cache.keys())
 
     def count(self):
@@ -165,7 +165,7 @@ class EventsComponent(Component):
          'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13': {...}}
         """
         # make sure cache is filled
-        self.update_cache()
+        self._update_cache()
         return copy.deepcopy(self.__event_info_cache)
 
     def get(self, event_name):
