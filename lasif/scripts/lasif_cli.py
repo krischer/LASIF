@@ -942,15 +942,21 @@ def lasif_plot_window_statistics(parser, args):
     """
     Plot the selected windows.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("window_set_name", help="name of the window set")
+    parser.add_argument(
+        "events", help="One or more events. If none given, all will be done.",
+        nargs="*")
     args = parser.parse_args(args)
 
-    iteration_name = args.iteration_name
+    window_set_name = args.window_set_name
     comm = _find_project_comm(".")
 
-    if args.combine:
-        comm.visualizations.plot_window_statistics(
-            iteration=iteration_name, ax=None, show=True)
+    if not comm.windows.has_window_set(window_set_name):
+        raise LASIFNotFoundError("Could not find the specified window set")
+
+    events = args.events if args.events else comm.events.list()
+    comm.visualizations.plot_window_statistics(
+        window_set_name, events, ax=None, show=True)
 
 
 @command_group("Plotting")
@@ -958,42 +964,22 @@ def lasif_plot_windows(parser, args):
     """
     Plot the selected windows.
     """
-    parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("event_name", help="name of the event")
-    parser.add_argument(
-        "--combine",
-        help="Create a combined plot for all windows of that event.",
-        action="store_true")
+    parser.add_argument("window_set_name", help="name of the window set")
     parser.add_argument("--distance_bins", type=int,
                         help="The number of bins on the distance axis for "
                              "the combined plot.",
                         default=500)
     args = parser.parse_args(args)
 
-    iteration_name = args.iteration_name
     event_name = args.event_name
-
+    window_set_name = args.window_set_name
     comm = _find_project_comm(".")
 
-    if args.combine:
-        comm.visualizations.plot_windows(event=event_name,
-                                         iteration=iteration_name, ax=None,
-                                         distance_bins=args.distance_bins,
-                                         show=True)
-    else:
-        output_folder = comm.project.get_output_folder(
-            type="plotted_windows",
-            tag="Iteration_%s__%s" % (event_name, iteration_name))
-
-        window_manager = comm.windows.get(event_name, iteration_name)
-        for window_group in window_manager:
-            window_group.plot(show=False, filename=os.path.join(output_folder,
-                              "%s.png" % window_group.channel_id))
-            sys.stdout.write(".")
-            sys.stdout.flush()
-        print("\nDone")
-
-        print("Done. Written output to folder %s." % output_folder)
+    comm.visualizations.plot_windows(event=event_name,
+                                     window_set_name=window_set_name, ax=None,
+                                     distance_bins=args.distance_bins,
+                                     show=True)
 
 
 @command_group("Project Management")

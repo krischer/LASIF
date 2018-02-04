@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import copy
 import itertools
 import math
 import numpy as np
@@ -21,6 +20,7 @@ class VisualizationsComponent(Component):
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
+
     def plot_events(self, plot_type="map"):
         """
         Plots the domain and beachballs for all events on the map.
@@ -132,7 +132,7 @@ class VisualizationsComponent(Component):
             plt.savefig(outfile, dpi=200, transparent=True)
             print("Saved picture at %s" % outfile)
 
-    def plot_windows(self, event, iteration, distance_bins=500,
+    def plot_windows(self, event, window_set_name, distance_bins=500,
                      ax=None, show=True):
         """
         Plot all selected windows on a epicentral distance vs duration plot
@@ -141,7 +141,7 @@ class VisualizationsComponent(Component):
         iteration are.
 
         :param event: The event.
-        :param iteration: The iteration.
+        :param window_set_name: The window set.
         :param distance_bins: The number of bins on the epicentral
             distance axis.
         :param ax: If given, it will be plotted to this ax.
@@ -151,16 +151,18 @@ class VisualizationsComponent(Component):
         from obspy.geodetics.base import locations2degrees
 
         event = self.comm.events.get(event)
-        iteration = self.comm.iterations.get(iteration)
-        pparam = iteration.get_process_params()
-        window_manager = self.comm.windows.get(event, iteration)
-
+        window_manager = self.comm.windows.\
+            read_all_windows(event=event["event_name"],
+                             window_set_name=window_set_name)
         starttime = event["origin_time"]
-        duration = (pparam["npts"] - 1) * pparam["dt"]
+        duration = self.comm.project.\
+            solver_settings["end_time"] - \
+            self.comm.project.solver_settings["start_time"]
 
         # First step is to calculate all epicentral distances.
-        stations = copy.deepcopy(self.comm.query.get_all_stations_for_event(
-            event["event_name"]))
+        stations = self.comm.query.get_all_stations_for_event(
+            event["event_name"])
+
         for s in stations.values():
             s["epicentral_distance"] = locations2degrees(
                 event["latitude"], event["longitude"], s["latitude"],
@@ -206,13 +208,13 @@ class VisualizationsComponent(Component):
                 raise ValueError
             return _map[channel]
 
-        for channel in window_manager.list():
-            station = ".".join(channel.split(".")[:2])
-            for win in window_manager.get(channel):
-                image[
-                    _space_index(stations[station]["epicentral_distance"]),
-                    _time_index(win.starttime):_time_index(win.endtime),
-                    _color_index(channel)] = 255
+        for station in window_manager:
+            for channel in window_manager[station]:
+                for win in window_manager[station][channel]:
+                    image[_space_index(
+                        stations[station]["epicentral_distance"]),
+                        _time_index(win[0]):_time_index(win[1]),
+                        _color_index(channel)] = 255
 
         # From http://colorbrewer2.org/
         color_map = {
@@ -265,8 +267,10 @@ class VisualizationsComponent(Component):
         ax.imshow(image, aspect="auto", interpolation="nearest", vmin=0,
                   vmax=255, origin="lower")
         ax.grid()
-        ax.set_title("Selected windows for iteration %s and event %s" % (
-                     iteration.name, event["event_name"]))
+        event_name = event["event_name"]
+        ax.set_title(f"Selected windows for window set "
+                     f"{window_set_name} and event "
+                     f"{event_name}")
 
         ax.legend(artists, labels, loc="lower right",
                   title="Selected Components")
@@ -302,8 +306,8 @@ class VisualizationsComponent(Component):
 
         return ax
 
-    def plot_window_statistics(self, iteration, ax=None, show=True,
-                               cache=True):
+    def plot_window_statistics(self, window_set_name,
+                               events, ax=None, show=True):
         """
         Plots the statistics of windows for one iteration.
 
@@ -315,15 +319,14 @@ class VisualizationsComponent(Component):
         :return: The potentially created axes object.
         """
         # Get the statistics.
-        data = self.comm.windows.get_window_statistics(iteration=iteration,
-                                                       cache=cache)
+        data = self.comm.windows.get_window_statistics(window_set_name, events)
 
         import matplotlib
         import matplotlib.pylab as plt
         import seaborn as sns
 
         if ax is None:
-            plt.figure(figsize=(20, 12))
+            plt.figure(figsize=(10, 6))
             ax = plt.gca()
 
         ax.invert_yaxis()
@@ -349,8 +352,11 @@ class VisualizationsComponent(Component):
             count_n.append(d["stations_with_north_windows"])
             count_e.append(d["stations_with_east_windows"])
 
-            frac = int(round(100 * d["stations_with_windows"] /
-                             float(d["total_station_count"])))
+            if d["total_station_count"] == 0:
+                frac = int(0)
+            else:
+                frac = int(round(100 * d["stations_with_windows"] /
+                                 float(d["total_station_count"])))
 
             color = cm(frac / 70.0)
 
@@ -369,13 +375,14 @@ class VisualizationsComponent(Component):
 
         ax.set_xlabel("Station Count")
 
-        ax.set_yticks(ind + 2 * width, event_names)
+        ax.set_yticks(ind + 2 * width)
+        ax.set_yticklabels(event_names)
         ax.yaxis.set_tick_params(pad=30)
         ax.set_ylim(len(data), -width)
 
         ax.legend(frameon=True)
 
-        plt.suptitle("Window Statistics for Iteration %i" % 1)
+        plt.suptitle(f"Window Statistics for window set {window_set_name}")
 
         plt.tight_layout()
         plt.subplots_adjust(top=0.95)
@@ -452,7 +459,7 @@ class VisualizationsComponent(Component):
 
         event = self.comm.events.get(event_name)
         tag = self.comm.waveforms.preprocessing_tag
-        asdf_filename = self.comm.waveforms.\
+        asdf_filename = self.comm.waveforms. \
             get_asdf_filename(event_name=event_name, data_type=data_type,
                               tag_or_iteration=tag)
 

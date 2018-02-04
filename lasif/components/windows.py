@@ -83,3 +83,62 @@ class WindowsComponent(Component):
         """
         window_group_manager = self.get(window_set_name)
         return window_group_manager.get_all_windows_for_event(event_name=event)
+
+    def get_window_statistics(self, window_set_name, events):
+        """
+        Get a dictionary with window statistics for an iteration per event.
+        Depending on the size of your inversion and chosen iteration,
+        this might take a while...
+        :param window_set_name: The window_set_name.
+        :param events: List of event(s)
+        """
+        statistics = {}
+
+        for _i, event in enumerate(events):
+            print("Collecting statistics for event %i of %i ..." % (
+                _i + 1, len(events)))
+
+            wm = self.read_all_windows(event=event,
+                                       window_set_name=window_set_name)
+
+            # wm is dict with stations/channels/list of start_end tuples
+            station_details = \
+                self.comm.query.get_all_stations_for_event(event)
+
+            component_window_count = {"E": 0, "N": 0, "Z": 0}
+            component_length_sum = {"E": 0, "N": 0, "Z": 0}
+            stations_with_windows_count = 0
+            stations_without_windows_count = 0
+            for station in station_details.keys():
+                wins = wm[station] if station in wm.keys() else {}
+                has_windows = False
+                for channel, windows in wins.items():
+                    component = channel[-1].upper()
+
+                    total_length = 0.0
+                    for window in windows:
+                        total_length += window[1] - window[0]
+                    if not total_length > 0.0:
+                        continue
+                    has_windows = True
+                    component_window_count[component] += 1
+                    component_length_sum[component] += total_length
+                if has_windows:
+                    stations_with_windows_count += 1
+                else:
+                    stations_without_windows_count += 1
+
+            statistics[event] = {
+                "total_station_count": len(station_details.keys()),
+                "stations_with_windows": stations_with_windows_count,
+                "stations_without_windows": stations_without_windows_count,
+                "stations_with_vertical_windows": component_window_count["Z"],
+                "stations_with_north_windows": component_window_count["N"],
+                "stations_with_east_windows": component_window_count["E"],
+                "total_window_length": sum(component_length_sum.values()),
+                "window_length_vertical_components": component_length_sum["Z"],
+                "window_length_north_components": component_length_sum["N"],
+                "window_length_east_components": component_length_sum["E"]
+            }
+
+        return statistics
