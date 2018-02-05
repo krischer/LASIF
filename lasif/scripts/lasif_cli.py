@@ -730,10 +730,10 @@ def lasif_compare_misfits(parser, args):
         if args.print_events:
             # Print information about every event.
             from_it_misfit_event = \
-                comm.adj_sources.get_misfit_for_event(event, 
+                comm.adj_sources.get_misfit_for_event(event,
                                                       args.from_iteration)
             to_it_misfit_event = \
-                comm.adj_sources.get_misfit_for_event(event, 
+                comm.adj_sources.get_misfit_for_event(event,
                                                       args.to_iteration)
             print(f"{event}: \n"
                   f"\t iteration {from_it} has misfit: "
@@ -746,7 +746,7 @@ def lasif_compare_misfits(parser, args):
     
     print(f"Relative change in total misfit from iteration {from_it} to "
           f"{to_it} is: {rel_change}")
-
+    
     n_events = len(comm.events.list())
     print(f"Misfit per event for iteration {from_it}: "
           f"{from_it_misfit/n_events}")
