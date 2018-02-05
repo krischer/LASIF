@@ -726,7 +726,7 @@ def lasif_compare_misfits(parser, args):
     to_it_misfit = 0.0
     for event in comm.events.list():
         from_it_misfit += comm.adj_sources.get_misfit_for_event(event,
-                                                            args.from_iteration)
+                                                         args.from_iteration)
         to_it_misfit += comm.adj_sources.get_misfit_for_event(event,
                                                           args.to_iteration)
         if args.print_events:
@@ -736,23 +736,23 @@ def lasif_compare_misfits(parser, args):
             to_it_misfit_event = comm.adj_sources.get_misfit_for_event(
                                                     event, args.to_iteration)
             print(f"{event}: \n"
-                  f"\t iteration {from_it} has misfit: {from_it_misfit_event} \n"
+                  f"\t iteration {from_it} has misfit: "
+                  f"{from_it_misfit_event} \n"
                   f"\t iteration {to_it} has misfit: {to_it_misfit_event}.")
 
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
     print(f"Total misfit for iteration {to_it}: {to_it_misfit}")
     rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit
-    print(f"Relative change in total misfit from iteration {from_it} to {to_it}"
-          f"is: {rel_change}".format(from_it,to_it,rel_change))
+    
+    print(f"Relative change in total misfit from iteration {from_it} to "
+          f"{to_it} is: {rel_change}".format(from_it,to_it,rel_change))
 
     n_events = len(comm.events.list())
-    print(f"Misfit per event for iteration {from_it}: {from_it_misfit/n_events}")
-    print(f"Misfit per event for iteration {to_it}: {to_it_misfit/n_events}")
-
-    # Take together these two misfits and spit out.
-    # Maybe a good idea to return compare misfit for each event.
-    # Could be an optional argument to check all events.
-
+    print(f"Misfit per event for iteration {from_it}: "
+          f"{from_it_misfit/n_events}")
+    print(f"Misfit per event for iteration {to_it}: "
+          f"{to_it_misfit/n_events}")
+    
 
 @command_group("Iteration Management")
 def lasif_list_weight_sets(parser, args):
