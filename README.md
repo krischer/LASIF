@@ -1,10 +1,10 @@
 ![Logo](/doc/images/logo/lasif_logo.png)
 ---
 [![Build Status](https://api.travis-ci.org/dirkphilip/LASIF_2.0.png?branch=master)](https://travis-ci.org/dirkphilip/LASIF_2.0)
-[![GPLv3](http://www.gnu.org/graphics/gplv3-88x31.png)](https://github.com/krischer/LASIF/blob/master/LICENSE)
+[![GPLv3](http://www.gnu.org/graphics/gplv3-88x31.png)](https://github.com/dirkphilip/LASIF_2.0/blob/master/LICENSE)
 
 
-Documentation: [LASIF](http://krischer.github.io/LASIF)
+Documentation: [LASIF](http://dirkphilip.github.io/LASIF_2.0)
 
 
 ### Paper
