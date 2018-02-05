@@ -75,7 +75,6 @@ class AdjointSourcesComponent(Component):
 
         return total_misfit
 
-
     def write_adjoint_sources(self, event, iteration, adj_sources):
         """
         Write an ASDF file
