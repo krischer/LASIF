@@ -45,7 +45,7 @@ class WindowsComponent(Component):
 
     def has_window_set(self, window_set_name):
         """
-        Checks whether a window set is alreadu defined.
+        Checks whether a window set is already defined.
         ReturnsL True or False
         :param window_set_name: name of the window set
         """
