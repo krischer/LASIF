@@ -42,20 +42,16 @@ should scale fairly well and makes it trivial to add new methods.
 """
 import os
 
-import progressbar
-
 import lasif
 from lasif import LASIFError
 
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
 import argparse
-import collections
 import colorama
 import difflib
 import pathlib
 import sys
-import time
 import traceback
 import warnings
 
@@ -725,16 +721,20 @@ def lasif_compare_misfits(parser, args):
     from_it_misfit = 0.0
     to_it_misfit = 0.0
     for event in comm.events.list():
-        from_it_misfit += comm.adj_sources.get_misfit_for_event(event,
-                                                         args.from_iteration)
-        to_it_misfit += comm.adj_sources.get_misfit_for_event(event,
-                                                          args.to_iteration)
+        from_it_misfit += \
+            comm.adj_sources.get_misfit_for_event(event,
+                                                  args.from_iteration)
+        to_it_misfit += \
+            comm.adj_sources.get_misfit_for_event(event,
+                                                  args.to_iteration)
         if args.print_events:
             # Print information about every event.
-            from_it_misfit_event = comm.adj_sources.get_misfit_for_event(
-                                                    event, args.from_iteration)
-            to_it_misfit_event = comm.adj_sources.get_misfit_for_event(
-                                                    event, args.to_iteration)
+            from_it_misfit_event = \
+                comm.adj_sources.get_misfit_for_event(event, 
+                                                      args.from_iteration)
+            to_it_misfit_event = \
+                comm.adj_sources.get_misfit_for_event(event, 
+                                                      args.to_iteration)
             print(f"{event}: \n"
                   f"\t iteration {from_it} has misfit: "
                   f"{from_it_misfit_event} \n"
@@ -745,7 +745,7 @@ def lasif_compare_misfits(parser, args):
     rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit
     
     print(f"Relative change in total misfit from iteration {from_it} to "
-          f"{to_it} is: {rel_change}".format(from_it,to_it,rel_change))
+          f"{to_it} is: {rel_change}")
 
     n_events = len(comm.events.list())
     print(f"Misfit per event for iteration {from_it}: "
