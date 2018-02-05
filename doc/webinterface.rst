@@ -1,6 +1,8 @@
 Web Interface
 =============
 
+**The web interface is currently not available but is a future addition**
+
 The web interface is a way to interactively explore a LASIF project and the
 data within. To start it, simply execute the following command inside the
 folder structure of a LASIF project:
