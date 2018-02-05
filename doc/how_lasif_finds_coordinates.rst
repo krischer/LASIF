@@ -1,11 +1,14 @@
 How LASIF Finds Coordinates
 ===========================
 
+** This part has changed in LASIF 2.0 and is not valid anymore.
+    This description be updated later.**
+
 LASIF needs to know the physical coordinates of data recordings, derived
 processed data, and of all synthetics waveforms. Due to the large variety of
 supported formats and the possibility to freely mix formats as desired this is
 not a straightforward task. The SAC/RESP combination in wide use is a
-particular problem as it does not seperate station and waveform metadata. In
+particular problem as it does not separate station and waveform metadata. In
 general LASIF is only interested in station coordinates and not single
 instrument coordinates and treats the coordinates of instruments from one
 station to be equal within a certain tolerance. This is explained and justified
