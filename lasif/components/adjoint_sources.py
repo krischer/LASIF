@@ -53,6 +53,28 @@ class AdjointSourcesComponent(Component):
         return os.path.join(
             folder, "ADJ_SRC_" + event["event_name"] + ".h5")
 
+    def get_misfit_for_event(self, event, iteration):
+        """
+        This function returns the total misfit for an event.
+        :param event: name of the event
+        :param iteration: teration for which to get the misfit
+        :return: t
+        """
+        filename = self.get_filename(event=event, iteration=iteration)
+
+        ds = pyasdf.ASDFDataSet(filename)
+        adj_src_data = ds.auxiliary_data["AdjointSources"]
+        stations = ds.auxiliary_data["AdjointSources"].list()
+
+        total_misfit = 0.0
+        for station in stations:
+            channels = adj_src_data[station].list()
+            for channel in channels:
+                total_misfit += \
+                    adj_src_data[station][channel].parameters["misfit"]
+
+        return total_misfit
+
     def write_adjoint_sources(self, event, iteration, adj_sources):
         """
         Write an ASDF file

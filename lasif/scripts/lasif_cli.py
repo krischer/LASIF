@@ -874,7 +874,6 @@ def lasif_list_weight_sets(parser, args):
     """
     Print a list of all iterations in the project.
     """
-    args = parser.parse_args(args)
     comm = _find_project_comm(".")
     it_len = comm.weights.count()
 
@@ -882,24 +881,6 @@ def lasif_list_weight_sets(parser, args):
           "s" if it_len != 1 else ""))
     for weights in comm.weights.list():
         print("\t%s" % weights)
-
-
-@command_group("Iteration Management")
-def lasif_iteration_info(parser, args):
-    """
-    Print information about a single iteration.
-    """
-    parser.add_argument("iteration_name", help="name of the iteration")
-    args = parser.parse_args(args)
-    iteration_name = args.iteration_name
-
-    comm = _find_project_comm(".")
-    if not comm.iterations.has_iteration(iteration_name):
-        msg = ("Iteration '%s' not found. Use 'lasif list_iterations' to get "
-               "a list of all available iterations.") % iteration_name
-        raise LASIFCommandLineException(msg)
-
-    print(comm.iterations.get(iteration_name))
 
 
 @mpi_enabled
@@ -1043,45 +1024,46 @@ def lasif_tutorial(parser, args):
     webbrowser.open("http://dirkphilip.github.io/LASIF_2.0/")
 
 
-@command_group("Misc")
-def lasif_serve(parser, args):
-    """
-    Launches the LASIF webinterface.
-    """
-    parser.add_argument("--port", default=8008, type=int,
-                        help="Port of the webserver.")
-
-    parser.add_argument("--nobrowser", help="Do not open a webbrowser.",
-                        action="store_true")
-    parser.add_argument("--debug", help="Turn on debugging. Implies "
-                                        "'--nobrowser'.",
-                        action="store_true")
-    parser.add_argument(
-        "--open_to_outside",
-        help="By default the website can only be opened from the current "
-             "computer. Use this argument to access it from any other "
-             "computer on the network.",
-        action="store_true")
-    args = parser.parse_args(args)
-    port = args.port
-    nobrowser = args.nobrowser
-    debug = args.debug
-    open_to_outside = args.open_to_outside
-
-    if debug:
-        nobrowser = True
-
-    comm = _find_project_comm(".")
-
-    if nobrowser is False:
-        import webbrowser
-        import threading
-
-        threading.Timer(
-            1.0, lambda: webbrowser.open("http://localhost:%i" % port)).start()
-
-    from lasif.webinterface.server import serve
-    serve(comm, port=port, debug=debug, open_to_outside=open_to_outside)
+# @command_group("Misc")
+# def lasif_serve(parser, args):
+#     """
+#     Launches the LASIF webinterface.
+#     """
+#     parser.add_argument("--port", default=8008, type=int,
+#                         help="Port of the webserver.")
+#
+#     parser.add_argument("--nobrowser", help="Do not open a webbrowser.",
+#                         action="store_true")
+#     parser.add_argument("--debug", help="Turn on debugging. Implies "
+#                                         "'--nobrowser'.",
+#                         action="store_true")
+#     parser.add_argument(
+#         "--open_to_outside",
+#         help="By default the website can only be opened from the current "
+#              "computer. Use this argument to access it from any other "
+#              "computer on the network.",
+#         action="store_true")
+#     args = parser.parse_args(args)
+#     port = args.port
+#     nobrowser = args.nobrowser
+#     debug = args.debug
+#     open_to_outside = args.open_to_outside
+#
+#     if debug:
+#         nobrowser = True
+#
+#     comm = _find_project_comm(".")
+#
+#     if nobrowser is False:
+#         import webbrowser
+#         import threading
+#
+#         threading.Timer(
+#             1.0, lambda: webbrowser.\
+#               open("http://localhost:%i" % port)).start()
+#
+#     from lasif.webinterface.server import serve
+#     serve(comm, port=port, debug=debug, open_to_outside=open_to_outside)
 
 
 def _get_cmd_description(fct):

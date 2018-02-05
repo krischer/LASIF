@@ -1,4 +1,4 @@
-Welcome to LASIF
+Welcome to LASIF 2.0
 ================
 
 .. |br| raw:: html
@@ -10,12 +10,12 @@ Welcome to LASIF
     :align: center
 
 
-LASIF (**LA**\ rge-scale **S**\ eismic **I**\ nversion **F**\ ramework) is a
+LASIF (**LA**\ rge-scale **S**\ eismic **I**\ nversion **F**\ ramework 2.0) is a
 data-driven end-to-end workflow tool to perform adjoint full seismic waveform
 inversions.
 
 **Github:** The code is developed at and available from its
-`Github respository <http://github.com/krischer/LASIF>`_.
+`Github respository <http://github.com/dirkphilip/LASIF_2.0>`_.
 
 
 .. admonition:: For more details please see our paper

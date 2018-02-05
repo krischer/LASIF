@@ -36,7 +36,7 @@ installed almost everywhere.
     # Start installing dependencies
     $ conda config --add channels conda-forge
     $ conda install -c obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
-    $ conda install -c pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov
+    $ conda install -c pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov seaborn
     # Install more packages via pip
     $ pip install geographiclib flask-cache geojson flake8 toml==0.9.2
     # Pick a directory where you want to store pyexodus and move into it
