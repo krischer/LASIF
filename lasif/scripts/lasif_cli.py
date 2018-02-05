@@ -751,7 +751,7 @@ def lasif_compare_misfits(parser, args):
     print(f"Misfit per event for iteration {to_it}: "
           f"{to_it_misfit/n_events}")
 
-    
+
 @command_group("Iteration Management")
 def lasif_list_weight_sets(parser, args):
     """
