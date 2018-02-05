@@ -743,16 +743,13 @@ def lasif_compare_misfits(parser, args):
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
     print(f"Total misfit for iteration {to_it}: {to_it_misfit}")
     rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit
-    
     print(f"Relative change in total misfit from iteration {from_it} to "
           f"{to_it} is: {rel_change}")
-    
     n_events = len(comm.events.list())
     print(f"Misfit per event for iteration {from_it}: "
           f"{from_it_misfit/n_events}")
     print(f"Misfit per event for iteration {to_it}: "
           f"{to_it_misfit/n_events}")
-    
 
 @command_group("Iteration Management")
 def lasif_list_weight_sets(parser, args):
