@@ -694,179 +694,62 @@ def lasif_list_iterations(parser, args):
 @command_group("Iteration Management")
 def lasif_compare_misfits(parser, args):
     """
-    Compares the misfit between two iterations. Will only consider windows
-    that are identical in both iterations as the comparision is otherwise
-    meaningless.
+    Compares the total misfit between two iterations. Total misfit
+    is used regardless of the similarity of the picked windows
+    from each iteration. This might skew the results but should
+    give a good idea unless the windows change excessively between
+    iterations.
+    If windows are weighted in the calculation of the adjoint
+    sources. That should translate into the calculated misfit
+    value.
     """
-    from lasif import LASIFAdjointSourceCalculationError
 
     parser.add_argument("from_iteration",
                         help="past iteration")
     parser.add_argument("to_iteration", help="current iteration")
+    parser.add_argument("--print_events", help="compare misfits"
+                                               " for each event")
     args = parser.parse_args(args)
 
     comm = _find_project_comm_mpi(".")
 
-    _starting_time = time.time()
-
-    # Read on each core as pickling/broadcasting them prooves to be
-    # difficult. Should be possible if this ever becomes a performance issue.
     from_it = comm.iterations.get(args.from_iteration)
     to_it = comm.iterations.get(args.to_iteration)
 
-    if MPI.COMM_WORLD.rank == 0:
-        # Get a list of events that are in both, the new and the old iteration.
-        events = sorted(set(from_it.events.keys()).intersection(
-            set(to_it.events.keys())))
-        event_count = len(events)
+    from_it_misfit = 0.0
+    to_it_misfit = 0.0
+    for event in comm.events.list():
+        from_it_misfit += comm.adj_sources.get_misfit_for_event(event,
+                                                            args.from_iteration)
+        to_it_misfit += comm.adj_sources.get_misfit_for_event(event,
+                                                          args.to_iteration)
+        if args.print_events:
+            # Print information about every event.
+            from_it_misfit_event = comm.adj_sources.get_misfit_for_event(
+                                                    event, args.from_iteration)
+            to_it_misfit_event = comm.adj_sources.get_misfit_for_event(
+                                                    event, args.to_iteration)
+            print("{}: \n"
+                  "\t iteration {} has misfit: {} \n"
+                  "\t iteration {} has misfit: {}.".format(event,from_it,
+                                                        from_it_misfit_event,
+                                                        to_it,to_it_misfit_event))
 
-        # Split into a number of events per MPI process.
-        events = split(events, MPI.COMM_WORLD.size)
+    print("Total misfit for iteration {}: {}".format(from_it,from_it_misfit))
+    print("Total misfit for iteration {}: {}".format(to_it,to_it_misfit))
+    rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit
+    print("Relative change in total misfit from iteration {} to {}"
+          "is: {}".format(from_it,to_it,rel_change))
 
-        print(" => Calculating misfit change from iteration '%s' to "
-              "iteration '%s' ..." % (from_it.name, to_it.name))
-        print(" => Launching calculations on %i core(s)\n" %
-              MPI.COMM_WORLD.size)
+    n_events = len(comm.events.list())
+    print("Misfit per event for iteration {}: {}".format(from_it,
+                                                         from_it_misfit/n_events))
+    print("Misfit per event for iteration {}: {}".format(to_it,
+                                                         to_it_misfit/n_events))
 
-    else:
-        events = None
-
-    # Scatter jobs
-    events = MPI.COMM_WORLD.scatter(events, root=0)
-
-    total_misfit_from = 0
-    total_misfit_to = 0
-
-    all_events = collections.defaultdict(list)
-
-    for _i, event in enumerate(events):
-        # Get the windows from both.
-        window_group_to = comm.windows.get(event, to_it)
-        window_group_from = comm.windows.get(event, from_it)
-
-        event_weight = from_it.events[event]["event_weight"]
-
-        # Get a list of channels shared amongst both.
-        shared_channels = set(window_group_to.list()).intersection(
-            set(window_group_from.list()))
-
-        # On rank 0, show a progressbar because it can take forever.
-        if MPI.COMM_WORLD.rank == 0:
-            widgets = [
-                "Approximately event %i of %i: " % (
-                    _i * MPI.COMM_WORLD.size + 1, event_count),
-                progressbar.Percentage(),
-                progressbar.Bar(), "", progressbar.ETA()]
-            pbar = progressbar.ProgressBar(
-                widgets=widgets, maxval=len(shared_channels)).start()
-
-        for _i, channel in enumerate(shared_channels):
-            if MPI.COMM_WORLD.rank == 0:
-                pbar.update(_i)
-            window_collection_from = window_group_from.get(channel)
-            window_collection_to = window_group_to.get(channel)
-
-            station_weight = from_it.events[event]["stations"][
-                ".".join(channel.split(".")[:2])]["station_weight"]
-
-            channel_misfit_from = 0
-            channel_misfit_to = 0
-            total_channel_weight = 0
-
-            for win_from in window_collection_from.windows:
-                try:
-                    idx = window_collection_to.windows.index(win_from)
-                    win_to = window_collection_to.windows[idx]
-                except ValueError:
-                    continue
-
-                try:
-                    misfit_from = win_from.misfit_value
-                except LASIFAdjointSourceCalculationError:
-                    continue
-                except LASIFNotFoundError as e:
-                    print(str(e))
-                    continue
-
-                try:
-                    misfit_to = win_to.misfit_value
-                except Exception as e:
-                    print(e)
-                    # Random penalty...but how else to compare?
-                    misfit_to = 2.0 * misfit_from
-
-                channel_misfit_from += misfit_from * win_from.weight
-                channel_misfit_to += misfit_to * win_from.weight
-                total_channel_weight += win_from.weight
-
-            # Rare - but sometimes all windows for a certain channel fail
-            # the calculation.
-            if total_channel_weight == 0:
-                continue
-
-            # Make sure the misfits are consistent with the adjoint source
-            # calculations!
-            misfit_from *= event_weight * station_weight / total_channel_weight
-            misfit_to *= event_weight * station_weight / total_channel_weight
-
-            total_misfit_from += misfit_from
-            total_misfit_to += misfit_to
-
-            if (misfit_to - misfit_from) < -1.5:
-                print(event, channel, misfit_from - misfit_to)
-            all_events[event].append(misfit_to - misfit_from)
-        if MPI.COMM_WORLD.rank == 0:
-            pbar.finish()
-
-    _all_events = MPI.COMM_WORLD.gather(all_events, root=0)
-
-    total_misfit_from = MPI.COMM_WORLD.reduce(total_misfit_from, root=0)
-    total_misfit_to = MPI.COMM_WORLD.reduce(total_misfit_to, root=0)
-
-    # Only rank 0 continues.
-    if MPI.COMM_WORLD.rank != 0:
-        return
-
-    # Collect in singular dictionary again.
-    all_events = {}
-    [all_events.update(_i) for _i in _all_events]
-
-    if not all_events:
-        raise LASIFCommandLineException("No misfit values could be compared.")
-
-    print("\nTotal misfit in Iteration %s: %g" % (from_it.name,
-                                                  total_misfit_from))
-    print("Total misfit in Iteration %s: %g" % (to_it.name,
-                                                total_misfit_to))
-
-    _ending_time = time.time()
-
-    print("\n => Computation time: %.1f seconds" % (_ending_time -
-                                                    _starting_time))
-
-    import matplotlib.pylab as plt
-    import numpy as np
-
-    plt.figure(figsize=(20, 3 * len(all_events)))
-    plt.suptitle("Misfit change of measurements going from iteration"
-                 " '%s' to iteration '%s'" % (from_it.name, to_it.name))
-    for i, event_name in enumerate(sorted(all_events.keys())):
-        values = np.array(all_events[event_name])
-        colors = np.array(["green"] * len(values))
-        colors[values > 0] = "red"
-        plt.subplot(len(all_events), 1, i + 1)
-        plt.bar(np.arange(len(values)), values, color=colors)
-        plt.ylabel("difference")
-        plt.xlim(0, len(values) - 1)
-        plt.xticks([])
-        plt.title("%i measurements with identical windows for event '%s'" %
-                  (len(values), event_name))
-
-    output_folder = comm.project.get_output_folder(
-        type="misfit_comparisons", tag="misfit_comparision")
-    filename = os.path.join(output_folder, "misfit_comparision.pdf")
-    plt.savefig(filename)
-    print("\nSaved figure to '%s'" % os.path.relpath(filename))
+    # Take together these two misfits and spit out.
+    # Maybe a good idea to return compare misfit for each event.
+    # Could be an optional argument to check all events.
 
 
 @command_group("Iteration Management")
