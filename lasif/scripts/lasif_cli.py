@@ -714,8 +714,13 @@ def lasif_compare_misfits(parser, args):
 
     comm = _find_project_comm_mpi(".")
 
-    from_it = comm.iterations.get(args.from_iteration)
-    to_it = comm.iterations.get(args.to_iteration)
+    from_it = args.from_iteration
+    to_it = args.to_iteration
+    # Check if iterations exist
+    if not comm.iterations.has_iteration(from_it):
+            raise LASIFNotFoundError(f"Itaration{from_it} not known to LASIF")
+    if not comm.iterations.has_iteration(to_it):
+            raise LASIFNotFoundError(f"Itaration{to_it} not known to LASIF")
 
     from_it_misfit = 0.0
     to_it_misfit = 0.0
@@ -730,23 +735,19 @@ def lasif_compare_misfits(parser, args):
                                                     event, args.from_iteration)
             to_it_misfit_event = comm.adj_sources.get_misfit_for_event(
                                                     event, args.to_iteration)
-            print("{}: \n"
-                  "\t iteration {} has misfit: {} \n"
-                  "\t iteration {} has misfit: {}.".format(event,from_it,
-                                                        from_it_misfit_event,
-                                                        to_it,to_it_misfit_event))
+            print(f"{event}: \n"
+                  f"\t iteration {from_it} has misfit: {from_it_misfit_event} \n"
+                  f"\t iteration {to_it} has misfit: {to_it_misfit_event}.")
 
-    print("Total misfit for iteration {}: {}".format(from_it,from_it_misfit))
-    print("Total misfit for iteration {}: {}".format(to_it,to_it_misfit))
+    print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
+    print(f"Total misfit for iteration {to_it}: {to_it_misfit}")
     rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit
-    print("Relative change in total misfit from iteration {} to {}"
-          "is: {}".format(from_it,to_it,rel_change))
+    print(f"Relative change in total misfit from iteration {from_it} to {to_it}"
+          f"is: {rel_change}".format(from_it,to_it,rel_change))
 
     n_events = len(comm.events.list())
-    print("Misfit per event for iteration {}: {}".format(from_it,
-                                                         from_it_misfit/n_events))
-    print("Misfit per event for iteration {}: {}".format(to_it,
-                                                         to_it_misfit/n_events))
+    print(f"Misfit per event for iteration {from_it}: {from_it_misfit/n_events}")
+    print(f"Misfit per event for iteration {to_it}: {to_it_misfit/n_events}")
 
     # Take together these two misfits and spit out.
     # Maybe a good idea to return compare misfit for each event.
