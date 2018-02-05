@@ -1,7 +1,7 @@
 Command Line Interface
 ======================
 
-The recommended way to interact with **LASIF** projects is to use the
+The recommended way to interact with **LASIF 2.0** projects is to use the
 command line interface. It consists of a number of subcommands grouped below
 the main :code:`lasif` command. The general usage is quickly explained in this
 paragraph whilst the remainder of this sections explains all subcommands in
@@ -36,7 +36,7 @@ while optional arguments can be passed if needed.
     All **lasif** commands work and use the correct project as long as they are
     executed somewhere **inside a project's folder structure**. It will
     recursively search the parent directories until it finds a
-    :code:`config.xml` file. This will then be assumed to be the root folder
+    :code:`lasif_config.toml` file. This will then be assumed to be the root folder
     of the project.
 
 
@@ -52,9 +52,9 @@ while optional arguments can be passed if needed.
     given, the caches will not be rebuilt but whatever is in the caches will
     be assumed to actually exist. This is useful when executing multiple
     LASIF commands in parallel. Otherwise some processes might write in
-    parallel to the cash databases which will crash LASIF. Use this flag if you
-    need to but best run ``$ lasif build_all_caches`` beforehand and be
-    aware of what it means.
+    parallel to the cache databases which will crash LASIF 2.0. Use this flag
+    if you need to but best run ``$ lasif build_all_caches`` beforehand
+    and be aware of what it means.
 
 MPI
 ^^^

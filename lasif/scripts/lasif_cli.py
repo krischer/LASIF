@@ -347,7 +347,8 @@ def lasif_info(parser, args):
 @command_group("Data Acquisition")
 def lasif_download_data(parser, args):
     """
-    Download waveform and station data for one event.
+    Download waveform and station data for one or more events.
+    Can be used to download data for all events in LASIF project.
     """
     parser.add_argument("event_name", help="name of the event. Possible to add"
                         " more than one event separated by a space. If "
