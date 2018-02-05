@@ -298,7 +298,8 @@ class Project(Component):
                          "    with_anisotropy = true\n" \
                          "    with_attenuation = false\n\n" \
                          "    # Source time function type, " \
-                         "currently only \"bandpass_filtered_heaviside\" is supported \n" \
+                         "currently only \"bandpass_filtered_heaviside\"" \
+                         " is supported \n" \
                          "    source_time_function_type = " \
                          "\"bandpass_filtered_heaviside\"\n"  \
 
