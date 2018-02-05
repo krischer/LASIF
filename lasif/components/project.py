@@ -258,13 +258,18 @@ class Project(Component):
                            f" there.\n" \
                            f"  # A minimum amount of 3 is advised.\n" \
                            f"  num_buffer_elements = 8\n\n" \
+                           f"  # Type of misift, choose from:\n" \
+                           f"  # [TimeFrequencyPhaseMisfitFichtner2008, " \
+                           f"L2Norm, CCTimeShift] \n" \
+                           f"  misfit_type = \"TimeFrequencyPhase" \
+                           f"MisfitFichtner2008\"\n\n" \
                            f"  [lasif_project.download_settings]\n" \
                            f"    seconds_before_event = 300.0\n" \
                            f"    seconds_after_event = 3600.0\n" \
                            f"    interstation_distance_in_meters = 1000.0\n" \
                            f"    channel_priorities = [ \"BH[Z,N,E]\", " \
                            f"\"LH[Z,N,E]\", " \
-                           f"    \"HH[Z,N,E]\", \"EH[Z,N,E]\", " \
+                           f"\"HH[Z,N,E]\", \"EH[Z,N,E]\", " \
                            f"\"MH[Z,N,E]\",]\n" \
                            f"    location_priorities = " \
                            f"[ \"\", \"00\", \"10\", \"20\"," \
@@ -293,8 +298,7 @@ class Project(Component):
                          "    with_anisotropy = true\n" \
                          "    with_attenuation = false\n\n" \
                          "    # Source time function type, " \
-                         "currently only \"heaviside\" and " \
-                         "bandpass_filtered_heaviside\" are supported \n" \
+                         "currently only \"bandpass_filtered_heaviside\" is supported \n" \
                          "    source_time_function_type = " \
                          "\"bandpass_filtered_heaviside\"\n"  \
 

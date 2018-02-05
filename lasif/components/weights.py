@@ -11,9 +11,9 @@ from .component import Component
 
 class WeightsComponent(Component):
     """
-    Component dealing with the weights toml files.
+    Component dealing with station and event weights.
 
-    :param weights_folder: The folder with the iteration toml files.
+    :param weights_folder: The folder with the weight toml files.
     :param communicator: The communicator instance.
     :param component_name: The name of this component for the communicator.
     """
