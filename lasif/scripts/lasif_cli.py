@@ -704,6 +704,8 @@ def lasif_compare_misfits(parser, args):
     parser.add_argument("from_iteration",
                         help="past iteration")
     parser.add_argument("to_iteration", help="current iteration")
+    parser.add_argument("--weight_set_name", default=None, type=str,
+                        help="Set of station and event weights")
     parser.add_argument("--print_events", help="compare misfits"
                                                " for each event")
     args = parser.parse_args(args)
@@ -712,29 +714,39 @@ def lasif_compare_misfits(parser, args):
 
     from_it = args.from_iteration
     to_it = args.to_iteration
+    weight_set_name = args.weight_set_name
+
+    if weight_set_name:
+        if not comm.weights.has_weight_set(weight_set_name):
+            raise LASIFNotFoundError(f"Weights {weight_set_name} not known"
+                                     f"to LASIF")
     # Check if iterations exist
     if not comm.iterations.has_iteration(from_it):
-            raise LASIFNotFoundError(f"Itaration{from_it} not known to LASIF")
+            raise LASIFNotFoundError(f"Iteration {from_it} not known to LASIF")
     if not comm.iterations.has_iteration(to_it):
-            raise LASIFNotFoundError(f"Itaration{to_it} not known to LASIF")
+            raise LASIFNotFoundError(f"Iteration {to_it} not known to LASIF")
 
     from_it_misfit = 0.0
     to_it_misfit = 0.0
     for event in comm.events.list():
         from_it_misfit += \
             comm.adj_sources.get_misfit_for_event(event,
-                                                  args.from_iteration)
+                                                  args.from_iteration,
+                                                  weight_set_name)
         to_it_misfit += \
             comm.adj_sources.get_misfit_for_event(event,
-                                                  args.to_iteration)
+                                                  args.to_iteration,
+                                                  weight_set_name)
         if args.print_events:
             # Print information about every event.
             from_it_misfit_event = \
                 comm.adj_sources.get_misfit_for_event(event,
-                                                      args.from_iteration)
+                                                      args.from_iteration,
+                                                      weight_set_name)
             to_it_misfit_event = \
                 comm.adj_sources.get_misfit_for_event(event,
-                                                      args.to_iteration)
+                                                      args.to_iteration,
+                                                      weight_set_name)
             print(f"{event}: \n"
                   f"\t iteration {from_it} has misfit: "
                   f"{from_it_misfit_event} \n"

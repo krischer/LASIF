@@ -53,7 +53,7 @@ class AdjointSourcesComponent(Component):
         return os.path.join(
             folder, "ADJ_SRC_" + event["event_name"] + ".h5")
 
-    def get_misfit_for_event(self, event, iteration):
+    def get_misfit_for_event(self, event, iteration, weight_set_name=None):
         """
         This function returns the total misfit for an event.
         :param event: name of the event
@@ -61,6 +61,12 @@ class AdjointSourcesComponent(Component):
         :return: t
         """
         filename = self.get_filename(event=event, iteration=iteration)
+
+        event_weight = 1.0
+        if weight_set_name:
+            ws = self.comm.weights.get(weight_set_name)
+            event_weight = ws.events[event]["event_weight"]
+            station_weights = ws.events[event]["stations"]
 
         ds = pyasdf.ASDFDataSet(filename)
         adj_src_data = ds.auxiliary_data["AdjointSources"]
@@ -70,10 +76,18 @@ class AdjointSourcesComponent(Component):
         for station in stations:
             channels = adj_src_data[station].list()
             for channel in channels:
-                total_misfit += \
-                    adj_src_data[station][channel].parameters["misfit"]
+                if weight_set_name:
+                    station_weight = \
+                        station_weights[station]["station_weight"]
+                    misfit = \
+                        adj_src_data[station][channel].parameters["misfit"] * \
+                        station_weight
+                else:
+                    misfit = \
+                        adj_src_data[station][channel].parameters["misfit"]
+                total_misfit += misfit
 
-        return total_misfit
+        return total_misfit * event_weight
 
     def write_adjoint_sources(self, event, iteration, adj_sources):
         """
