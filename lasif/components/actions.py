@@ -592,7 +592,8 @@ class ActionsComponent(Component):
                       "and station %s. Repick windows? Reason: %s" % (
                           iteration.name, station, str(e)))
 
-    def finalize_adjoint_sources(self, iteration_name, event_name):
+    def finalize_adjoint_sources(self, iteration_name, event_name,
+                                 weight_set_name=None):
         """
         Finalizes the adjoint sources.
         """
@@ -637,6 +638,12 @@ class ActionsComponent(Component):
         toml_string = f"source_input_file = \"{adjoint_source_file_name}\"\n\n"
         f = h5py.File(adjoint_source_file_name, 'w')
 
+        event_weight = 1.0
+        if weight_set_name:
+            ws = self.comm.weights.get(weight_set_name)
+            event_weight = ws.events[event]["event_weight"]
+            station_weights = ws.events[event]["stations"]
+
         for adj_src in adj_srcs:
             station_name = adj_src.auxiliary_data_type.split("/")[1]
             channels = adj_src.list()
@@ -662,6 +669,14 @@ class ActionsComponent(Component):
                     print(f"writing adjoint source for station: {station}")
                     transform_mat = np.array(receiver["transform_matrix"])
                     xyz = np.dot(zne, transform_mat.T)
+
+                    net_dot_sta = \
+                        receiver["network"] + "." + receiver["station"]
+                    if weight_set_name:
+                        weight = \
+                            station_weights[net_dot_sta]["station_weight"] * \
+                            event_weight
+                        xyz *= weight
 
                     source = f.create_dataset(station, data=xyz)
                     source.attrs["dt"] = self.comm.project. \
