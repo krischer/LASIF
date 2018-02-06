@@ -484,9 +484,13 @@ def lasif_generate_input_files(parser, args):
     parser.add_argument("simulation_type", help="forward, "
                                                 "step_length, adjoint",
                         default="forward")
+    parser.add_argument("--weight_set_name", default=None, type=str,
+                        help="Set of station and event weights,"
+                             "used to scale the adjoint sources")
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
+    weight_set_name = args.weight_set_name
     simulation_type = args.simulation_type
 
     simulation_type_options = ["forward", "step_length", "adjoint"]
@@ -496,6 +500,11 @@ def lasif_generate_input_files(parser, args):
 
     comm = _find_project_comm(".")
     events = args.events if args.events else comm.events.list()
+
+    if weight_set_name:
+        if not comm.weights.has_weight_set(weight_set_name):
+            raise LASIFNotFoundError(f"Weights {weight_set_name} not known"
+                                     f"to LASIF")
 
     if not comm.iterations.has_iteration(iteration_name):
         raise LASIFNotFoundError(f"Could not find iteration: {iteration_name}")
@@ -508,7 +517,8 @@ def lasif_generate_input_files(parser, args):
         print("Generating input files for event %i of %i..." % (_i + 1,
                                                                 len(events)))
         if simulation_type == "adjoint":
-            comm.actions.finalize_adjoint_sources(iteration_name, event)
+            comm.actions.finalize_adjoint_sources(iteration_name, event,
+                                                  weight_set_name)
         else:
             comm.actions.generate_input_files(iteration_name, event,
                                               simulation_type)
