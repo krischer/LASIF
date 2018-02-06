@@ -34,11 +34,12 @@ before_install:
 - cd salvus_seismo/py
 - pip install .
 
+
 install:
 - cd $TRAVIS_BUILD_DIR; pip install .
 
 script:
-
+- cd $TRAVIS_BUILD_DIR/lasif/whl; pip install salvus_wave-0.0.0-cp36-cp36m-linux_x86_64.whl
 - cd $TRAVIS_BUILD_DIR; py.test
 - cd $TRAVIS_BUILD_DIR/doc; make html
 after_failure:
