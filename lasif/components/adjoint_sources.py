@@ -89,6 +89,7 @@ class AdjointSourcesComponent(Component):
 
         return total_misfit * event_weight
 
+
     def write_adjoint_sources(self, event, iteration, adj_sources):
         """
         Write an ASDF file

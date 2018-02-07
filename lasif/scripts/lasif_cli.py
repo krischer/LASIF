@@ -354,6 +354,10 @@ def lasif_download_data(parser, args):
                         type=str, nargs="+",
                         help="FDSN providers to query. Will use all known "
                              "ones if not set.")
+    parser.add_argument("--downsample_data", action="store_true",
+                        help="If the dataset could get too big this can"
+                             " help with reducing the size."
+                             " Be very careful while using this one")
     args = parser.parse_args(args)
     providers = args.providers
 
@@ -362,6 +366,13 @@ def lasif_download_data(parser, args):
 
     for event in event_name:
         comm.downloads.download_data(event, providers=providers)
+        if args.downsample_data:
+            # Do some kind of processesing
+            print(f"Applying light processing to event: {event}")
+            event_file = comm.waveforms.get_asdf_filename(event, "raw")
+            print(f"Event file name: {event_file}")
+            comm.waveforms.light_preprocess(event)
+            print(f"Event: {event} successfully preprocessed")
 
 
 @command_group("Event Management")
@@ -717,7 +728,8 @@ def lasif_compare_misfits(parser, args):
     parser.add_argument("--weight_set_name", default=None, type=str,
                         help="Set of station and event weights")
     parser.add_argument("--print_events", help="compare misfits"
-                                               " for each event")
+                                               " for each event",
+                        action="store_true")
     args = parser.parse_args(args)
 
     comm = _find_project_comm_mpi(".")
@@ -725,6 +737,7 @@ def lasif_compare_misfits(parser, args):
     from_it = args.from_iteration
     to_it = args.to_iteration
     weight_set_name = args.weight_set_name
+
 
     if weight_set_name:
         if not comm.weights.has_weight_set(weight_set_name):

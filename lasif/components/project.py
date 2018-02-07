@@ -243,6 +243,7 @@ class Project(Component):
         """
         if not project_name:
             project_name = "LASIFProject"
+        directory = self.paths["root"]
 
         lasif_config_str = f"# Please fill in this config file before " \
                            f"proceeding with using LASIF. \n \n" \
@@ -252,7 +253,7 @@ class Project(Component):
                            f"  # Name of the exodus file used for the " \
                            f"simulation. Without a mesh file, LASIF" \
                            f" will not work.\n" \
-                           f"  mesh_file = \"\"\n\n" \
+                           f"  mesh_file = \"{directory}/\"\n\n" \
                            f"  # Number of buffer elements at the domain" \
                            f" edges, no events or receivers will be placed" \
                            f" there.\n" \
@@ -280,7 +281,8 @@ class Project(Component):
                            "high- and lowpass period are given in seconds.\n" \
                            "[data_processing]\n" \
                            "  highpass_period = 30.0\n" \
-                           "  lowpass_period = 50.0\n\n" \
+                           "  lowpass_period = 50.0\n"\
+                           "  starting_period = 1.0 \n\n"\
                            "  # You most likely want to keep this" \
                            " setting at true.\n" \
                            "  scale_data_to_synthetics = true\n\n" \
@@ -324,7 +326,8 @@ class Project(Component):
             "processing_function": "process_data.py",
             "preprocessing_function_asdf": "preprocessing_function_asdf.py",
             "process_synthetics": "process_synthetics.py",
-            "source_time_function": "source_time_function.py"
+            "source_time_function": "source_time_function.py",
+            "light_preprocessing_function": "light_preprocessing.py"
         }
 
         if fct_type not in fct_type:
