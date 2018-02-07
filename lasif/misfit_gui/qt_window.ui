@@ -263,6 +263,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QCheckBox" name="data_only_CheckBox">
+            <property name="text">
+             <string>Show data only</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>

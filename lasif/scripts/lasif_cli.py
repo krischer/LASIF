@@ -364,6 +364,7 @@ def lasif_download_data(parser, args):
         comm.downloads.download_data(event, providers=providers)
 
 
+
 @command_group("Event Management")
 def lasif_list_events(parser, args):
     """
@@ -395,6 +396,35 @@ def lasif_list_events(parser, args):
                     ev["latitude"], ev["longitude"], int(ev["depth_in_km"]),
                     ev["magnitude"])])
         print(tab)
+
+@command_group("Event Management")
+def lasif_submit_jobs(parser, args):
+    """
+    EXPERIMENTAL: Submits jobs to daint, EXPERIMENTAL.
+    """
+    comm = _find_project_comm(".")
+
+    long_iter_name = comm.iterations.get_long_iteration_name(
+        "1")
+    input_files_dir = comm.project.paths['salvus_input']
+
+    events = comm.events.list()
+    import time
+
+    for event in events:
+
+        file = os.path.join(input_files_dir, long_iter_name, event,
+                                  "forward", "run_salvus.sh")
+
+        job_name = f"{event}_{long_iter_name}_forward"
+        command = f"salvus-flow run-salvus --site daint " \
+                  f"--wall-time-in-seconds 2000 " \
+                  f"--custom-job-name {job_name} " \
+                  f"--ranks 1200 {file}"
+        os.system(command)
+        time.sleep(10)
+        print(f"submitted {event}")
+
 
 
 @command_group("Event Management")
@@ -511,11 +541,11 @@ def lasif_generate_input_files(parser, args):
 
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
-                print("Event '%s' not known to LASIF. "
-                      "No input files for this event"
-                      " will be generated. " % event)
-        print("Generating input files for event %i of %i..." % (_i + 1,
-                                                                len(events)))
+                print(f"Event {event} not known to LASIF. "
+                      f"No input files for this event"
+                      f" will be generated. ")
+        print(f"Generating input files for event "
+              f"{_i + 1} of {len(events)} -- {event}")
         if simulation_type == "adjoint":
             comm.actions.finalize_adjoint_sources(iteration_name, event,
                                                   weight_set_name)
