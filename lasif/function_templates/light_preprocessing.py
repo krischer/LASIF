@@ -30,20 +30,20 @@ def light_preprocessing_function(event, light_process_parameters=None):
 
         light_process_parameters["dt"] = 0.25
         light_process_parameters["max_freq"] = 1.0
-        event_file_name = event.get_file_name() # Do better
+        event_file_name = event.get_file_name()  # Do better
         light_process_parameters["event_file_name"] = event_file_name
 
     ds = ASDFDataSet(light_process_parameters["event_file_name"],
                      compression=None)
 
-    def light_process_function(st,inv):
+    def light_process_function(st, inv):
         def zerophase_chebychev_lowpass_filter(trace, freqmax):
             """
             Custom Chebychev type two zerophase lowpass filter useful for
             decimation filtering.
 
-            This filter is stable up to a reduction in frequency with a factor of
-            10. If more reduction is desired, simply decimate in steps.
+            This filter is stable up to a reduction in frequency with a factor
+            of 10. If more reduction is desired, simply decimate in steps.
 
             Partly based on a filter in ObsPy.
 
@@ -54,8 +54,7 @@ def light_preprocessing_function(event, light_process_parameters=None):
             """
             # rp - maximum ripple of passband, rs - attenuation of stopband
             rp, rs, order = 1, 96, 1e99
-            ws = freqmax / (
-            trace.stats.sampling_rate * 0.5)  # stop band frequency
+            ws = freqmax / (trace.stats.sampling_rate * 0.5)  # stop band freq
             wp = ws  # pass band frequency
 
             while True:
@@ -70,10 +69,7 @@ def light_preprocessing_function(event, light_process_parameters=None):
             # Apply twice to get rid of the phase distortion.
             trace.data = signal.filtfilt(b, a, trace.data)
 
-
         for tr in st:
-            samp_rate = tr.stats.sampling_rate
-            # Decimation
             while True:
                 decimation_factor = int(light_process_parameters["dt"] /
                                         tr.stats.delta)
@@ -84,18 +80,11 @@ def light_preprocessing_function(event, light_process_parameters=None):
                     new_freq = tr.stats.sampling_rate / float(
                         decimation_factor)
                     if new_freq < light_process_parameters["max_freq"]:
-                        print(f"Ich bin hier. new_freq: {new_freq}")
-                        print(f"Decimation factor: {decimation_factor}")
-                        print(f"Initial sampling: {samp_rate}")
-                        print(f"Now sampling: {tr.stats.sampling_rate}")
-                        print(f"Trace dt: {tr.stats.delta}")
                         break
                     zerophase_chebychev_lowpass_filter(tr, new_freq)
                     tr.decimate(factor=decimation_factor, no_filter=True)
                 else:
                     break
-            #new_samp_rate = tr.stats.sampling_rate
-
 
         return st
 
@@ -106,7 +95,7 @@ def light_preprocessing_function(event, light_process_parameters=None):
     }
     ds.process(light_process_function, output_filename, tag_map=tag_map)
 
-    # replace original raw data with new one
+    '# replace original raw data with new one'
     os.remove(light_process_parameters["event_file_name"])
     os.rename(light_process_parameters["temp_file"],
               light_process_parameters["event_file_name"])

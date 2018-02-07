@@ -738,7 +738,6 @@ def lasif_compare_misfits(parser, args):
     to_it = args.to_iteration
     weight_set_name = args.weight_set_name
 
-
     if weight_set_name:
         if not comm.weights.has_weight_set(weight_set_name):
             raise LASIFNotFoundError(f"Weights {weight_set_name} not known"
