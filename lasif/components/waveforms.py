@@ -96,6 +96,19 @@ class WaveformsComponent(Component):
         return "preprocessed_%is_to_%is" % (int(highpass_period),
                                             int(lowpass_period))
 
+    def delete_station_from_raw(self, event_name, station_id):
+        """
+        Deletes all information from the raw data file for the
+        given station.
+
+        :param event_name: The name of the event.
+        :param station_id: The id of the station in the form ``NET.STA``.
+        """
+        filename = self.get_asdf_filename(event_name, data_type="raw")
+
+        with pyasdf.ASDFDataSet(filename, mode="a") as ds:
+            del ds.waveforms[station_id]
+
     def get_waveforms_raw(self, event_name, station_id):
         """
         Gets the raw waveforms for the given event and station as a
