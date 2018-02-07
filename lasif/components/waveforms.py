@@ -175,6 +175,29 @@ class WaveformsComponent(Component):
         return fct(st, inv, processing_parmams,
                    event=self.comm.events.get(event_name))
 
+    def light_preprocess(self, event):
+        """
+        A way to cheat LASIF to be able to work with larger data sets.
+        This should reduce size of data by downsampling and filtering.
+        """
+        fct = self.comm.project.get_project_function(
+            "light_preprocessing_function")
+        params = self.comm.project.processing_params
+
+        freq = 1.0 / params["starting_period"]
+        dt = 1.0 / freq / 3.0  # Sample each period at least three times
+
+        light_proc_params = {}
+        light_proc_params["max_freq"] = freq
+        light_proc_params["dt"] = dt
+        light_proc_params["event_file_name"] = \
+            self.get_asdf_filename(event, "raw")
+
+        temp = self.get_asdf_filename(event, "raw") + "temp"
+        light_proc_params["temp_file"] = temp
+
+        return fct(event, light_proc_params)
+
     def _get_waveforms(self, event_name, station_id, data_type,
                        tag_or_iteration=None, get_inventory=False):
         filename = self.get_asdf_filename(event_name=event_name,
