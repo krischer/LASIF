@@ -219,6 +219,12 @@ class WaveformsComponent(Component):
         station_id = station_group._station_name
 
         tags = station_group.get_waveform_tags()
+        if len(tags) == 0:
+            raise ValueError("Station '%s' in file '%s' contains no "
+                             "tag. LASIF currently expects a "
+                             "single waveform tag per station." % (
+                                 station_id, filename))
+
         if len(tags) != 1:
             raise ValueError("Station '%s' in file '%s' contains more "
                              "than one tag. LASIF currently expects a "

@@ -227,6 +227,30 @@ class Window(QtGui.QMainWindow):
 
         self._reset_all_plots()
 
+        if self.ui.data_only_CheckBox.isChecked():
+            tag = self.comm.waveforms.preprocessing_tag
+            try:
+                data = self.comm.waveforms.get_waveforms_processed(
+                    self.current_event, self.current_station, tag)
+            except ValueError as e:
+                print(e)
+                return
+            coordinates = self.comm.query.get_coordinates_for_station(
+                self.current_event, self.current_station)
+
+            for component in ["Z", "N", "E"]:
+                plot_widget = getattr(self.ui, "%s_graph" % component.lower())
+                data_tr = [tr for tr in data
+                           if tr.stats.channel[-1].upper() == component]
+                if data_tr:
+                    tr = data_tr[0]
+                    plot_widget.data_id = tr.id
+                    times = tr.times()
+                    plot_widget.plot(times, tr.data, pen="k")
+                    plot_widget.autoRange()
+                    self._update_raypath(coordinates)
+            return
+
         try:
             wave = self.comm.query.get_matching_waveforms(
                 self.current_event, self.current_iteration,
