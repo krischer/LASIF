@@ -94,10 +94,24 @@ class IterationsComponent(Component):
     def _create_model_folder_for_iteration(
             self, long_iteration_name, remove_dirs=False):
         """
-        Create the adjoint_sources_and_windows folder if it does not yet exist.
+        Create the model folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
         """
         path = self.comm.project.paths["models"]
+
+        folder = os.path.join(path, long_iteration_name)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        if remove_dirs:
+            shutil.rmtree(folder)
+
+    def _create_gradients_folder_for_iteration(
+            self, long_iteration_name, remove_dirs=False):
+        """
+        Create the kernel folder if it does not yet exist.
+        :param iteration_name: The iteration for which to create the folders.
+        """
+        path = self.comm.project.paths["gradients"]
 
         folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):

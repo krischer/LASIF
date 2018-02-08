@@ -408,6 +408,74 @@ def lasif_list_events(parser, args):
         print(tab)
 
 
+# @command_group("Iteration Management")
+# def lasif_submit_all_jobs(parser, args):
+#     """
+#     EXPERIMENTAL: Submits all events to daint with salvus-flow. NO QA
+#     Requires all input_files to be present.
+#     """
+#     parser.add_argument("iteration_name", help="name of the iteration")
+#     parser.add_argument("ranks", help="amount of ranks", type=int)
+#     parser.add_argument("wall_time_in_seconds", help="wall time", type=float)
+#     parser.add_argument("simulation_type", help="forward, "
+#                                                 "step_length, adjoint")
+#     import time
+#
+#     iteration_name = args.iteration_name
+#     ranks = args.ranks
+#     wall_time = args.wall_time_in_seconds
+#     simulation_type = args.simulation_type
+#     comm = _find_project_comm(".")
+#
+#     long_iter_name = comm.iterations.get_long_iteration_name(
+#         iteration_name)
+#     input_files_dir = comm.project.paths['salvus_input']
+#
+#     events = comm.events.list()
+#     for event in events:
+#         file = os.path.join(input_files_dir, long_iter_name, event,
+#                             simulation_type, "run_salvus.sh")
+#         job_name = f"{event}_{long_iter_name}_{simulation_type}"
+#         command = f"salvus-flow run-salvus --site daint " \
+#                   f"--wall-time-in-seconds {wall_time} " \
+#                   f"--custom-job-name {job_name} " \
+#                   f"--ranks {ranks} {file}"
+#         os.system(command)
+#         time.sleep(5)
+#         print(f"Submitted {job_name}")
+#
+#
+# @command_group("Iteration Management")
+# def lasif_retrieve_all_output(parser, args):
+#     """
+#     EXPERIMENTAL: Retrieves all output from daint, No QA.
+#     """
+#     parser.add_argument("iteration_name", help="name of the iteration")
+#     parser.add_argument("simulation_type", help="forward, "
+#                                                 "step_length, adjoint")
+#     comm = _find_project_comm(".")
+#     import time
+#     iteration_name = args.iteration_name
+#     simulation_type = args.simulation_type
+#
+#     long_iter_name = comm.iterations.get_long_iteration_name(
+#         iteration_name)
+#
+#     if simulation_type in ["forward", "step_length"]:
+#         base_dir = comm.project.paths["eq_synthetics"]
+#     else:
+#         base_dir = comm.project.paths["gradients"]
+#     events = comm.events.list()
+#
+#     for event in events:
+#         output_dir = os.path.join(base_dir, long_iter_name, event)
+#         job_name = f"{event}_{long_iter_name}_{simulation_type}@daint"
+#         command = f"salvus-flow get-output {job_name} {output_dir}"
+#         os.system(command)
+#         time.sleep(5)
+#         print(f"Retrieved {job_name}")
+
+
 @command_group("Event Management")
 def lasif_event_info(parser, args):
     """
@@ -522,11 +590,11 @@ def lasif_generate_input_files(parser, args):
 
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
-                print("Event '%s' not known to LASIF. "
-                      "No input files for this event"
-                      " will be generated. " % event)
-        print("Generating input files for event %i of %i..." % (_i + 1,
-                                                                len(events)))
+                print(f"Event {event} not known to LASIF. "
+                      f"No input files for this event"
+                      f" will be generated. ")
+        print(f"Generating input files for event "
+              f"{_i + 1} of {len(events)} -- {event}")
         if simulation_type == "adjoint":
             comm.actions.finalize_adjoint_sources(iteration_name, event,
                                                   weight_set_name)
@@ -631,17 +699,20 @@ def lasif_select_windows(parser, args):
     core actually does any work.
     """
     parser.add_argument("iteration", help="name of the iteration")
-    parser.add_argument("event_name", help="name of the event")
     parser.add_argument("window_set_name", help="name of the window_set")
+    parser.add_argument(
+        "events", help="One or more events. If none given, all will be done.",
+        nargs="*")
     args = parser.parse_args(args)
-
-    iteration_name = args.iteration
-    event = args.event_name
-    window_set_name = args.window_set_name
 
     comm = _find_project_comm_mpi(".")
 
-    comm.actions.select_windows(event, iteration_name, window_set_name)
+    iteration_name = args.iteration
+    window_set_name = args.window_set_name
+    events = args.events if args.events else comm.events.list()
+    for event in events:
+        print(f"Selecting windows for event: {event}")
+        comm.actions.select_windows(event, iteration_name, window_set_name)
 
 
 @command_group("Iteration Management")
