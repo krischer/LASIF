@@ -23,6 +23,7 @@ from ..colors import COLORS
 from .window_region_item import WindowLinearRegionItem
 
 import lasif.visualization
+from .qt_window import Ui_MainWindow
 
 
 taupy_model = TauPyModel("ak135")
@@ -65,7 +66,7 @@ class Window(QtGui.QMainWindow):
     def __init__(self, comm):
         QtGui.QMainWindow.__init__(self)
         self.comm = comm
-        self.ui = qt_window.Ui_MainWindow()  # NOQA
+        self.ui = Ui_MainWindow()  # NOQA
         self.ui.setupUi(self)
 
         # Set up the map.
@@ -75,6 +76,8 @@ class Window(QtGui.QMainWindow):
         self._draw()
         self.ui.data_only_CheckBox.stateChanged.connect(
             self.on_data_only_CheckboxChanged)
+        self.ui.process_on_fly_CheckBox.stateChanged.connect(
+            self.on_process_on_fly_CheckBoxChanged)
         self.ui.process_on_fly_CheckBox.setVisible(False)
 
         # State of the map objects.
@@ -224,13 +227,21 @@ class Window(QtGui.QMainWindow):
         self._update_event_map()
 
     def on_data_only_CheckboxChanged(self, state):
+        if not self.current_station:
+            return
         self._reset_all_plots()
 
         if state:
             self.ui.process_on_fly_CheckBox.setVisible(True)
         else:
             self.ui.process_on_fly_CheckBox.setVisible(False)
-        print(state)
+        current = self.ui.stations_listWidget.currentRow()
+        self.on_stations_listWidget_currentItemChanged(current, None)
+
+    def on_process_on_fly_CheckBoxChanged(self, state):
+        self._reset_all_plots()
+        current = self.ui.stations_listWidget.currentRow()
+        self.on_stations_listWidget_currentItemChanged(current, None)
 
     def on_stations_listWidget_currentItemChanged(self, current, previous):
         if current is None:
@@ -242,13 +253,14 @@ class Window(QtGui.QMainWindow):
             tag = self.comm.waveforms.preprocessing_tag
             try:
                 if self.ui.process_on_fly_CheckBox.isChecked():
+                    print("Processing...")
                     data = self.comm.waveforms.\
                         get_waveforms_processed_on_the_fly(
                             self.current_event, self.current_station)
                 else:
                     data = self.comm.waveforms.get_waveforms_processed(
                         self.current_event, self.current_station, tag)
-            except ValueError as e:
+            except Exception as e:
                 print(e)
                 return
             coordinates = self.comm.query.get_coordinates_for_station(
@@ -344,7 +356,7 @@ class Window(QtGui.QMainWindow):
                                                event=event, parent=plot_widget,
                                                comm=self.comm)
             except:
-                print(f"no windows available for {component}-component of"
+                print(f"no windows available for {component}-component of "
                       f"station {self.current_station}")
         self._update_raypath(wave.coordinates)
 
