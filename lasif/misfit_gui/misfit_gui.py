@@ -73,6 +73,9 @@ class Window(QtGui.QMainWindow):
         self.map_ax = self.map_figure.add_axes([0.0, 0.0, 1.0, 1.0])
         self.basemap = self.comm.project.domain.plot(ax=self.map_ax)
         self._draw()
+        self.ui.data_only_CheckBox.stateChanged.connect(
+            self.on_data_only_CheckboxChanged)
+        self.ui.process_on_fly_CheckBox.setVisible(False)
 
         # State of the map objects.
         self.current_mt_patches = []
@@ -213,13 +216,21 @@ class Window(QtGui.QMainWindow):
         if not value:
             return
         self.ui.stations_listWidget.clear()
-        stations = self.comm.query.get_all_stations_for_event(value)
-
+        stations = self.comm.query.get_all_stations_for_event(value,
+                                                              list_only=True)
         self.ui.stations_listWidget.addItems(
-            sorted(stations.keys()))
-
+            sorted(stations))
         self._reset_all_plots()
         self._update_event_map()
+
+    def on_data_only_CheckboxChanged(self, state):
+        self._reset_all_plots()
+
+        if state:
+            self.ui.process_on_fly_CheckBox.setVisible(True)
+        else:
+            self.ui.process_on_fly_CheckBox.setVisible(False)
+        print(state)
 
     def on_stations_listWidget_currentItemChanged(self, current, previous):
         if current is None:
@@ -230,8 +241,13 @@ class Window(QtGui.QMainWindow):
         if self.ui.data_only_CheckBox.isChecked():
             tag = self.comm.waveforms.preprocessing_tag
             try:
-                data = self.comm.waveforms.get_waveforms_processed(
-                    self.current_event, self.current_station, tag)
+                if self.ui.process_on_fly_CheckBox.isChecked():
+                    data = self.comm.waveforms.\
+                        get_waveforms_processed_on_the_fly(
+                            self.current_event, self.current_station)
+                else:
+                    data = self.comm.waveforms.get_waveforms_processed(
+                        self.current_event, self.current_station, tag)
             except ValueError as e:
                 print(e)
                 return
@@ -369,6 +385,28 @@ class Window(QtGui.QMainWindow):
         if idx < 0:
             return
         st.setCurrentRow(idx)
+
+    def on_delete_station_Button_released(self):
+        curRow = self.ui.stations_listWidget.currentRow()
+
+        self.comm.waveforms.delete_station_from_raw(self.current_event,
+                                                    self.current_station)
+        filename = self.comm.waveforms.get_asdf_filename(self.current_event,
+                                                         data_type="raw")
+        print(f"{self.current_station} was deleted from {filename}")
+        self.ui.stations_listWidget.takeItem(curRow)
+
+    def on_delete_all_Button_released(self):
+        for component in ["Z", "N", "E"]:
+            plot_widget = getattr(self.ui, "%s_graph" % component.lower())
+            # if not hasattr(plot_widget, "windows"):
+            #     continue
+            id = plot_widget.data_id
+            self.current_window_manager.del_all_windows_from_event_channel(
+                event_name=self.current_event, channel_name=id)
+            # plot_widget.windows.windows[:] = []
+            # plot_widget.windows.write()
+        self.on_stations_listWidget_currentItemChanged(True, False)
 
     def on_delete_all_Button_released(self):
         for component in ["Z", "N", "E"]:

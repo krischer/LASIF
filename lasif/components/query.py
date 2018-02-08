@@ -25,7 +25,7 @@ class QueryComponent(Component):
     It should thus be initialized fairly late as it needs access to a number
     of other components via the communicator.
     """
-    def get_all_stations_for_event(self, event_name):
+    def get_all_stations_for_event(self, event_name, list_only=False):
         """
         Returns a list of all stations for one event.
 
@@ -38,6 +38,10 @@ class QueryComponent(Component):
         """
         waveform_file = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw")
+
+        if list_only:
+            with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
+                return ds.waveforms.list()
 
         with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
             return ds.get_all_coordinates()
