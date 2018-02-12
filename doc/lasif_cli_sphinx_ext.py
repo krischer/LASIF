@@ -13,7 +13,7 @@ import argparse
 from docutils import nodes
 from docutils.statemachine import ViewList
 import itertools
-from sphinx.util.compat import Directive
+from docutils.parsers.rst import Directive
 import textwrap
 import warnings
 

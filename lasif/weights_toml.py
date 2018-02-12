@@ -118,3 +118,26 @@ def create_weight_set_toml_string(weight_set_name, events_dict):
         toml_string += event_string
 
     return toml_string
+
+
+def replace_weight_set_toml_string(weight_set_name, events_dict, w_set):
+    toml_string = "# This is the weights set file.\n\n"
+    weights_str = f"[weight_set]\n" \
+                  f"  name = \"{weight_set_name}\"\n" \
+                  f"  description = \"\"\n" \
+                  f"  comment = \"\"\n\n"
+
+    toml_string += weights_str
+    for event_name, stations in events_dict.items():
+        event_string = f"[[event]]\n" \
+                       f"  name = \"{event_name}\"\n" \
+                       f"  weight = 1.0\n\n"
+        for station in stations:
+            we = \
+                w_set.events[event_name]["stations"][station]["station_weight"]
+            event_string += f"  [[event.station]]\n" \
+                            f"    ID = \"{station}\"\n" \
+                            f"    weight = {we} \n\n"
+        toml_string += event_string
+
+    return toml_string

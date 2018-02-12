@@ -213,11 +213,15 @@ def lasif_plot_event(parser, args):
     Plot a single event including stations on a map.
     """
     parser.add_argument("event_name", help="name of the event to plot")
+    parser.add_argument("--weight_set_name", help="for stations to be "
+                                                  "color coded as a function "
+                                                  "of their respective "
+                                                  "weights", default=None)
     args = parser.parse_args(args)
     event_name = args.event_name
 
     comm = _find_project_comm(".")
-    comm.visualizations.plot_event(event_name)
+    comm.visualizations.plot_event(event_name, args.weight_set_name)
 
     import matplotlib.pyplot as plt
     plt.show()
@@ -363,7 +367,6 @@ def lasif_download_data(parser, args):
 
     comm = _find_project_comm(".")
     event_name = args.event_name if args.event_name else comm.events.list()
-
     for event in event_name:
         comm.downloads.download_data(event, providers=providers)
         if args.downsample_data:
@@ -741,6 +744,61 @@ def lasif_create_weight_set(parser, args):
     comm = _find_project_comm(".")
     comm.weights.create_new_weight_set(
         weight_set_name=weight_set_name,
+        events_dict=comm.query.get_stations_for_all_events())
+
+
+@command_group("Iteration Management")
+def lasif_compute_station_weights(parser, args):
+    """
+    Compute weights for stations. Useful when distribution is uneven.
+    Weights are calculated for each event. This may take a while if you have
+    many stations.
+    """
+    import progressbar
+    parser.add_argument("weight_set_name", help="Pick a name for the "
+                                                "weight set. If the weight"
+                                                "set already exists, it will"
+                                                "overwrite")
+    parser.add_argument("event_name", default=None,
+                        help="name of event. If none is specified weights will"
+                             "be calculated for all. Also possible to specify"
+                             "more than one separated by a space", nargs="*")
+    args = parser.parse_args(args)
+    w_set = args.weight_set_name
+
+    comm = _find_project_comm(".")
+
+    event_name = args.event_name if args.event_name else comm.events.list()
+
+    if not comm.weights.has_weight_set(w_set):
+        print("Weight set does not exist. Will create new one.")
+        comm.weights.create_new_weight_set(
+            weight_set_name=w_set,
+            events_dict=comm.query.get_stations_for_all_events())
+
+    weight_set = comm.weights.get(w_set)
+    for event in event_name:
+        print(f"Calculating station weights for event: {event}")
+        if not comm.events.has_event(event):
+            raise LASIFNotFoundError(f"Event: {event} is not known to LASIF")
+        stations = comm.query.get_all_stations_for_event(event)
+        bar = progressbar.ProgressBar(max_value=len(stations))
+        sum_value = 0.0
+        s = 0
+        for station in stations:
+            weight = comm.weights.calculate_station_weight(station, stations)
+            sum_value += weight
+            weight_set.events[event]["stations"][station]["station_weight"] = \
+                weight
+            s += 1
+            bar.update(s)
+        print("\n Normalizing weights")
+        for station in stations:
+            weight_set.events[event]["stations"][station]["station_weight"] *=\
+                (len(stations) / sum_value)
+
+    comm.weights.change_weight_set(
+        weight_set_name=w_set, weight_set=weight_set,
         events_dict=comm.query.get_stations_for_all_events())
 
 

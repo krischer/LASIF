@@ -1,7 +1,6 @@
 Welcome to LASIF 2.0
 ====================
 
-
 .. |br| raw:: html
 
     <br />

@@ -7,6 +7,7 @@ import os
 
 from lasif import LASIFNotFoundError, LASIFError
 from .component import Component
+from obspy.geodetics import locations2degrees
 
 
 class WeightsComponent(Component):
@@ -113,6 +114,49 @@ class WeightsComponent(Component):
                   "wt") as fh:
             fh.write(
                 create_weight_set_toml_string(weight_set_name, events_dict))
+
+    def change_weight_set(self, weight_set_name, weight_set, events_dict):
+        """
+        Changes an existing weight set
+
+        :param weight_set_name: The name of the weight set.
+        :param weight_set: The actual weight set
+        :param events_dict: A dictionary specifying the used events.
+        """
+        weight_set_name = str(weight_set_name)
+
+        from lasif.weights_toml import replace_weight_set_toml_string
+        temp = self.get_filename_for_weight_set(weight_set_name)
+        index = temp.find(".")
+        temp = temp[:index] + "_tmp_" + temp[index:]
+        with open(temp, "w+") as fh:
+            fh.write(
+                replace_weight_set_toml_string(weight_set_name, events_dict,
+                                               weight_set))
+        os.remove(self.get_filename_for_weight_set(weight_set_name))
+        os.rename(temp, self.get_filename_for_weight_set(weight_set_name))
+
+    def calculate_station_weight(self, station, stations):
+        """
+        Calculates the weight set for a set of stations for one event
+        :param station: A station ID
+        :param stations: A dictionary with all the stations for this event
+        :return: weight. weight for this specific station
+        """
+
+        factor = 0.0
+        lat_1 = stations[station]["latitude"]
+        lon_1 = stations[station]["longitude"]
+        for stat in stations:
+            lat_2 = stations[stat]["latitude"]
+            lon_2 = stations[stat]["longitude"]
+            if lat_1 == lat_2 and lon_1 == lon_2:
+                continue
+            distance = locations2degrees(lat_1, lon_1, lat_2, lon_2)
+            factor += 1.0 / (1.0 + distance)
+        weight = 1.0 / factor
+
+        return weight
 
     def get(self, weight_set_name):
         """
