@@ -184,7 +184,8 @@ def plot_raydensity(map_object, station_events, domain):
 
 
 def plot_stations_for_event(map_object, station_dict, event_info,
-                            color="green", alpha=1.0, raypaths=True):
+                            color="green", alpha=1.0, raypaths=True,
+                            weight_set=None):
     """
     Plots all stations for one event.
 
@@ -202,15 +203,27 @@ def plot_stations_for_event(map_object, station_dict, event_info,
         lngs.append(value["longitude"])
         lats.append(value["latitude"])
         station_ids.append(key)
-
     x, y = map_object(lngs, lats)
 
-    stations = map_object.scatter(x, y, color=color, s=35, marker="v",
-                                  alpha=alpha, zorder=5)
-    # Setting the picker overwrites the edgecolor attribute on certain
-    # matplotlib and basemap versions. Fix it here.
-    stations._edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]])
-    stations._edgecolors_original = "black"
+    event = event_info["event_name"]
+    if weight_set:
+        # If a weight set is specified, stations will be color coded.
+        weights = []
+        for id in station_ids:
+            weights.append(
+                weight_set.events[event]["stations"][id]["station_weight"])
+        cmap = cm.get_cmap('Greens')
+        stations = map_object.scatter(x, y, c=weights, cmap=cmap, s=35,
+                                      marker="v", alpha=alpha, zorder=5)
+        plt.colorbar(stations)
+
+    else:
+        stations = map_object.scatter(x, y, s=35, marker="v", alpha=alpha,
+                                      zorder=5)
+        # Setting the picker overwrites the edgecolor attribute on certain
+        # matplotlib and basemap versions. Fix it here.
+        stations._edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]])
+        stations._edgecolors_original = "black"
 
     # Plot the ray paths.
     if raypaths:

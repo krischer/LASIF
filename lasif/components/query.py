@@ -27,7 +27,8 @@ class QueryComponent(Component):
     """
     def get_all_stations_for_event(self, event_name, list_only=False):
         """
-        Returns a list of all stations for one event.
+        Returns a dictionary of all stations for one event and their
+        coordinates.
 
         A station is considered to be available for an event if at least one
         channel has raw data and an associated station file. Furthermore it

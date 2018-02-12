@@ -45,13 +45,19 @@ class VisualizationsComponent(Component):
             msg = "Unknown plot_type"
             raise LASIFError(msg)
 
-    def plot_event(self, event_name):
+    def plot_event(self, event_name, weight_set=None):
         """
         Plots information about one event on the map.
         """
         if not self.comm.events.has_event(event_name):
             msg = "Event '%s' not found in project." % event_name
             raise ValueError(msg)
+
+        if weight_set:
+            if not self.comm.weights.has_weight_set(weight_set):
+                msg = f"Weight set {weight_set} not found in project."
+                raise ValueError(msg)
+            weight_set = self.comm.weights.get(weight_set)
 
         map_object = self.comm.project.domain.plot()
 
@@ -70,7 +76,7 @@ class VisualizationsComponent(Component):
             # Plot the stations if it has some. This will also plot raypaths.
             visualization.plot_stations_for_event(
                 map_object=map_object, station_dict=stations,
-                event_info=event_info)
+                event_info=event_info, weight_set=weight_set)
 
         # Plot the beachball for one event.
         visualization.plot_events(events=[event_info], map_object=map_object)
