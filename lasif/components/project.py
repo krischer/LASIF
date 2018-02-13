@@ -282,8 +282,10 @@ class Project(Component):
                            "high- and lowpass period are given in seconds.\n" \
                            "[data_processing]\n" \
                            "  highpass_period = 30.0\n" \
-                           "  lowpass_period = 50.0\n"\
-                           "  starting_period = 1.0 \n\n"\
+                           "  lowpass_period = 50.0\n" \
+                           "  # Only worry about this if you will reduce" \
+                           " the size of the raw data set: \n"\
+                           "  downsample_period = 1.0 \n\n"\
                            "  # You most likely want to keep this" \
                            " setting at true.\n" \
                            "  scale_data_to_synthetics = true\n\n" \
