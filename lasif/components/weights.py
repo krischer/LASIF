@@ -117,7 +117,8 @@ class WeightsComponent(Component):
 
     def change_weight_set(self, weight_set_name, weight_set, events_dict):
         """
-        Changes an existing weight set
+        Changes an existing weight set. Writes into a tempfile and if
+        successful it will replace the old file with the tempfile.
 
         :param weight_set_name: The name of the weight set.
         :param weight_set: The actual weight set

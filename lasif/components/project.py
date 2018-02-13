@@ -281,9 +281,15 @@ class Project(Component):
         data_preproc_str = "# Data processing settings,  " \
                            "high- and lowpass period are given in seconds.\n" \
                            "[data_processing]\n" \
-                           "  highpass_period = 30.0\n" \
-                           "  lowpass_period = 50.0\n"\
-                           "  starting_period = 1.0 \n\n"\
+                           "  highpass_period = 30.0 # Periods longer than" \
+                           " the highpass_period can pass.\n" \
+                           "  lowpass_period = 50.0 # Periods longer than" \
+                           " the lowpass_period will be blocked.\n" \
+                           "  # Only worry about this if you will reduce" \
+                           " the size of the raw data set: \n"\
+                           "  downsample_period = 1.0 # Minimum period " \
+                           "of the period range you will have in your " \
+                           "(raw) recordings. \n\n"\
                            "  # You most likely want to keep this" \
                            " setting at true.\n" \
                            "  scale_data_to_synthetics = true\n\n" \

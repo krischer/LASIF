@@ -197,7 +197,7 @@ class WaveformsComponent(Component):
             "light_preprocessing_function")
         params = self.comm.project.processing_params
 
-        freq = 1.0 / params["starting_period"]
+        freq = 1.0 / params["downsample_period"]
         dt = 1.0 / freq / 3.0  # Sample each period at least three times
 
         light_proc_params = {}
