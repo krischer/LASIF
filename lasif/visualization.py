@@ -212,7 +212,7 @@ def plot_stations_for_event(map_object, station_dict, event_info,
         for id in station_ids:
             weights.append(
                 weight_set.events[event]["stations"][id]["station_weight"])
-        cmap = cm.get_cmap('Greens')
+        cmap = cm.get_cmap('seismic')
         stations = map_object.scatter(x, y, c=weights, cmap=cmap, s=35,
                                       marker="v", alpha=alpha, zorder=5)
         plt.colorbar(stations)

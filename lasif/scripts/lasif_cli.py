@@ -411,72 +411,76 @@ def lasif_list_events(parser, args):
         print(tab)
 
 
-# @command_group("Iteration Management")
-# def lasif_submit_all_jobs(parser, args):
-#     """
-#     EXPERIMENTAL: Submits all events to daint with salvus-flow. NO QA
-#     Requires all input_files to be present.
-#     """
-#     parser.add_argument("iteration_name", help="name of the iteration")
-#     parser.add_argument("ranks", help="amount of ranks", type=int)
-#     parser.add_argument("wall_time_in_seconds", help="wall time", type=float)
-#     parser.add_argument("simulation_type", help="forward, "
-#                                                 "step_length, adjoint")
-#     import time
-#
-#     iteration_name = args.iteration_name
-#     ranks = args.ranks
-#     wall_time = args.wall_time_in_seconds
-#     simulation_type = args.simulation_type
-#     comm = _find_project_comm(".")
-#
-#     long_iter_name = comm.iterations.get_long_iteration_name(
-#         iteration_name)
-#     input_files_dir = comm.project.paths['salvus_input']
-#
-#     events = comm.events.list()
-#     for event in events:
-#         file = os.path.join(input_files_dir, long_iter_name, event,
-#                             simulation_type, "run_salvus.sh")
-#         job_name = f"{event}_{long_iter_name}_{simulation_type}"
-#         command = f"salvus-flow run-salvus --site daint " \
-#                   f"--wall-time-in-seconds {wall_time} " \
-#                   f"--custom-job-name {job_name} " \
-#                   f"--ranks {ranks} {file}"
-#         os.system(command)
-#         time.sleep(5)
-#         print(f"Submitted {job_name}")
-#
-#
-# @command_group("Iteration Management")
-# def lasif_retrieve_all_output(parser, args):
-#     """
-#     EXPERIMENTAL: Retrieves all output from daint, No QA.
-#     """
-#     parser.add_argument("iteration_name", help="name of the iteration")
-#     parser.add_argument("simulation_type", help="forward, "
-#                                                 "step_length, adjoint")
-#     comm = _find_project_comm(".")
-#     import time
-#     iteration_name = args.iteration_name
-#     simulation_type = args.simulation_type
-#
-#     long_iter_name = comm.iterations.get_long_iteration_name(
-#         iteration_name)
-#
-#     if simulation_type in ["forward", "step_length"]:
-#         base_dir = comm.project.paths["eq_synthetics"]
-#     else:
-#         base_dir = comm.project.paths["gradients"]
-#     events = comm.events.list()
-#
-#     for event in events:
-#         output_dir = os.path.join(base_dir, long_iter_name, event)
-#         job_name = f"{event}_{long_iter_name}_{simulation_type}@daint"
-#         command = f"salvus-flow get-output {job_name} {output_dir}"
-#         os.system(command)
-#         time.sleep(5)
-#         print(f"Retrieved {job_name}")
+@command_group("Iteration Management")
+def lasif_submit_all_jobs(parser, args):
+    """
+    EXPERIMENTAL: Submits all events to daint with salvus-flow. NO QA
+    Requires all input_files to be present.
+    """
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("ranks", help="amount of ranks", type=int)
+    parser.add_argument("wall_time_in_seconds", help="wall time", type=int)
+    parser.add_argument("simulation_type", help="forward, "
+                                                "step_length, adjoint")
+    import time
+
+    args = parser.parse_args(args)
+
+    iteration_name = args.iteration_name
+    ranks = args.ranks
+    wall_time = args.wall_time_in_seconds
+    simulation_type = args.simulation_type
+    comm = _find_project_comm(".")
+
+    long_iter_name = comm.iterations.get_long_iteration_name(
+        iteration_name)
+    input_files_dir = comm.project.paths['salvus_input']
+
+    events = comm.events.list()
+    for event in events:
+        file = os.path.join(input_files_dir, long_iter_name, event,
+                            simulation_type, "run_salvus.sh")
+        job_name = f"{event}_{long_iter_name}_{simulation_type}"
+        command = f"salvus-flow run-salvus --site daint " \
+                  f"--wall-time-in-seconds {wall_time} " \
+                  f"--custom-job-name {job_name} " \
+                  f"--ranks {ranks} {file}"
+        os.system(command)
+        time.sleep(5)
+        print(f"Submitted {job_name}")
+
+
+@command_group("Iteration Management")
+def lasif_retrieve_all_output(parser, args):
+    """
+    EXPERIMENTAL: Retrieves all output from daint, No QA.
+    """
+    parser.add_argument("iteration_name", help="name of the iteration")
+    parser.add_argument("simulation_type", help="forward, "
+                                                "step_length, adjoint")
+
+    args = parser.parse_args(args)
+    comm = _find_project_comm(".")
+    import time
+    iteration_name = args.iteration_name
+    simulation_type = args.simulation_type
+
+    long_iter_name = comm.iterations.get_long_iteration_name(
+        iteration_name)
+
+    if simulation_type in ["forward", "step_length"]:
+        base_dir = comm.project.paths["eq_synthetics"]
+    else:
+        base_dir = comm.project.paths["gradients"]
+    events = comm.events.list()
+
+    for event in events:
+        output_dir = os.path.join(base_dir, long_iter_name, event)
+        job_name = f"{event}_{long_iter_name}_{simulation_type}@daint"
+        command = f"salvus-flow get-output {job_name} {output_dir}"
+        os.system(command)
+        time.sleep(5)
+        print(f"Retrieved {job_name}")
 
 
 @command_group("Event Management")
@@ -777,22 +781,21 @@ def lasif_compute_station_weights(parser, args):
             events_dict=comm.query.get_stations_for_all_events())
 
     weight_set = comm.weights.get(w_set)
-    for event in event_name:
-        print(f"Calculating station weights for event: {event}")
+    s = 0
+    bar = progressbar.ProgressBar(max_value=len(event_name))
+    for event in event_name[:1]:
         if not comm.events.has_event(event):
             raise LASIFNotFoundError(f"Event: {event} is not known to LASIF")
         stations = comm.query.get_all_stations_for_event(event)
-        bar = progressbar.ProgressBar(max_value=len(stations))
         sum_value = 0.0
-        s = 0
+
         for station in stations:
             weight = comm.weights.calculate_station_weight(station, stations)
             sum_value += weight
             weight_set.events[event]["stations"][station]["station_weight"] = \
                 weight
-            s += 1
-            bar.update(s)
-        print("\n Normalizing weights")
+        s += 1
+        bar.update(s)
         for station in stations:
             weight_set.events[event]["stations"][station]["station_weight"] *=\
                 (len(stations) / sum_value)

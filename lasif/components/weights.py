@@ -128,8 +128,7 @@ class WeightsComponent(Component):
 
         from lasif.weights_toml import replace_weight_set_toml_string
         temp = self.get_filename_for_weight_set(weight_set_name)
-        index = temp.find(".")
-        temp = temp[:index] + "_tmp_" + temp[index:]
+        temp = temp + "_tmp"
         with open(temp, "w+") as fh:
             fh.write(
                 replace_weight_set_toml_string(weight_set_name, events_dict,

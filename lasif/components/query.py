@@ -66,7 +66,7 @@ class QueryComponent(Component):
         events = {}
         for event in self.comm.events.list():
             try:
-                data = self.get_all_stations_for_event(event).keys()
+                data = self.get_all_stations_for_event(event, list_only=True)
             except LASIFNotFoundError:
                 continue
             events[event] = data

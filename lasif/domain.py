@@ -296,7 +296,6 @@ class ExodusDomain(Domain):
             m = Basemap(projection='lcc', resolution=resolution, width=width,
                         height=height, lat_0=self.center_lat,
                         lon_0=self.center_lon, ax=ax)
-
         if plot_lines:
             sorted_indices = self.get_sorted_edge_coords()
             x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
