@@ -445,9 +445,12 @@ def lasif_submit_all_jobs(parser, args):
                   f"--wall-time-in-seconds {wall_time} " \
                   f"--custom-job-name {job_name} " \
                   f"--ranks {ranks} {file}"
+
+        if simulation_type == "adjoint":
+            command += f" --wavefield-job-name" \
+                       f" {event}_{long_iter_name}_forward@daint"
         os.system(command)
-        time.sleep(5)
-        print(f"Submitted {job_name}")
+        time.sleep(2)
 
 
 @command_group("Iteration Management")
@@ -473,13 +476,15 @@ def lasif_retrieve_all_output(parser, args):
     else:
         base_dir = comm.project.paths["gradients"]
     events = comm.events.list()
-
+    import shutil
     for event in events:
         output_dir = os.path.join(base_dir, long_iter_name, event)
+        if os.path.exists(output_dir):
+            shutil.rmtree(output_dir)
         job_name = f"{event}_{long_iter_name}_{simulation_type}@daint"
         command = f"salvus-flow get-output {job_name} {output_dir}"
         os.system(command)
-        time.sleep(5)
+        time.sleep(2)
         print(f"Retrieved {job_name}")
 
 
@@ -671,16 +676,18 @@ def lasif_calculate_adjoint_sources(parser, args):
                 print("Event '%s' not known to LASIF. No adjoint sources for "
                       "this event will be calculated. " % event)
             continue
-        print("\n{green}"
-              "==========================================================="
-              "{reset}".format(green=colorama.Fore.GREEN,
-                               reset=colorama.Style.RESET_ALL))
-        print("Starting adjoint source calculation for event %i of "
-              "%i..." % (_i + 1, len(events)))
-        print("{green}"
-              "==========================================================="
-              "{reset}\n".format(green=colorama.Fore.GREEN,
-                                 reset=colorama.Style.RESET_ALL))
+
+        if MPI.COMM_WORLD.rank == 0:
+            print("\n{green}"
+                  "==========================================================="
+                  "{reset}".format(green=colorama.Fore.GREEN,
+                                   reset=colorama.Style.RESET_ALL))
+            print("Starting adjoint source calculation for event %i of "
+                  "%i..." % (_i + 1, len(events)))
+            print("{green}"
+                  "==========================================================="
+                  "{reset}\n".format(green=colorama.Fore.GREEN,
+                                     reset=colorama.Style.RESET_ALL))
 
         # Get adjoint sources_filename
         filename = comm.adj_sources.get_filename(event=event,
