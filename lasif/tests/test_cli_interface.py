@@ -467,13 +467,13 @@ def test_finalize_adjoint_sources(cli):
     p.assert_called_once_with(
         "1", "GCMT_event_ICELAND_Mag_5.5_2014-10-7-10", None)
     assert p.call_count == 1
-#
-# This one fails the travis test. No idea why. It doesnt recognise pyqtgraph.
-# def test_launch_misfit_gui(cli):
-#     with mock.patch("lasif.misfit_gui.misfit_gui.launch") as patch:
-#         cli.run("lasif launch_misfit_gui")
-#
-#     assert patch.call_count == 1
+
+
+def test_launch_misfit_gui(cli):
+    with mock.patch("lasif.misfit_gui.misfit_gui.launch") as patch:
+        cli.run("lasif launch_misfit_gui")
+
+    assert patch.call_count == 1
 
 
 def test_preprocessing(cli):
