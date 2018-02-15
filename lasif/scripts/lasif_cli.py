@@ -541,6 +541,7 @@ def lasif_plot_stf(parser, args):
     """
     Plot the source time function for one iteration.
     """
+    args = parser.parse_args(args)
     import lasif.visualization
     comm = _find_project_comm(".")
 
@@ -842,7 +843,15 @@ def lasif_list_iterations(parser, args):
 
     comm = _find_project_comm(".")
     iterations = comm.iterations.list()
-    print("Iterations known to LASIF: \n")
+    if len(iterations) == 0:
+        print("There are no iterations in this project")
+    else:
+        if len(iterations) == 1:
+            print(f"There is {len(iterations)} in this project")
+            print("Iteration known to LASIF: \n")
+        else:
+            print(f"There are {len(iterations)} in this project")
+            print("Iterations known to LASIF: \n")
     for iteration in iterations:
         print(comm.iterations.get_long_iteration_name(iteration), "\n")
 
@@ -928,8 +937,9 @@ def lasif_compare_misfits(parser, args):
 @command_group("Iteration Management")
 def lasif_list_weight_sets(parser, args):
     """
-    Print a list of all iterations in the project.
+    Print a list of all weight sets in the project.
     """
+    args = parser.parse_args(args)
     comm = _find_project_comm(".")
     it_len = comm.weights.count()
 
