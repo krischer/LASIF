@@ -23,8 +23,6 @@ from ..colors import COLORS
 from .window_region_item import WindowLinearRegionItem
 
 import lasif.visualization
-from .qt_window import Ui_MainWindow
-
 
 taupy_model = TauPyModel("ak135")
 
@@ -66,7 +64,7 @@ class Window(QtGui.QMainWindow):
     def __init__(self, comm):
         QtGui.QMainWindow.__init__(self)
         self.comm = comm
-        self.ui = Ui_MainWindow()  # NOQA
+        self.ui = qt_window.Ui_MainWindow()  # NOQA
         self.ui.setupUi(self)
 
         # Set up the map.
