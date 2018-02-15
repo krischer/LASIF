@@ -422,7 +422,8 @@ def lasif_submit_all_jobs(parser, args):
     parser.add_argument("wall_time_in_seconds", help="wall time", type=int)
     parser.add_argument("simulation_type", help="forward, "
                                                 "step_length, adjoint")
-    import time
+    # import time
+    import salvus_flow.api
 
     args = parser.parse_args(args)
 
@@ -441,16 +442,25 @@ def lasif_submit_all_jobs(parser, args):
         file = os.path.join(input_files_dir, long_iter_name, event,
                             simulation_type, "run_salvus.sh")
         job_name = f"{event}_{long_iter_name}_{simulation_type}"
-        command = f"salvus-flow run-salvus --site daint " \
-                  f"--wall-time-in-seconds {wall_time} " \
-                  f"--custom-job-name {job_name} " \
-                  f"--ranks {ranks} {file}"
+        # command = f"salvus-flow run-salvus --site daint " \
+        #           f"--wall-time-in-seconds {wall_time} " \
+        #           f"--custom-job-name {job_name} " \
+        #           f"--ranks {ranks} {file}"
 
         if simulation_type == "adjoint":
-            command += f" --wavefield-job-name" \
-                       f" {event}_{long_iter_name}_forward@daint"
-        os.system(command)
-        time.sleep(2)
+            # command += f" --wavefield-job-name" \
+            #            f" {event}_{long_iter_name}_forward@daint"
+            wave_job_name = f"{event}_{long_iter_name}_forward@daint"
+            salvus_flow.api.run_salvus(site="daint", cmd_line=file,
+                                       wall_time_in_seconds=wall_time,
+                                       custom_job_name=job_name, ranks=ranks,
+                                       wavefield_job_name=wave_job_name)
+        else:
+            salvus_flow.api.run_salvus(site="daint", cmd_line=file,
+                                       wall_time_in_seconds=wall_time,
+                                       custom_job_name=job_name, ranks=ranks)
+        # os.system(command)
+        # time.sleep(2)
 
 
 @command_group("Iteration Management")
@@ -464,7 +474,8 @@ def lasif_retrieve_all_output(parser, args):
 
     args = parser.parse_args(args)
     comm = _find_project_comm(".")
-    import time
+    # import time
+    import salvus_flow.api
     iteration_name = args.iteration_name
     simulation_type = args.simulation_type
 
@@ -482,9 +493,10 @@ def lasif_retrieve_all_output(parser, args):
         if os.path.exists(output_dir):
             shutil.rmtree(output_dir)
         job_name = f"{event}_{long_iter_name}_{simulation_type}@daint"
-        command = f"salvus-flow get-output {job_name} {output_dir}"
-        os.system(command)
-        time.sleep(2)
+        salvus_flow.api.get_output(job=job_name, destination=output_dir)
+        # command = f"salvus-flow get-output {job_name} {output_dir}"
+        # os.system(command)
+        # time.sleep(2)
         print(f"Retrieved {job_name}")
 
 
@@ -541,6 +553,7 @@ def lasif_plot_stf(parser, args):
     """
     Plot the source time function for one iteration.
     """
+    args = parser.parse_args(args)
     import lasif.visualization
     comm = _find_project_comm(".")
 
@@ -842,7 +855,15 @@ def lasif_list_iterations(parser, args):
 
     comm = _find_project_comm(".")
     iterations = comm.iterations.list()
-    print("Iterations known to LASIF: \n")
+    if len(iterations) == 0:
+        print("There are no iterations in this project")
+    else:
+        if len(iterations) == 1:
+            print(f"There is {len(iterations)} in this project")
+            print("Iteration known to LASIF: \n")
+        else:
+            print(f"There are {len(iterations)} in this project")
+            print("Iterations known to LASIF: \n")
     for iteration in iterations:
         print(comm.iterations.get_long_iteration_name(iteration), "\n")
 
@@ -928,8 +949,9 @@ def lasif_compare_misfits(parser, args):
 @command_group("Iteration Management")
 def lasif_list_weight_sets(parser, args):
     """
-    Print a list of all iterations in the project.
+    Print a list of all weight sets in the project.
     """
+    args = parser.parse_args(args)
     comm = _find_project_comm(".")
     it_len = comm.weights.count()
 
