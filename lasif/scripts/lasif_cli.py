@@ -872,7 +872,7 @@ def lasif_list_iterations(parser, args):
 @command_group("Iteration Management")
 def lasif_compare_misfits(parser, args):
     """
-    Compares the total misfit between two iterations. Total misfit
+    Compares the total misfit between two iterations. \n Total misfit
     is used regardless of the similarity of the picked windows
     from each iteration. This might skew the results but should
     give a good idea unless the windows change excessively between
@@ -1096,7 +1096,7 @@ def lasif_tutorial(parser, args):
     """
     Open the tutorial in a webbrowser.
     """
-    parser.parse_args(args)
+    args = parser.parse_args(args)
 
     import webbrowser
     webbrowser.open("http://dirkphilip.github.io/LASIF_2.0/")
@@ -1144,12 +1144,22 @@ def lasif_tutorial(parser, args):
 #     serve(comm, port=port, debug=debug, open_to_outside=open_to_outside)
 
 
-def _get_cmd_description(fct):
+def _get_cmd_description(fct, extended=False):
     """
-    Convenience function extracting the first line of a docstring.
+    Convenience function to extract the command description
+    from the first line of the docstring.
+
+    :param fct: The function.
+    :param extended: If set to true, the function will return
+    a formatted version of the entire docstring.
     """
     try:
-        return fct.__doc__.strip().split("\n")[0].strip()
+        if extended:
+            lines = fct.__doc__.split("\n")[:]
+            stripped_list = [item[4:] for item in lines]
+            return "\n".join(stripped_list) + "\n"
+        else:
+            return fct.__doc__.strip().split("\n")[0].strip()
     except:
         return ""
 
@@ -1197,13 +1207,14 @@ def _print_generic_help(fcts):
     print("\tlasif help FUNCTION  or\n\tlasif FUNCTION --help")
 
 
-def _get_argument_parser(fct):
+def _get_argument_parser(fct, extended=False):
     """
     Helper function to create a proper argument parser.
     """
     parser = argparse.ArgumentParser(
         prog="lasif %s" % fct.__name__.replace("lasif_", ""),
-        description=_get_cmd_description(fct))
+        description=_get_cmd_description(fct, extended),
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
         "--ipdb",
@@ -1297,7 +1308,10 @@ def main():
             return
 
     # Create a parser and pass it to the single function.
-    parser = _get_argument_parser(func)
+    if "--help" in further_args:
+        parser = _get_argument_parser(func, extended=True)
+    else:
+        parser = _get_argument_parser(func)
 
     # Now actually call the function.
     try:
