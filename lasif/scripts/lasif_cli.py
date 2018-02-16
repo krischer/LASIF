@@ -415,17 +415,18 @@ def lasif_list_events(parser, args):
 def lasif_submit_all_jobs(parser, args):
     """
     EXPERIMENTAL: Submits all events to daint with salvus-flow. NO QA
-    Requires all input_files to be present.
+
+    Requires all input_files and salvus-flow to be installed and
+    configured.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("ranks", help="amount of ranks", type=int)
     parser.add_argument("wall_time_in_seconds", help="wall time", type=int)
     parser.add_argument("simulation_type", help="forward, "
                                                 "step_length, adjoint")
-    # import time
-    import salvus_flow.api
 
     args = parser.parse_args(args)
+    import salvus_flow.api
 
     iteration_name = args.iteration_name
     ranks = args.ranks
@@ -442,14 +443,8 @@ def lasif_submit_all_jobs(parser, args):
         file = os.path.join(input_files_dir, long_iter_name, event,
                             simulation_type, "run_salvus.sh")
         job_name = f"{event}_{long_iter_name}_{simulation_type}"
-        # command = f"salvus-flow run-salvus --site daint " \
-        #           f"--wall-time-in-seconds {wall_time} " \
-        #           f"--custom-job-name {job_name} " \
-        #           f"--ranks {ranks} {file}"
 
         if simulation_type == "adjoint":
-            # command += f" --wavefield-job-name" \
-            #            f" {event}_{long_iter_name}_forward@daint"
             wave_job_name = f"{event}_{long_iter_name}_forward@daint"
             salvus_flow.api.run_salvus(site="daint", cmd_line=file,
                                        wall_time_in_seconds=wall_time,
@@ -459,8 +454,6 @@ def lasif_submit_all_jobs(parser, args):
             salvus_flow.api.run_salvus(site="daint", cmd_line=file,
                                        wall_time_in_seconds=wall_time,
                                        custom_job_name=job_name, ranks=ranks)
-        # os.system(command)
-        # time.sleep(2)
 
 
 @command_group("Iteration Management")
@@ -872,11 +865,13 @@ def lasif_list_iterations(parser, args):
 @command_group("Iteration Management")
 def lasif_compare_misfits(parser, args):
     """
-    Compares the total misfit between two iterations. Total misfit
-    is used regardless of the similarity of the picked windows
+    Compares the total misfit between two iterations.
+
+    Total misfit is used regardless of the similarity of the picked windows
     from each iteration. This might skew the results but should
     give a good idea unless the windows change excessively between
     iterations.
+
     If windows are weighted in the calculation of the adjoint
     sources. That should translate into the calculated misfit
     value.
@@ -1096,7 +1091,7 @@ def lasif_tutorial(parser, args):
     """
     Open the tutorial in a webbrowser.
     """
-    parser.parse_args(args)
+    args = parser.parse_args(args)
 
     import webbrowser
     webbrowser.open("http://dirkphilip.github.io/LASIF_2.0/")
@@ -1144,12 +1139,22 @@ def lasif_tutorial(parser, args):
 #     serve(comm, port=port, debug=debug, open_to_outside=open_to_outside)
 
 
-def _get_cmd_description(fct):
+def _get_cmd_description(fct, extended=False):
     """
-    Convenience function extracting the first line of a docstring.
+    Convenience function to extract the command description
+    from the first line of the docstring.
+
+    :param fct: The function.
+    :param extended: If set to true, the function will return
+    a formatted version of the entire docstring.
     """
     try:
-        return fct.__doc__.strip().split("\n")[0].strip()
+        if extended:
+            lines = fct.__doc__.split("\n")[:]
+            stripped_list = [item[4:] for item in lines]
+            return "\n".join(stripped_list) + "\n"
+        else:
+            return fct.__doc__.strip().split("\n")[0].strip()
     except:
         return ""
 
@@ -1197,13 +1202,14 @@ def _print_generic_help(fcts):
     print("\tlasif help FUNCTION  or\n\tlasif FUNCTION --help")
 
 
-def _get_argument_parser(fct):
+def _get_argument_parser(fct, extended=False):
     """
     Helper function to create a proper argument parser.
     """
     parser = argparse.ArgumentParser(
         prog="lasif %s" % fct.__name__.replace("lasif_", ""),
-        description=_get_cmd_description(fct))
+        description=_get_cmd_description(fct, extended),
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
         "--ipdb",
@@ -1297,7 +1303,10 @@ def main():
             return
 
     # Create a parser and pass it to the single function.
-    parser = _get_argument_parser(func)
+    if "--help" in further_args:
+        parser = _get_argument_parser(func, extended=True)
+    else:
+        parser = _get_argument_parser(func)
 
     # Now actually call the function.
     try:

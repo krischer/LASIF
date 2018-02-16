@@ -15,10 +15,9 @@ before_install:
 - conda config --add channels conda-forge
 - conda update --yes conda
 - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
-- conda install --yes -n condaenv pip
 - source activate condaenv
-- conda install --yes -c conda-forge obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
-- conda install --yes -c conda-forge pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov seaborn
+- conda install --yes -c conda-forge numpy obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
+- conda install --yes -c conda-forge pyqtgraph pip sphinx sphinx_rtd_theme ipython dill prov seaborn
 - pip install geographiclib flask-cache geojson flake8 toml==0.9.2
 - cd ..
 - git clone https://github.com/SalvusHub/pyexodus.git
