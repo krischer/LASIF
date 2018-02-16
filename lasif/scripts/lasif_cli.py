@@ -225,6 +225,8 @@ def lasif_plot_event(parser, args):
     comm = _find_project_comm(".")
     comm.visualizations.plot_event(event_name, args.weight_set_name)
 
+    import matplotlib
+    matplotlib.pyplot.switch_backend('agg')
     import matplotlib.pyplot as plt
 
     if args.save:
