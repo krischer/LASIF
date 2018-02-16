@@ -15,7 +15,6 @@ before_install:
 - conda config --add channels conda-forge
 - conda update --yes conda
 - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
-- conda install --yes -n condaenv
 - source activate condaenv
 - conda install --yes -c conda-forge numpy==1.13.1 obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
 - conda install --yes -c conda-forge pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov seaborn
