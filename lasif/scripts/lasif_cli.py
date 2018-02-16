@@ -873,7 +873,7 @@ def lasif_list_iterations(parser, args):
 def lasif_compare_misfits(parser, args):
     """
     Compares the total misfit between two iterations.
-    
+
     Total misfit is used regardless of the similarity of the picked windows
     from each iteration. This might skew the results but should
     give a good idea unless the windows change excessively between
