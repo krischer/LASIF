@@ -415,17 +415,18 @@ def lasif_list_events(parser, args):
 def lasif_submit_all_jobs(parser, args):
     """
     EXPERIMENTAL: Submits all events to daint with salvus-flow. NO QA
-    Requires all input_files to be present.
+
+    Requires all input_files and salvus-flow to be installed and
+    configured.
     """
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("ranks", help="amount of ranks", type=int)
     parser.add_argument("wall_time_in_seconds", help="wall time", type=int)
     parser.add_argument("simulation_type", help="forward, "
                                                 "step_length, adjoint")
-    # import time
-    import salvus_flow.api
 
     args = parser.parse_args(args)
+    import salvus_flow.api
 
     iteration_name = args.iteration_name
     ranks = args.ranks
@@ -442,14 +443,8 @@ def lasif_submit_all_jobs(parser, args):
         file = os.path.join(input_files_dir, long_iter_name, event,
                             simulation_type, "run_salvus.sh")
         job_name = f"{event}_{long_iter_name}_{simulation_type}"
-        # command = f"salvus-flow run-salvus --site daint " \
-        #           f"--wall-time-in-seconds {wall_time} " \
-        #           f"--custom-job-name {job_name} " \
-        #           f"--ranks {ranks} {file}"
 
         if simulation_type == "adjoint":
-            # command += f" --wavefield-job-name" \
-            #            f" {event}_{long_iter_name}_forward@daint"
             wave_job_name = f"{event}_{long_iter_name}_forward@daint"
             salvus_flow.api.run_salvus(site="daint", cmd_line=file,
                                        wall_time_in_seconds=wall_time,
@@ -459,8 +454,6 @@ def lasif_submit_all_jobs(parser, args):
             salvus_flow.api.run_salvus(site="daint", cmd_line=file,
                                        wall_time_in_seconds=wall_time,
                                        custom_job_name=job_name, ranks=ranks)
-        # os.system(command)
-        # time.sleep(2)
 
 
 @command_group("Iteration Management")
