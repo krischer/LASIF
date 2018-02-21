@@ -212,6 +212,8 @@ def lasif_plot_event(parser, args):
     """
     Plot a single event including stations on a map.
     """
+    parser.add_argument("--save", help="Saves the plot in a file",
+                        action="store_true")
     parser.add_argument("event_name", help="name of the event to plot")
     parser.add_argument("--weight_set_name", help="for stations to be "
                                                   "color coded as a function "
@@ -221,10 +223,22 @@ def lasif_plot_event(parser, args):
     event_name = args.event_name
 
     comm = _find_project_comm(".")
-    comm.visualizations.plot_event(event_name, args.weight_set_name)
 
     import matplotlib.pyplot as plt
-    plt.show()
+    if args.save:
+        plt.switch_backend('agg')
+
+    comm.visualizations.plot_event(event_name, args.weight_set_name)
+
+    if args.save:
+        outfile = os.path.join(
+            comm.project.get_output_folder(
+                type="event_plots", tag="event", timestamp=False),
+            f"{event_name}.png", )
+        plt.savefig(outfile, dpi=200, transparent=True)
+        print("Saved picture at %s" % outfile)
+    else:
+        plt.show()
 
 
 @command_group("Plotting")
