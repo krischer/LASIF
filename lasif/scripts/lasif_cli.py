@@ -223,11 +223,12 @@ def lasif_plot_event(parser, args):
     event_name = args.event_name
 
     comm = _find_project_comm(".")
-    comm.visualizations.plot_event(event_name, args.weight_set_name)
 
-    import matplotlib
-    matplotlib.pyplot.switch_backend('agg')
     import matplotlib.pyplot as plt
+    if args.save:
+        plt.switch_backend('agg')
+
+    comm.visualizations.plot_event(event_name, args.weight_set_name)
 
     if args.save:
         outfile = os.path.join(
