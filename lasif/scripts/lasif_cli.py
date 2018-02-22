@@ -413,7 +413,7 @@ def lasif_list_events(parser, args):
               "s" if comm.events.count() != 1 else ""))
 
     if args.list is True:
-        #path = comm.project.paths[eq_data]
+        # path = comm.project.paths[eq_data]
 
         for event in sorted(comm.events.list()):
             print(event)
@@ -450,13 +450,12 @@ def lasif_submit_all_jobs(parser, args):
 
     args = parser.parse_args(args)
     import salvus_flow.api
-
-    events = args.events if args.events else events = comm.events.list()
+    comm = _find_project_comm(".")
+    events = args.events if args.events else comm.events.list()
     iteration_name = args.iteration_name
     ranks = args.ranks
     wall_time = args.wall_time_in_seconds
     simulation_type = args.simulation_type
-    comm = _find_project_comm(".")
 
     long_iter_name = comm.iterations.get_long_iteration_name(
         iteration_name)
@@ -508,7 +507,7 @@ def lasif_retrieve_all_output(parser, args):
     else:
         base_dir = comm.project.paths["gradients"]
 
-    events = args.events if args.events else events = comm.events.list()
+    events = args.events if args.events else comm.events.list()
     import shutil
     for event in events:
         output_dir = os.path.join(base_dir, long_iter_name, event)
