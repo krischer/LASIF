@@ -29,16 +29,18 @@ installed almost everywhere.
 
 .. code-block:: bash
 
+    # Sometimes you need the newest version of conda to install packages
+    $ conda update conda
     # Create a new conda environment which will here be called "lasif".
     $ conda create -n lasif python=3.6
     # Activate the lasif environment. This will always be needed when LASIF is started.
     $ source activate lasif
     # Start installing dependencies
     $ conda config --add channels conda-forge
-    $ conda install -c obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
-    $ conda install -c pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov seaborn
+    $ conda install -c conda-forge obspy nomkl basemap progressbar2 colorama joblib pytest nose mock pyqt
+    $ conda install -c conda-forge pyqtgraph pip sphinx sphinx_rtd_theme numexpr ipython dill prov seaborn
     # Install more packages via pip
-    $ pip install geographiclib flask-cache geojson flake8 toml==0.9.2
+    $ pip install pyqtgraph geographiclib flask-cache geojson flake8 toml==0.9.2
     # Pick a directory where you want to store pyexodus and move into it
     $ git clone https://github.com/SalvusHub/pyexodus.git
     $ cd pyexodus

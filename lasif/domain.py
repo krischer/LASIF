@@ -27,12 +27,13 @@ class Domain(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def point_in_domain(self, longitude, latitude):
+    def point_in_domain(self, longitude, latitude, depth=None):
         """
         Called to determine if a certain point is contained by the domain.
 
         :param longitude: The longitude of the point.
         :param latitude: The latitude of the point.
+        :param depth: The depth of the point
         :return: bool
         """
         pass
@@ -98,6 +99,7 @@ class ExodusDomain(Domain):
         self.max_lat = None
         self.min_lon = None
         self.max_lon = None
+        self.max_depth = None
         self.center_lat = None
         self.center_lon = None
         self.is_read = False
@@ -120,7 +122,7 @@ class ExodusDomain(Domain):
 
         # if less than 2 side sets, this must be a global mesh.  Return
         self.side_set_names = self.e.get_side_set_names()
-        if len(self.side_set_names) < 2:
+        if len(self.side_set_names) <= 2:
             self.is_global_mesh = True
             self.min_lat = -90.0
             self.max_lat = 90.0
@@ -130,8 +132,14 @@ class ExodusDomain(Domain):
 
         side_nodes = []
         earth_surface_nodes = []
+        earth_bottom_nodes = []
         for side_set in self.side_set_names:
-            if side_set == "r0" or side_set == "surface":
+            if side_set == "surface":
+                continue
+            if side_set == "r0":
+                idx = self.e.get_side_set_ids()[
+                    self.side_set_names.index(side_set)]
+                _, earth_bottom_nodes = self.e.get_side_set_node_list(idx)
                 continue
             idx = self.e.get_side_set_ids()[
                 self.side_set_names.index(side_set)]
@@ -148,15 +156,20 @@ class ExodusDomain(Domain):
 
         # Get node numbers of the nodes specifying the domain boundaries
         boundary_nodes = np.intersect1d(side_nodes, earth_surface_nodes)
+        bottom_boundaries = np.intersect1d(side_nodes, earth_bottom_nodes)
 
         # Deduct 1 from the nodes indices, (exodus is 1 based)
         boundary_nodes -= 1
+        bottom_boundaries -= 1
         earth_surface_nodes -= 1
+        earth_bottom_nodes -= 1
 
         # Get coordinates
         points = np.array(self.e.get_coords()).T
         self.domain_edge_coords = points[boundary_nodes]
         self.earth_surface_coords = points[earth_surface_nodes]
+        self.earth_bottom_coords = points[earth_bottom_nodes]
+        self.bottom_edge_coords = points[bottom_boundaries]
 
         # Get approximation of element width, take second smallest value
         first_node = self.domain_edge_coords[0, :]
@@ -174,11 +187,19 @@ class ExodusDomain(Domain):
             xyz_to_lat_lon_radius(x_cen, y_cen, z_cen)
 
         # get extent
-        lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
+        lats, lons, r = xyz_to_lat_lon_radius(x, y, z)
         self.min_lat = min(lats)
         self.max_lat = max(lats)
         self.min_lon = min(lons)
         self.max_lon = max(lons)
+
+        # Get coords for the bottom edge of mesh
+        x, y, z = self.bottom_edge_coords.T
+
+        # Figure out maximum depth of mesh
+        lats, lons, r = xyz_to_lat_lon_radius(x, y, z)
+        min_r = min(r)
+        self.max_depth = self.r_earth - min_r
 
         self.is_read = True
 
@@ -203,22 +224,25 @@ class ExodusDomain(Domain):
             self._read()
         return self.side_set_names
 
-    def point_in_domain(self, longitude, latitude):
+    def point_in_domain(self, longitude, latitude, depth=None):
         """
         "Test whether a point lies inside the domain,
 
         :param longitude: longitude in degrees
         :param latitude: latitude in degrees
+        :param depth: depth of event
         """
-        if not self.KDTrees_initialized:
-            self._initialize_kd_trees()
-
         if self.is_global_mesh:
             return True
+
+        if not self.KDTrees_initialized:
+            self._initialize_kd_trees()
 
         # Assuming a spherical Earth without topography
         point_on_surface = lat_lon_radius_to_xyz(
             latitude, longitude, self.r_earth)
+        point_on_bottom = lat_lon_radius_to_xyz(
+            latitude, longitude, depth)
 
         dist, _ = self.earth_surface_tree.query(point_on_surface, k=1)
 
@@ -227,6 +251,16 @@ class ExodusDomain(Domain):
         # combination with a small element size.
         if dist > 2 * self.approx_elem_width:
             return False
+
+        dist, _ = self.earth_bottom_tree.query(point_on_bottom, k=1)
+        if dist < (self.num_buffer_elems * self.approx_elem_width):
+            return False
+        # Check whether domain is deep enough to include the point.
+        # Multiply element width with 1.5 since they are larger at the bottom
+        if depth:
+            if depth > (self.max_depth - self.num_buffer_elems *
+                        self.approx_elem_width * 1.5):
+                return False
 
         dist, _ = self.domain_edge_tree.query(point_on_surface, k=1)
         # False if too close to edge of domain

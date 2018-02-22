@@ -180,12 +180,14 @@ class QueryComponent(Component):
         return DataTuple(data=data, synthetics=synthetics,
                          coordinates=coordinates)
 
-    def point_in_domain(self, latitude, longitude):
+    def point_in_domain(self, latitude, longitude, depth):
         """
         Tests if the point is in the domain. Returns True/False
 
         :param latitude: The latitude of the point.
         :param longitude: The longitude of the point.
+        :param depth: The depth of the point
         """
         domain = self.comm.project.domain
-        return domain.point_in_domain(longitude=longitude, latitude=latitude)
+        return domain.point_in_domain(longitude=longitude, latitude=latitude,
+                                      depth=depth)
