@@ -823,6 +823,7 @@ def lasif_compute_station_weights(parser, args):
     weight_set = comm.weights.get(w_set)
     s = 0
     bar = progressbar.ProgressBar(max_value=len(event_name))
+    one_event = False
     for event in event_name:
         if not comm.events.has_event(event):
             raise LASIFNotFoundError(f"Event: {event} is not known to LASIF")
@@ -844,9 +845,6 @@ def lasif_compute_station_weights(parser, args):
         for station in stations:
             weight_set.events[event]["stations"][station]["station_weight"] *=\
                 (len(stations) / sum_value)
-        s += 1
-        bar.update(s)
-
         s += 1
         bar.update(s)
 
