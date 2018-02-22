@@ -2,34 +2,41 @@
  
 [lasif_project]
   project_name = "ExampleProject"
-  description = "Toy Project used in the Test Suite"
+  description = "This is an example project"
 
   # Name of the exodus file used for the simulation. Without a mesh file, LASIF will not work.
-  mesh_file = "./SphericalChunk3D_prem_ani_150.e"
+  mesh_file = "/home/sed/Dropbox/ExampleProject/MODELS/ITERATION_1/Turkey.e"
 
   # Number of buffer elements at the domain edges, no events or receivers will be placed there.
-  # A minimum amount of 3 is advised.
-  num_buffer_elements = 8
+  # A minimum amount of 7 is advised.
+  num_buffer_elements = 7
+
+  # Type of misift, choose from:
+  # [TimeFrequencyPhaseMisfitFichtner2008, L2Norm, CCTimeShift] 
+  misfit_type = "TimeFrequencyPhaseMisfitFichtner2008"
 
   [lasif_project.download_settings]
     seconds_before_event = 300.0
     seconds_after_event = 3600.0
-    interstation_distance_in_meters = 1000.0
-    channel_priorities = [ "BH[Z,N,E]", "LH[Z,N,E]",     "HH[Z,N,E]", "EH[Z,N,E]", "MH[Z,N,E]",]
+    interstation_distance_in_meters = 100000.0
+    channel_priorities = [ "BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]", "EH[Z,N,E]", "MH[Z,N,E]",]
     location_priorities = [ "", "00", "10", "20", "01", "02",]
 
 # Data processing settings,  high- and lowpass period are given in seconds.
 [data_processing]
-  highpass_period = 30.0
-  lowpass_period = 50.0
+  highpass_period = 30.0 # Periods longer than the highpass_period can pass.
+  lowpass_period = 50.0 # Periods longer than the lowpass_period will be blocked.
+
+  # Only worry about this if you will reduce the size of the raw data set: 
+  downsample_period = 1.0 # Minimum period of the period range you will have in your (raw) recordings. 
 
   # You most likely want to keep this setting at true.
   scale_data_to_synthetics = true
 
 [solver_settings]
     number_of_absorbing_layers = 7
-    end_time = 2700.0
-    time_increment = 0.1
+    end_time = 600.0
+    time_increment = 0.02
     polynomial_order = 4
 
     salvus_bin = "salvus_wave/build/salvus"
@@ -41,5 +48,6 @@
     with_anisotropy = true
     with_attenuation = false
 
-    # Source time function type, currently only "heaviside" and bandpass_filtered_heaviside" are supported
+    # Source time function type, currently only "bandpass_filtered_heaviside" is supported 
     source_time_function_type = "bandpass_filtered_heaviside"
+

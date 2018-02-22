@@ -1,0 +1,47 @@
+# This is the weights set file.
+
+[weight_set]
+  name = "A"
+  description = ""
+  comment = ""
+
+[[event]]
+  name = "GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11"
+  weight = 1.0
+
+  [[event.station]]
+    ID = "HT.ALN"
+    weight = 0.7294633518642905 
+
+  [[event.station]]
+    ID = "II.KIV"
+    weight = 1.4944535095697098 
+
+  [[event.station]]
+    ID = "IU.ANTO"
+    weight = 0.9610913845745981 
+
+  [[event.station]]
+    ID = "MN.VTS"
+    weight = 0.8149917539914009 
+
+[[event]]
+  name = "GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15"
+  weight = 1.0
+
+  [[event.station]]
+    ID = "GE.TIRR"
+    weight = 0.6752027078342713 
+
+  [[event.station]]
+    ID = "II.KIV"
+    weight = 1.3870174094097523 
+
+  [[event.station]]
+    ID = "MN.IDI"
+    weight = 1.233725310280231 
+
+  [[event.station]]
+    ID = "YD.4F14"
+    weight = 0.7040545724757458 
+

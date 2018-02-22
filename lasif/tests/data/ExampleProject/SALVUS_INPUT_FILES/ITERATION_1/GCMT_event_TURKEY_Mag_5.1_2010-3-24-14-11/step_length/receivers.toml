@@ -1,0 +1,117 @@
+[[receiver]]
+network = "GE"
+station = "TIRR"
+location = ""
+physical_latitude = 44.26572
+physical_longitude = 28.41280
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [4012729.99594, 2170833.68921, 4446830.08968]
+transform_matrix = [ [0.62985, 0.34074, 0.69799],
+                     [-0.61391, -0.33212, 0.71611],
+                     [-0.47582, 0.87954, 0.00000] ]
+
+[[receiver]]
+network = "HT"
+station = "ALN"
+location = ""
+physical_latitude = 40.70534
+physical_longitude = 26.04970
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [4339035.95071, 2120950.35862, 4154950.18930]
+transform_matrix = [ [0.68106, 0.33291, 0.65217],
+                     [-0.58592, -0.28640, 0.75807],
+                     [-0.43915, 0.89841, 0.00000] ]
+
+[[receiver]]
+network = "II"
+station = "KIV"
+location = ""
+physical_latitude = 43.76303
+physical_longitude = 42.68630
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [3382207.27970, 3119513.80799, 4406659.76773]
+transform_matrix = [ [0.53088, 0.48964, 0.69168],
+                     [-0.50844, -0.46895, 0.72221],
+                     [-0.67798, 0.73508, 0.00000] ]
+
+[[receiver]]
+network = "IU"
+station = "ANTO"
+location = ""
+physical_latitude = 39.67877
+physical_longitude = 32.79340
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [4121879.96050, 2655698.41134, 4067753.30948]
+transform_matrix = [ [0.64698, 0.41684, 0.63848],
+                     [-0.53673, -0.34581, 0.76964],
+                     [-0.54161, 0.84063, 0.00000] ]
+
+[[receiver]]
+network = "MN"
+station = "VTS"
+location = ""
+physical_latitude = 42.42630
+physical_longitude = 23.23500
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [4321277.44683, 1855227.41769, 4298106.86929]
+transform_matrix = [ [0.67828, 0.29120, 0.67464],
+                     [-0.61992, -0.26615, 0.73815],
+                     [-0.39450, 0.91889, 0.00000] ]
+
+[[receiver]]
+network = "YD"
+station = "3G11"
+location = ""
+physical_latitude = 45.95738
+physical_longitude = 24.37647
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [4034218.74838, 1828005.57263, 4579597.49377]
+transform_matrix = [ [0.63322, 0.28693, 0.71882],
+                     [-0.65474, -0.29668, 0.69519],
+                     [-0.41273, 0.91085, 0.00000] ]
+
+[[receiver]]
+network = "YD"
+station = "4F14"
+location = ""
+physical_latitude = 44.79640
+physical_longitude = 24.61078
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [4110230.70318, 1882746.13255, 4488904.21967]
+transform_matrix = [ [0.64515, 0.29552, 0.70459],
+                     [-0.64058, -0.29343, 0.70962],
+                     [-0.41645, 0.90916, 0.00000] ]
+
+[[receiver]]
+network = "YD"
+station = "6D13"
+location = ""
+physical_latitude = 44.27260
+physical_longitude = 22.98533
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [4199591.32073, 1781351.97627, 4447392.30485]
+transform_matrix = [ [0.65918, 0.27961, 0.69807],
+                     [-0.64265, -0.27259, 0.71603],
+                     [-0.39050, 0.92060, 0.00000] ]
+
+[[receiver]]
+network = "YD"
+station = "6E11"
+location = ""
+physical_latitude = 45.44959
+physical_longitude = 23.26144
+physical_depth_in_meters = 0.00000
+medium = "solid"
+salvus_coordinates = [4106138.98770, 1765107.80321, 4540148.09726]
+transform_matrix = [ [0.64451, 0.27706, 0.71263],
+                     [-0.65471, -0.28144, 0.70154],
+                     [-0.39493, 0.91871, 0.00000] ]
+

@@ -54,7 +54,7 @@ def source_time_function(npts, delta, freqmin, freqmax):
               zerophase=False)
 
     # Final cut. It's really important to make sure that the first sample in
-    # the stf is actually zero!
+    # the stf is actually zero
     tr.data = tr.data[npts:]
-
+    tr.data[0] = 0
     return tr.data

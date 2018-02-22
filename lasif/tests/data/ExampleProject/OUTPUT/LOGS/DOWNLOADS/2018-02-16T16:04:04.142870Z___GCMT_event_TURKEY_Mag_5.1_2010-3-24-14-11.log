@@ -1,0 +1,58 @@
+[2018-02-16 17:04:04,143] - obspy.clients.fdsn.mass_downloader - INFO: Initializing FDSN client(s) for IRIS.
+[2018-02-16 17:04:08,986] - obspy.clients.fdsn.mass_downloader - INFO: Successfully initialized 1 client(s): IRIS.
+[2018-02-16 17:04:08,986] - obspy.clients.fdsn.mass_downloader - INFO: Total acquired or preexisting stations: 0
+[2018-02-16 17:04:09,141] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Requesting reliable availability.
+[2018-02-16 17:04:17,530] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully requested availability (8.39 seconds)
+[2018-02-16 17:04:17,960] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Found 20 stations (60 channels).
+[2018-02-16 17:04:18,050] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Will attempt to download data from 10 stations.
+[2018-02-16 17:04:18,053] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Status for 30 time intervals/channels before downloading: NEEDS_DOWNLOADING
+[2018-02-16 17:04:37,958] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded 27 channels (of 30)
+[2018-02-16 17:04:37,958] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Launching basic QC checks...
+[2018-02-16 17:04:37,989] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Downloaded 7.2 MB [368.40 KB/sec] of data, 0.0 MB of which were discarded afterwards.
+[2018-02-16 17:04:37,989] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Status for 3 time intervals/channels after downloading: DOWNLOAD_FAILED
+[2018-02-16 17:04:37,989] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Status for 27 time intervals/channels after downloading: DOWNLOADED
+[2018-02-16 17:04:38,467] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/MN.VTS.xml'.
+[2018-02-16 17:04:38,618] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/GE.TIRR.xml'.
+[2018-02-16 17:04:38,798] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/YD.6E11.xml'.
+[2018-02-16 17:04:39,083] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/HT.ALN.xml'.
+[2018-02-16 17:04:39,419] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/YD.4F14.xml'.
+[2018-02-16 17:04:39,592] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/YD.3G11.xml'.
+[2018-02-16 17:04:39,699] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/II.KIV.xml'.
+[2018-02-16 17:04:40,084] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/IU.ANTO.xml'.
+[2018-02-16 17:04:40,194] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11/YD.6D13.xml'.
+[2018-02-16 17:04:40,216] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Downloaded 9 station files [1.4 MB] in 2.2 seconds [666.68 KB/sec].
+[2018-02-16 17:04:40,216] - obspy.clients.fdsn.mass_downloader - INFO: ============================== Final report
+[2018-02-16 17:04:40,216] - obspy.clients.fdsn.mass_downloader - INFO: 0 MiniSEED files [0.0 MB] already existed.
+[2018-02-16 17:04:40,216] - obspy.clients.fdsn.mass_downloader - INFO: 0 StationXML files [0.0 MB] already existed.
+[2018-02-16 17:04:40,217] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Acquired 27 MiniSEED files [7.2 MB].
+[2018-02-16 17:04:40,217] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Acquired 9 StationXML files [1.4 MB].
+[2018-02-16 17:04:40,217] - obspy.clients.fdsn.mass_downloader - INFO: Downloaded 8.6 MB in total.
+[2018-02-16 17:04:41,737] - obspy.clients.fdsn.mass_downloader - INFO: Initializing FDSN client(s) for IRIS.
+[2018-02-16 17:04:41,740] - obspy.clients.fdsn.mass_downloader - INFO: Successfully initialized 1 client(s): IRIS.
+[2018-02-16 17:04:41,740] - obspy.clients.fdsn.mass_downloader - INFO: Total acquired or preexisting stations: 0
+[2018-02-16 17:04:41,740] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Requesting reliable availability.
+[2018-02-16 17:04:51,026] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully requested availability (9.29 seconds)
+[2018-02-16 17:04:51,464] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Found 20 stations (58 channels).
+[2018-02-16 17:04:51,566] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Will attempt to download data from 11 stations.
+[2018-02-16 17:04:51,568] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Status for 31 time intervals/channels before downloading: NEEDS_DOWNLOADING
+[2018-02-16 17:05:10,584] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded 25 channels (of 31)
+[2018-02-16 17:05:10,584] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Launching basic QC checks...
+[2018-02-16 17:05:10,612] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Downloaded 6.6 MB [353.27 KB/sec] of data, 0.0 MB of which were discarded afterwards.
+[2018-02-16 17:05:10,612] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Status for 6 time intervals/channels after downloading: DOWNLOAD_FAILED
+[2018-02-16 17:05:10,612] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Status for 25 time intervals/channels after downloading: DOWNLOADED
+[2018-02-16 17:05:11,327] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/MN.IDI.xml'.
+[2018-02-16 17:05:11,525] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/YD.6E12.xml'.
+[2018-02-16 17:05:11,637] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/YD.4F14.xml'.
+[2018-02-16 17:05:11,987] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/IU.ANTO.xml'.
+[2018-02-16 17:05:12,106] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/II.KIV.xml'.
+[2018-02-16 17:05:12,120] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/YD.3G11.xml'.
+[2018-02-16 17:05:12,453] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/HT.ALN.xml'.
+[2018-02-16 17:05:12,583] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/HL.ARG.xml'.
+[2018-02-16 17:05:12,725] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Successfully downloaded '/home/sed/Dropbox/ExampleProject/DATA/EARTHQUAKES/tmp_station_xml_storage_GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/GE.TIRR.xml'.
+[2018-02-16 17:05:12,744] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Downloaded 9 station files [1.1 MB] in 2.1 seconds [556.95 KB/sec].
+[2018-02-16 17:05:12,745] - obspy.clients.fdsn.mass_downloader - INFO: ============================== Final report
+[2018-02-16 17:05:12,745] - obspy.clients.fdsn.mass_downloader - INFO: 0 MiniSEED files [0.0 MB] already existed.
+[2018-02-16 17:05:12,745] - obspy.clients.fdsn.mass_downloader - INFO: 0 StationXML files [0.0 MB] already existed.
+[2018-02-16 17:05:12,745] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Acquired 25 MiniSEED files [6.6 MB].
+[2018-02-16 17:05:12,745] - obspy.clients.fdsn.mass_downloader - INFO: Client 'IRIS' - Acquired 9 StationXML files [1.1 MB].
+[2018-02-16 17:05:12,745] - obspy.clients.fdsn.mass_downloader - INFO: Downloaded 7.7 MB in total.

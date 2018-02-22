@@ -129,7 +129,8 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
         min_length_period=MIN_LENGTH_PERIOD,
         min_peaks_troughs=MIN_PEAKS_TROUGHS,
         max_energy_ratio=MAX_ENERGY_RATIO,
-        min_envelope_similarity=MIN_ENVELOPE_SIMILARITY,
+        min_envelope_similarity=MIN_ENVELOPE_SIMILARITY, verbose=True,
+        plot=True,
         **kwargs)
 
     return windows
