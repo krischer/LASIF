@@ -198,7 +198,7 @@ class WaveformsComponent(Component):
         params = self.comm.project.processing_params
 
         freq = 1.0 / params["downsample_period"]
-        dt = 1.0 / freq / 3.0  # Sample each period at least three times
+        dt = 1.0 / freq / 4.0  # Sample each period at least four times
 
         light_proc_params = {}
         light_proc_params["max_freq"] = freq

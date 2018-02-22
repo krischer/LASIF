@@ -59,6 +59,7 @@ from mpi4py import MPI
 from lasif import LASIFNotFoundError
 from lasif.components.project import Project
 
+
 # Try to disable the ObsPy deprecation warnings. This makes LASIF work with
 # the latest ObsPy stable and the master.
 try:
@@ -375,7 +376,8 @@ def lasif_download_data(parser, args):
     parser.add_argument("--downsample_data", action="store_true",
                         help="If the dataset could get too big this can"
                              " help with reducing the size."
-                             " Be very careful while using this one")
+                             " Be very careful while using this one. "
+                             "Currently it changes the waveforms a bit.")
     args = parser.parse_args(args)
     providers = args.providers
 
@@ -411,6 +413,8 @@ def lasif_list_events(parser, args):
               "s" if comm.events.count() != 1 else ""))
 
     if args.list is True:
+        # path = comm.project.paths[eq_data]
+
         for event in sorted(comm.events.list()):
             print(event)
     else:
@@ -438,21 +442,25 @@ def lasif_submit_all_jobs(parser, args):
     parser.add_argument("wall_time_in_seconds", help="wall time", type=int)
     parser.add_argument("simulation_type", help="forward, "
                                                 "step_length, adjoint")
+    parser.add_argument("events", help="If you only want to submit selected "
+                                       "events. You can input more than one "
+                                       "separated by a space. If none is "
+                                       "specified, all will be taken",
+                        nargs="*", default=None)
 
     args = parser.parse_args(args)
     import salvus_flow.api
-
+    comm = _find_project_comm(".")
+    events = args.events if args.events else comm.events.list()
     iteration_name = args.iteration_name
     ranks = args.ranks
     wall_time = args.wall_time_in_seconds
     simulation_type = args.simulation_type
-    comm = _find_project_comm(".")
 
     long_iter_name = comm.iterations.get_long_iteration_name(
         iteration_name)
     input_files_dir = comm.project.paths['salvus_input']
 
-    events = comm.events.list()
     for event in events:
         file = os.path.join(input_files_dir, long_iter_name, event,
                             simulation_type, "run_salvus.sh")
@@ -478,6 +486,11 @@ def lasif_retrieve_all_output(parser, args):
     parser.add_argument("iteration_name", help="name of the iteration")
     parser.add_argument("simulation_type", help="forward, "
                                                 "step_length, adjoint")
+    parser.add_argument("events", help="names of events you want to retrieve "
+                                       "output from. If more than one, "
+                                       "separate with space. If none specified"
+                                       " all will be used.", nargs="*",
+                        default=None)
 
     args = parser.parse_args(args)
     comm = _find_project_comm(".")
@@ -493,7 +506,8 @@ def lasif_retrieve_all_output(parser, args):
         base_dir = comm.project.paths["eq_synthetics"]
     else:
         base_dir = comm.project.paths["gradients"]
-    events = comm.events.list()
+
+    events = args.events if args.events else comm.events.list()
     import shutil
     for event in events:
         output_dir = os.path.join(base_dir, long_iter_name, event)
@@ -786,6 +800,7 @@ def lasif_compute_station_weights(parser, args):
     many stations.
     """
     import progressbar
+
     parser.add_argument("weight_set_name", help="Pick a name for the "
                                                 "weight set. If the weight"
                                                 "set already exists, it will"
@@ -796,9 +811,7 @@ def lasif_compute_station_weights(parser, args):
                              "more than one separated by a space", nargs="*")
     args = parser.parse_args(args)
     w_set = args.weight_set_name
-
     comm = _find_project_comm(".")
-
     event_name = args.event_name if args.event_name else comm.events.list()
 
     if not comm.weights.has_weight_set(w_set):
@@ -810,10 +823,14 @@ def lasif_compute_station_weights(parser, args):
     weight_set = comm.weights.get(w_set)
     s = 0
     bar = progressbar.ProgressBar(max_value=len(event_name))
-    for event in event_name[:1]:
+    for event in event_name:
         if not comm.events.has_event(event):
             raise LASIFNotFoundError(f"Event: {event} is not known to LASIF")
         stations = comm.query.get_all_stations_for_event(event)
+        if len(event_name) == 1:
+            bar = progressbar.ProgressBar(max_value=len(stations))
+            one_event = True
+            b = 0
         sum_value = 0.0
 
         for station in stations:
@@ -821,11 +838,17 @@ def lasif_compute_station_weights(parser, args):
             sum_value += weight
             weight_set.events[event]["stations"][station]["station_weight"] = \
                 weight
-        s += 1
-        bar.update(s)
+            if one_event:
+                b += 1
+                bar.update(b)
         for station in stations:
             weight_set.events[event]["stations"][station]["station_weight"] *=\
                 (len(stations) / sum_value)
+        s += 1
+        bar.update(s)
+
+        s += 1
+        bar.update(s)
 
     comm.weights.change_weight_set(
         weight_set_name=w_set, weight_set=weight_set,

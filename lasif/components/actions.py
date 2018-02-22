@@ -230,7 +230,8 @@ class ActionsComponent(Component):
         Function must be called with MPI.
 
         :param event: The event.
-        :param iteration: The iteration.
+        :param iteration_name: The iteration.
+        :param window_set_name: The name of the window set to pick into
         """
         from lasif.utils import select_component_from_stream
 

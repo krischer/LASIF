@@ -120,13 +120,19 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     coordinates = []
     for event in cat:
         org = event.preferred_origin() or event.origins[0]
-        if not comm.query.point_in_domain(org.latitude, org.longitude):
+        if not comm.query.point_in_domain(org.latitude, org.longitude,
+                                          org.depth):
             continue
         temp_cat.events.append(event)
         coordinates.append((org.latitude, org.longitude))
     cat = temp_cat
 
     chosen_events = []
+    if len(cat) == 0:
+        print("No valid events were found. Consider your query parameters "
+              "and domain size and try again. Events might be inside"
+              " your buffer elements as well.")
+        return
 
     print("%i valid events remain. Starting selection process..." % len(cat))
 
