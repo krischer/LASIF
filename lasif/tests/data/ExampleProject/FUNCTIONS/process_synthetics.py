@@ -9,8 +9,8 @@ Project specific function for modifying synthetics on the fly.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-import numpy as np
-from obspy.signal.invsim import cosine_sac_taper
+# import numpy as np
+# from obspy.signal.invsim import cosine_sac_taper
 
 def process_synthetics(st, processing_params, event):  # NOQA
     """
@@ -68,18 +68,18 @@ def process_synthetics(st, processing_params, event):  # NOQA
     # * inv: The obspy.Inventory object with the metadata.
     # * tag: The name of the currently selected tag.
 
-    freqmax = 1.0 / processing_params['highpass_period']
-    freqmin = 1.0 / processing_params['lowpass_period']
-    f2 = 0.9 * freqmin
-    f3 = 1.1 * freqmax
-    f1 = 0.5 * f2
-    f4 = 2.0 * f3
-    pre_filt = (f1, f2, f3, f4)
+    # freqmax = 1.0 / processing_params['highpass_period']
+    # freqmin = 1.0 / processing_params['lowpass_period']
+    # f2 = 0.9 * freqmin
+    # f3 = 1.1 * freqmax
+    # f1 = 0.5 * f2
+    # f4 = 2.0 * f3
+    # pre_filt = (f1, f2, f3, f4)
 
     # Detrend and taper.
-    st.detrend("linear")
-    st.detrend("demean")
-    st.taper(max_percentage=0.05, type="hann")
+    # st.detrend("linear")
+    # st.detrend("demean")
+    # st.taper(max_percentage=0.05, type="hann")
 
     # Assuming displacement seismograms
     for tr in st:
@@ -87,38 +87,38 @@ def process_synthetics(st, processing_params, event):  # NOQA
         tr.stats.starttime = \
             event["origin_time"] + processing_params["salvus_start_time"]
 
-        data = tr.data.astype(np.float64)
-        orig_len = len(data)
+        # data = tr.data.astype(np.float64)
+        # orig_len = len(data)
 
         # smart calculation of nfft dodging large primes
         # noinspection PyProtectedMember
-        from obspy.signal.util import _npts2nfft
-        nfft = _npts2nfft(len(data))
+        # from obspy.signal.util import _npts2nfft
+        # nfft = _npts2nfft(len(data))
 
-        fy = 1.0 / (tr.stats.delta * 2.0)
-        freqs = np.linspace(0, fy, nfft // 2 + 1)
+        # fy = 1.0 / (tr.stats.delta * 2.0)
+        # freqs = np.linspace(0, fy, nfft // 2 + 1)
 
         # Transform data to Frequency domain
-        data = np.fft.rfft(data, n=nfft)
+        # data = np.fft.rfft(data, n=nfft)
         # noinspection PyTypeChecker
-        data *= cosine_sac_taper(freqs, flimit=pre_filt)
-        data[-1] = abs(data[-1]) + 0.0j
+        # data *= cosine_sac_taper(freqs, flimit=pre_filt)
+        # data[-1] = abs(data[-1]) + 0.0j
 
         # transform data back into the time domain
-        data = np.fft.irfft(data)[0:orig_len]
+        # data = np.fft.irfft(data)[0:orig_len]
 
         # assign processed data and store processing informatio
-        tr.data = data
+        # tr.data = data
 
-        tr.detrend("linear")
-        tr.detrend("demean")
-        tr.taper(0.05, type="cosine")
-        tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
-                  zerophase=True)
-        tr.detrend("linear")
-        tr.detrend("demean")
-        tr.taper(0.05, type="cosine")
-        tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax,
-                  corners=3, zerophase=True)
+        # tr.detrend("linear")
+        # tr.detrend("demean")
+        # tr.taper(0.05, type="cosine")
+        # tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+        #           zerophase=True)
+        # tr.detrend("linear")
+        # tr.detrend("demean")
+        # tr.taper(0.05, type="cosine")
+        # tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax,
+        #           corners=3, zerophase=True)
 
     return st

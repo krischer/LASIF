@@ -40,6 +40,7 @@ import os
 import urllib
 
 from lasif.utils import get_event_filename
+import pyasdf
 
 
 def iris2quakeml(url, output_folder=None):
@@ -83,18 +84,13 @@ def iris2quakeml(url, output_folder=None):
     ev.magnitudes = [mt.moment_magnitude_id.get_referred_object()]
     ev.origins = [mt.derived_origin_id.get_referred_object()]
 
-    event_name = get_event_filename(ev, "GCMT")
-
+    event_filename = get_event_filename(ev, "GCMT")
     if output_folder:
-        event_name = os.path.join(output_folder, event_name)
-    cat.write(event_name, format="quakeml", validate=True)
+        event_filename = os.path.join(output_folder, event_filename)
 
-    import pyasdf
-    event_asdf = event_name.rsplit(".", 1)[0] + ".h5"
-    ds = pyasdf.ASDFDataSet(event_asdf)
-    ds.add_quakeml(event_name)
-    print("Written file", event_asdf)
-    os.remove(event_name)
+    with pyasdf.ASDFDataSet(event_filename) as ds:
+        ds.add_quakeml(cat)
+    print("Written file", event_filename)
 
 
 def main():

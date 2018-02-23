@@ -118,13 +118,13 @@ def preprocessing_function_asdf(processing_info):
         st.detrend("demean")
         st.taper(0.05, type="cosine")
         st.filter("bandpass", freqmin=1.0 / max_period,
-                  freqmax=1.0 / min_period, corners=3, zerophase=True)
+                  freqmax=1.0 / min_period, corners=3, zerophase=False)
 
         st.detrend("linear")
         st.detrend("demean")
         st.taper(0.05, type="cosine")
         st.filter("bandpass", freqmin=1.0 / max_period,
-                  freqmax=1.0 / min_period, corners=3, zerophase=True)
+                  freqmax=1.0 / min_period, corners=3, zerophase=False)
 
         # Sinc interpolation
         for tr in st:

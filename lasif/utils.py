@@ -151,7 +151,7 @@ def get_event_filename(event, prefix):
     >>> from obspy import read_events
     >>> event = read_events()[0]
     >>> print(get_event_filename(event, "GCMT"))
-    GCMT_event_KYRGYZSTAN-XINJIANG_BORDER_REG._Mag_4.4_2012-4-4-14.xml
+    GCMT_event_KYRGYZSTAN-XINJIANG_BORDER_REG._Mag_4.4_2012-4-4-14.h5
     """
     from obspy.geodetics import FlinnEngdahl
 
@@ -165,6 +165,6 @@ def get_event_filename(event, prefix):
     # Replace commas, as some file systems cannot deal with them.
     region_name = region_name.replace(",", "")
 
-    return "%s_event_%s_Mag_%.1f_%s-%s-%s-%s.xml" % \
+    return "%s_event_%s_Mag_%.1f_%s-%s-%s-%s.h5" % \
         (prefix, region_name, mag.mag, org.time.year, org.time.month,
          org.time.day, org.time.hour)

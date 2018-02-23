@@ -51,19 +51,19 @@ def _get_vector(*args):
 
 
     >>> vec = _get_vector(1, 2, 3)
-    >>> vec # doctest: +NORMALIZE_WHITESPACE
+    >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
     array([1., 2., 3.])
     >>> print(vec.dtype)
     float64
 
     >>> vec = _get_vector([1, 2, 3])
-    >>> vec
+    >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
     array([1., 2., 3.])
     >>> print(vec.dtype)
     float64
 
     >>> vec = _get_vector(np.array([1, 2, 3], dtype="int32"))
-    >>> vec
+    >>> vec # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
     array([1., 2., 3.])
     >>> print(vec.dtype)
     float64

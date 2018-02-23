@@ -1,0 +1,5 @@
+source_input_file = "/home/sed/Dropbox/ExampleProject/SALVUS_INPUT_FILES/ITERATION_1/GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15/step_length/Heaviside.h5"
+
+[[source]]
+name = "source"
+dataset_name = "/source"
