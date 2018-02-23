@@ -112,11 +112,10 @@ class EventsComponent(Component):
     def list(self):
         """
         List of all events.
-
         >>> comm = getfixture('events_comm')
         >>> comm.events.list() #  doctest: +NORMALIZE_WHITESPACE
-        ['GCMT_event_ICELAND_Mag_5.5_2014-10-7-10',
-        'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13']
+        ['GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11',
+         'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
         """
         self._update_cache()
         return sorted(self.__event_info_cache.keys())
@@ -134,12 +133,10 @@ class EventsComponent(Component):
     def has_event(self, event_name):
         """
         Test for existence of an event.
-
         :type event_name: str
         :param event_name: The name of the event.
-
         >>> comm = getfixture('events_comm')
-        >>> comm.events.has_event('GCMT_event_ICELAND_Mag_5.5_2014-10-7-10')
+        >>> comm.events.has_event('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15')
         True
         >>> comm.events.has_event('random')
         False
@@ -161,8 +158,8 @@ class EventsComponent(Component):
         >>> comm = getfixture('events_comm')
         >>> comm.events.get_all_events() \
         # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-        {'GCMT_event_ICELAND_Mag_5.5_2014-10-7-10': {...},
-         'GCMT_event_IRAN-IRAQ_BORDER_REGION_Mag_5.8_2014-10-15-13': {...}}
+        {'GCMT_event_TURKEY_Mag_5.1_2010-3-24-14-11': {...},
+         'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15': {...}}
         """
         # make sure cache is filled
         self._update_cache()
@@ -171,32 +168,27 @@ class EventsComponent(Component):
     def get(self, event_name):
         """
         Get information about one event.
-
         This function uses multiple cache layers and is thus very cheap to
         call.
-
         :type event_name: str
         :param event_name: The name of the event.
         :rtype: dict
-
         >>> comm = getfixture('events_comm')
-        >>> comm.events.get('GCMT_event_ICELAND_Mag_5.5_2014-10-7-10') \
+        >>> comm.events.get('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15') \
         # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
-        {'filename': '...',
-        'event_name': 'GCMT_event_ICELAND_Mag_5.5_2014-10-7-10',
-        'latitude': 64.62,
-        'longitude': -17.26, 'depth_in_km': 12.0, 'origin_time':
-        UTCDateTime(2014, 10, 7, 10, 22, 34, 100000), 'm_rr': -2.97e+17,
-         'm_pp': 1.23e+17,
-        'm_tt': 1.74e+17, 'm_rp': -7.74e+16, 'm_rt': 3.87e+16, 'm_tp':
-        -1900000000000000.0, 'magnitude': 5.53, 'magnitude_type': 'Mwc',
-         'region': 'ICELAND'}
+        {'filename': '/.../GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15.h5',
+         'event_name': 'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15',
+         'latitude': 39.15, 'longitude': 29.1, 'depth_in_km': 7.0,
+         'origin_time': UTCDateTime(2011, 5, 19, 20, 15, 22, 900000),
+         'm_rr': -8.07e+17, 'm_pp': -8.5e+16, 'm_tt': 8.92e+17,
+         'm_rp': -5.3e+16, 'm_rt': 2.8e+16, 'm_tp': -2.17e+17,
+         'magnitude': 5.9, 'magnitude_type': 'Mwc', 'region': 'TURKEY'}
 
         The moment tensor components are in ``Nm``. The dictionary will
         contain the following keys:
 
         >>> sorted(comm.events.get(
-        ...     'GCMT_event_ICELAND_Mag_5.5_2014-10-7-10').keys()) \
+        ...     'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15').keys()) \
         # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
          ['depth_in_km', 'event_name', 'filename', 'latitude', 'longitude',
           'm_pp', 'm_rp', 'm_rr', 'm_rt', 'm_tp', 'm_tt', 'magnitude',
@@ -205,7 +197,7 @@ class EventsComponent(Component):
         It also works with an existing event dictionary. This eases calling
         the function under certain circumstances.
 
-        >>> ev = comm.events.get('GCMT_event_ICELAND_Mag_5.5_2014-10-7-10')
+        >>> ev = comm.events.get('GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15')
         >>> ev == comm.events.get(ev)
         True
         """

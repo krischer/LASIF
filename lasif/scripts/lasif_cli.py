@@ -54,6 +54,7 @@ import pathlib
 import sys
 import traceback
 import warnings
+warnings.filterwarnings('ignore', category=FutureWarning)
 
 from mpi4py import MPI
 from lasif import LASIFNotFoundError
@@ -887,10 +888,10 @@ def lasif_list_iterations(parser, args):
         print("There are no iterations in this project")
     else:
         if len(iterations) == 1:
-            print(f"There is {len(iterations)} in this project")
+            print(f"There is {len(iterations)} iteration in this project")
             print("Iteration known to LASIF: \n")
         else:
-            print(f"There are {len(iterations)} in this project")
+            print(f"There are {len(iterations)} iterations in this project")
             print("Iterations known to LASIF: \n")
     for iteration in iterations:
         print(comm.iterations.get_long_iteration_name(iteration), "\n")
