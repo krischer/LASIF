@@ -170,7 +170,7 @@ def plot_raydensity(map_object, station_events, domain):
     cmap._lut[:120, -1] = np.linspace(0, 1.0, 120) ** 2
 
     # Slightly change the appearance of the map so it suits the rays.
-    map_object.fillcontinents(color='#dddddd', lake_color='#dddddd', zorder=2)
+    map_object.fillcontinents(color='#dddddd', lake_color='#dddddd', zorder=1)
 
     lngs, lats = collected_bins.coordinates
     # Rotate back if necessary!
@@ -218,8 +218,7 @@ def plot_stations_for_event(map_object, station_dict, event_info,
         plt.colorbar(stations)
 
     else:
-        stations = map_object.scatter(x, y, color=color,
-                                      s=35, marker="v", alpha=alpha,
+        stations = map_object.scatter(x, y, color=color,s=35, marker="v", alpha=alpha,
                                       zorder=5)
         # Setting the picker overwrites the edgecolor attribute on certain
         # matplotlib and basemap versions. Fix it here.

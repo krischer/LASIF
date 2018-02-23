@@ -273,7 +273,6 @@ def lasif_plot_raydensity(parser, args):
     parser.add_argument("--plot_stations", help="also plot the stations",
                         action="store_true")
     args = parser.parse_args(args)
-
     comm = _find_project_comm(".")
     comm.visualizations.plot_raydensity(plot_stations=args.plot_stations)
 
