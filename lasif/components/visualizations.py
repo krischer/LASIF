@@ -81,12 +81,11 @@ class VisualizationsComponent(Component):
         # Plot the beachball for one event.
         visualization.plot_events(events=[event_info], map_object=map_object)
 
-    def plot_domain(self, plot_simulation_domain=True):
+    def plot_domain(self):
         """
         Plots the simulation domain and the actual physical domain.
         """
-        self.comm.project.domain.plot(
-            plot_simulation_domain=plot_simulation_domain)
+        self.comm.project.domain.plot()
 
     def plot_raydensity(self, save_plot=True, plot_stations=False):
         """

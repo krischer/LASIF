@@ -182,14 +182,10 @@ def lasif_plot_domain(parser, args):
     """
     Plot the project's domain on a map.
     """
-    parser.add_argument("--no_simulation_domain",
-                        help="Don't plot the simulation domain",
-                        action="store_false")
     args = parser.parse_args(args)
     comm = _find_project_comm(".")
 
-    comm.visualizations.plot_domain(
-        plot_simulation_domain=args.no_simulation_domain)
+    comm.visualizations.plot_domain()
 
     import matplotlib.pyplot as plt
     plt.show()
