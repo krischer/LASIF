@@ -32,4 +32,4 @@ inversion with LASIF and SES3D on a simple toy example.
     tutorial/10_generating_input_files
     tutorial/11_synthetic_waveforms
     tutorial/12_misfits_and_adjoint_sources
-    tutorial/13_Gradient_visualization
+    tutorial/13_gradient_visualization

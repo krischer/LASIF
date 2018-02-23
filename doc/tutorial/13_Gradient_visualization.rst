@@ -1,5 +1,8 @@
 .. centered:: Last updated on *February 23rd 2018*.
 
+Gradient Visualization
+----------------------
+
 After running the adjoint simulation you should be able to find a gradient.
 This gradient should be put into the ``GRADIENTS/ITERATION_1/EVENT_NAME/``
 folder. Your gradient should be on an exodus format so you should be able to
