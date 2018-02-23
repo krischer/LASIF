@@ -241,8 +241,6 @@ class ExodusDomain(Domain):
         # Assuming a spherical Earth without topography
         point_on_surface = lat_lon_radius_to_xyz(
             latitude, longitude, self.r_earth)
-        point_on_bottom = lat_lon_radius_to_xyz(
-            latitude, longitude, depth)
 
         dist, _ = self.earth_surface_tree.query(point_on_surface, k=1)
 
@@ -252,9 +250,6 @@ class ExodusDomain(Domain):
         if dist > 2 * self.approx_elem_width:
             return False
 
-        dist, _ = self.earth_bottom_tree.query(point_on_bottom, k=1)
-        if dist < (self.num_buffer_elems * self.approx_elem_width):
-            return False
         # Check whether domain is deep enough to include the point.
         # Multiply element width with 1.5 since they are larger at the bottom
         if depth:

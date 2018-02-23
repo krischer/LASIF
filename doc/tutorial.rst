@@ -23,16 +23,13 @@ inversion with LASIF and SES3D on a simple toy example.
     tutorial/01_creating_a_new_project
     tutorial/02_seismic_events
     tutorial/03_station_data
-    tutorial/04_waveform_data
-    tutorial/05_download_helpers
-    tutorial/06_data_inspection
-    tutorial/07_data_validation
-    tutorial/08_a_new_iteration
-    tutorial/09_data_preprocessing
-    tutorial/10_model_handling
-    tutorial/11_generating_input_files
-    tutorial/12_synthetic_waveforms
-    tutorial/13_misfits_and_adjoint_sources
-    tutorial/14_model_update
-    tutorial/15_next_iterations
-    tutorial/16_customizing_lasif
+    tutorial/04_download_helpers
+    tutorial/05_data_inspection
+    tutorial/06_data_validation
+    tutorial/07_a_new_iteration
+    tutorial/08_data_processing
+    tutorial/09_model_handling
+    tutorial/10_generating_input_files
+    tutorial/11_synthetic_waveforms
+    tutorial/12_misfits_and_adjoint_sources
+    tutorial/13_Gradient_visualization
