@@ -248,7 +248,6 @@ class ExodusDomain(Domain):
         # fpr meshes with significant topography/ellipticity in
         # combination with a small element size.
         if dist > 3 * self.approx_elem_width:
-
             return False
 
         # Check whether domain is deep enough to include the point.

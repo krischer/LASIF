@@ -44,15 +44,17 @@ installed almost everywhere.
     # Pick a directory where you want to store pyexodus and move into it
     $ git clone https://github.com/SalvusHub/pyexodus.git
     $ cd pyexodus
-    $ pip install .
+    $ pip install -e .
     # Make sure you do not have an active installation of mpi4py from conda
     $ conda uninstall mpi4py
     # re-install it using pip
     $ pip install mpi4py
     # Install a parallel version of hdf5
     $ conda install -c spectraldns h5py-parallel
-    # Install pyasdf
-    $ pip install pyasdf
+    # Install pyasdf. Move into the directory you want to keep it
+    $ git clone https://github.com/SeismicData/pyasdf.git
+    $ cd pyasdf
+    $ pip install -e .
 
 Make sure that pyasdf is working as it should by running the following command
 

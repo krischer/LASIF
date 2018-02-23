@@ -1,4 +1,4 @@
-.. centered:: Last updated on *August 12th 2016*.
+.. centered:: Last updated on *February 22th 2018*.
 
 Creating a New Project
 ----------------------
@@ -14,7 +14,7 @@ create a  new folder in whichever directory the command is executed in.
     $ lasif init_project Tutorial
 
     Initialized project in:
-        /Users/lion/workspace/temp/LASIF_Tutorial/Tutorial
+        /Users/solvi/PhD/LASIF_Projects/LASIF_Tutorial/Tutorial
 
 This will create the following directory structure. A **LASIF** project is
 defined by the files it contains. All information it requires will be
@@ -23,38 +23,45 @@ learn what piece of data belongs where and how **LASIF** interacts with it.
 
 .. code-block:: none
 
-    Tutorial
-    ├── ADJOINT_SOURCES_AND_WINDOWS
-    │   ├── ADJOINT_SOURCES
-    │   └── WINDOWS
-    ├── CACHE
-    │   ├── config.xml_cache.pickle
-    │   ├── event_cache.sqlite
-    │   └── statistics
+    Tutorial/
+    ├── ADJOINT_SOURCES
     ├── DATA
-    ├── EVENTS
+    │   ├── CORRELATIONS
+    │   └── EARTHQUAKES
     ├── FUNCTIONS
     │   ├── __init__.py
-    │   ├── preprocessing_function.py
+    │   ├── light_preprocessing.py
+    │   ├── preprocessing_function_asdf.py
+    │   ├── process_data.py
     │   ├── process_synthetics.py
     │   ├── source_time_function.py
     │   └── window_picking_function.py
-    ├── ITERATIONS
-    ├── KERNELS
-    ├── LOGS
+    ├── GRADIENTS
     ├── MODELS
     ├── OUTPUT
-    ├── STATIONS
-    │   ├── RESP
-    │   ├── SEED
-    │   └── StationXML
+    │   └── LOGS
+    ├── PROCESSED_DATA
+    │   ├── CORRELATIONS
+    │   └── EARTHQUAKES
+    ├── SALVUS_INPUT_FILES
+    ├── SETS
+    │   ├── WEIGHTS
+    │   └── WINDOWS
     ├── SYNTHETICS
-    ├── WAVEFIELDS
-    └── config.xml
+    │   ├── CORRELATIONS
+    │   └── EARTHQUAKES
+    └── lasif_config.toml
 
 
 Configuration File
 ^^^^^^^^^^^^^^^^^^
+
+Each project stores its configuration values in **lasif_config.toml**. This
+file should always be located in the root directory of the project as this
+file is how LASIF determines the root folder of the project. It uses the
+toml format which is a readable file format which should be for the most
+part self explanatory. It is important that the names of the inputted values
+will not be changed.
 
 Each project stores its configuration values in the **config.xml** file; the
 location of this file also determines the root folder of the project. It is
@@ -62,105 +69,73 @@ a simple, self-explanatory XML format. Please refer to the comments in the
 XML file to infer the meaning of the different settings. Immediately after the
 project has been initialized, it will resemble the following:
 
-.. code-block:: xml
+.. code-block:: none
 
-    <?xml version='1.0' encoding='UTF-8'?>
-    <lasif_project>
-      <name>Tutorial</name>
-      <description></description>
-      <download_settings>
-        <seconds_before_event>300</seconds_before_event>
-        <seconds_after_event>3600</seconds_after_event>
-        <interstation_distance_in_m>1000.0</interstation_distance_in_m>
-        <channel_priorities>
-          <priority>BH[Z,N,E]</priority>
-          <priority>LH[Z,N,E]</priority>
-          <priority>HH[Z,N,E]</priority>
-          <priority>EH[Z,N,E]</priority>
-          <priority>MH[Z,N,E]</priority>
-        </channel_priorities>
-        <location_priorities>
-          <priority></priority>
-          <priority>00</priority>
-          <priority>10</priority>
-          <priority>20</priority>
-          <priority>01</priority>
-          <priority>02</priority>
-        </location_priorities>
-      </download_settings>
-      <domain>
-        <global>false</global>
-        <domain_bounds>
-          <minimum_longitude>-20</minimum_longitude>
-          <maximum_longitude>20</maximum_longitude>
-          <minimum_latitude>-20</minimum_latitude>
-          <maximum_latitude>20</maximum_latitude>
-          <minimum_depth_in_km>0.0</minimum_depth_in_km>
-          <maximum_depth_in_km>200.0</maximum_depth_in_km>
-          <boundary_width_in_degree>3.0</boundary_width_in_degree>
-        </domain_bounds>
-        <domain_rotation>
-          <rotation_axis_x>1.0</rotation_axis_x>
-          <rotation_axis_y>1.0</rotation_axis_y>
-          <rotation_axis_z>1.0</rotation_axis_z>
-          <rotation_angle_in_degree>-45.0</rotation_angle_in_degree>
-        </domain_rotation>
-      </domain>
-      <misc_settings>
-        <time_frequency_adjoint_source_criterion>
-            25.0
-        </time_frequency_adjoint_source_criterion>
-      </misc_settings>
-    </lasif_project>
+    # Please fill in this config file before proceeding with using LASIF.
 
-The nature of SES3D's coordinate system has the effect that simulation is most
-efficient in equatorial regions. Thus it is often advantageous to rotate
-the frame of reference so that the simulation happens close to the equator.
-A one chunk simulation with SPECFEM3D GLOBE does not suffer from this limitation,
-but a domain can still only be specified by minimum and maximum extents as it
-works with spherical sections.
-**LASIF** first defines the simulation domain; the actual simulation happens
-there (only when using SES3D; SPECFEM3D GLOBE directly simulates in the
-rotated domain). Optional rotation parameters define the physical location of
-the domain. The coordinate system for the rotation parameters is described in
-:py:mod:`lasif.rotations`.  You will have to edit the ``config.xml`` file to
-adjust it to your region of interest.
+    [lasif_project]
+      project_name = "Tutorial"
+      description = ""
 
-**LASIF** handles all rotations necessary so the user never needs to worry
-about these. Just keep in mind to always keep any data (real waveforms, station
-metadata and events) in coordinates that correspond to the physical domain and
-all synthetic waveforms in coordinates that correspond to the simulation
-domain.
+      # Name of the exodus file used for the simulation. Without a mesh file, LASIF will not work.
+      mesh_file = "/Users/solvi/PhD/LASIF_Projects/LASIF_Tutorial/Tutorial/"
 
-.. warning::
+      # Number of buffer elements at the domain edges, no events or receivers will be placed there.
+      # A minimum amount of 3 is advised.
+      num_buffer_elements = 8
 
-    A one chunk simulation in SPECFEM3D GLOBE is not exactly identical with the
-    domain definition in LASIF. A SES3D (and LASIF) domain is defined in
-    geographical coordinates whereas a cubed sphere chunk uses great circles on
-    all boundaries. This is not a big limitation - just keep in mind that the
-    domain in SPECFEM is a bit smaller at the corners than the LASIF domain. If
-    this becomes an issue, let us know and we'll add some more logic to LASIF.
+      # Type of misift, choose from:
+      # [TimeFrequencyPhaseMisfitFichtner2008, L2Norm, CCTimeShift]
+      misfit_type = "TimeFrequencyPhaseMisfitFichtner2008"
 
-For this tutorial we are going to work in a rotated domain across Europe.
-Please change the ``config.xml`` file to reflect the following domain
-settings.
+      [lasif_project.download_settings]
+        seconds_before_event = 300.0
+        seconds_after_event = 3600.0
+        interstation_distance_in_meters = 1000.0
+        channel_priorities = [ "BH[Z,N,E]", "LH[Z,N,E]", "HH[Z,N,E]", "EH[Z,N,E]", "MH[Z,N,E]",]
+        location_priorities = [ "", "00", "10", "20", "01", "02",]
 
-* Latitude: ``-10.0° - 10.0°``
-* Longitude: ``-10.0° - 10.0°``
-* Depth: ``0 km - 471 km``
-* Boundary width in degree: ``2.5°``
-* Rotation axis: ``1.0, 1.0, 0.2``
-* Rotation angle: ``-65.0°``
+    # Data processing settings,  high- and lowpass period are given in seconds.
+    [data_processing]
+      highpass_period = 30.0 # Periods longer than the highpass_period can pass.
+      lowpass_period = 50.0 # Periods longer than the lowpass_period will be blocked.
+      # Only worry about this if you will reduce the size of the raw data set:
+      downsample_period = 1.0 # Minimum period of the period range you will have in your (raw) recordings.
 
-In general, one should only work with data not affected by the boundary
-conditions. SES3D utilizes perfectly matched layers boundary conditions (PML).
-It is not advisable to use data that traverses these layers. SES3D defaults
-to two layers but more are possible. For this tutorial we will only consider
-data which is at least three elements away from the border in a an attempt
-to avoid unphysical influences of the boundary conditions. This amounts to
-``2.5°``.
+      # You most likely want to keep this setting at true.
+      scale_data_to_synthetics = true
 
-At any point you can have a look at the defined domain with
+    [solver_settings]
+        number_of_absorbing_layers = 7
+        end_time = 600.0
+        time_increment = 0.02
+        polynomial_order = 4
+
+        salvus_bin = "salvus_wave/build/salvus"
+        number_of_processors = 4
+        io_sampling_rate_volume = 20
+        io_memory_per_rank_in_MB = 5000
+        salvus_call = "mpirun -n 4"
+
+        with_anisotropy = true
+        with_attenuation = false
+
+        # Source time function type, currently only "bandpass_filtered_heaviside" is supported
+        source_time_function_type = "bandpass_filtered_heaviside"
+
+You will probably have another values in ``end_time`` and ``time_increment``
+to follow this tutorial, please modify them to resemble this one.
+
+The **lasif_config.toml** file allows you to tune parameters related to the
+processing of your data, download settings, and forward simulation parameters.
+This is where you let **LASIF** know where it finds the mesh file to use. Which
+source time function and which misfit measurement you want to use. *Currently
+only the once specified in this example config file are supported* The mesh
+file is how **LASIF** determines the domain used for the simulation. This
+mesh needs to be in an exodus file format and we recommend using the
+`pymesher <https://gitlab.com/Salvus/salvus_mesher/tree/master>`_ which is
+a part of `salvus <http://www.salvus.io>`_. You can plot the domain to make
+sure that lasif has read the correct domain for your project.
 
 .. code-block:: bash
 
@@ -168,8 +143,8 @@ At any point you can have a look at the defined domain with
 
 This will open a window showing the location of the physical domain and the
 simulation domain. The inner contour shows the domain minus the previously
-defined boundary width.
-
+defined boundary width. *Currently it only shows the outer boundary but the
+inner boundary will be implemented later*
 
 .. note::
 
