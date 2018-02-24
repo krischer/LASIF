@@ -81,12 +81,11 @@ class VisualizationsComponent(Component):
         # Plot the beachball for one event.
         visualization.plot_events(events=[event_info], map_object=map_object)
 
-    def plot_domain(self, plot_simulation_domain=True):
+    def plot_domain(self):
         """
         Plots the simulation domain and the actual physical domain.
         """
-        self.comm.project.domain.plot(
-            plot_simulation_domain=plot_simulation_domain)
+        self.comm.project.domain.plot()
 
     def plot_raydensity(self, save_plot=True, plot_stations=False):
         """
@@ -129,13 +128,13 @@ class VisualizationsComponent(Component):
                                marker="v")
 
         plt.tight_layout()
-
         if save_plot:
             outfile = os.path.join(
                 self.comm.project.get_output_folder(
                     type="raydensity_plots", tag="raydensity"),
                 "raydensity.png")
-            plt.savefig(outfile, dpi=200, transparent=True)
+            plt.savefig(outfile, dpi=200,
+                        transparent=False)
             print("Saved picture at %s" % outfile)
 
     def plot_windows(self, event, window_set_name, distance_bins=500,

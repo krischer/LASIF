@@ -179,7 +179,6 @@ def test_plotting_functions(cli):
     vs = "lasif.components.visualizations.VisualizationsComponent."
     with mock.patch(vs + "plot_domain") as patch:
         cli.run("lasif plot_domain")
-    patch.assert_called_once_with(plot_simulation_domain=True)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_event") as patch:

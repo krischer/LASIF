@@ -12,7 +12,6 @@ Matplotlib is imported lazily to avoid heavy startup costs.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from abc import ABCMeta, abstractmethod
 import numpy as np
 from pyexodus import exodus
 from scipy.spatial import cKDTree
@@ -20,69 +19,7 @@ from lasif import LASIFNotFoundError, LASIFError
 from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
-class Domain(object):
-    """
-    Abstract base class for the domain definitions.
-    """
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def point_in_domain(self, longitude, latitude, depth=None):
-        """
-        Called to determine if a certain point is contained by the domain.
-
-        :param longitude: The longitude of the point.
-        :param latitude: The latitude of the point.
-        :param depth: The depth of the point
-        :return: bool
-        """
-        pass
-
-    @abstractmethod
-    def plot(self, plot_simulation_domain=False, ax=None):
-        """
-        Plots the domain and attempts to choose a reasonable projection for
-        all possible settings. Will likely break for some settings.
-
-        :param plot_simulation_domain: Parameter has no effect for the
-            global domain.
-
-        :return: The created GeoAxes instance.
-        """
-        pass
-
-    @abstractmethod
-    def get_max_extent(self):
-        """
-        Returns the maximum extends of the domain.
-
-        Returns a dictionary with the following keys:
-            * minimum_latitude
-            * maximum_latitude
-            * minimum_longitude
-            * maximum_longitude
-        """
-        pass
-
-    @abstractmethod
-    def is_global_domain(self):
-        """
-        Returns True if the domain spans the entire globe
-        """
-        pass
-
-    @abstractmethod
-    def __str__(self):
-        pass
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-
-class ExodusDomain(Domain):
+class ExodusDomain:
     def __init__(self, exodus_file, num_buffer_elems):
         self.exodus_file = exodus_file
         self.num_buffer_elems = num_buffer_elems
@@ -245,7 +182,7 @@ class ExodusDomain(Domain):
         dist, _ = self.earth_surface_tree.query(point_on_surface, k=1)
 
         # False if not close enough to domain surface, this might go wrong
-        # fpr meshes with significant topography/ellipticity in
+        # for meshes with significant topography/ellipticity in
         # combination with a small element size.
         if dist > 3 * self.approx_elem_width:
             return False
@@ -264,13 +201,14 @@ class ExodusDomain(Domain):
 
         return True
 
-    def plot(self, plot_simulation_domain=False, ax=None, plot_lines=True):
+    def plot(self, ax=None, plot_inner_boundary=True):
         """
+        Plots the domain
         Global domain is plotted using an equal area Mollweide projection.
 
-        :param plot_simulation_domain: Parameter has no effect for the
-            global domain.
-
+        :param ax: matplotlib axes
+        :param plot_inner_boundary: plot the convex hull of the mesh
+        surface nodes that lie inside the domain.
         :return: The created GeoAxes instance.
         """
         if not self.is_read:
@@ -325,14 +263,43 @@ class ExodusDomain(Domain):
             m = Basemap(projection='lcc', resolution=resolution, width=width,
                         height=height, lat_0=self.center_lat,
                         lon_0=self.center_lon, ax=ax)
-        if plot_lines:
+
+        try:
             sorted_indices = self.get_sorted_edge_coords()
             x, y, z = self.domain_edge_coords[np.append(sorted_indices, 0)].T
             lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
             lines = np.array([lats, lons]).T
             _plot_lines(m, lines, color="black", lw=2, label="Domain Edge")
-        else:
-            # Scatter all edge nodes on the plotted domain
+
+            if plot_inner_boundary:
+                # Get surface points
+                x, y, z = self.earth_surface_coords.T
+                latlonrad = np.array(xyz_to_lat_lon_radius(x, y, z))
+
+                # This part is potentially slow when lots
+                # of points need to be checked
+                in_domain = []
+                idx = 0
+                for lat, lon, _ in latlonrad.T:
+                    if self.point_in_domain(latitude=lat, longitude=lon):
+                        in_domain.append(idx)
+                    idx += 1
+                lats, lons, rad = np.array(latlonrad[:, in_domain])
+
+                # Get the complex hull from projected (to 2D) points
+                from scipy.spatial import ConvexHull
+                x, y = m(lons, lats)
+                points = np.array((x, y)).T
+                hull = ConvexHull(points)
+
+                # Plot the hull simplices
+                for simplex in hull.simplices:
+                    m.plot(points[simplex, 0], points[simplex, 1], color="0.5")
+
+        except LASIFError:
+            # Back up plot if the other one fails, which happens for
+            # very weird meshes sometimes.
+            # This Scatter all edge nodes on the plotted domain
             x, y, z = self.domain_edge_coords.T
             lats, lons, _ = xyz_to_lat_lon_radius(x, y, z)
             x, y = m(lons, lats)
