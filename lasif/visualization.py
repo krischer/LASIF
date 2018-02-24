@@ -218,7 +218,8 @@ def plot_stations_for_event(map_object, station_dict, event_info,
         plt.colorbar(stations)
 
     else:
-        stations = map_object.scatter(x, y, color=color,s=35, marker="v", alpha=alpha,
+        stations = map_object.scatter(x, y, color=color, s=35,
+                                      marker="v", alpha=alpha,
                                       zorder=5)
         # Setting the picker overwrites the edgecolor attribute on certain
         # matplotlib and basemap versions. Fix it here.
