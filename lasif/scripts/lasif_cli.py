@@ -333,6 +333,8 @@ def lasif_write_events_to_xml(parser, args):
             cat.write(os.path.join(output_folder, event + ".xml"),
                       format="QuakeML")
 
+    print(f"You can find the collection of QuakeMl files in {output_folder}")
+
 
 @command_group("Data Acquisition")
 def lasif_add_gcmt_events(parser, args):
