@@ -317,6 +317,11 @@ class Project(Component):
         with open(self.paths["config_file"], "w") as fh:
             fh.write(lasif_config_str)
 
+        # Write a default window set file
+        default_window_filename = os.path.join(self.paths["windows"],
+                                               "A.sqlite")
+        open(default_window_filename, 'a').close()
+
     def get_project_function(self, fct_type):
         """
         Helper importing the project specific function.
