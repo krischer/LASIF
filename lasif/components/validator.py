@@ -3,6 +3,8 @@
 from __future__ import absolute_import
 
 import colorama
+import toml
+import pyasdf
 import os
 import sys
 
@@ -21,6 +23,7 @@ class ValidatorComponent(Component):
         super(ValidatorComponent, self).__init__(*args, **kwargs)
         self._reports = []
         self._total_error_count = 0
+        self.files_to_be_deleted = {}
 
     def _print_ok_message(self):
         """
@@ -114,10 +117,18 @@ class ValidatorComponent(Component):
                 for report in self._reports:
                     fh.write(report.strip())
                     fh.write(seperator_string)
+            files_to_be_deleted_filename = \
+                os.path.join(folder, "files_to_be_deleted.toml")
+            with open(files_to_be_deleted_filename, "w") as fh:
+                toml.dump(self.files_to_be_deleted, fh)
             print("\n%sFAILED%s\nEncountered %i errors!\n"
                   "A report has been created at '%s'.\n" %
                   (colorama.Fore.RED, colorama.Fore.RESET,
                    self._total_error_count, os.path.relpath(filename)))
+            print(f"A file that can be used to clean up the project has been"
+                  f"created at "
+                  f"{os.path.relpath(files_to_be_deleted_filename)}\n"
+                  f"It is advised to inspect the file before use.")
 
     def validate_raypaths_in_domain(self):
         """
@@ -139,9 +150,10 @@ class ValidatorComponent(Component):
                 # the domain boundaries.
                 if self.is_event_station_raypath_within_boundaries(
                         event_name, value["latitude"], value["longitude"],
-                        raypath_steps=12):
+                        raypath_steps=3):
                     continue
                 all_good = False
+                self.files_to_be_deleted[event_name].append(station_id)
                 self._add_report(
                     f"WARNING: "
                     f"The event-station raypath for the "
@@ -154,12 +166,32 @@ class ValidatorComponent(Component):
         else:
             self._print_fail_message()
 
+    def clean_up_project(self, clean_up_file):
+        """
+
+        :param clean_up_file: A toml describing the events that can be
+        deleted.
+        """
+
+        clean_up_dict = toml.load(clean_up_file)
+        num_of_deleted_files = 0
+        for event_name, stations in clean_up_dict.items():
+            filename = self.comm.waveforms.get_asdf_filename(
+                event_name, data_type="raw")
+            with pyasdf.ASDFDataSet(filename) as ds:
+                for station in stations:
+                    del ds.waveforms[station]
+                    num_of_deleted_files += 1
+
+        print(f"Removed {num_of_deleted_files} stations "
+              f"from the LASIF project.")
+
+
     def _validate_station_and_waveform_availability(self):
         """
         Checks that all waveforms have a corresponding StationXML file
         and all stations have data.
         """
-        import pyasdf
 
         print("Confirming that station metainformation files exist for "
               "all waveforms ", end="")
@@ -190,6 +222,7 @@ class ValidatorComponent(Component):
                         f"{station_name} "
                         f"in event {event_name} \n")
                     all_good = False
+                    self.files_to_be_deleted[event_name].append(station_name)
                     continue
                 elif has_waveforms is False:
                     self._add_report(
@@ -197,6 +230,7 @@ class ValidatorComponent(Component):
                         f"No waveforms found for station {station} "
                         f"in event {event_name} \n")
                     all_good = False
+                    self.files_to_be_deleted[event_name].append(station_name)
                     continue
 
         if all_good:
@@ -222,7 +256,6 @@ class ValidatorComponent(Component):
         """
         import itertools
         import math
-        import pyasdf
 
         print("Validating %i event files ..." % self.comm.events.count())
 
@@ -236,6 +269,7 @@ class ValidatorComponent(Component):
         print("\tPerforming some basic sanity checks ", end="")
         all_good = True
         for event in self.comm.events.get_all_events().values():
+            self.files_to_be_deleted[event["event_name"]] = []
             filename = event["filename"]
             self._flush_point()
             cat = pyasdf.ASDFDataSet(filename).events
