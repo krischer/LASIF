@@ -7,7 +7,7 @@ import pyasdf
 import os
 import numpy as np
 
-from lasif import LASIFAdjointSourceCalculationError
+from lasif import LASIFAdjointSourceCalculationError, LASIFNotFoundError
 from .component import Component
 
 from ..adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
@@ -67,6 +67,9 @@ class AdjointSourcesComponent(Component):
             ws = self.comm.weights.get(weight_set_name)
             event_weight = ws.events[event]["event_weight"]
             station_weights = ws.events[event]["stations"]
+
+        if not os.path.exists(filename):
+            raise LASIFNotFoundError(f"Could not find {filename}")
 
         with pyasdf.ASDFDataSet(filename, "r") as ds:
             adj_src_data = ds.auxiliary_data["AdjointSources"]
