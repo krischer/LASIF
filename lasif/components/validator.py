@@ -186,7 +186,6 @@ class ValidatorComponent(Component):
         print(f"Removed {num_of_deleted_files} stations "
               f"from the LASIF project.")
 
-
     def _validate_station_and_waveform_availability(self):
         """
         Checks that all waveforms have a corresponding StationXML file
