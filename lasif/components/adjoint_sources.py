@@ -71,7 +71,7 @@ class AdjointSourcesComponent(Component):
         if not os.path.exists(filename):
             raise LASIFNotFoundError(f"Could not find {filename}")
 
-        with pyasdf.ASDFDataSet(filename, "r") as ds:
+        with pyasdf.ASDFDataSet(filename, mode="r") as ds:
             adj_src_data = ds.auxiliary_data["AdjointSources"]
             stations = ds.auxiliary_data["AdjointSources"].list()
 
