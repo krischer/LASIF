@@ -1,17 +1,18 @@
 .. centered:: Last updated on *February 23rd 2018*.
 
 Gradient Visualization
-======================
+----------------------
 
 After running the adjoint simulation you should be able to find a gradient.
-This gradient should be put into the ``GRADIENTS/ITERATION_1/EVENT_NAME/``
+This gradient should be put into the *GRADIENTS/ITERATION_1/EVENT_NAME/*
 folder. Your gradient should be on an exodus format so you should be able to
 visualize it using Paraview.
 
 Here are screenshots showing an example of how a gradient can look for this
 little tutorial project. First one shows the top view of the gradient
 calculated for the Vpv velocity component and the other one shows a cross
-section straight through the gradient.
+section straight through the gradient. Keep in mind that this is dependant on
+the windows you pick so your gradients do not have to look like ours.
 
 .. image:: ../images/VPH_Top_gradient.png
     :width: 90%

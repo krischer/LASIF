@@ -4,18 +4,18 @@ Seismic Events
 --------------
 Once you have made a mesh file and referenced its location in the config file
 it is time to import events to the project. **LASIF** expects the data to be
-stored in the **DATA/EARTHQUAKES/** directory in an `ASDF Data format
+stored in the *DATA/EARTHQUAKES/* directory in an `ASDF Data format
 <http://seismicdata.github.io/pyasdf/>`_. You can either use the pyasdf package
 to organise your own data into the ASDF format or you can use the tools that
 **LASIF** provides to query different databases for events within your domain.
 **LASIF** expects the data to contain valid QuakeML files with full moment
-tensor information. Each event is organised in one asdf file. The waveform and
+tensor information. Each event is organised in one asdf file, the waveform and
 station data for said event will also be included in that one file. That means
 that all the raw information concerning this one event is contained in one
 file. That makes bookkeeping easier and the pyasdf can be used to look into
 each file.
 
-LASIF provides some convenience methods for this purpose. One can make use of the
+LASIF provides some convenient methods for this purpose. One can make use of the
 `IRIS SPUD service <http://www.iris.edu/spud/momenttensor>`_ to get GlobalCMT
 events.  Simply search for an event on their webpage and copy the event url.
 The ``lasif add_spud_event`` command will then grab the QuakeML file from the
@@ -70,6 +70,10 @@ distribution and origin time distribution by appending ``--type depth`` or
 .. code-block:: bash
 
     $ lasif plot_events
+
+.. image:: ../images/plot_events.png
+    :width: 60%
+    :align: center
 
 
 The ``lasif event_info`` command is your friend if you want more information
@@ -153,7 +157,7 @@ station, approximating a Poisson disc distribution.
 These events will not be used in this tutorial but rather the events already
 downloaded using the add_spud_event method. So if you ran the command above
 but want to follow the tutorial step by step. We would recommend either
-removing the 40 new events or removing all of them and running the
+removing the 40 new events manually or removing all of them and running the
 add_spud_event command again like is done above. You can remove all your
 events by running
 

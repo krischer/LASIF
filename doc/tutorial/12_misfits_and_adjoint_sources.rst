@@ -27,7 +27,7 @@ stations. But it is also possible to weigh events up or down depending on
 preference. Right now this is only possible to do manually but we might add
 an automatic function that applies a similar scheme as the station weights.
 If you have already computed station weights like we did in this tutorial
-you can access the weights in the file **/SETS/WEIGHTS/WEIGHTS_A/WEIGHTS_A.TOML**.
+you can access the weights in the file */SETS/WEIGHTS/WEIGHTS_A/WEIGHTS_A.TOML*.
 In there you can manually modify the weights of the events which will in the
 end influence the adjoint sources. If you have however not yet computed
 station weights and you only want to modify event weights you can do so by
@@ -88,10 +88,10 @@ Double clicking on an already existing window will delete it, ``Alt`` +
 clicking will show the time frequency phase misfit as well as the calculated
 adjoint source.
 
-The windows are saved in a toml file in ``SETS/WINDOWS/``. This is where you
+The windows are saved in a toml file in *SETS/WINDOWS/*. This is where you
 can adjust the window weights.
 
-The misfit_gui is still under development and we are in a constant quest to
+The misfit GUI is still under development and we are on a constant quest to
 improve it. If you have any idea on how it might be improved, please contact
 the developers.
 
@@ -109,7 +109,7 @@ time consuming)
 
 for all events, iteration 1 and weight set A. This currently only works with
 mpi so you have to use that for the automatic window selection but modify the
-number behind the -n to the amount of cores you want to/can use. If you only
+number behind the -n to the amount of cores you can/want to use. If you only
 want to select windows for a specific event you can specify the event name
 as a last argument. **Use these tools with caution and check their result!**
 
@@ -124,7 +124,7 @@ Here you can verify and modify your windows at will using the previously
 described functionalities.
 As well as looking at the windows in the GUI, LASIF comes with a number of
 utilities to help judging the quality of the selected windows. Two of them
-are: Below is an example from another project.
+are: (Below is an example from another project.)
 
 .. code-block:: bash
 

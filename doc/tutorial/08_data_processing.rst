@@ -2,9 +2,9 @@
 
 
 Data Processing
-------------------
+---------------
 
-Data preprocessing is an essential step if one wants to compare data and
+Data processing is an essential step if one wants to compare data and
 seismograms. It serves several purposes:
 
 * Ensure a similar spectral bandwidth between observed and synthetic data to
@@ -18,9 +18,9 @@ seismograms. It serves several purposes:
 The goal of the processing within **LASIF** is to create data that is directly
 comparable to simulated data without any more processing.
 
-While the raw unprocessed data are stored in a folder **DATA/EARTHQUAKES**,
+While the raw unprocessed data are stored in a folder *DATA/EARTHQUAKES*,
 the processed data will be stored in a separate directory
-**PROCESSED_DATA/EARTHQUAKES/**
+*PROCESSED_DATA/EARTHQUAKES/*
 
 Although in principle you can use any processing tool you like, the simplest
 option is probably to make use of **LASIF**'s built-in processing. Using it
@@ -104,4 +104,4 @@ your directory structure should look like this:
     directory structure -- otherwise **LASIF** will not be able to work with
     the data.
     It is also important that the processed filenames are identical to
-    the unprocessed ones. And that they are organized into ASDF files.
+    the unprocessed ones and that they are organized into ASDF files.

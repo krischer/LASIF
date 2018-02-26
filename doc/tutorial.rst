@@ -3,6 +3,8 @@ Tutorial
 
 This tutorial will teach you how to perform an iterative full waveform
 inversion with LASIF and SES3D on a simple toy example.
+Before going through the tutorial we recommend that you make a mesh which
+you can see how is done here: :doc:`tutorial/meshing`
 
 
 .. caution::

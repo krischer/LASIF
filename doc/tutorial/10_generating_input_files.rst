@@ -8,7 +8,7 @@ It knows what data is available for every event and thus can generate
 these files fully automatically.
 
 The input files are generated for specific iterations and are stored in
-the **SALVUS_INPUT_FILES/ITERATION_{iteration_name}** folder.
+the *SALVUS_INPUT_FILES/ITERATION_{iteration_name}* folder.
 
 Input File Generation
 ^^^^^^^^^^^^^^^^^^^^^
@@ -22,14 +22,15 @@ The actual input file generation is now very straightforward:
 
 ``SIMULATION_TYPE`` has to be one of
 
-    * ``forward`` - Run a forward simulation and store a wavefield. If you
-        do not want to store a wavefield you can manually modify the
+    * ``forward`` - Run a forward simulation and store a wavefield.
+        If you do not want to store a wavefield you can manually modify the
         run_salvus.sh file. Storing the wavefield generally requires
         a large diskspace.
-    * ``adjoint`` - Run the adjoint simulation to calculate gradients
-        (sensitivity kernels) for your event/station pairs. This requires
+    * ``adjoint`` - Run the adjoint simulation to calculate gradients (sensitivity kernels).
+        for your event/station pairs. This requires
         the adjoint sources to be calculated. More on that later on.
-    * ``step_length`` - This simulation is run to optimize how much your model
+    * ``step_length`` - Optimize change in velocity model.
+        This simulation is run to optimize how much your model
         parameters are changed with respect to the gradients.
 
 If no EVENT_NAME is specified, all known events will be used.
@@ -38,7 +39,7 @@ For this tutorial you can generate input files for both events with
 
 .. code-block:: bash
 
-    $ lasif generate_input_files 1 --simulation_type=forward
+    $ lasif generate_input_files 1 --simulation_type forward
 
 This will generate files that Salvus needs to be able to run its forward
 simulation with a subsequent adjoint simulation in mind. The
@@ -121,9 +122,6 @@ Together with the model files for a given iteration model, these files can
 directly be used to run Salvus simulations. For the first couple of runs it is
 likely a good idea to check these files by hand in order to verify your setup.
 
-It is no hassle to run the command twice if you only have two events, for more
-events, just run
-
 Source Time Functions
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -146,14 +144,6 @@ the ``plot_stf`` command with the iteration name:
 This command will read the corresponding iteration file and open a plot with a
 time series and a time frequency representation of the source time function.
 
-.. plot::
-
-    import lasif.visualization
-    import matplotlib.pylab as plt
-
-    from lasif.function_templates import source_time_function
-    data = source_time_function.source_time_function(2000, 0.3, 1.0 / 100.0,
-                                                     1.0 / 40.0)
-    lasif.visualization.plot_tf(data, 0.3, freqmin=1.0 / 100.0,
-                                freqmax=1.0 / 40.0)
-
+.. image:: ../images/STF.png
+    :width: 90%
+    :align: center
