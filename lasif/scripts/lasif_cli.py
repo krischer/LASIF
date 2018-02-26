@@ -314,6 +314,27 @@ def lasif_add_spud_event(parser, args):
 
 
 @command_group("Data Acquisition")
+def lasif_write_events_to_xml(parser, args):
+    """
+    Writes a collection of event xmls.
+    """
+    args = parser.parse_args(args)
+    comm = _find_project_comm(".")
+    import pyasdf
+
+    output_folder = comm.project.get_output_folder(
+        type="EventXMLs", tag="event")
+
+    for event in comm.events.list():
+        event_filename = \
+            comm.waveforms.get_asdf_filename(event, data_type="raw")
+        with pyasdf.ASDFDataSet(event_filename, mode="r") as ds:
+            cat = ds.events
+            cat.write(os.path.join(output_folder, event + ".xml"),
+                      format="QuakeML")
+
+
+@command_group("Data Acquisition")
 def lasif_add_gcmt_events(parser, args):
     """
     Selects and adds optimally distributed events from the GCMT catalog.
