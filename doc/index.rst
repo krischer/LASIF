@@ -61,6 +61,7 @@ tomographic images.
     tutorial
 
     cli
+    meshing
     webinterface
     api_doc
     faq

@@ -56,18 +56,12 @@ learn what piece of data belongs where and how **LASIF** interacts with it.
 Configuration File
 ^^^^^^^^^^^^^^^^^^
 
-Each project stores its configuration values in **lasif_config.toml**. This
+Each project stores its configuration values in *lasif_config.toml*. This
 file should always be located in the root directory of the project as this
 file is how LASIF determines the root folder of the project. It uses the
 toml format which is a readable file format which should be for the most
 part self explanatory. It is important that the names of the inputted values
 will not be changed.
-
-Each project stores its configuration values in the **config.xml** file; the
-location of this file also determines the root folder of the project. It is
-a simple, self-explanatory XML format. Please refer to the comments in the
-XML file to infer the meaning of the different settings. Immediately after the
-project has been initialized, it will resemble the following:
 
 .. code-block:: none
 
@@ -128,9 +122,9 @@ to follow this tutorial, please modify them to resemble this one.
 
 The **lasif_config.toml** file allows you to tune parameters related to the
 processing of your data, download settings, and forward simulation parameters.
-This is where you let **LASIF** know where it finds the mesh file to use. Which
+This is where you let **LASIF** know where it finds the mesh file to use, which
 source time function and which misfit measurement you want to use. *Currently
-only the once specified in this example config file are supported* The mesh
+only the once specified in this example config file are supported*. The mesh
 file is how **LASIF** determines the domain used for the simulation. This
 mesh needs to be in an exodus file format and we recommend using the
 `pymesher <https://gitlab.com/Salvus/salvus_mesher/tree/master>`_ which is
@@ -143,8 +137,11 @@ sure that lasif has read the correct domain for your project.
 
 This will open a window showing the location of the physical domain and the
 simulation domain. The inner contour shows the domain minus the previously
-defined boundary width. *Currently it only shows the outer boundary but the
-inner boundary will be implemented later*
+defined boundary width.
+
+.. image:: ../images/plot_domain.png
+    :width: 90%
+    :align: center
 
 .. note::
 

@@ -10,7 +10,7 @@ different iterations. To create a new iteration you execute:
 
     $ lasif set_up_iteration 1
 
-Same command can also be used to remove iteration. The command creates a few
+Same command can also be used to remove an iteration. The command creates a few
 directories which will be used later to organize synthetics, adjoint sources
 and velocity models. By now your directory structure should look similar to
 this:

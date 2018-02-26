@@ -8,13 +8,6 @@ Download Helpers
     This part is not actually necessary for the tutorial but most likely for
     any real work application.
 
-
-**LASIF** comes with a collection of scripts that help downloading waveform and
-station data from all data centers implementing the FDSN web services. This
-largely amounts to data from Europe, Northern America, Brazil, and New Zealand.
-If your inversion requires data from other places, you'll have to retrieve it
-on your own.
-
 **LASIF** comes with a collection of scripts that help downloading waveform and
 station data from all data centers implementing the FDSN web services. This
 data is not evenly distributed around the globe and largely amounts to data
@@ -28,7 +21,7 @@ which will be explained later.
 Downloading Data
 ^^^^^^^^^^^^^^^^
 
-Data are downloaded on a per event basis. The ``lasif_config.toml`` file
+Data are downloaded on a per event basis. The *lasif_config.toml* file
 contains some specification to detail the download.
 
 To download the data for an event, choose one and run
@@ -39,10 +32,10 @@ To download the data for an event, choose one and run
 
 
 The command just tries to download everything it can within your chosen domain,
-both the waveforms and station metadata. It queries successively queries all
-known FDSN data centers and integrates all data. It accounts for the domain
-borders and possible domain rotations. It is furthermore influenced by the
-following parameters in the ``lasif_config.toml`` file:
+both the waveforms and station metadata. It queries all known FDSN data centers
+and integrates all data. It accounts for the domain borders to see whether
+stations fit inside the domain. It is furthermore influenced by the
+following parameters in the *lasif_config.toml* file:
 
 * ``seconds_before_event``: Used by the waveform download scripts. It will
   attempt to download this many seconds for every waveform before the origin of
@@ -61,9 +54,9 @@ following parameters in the ``lasif_config.toml`` file:
 Depending on the domain size, event location, and origin time, this can take a
 while. Executing the same command again will only attempt to download data not
 already present. All waveform and station data will be placed in
-``DATA/EARTHQUAKES/{event_name}``.
+*DATA/EARTHQUAKES/{event_name}*.
 
-The download_data command has an option to download only from a specific
+The ``download_data`` command has an option to download only from a specific
 provider like IRIS for example.
 
 When using many events and a large domain, keeping all the raw data can be

@@ -5,7 +5,7 @@ Synthetics
 ----------
 
 Now that everything has been set up, you have to actually perform the
-simulations.  Please keep in mind that the adjoint forward simulations require
+simulations.  Please keep in mind that the forward simulations require
 a very large amount of disk space due to the need to store the forward
 wavefield. If you only want to make some waveforms you can remove the
 ``--save-wavefield-file wavefield.h5`` and ``--save-fields adjoint`` flags
