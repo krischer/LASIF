@@ -1116,6 +1116,26 @@ def lasif_validate_data(parser, args):
         raypaths=raypaths)
 
 
+@command_group("Project Management")
+def lasif_clean_up(parser, args):
+    """
+    Clean up the LASIF project.
+
+    The required file can be created with lasif validate_data command.
+    """
+    parser.add_argument("clean_up_file", help="path of clean-up file")
+    args = parser.parse_args(args)
+    clean_up_file = args.clean_up_file
+
+    if not os.path.exists(clean_up_file):
+        raise LASIFNotFoundError(f"Could not find {clean_up_file}\n"
+                                 f"Please check that the specified file path "
+                                 f"is correct.")
+
+    comm = _find_project_comm(".")
+    comm.validator.clean_up_project(clean_up_file)
+
+
 def lasif_tutorial(parser, args):
     """
     Open the tutorial in a webbrowser.

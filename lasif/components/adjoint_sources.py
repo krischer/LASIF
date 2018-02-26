@@ -68,9 +68,9 @@ class AdjointSourcesComponent(Component):
             event_weight = ws.events[event]["event_weight"]
             station_weights = ws.events[event]["stations"]
 
-        ds = pyasdf.ASDFDataSet(filename)
-        adj_src_data = ds.auxiliary_data["AdjointSources"]
-        stations = ds.auxiliary_data["AdjointSources"].list()
+        with pyasdf.ASDFDataSet(filename, "r") as ds:
+            adj_src_data = ds.auxiliary_data["AdjointSources"]
+            stations = ds.auxiliary_data["AdjointSources"].list()
 
         total_misfit = 0.0
         for station in stations:
