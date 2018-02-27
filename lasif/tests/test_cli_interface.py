@@ -525,6 +525,10 @@ def test_validate_data(cli):
         patch.assert_called_once_with(data_and_station_file_availability=True,
                                       raypaths=True)
 
+    with mock.patch("lasif.domain.ExodusDomain.point_in_domain") as patch:
+        cli.run("lasif validate_data")
+        assert patch.call_count == 2
+
     # Have the raypath check fail.
     # Add this one when we have some data. Now it doesn't perform the ray check
     with mock.patch('lasif.components.validator.ValidatorComponent'
