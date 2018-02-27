@@ -354,17 +354,30 @@ def lasif_add_gcmt_events(parser, args):
                         help="minimum year from which to add events")
     parser.add_argument("--max_year", default=None, type=int,
                         help="maximum year from which to add events")
-
+    parser.add_argument("--get_subset", help="returns a selection of events"
+                                             "from events that already exist"
+                                             "in the LASIF project.",
+                        action="store_true")
     args = parser.parse_args(args)
 
-    from lasif.tools.query_gcmt_catalog import add_new_events
+    from lasif.tools.query_gcmt_catalog import add_new_events, \
+        get_subset_of_events
     comm = _find_project_comm(".")
 
-    add_new_events(comm=comm, count=args.count,
-                   min_magnitude=args.min_magnitude,
-                   max_magnitude=args.max_magnitude,
-                   min_year=args.min_year, max_year=args.max_year,
-                   threshold_distance_in_km=args.min_distance)
+    if args.get_subset:
+        if args.min_year or args.max_year:
+            print("min_year and max_year are not used "
+                  "for the generation of a subset of events")
+            get_subset_of_events(comm=comm, count=args.count,
+                                 min_magnitude=args.min_magnitude,
+                                 max_magnitude=args.max_magnitude,
+                                 threshold_distance_in_km=args.min_distance)
+    else:
+        add_new_events(comm=comm, count=args.count,
+                       min_magnitude=args.min_magnitude,
+                       max_magnitude=args.max_magnitude,
+                       min_year=args.min_year, max_year=args.max_year,
+                       threshold_distance_in_km=args.min_distance)
 
 
 @command_group("Project Management")
