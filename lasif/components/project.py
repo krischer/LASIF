@@ -82,6 +82,12 @@ class Project(Component):
         self.__project_function_cache = {}
         self.__copy_fct_templates(init_project=init_project)
 
+        # Write a default window set file
+        if init_project:
+            default_window_filename = os.path.join(self.paths["windows"],
+                                                   "A.sqlite")
+            open(default_window_filename, 'w').close()
+
     def __str__(self):
         """
         Pretty string representation.
@@ -316,11 +322,6 @@ class Project(Component):
 
         with open(self.paths["config_file"], "w") as fh:
             fh.write(lasif_config_str)
-
-        # Write a default window set file
-        default_window_filename = os.path.join(self.paths["windows"],
-                                               "A.sqlite")
-        open(default_window_filename, 'a').close()
 
     def get_project_function(self, fct_type):
         """
