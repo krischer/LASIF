@@ -368,10 +368,10 @@ def lasif_add_gcmt_events(parser, args):
         if args.min_year or args.max_year:
             print("min_year and max_year are not used "
                   "for the generation of a subset of events")
-            get_subset_of_events(comm=comm, count=args.count,
-                                 min_magnitude=args.min_magnitude,
-                                 max_magnitude=args.max_magnitude,
-                                 threshold_distance_in_km=args.min_distance)
+        get_subset_of_events(comm=comm, count=args.count,
+                             min_magnitude=args.min_magnitude,
+                             max_magnitude=args.max_magnitude,
+                             threshold_distance_in_km=args.min_distance)
     else:
         add_new_events(comm=comm, count=args.count,
                        min_magnitude=args.min_magnitude,
