@@ -115,7 +115,8 @@ class Window(QtGui.QMainWindow):
     def add_legend(self):
         # Hack to get a proper legend.
         if self.ui.e_graph.plotItem.legend is not None:
-            self.ui.e_graph.plotItem.legend.scene().removeItem(self.ui.e_graph.plotItem.legend)
+            self.ui.e_graph.plotItem.legend.scene().removeItem(
+                self.ui.e_graph.plotItem.legend)
         self.ui.e_graph.addLegend(offset=(-2, 2))
 
         self.ui.e_graph.plot([0], [0], pen="k", name="Data")
@@ -123,8 +124,9 @@ class Window(QtGui.QMainWindow):
             return
         self.ui.e_graph.plot([0], [0], pen="r", name="Synthetics")
         if self.ui.compare_iterations_CheckBox.isChecked():
-            self.ui.e_graph.plot([0], [0], pen=pg.mkPen("#00b300", style=
-                                 pg.QtCore.Qt.DashLine),
+            self.ui.e_graph.plot([0], [0],
+                                 pen=pg.mkPen("#00b300",
+                                              style=pg.QtCore.Qt.DashLine),
                                  name="Synthetics 2")
 
     def _draw(self):
@@ -390,9 +392,9 @@ class Window(QtGui.QMainWindow):
                 if compare_synth_tr:
                     tr = compare_synth_tr[0]
                     times = tr.times()
-                    plot_widget.plot(times, tr.data,
-                                     pen=pg.mkPen("#00b300", style=
-                                     pg.QtCore.Qt.DashLine),)
+                    plot_widget.plot(
+                        times, tr.data,
+                        pen=pg.mkPen("#00b300", style=pg.QtCore.Qt.DashLine), )
 
             if data_tr or synth_tr:
                 for tt in tts:
