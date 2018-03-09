@@ -305,9 +305,8 @@ class ExodusDomain:
             x, y = m(lons, lats)
             m.scatter(x, y, color='k', label="Edge nodes", zorder=3000)
 
-        plt.legend(framealpha=0.5)
         _plot_features(m, stepsize=stepsize)
-
+        ax.legend(framealpha=0.5)
         return m
 
     def get_sorted_edge_coords(self):

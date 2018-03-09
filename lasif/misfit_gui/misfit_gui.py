@@ -70,14 +70,21 @@ class Window(QtGui.QMainWindow):
         # Set up the map.
         self.map_figure = self.ui.mapView.fig
         self.map_ax = self.map_figure.add_axes([0.0, 0.0, 1.0, 1.0])
+
         self.basemap = self.comm.project.domain.plot(ax=self.map_ax)
         self._draw()
         self.ui.data_only_CheckBox.stateChanged.connect(
             self.on_data_only_CheckboxChanged)
+        self.ui.compare_iterations_CheckBox.stateChanged.connect(
+            self.on_compare_iterations_CheckboxChanged)
         self.ui.process_on_fly_CheckBox.stateChanged.connect(
             self.on_process_on_fly_CheckBoxChanged)
+        self.ui.raw_data_CheckBox.stateChanged.connect(
+            self.on_raw_data_CheckBoxChanged)
         self.ui.process_on_fly_CheckBox.setVisible(False)
-
+        self.ui.iteration_2_label.setVisible(False)
+        self.ui.iteration_2_selection_comboBox.setVisible(False)
+        self.ui.raw_data_CheckBox.setVisible(False)
         # State of the map objects.
         self.current_mt_patches = []
 
@@ -86,6 +93,8 @@ class Window(QtGui.QMainWindow):
         self.ui.status_label = QtGui.QLabel("")
         self.ui.statusbar.addPermanentWidget(self.ui.status_label)
         self.ui.iteration_selection_comboBox.addItems(
+            self.comm.iterations.list())
+        self.ui.iteration_2_selection_comboBox.addItems(
             self.comm.iterations.list())
         self.ui.window_set_selection_comboBox.addItems(
             self.comm.windows.list())
@@ -101,11 +110,22 @@ class Window(QtGui.QMainWindow):
             label = {"z": "vertical", "e": "east", "n": "north"}
             p.setTitle(label[component].capitalize() + " component")
 
+        self.add_legend()
+
+    def add_legend(self):
         # Hack to get a proper legend.
+        if self.ui.e_graph.plotItem.legend is not None:
+            self.ui.e_graph.plotItem.legend.scene().removeItem(self.ui.e_graph.plotItem.legend)
         self.ui.e_graph.addLegend(offset=(-2, 2))
+
         self.ui.e_graph.plot([0], [0], pen="k", name="Data")
+        if self.ui.data_only_CheckBox.isChecked():
+            return
         self.ui.e_graph.plot([0], [0], pen="r", name="Synthetics")
-        self.ui.e_graph.clear()
+        if self.ui.compare_iterations_CheckBox.isChecked():
+            self.ui.e_graph.plot([0], [0], pen=pg.mkPen("#00b300", style=
+                                 pg.QtCore.Qt.DashLine),
+                                 name="Synthetics 2")
 
     def _draw(self):
         self.map_figure.canvas.draw()
@@ -120,6 +140,10 @@ class Window(QtGui.QMainWindow):
     @property
     def current_iteration(self):
         return str(self.ui.iteration_selection_comboBox.currentText())
+
+    @property
+    def comparison_iteration(self):
+        return str(self.ui.iteration_2_selection_comboBox.currentText())
 
     @property
     def current_event(self):
@@ -201,7 +225,7 @@ class Window(QtGui.QMainWindow):
                                      color="0.2", alpha=0.4,
                                      station_dict=stations,
                                      event_info=event, raypaths=False)
-        self.map_ax.set_title("No matter the projection, North for the "
+        self.map_ax.set_title("No matter the projection,\n North for the "
                               "moment tensors is always up.")
 
         if hasattr(self, "_current_raypath") and self._current_raypath:
@@ -224,15 +248,35 @@ class Window(QtGui.QMainWindow):
         self._reset_all_plots()
         self._update_event_map()
 
-    def on_data_only_CheckboxChanged(self, state):
-        if not self.current_station:
-            return
+    def on_raw_data_CheckBoxChanged(self, state):
         self._reset_all_plots()
+        current = self.ui.stations_listWidget.currentRow()
+        self.on_stations_listWidget_currentItemChanged(current, None)
 
+    def on_data_only_CheckboxChanged(self, state):
+        # if not self.current_station:
+        #     return
+        self._reset_all_plots()
+        self.add_legend()
         if state:
             self.ui.process_on_fly_CheckBox.setVisible(True)
+            self.ui.raw_data_CheckBox.setVisible(True)
+            self.ui.compare_iterations_CheckBox.setVisible(False)
         else:
             self.ui.process_on_fly_CheckBox.setVisible(False)
+            self.ui.raw_data_CheckBox.setVisible(False)
+            self.ui.compare_iterations_CheckBox.setVisible(True)
+        current = self.ui.stations_listWidget.currentRow()
+        self.on_stations_listWidget_currentItemChanged(current, None)
+
+    def on_compare_iterations_CheckboxChanged(self, state):
+        if state:
+            self.ui.iteration_2_label.setVisible(True)
+            self.ui.iteration_2_selection_comboBox.setVisible(True)
+        else:
+            self.ui.iteration_2_label.setVisible(False)
+            self.ui.iteration_2_selection_comboBox.setVisible(False)
+        self.add_legend()
         current = self.ui.stations_listWidget.currentRow()
         self.on_stations_listWidget_currentItemChanged(current, None)
 
@@ -248,19 +292,27 @@ class Window(QtGui.QMainWindow):
         self._reset_all_plots()
 
         if self.ui.data_only_CheckBox.isChecked():
-            tag = self.comm.waveforms.preprocessing_tag
-            try:
-                if self.ui.process_on_fly_CheckBox.isChecked():
-                    print("Processing...")
-                    data = self.comm.waveforms.\
-                        get_waveforms_processed_on_the_fly(
-                            self.current_event, self.current_station)
-                else:
-                    data = self.comm.waveforms.get_waveforms_processed(
-                        self.current_event, self.current_station, tag)
-            except Exception as e:
-                print(e)
-                return
+            if self.ui.raw_data_CheckBox.isChecked():
+                try:
+                    data = self.comm.waveforms.get_waveforms_raw(
+                        self.current_event, self.current_station)
+                except Exception as e:
+                    print(e)
+                    return
+            else:
+                tag = self.comm.waveforms.preprocessing_tag
+                try:
+                    if self.ui.process_on_fly_CheckBox.isChecked():
+                        print("Processing...")
+                        data = self.comm.waveforms.\
+                            get_waveforms_processed_on_the_fly(
+                                self.current_event, self.current_station)
+                    else:
+                        data = self.comm.waveforms.get_waveforms_processed(
+                            self.current_event, self.current_station, tag)
+                except Exception as e:
+                    print(e)
+                    return
             coordinates = self.comm.query.get_coordinates_for_station(
                 self.current_event, self.current_station)
 
@@ -281,6 +333,11 @@ class Window(QtGui.QMainWindow):
             wave = self.comm.query.get_matching_waveforms(
                 self.current_event, self.current_iteration,
                 self.current_station)
+
+            if self.ui.compare_iterations_CheckBox.isChecked():
+                comparison_wave = self.comm.query.get_matching_waveforms(
+                    self.current_event, self.comparison_iteration,
+                    self.current_station)
         except Exception as e:
             for component in ["Z", "N", "E"]:
                 plot_widget = getattr(self.ui, "%s_graph" % component.lower())
@@ -324,6 +381,18 @@ class Window(QtGui.QMainWindow):
                 tr = synth_tr[0]
                 times = tr.times()
                 plot_widget.plot(times, tr.data, pen="r", )
+
+            if self.ui.compare_iterations_CheckBox.isChecked():
+                compare_synth_tr = \
+                    [_i for _i in comparison_wave.synthetics
+                     if _i.stats.channel[-1].upper() == component]
+
+                if compare_synth_tr:
+                    tr = compare_synth_tr[0]
+                    times = tr.times()
+                    plot_widget.plot(times, tr.data,
+                                     pen=pg.mkPen("#00b300", style=
+                                     pg.QtCore.Qt.DashLine),)
 
             if data_tr or synth_tr:
                 for tt in tts:
