@@ -59,7 +59,8 @@ class ExodusDomain:
 
         # if less than 2 side sets, this must be a global mesh.  Return
         self.side_set_names = self.e.get_side_set_names()
-        if len(self.side_set_names) <= 2:
+        if len(self.side_set_names) <= 2 and 'outer_boundary' \
+                not in self.side_set_names:
             self.is_global_mesh = True
             self.min_lat = -90.0
             self.max_lat = 90.0
@@ -134,7 +135,7 @@ class ExodusDomain:
         x, y, z = self.bottom_edge_coords.T
 
         # Figure out maximum depth of mesh
-        lats, lons, r = xyz_to_lat_lon_radius(x, y, z)
+        _, _, r = xyz_to_lat_lon_radius(x, y, z)
         min_r = min(r)
         self.max_depth = self.r_earth - min_r
 
@@ -169,6 +170,9 @@ class ExodusDomain:
         :param latitude: latitude in degrees
         :param depth: depth of event
         """
+        if not self.is_read:
+            self._read()
+
         if self.is_global_mesh:
             return True
 

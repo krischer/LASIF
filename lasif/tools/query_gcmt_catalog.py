@@ -167,7 +167,7 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
         idx = np.argmax(distances)
 
         event = cat[idx]
-        coods = coordinates[idx]
+        coords = coordinates[idx]
         del cat.events[idx]
         del coordinates[idx]
 
@@ -195,7 +195,7 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
               "away." % distance)
 
         chosen_events.append(event)
-        existing_coordinates.append(coods)
+        existing_coordinates.append(coords)
         count -= 1
 
     print("Selected %i events." % len(chosen_events))

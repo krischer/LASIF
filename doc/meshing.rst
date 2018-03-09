@@ -29,10 +29,10 @@ modify the *mesh.yaml* file so that it makes a mesh that fits our purpose.
 
 The parameters you need to modify are:
 
-* basic.period = 20
-* spherical.min_radius =
-* chunk3D.max_colatitude1 =
-* chunk3D.max_colatitude2 =
+* basic.period = 25
+* spherical.min_radius = 5400.0
+* chunk3D.max_colatitude1 = 10.0
+* chunk3D.max_colatitude2 = 10.0
 * chunk3D.euler_angles = [38.771730, 34.924965, null]
 
 That should be enough to make a mesh identical to the one we used in the
