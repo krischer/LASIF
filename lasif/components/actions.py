@@ -505,7 +505,7 @@ class ActionsComponent(Component):
             output_folder=output_dir,
             exodus_file=mesh_file)
 
-        self.write_custom_stf(output_dir, src_time_func)
+        self.write_custom_stf(output_dir)
 
         run_salvus = os.path.join(output_dir, "run_salvus.sh")
         io_sampling_rate = self.comm.project. \
@@ -518,7 +518,11 @@ class ActionsComponent(Component):
                          f" --io-memory-per-rank-in-MB {memory_per_rank}"
                          f" --io-file-format bin")
 
-    def write_custom_stf(self, output_dir, stf):
+        if self.comm.project.solver_settings["with_attenuation"]:
+            with open(run_salvus, "a") as fh:
+                fh.write(f" --with-attenuation")
+
+    def write_custom_stf(self, output_dir):
         import toml
         import h5py
 
@@ -537,7 +541,7 @@ class ActionsComponent(Component):
 
         stf_fct = self.comm.project.get_project_function(
             "source_time_function")
-
+        stf = self.comm.project.processing_params["stf"]
         if stf == "bandpass_filtered_heaviside":
             stf = stf_fct(npts=npts, delta=delta,
                           freqmin=freqmin, freqmax=freqmax)
@@ -738,6 +742,9 @@ class ActionsComponent(Component):
 
         if num_absorbing_layers > 0:
             salvus_command += f" --num-absorbing-layers {num_absorbing_layers}"
+
+        if self.comm.project.solver_settings["with_attenuation"]:
+            salvus_command += f" --with-attenuation"
 
         salvus_command_file = os.path.join(output_dir, "run_salvus.sh")
         with open(salvus_command_file, "w") as fh:
