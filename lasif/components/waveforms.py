@@ -159,15 +159,27 @@ class WaveformsComponent(Component):
                                  data_type="synthetic",
                                  tag_or_iteration=long_iteration_name)
 
-        return self.process_synthetics(st=st, event_name=event_name)
+        return self.process_synthetics(st=st, event_name=event_name,
+                                       iteration=long_iteration_name)
 
-    def process_synthetics(self, st, event_name):
+    def process_synthetics(self, st, event_name, iteration):
         # Apply the project function that modifies synthetics on the fly.
+        import toml
         fct = self.comm.project.get_project_function("process_synthetics")
-        processing_parmams = self.comm.project.processing_params
-        processing_parmams["salvus_start_time"] = \
-            self.comm.project.solver_settings["start_time"]
-        return fct(st, processing_parmams,
+        if not iteration.startswith("ITERATION"):
+            iteration = f"ITERATION_{iteration}"
+
+        info_file = os.path.join(self.comm.project.paths["synthetics"],
+                                 "INFORMATION", iteration, "forward.toml")
+        if os.path.exists(info_file):
+            with open(info_file, "r") as fh:
+                iter_info = toml.load(fh)
+            processing_params = iter_info["parameters"]
+        else:
+            processing_params = self.comm.project.processing_params
+            processing_params["salvus_start_time"] = \
+                self.comm.project.solver_settings["start_time"]
+        return fct(st, processing_params,
                    event=self.comm.events.get(event_name))
 
     def process_data(self, st, inv, event_name):

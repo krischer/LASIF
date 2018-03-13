@@ -16,7 +16,7 @@ import numpy as np
 import obspy
 
 
-def source_time_function(npts, delta, freqmin, freqmax):
+def source_time_function(npts, delta, freqmin=None, freqmax=None):
     """
     Optional source time function that can be used with Salvus
 
@@ -41,20 +41,23 @@ def source_time_function(npts, delta, freqmin, freqmax):
     tr = obspy.Trace(data=data)
     tr.stats.delta = delta
 
-    # Use two band pass filters to get some time shift and band limit the data.
-    tr.detrend("linear")
-    tr.detrend("demean")
-    tr.taper(0.05, type="cosine")
-    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
-              zerophase=False)
-    tr.detrend("linear")
-    tr.detrend("demean")
-    tr.taper(0.05, type="cosine")
-    tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
-              zerophase=False)
+    if freqmin and freqmax:  # STF will be filtered beforehand
+        # Use two band pass filters to get some time shift and band limit the
+        # data.
+        tr.detrend("linear")
+        tr.detrend("demean")
+        tr.taper(0.05, type="cosine")
+        tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+                  zerophase=False)
+        tr.detrend("linear")
+        tr.detrend("demean")
+        tr.taper(0.05, type="cosine")
+        tr.filter("bandpass", freqmin=freqmin, freqmax=freqmax, corners=3,
+                  zerophase=False)
 
     # Final cut. It's really important to make sure that the first sample in
     # the stf is actually zero!
     tr.data = tr.data[npts:]
+    tr.data[0] = 0.0
 
     return tr.data

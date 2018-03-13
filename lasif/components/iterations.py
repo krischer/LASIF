@@ -33,6 +33,57 @@ class IterationsComponent(Component):
         iteration_name = iteration_name.lstrip("ITERATION_")
         return "ITERATION_%s" % iteration_name
 
+    def write_info_toml(self, iteration_name, simulation_type):
+        """
+        Write a toml file to store information related to how the important
+        config settings were when input files were generated. This will
+        create a new file when forward input files are generated.
+        :param iteration_name: The iteration for which to write into toml
+        :param simulation_type: The type of simulation.
+        """
+        settings = self.comm.project.solver_settings
+        project_info = self.comm.project.config
+        data_proc = self.comm.project.processing_params
+        info_path = os.path.join(self.comm.project.paths["synthetics"],
+                                 "INFORMATION",
+                                 self.get_long_iteration_name(iteration_name))
+
+        toml_string = f"# Information to store how things were in " \
+                      f"this iteration.\n \n" \
+                      f"[parameters]\n" \
+                      f"    number_of_absorbing_layers = " \
+                      f"{settings['number_of_absorbing_layers']} \n" \
+                      f"    salvus_start_time = " \
+                      f"{- settings['time_increment']} \n" \
+                      f"    end_time = {settings['end_time']} \n" \
+                      f"    time_increment = " \
+                      f"{settings['time_increment']}\n" \
+                      f"    polynomial_order = " \
+                      f"{settings['polynomial_order']}\n" \
+                      f"    with_anisotropy = " \
+                      f"\"{settings['with_anisotropy']}\"\n" \
+                      f"    with_attenuation = " \
+                      f"\"{settings['with_attenuation']}\"\n" \
+                      f"    stf = " \
+                      f"\"{settings['source_time_function_type']}\" " \
+                      f"# source time function type\n" \
+                      f"    mesh_file = " \
+                      f"\"{project_info['mesh_file']}\"\n" \
+                      f"    highpass_period = " \
+                      f"{data_proc['highpass_period']}\n" \
+                      f"    lowpass_period = " \
+                      f"{data_proc['lowpass_period']}\n"
+
+        if simulation_type == "adjoint":
+            toml_string += f"    misfit_type = " \
+                           f"\"{project_info['misfit_type']}\"\n"
+
+        info_file = os.path.join(info_path, f"{simulation_type}.toml")
+
+        with open(info_file, "w") as fh:
+            fh.write(toml_string)
+        print(f"Information about input files stored in {info_file}")
+
     def setup_directories_for_iteration(self, iteration_name,
                                         remove_dirs=False):
         """
@@ -55,13 +106,18 @@ class IterationsComponent(Component):
         Create the synthetics folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
         """
-        path = self.comm.project.paths["eq_synthetics"]
 
-        folder = os.path.join(path, long_iteration_name)
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+        path = self.comm.project.paths["synthetics"]
+
+        folder_eq = os.path.join(path, "EARTHQUAKES", long_iteration_name)
+        folder_info = os.path.join(path, "INFORMATION", long_iteration_name)
+        if not os.path.exists(folder_eq):
+            os.makedirs(folder_eq)
+        if not os.path.exists(folder_info):
+            os.makedirs(folder_info)
         if remove_dirs:
-            shutil.rmtree(folder)
+            shutil.rmtree(folder_eq)
+            shutil.rmtree(folder_info)
 
     def _create_input_files_folder_for_iteration(self, long_iteration_name,
                                                  remove_dirs=False):
