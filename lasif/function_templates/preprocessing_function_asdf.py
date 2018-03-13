@@ -53,13 +53,6 @@ def preprocessing_function_asdf(processing_info):
     # =========================================================================
 
     ds = ASDFDataSet(processing_info["asdf_input_filename"], compression=None)
-    if not processing_info["data"]:
-        event = processing_info["event"]
-        starttime = event["origin_time"] + processing_info["salvus_start_time"]
-    else:
-        event = ds.events[0]
-        origin = event.preferred_origin() or event.origins[0]
-        starttime = origin.time + processing_info["salvus_start_time"]
 
     # Get processing_info
     npts = processing_info["npts"]
@@ -67,8 +60,8 @@ def preprocessing_function_asdf(processing_info):
     min_period = processing_info["highpass_period"]
     max_period = processing_info["lowpass_period"]
 
-    # origin = event.preferred_origin() or event.origins[0]
-    # starttime = origin.time + processing_info["salvus_start_time"]
+    origin = event.preferred_origin() or event.origins[0]
+    starttime = origin.time + processing_info["salvus_start_time"]
     endtime = starttime + processing_info["dt"] * (npts - 1)
     duration = endtime - starttime
 
@@ -145,85 +138,15 @@ def preprocessing_function_asdf(processing_info):
 
         return st
 
-    def process_function_yes(st, inv):
-        for tr in st:
-            # Trim to reduce processing costs
-            tr.trim(starttime - 0.2 * duration, endtime + 0.2 * duration)
-
-            # Decimation
-            while True:
-                decimation_factor = int(processing_info["dt"] /
-                                        tr.stats.delta)
-                # Decimate in steps for large sample rate reductions.
-                if decimation_factor > 8:
-                    decimation_factor = 8
-                if decimation_factor > 1:
-                    new_nyquist = tr.stats.sampling_rate / 2.0 / float(
-                        decimation_factor)
-                    zerophase_chebychev_lowpass_filter(tr, new_nyquist)
-                    tr.decimate(factor=decimation_factor, no_filter=True)
-                else:
-                    break
-
-        # Detrend and taper
-        st.detrend("linear")
-        st.detrend("demean")
-        st.taper(max_percentage=0.05, type="hann")
-
-        # Instrument correction
-        # try:
-        #     st.attach_response(inv)
-        #     st.remove_response(output="DISP", pre_filt=pre_filt,
-        #                        zero_mean=False, taper=False)
-        # except Exception as e:
-        #     net = inv.get_contents()['channels'][0].split('.', 2)[0]
-        #     sta = inv.get_contents()['channels'][0].split('.', 2)[1]
-        #
-        #     msg = (
-        #           "Station: %s.%s could not be corrected with the help of"
-        #           " asdf file: '%s'. Due to: '%s'  Will be skipped.") \
-        #           % (net, sta,
-        #              processing_info["asdf_input_filename"],
-        #              e.__repr__()),
-        #     raise LASIFError(msg)
-
-        # Bandpass filtering
-        st.detrend("linear")
-        st.detrend("demean")
-        st.taper(0.05, type="cosine")
-        st.filter("bandpass", freqmin=1.0 / max_period,
-                  freqmax=1.0 / min_period, corners=3, zerophase=False)
-
-        st.detrend("linear")
-        st.detrend("demean")
-        st.taper(0.05, type="cosine")
-        st.filter("bandpass", freqmin=1.0 / max_period,
-                  freqmax=1.0 / min_period, corners=3, zerophase=False)
-
-        # Sinc interpolation
-        for tr in st:
-            tr.data = np.require(tr.data, requirements="C")
-
-        st.interpolate(sampling_rate=sampling_rate, method="lanczos",
-                       starttime=starttime, window="blackman", a=12,
-                       npts=npts)
-
-        # Convert to single precision to save space.
-        for tr in st:
-            tr.data = np.require(tr.data, dtype="float32", requirements="C")
-
-        return st
 
     tag_name = processing_info["preprocessing_tag"]
 
     tag_map = {
-        processing_info["initial_tag"]: tag_name
+        "raw_recording": tag_name
     }
 
     output_filename = processing_info["asdf_output_filename"]
-    if processing_info["data"]:
-        ds.process(process_function, output_filename, tag_map=tag_map)
-    else:
-        ds.process(process_function_yes, output_filename, tag_map=tag_map)
+    ds.process(process_function, output_filename, tag_map=tag_map)
+
 
     del ds
