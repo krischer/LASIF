@@ -53,6 +53,7 @@ def preprocessing_function_asdf(processing_info):
     # =========================================================================
 
     ds = ASDFDataSet(processing_info["asdf_input_filename"], compression=None)
+    event = ds.events[0]
 
     # Get processing_info
     npts = processing_info["npts"]
@@ -138,7 +139,6 @@ def preprocessing_function_asdf(processing_info):
 
         return st
 
-
     tag_name = processing_info["preprocessing_tag"]
 
     tag_map = {
@@ -147,6 +147,5 @@ def preprocessing_function_asdf(processing_info):
 
     output_filename = processing_info["asdf_output_filename"]
     ds.process(process_function, output_filename, tag_map=tag_map)
-
 
     del ds
