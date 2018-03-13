@@ -22,11 +22,11 @@ class ActionsComponent(Component):
 
     def process_data(self, events):
         """
-        Preprocesses all data for a given iteration.
+        Processes all data for a given iteration.
 
         This function works with and without MPI.
 
-        :param event_names: event_ids is a list of events to process in this
+        :param events: event_ids is a list of events to process in this
             run. It will process all events if not given.
         """
         from mpi4py import MPI
@@ -45,18 +45,17 @@ class ActionsComponent(Component):
             for event_name in events:
                 output_folder = os.path.join(
                     self.comm.project.paths["preproc_eq_data"], event_name)
+                asdf_file_name = self.comm.waveforms.get_asdf_filename(
+                    event_name, data_type="raw")
+                preprocessing_tag = self.comm.waveforms.preprocessing_tag
+                output_filename = os.path.join(output_folder,
+                                               preprocessing_tag + ".h5")
 
                 if not os.path.exists(output_folder):
                     os.makedirs(output_folder)
 
-                asdf_file_name = self.comm.waveforms.get_asdf_filename(
-                    event_name, data_type="raw")
                 lowpass_period = process_params["lowpass_period"]
                 highpass_period = process_params["highpass_period"]
-                preprocessing_tag = self.comm.waveforms.preprocessing_tag
-
-                output_filename = os.path.join(output_folder,
-                                               preprocessing_tag + ".h5")
 
                 # remove asdf file if it already exists
                 if MPI.COMM_WORLD.rank == 0:
@@ -72,7 +71,7 @@ class ActionsComponent(Component):
                     "npts": npts,
                     "salvus_start_time": salvus_start_time,
                     "lowpass_period": lowpass_period,
-                    "highpass_period": highpass_period
+                    "highpass_period": highpass_period,
                 }
                 yield ret_dict
 
@@ -82,7 +81,6 @@ class ActionsComponent(Component):
         # Load project specific window selection function.
         preprocessing_function_asdf = self.comm.project.get_project_function(
             "preprocessing_function_asdf")
-
         MPI.COMM_WORLD.Barrier()
         for event in to_be_processed:
             preprocessing_function_asdf(event["processing_info"])
@@ -147,7 +145,8 @@ class ActionsComponent(Component):
 
             # Process the synthetics.
             st_syn = self.comm.waveforms.process_synthetics(
-                st=st_syn.copy(), event_name=event["event_name"])
+                st=st_syn.copy(), event_name=event["event_name"],
+                iteration=iteration)
 
             adjoint_sources = {}
 
@@ -290,7 +289,8 @@ class ActionsComponent(Component):
 
             # Process the synthetics.
             st_syn = self.comm.waveforms.process_synthetics(
-                st=st_syn.copy(), event_name=event["event_name"])
+                st=st_syn.copy(),
+                event_name=event["event_name"], iteration=iteration_name)
 
             all_windows = {}
 
@@ -411,6 +411,7 @@ class ActionsComponent(Component):
         :param iteration_name: The name of the iteration.
         :param event_name: The name of the event for which to generate the
             input files.
+        :param simulation_type: forward, adjoint, step_length
         """
 
         # =====================================================================
@@ -504,8 +505,7 @@ class ActionsComponent(Component):
             output_folder=output_dir,
             exodus_file=mesh_file)
 
-        if src_time_func == "bandpass_filtered_heaviside":
-            self.write_custom_stf(output_dir)
+        self.write_custom_stf(output_dir)
 
         run_salvus = os.path.join(output_dir, "run_salvus.sh")
         io_sampling_rate = self.comm.project. \
@@ -515,7 +515,8 @@ class ActionsComponent(Component):
         if simulation_type == "forward":
             with open(run_salvus, "a") as fh:
                 fh.write(f" --io-sampling-rate-volume {io_sampling_rate}"
-                         f" --io-memory-per-rank-in-MB {memory_per_rank}")
+                         f" --io-memory-per-rank-in-MB {memory_per_rank}"
+                         f" --io-file-format bin")
 
         if self.comm.project.solver_settings["with_attenuation"]:
             with open(run_salvus, "a") as fh:
@@ -540,9 +541,15 @@ class ActionsComponent(Component):
 
         stf_fct = self.comm.project.get_project_function(
             "source_time_function")
-
-        stf = stf_fct(npts=npts, delta=delta,
-                      freqmin=freqmin, freqmax=freqmax)
+        stf = self.comm.project.processing_params["stf"]
+        if stf == "bandpass_filtered_heaviside":
+            stf = stf_fct(npts=npts, delta=delta,
+                          freqmin=freqmin, freqmax=freqmax)
+        elif stf == "heaviside":
+            stf = stf_fct(npts=npts, delta=delta)
+        else:
+            raise LASIFError(f"{stf} is not supported by lasif. Use either "
+                             f"bandpass_filtered_heaviside or heaviside.")
 
         stf_mat = np.zeros((len(stf), len(moment_tensor)))
         for i, moment in enumerate(moment_tensor):
@@ -730,7 +737,8 @@ class ActionsComponent(Component):
             f"--save-static-file-name {event_name}.h5 --kernel-fields TTI " \
             f"--io-memory-per-rank-in-MB 5000 --with-anisotropy " \
             f"--absorbing-boundaries {absorbing_boundaries} " \
-            f"--source-toml {toml_file_name}"
+            f"--source-toml {toml_file_name} " \
+            f"--io-file-format bin"
 
         if num_absorbing_layers > 0:
             salvus_command += f" --num-absorbing-layers {num_absorbing_layers}"

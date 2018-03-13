@@ -606,6 +606,9 @@ def lasif_plot_stf(parser, args):
     """
     Plot the source time function for one iteration.
     """
+    parser.add_argument("--unfiltered", help="Add this tag if you want to "
+                                             "plot an unfiltered STF",
+                        action="store_true")
     args = parser.parse_args(args)
     import lasif.visualization
     comm = _find_project_comm(".")
@@ -618,15 +621,22 @@ def lasif_plot_stf(parser, args):
 
     delta = comm.project.solver_settings["time_increment"]
     npts = comm.project.solver_settings["number_of_time_steps"]
+    stf_type = comm.project.solver_settings["source_time_function_type"]
 
     stf = {"delta": delta}
-
-    stf["data"] = stf_fct(npts=npts, delta=delta,
-                          freqmin=freqmin, freqmax=freqmax)
-
-    # Ignore lots of potential warnings with some plotting functionality.
-    lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
-                                freqmax=freqmax)
+    if stf_type == "heaviside":
+        stf["data"] = stf_fct(npts=npts, delta=delta)
+        lasif.visualization.plot_heaviside(stf["data"], stf["delta"])
+    elif stf_type == "bandpass_filtered_heaviside":
+        stf["data"] = stf_fct(npts=npts, delta=delta, freqmin=freqmin,
+                              freqmax=freqmax)
+        lasif.visualization.plot_tf(stf["data"], stf["delta"], freqmin=freqmin,
+                                    freqmax=freqmax)
+    else:
+        raise LASIFError(f"{stf_type} is not supported by lasif. Check your"
+                         f"config file and make sure the source time "
+                         f"function is either 'heaviside' or "
+                         f"'bandpass_filtered_heaviside'.")
 
 
 @command_group("Iteration Management")
@@ -676,9 +686,11 @@ def lasif_generate_input_files(parser, args):
         if simulation_type == "adjoint":
             comm.actions.finalize_adjoint_sources(iteration_name, event,
                                                   weight_set_name)
+
         else:
             comm.actions.generate_input_files(iteration_name, event,
                                               simulation_type)
+    comm.iterations.write_info_toml(iteration_name, simulation_type)
 
 
 @command_group("Project Management")
@@ -1034,6 +1046,7 @@ def lasif_process_data(parser, args):
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
+
     args = parser.parse_args(args)
     comm = _find_project_comm_mpi(".")
     events = args.events if args.events else comm.events.list()
@@ -1053,6 +1066,9 @@ def lasif_process_data(parser, args):
     exceptions = MPI.COMM_WORLD.bcast(exceptions, root=0)
     if exceptions:
         raise LASIFCommandLineException(exceptions[0])
+
+    # Make sure all the ranks enter the processing at the same time.
+    MPI.COMM_WORLD.barrier()
     comm.actions.process_data(events)
 
 

@@ -316,6 +316,24 @@ def plot_tf(data, delta, freqmin=None, freqmax=None):
     plt.show()
 
 
+def plot_heaviside(data, delta):
+    """
+    Make a simple plot to show how the source time function looks when it
+    is unfiltered.
+    """
+    # For visualization we append a few zeros at the beginning of the stf.
+    data = np.insert(data, 0, np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
+
+    npts = len(data)
+    time = np.arange(-(delta * 7), delta * (npts - 7), delta)
+
+    plt.plot(time, data, color="black")
+    plt.title("Source Time Function (6 extra zero samples before)")
+    plt.xlabel("Time (Seconds)")
+    plt.ylabel("Injected Force (Normalized)")
+    plt.show()
+
+
 def plot_event_histogram(events, plot_type):
     from matplotlib.dates import date2num, num2date
     from matplotlib import ticker

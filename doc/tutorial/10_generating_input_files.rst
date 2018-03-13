@@ -23,9 +23,8 @@ The actual input file generation is now very straightforward:
 ``SIMULATION_TYPE`` has to be one of
 
     * ``forward`` - Run a forward simulation and store a wavefield.
-        If you do not want to store a wavefield you can manually modify the
-        run_salvus.sh file. Storing the wavefield generally requires
-        a large diskspace.
+        If you do not want to store a wavefield you can use the ``step_length``
+        option. Storing the wavefield generally requires a large diskspace.
     * ``adjoint`` - Run the adjoint simulation to calculate gradients (sensitivity kernels).
         for your event/station pairs. This requires
         the adjoint sources to be calculated. More on that later on.

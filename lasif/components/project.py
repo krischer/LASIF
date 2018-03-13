@@ -77,6 +77,7 @@ class Project(Component):
         self.__update_folder_structure()
 
         self._read_config_file()
+        self._validate_config_file()
 
         # Functions will be cached here.
         self.__project_function_cache = {}
@@ -142,9 +143,30 @@ class Project(Component):
             self.solver_settings["time_increment"]) + 1)
 
         self.processing_params = config_dict["data_processing"]
+        self.processing_params["stf"] = self.solver_settings
+        ["source_time_function_type"]
 
         self.domain = lasif.domain.ExodusDomain(
             self.config["mesh_file"], self.config["num_buffer_elements"])
+
+    def _validate_config_file(self):
+        """
+        Check to make sure the inputs into the project are compatible
+        """
+        stf = self.solver_settings["source_time_function_type"]
+        misfit = self.config["misfit_type"]
+        if stf not in ("heaviside", "bandpass_filtered_heaviside"):
+            raise LASIFError(f" \n\nSource time function {stf} is not "
+                             f"supported by Lasif. \n"
+                             f"The only supported STF's are \"heaviside\" "
+                             f"and \"bandpass_filtered_heaviside\". \n"
+                             f"Please modify your config file.")
+        if not misfit == "TimeFrequencyPhaseMisfitFichtner2008":
+            raise LASIFError(f"\n\nMisfit type {misfit} is not supported "
+                             f"by LASIF. \n"
+                             f"Currently the only supported misfit type"
+                             f"is:\n "
+                             f"\"TimeFrequencyPhaseMisfitFichtner2008\".")
 
     def get_communicator(self):
         return self.__comm
@@ -314,7 +336,7 @@ class Project(Component):
                          "    with_attenuation = false\n\n" \
                          "    # Source time function type, " \
                          "currently only \"bandpass_filtered_heaviside\"" \
-                         " is supported \n" \
+                         " and \"heaviside\" is supported \n" \
                          "    source_time_function_type = " \
                          "\"bandpass_filtered_heaviside\"\n"  \
 
