@@ -517,6 +517,10 @@ class ActionsComponent(Component):
                 fh.write(f" --io-sampling-rate-volume {io_sampling_rate}"
                          f" --io-memory-per-rank-in-MB {memory_per_rank}")
 
+        if self.comm.project.solver_settings["with_attenuation"]:
+            with open(run_salvus, "a") as fh:
+                fh.write(f" --with-attenuation")
+
     def write_custom_stf(self, output_dir):
         import toml
         import h5py
@@ -730,6 +734,9 @@ class ActionsComponent(Component):
 
         if num_absorbing_layers > 0:
             salvus_command += f" --num-absorbing-layers {num_absorbing_layers}"
+
+        if self.comm.project.solver_settings["with_attenuation"]:
+            salvus_command += f" --with-attenuation"
 
         salvus_command_file = os.path.join(output_dir, "run_salvus.sh")
         with open(salvus_command_file, "w") as fh:
