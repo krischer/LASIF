@@ -143,8 +143,8 @@ class Project(Component):
             self.solver_settings["time_increment"]) + 1)
 
         self.processing_params = config_dict["data_processing"]
-        self.processing_params["stf"] = self.solver_settings
-        ["source_time_function_type"]
+        self.processing_params["stf"] = \
+            self.solver_settings["source_time_function_type"]
 
         self.domain = lasif.domain.ExodusDomain(
             self.config["mesh_file"], self.config["num_buffer_elements"])
@@ -153,7 +153,7 @@ class Project(Component):
         """
         Check to make sure the inputs into the project are compatible
         """
-        stf = self.solver_settings["source_time_function_type"]
+        stf = self.processing_params["stf"]
         misfit = self.config["misfit_type"]
         if stf not in ("heaviside", "bandpass_filtered_heaviside"):
             raise LASIFError(f" \n\nSource time function {stf} is not "
@@ -161,12 +161,14 @@ class Project(Component):
                              f"The only supported STF's are \"heaviside\" "
                              f"and \"bandpass_filtered_heaviside\". \n"
                              f"Please modify your config file.")
-        if not misfit == "TimeFrequencyPhaseMisfitFichtner2008":
+        if misfit not in ("TimeFrequencyPhaseMisfitFichtner2008",
+                          "CCTimeShift"):
             raise LASIFError(f"\n\nMisfit type {misfit} is not supported "
                              f"by LASIF. \n"
                              f"Currently the only supported misfit type"
-                             f"is:\n "
-                             f"\"TimeFrequencyPhaseMisfitFichtner2008\".")
+                             f" is:\n "
+                             f"\"TimeFrequencyPhaseMisfitFichtner2008\" and "
+                             f"\n \"CCTimeShift\".")
 
     def get_communicator(self):
         return self.__comm
