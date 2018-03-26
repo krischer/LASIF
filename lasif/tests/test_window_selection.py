@@ -79,7 +79,7 @@ def test_select_windows(cli):
 
     expected_windows = [(obspy.UTCDateTime(2000, 8, 21, 17, 15, 38, 300000),
                          obspy.UTCDateTime(2000, 8, 21, 17, 18, 48, 200000)),
-                        (obspy.UTCDateTime(2000, 8, 21, 17, 19, 47),
+                        (obspy.UTCDateTime(2000, 8, 21, 17, 19, 43, 100000),
                          obspy.UTCDateTime(2000, 8, 21, 17, 21, 32))]
 
     assert windows == expected_windows
