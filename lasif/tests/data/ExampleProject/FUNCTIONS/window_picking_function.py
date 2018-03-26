@@ -38,7 +38,7 @@ def window_picking_function(data_trace, synthetic_trace, stf_trace,
     :type data_trace: :class:`~obspy.core.trace.Trace`
     :param synthetic_trace: Trace containing the fully preprocessed synthetics.
     :type synthetic_trace: :class:`~obspy.core.trace.Trace`
-    :param stf_trace: Trace containing the fully preprocessed synthetics.
+    :param stf_trace: Trace containing the used source time function.
     :type stf_trace: :class:`~obspy.core.trace.Trace`
     :param event_latitude: The event latitude.
     :type event_latitude: float
