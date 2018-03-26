@@ -261,6 +261,16 @@ class ActionsComponent(Component):
         select_windows = self.comm.project.get_project_function(
             "window_picking_function")
 
+        # Get source time function
+        stf_fct = self.comm.project.get_project_function(
+            "source_time_function")
+        delta = self.comm.project.solver_settings["time_increment"]
+        npts = self.comm.project.solver_settings["number_of_time_steps"]
+        freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
+        freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
+        stf_trace = stf_fct(npts=npts, delta=delta, freqmin=freqmin,
+                            freqmax=freqmax)
+
         process_params = self.comm.project.processing_params
         minimum_period = process_params["highpass_period"]
         maximum_period = process_params["lowpass_period"]
@@ -311,7 +321,7 @@ class ActionsComponent(Component):
                     continue
 
                 windows = select_windows(
-                    data_tr, synth_tr, event["latitude"],
+                    data_tr, synth_tr, stf_trace, event["latitude"],
                     event["longitude"], event["depth_in_km"],
                     coordinates["latitude"],
                     coordinates["longitude"],
@@ -361,6 +371,16 @@ class ActionsComponent(Component):
         data = self.comm.query.get_matching_waveforms(event["event_name"],
                                                       iteration, station)
 
+        # Get source time function
+        stf_fct = self.comm.project.get_project_function(
+            "source_time_function")
+        delta = self.comm.project.solver_settings["time_increment"]
+        npts = self.comm.project.solver_settings["number_of_time_steps"]
+        freqmax = 1.0 / self.comm.project.processing_params["highpass_period"]
+        freqmin = 1.0 / self.comm.project.processing_params["lowpass_period"]
+        stf_trace = stf_fct(npts=npts, delta=delta, freqmin=freqmin,
+                            freqmax=freqmax)
+
         process_params = self.comm.project.processing_params
         minimum_period = process_params["highpass_period"]
         maximum_period = process_params["lowpass_period"]
@@ -381,7 +401,8 @@ class ActionsComponent(Component):
                 continue
             found_something = True
 
-            windows = select_windows(data_tr, synth_tr, event["latitude"],
+            windows = select_windows(data_tr, synth_tr, stf_trace,
+                                     event["latitude"],
                                      event["longitude"], event["depth_in_km"],
                                      data.coordinates["latitude"],
                                      data.coordinates["longitude"],

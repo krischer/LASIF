@@ -12,7 +12,8 @@ Project specific function picking windows.
 from lasif.window_selection import select_windows
 
 
-def window_picking_function(data_trace, synthetic_trace, event_latitude,
+def window_picking_function(data_trace, synthetic_trace, stf_trace,
+                            event_latitude,
                             event_longitude, event_depth_in_km,
                             station_latitude, station_longitude,
                             minimum_period, maximum_period,
@@ -37,6 +38,8 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
     :type data_trace: :class:`~obspy.core.trace.Trace`
     :param synthetic_trace: Trace containing the fully preprocessed synthetics.
     :type synthetic_trace: :class:`~obspy.core.trace.Trace`
+    :param stf_trace: Trace containing the fully preprocessed synthetics.
+    :type stf_trace: :class:`~obspy.core.trace.Trace`
     :param event_latitude: The event latitude.
     :type event_latitude: float
     :param event_longitude: The event longitude.
@@ -112,6 +115,7 @@ def window_picking_function(data_trace, synthetic_trace, event_latitude,
     windows = select_windows(
         data_trace=data_trace,
         synthetic_trace=synthetic_trace,
+        stf_trace=stf_trace,
         event_latitude=event_latitude,
         event_longitude=event_longitude,
         event_depth_in_km=event_depth_in_km,
