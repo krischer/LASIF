@@ -217,7 +217,7 @@ def _window_generator(data_length, window_width):
         if window_end > data_length:
             break
         yield (window_start, window_end, window_start + window_width // 2)
-        window_start += int(0.1 * window_width)
+        window_start += int(0.05 * window_width)
 
 
 def _log_window_selection(tr_id, msg):
