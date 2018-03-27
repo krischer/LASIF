@@ -203,7 +203,7 @@ def _plot_mask(new_mask, old_mask, name=None):
     plt.gca().xaxis.set_ticklabels([])
 
 
-def _window_generator(data_length, window_width):
+def _window_generator(data_length, window_width, window_shift):
     """
     Simple generator yielding start and stop indices for sliding windows.
 
@@ -217,7 +217,7 @@ def _window_generator(data_length, window_width):
         if window_end > data_length:
             break
         yield (window_start, window_end, window_start + window_width // 2)
-        window_start += 1
+        window_start += window_shift
 
 
 def _log_window_selection(tr_id, msg):
@@ -235,7 +235,7 @@ def _log_window_selection(tr_id, msg):
 TAUPY_MODEL_CACHE = {}
 
 
-def select_windows(data_trace, synthetic_trace, event_latitude,
+def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
                    event_longitude, event_depth_in_km,
                    station_latitude, station_longitude, minimum_period,
                    maximum_period,
@@ -258,6 +258,8 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     :type data_trace: :class:`~obspy.core.trace.Trace`
     :param synthetic_trace: The synthetic trace.
     :type synthetic_trace: :class:`~obspy.core.trace.Trace`
+    :param stf_trace: The stf trace.
+    :type stf_trace: :class:`~obspy.core.trace.Trace`
     :param event_latitude: The event latitude.
     :type event_latitude: float
     :param event_longitude: The event longitude.
@@ -409,6 +411,15 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
                 data_trace.id, msg)
         accept_traces = msg
 
+    minimum_distance = 2 * minimum_period * min_velocity
+    if dist_in_km < minimum_distance:
+        msg = "Source - Receiver distance %.3f is below threshold of %.3f" % (
+            dist_in_km, minimum_distance)
+        if verbose:
+            _log_window_selection(
+                data_trace.id, msg)
+        accept_traces = msg
+
     # Calculate the envelope of both data and synthetics. This is to make sure
     # that the amplitude of both is not too different over time and is
     # used as another selector. Only calculated if the trace is generally
@@ -544,9 +555,17 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     # Elimination Stage 1: Eliminate everything half a period before or
     # after the minimum and maximum travel times, respectively.
     # theoretical arrival as positive.
+    # Account for delays in the source time functions as well
     min_idx = int((first_tt_arrival - (minimum_period / 2.0)) / dt)
+    stf_env = obspy.signal.filter.envelope(stf_trace)
+    threshold = 0.05 * np.max(stf_env.data)
+    max_env_amplitude_idx = np.argmax(stf_env.data)
+
     max_idx = int(math.ceil((
         dist_in_km / min_velocity + minimum_period / 2.0) / dt))
+    max_idx += int(np.argmax(stf_env[max_env_amplitude_idx:] < threshold) +
+                   np.argmax(stf_env.data))
+
     time_windows.mask[:min_idx + 1] = True
     time_windows.mask[max_idx:] = True
     if plot:
@@ -565,8 +584,16 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
     max_cc_coeff = np.ma.zeros(npts, dtype="float32")
     max_cc_coeff.mask = True
 
+    # Compute the amount of indices by which to shift the sliding windows
+    # for long seismograms this otherwise gets unnecessarily expensive
+    window_shift = int(0.05 * window_length)
+    if not window_shift % 2:
+        window_shift += 1
+    window_shift = max(window_shift, 1)
+
     for start_idx, end_idx, midpoint_idx in _window_generator(npts,
-                                                              window_length):
+                                                              window_length,
+                                                              window_shift):
         if not min_idx < midpoint_idx < max_idx:
             continue
 
@@ -578,8 +605,11 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
 
         # Elimination Stage 2: Skip windows that have essentially no energy
         # to avoid instabilities. No windows can be picked in these.
+        sw_start_idx = int(midpoint_idx - ((window_shift - 1) / 2))
+        sw_end_idx = int(midpoint_idx + ((window_shift - 1) / 2) + 1)
+
         if synthetic_window.ptp() < synth.ptp() * 0.001:
-            time_windows.mask[midpoint_idx] = True
+            time_windows.mask[sw_start_idx: sw_end_idx] = True
             continue
 
         # Calculate the time shift. Here this is defined as the shift of the
@@ -589,12 +619,13 @@ def select_windows(data_trace, synthetic_trace, event_latitude,
 
         time_shift = cc.argmax() - window_length + 1
         # Express the time shift in fraction of the minimum period.
-        sliding_time_shift[midpoint_idx] = (time_shift * dt) / minimum_period
+        sliding_time_shift[sw_start_idx: sw_end_idx] = \
+            (time_shift * dt) / minimum_period
 
         # Normalized cross correlation.
         max_cc_value = cc.max() / np.sqrt((synthetic_window ** 2).sum() *
                                           (data_window ** 2).sum())
-        max_cc_coeff[midpoint_idx] = max_cc_value
+        max_cc_coeff[sw_start_idx: sw_end_idx] = max_cc_value
 
     if plot:
         plt.subplot2grid(grid, (9, 0), rowspan=1)

@@ -480,25 +480,10 @@ class Window(QtGui.QMainWindow):
     def on_delete_all_Button_released(self):
         for component in ["Z", "N", "E"]:
             plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-            # if not hasattr(plot_widget, "windows"):
-            #     continue
             id = plot_widget.data_id
-            self.current_window_manager.del_all_windows_from_event_channel(
-                event_name=self.current_event, channel_name=id)
-            # plot_widget.windows.windows[:] = []
-            # plot_widget.windows.write()
-        self.on_stations_listWidget_currentItemChanged(True, False)
-
-    def on_delete_all_Button_released(self):
-        for component in ["Z", "N", "E"]:
-            plot_widget = getattr(self.ui, "%s_graph" % component.lower())
-            # if not hasattr(plot_widget, "windows"):
-            #     continue
-            id = plot_widget.data_id
-            self.current_window_manager.del_all_windows_from_event_channel(
-                event_name=self.current_event, channel_name=id)
-            # plot_widget.windows.windows[:] = []
-            # plot_widget.windows.write()
+            if id:
+                self.current_window_manager.del_all_windows_from_event_channel(
+                    event_name=self.current_event, channel_name=id)
         self.on_stations_listWidget_currentItemChanged(True, False)
 
     def on_autoselect_Button_released(self):

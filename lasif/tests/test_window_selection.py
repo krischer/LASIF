@@ -14,6 +14,7 @@ import obspy
 import os
 
 from lasif.window_selection import select_windows
+from lasif.tests.testing_helpers import communicator, cli # NOQA
 
 # Data path.
 DATA = os.path.join(os.path.dirname(os.path.abspath(
@@ -21,7 +22,7 @@ DATA = os.path.join(os.path.dirname(os.path.abspath(
     "data", "window_selection_test_files")
 
 
-def test_select_windows():
+def test_select_windows(cli):
     """
     Simple test against existing windows that are considered "good".
     """
@@ -45,9 +46,20 @@ def test_select_windows():
     min_peaks_troughs = 2
     max_energy_ratio = 2.0
 
+    stf_npts = len(data_trace)
+    stf_delta = data_trace.stats.delta
+
+    stf_freqmin = 1.0 / maximum_period
+    stf_freqmax = 1.0 / minimum_period
+
+    stf_fct = cli.comm.project.get_project_function("source_time_function")
+    stf_trace = stf_fct(npts=stf_npts, delta=stf_delta, freqmin=stf_freqmin,
+                        freqmax=stf_freqmax)
+
     windows = select_windows(
         data_trace=data_trace,
         synthetic_trace=synthetic_trace,
+        stf_trace=stf_trace,
         event_latitude=event_latitude,
         event_longitude=event_longitude,
         event_depth_in_km=event_depth_in_km,
@@ -66,6 +78,8 @@ def test_select_windows():
         max_energy_ratio=max_energy_ratio)
 
     expected_windows = [(obspy.UTCDateTime(2000, 8, 21, 17, 15, 38, 300000),
-                         obspy.UTCDateTime(2000, 8, 21, 17, 19, 24, 800000))]
+                         obspy.UTCDateTime(2000, 8, 21, 17, 19, 26, 300000)),
+                        (obspy.UTCDateTime(2000, 8, 21, 17, 20, 21, 200000),
+                         obspy.UTCDateTime(2000, 8, 21, 17, 22, 10, 100000))]
 
     assert windows == expected_windows
