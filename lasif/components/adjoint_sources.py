@@ -158,14 +158,15 @@ class AdjointSourcesComponent(Component):
                 "Sampling rate not similar enough.")
 
         original_stats = copy.deepcopy(data.stats)
-
         for trace in [data, synth]:
             trace.trim(starttime, endtime)
-            trace.taper(type=taper.lower(), max_percentage=taper_percentage)
+            hann = np.hanning(len(trace.data))
+            trace.data = trace.data * hann
+            # trace.taper(type=taper.lower(), max_percentage=0.5)
             trace.trim(original_stats.starttime, original_stats.endtime,
                        pad=True, fill_value=0.0)
 
-        #  make time axis
+        # make time axis
         t = np.linspace(0, (original_stats.npts - 1) * original_stats.delta,
                         original_stats.npts)
 
