@@ -320,14 +320,18 @@ class ActionsComponent(Component):
                 except LASIFNotFoundError:
                     continue
 
-                windows = select_windows(
-                    data_tr, synth_tr, stf_trace, event["latitude"],
-                    event["longitude"], event["depth_in_km"],
-                    coordinates["latitude"],
-                    coordinates["longitude"],
-                    minimum_period=minimum_period,
-                    maximum_period=maximum_period,
-                    iteration=iteration_name, **kwargs)
+                windows = None
+                try:
+                    windows = select_windows(
+                        data_tr, synth_tr, stf_trace, event["latitude"],
+                        event["longitude"], event["depth_in_km"],
+                        coordinates["latitude"],
+                        coordinates["longitude"],
+                        minimum_period=minimum_period,
+                        maximum_period=maximum_period,
+                        iteration=iteration_name, **kwargs)
+                except Exception as e:
+                    print(e)
 
                 if not windows:
                     continue

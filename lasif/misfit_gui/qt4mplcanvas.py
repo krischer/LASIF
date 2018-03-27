@@ -3,7 +3,7 @@ matplotlibrc('figure.subplot', left=0.0, right=1.0, bottom=0.0, top=1.0)
 import matplotlib as mpl
 mpl.rcParams['font.size'] = 10
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import \
+from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 
 

@@ -78,8 +78,8 @@ def test_select_windows(cli):
         max_energy_ratio=max_energy_ratio)
 
     expected_windows = [(obspy.UTCDateTime(2000, 8, 21, 17, 15, 38, 300000),
-                         obspy.UTCDateTime(2000, 8, 21, 17, 18, 48, 200000)),
-                        (obspy.UTCDateTime(2000, 8, 21, 17, 19, 43, 100000),
-                         obspy.UTCDateTime(2000, 8, 21, 17, 21, 32))]
+                         obspy.UTCDateTime(2000, 8, 21, 17, 19, 26, 300000)),
+                        (obspy.UTCDateTime(2000, 8, 21, 17, 20, 21, 200000),
+                         obspy.UTCDateTime(2000, 8, 21, 17, 22, 10, 100000))]
 
     assert windows == expected_windows

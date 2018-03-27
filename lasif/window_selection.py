@@ -203,7 +203,7 @@ def _plot_mask(new_mask, old_mask, name=None):
     plt.gca().xaxis.set_ticklabels([])
 
 
-def _window_generator(data_length, window_width):
+def _window_generator(data_length, window_width, window_shift):
     """
     Simple generator yielding start and stop indices for sliding windows.
 
@@ -217,7 +217,7 @@ def _window_generator(data_length, window_width):
         if window_end > data_length:
             break
         yield (window_start, window_end, window_start + window_width // 2)
-        window_start += int(0.05 * window_width)
+        window_start += window_shift
 
 
 def _log_window_selection(tr_id, msg):
@@ -584,8 +584,16 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
     max_cc_coeff = np.ma.zeros(npts, dtype="float32")
     max_cc_coeff.mask = True
 
+    # Compute the amount of indices by which to shift the sliding windows
+    # for long seismograms this otherwise gets unnecessarily expensive
+    window_shift = int(0.05 * window_length)
+    if not window_shift % 2:
+        window_shift += 1
+    window_shift = max(window_shift, 1)
+
     for start_idx, end_idx, midpoint_idx in _window_generator(npts,
-                                                              window_length):
+                                                              window_length,
+                                                              window_shift):
         if not min_idx < midpoint_idx < max_idx:
             continue
 
@@ -597,8 +605,11 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
 
         # Elimination Stage 2: Skip windows that have essentially no energy
         # to avoid instabilities. No windows can be picked in these.
+        sw_start_idx = int(midpoint_idx - ((window_shift - 1) / 2))
+        sw_end_idx = int(midpoint_idx + ((window_shift - 1) / 2) + 1)
+
         if synthetic_window.ptp() < synth.ptp() * 0.001:
-            time_windows.mask[start_idx: end_idx] = True
+            time_windows.mask[sw_start_idx: sw_end_idx] = True
             continue
 
         # Calculate the time shift. Here this is defined as the shift of the
@@ -608,13 +619,13 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
 
         time_shift = cc.argmax() - window_length + 1
         # Express the time shift in fraction of the minimum period.
-        sliding_time_shift[start_idx: end_idx] = \
+        sliding_time_shift[sw_start_idx: sw_end_idx] = \
             (time_shift * dt) / minimum_period
 
         # Normalized cross correlation.
         max_cc_value = cc.max() / np.sqrt((synthetic_window ** 2).sum() *
                                           (data_window ** 2).sum())
-        max_cc_coeff[start_idx: end_idx] = max_cc_value
+        max_cc_coeff[sw_start_idx: sw_end_idx] = max_cc_value
 
     if plot:
         plt.subplot2grid(grid, (9, 0), rowspan=1)
