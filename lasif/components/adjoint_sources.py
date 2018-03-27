@@ -139,6 +139,7 @@ class AdjointSourcesComponent(Component):
         # copy because otherwise the passed traces get modified
         data = copy.deepcopy(data)
         synth = copy.deepcopy(synth)
+
         if ad_src_type not in MISFIT_MAPPING:
             raise LASIFAdjointSourceCalculationError(
                 "Adjoint source type '%s' not supported. Supported types: %s"
@@ -172,7 +173,6 @@ class AdjointSourcesComponent(Component):
         t = np.require(t, dtype="float64", requirements="C")
         data_d = np.require(data.data, dtype="float64", requirements="C")
         synth_d = np.require(synth.data, dtype="float64", requirements="C")
-
         #  compute misfit and adjoint source
         adsrc = MISFIT_MAPPING[ad_src_type](
             t, data_d, synth_d, min_period=min_period,

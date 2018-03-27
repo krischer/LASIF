@@ -178,6 +178,7 @@ class ActionsComponent(Component):
                 windows = all_windows[station][data_tr.id]
                 try:
                     for starttime, endtime in windows:
+                        config = self.comm.project.config
                         asrc = \
                             self.comm.\
                             adj_sources.calculate_adjoint_source(
@@ -186,8 +187,7 @@ class ActionsComponent(Component):
                                 taper="hann", taper_percentage=0.05,
                                 min_period=process_params["highpass_period"],
                                 max_period=process_params["lowpass_period"],
-                                ad_src_type="TimeFrequency"
-                                            "PhaseMisfitFichtner2008")
+                                ad_src_type=config["misfit_type"])
                         adj_srcs.append(asrc)
                 except:
                     # Either pass or fail for the whole component.
