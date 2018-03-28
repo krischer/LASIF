@@ -6,7 +6,6 @@ import copy
 import pyasdf
 import os
 import numpy as np
-
 from obspy.signal.invsim import cosine_taper
 
 from lasif import LASIFAdjointSourceCalculationError, LASIFNotFoundError

@@ -112,4 +112,4 @@ def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit):
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
-    plt.title(f"Adjoint Source with a Misfit of {misfit}")
+    plt.title(f"CCTimeShift Adjoint Source with a Misfit of {misfit}")

@@ -10,9 +10,12 @@ Simple L2-norm misfit.
     (http://www.gnu.org/copyleft/lesser.html)
 """
 import numpy as np
+from obspy.signal.invsim import cosine_taper
+from scipy.integrate import simps
 
 
-def adsrc_l2_norm_misfit(data, synthetic, axis=None):
+def adsrc_l2_norm_misfit(t, data, synthetic, min_period, max_period,
+                         plot=False):
     """
     Calculates the L2-norm misfit and adjoint source.
 
@@ -20,9 +23,8 @@ def adsrc_l2_norm_misfit(data, synthetic, axis=None):
     :param data: The measured data array
     :type synthetic: np.ndarray
     :param synthetic: The calculated data array
-    :param axis: matplotlib.axis
-    :type axis: If given, a plot of the misfit will be drawn in axis. In this
-        case this is just the squared difference between both traces.
+    :param plot: boolean value deciding whether to plot or not
+    :type plot: boolean
     :rtype: dictionary
     :returns: Return a dictionary with three keys:
         * adjoint_source: The calculated adjoint source as a numpy array
@@ -30,40 +32,60 @@ def adsrc_l2_norm_misfit(data, synthetic, axis=None):
         * messages: A list of strings giving additional hints to what happened
             in the calculation.
     """
+    messages = []
     if len(synthetic) != len(data):
         msg = "Both arrays need to have equal length"
         raise ValueError(msg)
+    dt = t[1] - t[0]
     diff = synthetic - data
     diff = np.require(diff, dtype="float64")
-    squared_diff = diff ** 2
-    l2norm = np.sum(squared_diff)
+    l2norm = simps(np.square(diff), dx=dt)
+    ad_src = diff
 
-    adjoint_source = (-1.0 * diff)[::-1]
+    orig_length = len(ad_src)
+    n_zeros = np.nonzero(ad_src)
+    ad_src = np.trim_zeros(ad_src)
+    len_window = len(ad_src) * dt
+    messages.append(f"Length of window is: {len_window} seconds")
+    ratio = min_period * 2 / len_window
+    p = ratio / 2.0  # We want the minimum window to taper 25% off each side
+    if p > 1.0:  # For manually picked small windows.
+        p = 1.0
+    window = cosine_taper(len(ad_src), p=p)
+    ad_src = ad_src * window
+    front_pad = np.zeros(n_zeros[0][0])
+    back_pad = np.zeros(orig_length - n_zeros[0][-1] - 1)
+    ad_src = np.concatenate([front_pad, ad_src, back_pad])
 
-    if axis:
-        axis.cla()
-        axis.plot(squared_diff, color="black")
-        axis.set_title("L2-Norm difference - Misfit: %e" % l2norm)
-        axis.set_xlim(0, len(data))
-        s_max = squared_diff.max()
-        axis.set_ylim(-0.1 * s_max, 2.1 * s_max)
-        axis.set_xticks([])
-        # axis.set_yticks([])
-        if not hasattr(axis, "twin_axis"):
-            axis.twin_axis = axis.twinx()
-        ax2 = axis.twin_axis
-        ax2.plot(data, color="black", alpha=0.4)
-        ax2.plot(synthetic, color="red", alpha=0.4)
-        ax2.set_xlim(0, len(data))
-        min_value = min(data.min(), synthetic.min())
-        max_value = max(data.max(), synthetic.max())
-        diff = max_value - min_value
-        ax2.set_ylim(min_value - 1.1 * diff, max_value + 0.1 * diff)
-        ax2.set_xticks([])
-        ax2.set_yticks([])
+    adjoint_source = ad_src[::-1]  # This might need to be polarized
 
     ret_dict = {
         "adjoint_source": adjoint_source,
-        "misfit": l2norm,
-        "messages": []}
+        "misfit_value": l2norm,
+        "details": {"messages": messages}}
+
+    if plot:
+        adjoint_source_plot(t, data, synthetic, adjoint_source, l2norm)
+
     return ret_dict
+
+
+def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit):
+
+    import matplotlib.pyplot as plt
+
+    plt.subplot(211)
+    plt.plot(t, data, color="0.2", label="Data", lw=2)
+    plt.plot(t, synthetic, color="#bb474f",
+             label="Synthetic", lw=2)
+
+    plt.grid()
+    plt.legend(fancybox=True, framealpha=0.5)
+
+    plt.subplot(212)
+    plt.plot(t, adjoint_source[::-1], color="#2f8d5b", lw=2,
+             label="Adjoint Source")
+    plt.grid()
+    plt.legend(fancybox=True, framealpha=0.5)
+
+    plt.title(f"L2Norm Adjoint Source with a Misfit of {misfit}")
