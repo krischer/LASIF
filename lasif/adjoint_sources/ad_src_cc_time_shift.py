@@ -12,6 +12,7 @@ Fichtner et al. (2008).
 """
 import numpy as np
 from scipy.integrate import simps
+from obspy.signal.invsim import cosine_taper
 import obspy.signal.cross_correlation as crosscorr
 from lasif import LASIFError
 
@@ -40,7 +41,7 @@ def cc_time_shift(data, synthetic, dt, shift):
 
 
 def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
-                        plot=False, colorbar_axis=None):
+                        plot=False):
     """
        :rtype: dictionary
        :returns: Return a dictionary with three keys:
@@ -53,34 +54,62 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     messages = []
 
     dt = t[1] - t[0]
-    # Move the maximum period in each direction to avoid cycle skip.
-    shift = int(min_period / dt)
+    # Move the minimum period in each direction to avoid cycle skip.
+    shift = int(min_period / dt)  # This can be adjusted if you wish so.
     # Compute time shift between the two traces.
     time_shift = cc_time_shift(data, synthetic, dt, shift)
-    messages.append(f"time shift was {time_shift} seconds")
+    misfit = 1.0 / 2.0 * time_shift ** 2
+    messages.append(f"Time shift was {time_shift} seconds")
 
     # Now we have the time shift. We need velocity of synthetics.
     vel_syn = np.diff(synthetic) / dt
     norm_const = simps(np.square(vel_syn), dx=dt)
     ad_src = (time_shift / norm_const) * vel_syn * dt
+    orig_length = len(ad_src)
 
+    n_zeros = np.nonzero(ad_src)
+    ad_src = np.trim_zeros(ad_src)
+    len_window = len(ad_src) * dt
+    messages.append(f"Length of window is: {len_window} seconds")
+    ratio = min_period * 2 / len_window
+    p = ratio / 2.0  # We want the minimum window to taper 25% off each side
+    if p > 1.0:  # For manually picked small windows.
+        p = 1.0
+    window = cosine_taper(len(ad_src), p=p)
+    ad_src = ad_src * window
+    front_pad = np.zeros(n_zeros[0][0])
+    back_pad = np.zeros(orig_length - n_zeros[0][-1] - 1)
+    ad_src = np.concatenate([front_pad, ad_src, back_pad])
+    # window = np.concatenate([front_pad, window, back_pad, [0.0]])  # to plot
     ad_src = ad_src[::-1]  # Time reverse
     ad_src = np.concatenate([[0.0], ad_src])  # Add a zero lost in the diff
 
     ret_dict = {"adjoint_source": ad_src,
-                "misfit_value": time_shift,
+                "misfit_value": misfit,
                 "details": {"messages": messages}}
 
     if plot:
-        import matplotlib.pyplot as plt
-
-        plt.subplot(212)
-        plt.plot(t, synthetic, color="red")
-        plt.plot(t, data, color="blue")
-        plt.legend(["Synthetics", "Data"])
-
-        plt.subplot(211)
-        plt.plot(t, ad_src[::-1], color="black")
-        plt.legend(["CrossCorrelation Adjoint Source"])
+        adjoint_source_plot(t, data, synthetic, ad_src, misfit)
 
     return ret_dict
+
+
+def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit):
+
+    import matplotlib.pyplot as plt
+
+    plt.subplot(211)
+    plt.plot(t, data, color="0.2", label="Data", lw=2)
+    plt.plot(t, synthetic, color="#bb474f",
+             label="Synthetic", lw=2)
+
+    plt.grid()
+    plt.legend(fancybox=True, framealpha=0.5)
+
+    plt.subplot(212)
+    plt.plot(t, adjoint_source[::-1], color="#2f8d5b", lw=2,
+             label="Adjoint Source")
+    plt.grid()
+    plt.legend(fancybox=True, framealpha=0.5)
+
+    plt.title(f"Adjoint Source with a Misfit of {misfit}")

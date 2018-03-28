@@ -9,7 +9,7 @@ Project specific function for modifying synthetics on the fly.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-
+import copy
 
 def process_synthetics(st, processing_params, event):  # NOQA
     """
@@ -32,6 +32,7 @@ def process_synthetics(st, processing_params, event):  # NOQA
 
     min_period = processing_params['highpass_period']
     max_period = processing_params['lowpass_period']
+    st = copy.deepcopy(st)  # We do not want to modify actual synthetics
     # Currently a no-op.
     # This function will modify each waveform stream. It must
     # be called process() and it takes three arguments:
@@ -42,8 +43,14 @@ def process_synthetics(st, processing_params, event):  # NOQA
 
     # Assuming displacement seismograms
     for tr in st:
+        print(processing_params["end_time"])
+        print(tr.stats.endtime)
+
+        print(tr.stats.endtime)
         tr.stats.starttime = \
             event["origin_time"] + processing_params["salvus_start_time"]
+        tr.trim(endtime=event["origin_time"] + processing_params["end_time"])
+
     if processing_params["stf"] == "heaviside":
 
         # Bandpass filtering

@@ -7,6 +7,8 @@ import pyasdf
 import os
 import numpy as np
 
+from obspy.signal.invsim import cosine_taper
+
 from lasif import LASIFAdjointSourceCalculationError, LASIFNotFoundError
 from .component import Component
 
@@ -160,9 +162,14 @@ class AdjointSourcesComponent(Component):
         original_stats = copy.deepcopy(data.stats)
         for trace in [data, synth]:
             trace.trim(starttime, endtime)
-            hann = np.hanning(len(trace.data))
-            trace.data = trace.data * hann
-            # trace.taper(type=taper.lower(), max_percentage=0.5)
+            dt = trace.stats.delta
+            len_window = len(trace.data) * dt
+            ratio = min_period * 2.0 / len_window
+            p = ratio / 2.0  # Make minimum window length taper 25% of sides
+            if p > 1.0:  # For manually picked smaller windows
+                p = 1.0
+            window = cosine_taper(len(trace.data), p=p)
+            trace.data = trace.data * window
             trace.trim(original_stats.starttime, original_stats.endtime,
                        pad=True, fill_value=0.0)
 
