@@ -119,14 +119,16 @@ class Window(QtGui.QMainWindow):
                 self.ui.e_graph.plotItem.legend)
         self.ui.e_graph.addLegend(offset=(-2, 2))
 
-        self.ui.e_graph.plot([0], [0], pen="k", name="Data")
+        self.ui.e_graph.plot([0], [0], pen=pg.mkPen("k", width=2), name="Data")
         if self.ui.data_only_CheckBox.isChecked():
             return
-        self.ui.e_graph.plot([0], [0], pen="r", name="Synthetics")
+        self.ui.e_graph.plot([0], [0], pen=pg.mkPen("r", width=2)
+                             , name="Synthetics")
         if self.ui.compare_iterations_CheckBox.isChecked():
             self.ui.e_graph.plot([0], [0],
                                  pen=pg.mkPen("#00b300",
-                                              style=pg.QtCore.Qt.DashLine),
+                                              style=pg.QtCore.Qt.DashLine,
+                                              width=2),
                                  name="Synthetics 2")
 
     def _draw(self):
@@ -326,7 +328,8 @@ class Window(QtGui.QMainWindow):
                     tr = data_tr[0]
                     plot_widget.data_id = tr.id
                     times = tr.times()
-                    plot_widget.plot(times, tr.data, pen="k")
+                    plot_widget.plot(times, tr.data, pen=pg.mkPen("k",
+                                                                  width=2))
                     plot_widget.autoRange()
                     self._update_raypath(coordinates)
             return
@@ -374,7 +377,7 @@ class Window(QtGui.QMainWindow):
                 tr = data_tr[0]
                 plot_widget.data_id = tr.id
                 times = tr.times()
-                plot_widget.plot(times, tr.data, pen="k")
+                plot_widget.plot(times, tr.data, pen=pg.mkPen("k", width=2))
             else:
                 plot_widget.data_id = None
             synth_tr = [_i for _i in wave.synthetics
@@ -382,7 +385,7 @@ class Window(QtGui.QMainWindow):
             if synth_tr:
                 tr = synth_tr[0]
                 times = tr.times()
-                plot_widget.plot(times, tr.data, pen="r", )
+                plot_widget.plot(times, tr.data, pen=pg.mkPen("r", width=2), )
 
             if self.ui.compare_iterations_CheckBox.isChecked():
                 compare_synth_tr = \
@@ -394,7 +397,8 @@ class Window(QtGui.QMainWindow):
                     times = tr.times()
                     plot_widget.plot(
                         times, tr.data,
-                        pen=pg.mkPen("#00b300", style=pg.QtCore.Qt.DashLine), )
+                        pen=pg.mkPen("#00b300", style=pg.QtCore.Qt.DashLine,
+                                     width=2), )
 
             if data_tr or synth_tr:
                 for tt in tts:

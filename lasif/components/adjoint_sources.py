@@ -76,21 +76,22 @@ class AdjointSourcesComponent(Component):
             adj_src_data = ds.auxiliary_data["AdjointSources"]
             stations = ds.auxiliary_data["AdjointSources"].list()
 
-        total_misfit = 0.0
-        for station in stations:
-            channels = adj_src_data[station].list()
-            for channel in channels:
-                if weight_set_name:
-                    station_weight = \
-                        station_weights[station]["station_weight"]
-                    misfit = \
-                        adj_src_data[station][channel].parameters["misfit"] * \
-                        station_weight
-                else:
-                    misfit = \
-                        adj_src_data[station][channel].parameters["misfit"]
-                total_misfit += misfit
-
+            total_misfit = 0.0
+            for station in stations:
+                channels = adj_src_data[station].list()
+                for channel in channels:
+                    if weight_set_name:
+                        station_weight = \
+                            station_weights[".".join(station.split("_"))] \
+                            ["station_weight"]
+                        misfit = \
+                            adj_src_data[station][channel].\
+                                parameters["misfit"] * \
+                            station_weight
+                    else:
+                        misfit = \
+                            adj_src_data[station][channel].parameters["misfit"]
+                    total_misfit += misfit
         return total_misfit * event_weight
 
     def write_adjoint_sources(self, event, iteration, adj_sources):

@@ -547,10 +547,6 @@ def lasif_retrieve_all_output(parser, args):
             shutil.rmtree(output_dir)
         job_name = f"{event}_{long_iter_name}_{simulation_type}@daint"
         salvus_flow.api.get_output(job=job_name, destination=output_dir)
-        # command = f"salvus-flow get-output {job_name} {output_dir}"
-        # os.system(command)
-        # time.sleep(2)
-        print(f"Retrieved {job_name}")
 
 
 @command_group("Event Management")
@@ -1077,6 +1073,8 @@ def lasif_plot_window_statistics(parser, args):
     """
     Plot the selected windows.
     """
+    parser.add_argument("--save", help="Saves the plot in a file",
+                        action="store_true")
     parser.add_argument("window_set_name", help="name of the window set")
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
@@ -1086,12 +1084,26 @@ def lasif_plot_window_statistics(parser, args):
     window_set_name = args.window_set_name
     comm = _find_project_comm(".")
 
+    import matplotlib.pyplot as plt
+    if args.save:
+        plt.switch_backend('agg')
+
     if not comm.windows.has_window_set(window_set_name):
         raise LASIFNotFoundError("Could not find the specified window set")
 
     events = args.events if args.events else comm.events.list()
     comm.visualizations.plot_window_statistics(
-        window_set_name, events, ax=None, show=True)
+        window_set_name, events, ax=None, show=False)
+
+    if args.save:
+        outfile = os.path.join(
+            comm.project.get_output_folder(
+                type="window_statistics_plots", tag="windows", timestamp=False),
+            f"{window_set_name}.png", )
+        plt.savefig(outfile, dpi=200, transparent=True)
+        print("Saved picture at %s" % outfile)
+    else:
+        plt.show()
 
 
 @command_group("Plotting")
