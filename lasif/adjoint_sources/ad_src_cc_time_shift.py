@@ -62,7 +62,7 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     messages.append(f"Time shift was {time_shift} seconds")
 
     # Now we have the time shift. We need velocity of synthetics.
-    vel_syn = np.diff(synthetic) / dt
+    vel_syn = np.gradient(synthetic) / dt
     norm_const = simps(np.square(vel_syn), dx=dt)
     ad_src = (time_shift / norm_const) * vel_syn * dt
     orig_length = len(ad_src)
@@ -70,8 +70,22 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     n_zeros = np.nonzero(ad_src)
     ad_src = np.trim_zeros(ad_src)
     len_window = len(ad_src) * dt
+
+    # return an empty adjoint source if window is too short to be meaningful
+    if len_window < 2 * min_period:
+        warning = "Window length to short to compute a meaningful misfit" \
+                  "and adjoint source"
+        messages.append(warning)
+        misfit = 0.0
+        ret_dict = {"adjoint_source": np.zeros_like(data),
+                    "misfit_value": misfit,
+                    "details": {"messages": messages}}
+        return ret_dict
+
     messages.append(f"Length of window is: {len_window} seconds")
-    ratio = min_period * 2 / len_window
+
+    # Taper the adjoint source again
+    ratio = min_period * 2.0 / len_window
     p = ratio / 2.0  # We want the minimum window to taper 25% off each side
     if p > 1.0:  # For manually picked small windows.
         p = 1.0
@@ -80,9 +94,9 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     front_pad = np.zeros(n_zeros[0][0])
     back_pad = np.zeros(orig_length - n_zeros[0][-1] - 1)
     ad_src = np.concatenate([front_pad, ad_src, back_pad])
+
     # window = np.concatenate([front_pad, window, back_pad, [0.0]])  # to plot
     ad_src = ad_src[::-1]  # Time reverse
-    ad_src = np.concatenate([[0.0], ad_src])  # Add a zero lost in the diff
 
     ret_dict = {"adjoint_source": ad_src,
                 "misfit_value": misfit,
