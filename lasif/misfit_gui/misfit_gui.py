@@ -122,8 +122,8 @@ class Window(QtGui.QMainWindow):
         self.ui.e_graph.plot([0], [0], pen=pg.mkPen("k", width=2), name="Data")
         if self.ui.data_only_CheckBox.isChecked():
             return
-        self.ui.e_graph.plot([0], [0], pen=pg.mkPen("r", width=2)
-                             , name="Synthetics")
+        self.ui.e_graph.plot([0], [0], pen=pg.mkPen("r", width=2),
+                             name="Synthetics")
         if self.ui.compare_iterations_CheckBox.isChecked():
             self.ui.e_graph.plot([0], [0],
                                  pen=pg.mkPen("#00b300",

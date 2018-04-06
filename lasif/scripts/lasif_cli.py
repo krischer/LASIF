@@ -1098,8 +1098,8 @@ def lasif_plot_window_statistics(parser, args):
     if args.save:
         outfile = os.path.join(
             comm.project.get_output_folder(
-                type="window_statistics_plots", tag="windows", timestamp=False),
-            f"{window_set_name}.png", )
+                type="window_statistics_plots", tag="windows",
+                timestamp=False), f"{window_set_name}.png", )
         plt.savefig(outfile, dpi=200, transparent=True)
         print("Saved picture at %s" % outfile)
     else:

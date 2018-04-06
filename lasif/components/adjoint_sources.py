@@ -82,12 +82,11 @@ class AdjointSourcesComponent(Component):
                 for channel in channels:
                     if weight_set_name:
                         station_weight = \
-                            station_weights[".".join(station.split("_"))] \
-                            ["station_weight"]
+                            station_weights[".".join(
+                                station.split("_"))]["station_weight"]
                         misfit = \
-                            adj_src_data[station][channel].\
-                                parameters["misfit"] * \
-                            station_weight
+                            adj_src_data[station][channel].parameters[
+                                "misfit"] * station_weight
                     else:
                         misfit = \
                             adj_src_data[station][channel].parameters["misfit"]
