@@ -74,11 +74,12 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
                                                       self.channel_name)
 
         process_params = self.comm.project.processing_params
+        adj_src = self.comm.project.config["misfit_type"]
         self.comm.adj_sources.calculate_adjoint_source(
             data=data.data[0], synth=data.synthetics[0], starttime=self.start,
             endtime=self.end, taper="hann",
             taper_percentage=0.05,
             min_period=process_params["highpass_period"],
             max_period=process_params["lowpass_period"],
-            ad_src_type="TimeFrequencyPhaseMisfitFichtner2008", plot=True)
+            ad_src_type=adj_src, plot=True)
         plt.show()

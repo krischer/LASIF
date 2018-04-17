@@ -178,6 +178,7 @@ class ActionsComponent(Component):
                 windows = all_windows[station][data_tr.id]
                 try:
                     for starttime, endtime in windows:
+                        config = self.comm.project.config
                         asrc = \
                             self.comm.\
                             adj_sources.calculate_adjoint_source(
@@ -186,8 +187,7 @@ class ActionsComponent(Component):
                                 taper="hann", taper_percentage=0.05,
                                 min_period=process_params["highpass_period"],
                                 max_period=process_params["lowpass_period"],
-                                ad_src_type="TimeFrequency"
-                                            "PhaseMisfitFichtner2008")
+                                ad_src_type=config["misfit_type"])
                         adj_srcs.append(asrc)
                 except:
                     # Either pass or fail for the whole component.
@@ -587,7 +587,8 @@ class ActionsComponent(Component):
         source.attrs["dt"] = delta
         source.attrs["location"] = location
         source.attrs["spatial-type"] = np.string_("moment_tensor")
-        source.attrs["starttime"] = -delta
+        # Start time in nanoseconds
+        source.attrs["starttime"] = -delta * 1.0e9
 
         f.close()
 
@@ -678,8 +679,8 @@ class ActionsComponent(Component):
         event_weight = 1.0
         if weight_set_name:
             ws = self.comm.weights.get(weight_set_name)
-            event_weight = ws.events[event]["event_weight"]
-            station_weights = ws.events[event]["stations"]
+            event_weight = ws.events[event_name]["event_weight"]
+            station_weights = ws.events[event_name]["stations"]
 
         for adj_src in adj_srcs:
             station_name = adj_src.auxiliary_data_type.split("/")[1]
@@ -721,8 +722,9 @@ class ActionsComponent(Component):
                     source.attrs['location'] = np.array(
                         receiver["salvus_coordinates"])
                     source.attrs['spatial-type'] = np.string_("vector")
+                    # Start time in nanoseconds
                     source.attrs['starttime'] = self.comm.project. \
-                        solver_settings["start_time"]
+                        solver_settings["start_time"] * 1.0e9
 
                     toml_string += f"[[source]]\n" \
                                    f"name = \"{station}\"\n" \

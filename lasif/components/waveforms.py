@@ -175,9 +175,13 @@ class WaveformsComponent(Component):
             with open(info_file, "r") as fh:
                 iter_info = toml.load(fh)
             processing_params = iter_info["parameters"]
+            processing_params["end_time"] = \
+                self.comm.project.solver_settings["end_time"]
         else:
             processing_params = self.comm.project.processing_params
             processing_params["salvus_start_time"] = \
+                self.comm.project.solver_settings["start_time"]
+            processing_params["end_time"] = \
                 self.comm.project.solver_settings["start_time"]
         return fct(st, processing_params,
                    event=self.comm.events.get(event_name))

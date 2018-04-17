@@ -6,6 +6,7 @@ import copy
 import pyasdf
 import os
 import numpy as np
+from obspy.signal.invsim import cosine_taper
 
 from lasif import LASIFAdjointSourceCalculationError, LASIFNotFoundError
 from .component import Component
@@ -75,21 +76,21 @@ class AdjointSourcesComponent(Component):
             adj_src_data = ds.auxiliary_data["AdjointSources"]
             stations = ds.auxiliary_data["AdjointSources"].list()
 
-        total_misfit = 0.0
-        for station in stations:
-            channels = adj_src_data[station].list()
-            for channel in channels:
-                if weight_set_name:
-                    station_weight = \
-                        station_weights[station]["station_weight"]
-                    misfit = \
-                        adj_src_data[station][channel].parameters["misfit"] * \
-                        station_weight
-                else:
-                    misfit = \
-                        adj_src_data[station][channel].parameters["misfit"]
-                total_misfit += misfit
-
+            total_misfit = 0.0
+            for station in stations:
+                channels = adj_src_data[station].list()
+                for channel in channels:
+                    if weight_set_name:
+                        station_weight = \
+                            station_weights[".".join(
+                                station.split("_"))]["station_weight"]
+                        misfit = \
+                            adj_src_data[station][channel].parameters[
+                                "misfit"] * station_weight
+                    else:
+                        misfit = \
+                            adj_src_data[station][channel].parameters["misfit"]
+                    total_misfit += misfit
         return total_misfit * event_weight
 
     def write_adjoint_sources(self, event, iteration, adj_sources):
@@ -139,6 +140,7 @@ class AdjointSourcesComponent(Component):
         # copy because otherwise the passed traces get modified
         data = copy.deepcopy(data)
         synth = copy.deepcopy(synth)
+
         if ad_src_type not in MISFIT_MAPPING:
             raise LASIFAdjointSourceCalculationError(
                 "Adjoint source type '%s' not supported. Supported types: %s"
@@ -157,14 +159,20 @@ class AdjointSourcesComponent(Component):
                 "Sampling rate not similar enough.")
 
         original_stats = copy.deepcopy(data.stats)
-
         for trace in [data, synth]:
             trace.trim(starttime, endtime)
-            trace.taper(type=taper.lower(), max_percentage=taper_percentage)
+            dt = trace.stats.delta
+            len_window = len(trace.data) * dt
+            ratio = min_period * 2.0 / len_window
+            p = ratio / 2.0  # Make minimum window length taper 25% of sides
+            if p > 1.0:  # For manually picked smaller windows
+                p = 1.0
+            window = cosine_taper(len(trace.data), p=p)
+            trace.data = trace.data * window
             trace.trim(original_stats.starttime, original_stats.endtime,
                        pad=True, fill_value=0.0)
 
-        #  make time axis
+        # make time axis
         t = np.linspace(0, (original_stats.npts - 1) * original_stats.delta,
                         original_stats.npts)
 
@@ -172,7 +180,6 @@ class AdjointSourcesComponent(Component):
         t = np.require(t, dtype="float64", requirements="C")
         data_d = np.require(data.data, dtype="float64", requirements="C")
         synth_d = np.require(synth.data, dtype="float64", requirements="C")
-
         #  compute misfit and adjoint source
         adsrc = MISFIT_MAPPING[ad_src_type](
             t, data_d, synth_d, min_period=min_period,

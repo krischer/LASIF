@@ -11,196 +11,119 @@ Fichtner et al. (2008).
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import numpy as np
-from scipy.interpolate import interp1d
-from scipy.interpolate import RectBivariateSpline
-import warnings
+from scipy.integrate import simps
+from obspy.signal.invsim import cosine_taper
+import obspy.signal.cross_correlation as crosscorr
+from lasif import LASIFError
 
-from lasif.adjoint_sources import time_frequency
 
-eps = np.spacing(1)
+def cc_time_shift(data, synthetic, dt, shift):
+    """
+    Compute the time shift between two traces by crosscorrelating them.
+    :param data: real data
+    :param synthetic: synthetic data
+    :param dt: Time step
+    :param shift: How far to shift to both directions in the crosscorr
+    :return: A value of the time misfit between the two traces.
+    """
+    # See whether the lengths are the same:
+    if not len(data) == len(synthetic):
+        raise LASIFError("\n\n Data and Synthetics do not have equal number"
+                         " of points. Might be something wrong with your"
+                         " processing.")
+
+    cc = crosscorr.correlate(a=synthetic, b=data, shift=shift)
+
+    shift = np.argmax(cc) - shift  # Correct shift in the cross_corr
+    time_shift = dt * shift
+
+    return time_shift
 
 
 def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
-                        axis=None, colorbar_axis=None):
+                        plot=False):
     """
-    :rtype: dictionary
-    :returns: Return a dictionary with three keys:
-        * adjoint_source: The calculated adjoint source as a numpy array
-        * misfit: The misfit value
-        * messages: A list of strings giving additional hints to what happened
-            in the calculation.
+       :rtype: dictionary
+       :returns: Return a dictionary with three keys:
+           * adjoint_source: The calculated adjoint source as a numpy array
+           * misfit: The misfit value
+           * messages: A list of strings giving additional hints to what
+                happened in the calculation.
     """
 
     messages = []
 
-    # Compute time-frequency representations ----------------------------------
+    dt = t[1] - t[0]
+    # Move the minimum period in each direction to avoid cycle skip.
+    shift = int(min_period / dt)  # This can be adjusted if you wish so.
+    # Compute time shift between the two traces.
+    time_shift = cc_time_shift(data, synthetic, dt, shift)
+    misfit = 1.0 / 2.0 * time_shift ** 2
+    messages.append(f"Time shift was {time_shift} seconds")
 
-    # compute new time increments and Gaussian window width for the
-    # time-frequency transforms
-    dt_new = float(int(min_period / 3.0))
-    width = 2.0 * min_period
+    # Now we have the time shift. We need velocity of synthetics.
+    vel_syn = np.gradient(synthetic) / dt
+    norm_const = simps(np.square(vel_syn), dx=dt)
+    ad_src = (time_shift / norm_const) * vel_syn * dt
+    orig_length = len(ad_src)
 
-    # Compute time-frequency representation of the cross-correlation
-    tau_cc, nu_cc, tf_cc = time_frequency.time_frequency_cc_difference(
-        t, data, synthetic, dt_new, width)
-    # Compute the time-frequency representation of the synthetic
-    tau, nu, tf_synth = time_frequency.time_frequency_transform(t, synthetic,
-                                                                dt_new, width)
+    n_zeros = np.nonzero(ad_src)
+    ad_src = np.trim_zeros(ad_src)
+    len_window = len(ad_src) * dt
 
-    # 2D interpolation to bring the tf representation of the correlation on the
-    # same grid as the tf representation of the synthetics. Uses a two-step
-    # procedure for real and imaginary parts.
-    tf_cc_interp = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.real,
-                                       kx=1, ky=1, s=0)(tau[0], nu[:, 0])
-    tf_cc_interp = np.require(tf_cc_interp, dtype="complex128")
-    tf_cc_interp.imag = RectBivariateSpline(tau_cc[0], nu_cc[:, 0], tf_cc.imag,
-                                            kx=1, ky=1, s=0)(tau[0], nu[:, 0])
-    tf_cc = tf_cc_interp
-
-    # compute tf window and weighting function --------------------------------
-
-    # noise taper: downweigh tf amplitudes that are very low
-    m = np.abs(tf_cc).max() / 10.0
-    weight = 1.0 - np.exp(-(np.abs(tf_cc) ** 2) / (m ** 2))
-    nu_t = nu.transpose()
-
-    # highpass filter (periods longer than max_period are suppressed
-    # exponentially)
-    weight *= (1.0 - np.exp(-(nu_t * max_period) ** 2))
-
-    # lowpass filter (periods shorter than min_period are suppressed
-    # exponentially)
-    nu_t_large = np.zeros(nu_t.shape)
-    nu_t_small = np.zeros(nu_t.shape)
-    thres = (nu_t <= 1.0 / min_period)
-    nu_t_large[np.invert(thres)] = 1.0
-    nu_t_small[thres] = 1.0
-    weight *= (np.exp(-10.0 * np.abs(nu_t * min_period - 1.0)) * nu_t_large +
-               nu_t_small)
-
-    # normalisation
-    weight /= weight.max()
-
-    # computation of phase difference, make quality checks and misfit ---------
-
-    # Compute the phase difference.
-    # DP = np.imag(np.log(m + tf_cc / (2 * m + np.abs(tf_cc))))
-    DP = np.angle(tf_cc)
-
-    # Attempt to detect phase jumps by taking the derivatives in time and
-    # frequency direction. 0.7 is an emperical value.
-    test_field = weight * DP / np.abs(weight * DP).max()
-    criterion_1 = np.sum([np.abs(np.diff(test_field, axis=0)) > 0.7])
-    criterion_2 = np.sum([np.abs(np.diff(test_field, axis=1)) > 0.7])
-    criterion = np.sum([criterion_1, criterion_2])
-    # criterion_1 = np.abs(np.diff(test_field, axis=0)).max()
-    # criterion_2 = np.abs(np.diff(test_field, axis=1)).max()
-    # criterion = max(criterion_1, criterion_2)
-    if criterion > 7.0:
-        warning = ("Possible phase jump detected. Misfit included. No "
-                   "adjoint source computed.")
-        warnings.warn(warning)
+    # return an empty adjoint source if window is too short to be meaningful
+    if len_window < 2 * min_period:
+        warning = "Window length to short to compute a meaningful misfit" \
+                  "and adjoint source"
         messages.append(warning)
+        misfit = 0.0
+        ret_dict = {"adjoint_source": np.zeros_like(data),
+                    "misfit_value": misfit,
+                    "details": {"messages": messages}}
+        return ret_dict
 
-    # Compute the phase misfit
-    dnu = nu[1, 0] - nu[0, 0]
-    phase_misfit = np.sqrt(np.sum(weight ** 2 * DP ** 2) * dt_new * dnu)
+    messages.append(f"Length of window is: {len_window} seconds")
 
-    # Sanity check. Should not occur.
-    if np.isnan(phase_misfit):
-        msg = "The phase misfit is NaN."
-        raise Exception(msg)
+    # Taper the adjoint source again
+    ratio = min_period * 2.0 / len_window
+    p = ratio / 2.0  # We want the minimum window to taper 25% off each side
+    if p > 1.0:  # For manually picked small windows.
+        p = 1.0
+    window = cosine_taper(len(ad_src), p=p)
+    ad_src = ad_src * window
+    front_pad = np.zeros(n_zeros[0][0])
+    back_pad = np.zeros(orig_length - n_zeros[0][-1] - 1)
+    ad_src = np.concatenate([front_pad, ad_src, back_pad])
 
-    # compute the adjoint source when no phase jump detected ------------------
+    # window = np.concatenate([front_pad, window, back_pad, [0.0]])  # to plot
+    ad_src = ad_src[::-1]  # Time reverse
 
-    if criterion <= 7.0:
-        # Make kernel for the inverse tf transform
-        idp = weight * weight * DP * tf_synth / (m + np.abs(tf_synth) *
-                                                 np.abs(tf_synth))
+    ret_dict = {"adjoint_source": ad_src,
+                "misfit_value": misfit,
+                "details": {"messages": messages}}
 
-        # Invert tf transform and make adjoint source
-        ad_src, it, I = time_frequency.itfa(tau, nu, idp, width)
-
-        # Interpolate to original time axis
-        current_time = tau[0, :]
-        new_time = t[t <= current_time.max()]
-        ad_src = interp1d(current_time, np.imag(ad_src), kind=2)(new_time)
-        if len(t) > len(new_time):
-            ad_src = np.concatenate([ad_src, np.zeros(len(t) - len(new_time))])
-
-        # Divide by the misfit.
-        ad_src /= (phase_misfit + eps)
-        ad_src = np.diff(ad_src) / (t[1] - t[0])
-
-        # Reverse time and add a leading zero so the adjoint source has the
-        # same length as the input time series.
-        ad_src = ad_src[::-1]
-        ad_src = np.concatenate([[0.0], ad_src])
-
-    else:
-        ad_src = np.zeros(len(t))
-
-    # Plot if required. -------------------------------------------------------
-
-    if axis:
-        import matplotlib.cm as cm
-        import matplotlib.pyplot as plt
-
-        # Primary axis: plot weighted phase difference. -----------------------
-
-        weighted_phase_difference = (DP * weight).transpose()
-        abs_diff = np.abs(weighted_phase_difference)
-        mappable = axis.pcolormesh(tau, nu, weighted_phase_difference,
-                                   vmin=-1.0, vmax=1.0, cmap=cm.RdBu_r)
-        axis.set_xlabel("Seconds since event")
-        axis.set_ylabel("Frequency [Hz]")
-
-        # Smart scaling for the frequency axis.
-        temp = abs_diff.max(axis=1) * (nu[1] - nu[0])
-        ymax = len(temp[temp > temp.max() / 1000.0])
-        ymax *= nu[1, 0] - nu[0, 0]
-        ymax *= 2
-        axis.set_ylim(0, 2.0 / min_period)
-
-        if colorbar_axis:
-            cm = plt.gcf().colorbar(mappable, cax=colorbar_axis)
-        else:
-            cm = plt.gcf().colorbar(mappable, ax=axis)
-        cm.set_label("Phase difference in radian")
-
-        # Secondary axis: plot waveforms and adjoint source. ------------------
-
-        ax2 = axis.twinx()
-
-        ax2.plot(t, ad_src, color="black", alpha=1.0)
-        min_value = min(ad_src.min(), -1.0)
-        max_value = max(ad_src.max(), 1.0)
-
-        value_range = max_value - min_value
-        axis.twin_axis = ax2
-        ax2.set_ylim(min_value - 2.5 * value_range,
-                     max_value + 0.5 * value_range)
-        axis.set_xlim(0, tau[:, -1][-1])
-        ax2.set_xlim(0, tau[:, -1][-1])
-        ax2.set_yticks([])
-
-        text = "Misfit: %.4f" % phase_misfit
-        axis.text(x=0.99, y=0.02, s=text, transform=axis.transAxes,
-                  bbox=dict(facecolor='orange', alpha=0.8),
-                  verticalalignment="bottom",
-                  horizontalalignment="right")
-
-        if messages:
-            message = "\n".join(messages)
-            axis.text(x=0.99, y=0.98, s=message, transform=axis.transAxes,
-                      bbox=dict(facecolor='red', alpha=0.8),
-                      verticalalignment="top",
-                      horizontalalignment="right")
-
-    ret_dict = {
-        "adjoint_source": ad_src,
-        "misfit_value": phase_misfit,
-        "details": {"messages": messages}
-    }
+    if plot:
+        adjoint_source_plot(t, data, synthetic, ad_src, misfit)
 
     return ret_dict
+
+
+def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit):
+
+    import matplotlib.pyplot as plt
+
+    plt.subplot(211)
+    plt.plot(t, data, color="0.2", label="Data", lw=2)
+    plt.plot(t, synthetic, color="#bb474f",
+             label="Synthetic", lw=2)
+
+    plt.grid()
+    plt.legend(fancybox=True, framealpha=0.5)
+
+    plt.subplot(212)
+    plt.plot(t, adjoint_source[::-1], color="#2f8d5b", lw=2,
+             label="Adjoint Source")
+    plt.grid()
+    plt.legend(fancybox=True, framealpha=0.5)
+
+    plt.title(f"CCTimeShift Adjoint Source with a Misfit of {misfit}")

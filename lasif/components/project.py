@@ -162,13 +162,14 @@ class Project(Component):
                              f"and \"bandpass_filtered_heaviside\". \n"
                              f"Please modify your config file.")
         if misfit not in ("TimeFrequencyPhaseMisfitFichtner2008",
-                          "CCTimeShift"):
+                          "CCTimeShift", "L2Norm"):
             raise LASIFError(f"\n\nMisfit type {misfit} is not supported "
                              f"by LASIF. \n"
                              f"Currently the only supported misfit type"
                              f" is:\n "
-                             f"\"TimeFrequencyPhaseMisfitFichtner2008\" and "
-                             f"\n \"CCTimeShift\".")
+                             f"\"TimeFrequencyPhaseMisfitFichtner2008\" ,"
+                             f"\n \"CCTimeShift\" and "
+                             f"\n \"L2Norm\".")
 
     def get_communicator(self):
         return self.__comm
