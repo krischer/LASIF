@@ -953,6 +953,9 @@ def lasif_compare_misfits(parser, args):
     parser.add_argument("from_iteration",
                         help="past iteration")
     parser.add_argument("to_iteration", help="current iteration")
+    parser.add_argument(
+        "events", help="One or more events. If none given, all will be done.",
+        nargs="*")
     parser.add_argument("--weight_set_name", default=None, type=str,
                         help="Set of station and event weights")
     parser.add_argument("--print_events", help="compare misfits"
@@ -965,6 +968,7 @@ def lasif_compare_misfits(parser, args):
     from_it = args.from_iteration
     to_it = args.to_iteration
     weight_set_name = args.weight_set_name
+    events = args.events if args.events else comm.events.list()
 
     if weight_set_name:
         if not comm.weights.has_weight_set(weight_set_name):
@@ -978,7 +982,7 @@ def lasif_compare_misfits(parser, args):
 
     from_it_misfit = 0.0
     to_it_misfit = 0.0
-    for event in comm.events.list():
+    for event in events:
         from_it_misfit += \
             comm.adj_sources.get_misfit_for_event(event,
                                                   args.from_iteration,
