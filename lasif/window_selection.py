@@ -558,13 +558,14 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
     # Account for delays in the source time functions as well
     min_idx = int((first_tt_arrival - (minimum_period / 2.0)) / dt)
     stf_env = obspy.signal.filter.envelope(stf_trace)
-    threshold = 0.05 * np.max(stf_env.data)
+
     max_env_amplitude_idx = np.argmax(stf_env.data)
 
     max_idx = int(math.ceil((
         dist_in_km / min_velocity + minimum_period / 2.0) / dt))
-    max_idx += int(np.argmax(stf_env[max_env_amplitude_idx:] < threshold) +
-                   np.argmax(stf_env.data))
+
+    # shift by peak of envelope misfit
+    max_idx += max_env_amplitude_idx
 
     time_windows.mask[:min_idx + 1] = True
     time_windows.mask[max_idx:] = True
