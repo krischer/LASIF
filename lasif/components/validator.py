@@ -333,10 +333,12 @@ class ValidatorComponent(Component):
             mag_in_file = event.preferred_magnitude() or event.magnitudes[0]
             mag_in_file = mag_in_file.mag
             M_0 = 1.0 / math.sqrt(2.0) * math.sqrt(
-                tensor.m_rr ** 2 + tensor.m_tt ** 2 + tensor.m_pp ** 2)
+                tensor.m_rr ** 2 + tensor.m_tt ** 2 + tensor.m_pp ** 2 +
+                2 * (tensor.m_rt ** 2) + 2 * (tensor.m_tp ** 2) +
+                2 * (tensor.m_rp ** 2))
             magnitude = 2.0 / 3.0 * math.log10(M_0) - 6.0
             # Use some buffer to account for different magnitudes.
-            if not (mag_in_file - 1.0) < magnitude < (mag_in_file + 1.0):
+            if not (mag_in_file - 0.3) < magnitude < (mag_in_file + 0.3):
                 all_good = False
                 print_warning(
                     filename, "a moment tensor that would result in a moment "

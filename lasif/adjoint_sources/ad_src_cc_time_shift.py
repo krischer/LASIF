@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-An implementation of the time frequency phase misfit and adjoint source after
-Fichtner et al. (2008).
+An implementation of the cross correlation time shift adjoint source.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+    Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch)
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)

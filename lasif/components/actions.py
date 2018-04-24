@@ -184,10 +184,14 @@ class ActionsComponent(Component):
                             adj_sources.calculate_adjoint_source(
                                 data=data_tr, synth=synth_tr,
                                 starttime=starttime, endtime=endtime,
-                                taper="hann", taper_percentage=0.05,
                                 min_period=process_params["highpass_period"],
                                 max_period=process_params["lowpass_period"],
-                                ad_src_type=config["misfit_type"])
+                                ad_src_type=config["misfit_type"],
+                                event=event["event_name"],
+                                station=synthetic_station._station_name,
+                                iteration=iteration,
+                                comm=component,
+                                window_set=window_set_name)
                         adj_srcs.append(asrc)
                 except:
                     # Either pass or fail for the whole component.

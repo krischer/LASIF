@@ -14,12 +14,14 @@ from .component import Component
 from ..adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 from ..adjoint_sources.ad_src_l2_norm_misfit import adsrc_l2_norm_misfit
 from ..adjoint_sources.ad_src_cc_time_shift import adsrc_cc_time_shift
+from ..adjoint_sources.ad_src_cc_dd import double_difference_adjoint
 
 # Map the adjoint source type names to functions implementing them.
 MISFIT_MAPPING = {
     "TimeFrequencyPhaseMisfitFichtner2008": adsrc_tf_phase_misfit,
     "L2Norm": adsrc_l2_norm_misfit,
-    "CCTimeShift": adsrc_cc_time_shift
+    "CCTimeShift": adsrc_cc_time_shift,
+    "DoubleDifference": double_difference_adjoint
 }
 
 
@@ -120,9 +122,10 @@ class AdjointSourcesComponent(Component):
                     adj_src_counter += 1
         print("Wrote %i adjoint_sources to the ASDF file." % adj_src_counter)
 
-    def calculate_adjoint_source(self, data, synth, starttime, endtime, taper,
-                                 taper_percentage, min_period,
-                                 max_period, ad_src_type, plot=False):
+    def calculate_adjoint_source(self, data, synth, starttime, endtime,
+                                 min_period, max_period, ad_src_type,
+                                 event, station, iteration, comm,
+                                 window_set, plot=False):
         """
         Calculates an adjoint source for a single window.
 
@@ -131,9 +134,6 @@ class AdjointSourcesComponent(Component):
         :param channel_id: The channel id in the form NET.STA.NET.CHA.
         :param starttime: The starttime of the window.
         :param endtime: The endtime of the window.
-        :param taper: How to taper the window.
-        :param taper_percentage: The taper percentage at one end as a
-            decimal number ranging from 0.0 to 0.5 for a full width taper.
         :param ad_src_type: The type of adjoint source. Currently supported
             are ``"TimeFrequencyPhaseMisfitFichtner2008"`` and ``"L2Norm"``.
         """
@@ -159,18 +159,20 @@ class AdjointSourcesComponent(Component):
                 "Sampling rate not similar enough.")
 
         original_stats = copy.deepcopy(data.stats)
-        for trace in [data, synth]:
-            trace.trim(starttime, endtime)
-            dt = trace.stats.delta
-            len_window = len(trace.data) * dt
-            ratio = min_period * 2.0 / len_window
-            p = ratio / 2.0  # Make minimum window length taper 25% of sides
-            if p > 1.0:  # For manually picked smaller windows
-                p = 1.0
-            window = cosine_taper(len(trace.data), p=p)
-            trace.data = trace.data * window
-            trace.trim(original_stats.starttime, original_stats.endtime,
-                       pad=True, fill_value=0.0)
+        if ad_src_type != "DoubleDifference":
+            for trace in [data, synth]:
+                trace.trim(starttime, endtime)
+                dt = trace.stats.delta
+                len_window = len(trace.data) * dt
+                ratio = min_period * 2.0 / len_window
+                # Make minimum window length taper 25% of sides
+                p = ratio / 2.0
+                if p > 1.0:  # For manually picked smaller windows
+                    p = 1.0
+                window = cosine_taper(len(trace.data), p=p)
+                trace.data = trace.data * window
+                trace.trim(original_stats.starttime, original_stats.endtime,
+                           pad=True, fill_value=0.0)
 
         # make time axis
         t = np.linspace(0, (original_stats.npts - 1) * original_stats.delta,
@@ -181,9 +183,23 @@ class AdjointSourcesComponent(Component):
         data_d = np.require(data.data, dtype="float64", requirements="C")
         synth_d = np.require(synth.data, dtype="float64", requirements="C")
         #  compute misfit and adjoint source
-        adsrc = MISFIT_MAPPING[ad_src_type](
-            t, data_d, synth_d, min_period=min_period,
-            max_period=max_period, plot=plot)
+        if ad_src_type != "DoubleDifference":
+            adsrc = MISFIT_MAPPING[ad_src_type](
+                t, data_d, synth_d, min_period=min_period,
+                max_period=max_period, plot=plot)
+        else:
+            window = [starttime, endtime]
+            adsrc = double_difference_adjoint(t=t, data=data_d,
+                                              synthetic=synth_d,
+                                              min_period=min_period,
+                                              window=window,
+                                              event=event,
+                                              station_name=station,
+                                              original_stats=original_stats,
+                                              iteration=iteration,
+                                              comm=comm,
+                                              window_set=window_set,
+                                              plot=plot)
 
         # Recreate dictionary for clarity.
         ret_val = {

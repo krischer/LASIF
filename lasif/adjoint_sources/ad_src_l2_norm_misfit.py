@@ -4,7 +4,7 @@
 Simple L2-norm misfit.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2013
+    Solvi Thrastarson (soelvi.thrastarson@erdw.ethz.ch)
 :license:
     GNU Lesser General Public License, Version 3
     (http://www.gnu.org/copyleft/lesser.html)
@@ -39,8 +39,8 @@ def adsrc_l2_norm_misfit(t, data, synthetic, min_period, max_period,
     dt = t[1] - t[0]
     diff = synthetic - data
     diff = np.require(diff, dtype="float64")
-    l2norm = simps(np.square(diff), dx=dt)
-    ad_src = diff
+    l2norm = 0.5 * simps(np.square(diff), dx=dt)
+    ad_src = diff * dt
 
     orig_length = len(ad_src)
     n_zeros = np.nonzero(ad_src)

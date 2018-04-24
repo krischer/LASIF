@@ -3,9 +3,6 @@
 from PyQt5 import QtCore
 import pyqtgraph
 
-# TODO make DEFAULT_AD_SRC_TYPE a variable in config
-DEFAULT_AD_SRC_TYPE = "TimeFrequencyPhaseMisfitFichtner2008"
-
 
 class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
     def __init__(self, window_group_manager, channel_name, iteration,
@@ -68,6 +65,13 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         import matplotlib.pyplot as plt
         plt.close("all")
         plt.figure(figsize=(15, 10))
+        station = self.channel_name.split(".")
+        station = '_'.join([station[0], station[1]])
+        print(station)
+        window_set = self.win_grp_manager.filename
+        window_set = window_set.split('/')
+        window_set = window_set[-1]
+        window_set = window_set[0:-7]
 
         data = self.comm.query.get_matching_waveforms(self.event_name,
                                                       self.iteration,
@@ -77,9 +81,10 @@ class WindowLinearRegionItem(pyqtgraph.LinearRegionItem):
         adj_src = self.comm.project.config["misfit_type"]
         self.comm.adj_sources.calculate_adjoint_source(
             data=data.data[0], synth=data.synthetics[0], starttime=self.start,
-            endtime=self.end, taper="hann",
-            taper_percentage=0.05,
+            endtime=self.end, event=self.event_name,
+            iteration=self.iteration, station=station,
             min_period=process_params["highpass_period"],
             max_period=process_params["lowpass_period"],
-            ad_src_type=adj_src, plot=True)
+            ad_src_type=adj_src, window_set=window_set,
+            comm=self.comm, plot=True)
         plt.show()
