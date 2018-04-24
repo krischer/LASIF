@@ -416,7 +416,6 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
         if plot:
             print(f"I have {len(stations)} comparable stations!")
 
-    shift = int((4 * min_period) / dt)
     for station in stations:
         waves = comm.query.get_matching_waveforms(
             event=event, iteration=iteration, station_or_channel_id=station)
