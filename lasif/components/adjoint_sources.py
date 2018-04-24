@@ -165,7 +165,8 @@ class AdjointSourcesComponent(Component):
                 dt = trace.stats.delta
                 len_window = len(trace.data) * dt
                 ratio = min_period * 2.0 / len_window
-                p = ratio / 2.0  # Make minimum window length taper 25% of sides
+                # Make minimum window length taper 25% of sides
+                p = ratio / 2.0
                 if p > 1.0:  # For manually picked smaller windows
                     p = 1.0
                 window = cosine_taper(len(trace.data), p=p)

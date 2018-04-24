@@ -15,7 +15,6 @@ from scipy.integrate import simps
 from obspy.signal.invsim import cosine_taper
 import obspy.signal.cross_correlation as crosscorr
 from obspy.geodetics.base import gps2dist_azimuth
-from obspy.geodetics.base import kilometer2degrees
 from lasif import LASIFError
 from obspy.core import Trace
 
@@ -38,8 +37,6 @@ def find_comparable_stations(event_name, station_info, window_set, comm):
     # If it fits the criterion, calculate great circle from event
     # Organize information into a dictionary with station name as key.
     # For now we just use stations in similar latitude longitude range.
-
-    ############ CHECK IF STATION HAS A WINDOW ON THIS COMPONENT ##########
 
     stations = comm.query.get_all_stations_for_event(event_name)
     lat = station_info["latitude"]
@@ -119,7 +116,7 @@ def shift_window(window, comm, station, event,
     comp = gps2dist_azimuth(ev_lat, ev_lon,
                             station["latitude"], station["longitude"])
 
-    ratio = kilometer2degrees(comp[0] / 1000) / kilometer2degrees(ref[0] / 1000)
+    ratio = comp[0] / ref[0]
 
     if ratio == 0.0:
         raise LASIFError("Distance ratio is 0.0 can not compute")
@@ -302,8 +299,8 @@ def adsrc_cc_dd(dt, data, synthetic, comp_data, comp_synthetics, min_period,
 
     acc_rec_i = np.gradient(np.gradient(synthetic_time_shift) / dt) / dt
     acc_rec_j = np.gradient(np.gradient(comp_synthetics) / dt) / dt
-    norm_constant = simps(acc_rec_i * comp_synthetics + synthetic_time_shift
-                          * acc_rec_j)
+    norm_constant = simps(acc_rec_i * comp_synthetics +
+                          synthetic_time_shift * acc_rec_j)
 
     vel_syn_rec_j = np.gradient(comp_synthetics) / dt
     vel_syn_rec_j_time_shifted = time_shift_trace(vel_syn_rec_j, dt,
@@ -388,14 +385,10 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
     dt = t[1] - t[0]
     start_time = original_stats.starttime
     iteration = comm.iterations.get_long_iteration_name(iteration)
-    filename = comm.waveforms.get_asdf_filename(
-        event, data_type="processed", tag_or_iteration=
-        comm.waveforms.preprocessing_tag)
 
     station_loc = comm.query.get_coordinates_for_station(event, station_name)
     win_synth = window_seismogram(synthetic, window, original_stats)
     win_data = window_seismogram(data, window, original_stats)
-
 
     # adsrc_cc_timeshift
     ad_src, misfit = adsrc_cc_time_shift(dt, win_data, win_synth, min_period)
@@ -404,15 +397,15 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
     stations = find_comparable_stations(event, station_loc, window_set, comm)
 
     if len(stations) == 0:
-        print("No stations to compare with")
+        if plot:
+            print("No stations to compare with")
     else:
-        print(f"I have {len(stations)} amount of comparable stations!")
+        if plot:
+            print(f"I have {len(stations)} amount of comparable stations!")
 
-    print(stations)
     for station in stations:
         waves = comm.query.get_matching_waveforms(
-                event=event, iteration=iteration,
-                station_or_channel_id=station)
+            event=event, iteration=iteration, station_or_channel_id=station)
         data = waves.data[0].data
         synthetic = waves.synthetics[0].data
 
@@ -445,7 +438,8 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
                 "misfit_value": misfit,
                 "details": {"messages": messages}}
     if plot:
-        adjoint_source_plot(t, win_data, win_synth, ad_src, misfit, len(stations))
+        adjoint_source_plot(t, win_data, win_synth,
+                            ad_src, misfit, len(stations))
 
     return ret_dict
 
