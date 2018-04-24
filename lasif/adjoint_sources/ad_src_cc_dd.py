@@ -14,7 +14,7 @@ import numpy as np
 from scipy.integrate import simps
 from obspy.signal.invsim import cosine_taper
 import obspy.signal.cross_correlation as crosscorr
-from obspy.geodetics.base import gps2dist_azimuth
+from obspy.geodetics.base import gps2dist_azimuth, kilometer2degrees
 from lasif import LASIFError
 from obspy.core import Trace
 
@@ -23,8 +23,6 @@ def find_comparable_stations(event_name, station_info, window_set, comm):
     """
     Find stations which are of comparable distances from the station where
     the adjoint source is calculated.
-    A criterion for this is yet to be set in stone but for now we can just
-    use a minimum/maximum distance criterion.
     :param event_name: Name of the event which caused the measured data
     :param station_info: Name of the station which the adjoint source is
     calculated at
@@ -32,28 +30,43 @@ def find_comparable_stations(event_name, station_info, window_set, comm):
     :param comm: Used to access other parts of code
     :return: used_stations: A list containing station names that will be used
     """
-    # Get stations for event, preferably not all of them
-    # Calculate distance from reference station
-    # If it fits the criterion, calculate great circle from event
-    # Organize information into a dictionary with station name as key.
-    # For now we just use stations in similar latitude longitude range.
 
     stations = comm.query.get_all_stations_for_event(event_name)
     lat = station_info["latitude"]
     lon = station_info["longitude"]
+    ev_lat = comm.events.get(event_name)["latitude"]
+    ev_lon = comm.events.get(event_name)["longitude"]
+    ref = gps2dist_azimuth(ev_lat, ev_lon, lat, lon)
+
     used_stations = list()
 
     for key in stations:
         sta_lat = stations[key]["latitude"]
         sta_lon = stations[key]["longitude"]
-        if not np.abs(sta_lat - lat) > 4 and not np.abs(sta_lon - lon) > 8 \
-                and not sta_lat == lat and not sta_lon == lon:
+        comp = gps2dist_azimuth(ev_lat, ev_lon, sta_lat, sta_lon)
+        dist = gps2dist_azimuth(lat, lon, sta_lat, sta_lon)
+        dist = kilometer2degrees(dist[0] / 1000)
+        windows_group = comm.windows.get(window_set)
 
-            windows_group = comm.windows.get(window_set)
-            if len(windows_group.get_all_windows_for_station(key)) != 0:
-                used_stations.append(key)
+        # Go through a few checks to pinpoint comparable stations
 
+        # Check distance between stations
+        if dist > 6.0:
             continue
+
+        # Check whether it is the same station:
+        if sta_lat == lat and sta_lon == lon:
+            continue
+
+        # Check whether station has a window
+        if len(windows_group.get_all_windows_for_station(key)) == 0:
+            continue
+
+        # Check whether the stations have a similar direction to event.
+        if np.abs(ref[2] - comp[2]) > 10:
+            continue
+
+        used_stations.append(key)
 
     return used_stations
 
@@ -401,8 +414,9 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
             print("No stations to compare with")
     else:
         if plot:
-            print(f"I have {len(stations)} amount of comparable stations!")
+            print(f"I have {len(stations)} comparable stations!")
 
+    shift = int((4 * min_period) / dt)
     for station in stations:
         waves = comm.query.get_matching_waveforms(
             event=event, iteration=iteration, station_or_channel_id=station)
@@ -432,7 +446,7 @@ def double_difference_adjoint(t, data, synthetic, window, min_period, event,
 
     misfit = 1.0 / 2.0 * misfit
     messages = list()
-    messages.append(f"len(stations) amount of stations used.")
+    messages.append(f"{len(stations)} amount of stations used.")
 
     ret_dict = {"adjoint_source": ad_src,
                 "misfit_value": misfit,
