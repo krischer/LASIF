@@ -569,6 +569,7 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
 
     time_windows.mask[:min_idx + 1] = True
     time_windows.mask[max_idx:] = True
+
     if plot:
         plt.subplot2grid(grid, (8, 0), rowspan=1)
         _plot_mask(time_windows, old_time_windows,
@@ -609,7 +610,7 @@ def select_windows(data_trace, synthetic_trace, stf_trace, event_latitude,
         sw_start_idx = int(midpoint_idx - ((window_shift - 1) / 2))
         sw_end_idx = int(midpoint_idx + ((window_shift - 1) / 2) + 1)
 
-        if synthetic_window.ptp() < synth.ptp() * 0.001:
+        if synthetic_window.ptp() < synth.ptp() * 0.01:
             time_windows.mask[sw_start_idx: sw_end_idx] = True
             continue
 
