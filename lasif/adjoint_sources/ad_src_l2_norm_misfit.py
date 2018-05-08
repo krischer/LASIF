@@ -37,7 +37,7 @@ def adsrc_l2_norm_misfit(t, data, synthetic, min_period, max_period,
         msg = "Both arrays need to have equal length"
         raise ValueError(msg)
     dt = t[1] - t[0]
-    diff = synthetic - data
+    diff = data - synthetic
     diff = np.require(diff, dtype="float64")
     l2norm = 0.5 * simps(np.square(diff), dx=dt)
     ad_src = diff * dt
