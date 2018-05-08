@@ -181,7 +181,7 @@ class IterationsComponent(Component):
         """
         files = [os.path.abspath(_i) for _i in glob.iglob(os.path.join(
             self.comm.project.paths["eq_synthetics"], "ITERATION_*"))]
-        iterations = [os.path.splitext(os.path.basename(_i))[0][10:]
+        iterations = [os.path.basename(_i)[10:]
                       for _i in files]
         return sorted(iterations)
 
