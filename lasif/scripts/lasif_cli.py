@@ -804,7 +804,7 @@ def lasif_select_windows(parser, args):
 
 
 @command_group("Iteration Management")
-def lasif_launch_misfit_gui(parser, args):
+def lasif_gui(parser, args):
     """
     Launch the misfit GUI.
     """
@@ -889,6 +889,113 @@ def lasif_compute_station_weights(parser, args):
     comm.weights.change_weight_set(
         weight_set_name=w_set, weight_set=weight_set,
         events_dict=comm.query.get_stations_for_all_events())
+
+
+@command_group("Iteration Management")
+def lasif_get_weighting_bins(parser, args):
+    """
+    Compute median envelopes for the observed data in certain station bins.
+    The binning is based on event-station distances.
+    """
+    from obspy.geodetics.base import gps2dist_azimuth, kilometer2degrees
+    import obspy.signal.filter
+    import operator
+    from collections import OrderedDict
+    import pyasdf
+    import numpy as np
+    parser.add_argument("window_set_name", help="Name of window set")
+    parser.add_argument("event_name", default=None, help="Name of event",
+                        nargs="*")
+    args = parser.parse_args(args)
+    comm = _find_project_comm(".")
+    windows = comm.windows.get(args.window_set_name)
+
+    event_names = args.event_name if args.event_name else comm.events.list()
+    distances = OrderedDict()
+
+    # Collect information on event-station distances.
+    # Could be put into a new function
+    for event_name in event_names:
+        distances[event_name] = OrderedDict()
+        stations = comm.query.get_all_stations_for_event(event_name)
+        event = comm.events.get(event_name)
+        for station_id in stations:
+            if len(windows.get_all_windows_for_event_station(
+                    event_name, station_id)) == 0:
+                continue
+            station = comm.query.get_coordinates_for_station(
+                event_name, station_id)
+            dist = gps2dist_azimuth(event["latitude"], event["longitude"],
+                                    station["latitude"], station["longitude"])
+            dist = kilometer2degrees(dist[0] / 1000.0)
+            distances[event_name][station_id] = dist
+
+    # Sort the stations using distances. Bin them appropriately
+    bins_dict = OrderedDict()
+    for event_name in event_names:
+        asdf_file = comm.waveforms.get_asdf_filename(
+            event_name=event_name, data_type="processed",
+            tag_or_iteration=comm.waveforms.preprocessing_tag)
+        with pyasdf.ASDFDataSet(asdf_file) as ds:
+            if "BinEnvelope" in ds.auxiliary_data.list():
+                del ds.auxiliary_data["BinEnvelope"]
+            sorted_stations = sorted(distances[event_name].items(),
+                                     key=operator.itemgetter(1))
+            dist = [x[1]for x in sorted_stations]
+
+            # If stop=max(dist) we will have a bin with one station
+            stop = min(dist) + (dist[-1] - dist[0]) * 0.9
+            bins = np.linspace(start=min(dist), stop=stop, num=10)
+            # Organize the stations into bins
+            bin_array = np.digitize(
+                x=np.array(list(distances[event_name].values())), bins=bins)
+            i = 0
+            bins_dict[event_name] = OrderedDict()
+            for station in distances[event_name]:
+                bins_dict[event_name][station] = bin_array[i]
+                i += 1
+
+            # Now we need to get waveforms and calculate envelopes.
+            for s in range(1, len(bins) + 1):
+                stations = [k for k, v in
+                            bins_dict[event_name].items() if v == s]
+                storage = np.zeros((len(stations),
+                                    len(ds.waveforms[ds.waveforms.list()[0]]
+                                        [comm.waveforms.preprocessing_tag]
+                                        [0].data)))
+                i = 0
+                for station in stations:
+                    print(station)
+                    wave = comm.waveforms.get_waveforms_processed(
+                        event_name=event_name, station_id=station,
+                        tag=comm.waveforms.preprocessing_tag)
+                    wave_z = wave.select(component="Z")
+                    data_envelope = obspy.signal.filter.envelope(
+                        wave_z[0].data)
+
+                    storage[i, :] = data_envelope
+                    i += 1
+                if len(stations) == 0:
+                    envelope = np.zeros(len(data_envelope))
+                else:
+                    envelope = np.mean(storage, axis=0)
+
+                if s == len(bins):
+                    parameters = {"bin": s,
+                                  "min_dist": bins[s - 1],
+                                  "max_dist": "INFINITE",
+                                  "num_stations": len(stations),
+                                  "stations": ", ".join(stations)}
+                else:
+                    parameters = {"bin": s,
+                                  "min_dist": bins[s - 1],
+                                  "max_dist": bins[s],
+                                  "num_stations": len(stations),
+                                  "stations": ", ".join(stations)}
+                data_type = "BinEnvelope"
+                path = f"{s}_bin"
+                ds.add_auxiliary_data(data=envelope, data_type=data_type,
+                                      path=path, parameters=parameters)
 
 
 @command_group("Iteration Management")

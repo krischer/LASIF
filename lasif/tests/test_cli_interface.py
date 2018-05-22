@@ -441,7 +441,7 @@ def test_finalize_adjoint_sources(cli):
 
 def test_launch_misfit_gui(cli):
     with mock.patch("lasif.misfit_gui.misfit_gui.launch") as patch:
-        cli.run("lasif launch_misfit_gui")
+        cli.run("lasif gui")
 
     assert patch.call_count == 1
 

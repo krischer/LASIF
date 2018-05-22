@@ -67,6 +67,13 @@ class ExodusDomain:
             self.min_lon = -180.0
             self.max_lon = 180.0
             return
+        if 'a0' in self.side_set_names:
+            self.is_global_mesh = True
+            self.min_lat = -90.0
+            self.max_lat = 90.0
+            self.min_lon = -180.0
+            self.max_lon = 180.0
+            return
 
         side_nodes = []
         earth_surface_nodes = []
