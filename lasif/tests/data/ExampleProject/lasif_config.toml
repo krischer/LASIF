@@ -12,8 +12,8 @@
   num_buffer_elements = 7
 
   # Type of misift, choose from:
-  # [TimeFrequencyPhaseMisfitFichtner2008, L2Norm, CCTimeShift] 
-  misfit_type = "TimeFrequencyPhaseMisfitFichtner2008"
+  # [tf_phase_misfit, waveform_misfit, cc_traveltime_misfit, cc_traveltime_misfit_Korta2018]
+  misfit_type = "tf_phase_misfit"
 
   [lasif_project.download_settings]
     seconds_before_event = 300.0

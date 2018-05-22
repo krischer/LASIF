@@ -62,9 +62,11 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     misfit = 1.0 / 2.0 * time_shift ** 2
     messages.append(f"Time shift was {time_shift} seconds")
     if np.abs(time_shift) > (min_period / 4):
-        messages.append(f"Time shift too big for adjoint source calculation, we will only return misfit")
+        messages.append(f"Time shift too big for adjoint source calculation, "
+                        f"we will only return misfit")
         if plot:
-            print("Time shift too large to calculate an adjoint source. Misfit included though")
+            print("Time shift too large to calculate an adjoint source. "
+                  "Misfit included though")
         ad_src = np.zeros(len(t))
         ret_dict = {"adjoint_source": ad_src,
                     "misfit_value": misfit,
@@ -123,7 +125,8 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     return ret_dict
 
 
-def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit, time_shift):
+def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit,
+                        time_shift):
 
     import matplotlib.pyplot as plt
 
@@ -141,4 +144,5 @@ def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit, time_shift):
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
-    plt.title(f"CCTimeShift Adjoint Source with a Misfit of {misfit}. Time shift {time_shift}")
+    plt.title(f"CCTimeShift Adjoint Source with a Misfit of {misfit}. "
+              f"Time shift {time_shift}")

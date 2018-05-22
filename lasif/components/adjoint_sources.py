@@ -15,13 +15,15 @@ from ..adjoint_sources.ad_src_tf_phase_misfit import adsrc_tf_phase_misfit
 from ..adjoint_sources.ad_src_l2_norm_misfit import adsrc_l2_norm_misfit
 from ..adjoint_sources.ad_src_cc_time_shift import adsrc_cc_time_shift
 from ..adjoint_sources.ad_src_cc_dd import double_difference_adjoint
+from ..adjoint_sources.ad_src_l2_norm_weighted import adsrc_l2_norm_weighted
 
 # Map the adjoint source type names to functions implementing them.
 MISFIT_MAPPING = {
     "TimeFrequencyPhaseMisfitFichtner2008": adsrc_tf_phase_misfit,
     "L2Norm": adsrc_l2_norm_misfit,
     "CCTimeShift": adsrc_cc_time_shift,
-    "DoubleDifference": double_difference_adjoint
+    "DoubleDifference": double_difference_adjoint,
+    "L2NormWeighted": adsrc_l2_norm_weighted
 }
 
 
@@ -104,8 +106,9 @@ class AdjointSourcesComponent(Component):
         print("\nStarting to write adjoint sources to ASDF file ...")
 
         adj_src_counter = 0
+        # print(adj_sources)
 
-        # DANGERZONE: manually disable the MPI file driver for pyasdf as
+        # DANGERZONE: manually disable the MPIfile driver for pyasdf as
         # we are already in MPI but only rank 0 will enter here and that
         # will confuse pyasdf otherwise.
         with pyasdf.ASDFDataSet(filename, mpi=False) as ds:
@@ -124,10 +127,12 @@ class AdjointSourcesComponent(Component):
 
     def calculate_adjoint_source(self, data, synth, starttime, endtime,
                                  min_period, max_period, ad_src_type,
-                                 event, station, iteration, comm,
+                                 event, station, iteration, envelope,
                                  window_set, plot=False):
         """
         Calculates an adjoint source for a single window.
+        Currently not used, might be used later on for adjoint sources
+        which are not included in salvus_misfit
 
         :param event_name: The name of the event.
         :param iteration_name: The name of the iteration.
@@ -183,11 +188,7 @@ class AdjointSourcesComponent(Component):
         data_d = np.require(data.data, dtype="float64", requirements="C")
         synth_d = np.require(synth.data, dtype="float64", requirements="C")
         #  compute misfit and adjoint source
-        if ad_src_type != "DoubleDifference":
-            adsrc = MISFIT_MAPPING[ad_src_type](
-                t, data_d, synth_d, min_period=min_period,
-                max_period=max_period, plot=plot)
-        else:
+        if ad_src_type == "DoubleDifference":
             window = [starttime, endtime]
             adsrc = double_difference_adjoint(t=t, data=data_d,
                                               synthetic=synth_d,
@@ -197,9 +198,17 @@ class AdjointSourcesComponent(Component):
                                               station_name=station,
                                               original_stats=original_stats,
                                               iteration=iteration,
-                                              comm=comm,
+                                              comm=self.comm,
                                               window_set=window_set,
                                               plot=plot)
+        elif ad_src_type == "L2NormWeighted":
+            adsrc = MISFIT_MAPPING[ad_src_type](
+                t, data_d, synth_d, min_period=min_period, event=event,
+                station=station, envelope=envelope, plot=plot)
+        else:
+            adsrc = MISFIT_MAPPING[ad_src_type](
+                t, data_d, synth_d, min_period=min_period,
+                max_period=max_period, plot=plot)
 
         # Recreate dictionary for clarity.
         ret_val = {

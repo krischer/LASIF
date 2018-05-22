@@ -87,11 +87,12 @@ class ActionsComponent(Component):
             MPI.COMM_WORLD.Barrier()
 
     def calculate_adjoint_sources(self, event, iteration, window_set_name,
-                                  **kwargs):
+                                  plot=False, **kwargs):
         from lasif.utils import select_component_from_stream
 
         from mpi4py import MPI
         import pyasdf
+        import salvus_misfit
 
         event = self.comm.events.get(event)
 
@@ -154,16 +155,18 @@ class ActionsComponent(Component):
                 try:
                     data_tr = select_component_from_stream(st_obs, component)
                     synth_tr = select_component_from_stream(st_syn, component)
-
                 except LASIFNotFoundError:
                     continue
 
                 if self.comm.project.processing_params["scale_data_"
                                                        "to_synthetics"]:
-                    scaling_factor = synth_tr.data.ptp() / data_tr.data.ptp()
-                    # Store and apply the scaling.
-                    data_tr.stats.scaling_factor = scaling_factor
-                    data_tr.data *= scaling_factor
+                    if not self.comm.project.config["misfit_type"] == \
+                            "L2NormWeighted":
+                        scaling_factor = \
+                            synth_tr.data.ptp() / data_tr.data.ptp()
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
 
                 net, sta, cha = data_tr.id.split(".", 2)
                 station = net + "." + sta
@@ -174,36 +177,31 @@ class ActionsComponent(Component):
                     continue
 
                 # Collect all.
-                adj_srcs = []
                 windows = all_windows[station][data_tr.id]
+                ad_src_type = self.comm.project.config["misfit_type"]
                 try:
-                    for starttime, endtime in windows:
-                        config = self.comm.project.config
-                        asrc = \
-                            self.comm.\
-                            adj_sources.calculate_adjoint_source(
-                                data=data_tr, synth=synth_tr,
-                                starttime=starttime, endtime=endtime,
-                                min_period=process_params["highpass_period"],
-                                max_period=process_params["lowpass_period"],
-                                ad_src_type=config["misfit_type"],
-                                event=event["event_name"],
-                                station=synthetic_station._station_name,
-                                iteration=iteration,
-                                comm=component,
-                                window_set=window_set_name)
-                        adj_srcs.append(asrc)
+                    # for window in windows:
+                    asrc = salvus_misfit.calculate_adjoint_source(
+                        observed=data_tr, synthetic=synth_tr,
+                        window=windows,
+                        min_period=process_params["highpass_period"],
+                        max_period=process_params["lowpass_period"],
+                        adj_src_type=ad_src_type,
+                        window_set=window_set_name,
+                        taper_ratio=0.15, taper_type='cosine',
+                        plot=plot)
                 except:
                     # Either pass or fail for the whole component.
                     continue
 
-                if not adj_srcs:
+                if not asrc:
                     continue
-
                 # Sum up both misfit, and adjoint source.
-                misfit = sum([_i["misfit_value"] for _i in adj_srcs])
-                adj_source = np.sum([_i["adjoint_source"] for _i in adj_srcs],
-                                    axis=0)
+                misfit = asrc.misfit
+                adj_source = asrc.adjoint_source
+                # Time reversal is currently needed in salvus but that will
+                # change later and this can be removed
+                adj_source = adj_source[::-1]
 
                 adjoint_sources[data_tr.id] = {
                     "misfit": misfit,
@@ -219,9 +217,9 @@ class ActionsComponent(Component):
         # ranks.
         results = ds.process_two_files_without_parallel_output(ds_synth,
                                                                process)
-
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
+            # print(MPI.COMM_WORLD.rank)
             self.comm.adj_sources.write_adjoint_sources(
                 event=event["event_name"], iteration=iteration,
                 adj_sources=results)
@@ -354,7 +352,6 @@ class ActionsComponent(Component):
 
         # Write files on rank 0.
         if MPI.COMM_WORLD.rank == 0:
-            print("Selected windows: ", results)
             self.comm.windows.write_windows_to_sql(
                 event_name=event["event_name"], windows=results,
                 window_set_name=window_set_name)
@@ -541,15 +538,14 @@ class ActionsComponent(Component):
             solver_settings["io_sampling_rate_volume"]
         memory_per_rank = self.comm.project.\
             solver_settings["io_memory_per_rank_in_MB"]
+        if self.comm.project.solver_settings["with_attenuation"]:
+            with open(run_salvus, "a") as fh:
+                fh.write(f" --with-attenuation")
         if simulation_type == "forward":
             with open(run_salvus, "a") as fh:
                 fh.write(f" --io-sampling-rate-volume {io_sampling_rate}"
                          f" --io-memory-per-rank-in-MB {memory_per_rank}"
                          f" --io-file-format bin")
-
-        if self.comm.project.solver_settings["with_attenuation"]:
-            with open(run_salvus, "a") as fh:
-                fh.write(f" --with-attenuation")
 
     def write_custom_stf(self, output_dir):
         import toml
