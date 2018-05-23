@@ -602,34 +602,6 @@ class ActionsComponent(Component):
         with open(source_toml, "w") as fh:
             fh.write(source_str)
 
-    def calculate_all_adjoint_sources(self, iteration_name, event_name):
-        """
-        Function to calculate all adjoint sources for a certain iteration
-        and event.
-        """
-        window_manager = self.comm.windows.get(event_name, iteration_name)
-        event = self.comm.events.get(event_name)
-        iteration = self.comm.iterations.get(iteration_name)
-        iteration_event_def = iteration.events[event["event_name"]]
-        iteration_stations = iteration_event_def["stations"]
-
-        window_list = sorted(window_manager.list())
-        for station, windows in itertools.groupby(
-                window_list, key=lambda x: ".".join(x.split(".")[:2])):
-            if station not in iteration_stations:
-                continue
-            try:
-                for w in windows:
-                    w = window_manager.get(w)
-                    for window in w:
-                        # Access the property will trigger an adjoint source
-                        # calculation.
-                        window.adjoint_source
-            except LASIFError as e:
-                print("Could not calculate adjoint source for iteration %s "
-                      "and station %s. Repick windows? Reason: %s" % (
-                          iteration.name, station, str(e)))
-
     def finalize_adjoint_sources(self, iteration_name, event_name,
                                  weight_set_name=None):
         """
@@ -761,11 +733,16 @@ class ActionsComponent(Component):
             f"--load-fields adjoint " \
             f"--load-wavefield-file wavefield.h5 " \
             f"--save-static-fields gradient " \
-            f"--save-static-file-name {event_name}.h5 --kernel-fields TTI " \
-            f"--io-memory-per-rank-in-MB 5000 --with-anisotropy " \
+            f"--save-static-file-name {event_name}.h5 " \
+            f"--io-memory-per-rank-in-MB 5000 " \
             f"--absorbing-boundaries {absorbing_boundaries} " \
             f"--source-toml {toml_file_name} " \
             f"--io-file-format bin"
+
+        if self.comm.project.solver_settings["with_anisotropy"]:
+            salvus_command += " -with-anisotropy --kernel-fields TTI"
+        else:
+            salvus_command += " --kernel-fields VP,VS,RHO"
 
         if num_absorbing_layers > 0:
             salvus_command += f" --num-absorbing-layers {num_absorbing_layers}"
