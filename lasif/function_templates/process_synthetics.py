@@ -45,7 +45,6 @@ def process_synthetics(st, processing_params, event):  # NOQA
     for tr in st:
         tr.stats.starttime = \
             event["origin_time"] + processing_params["salvus_start_time"]
-        tr.trim(endtime=event["origin_time"] + processing_params["end_time"])
 
     if processing_params["stf"] == "heaviside":
 
