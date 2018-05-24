@@ -53,7 +53,8 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # same aliasing into the lower frequencies but the filters coupled with
     # the TF-domain weighting will get rid of them in essentially all
     # realistically occurring cases.
-    dt_new = max(float(int(min_period / 3.0)), t[1] - t[0])
+    dt_new = max(float(int(min_period / 4.0)), t[1] - t[0])
+    dt_old = t[1] - t[0]
 
     # New time axis
     ti = utils.matlab_range(t[0], t[-1], dt_new)
@@ -183,7 +184,7 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
 
     # Divide by the misfit and change sign.
     ad_src /= (phase_misfit + eps)
-    ad_src = -1.0 * np.diff(ad_src) / (t[1] - t[0])
+    ad_src = ad_src / ((t[1] - t[0]) ** 2) * dt_old
 
     # Taper at both ends. Exploit ObsPy to not have to deal with all the
     # nasty things.
@@ -193,7 +194,6 @@ def adsrc_tf_phase_misfit(t, data, synthetic, min_period, max_period,
     # Reverse time and add a leading zero so the adjoint source has the
     # same length as the input time series.
     ad_src = ad_src[::-1]
-    ad_src = np.concatenate([[0.0], ad_src])
 
     # Plot if requested. ------------------------------------------------------
     if plot:

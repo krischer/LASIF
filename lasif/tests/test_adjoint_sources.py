@@ -134,25 +134,3 @@ def test_adjoint_time_frequency_phase_misfit_source_plot(tmpdir):
     # or the waveforms would induce changes all over the plot which would
     # make the rms error much larger.
     images_are_identical("tf_adjoint_source", str(tmpdir), tol=35)
-
-
-def test_time_frequency_adjoint_source():
-    """
-    Test the time frequency misfit and adjoint source.
-    """
-    obs, syn = obspy.read(os.path.join(data_dir,
-                                       "adj_src_test.mseed")).traces
-    ret_val = ad_src_tf_phase_misfit.adsrc_tf_phase_misfit(
-        obs.times(), obs.data, syn.data, 20.0, 100.0)
-
-    assert round(ret_val["misfit_value"], 4) == 0.7147
-    assert not ret_val["details"]["messages"]
-
-    adj_src_baseline = np.load(os.path.join(
-        data_dir, "adjoint_source_baseline.npy"))
-
-    np.testing.assert_allclose(
-        actual=ret_val["adjoint_source"],
-        desired=adj_src_baseline,
-        atol=1E-5 * abs(adj_src_baseline).max(),
-        rtol=1E-5)

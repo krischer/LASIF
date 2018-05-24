@@ -53,17 +53,37 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     messages = []
 
     dt = t[1] - t[0]
+
     # Move the minimum period in each direction to avoid cycle skip.
     shift = int(min_period / dt)  # This can be adjusted if you wish so.
+
     # Compute time shift between the two traces.
     time_shift = cc_time_shift(data, synthetic, dt, shift)
     misfit = 1.0 / 2.0 * time_shift ** 2
     messages.append(f"Time shift was {time_shift} seconds")
+    if np.abs(time_shift) > (min_period / 4):
+        messages.append(f"Time shift too big for adjoint source calculation, "
+                        f"we will only return misfit")
+        if plot:
+            print("Time shift too large to calculate an adjoint source. "
+                  "Misfit included though")
+        ad_src = np.zeros(len(t))
+        ret_dict = {"adjoint_source": ad_src,
+                    "misfit_value": misfit,
+                    "details": {"messages": messages}}
+        return ret_dict
+
+    lag = int(abs(time_shift) / dt)
+    d_vel = np.gradient(data) / dt
+    if time_shift < 0:
+        d_vel = np.roll(d_vel.data, lag)
+    elif time_shift > 0:
+        d_vel = np.roll(d_vel.data, -lag)
 
     # Now we have the time shift. We need velocity of synthetics.
     vel_syn = np.gradient(synthetic) / dt
-    norm_const = simps(np.square(vel_syn), dx=dt)
-    ad_src = (time_shift / norm_const) * vel_syn * dt
+    norm_const = simps(vel_syn * d_vel, dx=dt)
+    ad_src = (time_shift / norm_const) * d_vel * dt
     orig_length = len(ad_src)
 
     n_zeros = np.nonzero(ad_src)
@@ -93,8 +113,6 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
     front_pad = np.zeros(n_zeros[0][0])
     back_pad = np.zeros(orig_length - n_zeros[0][-1] - 1)
     ad_src = np.concatenate([front_pad, ad_src, back_pad])
-
-    # window = np.concatenate([front_pad, window, back_pad, [0.0]])  # to plot
     ad_src = ad_src[::-1]  # Time reverse
 
     ret_dict = {"adjoint_source": ad_src,
@@ -102,12 +120,13 @@ def adsrc_cc_time_shift(t, data, synthetic, min_period, max_period,
                 "details": {"messages": messages}}
 
     if plot:
-        adjoint_source_plot(t, data, synthetic, ad_src, misfit)
+        adjoint_source_plot(t, data, synthetic, ad_src, misfit, time_shift)
 
     return ret_dict
 
 
-def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit):
+def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit,
+                        time_shift):
 
     import matplotlib.pyplot as plt
 
@@ -125,4 +144,5 @@ def adjoint_source_plot(t, data, synthetic, adjoint_source, misfit):
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
-    plt.title(f"CCTimeShift Adjoint Source with a Misfit of {misfit}")
+    plt.title(f"CCTimeShift Adjoint Source with a Misfit of {misfit}. "
+              f"Time shift {time_shift}")
