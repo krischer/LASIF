@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import itertools
 import numpy as np
 import os
 
