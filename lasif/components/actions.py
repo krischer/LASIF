@@ -739,7 +739,7 @@ class ActionsComponent(Component):
             f"--io-file-format bin"
 
         if self.comm.project.solver_settings["with_anisotropy"]:
-            salvus_command += " -with-anisotropy --kernel-fields TTI"
+            salvus_command += " --with-anisotropy --kernel-fields TTI"
         else:
             salvus_command += " --kernel-fields VP,VS,RHO"
 
