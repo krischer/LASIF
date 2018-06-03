@@ -233,8 +233,8 @@ class ActionsComponent(Component):
             :type other_ds: :class:`.ASDFDataSet`
             :param other_ds: The data set to compare to.
             :param process_function: The processing function takes two
-                parameters: The station group from this data set and the matching
-                station group from the other data set.
+                parameters: The station group from this data set and
+                the matching station group from the other data set.
             :type traceback_limit: int
             :param traceback_limit: The length of the traceback printed if an
                 error occurs in one of the workers.
@@ -247,7 +247,8 @@ class ActionsComponent(Component):
 
                 def split(container, count):
                     """
-                    Simple function splitting a container into equal length chunks.
+                    Simple function splitting a container into equal length
+                    chunks.
                     Order is not preserved but this is potentially an advantage
                     depending on the use case.
                     """
@@ -273,10 +274,9 @@ class ActionsComponent(Component):
             for _i, station in enumerate(jobs):
 
                 if MPI.COMM_WORLD.rank == 0:
-                    print(" -> Processing approximately task %i of %i ..." % (
-                        (_i * MPI.COMM_WORLD.size + 1), total_job_count),
+                    print(" -> Processing approximately task %i of %i ..." %
+                          ((_i * MPI.COMM_WORLD.size + 1), total_job_count),
                           flush=True)
-
                 try:
                     result = process_function(
                         getattr(ds.waveforms, station),
@@ -336,8 +336,8 @@ class ActionsComponent(Component):
                                                             process)
         # Write files on rank 0.
         # Write files on all ranks.
-        filename = self.comm.adj_sources.get_filename(event=event["event_name"],
-                                                      iteration=iteration)
+        filename = self.comm.adj_sources.get_filename(
+            event=event["event_name"], iteration=iteration)
         ad_src_counter = 0
         size = MPI.COMM_WORLD.size
         MPI.COMM_WORLD.Barrier()
@@ -345,8 +345,8 @@ class ActionsComponent(Component):
             rank = MPI.COMM_WORLD.rank
             if rank == thread:
                 print(
-                    f"Writing adjoint sources for rank: {rank+1} out of {size}",
-                    flush=True)
+                    f"Writing adjoint sources for rank: {rank+1} "
+                    f"out of {size}", flush=True)
                 with pyasdf.ASDFDataSet(filename=filename, mpi=False,
                                         mode="a") as bs:
                     for value in results.values():
