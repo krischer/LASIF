@@ -182,7 +182,7 @@ class WaveformsComponent(Component):
             processing_params["salvus_start_time"] = \
                 self.comm.project.solver_settings["start_time"]
             processing_params["end_time"] = \
-                self.comm.project.solver_settings["start_time"]
+                self.comm.project.solver_settings["end_time"]
         return fct(st, processing_params,
                    event=self.comm.events.get(event_name))
 

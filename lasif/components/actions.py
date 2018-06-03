@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import itertools
 import numpy as np
 import os
 
@@ -892,7 +891,7 @@ class ActionsComponent(Component):
             f"--io-file-format bin"
 
         if self.comm.project.solver_settings["with_anisotropy"]:
-            salvus_command += " -with-anisotropy --kernel-fields TTI"
+            salvus_command += " --with-anisotropy --kernel-fields TTI"
         else:
             salvus_command += " --kernel-fields VP,VS,RHO"
 
