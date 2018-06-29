@@ -194,22 +194,22 @@ def test_plotting_functions(cli):
     # Test the different variations of the plot_events function.
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events")
-    patch.assert_called_once_with("map")
+    patch.assert_called_once_with("map", iteration=None)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=map")
-    patch.assert_called_once_with("map")
+    patch.assert_called_once_with("map", iteration=None)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=time")
-    patch.assert_called_once_with("time")
+    patch.assert_called_once_with("time", iteration=None)
     assert patch.call_count == 1
 
     with mock.patch(vs + "plot_events") as patch:
         cli.run("lasif plot_events --type=depth")
-    patch.assert_called_once_with("depth")
+    patch.assert_called_once_with("depth", iteration=None)
     assert patch.call_count == 1
 
     # Misc plotting functionality.

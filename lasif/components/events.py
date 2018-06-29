@@ -109,7 +109,7 @@ class EventsComponent(Component):
             str(FlinnEngdahl().get_region(org.longitude, org.latitude))
         ]
 
-    def list(self):
+    def list(self, iteration=None):
         """
         List of all events.
         >>> comm = getfixture('events_comm')
@@ -118,17 +118,46 @@ class EventsComponent(Component):
          'GCMT_event_TURKEY_Mag_5.9_2011-5-19-20-15']
         """
         self._update_cache()
-        return sorted(self.__event_info_cache.keys())
+        if iteration:
+            import toml
+            iter_name = self.comm.iterations.get_long_iteration_name(iteration)
+            path = os.path.join(self.comm.project.paths["iterations"],
+                                iter_name, "central_info.toml")
+            if not os.path.exists(path):
+                print("You do not have any iteration toml. "
+                      "Will give all events")
+                return sorted(self.__event_info_cache.keys())
+            iter_info = toml.load(path)
+            event_toml = iter_info["events"]["events_used"]
+            iter_events = toml.load(event_toml)
+            return sorted(iter_events["events"]["events_used"])
+        else:
+            return sorted(self.__event_info_cache.keys())
 
-    def count(self):
+    def count(self, iteration=None):
         """
         Get the number of events managed by this component.
+        If iteration given, return number of events in iteration
 
         >>> comm = getfixture('events_comm')
         >>> comm.events.count()
         2
         """
-        return len(self.all_events)
+        if iteration:
+            import toml
+            iter_name = self.comm.iterations.get_long_iteration_name(iteration)
+            path = os.path.join(self.comm.project.paths["iterations"],
+                                iter_name, "central_info.toml")
+            if not os.path.exists(path):
+                print("You do not have any iteration toml. "
+                      "Will give all events")
+                return len(self.all_events)
+            iter_info = toml.load(path)
+            event_toml = iter_info["events"]["events_used"]
+            iter_events = toml.load(event_toml)
+            return len(iter_events["events"]["events_used"])
+        else:
+            return len(self.all_events)
 
     def has_event(self, event_name):
         """

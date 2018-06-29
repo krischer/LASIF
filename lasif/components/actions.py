@@ -623,7 +623,11 @@ class ActionsComponent(Component):
         recs = salvus_seismo.Receiver.parse(inv)
 
         solver_settings = self.comm.project.solver_settings
-        mesh_file = self.comm.project.config["mesh_file"]
+        if self.comm.project.config["mesh_file"] == "multiple":
+            mesh_file = os.path.join(self.comm.project.paths["models"],
+                                     "EVENT_SPECIFIC", event_name, "mesh.e")
+        else:
+            mesh_file = self.comm.project.config["mesh_file"]
         if solver_settings["number_of_absorbing_layers"] == 0:
             num_absorbing_layers = None
         else:
@@ -677,6 +681,7 @@ class ActionsComponent(Component):
 
         import shutil
         shutil.rmtree(output_dir)
+
         salvus_seismo.generate_cli_call(
             source=src, receivers=recs, config=config,
             output_folder=output_dir,
@@ -857,7 +862,11 @@ class ActionsComponent(Component):
         with open(toml_file_name, "w") as fh:
             fh.write(toml_string)
 
-        mesh_file = self.comm.project.config["mesh_file"]
+        if self.comm.project.config["mesh_file"] == "multiple":
+            mesh_file = os.path.join(self.comm.project.paths["models"],
+                                     "EVENT_SPECIFIC", event_name, "mesh.e")
+        else:
+            mesh_file = self.comm.project.config["mesh_file"]
         solver_settings = self.comm.project.solver_settings
         start_time = solver_settings["start_time"]
         end_time = solver_settings["end_time"]
@@ -904,3 +913,91 @@ class ActionsComponent(Component):
         salvus_command_file = os.path.join(output_dir, "run_salvus.sh")
         with open(salvus_command_file, "w") as fh:
             fh.write(salvus_command)
+
+    # def make_event_mesh(self, event):
+    #     """
+    #     Make a specific mesh for an event. Uses location of event to
+    #     structure the mesh in a specific way to optimise simulations.
+    #     :param event: name of event
+    #     """
+    #     from lasif.tools.global_mesh_smoothiesem import mesh
+    #
+    #     n_axial_mask = 8
+    #     n_lat = 12
+    #     r_icb = 1221.5 / 6371.
+    #
+    #     event = self.comm.events.get(event)
+    #
+    #     src_lat = event["latitude"]
+    #     src_lon = event["longitude"]
+    #
+    #     src_azimuth = 0.0
+    #
+    #     # Do I want to relate these to iterations?
+    #     output_folder = os.path.join(self.comm.project.paths["models"],
+    #                                  "EVENT_SPECIFIC", event["event_name"])
+    #     if not os.path.exists(output_folder):
+    #         os.makedirs(output_folder)
+    #     output_filename = os.path.join(output_folder, "mesh.e")
+    #     axisem_mesh_params = "file.yaml"  # This will be referred to later.
+    #
+    #     theta_min_lat_refine = []
+    #     theta_max_lat_refine = []
+    #     r_min_lat_refine = []
+    #
+    #     mesh(n_axial_mask=n_axial_mask, n_lat=n_lat, r_icb=r_icb,
+    #          src_lat=src_lat,
+    #          src_lon=src_lon, theta_min_lat_refine=theta_min_lat_refine,
+    #          theta_max_lat_refine=theta_max_lat_refine,
+    #          r_min_lat_refine=r_min_lat_refine,
+    #          axisem_mesh_params=axisem_mesh_params,
+    #          output_filename=output_filename,
+    #          convert_element_type='tensorized', src_azimuth=src_azimuth)
+    # def region_of_interest(self, event, mesh_file, radius):
+    #     """
+    #     Add to mesh file a region of interest field which is used when
+    #     computing the gradient. The gradient will only be calculated
+    #     inside the region of interest. This function currently removes the
+    #     source imprint.
+    #     :param event: The name of the event
+    #     :param mesh_file: Where is the mesh which is used
+    #     :param radius: Radius in kilometers for the region of interest
+    #     :return: The mesh will include a binary ROI field.
+    #     """
+    #     from scipy.spatial import cKDTree
+    #     from csemlib.io.exodus_reader import ExodusReader
+    #     from csemlib.utils import sph2cart
+    #
+    #     event = self.comm.events.get(event)
+    #     radius *= 1000.0  # Convert to meters.
+    #
+    #     src_colat = 90.0 - event["latitude"]
+    #     src_lon = event["longitude"]
+    #     src_depth_in_m = event["depth_in_km"] * 1000.0
+    #     R_E = 6371000
+    #
+    #     b_x, b_y, b_z = sph2cart(np.radians(src_colat), np.radians(src_lon),
+    #                              R_E - src_depth_in_m)
+    #     src_point = [b_x, b_y, b_z]
+    #
+    #     e = ExodusReader(mesh_file)
+    #     e_centroids = e.get_element_centroid()
+    #     tree = cKDTree(e_centroids)
+    #     idx = []
+    #
+    #     idx += tree.query_ball_point(src_point, radius)
+    #
+    #     e.close()
+    #
+    #     import pyexodus
+    #
+    #     e = pyexodus.exodus(mesh_file, "a")
+    #     indices = list(idx)
+    #
+    #     e.put_element_variable_name("ROI", 1)
+    #     e.put_element_variable_values(1, "ROI", 1, np.ones(len(e_centroids)))
+    #     region_of_interest = e.get_element_variable_values(1, "ROI", 1)
+    #
+    #     region_of_interest[indices] = 0
+    #     e.put_element_variable_values(1, "ROI", 1, region_of_interest)
+    #     e.close()
