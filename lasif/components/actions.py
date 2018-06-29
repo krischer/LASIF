@@ -174,6 +174,8 @@ class ActionsComponent(Component):
                     continue
                 if data_tr.id not in all_windows[station]:
                     continue
+                # print(f"Rank: {MPI.COMM_WORLD.rank}")
+                # print(f"Station: {station}")
 
                 # Collect all.
                 windows = all_windows[station][data_tr.id]
@@ -189,9 +191,13 @@ class ActionsComponent(Component):
                         window_set=window_set_name,
                         taper_ratio=0.15, taper_type='cosine',
                         plot=plot)
+                    # print(f"Rank: {MPI.COMM_WORLD.rank}")
+                    # print(f"Ad source calculation worked")
                 except:
                     # Either pass or fail for the whole component.
                     continue
+                    # print(f"Rank: {MPI.COMM_WORLD.rank}")
+                    # print(f"Ad source calculation failed")
 
                 if not asrc:
                     continue
@@ -209,19 +215,165 @@ class ActionsComponent(Component):
 
             return adjoint_sources
 
+        def process_two_files_without_parallel_output(ds, other_ds,
+                                                      process_function,
+                                                      traceback_limit=3):
+            import traceback
+            import sys
+            """
+            Process data in two data sets.
+
+            This is mostly useful for comparing data in two data sets in any
+            number of scenarios. It again takes a function and will apply it on
+            each station that is common in both data sets. Please see the
+            :doc:`parallel_processing` document for more details.
+
+            Can only be run with MPI.
+
+            :type other_ds: :class:`.ASDFDataSet`
+            :param other_ds: The data set to compare to.
+            :param process_function: The processing function takes two
+                parameters: The station group from this data set and
+                the matching station group from the other data set.
+            :type traceback_limit: int
+            :param traceback_limit: The length of the traceback printed if an
+                error occurs in one of the workers.
+            :return: A dictionary for each station with gathered values. Will
+                only be available on rank 0.
+            """
+
+            # Collect the work that needs to be done on rank 0.
+            if MPI.COMM_WORLD.rank == 0:
+
+                def split(container, count):
+                    """
+                    Simple function splitting a container into equal length
+                    chunks.
+                    Order is not preserved but this is potentially an advantage
+                    depending on the use case.
+                    """
+                    return [container[_i::count] for _i in range(count)]
+
+                this_stations = set(ds.waveforms.list())
+                other_stations = set(other_ds.waveforms.list())
+
+                # Usable stations are those that are part of both.
+                usable_stations = list(
+                    this_stations.intersection(other_stations))
+                total_job_count = len(usable_stations)
+                jobs = split(usable_stations, MPI.COMM_WORLD.size)
+            else:
+                jobs = None
+
+            # Scatter jobs.
+            jobs = MPI.COMM_WORLD.scatter(jobs, root=0)
+
+            # Dictionary collecting results.
+            results = {}
+
+            for _i, station in enumerate(jobs):
+
+                if MPI.COMM_WORLD.rank == 0:
+                    print(" -> Processing approximately task %i of %i ..." %
+                          ((_i * MPI.COMM_WORLD.size + 1), total_job_count),
+                          flush=True)
+                try:
+                    result = process_function(
+                        getattr(ds.waveforms, station),
+                        getattr(other_ds.waveforms, station))
+                    # print("Working", flush=True)
+                except Exception:
+                    # print("Not working", flush=True)
+                    # If an exception is raised print a good error message
+                    # and traceback to help diagnose the issue.
+                    msg = ("\nError during the processing of station '%s' "
+                           "on rank %i:" % (station, MPI.COMM_WORLD.rank))
+
+                    # Extract traceback from the exception.
+                    exc_info = sys.exc_info()
+                    stack = traceback.extract_stack(
+                        limit=traceback_limit)
+                    tb = traceback.extract_tb(exc_info[2])
+                    full_tb = stack[:-1] + tb
+                    exc_line = traceback.format_exception_only(
+                        *exc_info[:2])
+                    tb = ("Traceback (At max %i levels - most recent call "
+                          "last):\n" % traceback_limit)
+                    tb += "".join(traceback.format_list(full_tb))
+                    tb += "\n"
+                    # A bit convoluted but compatible with Python 2 and
+                    # 3 and hopefully all encoding problems.
+                    tb += "".join(
+                        _i.decode(errors="ignore")
+                        if hasattr(_i, "decode") else _i
+                        for _i in exc_line)
+
+                    # These potentially keep references to the HDF5 file
+                    # which in some obscure way and likely due to
+                    # interference with internal HDF5 and Python references
+                    # prevents it from getting garbage collected. We
+                    # explicitly delete them here and MPI can finalize
+                    # afterwards.
+                    del exc_info
+                    del stack
+
+                    print(msg, flush=True)
+                    print(tb, flush=True)
+                else:
+                    # print("Else!", flush=True)
+                    results[station] = result
+            # barrier but better be safe than sorry.
+            MPI.COMM_WORLD.Barrier()
+
+            return results
+
         ds = pyasdf.ASDFDataSet(processed_filename, mode="r")
         ds_synth = pyasdf.ASDFDataSet(synthetic_filename, mode="r")
 
         # Launch the processing. This will be executed in parallel across
         # ranks.
-        results = ds.process_two_files_without_parallel_output(ds_synth,
-                                                               process)
+        results = process_two_files_without_parallel_output(ds, ds_synth,
+                                                            process)
         # Write files on rank 0.
+        # Write files on all ranks.
+        filename = self.comm.adj_sources.get_filename(
+            event=event["event_name"], iteration=iteration)
+        ad_src_counter = 0
+        size = MPI.COMM_WORLD.size
+        MPI.COMM_WORLD.Barrier()
+        for thread in range(size):
+            rank = MPI.COMM_WORLD.rank
+            if rank == thread:
+                print(
+                    f"Writing adjoint sources for rank: {rank+1} "
+                    f"out of {size}", flush=True)
+                with pyasdf.ASDFDataSet(filename=filename, mpi=False,
+                                        mode="a") as bs:
+                    for value in results.values():
+                        if not value:
+                            continue
+                        for c_id, adj_source in value.items():
+                            net, sta, loc, cha = c_id.split(".")
+                            bs.add_auxiliary_data(
+                                data=adj_source["adj_source"],
+                                data_type="AdjointSource",
+                                path="%s_%s/Channel_%s_%s" % (net, sta,
+                                                              loc, cha),
+                                parameters={"misfit": adj_source["misfit"]})
+                        ad_src_counter += 1
+
+            MPI.COMM_WORLD.barrier()
         if MPI.COMM_WORLD.rank == 0:
-            # print(MPI.COMM_WORLD.rank)
-            self.comm.adj_sources.write_adjoint_sources(
-                event=event["event_name"], iteration=iteration,
-                adj_sources=results)
+            with pyasdf.ASDFDataSet(filename=filename, mpi=False,
+                                    mode="a")as ds:
+                length = len(ds.auxiliary_data.AdjointSource.list())
+            print(f"{length} Adjoint sources are in your file.")
+
+            # if MPI.COMM_WORLD.rank == 0:
+            #
+            #     self.comm.adj_sources.write_adjoint_sources(
+            #         event=event["event_name"], iteration=iteration,
+            #         adj_sources=results)
 
     def select_windows(self, event, iteration_name, window_set_name, **kwargs):
         """
