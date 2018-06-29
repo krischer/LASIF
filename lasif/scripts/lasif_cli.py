@@ -242,7 +242,7 @@ def lasif_plot_event(parser, args):
 @command_group("Plotting")
 def lasif_plot_events(parser, args):
     """
-    Plot all events.
+    Plot all events. This might need an extension to iterations.
 
     type can be one of:
         * ``map`` (default) - a map view of the events
@@ -255,11 +255,14 @@ def lasif_plot_events(parser, args):
                         "``map``: beachballs on a map, "
                         "``depth``: depth distribution histogram, "
                         "``time``: time distribution histogram")
+    parser.add_argument("--iteration", help="Plot all events for an "
+                                            "iteration", default=None)
     args = parser.parse_args(args)
     plot_type = args.type
+    iteration = args.iteration
 
     comm = _find_project_comm(".")
-    comm.visualizations.plot_events(plot_type)
+    comm.visualizations.plot_events(plot_type, iteration=iteration)
 
     import matplotlib.pyplot as plt
     plt.show()
@@ -434,25 +437,33 @@ def lasif_list_events(parser, args):
     parser.add_argument("--list", help="Show only a list of events. Good for "
                                        "scripting bash.",
                         action="store_true")
+    parser.add_argument("--iteration", help="Show only events related to "
+                                            "a specific iteration",
+                        default=None)
     args = parser.parse_args(args)
+    iteration = args.iteration
 
     from lasif.tools.prettytable import PrettyTable
 
     comm = _find_project_comm(".")
 
-    if args.list is False:
+    if args.list is False and not args.iteration:
         print("%i event%s in project:" % (comm.events.count(),
               "s" if comm.events.count() != 1 else ""))
+    if args.list is False and args.iteration:
+        print("%i event%s in iteration:" % (
+            comm.events.count(iteration=iteration),
+            "s" if comm.events.count(iteration=iteration) != 1 else ""))
 
     if args.list is True:
         # path = comm.project.paths[eq_data]
 
-        for event in sorted(comm.events.list()):
+        for event in sorted(comm.events.list(iteration=iteration)):
             print(event)
     else:
         tab = PrettyTable(["Event Name", "Lat/Lng/Depth(km)/Mag"])
         tab.align["Event Name"] = "l"
-        for event in comm.events.list():
+        for event in comm.events.list(iteration=iteration):
             ev = comm.events.get(event)
             tab.add_row([
                 event, "%6.1f / %6.1f / %3i / %3.1f" % (
@@ -483,8 +494,10 @@ def lasif_submit_all_jobs(parser, args):
     args = parser.parse_args(args)
     import salvus_flow.api
     comm = _find_project_comm(".")
-    events = args.events if args.events else comm.events.list()
     iteration_name = args.iteration_name
+    events = args.events if args.events else \
+        comm.events.list(iteration=iteration_name)
+
     ranks = args.ranks
     wall_time = args.wall_time_in_seconds
     simulation_type = args.simulation_type
@@ -539,7 +552,8 @@ def lasif_retrieve_all_output(parser, args):
     else:
         base_dir = comm.project.paths["gradients"]
 
-    events = args.events if args.events else comm.events.list()
+    events = args.events if args.events else comm.events.list(
+        iteration=iteration_name)
     import shutil
     for event in events:
         output_dir = os.path.join(base_dir, long_iter_name, event)
@@ -662,7 +676,8 @@ def lasif_generate_input_files(parser, args):
                          "[%s]" % ", ".join(map(str, simulation_type_options)))
 
     comm = _find_project_comm(".")
-    events = args.events if args.events else comm.events.list()
+    events = args.events if args.events else comm.events.list(
+        iteration=iteration_name)
 
     if weight_set_name:
         if not comm.weights.has_weight_set(weight_set_name):
@@ -742,7 +757,8 @@ def lasif_calculate_adjoint_sources(parser, args):
                 "Iteration {} not known to LASIF".format(iteration))
         return
 
-    events = args.events if args.events else comm.events.list()
+    events = args.events if args.events else comm.events.list(
+        iteration=iteration)
 
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
@@ -797,7 +813,8 @@ def lasif_select_windows(parser, args):
 
     iteration_name = args.iteration
     window_set_name = args.window_set_name
-    events = args.events if args.events else comm.events.list()
+    events = args.events if args.events else comm.events.list(
+        iteration=iteration_name)
     for event in events:
         print(f"Selecting windows for event: {event}")
         comm.actions.select_windows(event, iteration_name, window_set_name)
@@ -831,6 +848,29 @@ def lasif_create_weight_set(parser, args):
         weight_set_name=weight_set_name,
         events_dict=comm.query.get_stations_for_all_events())
 
+# @command_group("Iteration Management")
+# def lasif_make_event_specific_meshes(parser, args):
+#     """
+#     Make a mesh for each event and keep track of which mesh uses which mesh
+#     """
+#     parser.add_argument("iteration", help="For which iteration these meshes"
+#                                           "are made.")
+#     parser.add_argument("events", help="Which events do you want to use? "
+#                                        "You can specify more than one by "
+#                                        "leaving a space between them",
+#                         default=None, nargs="*")
+#
+#     args = parser.parse_args(args)
+#
+#     # In future read from event list in iteration information
+#     comm = _find_project_comm(".")
+#     event_name = args.events if args.events else comm.events.list(
+#         iteration=args.iteration)
+#
+#     for event in event_name:
+#         print(f"Making mesh for event: {event}")
+#         comm.actions.make_event_mesh(event)
+
 
 @command_group("Iteration Management")
 def lasif_compute_station_weights(parser, args):
@@ -849,10 +889,15 @@ def lasif_compute_station_weights(parser, args):
                         help="name of event. If none is specified weights will"
                              "be calculated for all. Also possible to specify"
                              "more than one separated by a space", nargs="*")
+    parser.add_argument("--iteration", default=None,
+                        help="If you only want to do this for the events "
+                             "specified for an iteration")
     args = parser.parse_args(args)
     w_set = args.weight_set_name
     comm = _find_project_comm(".")
-    event_name = args.event_name if args.event_name else comm.events.list()
+    event_name = args.event_name if args.event_name else comm.events.list(
+        iteration=args.iteration
+    )
 
     if not comm.weights.has_weight_set(w_set):
         print("Weight set does not exist. Will create new one.")
@@ -906,11 +951,16 @@ def lasif_get_weighting_bins(parser, args):
     parser.add_argument("window_set_name", help="Name of window set")
     parser.add_argument("event_name", default=None, help="Name of event",
                         nargs="*")
+    parser.add_argument("--iteration", default=None, help="Take all events"
+                                                          "used in a specific"
+                                                          "iteration.")
     args = parser.parse_args(args)
     comm = _find_project_comm(".")
     windows = comm.windows.get(args.window_set_name)
 
-    event_names = args.event_name if args.event_name else comm.events.list()
+    event_names = args.event_name if args.event_name else comm.events.list(
+        iteration=args.iteration
+    )
     distances = OrderedDict()
 
     # Collect information on event-station distances.
@@ -1017,6 +1067,10 @@ def lasif_set_up_iteration(parser, args):
     comm = _find_project_comm(".")
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration_name, remove_dirs=remove_dirs)
+    comm.iterations.setup_iteration_toml(iteration_name=iteration_name,
+                                         remove_dirs=remove_dirs)
+    comm.iterations.setup_events_toml(iteration_name=iteration_name,
+                                      remove_dirs=remove_dirs)
 
 
 @command_group("Iteration Management")
@@ -1153,10 +1207,14 @@ def lasif_process_data(parser, args):
     parser.add_argument(
         "events", help="One or more events. If none given, all will be done.",
         nargs="*")
+    parser.add_argument("--iteration", help="Take all events used in "
+                                            "iteration", default=None)
 
     args = parser.parse_args(args)
     comm = _find_project_comm_mpi(".")
-    events = args.events if args.events else comm.events.list()
+    events = args.events if args.events else comm.events.list(
+        iteration=args.iteration
+    )
 
     # No need to perform these checks on all ranks.
     exceptions = []

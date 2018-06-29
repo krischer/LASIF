@@ -21,7 +21,7 @@ class VisualizationsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def plot_events(self, plot_type="map"):
+    def plot_events(self, plot_type="map", iteration=None):
         """
         Plots the domain and beachballs for all events on the map.
 
@@ -32,7 +32,14 @@ class VisualizationsComponent(Component):
         """
         from lasif import visualization
 
-        events = self.comm.events.get_all_events().values()
+        if iteration:
+            events_used = self.comm.events.list(iteration=iteration)
+            events = {}
+            for event in events_used:
+                events[event] = self.comm.events.get(event)
+            events = events.values()
+        else:
+            events = self.comm.events.get_all_events().values()
 
         if plot_type == "map":
             m = self.comm.project.domain.plot()
