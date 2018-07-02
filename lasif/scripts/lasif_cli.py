@@ -42,6 +42,8 @@ should scale fairly well and makes it trivial to add new methods.
 """
 import os
 
+import toml
+
 import lasif
 from lasif import LASIFError
 
@@ -1067,10 +1069,58 @@ def lasif_set_up_iteration(parser, args):
     comm = _find_project_comm(".")
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration_name, remove_dirs=remove_dirs)
-    comm.iterations.setup_iteration_toml(iteration_name=iteration_name,
-                                         remove_dirs=remove_dirs)
-    comm.iterations.setup_events_toml(iteration_name=iteration_name,
-                                      remove_dirs=remove_dirs)
+
+    if not remove_dirs:
+        comm.iterations.setup_iteration_toml(iteration_name=iteration_name,
+                                             remove_dirs=remove_dirs)
+        comm.iterations.setup_events_toml(iteration_name=iteration_name,
+                                          remove_dirs=remove_dirs)
+
+
+@command_group("Iteration Management")
+def lasif_write_misfit(parser, args):
+    """
+    """
+    parser.add_argument("iteration_name", help="current iteration")
+    parser.add_argument("--weight_set_name", default=None, type=str,
+                        help="Set of station and event weights")
+    args = parser.parse_args(args)
+
+    comm = _find_project_comm_mpi(".")
+
+    iteration_name = args.iteration_name
+    weight_set_name = args.weight_set_name
+
+    if weight_set_name:
+        if not comm.weights.has_weight_set(weight_set_name):
+            raise LASIFNotFoundError(f"Weights {weight_set_name} not known"
+                                     f"to LASIF")
+    # Check if iterations exist
+    if not comm.iterations.has_iteration(iteration_name):
+            raise LASIFNotFoundError(f"Iteration {iteration_name} "
+                                     f"not known to LASIF")
+
+    events = comm.events.list(iteration_name)
+    # build iteration dict
+    total_misfit = 0.0
+    iteration_dict = {"event_misfits" : {}}
+    for event in events:
+        event_misfit = \
+            comm.adj_sources.get_misfit_for_event(event,
+                                                  args.iteration_name,
+                                                  weight_set_name)
+        iteration_dict["event_misfits"][event] = event_misfit
+        total_misfit += event_misfit
+
+    iteration_dict["total_misfit"] = total_misfit
+
+    long_iter_name = comm.iterations.get_long_iteration_name(iteration_name)
+
+    path = comm.project.paths["iterations"]
+    toml_filename = os.path.join(path, long_iter_name, "misfits.toml")
+
+    with open(toml_filename, "w") as fh:
+        toml.dump(iteration_dict, fh)
 
 
 @command_group("Iteration Management")
