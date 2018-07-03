@@ -356,7 +356,7 @@ class ActionsComponent(Component):
                             net, sta, loc, cha = c_id.split(".")
                             bs.add_auxiliary_data(
                                 data=adj_source["adj_source"],
-                                data_type="AdjointSource",
+                                data_type="AdjointSources",
                                 path="%s_%s/Channel_%s_%s" % (net, sta,
                                                               loc, cha),
                                 parameters={"misfit": adj_source["misfit"]})
@@ -366,7 +366,7 @@ class ActionsComponent(Component):
         if MPI.COMM_WORLD.rank == 0:
             with pyasdf.ASDFDataSet(filename=filename, mpi=False,
                                     mode="a")as ds:
-                length = len(ds.auxiliary_data.AdjointSource.list())
+                length = len(ds.auxiliary_data.AdjointSources.list())
             print(f"{length} Adjoint sources are in your file.")
 
             # if MPI.COMM_WORLD.rank == 0:
@@ -892,8 +892,6 @@ class ActionsComponent(Component):
             f"--adjoint --kernel-file kernel_{event_name}.e " \
             f"--load-fields adjoint " \
             f"--load-wavefield-file wavefield.h5 " \
-            f"--save-static-fields gradient " \
-            f"--save-static-file-name {event_name}.h5 " \
             f"--io-memory-per-rank-in-MB 5000 " \
             f"--absorbing-boundaries {absorbing_boundaries} " \
             f"--source-toml {toml_file_name} " \
