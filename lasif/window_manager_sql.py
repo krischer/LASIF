@@ -238,7 +238,72 @@ class WindowGroupManager(object):
                       ('%' + station + '%',))
             return c.fetchall()
 
-    def write_windows(self, event_name, results):
+    def write_windows_bulk(self, event_name, results):
+        """
+        This function essentially performs the same tasks as
+        self.write_windows, the constant opening and closing of the database
+        in that function proved a significant bottleneck and this function
+        overcomes that.
+        """
+        with self.sqlite_cursor() as c:
+            # check if event exists
+            c.execute("SELECT EXISTS(SELECT event_id FROM events "
+                      "WHERE event_name = ?)", (event_name,))
+
+            # if event does not exist, insert into db
+            if not bool(c.fetchone()[0]):
+                c.execute("INSERT INTO events VALUES (NULL, ? )",
+                          (event_name,))
+            c.execute("SELECT event_id FROM events "
+                      "WHERE event_name = ?", (event_name,))
+            event_id = c.fetchone()[0]
+
+            for station, channels in results.items():
+                if channels is not None:
+                    for channel, windows in channels.items():
+                        # check if trace exists
+                        c.execute(
+                            "SELECT EXISTS(SELECT 1 FROM traces "
+                            "WHERE channel_name=? AND event_id=? LIMIT 1)",
+                            (channel, event_id))
+                        # if trace not there, insert into db
+                        if not bool(c.fetchone()[0]):
+                            c.execute(
+                                " INSERT INTO traces VALUES (NULL, ?, ?)",
+                                (event_id, channel))
+                        c.execute("SELECT trace_id FROM traces "
+                                  "WHERE channel_name=? AND event_id=?",
+                                  (channel, event_id))
+                        trace_id = c.fetchone()[0]
+                        for window in windows:
+                            start_time = window[0].datetime
+                            end_time = window[1].datetime
+                            weight = 1.0
+                            assert end_time > start_time, \
+                                "end_time must be larger than start_time"
+                            # delete overlapping windows if they exist
+                            c.execute("""
+                                DELETE FROM windows WHERE trace_id=?
+                                AND ((start_time BETWEEN ? AND ?)
+                                OR (end_time BETWEEN ? AND ?)
+                                OR (start_time >= ? AND end_time <= ?)
+                                OR (start_time <= ? AND end_time >= ?))
+                                """,
+                                      ("{}".format(trace_id), start_time,
+                                       end_time, start_time,
+                                       end_time, start_time, end_time,
+                                       start_time, end_time))
+
+                            # insert window
+                            c.execute("""
+                                INSERT INTO windows VALUES (
+                                    NULL, ?, ?, ?, ?
+                                )
+                            """, (
+                            "{}".format(trace_id), start_time, end_time,
+                            weight))
+
+    def write_windows_old(self, event_name, results):
         if not self.event_in_db(event_name):
             self.add_event(event_name)
 

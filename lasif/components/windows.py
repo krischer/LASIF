@@ -73,7 +73,7 @@ class WindowsComponent(Component):
         of tuples (start- and end times)
         """
         window_group_manager = self.get(window_set_name)
-        window_group_manager.write_windows(event_name, windows)
+        window_group_manager.write_windows_bulk(event_name, windows)
 
     def read_all_windows(self, event, window_set_name):
         """
