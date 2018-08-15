@@ -343,6 +343,20 @@ class Window(QtGui.QMainWindow):
                 comparison_wave = self.comm.query.get_matching_waveforms(
                     self.current_event, self.comparison_iteration,
                     self.current_station)
+
+                # Scale the data if required.
+                if self.comm.project.processing_params[
+                    "scale_data_to_synthetics"]:
+                    for data_tr in wave.synthetics:
+                        synthetic_tr = [
+                            tr for tr in comparison_wave.synthetics
+                            if tr.stats.channel[-1].lower() ==
+                               data_tr.stats.channel[-1].lower()][0]
+                        scaling_factor = synthetic_tr.data.ptp() / \
+                                         data_tr.data.ptp()
+                        # Store and apply the scaling.
+                        data_tr.stats.scaling_factor = scaling_factor
+                        data_tr.data *= scaling_factor
         except Exception as e:
             for component in ["Z", "N", "E"]:
                 plot_widget = getattr(self.ui, "%s_graph" % component.lower())
