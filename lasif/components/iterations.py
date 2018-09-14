@@ -29,8 +29,8 @@ class IterationsComponent(Component):
         >>> comm.iterations.get_long_iteration_name("1")
         'ITERATION_1'
         """
-
-        iteration_name = iteration_name.lstrip("ITERATION_")
+        if iteration_name[:10] == "ITERATION_":
+            iteration_name = iteration_name[10:]
         return "ITERATION_%s" % iteration_name
 
     def write_info_toml(self, iteration_name, simulation_type):
