@@ -1061,20 +1061,26 @@ def lasif_set_up_iteration(parser, args):
         "--remove_dirs",
         help="Removes all directories related to the specified iteration. ",
         action="store_true")
+    parser.add_argument("events", help="If you only want to submit selected "
+                                       "events. You can input more than one "
+                                       "separated by a space. If none is "
+                                       "specified, all will be taken",
+                        nargs="*", default=None)
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
     remove_dirs = args.remove_dirs
 
     comm = _find_project_comm(".")
+    events = args.events if args.events else comm.events.list()
+
     comm.iterations.setup_directories_for_iteration(
         iteration_name=iteration_name, remove_dirs=remove_dirs)
 
     if not remove_dirs:
-        comm.iterations.setup_iteration_toml(iteration_name=iteration_name,
-                                             remove_dirs=remove_dirs)
+        comm.iterations.setup_iteration_toml(iteration_name=iteration_name)
         comm.iterations.setup_events_toml(iteration_name=iteration_name,
-                                          remove_dirs=remove_dirs)
+                                          events=events)
 
 
 @command_group("Iteration Management")
@@ -1084,12 +1090,15 @@ def lasif_write_misfit(parser, args):
     parser.add_argument("iteration_name", help="current iteration")
     parser.add_argument("--weight_set_name", default=None, type=str,
                         help="Set of station and event weights")
+    parser.add_argument("--window_set_name", default=None, type=str,
+                        help="name of the window set")
     args = parser.parse_args(args)
 
     comm = _find_project_comm_mpi(".")
 
     iteration_name = args.iteration_name
     weight_set_name = args.weight_set_name
+    window_set_name = args.window_set_name
 
     if weight_set_name:
         if not comm.weights.has_weight_set(weight_set_name):
@@ -1113,6 +1122,8 @@ def lasif_write_misfit(parser, args):
         total_misfit += event_misfit
 
     iteration_dict["total_misfit"] = total_misfit
+    iteration_dict["weight_set_name"] = weight_set_name
+    iteration_dict["window_set_name"] = window_set_name
 
     long_iter_name = comm.iterations.get_long_iteration_name(iteration_name)
 

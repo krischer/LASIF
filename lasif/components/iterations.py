@@ -102,7 +102,7 @@ class IterationsComponent(Component):
         self._create_iteration_folder_for_iteration(long_iter_name,
                                                     remove_dirs)
 
-    def setup_iteration_toml(self, iteration_name, remove_dirs=False):
+    def setup_iteration_toml(self, iteration_name):
         """
         Sets up a toml file which can be used to keep track of needed
         information related to the iteration. It can be used to specify which
@@ -146,7 +146,7 @@ class IterationsComponent(Component):
             fh.write(toml_string)
         print(f"Information about iteration stored in {file}")
 
-    def setup_events_toml(self, iteration_name, remove_dirs=False):
+    def setup_events_toml(self, iteration_name, events):
         """
         Writes all events into a toml file. User can modify this if he wishes
         to use less events for this specific iteration. Lasif should be smart
@@ -167,8 +167,8 @@ class IterationsComponent(Component):
                       "[events]\n" \
                       "    events_used = ["
         s = 0
-        for event in self.comm.events.list():
-            if s == len(self.comm.events.list()) - 1:
+        for event in events:
+            if s == len(events) - 1:
                 toml_string += "'" + event + "']"
             else:
                 toml_string += "'" + event + "',\n"
@@ -280,7 +280,8 @@ class IterationsComponent(Component):
         """
         Checks for existance of an iteration
         """
-        iteration_name = iteration_name.lstrip("ITERATION_")
+        if iteration_name[:10] == "ITERATION_":
+            iteration_name = iteration_name[10:]
         if iteration_name in self.list():
             return True
         return False
