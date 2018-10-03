@@ -1227,12 +1227,14 @@ def lasif_compare_misfits(parser, args):
                   f"\t iteration {from_it} has misfit: "
                   f"{from_it_misfit_event} \n"
                   f"\t iteration {to_it} has misfit: {to_it_misfit_event}.")
+            rel_change = (to_it_misfit_event - from_it_misfit_event) / from_it_misfit_event * 100.0
+            print(f"Relative change: {rel_change:.2f}%")
 
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
     print(f"Total misfit for iteration {to_it}: {to_it_misfit}")
-    rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit
+    rel_change = (to_it_misfit - from_it_misfit) / from_it_misfit * 100.0
     print(f"Relative change in total misfit from iteration {from_it} to "
-          f"{to_it} is: {rel_change}")
+          f"{to_it} is: {rel_change:.2f}")
     n_events = len(comm.events.list())
     print(f"Misfit per event for iteration {from_it}: "
           f"{from_it_misfit/n_events}")
