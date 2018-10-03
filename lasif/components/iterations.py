@@ -101,6 +101,8 @@ class IterationsComponent(Component):
         self._create_model_folder_for_iteration(long_iter_name, remove_dirs)
         self._create_iteration_folder_for_iteration(long_iter_name,
                                                     remove_dirs)
+        self._create_gradients_folder_for_iteration(long_iter_name,
+                                                    remove_dirs)
 
     def setup_iteration_toml(self, iteration_name):
         """
