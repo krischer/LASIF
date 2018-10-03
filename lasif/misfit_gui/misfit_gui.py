@@ -169,7 +169,7 @@ class Window(QtGui.QMainWindow):
         value = str(value).strip()
         if not value:
             return
-        events = self.comm.events.list()
+        events = self.comm.events.list(iteration=self.current_iteration)
 
         self.ui.event_selection_comboBox.setEnabled(True)
         self.ui.event_selection_comboBox.clear()
