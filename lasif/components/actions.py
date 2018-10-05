@@ -579,7 +579,7 @@ class ActionsComponent(Component):
                                    station))
 
     def generate_input_files(self, iteration_name, event_name,
-                             simulation_type="forward"):
+                             simulation_type="forward", previous_iteration=""):
         """
         Generate the input files for one event.
 
@@ -587,7 +587,51 @@ class ActionsComponent(Component):
         :param event_name: The name of the event for which to generate the
             input files.
         :param simulation_type: forward, adjoint, step_length
+        :param previous_iteration: name of the iteration to copy input files
+            from.
         """
+        import shutil
+        if self.comm.project.config["mesh_file"] == "multiple":
+            mesh_file = os.path.join(self.comm.project.paths["models"],
+                                     "EVENT_SPECIFIC", event_name, "mesh.e")
+        else:
+            mesh_file = self.comm.project.config["mesh_file"]
+
+        input_files_dir = self.comm.project.paths['salvus_input']
+
+        # If previous iteration specified, copy files over and update mesh_file
+        # This part could be extended such that other parameters can be
+        # updated as well.
+        if previous_iteration:
+            long_prev_iter_name = self.comm.iterations.get_long_iteration_name(
+                previous_iteration)
+            prev_it_dir = os.path.join(input_files_dir, long_prev_iter_name,
+                                       event_name, simulation_type)
+        if previous_iteration and os.path.exists(prev_it_dir):
+            long_iter_name = self.comm.iterations.get_long_iteration_name(
+                iteration_name)
+            output_dir = os.path.join(input_files_dir, long_iter_name,
+                                      event_name,
+                                      simulation_type)
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            if not prev_it_dir == output_dir:
+                shutil.copyfile(os.path.join(prev_it_dir, "run_salvus.sh"),
+                                os.path.join(output_dir, "run_salvus.sh"))
+            else:
+                print("Previous iteration is identical to current iteration.")
+            with open(os.path.join(output_dir, "run_salvus.sh"), "r") as fh:
+                cmd_string = fh.read()
+            l = cmd_string.split(" ")
+            l[l.index("--model-file") + 1] = mesh_file
+            l[l.index("--mesh-file") + 1] = mesh_file
+            cmd_string = " ".join(l)
+            with open(os.path.join(output_dir, "run_salvus.sh"), "w") as fh:
+                fh.write(cmd_string)
+            return
+        else:
+            print(f"Could not find previous iteration directory for event: "
+                  f"{event_name}, generating input files")
 
         # =====================================================================
         # read weights toml file, get event and list of stations
@@ -621,11 +665,6 @@ class ActionsComponent(Component):
         recs = salvus_seismo.Receiver.parse(inv)
 
         solver_settings = self.comm.project.solver_settings
-        if self.comm.project.config["mesh_file"] == "multiple":
-            mesh_file = os.path.join(self.comm.project.paths["models"],
-                                     "EVENT_SPECIFIC", event_name, "mesh.e")
-        else:
-            mesh_file = self.comm.project.config["mesh_file"]
         if solver_settings["number_of_absorbing_layers"] == 0:
             num_absorbing_layers = None
         else:
@@ -665,12 +704,12 @@ class ActionsComponent(Component):
                 with_anisotropy=self.comm.project.
                 solver_settings["with_anisotropy"])
 
-        # ==============================================================j===
+        # =====================================================================
         # output
-        # =================================================================
+        # =====================================================================
         long_iter_name = self.comm.iterations.get_long_iteration_name(
             iteration_name)
-        input_files_dir = self.comm.project.paths['salvus_input']
+
         output_dir = os.path.join(input_files_dir, long_iter_name, event_name,
                                   simulation_type)
 

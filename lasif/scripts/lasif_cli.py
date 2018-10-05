@@ -666,12 +666,16 @@ def lasif_generate_input_files(parser, args):
     parser.add_argument("--weight_set_name", default=None, type=str,
                         help="Set of station and event weights,"
                              "used to scale the adjoint sources")
+    parser.add_argument("--prev_iter", default=None, type=str,
+                        help="Optionally specify a previous iteration"
+                             "to use input files_from, only updates"
+                             "the mesh file.")
 
     args = parser.parse_args(args)
     iteration_name = args.iteration_name
     weight_set_name = args.weight_set_name
     simulation_type = args.simulation_type
-
+    previous_iteration = args.prev_iter
     simulation_type_options = ["forward", "step_length", "adjoint"]
     if simulation_type not in simulation_type_options:
         raise LASIFError("Please choose simulation_type from: "
@@ -689,11 +693,17 @@ def lasif_generate_input_files(parser, args):
     if not comm.iterations.has_iteration(iteration_name):
         raise LASIFNotFoundError(f"Could not find iteration: {iteration_name}")
 
+    if previous_iteration and \
+            not comm.iterations.has_iteration(previous_iteration):
+        raise LASIFNotFoundError(f"Could not find iteration:"
+                                 f" {previous_iteration}")
+
     for _i, event in enumerate(events):
         if not comm.events.has_event(event):
                 print(f"Event {event} not known to LASIF. "
                       f"No input files for this event"
                       f" will be generated. ")
+                continue
         print(f"Generating input files for event "
               f"{_i + 1} of {len(events)} -- {event}")
         if simulation_type == "adjoint":
@@ -702,7 +712,7 @@ def lasif_generate_input_files(parser, args):
 
         else:
             comm.actions.generate_input_files(iteration_name, event,
-                                              simulation_type)
+                                              simulation_type, previous_iteration)
     comm.iterations.write_info_toml(iteration_name, simulation_type)
 
 
