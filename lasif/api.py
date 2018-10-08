@@ -22,6 +22,10 @@ from mpi4py import MPI
 import toml
 
 
+class LASIFCommandLineException(Exception):
+    pass
+
+
 def find_project_comm(folder):
     """
     Will search upwards from the given folder until a folder containing a

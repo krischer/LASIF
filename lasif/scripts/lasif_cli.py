@@ -41,12 +41,9 @@ should scale fairly well and makes it trivial to add new methods.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 import os
-
-import toml
-
 import lasif
-from lasif import LASIFError
 from lasif import api
+from lasif.api import LASIFCommandLineException
 
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
@@ -60,8 +57,6 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 
 from mpi4py import MPI
-from lasif import LASIFNotFoundError
-from lasif.components.project import Project
 
 
 # Try to disable the ObsPy deprecation warnings. This makes LASIF work with
@@ -126,46 +121,6 @@ def mpi_enabled(func):
     return func
 
 
-class LASIFCommandLineException(Exception):
-    pass
-
-
-def _find_project_comm(folder):
-    """
-    Will search upwards from the given folder until a folder containing a
-    LASIF root structure is found. The absolute path to the root is returned.
-    """
-    folder = pathlib.Path(folder).absolute()
-    max_folder_depth = 10
-    folder = folder
-    for _ in range(max_folder_depth):
-        if (folder / "lasif_config.toml").exists():
-            return Project(folder).get_communicator()
-        folder = folder.parent
-    msg = "Not inside a LASIF project."
-    raise LASIFCommandLineException(msg)
-
-
-def _find_project_comm_mpi(folder):
-    """
-    Parallel version. Will open the caches for rank 0 with write access,
-    caches from the other ranks can only read.
-
-    :param folder: The folder were to start the search.
-    """
-    if MPI.COMM_WORLD.rank == 0:
-        comm = _find_project_comm(folder)
-
-    # Open the caches for the other ranks after rank zero has opened it to
-    # allow for the initial caches to be written.
-    MPI.COMM_WORLD.barrier()
-
-    if MPI.COMM_WORLD.rank != 0:
-        comm = _find_project_comm(folder)
-
-    return comm
-
-
 def split(container, count):
     """
     Simple and elegant function splitting a container into count
@@ -180,7 +135,6 @@ def split(container, count):
     return [container[_i::count] for _i in range(count)]
 
 
-# API
 @command_group("Plotting")
 def lasif_plot_domain(parser, args):
     """
@@ -190,7 +144,6 @@ def lasif_plot_domain(parser, args):
                         action="store_true")
     args = parser.parse_args(args)
     save = args.save
-    comm = _find_project_comm(".")
 
     api.plot_domain(lasif_root=".", save=save)
 
@@ -202,14 +155,13 @@ def lasif_shell(parser, args):
     """
     args = parser.parse_args(args)
 
-    comm = _find_project_comm(".")
+    comm = api.find_project_comm(".")
     print("LASIF shell, 'comm' object is available in the local namespace.\n")
     print(comm)
     from IPython import embed
     embed(display_banner=False)
 
 
-# API
 @command_group("Plotting")
 def lasif_plot_event(parser, args):
     """
@@ -229,7 +181,6 @@ def lasif_plot_event(parser, args):
                    save=args.save)
 
 
-# API
 @command_group("Plotting")
 def lasif_plot_events(parser, args):
     """
@@ -256,7 +207,6 @@ def lasif_plot_events(parser, args):
                     save=args.save)
 
 
-# API
 @command_group("Plotting")
 def lasif_plot_raydensity(parser, args):
     """
@@ -265,7 +215,6 @@ def lasif_plot_raydensity(parser, args):
     parser.add_argument("--plot_stations", help="also plot the stations",
                         action="store_true")
     args = parser.parse_args(args)
-    comm = _find_project_comm(".")
 
     api.plot_raydensity(lasif_root=".", plot_stations=args.plot_stations)
 
@@ -286,7 +235,7 @@ def lasif_plot_section(parser, args):
     traces_per_bin = args.traces_per_bin
     num_bins = args.num_bins
 
-    comm = _find_project_comm(".")
+    comm = api.find_project_comm(".")
     comm.visualizations.plot_section(event_name=event_name, num_bins=num_bins,
                                      traces_per_bin=traces_per_bin)
 
@@ -302,34 +251,34 @@ def lasif_add_spud_event(parser, args):
 
     from lasif.scripts.iris2quakeml import iris2quakeml
 
-    comm = _find_project_comm(".")
+    comm = api.find_project_comm(".")
     iris2quakeml(url, comm.project.paths["eq_data"])
 
 
-@command_group("Data Acquisition")
-def lasif_write_events_to_xml(parser, args):
-    """
-    Writes a collection of event xmls.
-    """
-    args = parser.parse_args(args)
-    comm = _find_project_comm(".")
-    import pyasdf
+# # PERSONAL USE
+# @command_group("Data Acquisition")
+# def lasif_write_events_to_xml(parser, args):
+#     """
+#     Writes a collection of event xmls.
+#     """
+#     args = parser.parse_args(args)
+#     comm = api.find_project_comm(".")
+#     import pyasdf
+#
+#     output_folder = comm.project.get_output_folder(
+#         type="EventXMLs", tag="event")
+#
+#     for event in comm.events.list():
+#         event_filename = \
+#             comm.waveforms.get_asdf_filename(event, data_type="raw")
+#         with pyasdf.ASDFDataSet(event_filename, mode="r") as ds:
+#             cat = ds.events
+#             cat.write(os.path.join(output_folder, event + ".xml"),
+#                       format="QuakeML")
+#
+#     print(f"You can find the collection of QuakeMl files in {output_folder}")
 
-    output_folder = comm.project.get_output_folder(
-        type="EventXMLs", tag="event")
 
-    for event in comm.events.list():
-        event_filename = \
-            comm.waveforms.get_asdf_filename(event, data_type="raw")
-        with pyasdf.ASDFDataSet(event_filename, mode="r") as ds:
-            cat = ds.events
-            cat.write(os.path.join(output_folder, event + ".xml"),
-                      format="QuakeML")
-
-    print(f"You can find the collection of QuakeMl files in {output_folder}")
-
-
-# API
 @command_group("Data Acquisition")
 def lasif_add_gcmt_events(parser, args):
     """
@@ -367,7 +316,6 @@ def lasif_info(parser, args):
     api.project_info(lasif_root=".")
 
 
-#API
 @command_group("Data Acquisition")
 def lasif_download_data(parser, args):
     """
@@ -393,7 +341,7 @@ def lasif_download_data(parser, args):
                       event_name=args.event_name if args.event_name else [],
                       providers=args.providers)
 
-# API
+
 @command_group("Event Management")
 def lasif_list_events(parser, args):
     """
@@ -410,7 +358,6 @@ def lasif_list_events(parser, args):
     api.list_events(lasif_root=".", list=args.list, iteration=args.iteration)
 
 
-# API
 @command_group("Iteration Management")
 def lasif_submit_job(parser, args):
     """
@@ -439,7 +386,6 @@ def lasif_submit_job(parser, args):
                     site=args.site, events=args.event if args.event else [])
 
 
-# API
 @command_group("Iteration Management")
 def lasif_retrieve_output(parser, args):
     """
@@ -463,7 +409,6 @@ def lasif_retrieve_output(parser, args):
                         events=args.event if args.event else [])
 
 
-#API
 @command_group("Event Management")
 def lasif_event_info(parser, args):
     """
@@ -490,7 +435,6 @@ def lasif_plot_stf(parser, args):
     api.plot_stf(lasif_root=".")
 
 
-# API
 @command_group("Iteration Management")
 def lasif_generate_input_files(parser, args):
     """
@@ -522,7 +466,6 @@ def lasif_generate_input_files(parser, args):
                              [])
 
 
-# API
 @command_group("Project Management")
 def lasif_init_project(parser, args):
     """
@@ -534,7 +477,6 @@ def lasif_init_project(parser, args):
     api.init_project(args.folder_path)
 
 
-# API
 @mpi_enabled
 @command_group("Iteration Management")
 def lasif_calculate_adjoint_sources(parser, args):
@@ -555,7 +497,6 @@ def lasif_calculate_adjoint_sources(parser, args):
                                   events=args.events if args.events else [])
 
 
-# API
 @mpi_enabled
 @command_group("Iteration Management")
 def lasif_select_windows(parser, args):
@@ -577,7 +518,6 @@ def lasif_select_windows(parser, args):
                        events=args.events if args.events else [])
 
 
-
 @command_group("Iteration Management")
 def lasif_gui(parser, args):
     """
@@ -588,7 +528,6 @@ def lasif_gui(parser, args):
     api.open_gui(lasif_root=".")
 
 
-# API
 @command_group("Iteration Management")
 def lasif_create_weight_set(parser, args):
     """
@@ -601,8 +540,6 @@ def lasif_create_weight_set(parser, args):
     api.create_weight_set(lasif_root=".", weight_set=args.weight_set_name)
 
 
-
-# API
 @command_group("Iteration Management")
 def lasif_compute_station_weights(parser, args):
     """
@@ -629,6 +566,7 @@ def lasif_compute_station_weights(parser, args):
                                 else [],
                                 iteration=args.iteration)
 
+
 # API
 @command_group("Iteration Management")
 def lasif_get_weighting_bins(parser, args):
@@ -650,7 +588,6 @@ def lasif_get_weighting_bins(parser, args):
                            iteration=args.iteration)
 
 
-# API
 @command_group("Iteration Management")
 def lasif_set_up_iteration(parser, args):
     """
@@ -674,7 +611,6 @@ def lasif_set_up_iteration(parser, args):
                          remove_dirs=args.remove_dirs)
 
 
-# API
 @command_group("Iteration Management")
 def lasif_write_misfit(parser, args):
     """
@@ -691,7 +627,6 @@ def lasif_write_misfit(parser, args):
                      window_set=args.window_set_name)
 
 
-# API
 @command_group("Iteration Management")
 def lasif_list_iterations(parser, args):
     """
@@ -701,7 +636,6 @@ def lasif_list_iterations(parser, args):
     api.list_iterations(lasif_root=".")
 
 
-# API
 @mpi_enabled
 @command_group("Iteration Management")
 def lasif_compare_misfits(parser, args):
@@ -770,7 +704,6 @@ def lasif_process_data(parser, args):
                      iteration=args.iteration)
 
 
-# API
 @command_group("Plotting")
 def lasif_plot_window_statistics(parser, args):
     """
@@ -791,7 +724,6 @@ def lasif_plot_window_statistics(parser, args):
                                events=args.events if args.events else [],
                                iteration=args.iteration)
 
-# API
 @command_group("Plotting")
 def lasif_plot_windows(parser, args):
     """
@@ -809,7 +741,6 @@ def lasif_plot_windows(parser, args):
                      distance_bins=args.distance_bins)
 
 
-# API
 @command_group("Project Management")
 def lasif_validate_data(parser, args):
     """
@@ -852,7 +783,6 @@ def lasif_validate_data(parser, args):
                       full=args.full)
 
 
-# API
 @command_group("Project Management")
 def lasif_clean_up(parser, args):
     """
@@ -866,7 +796,6 @@ def lasif_clean_up(parser, args):
     api.clean_up(lasif_root=".", clean_up_file=args.clean_up_file)
 
 
-# API
 def lasif_tutorial(parser, args):
     """
     Open the tutorial in a webbrowser.
