@@ -18,6 +18,8 @@ import pyasdf
 import shutil
 from scipy.spatial import cKDTree
 
+from lasif import LASIFNotFoundError, LASIFError
+
 EARTH_RADIUS = 6371.00
 
 from lasif.utils import get_event_filename
@@ -215,63 +217,53 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     shutil.rmtree(folder)
 
 
-def get_subset_of_events(comm, count, min_magnitude=0.0,
-                         max_magnitude=12.0, threshold_distance_in_km=50.0):
-    min_magnitude = float(min_magnitude)
-    max_magnitude = float(max_magnitude)
-
-    # Get the catalog.
-    events = comm.events.list()
+def get_subset_of_events(comm, count, events):
+    """
+    This function gets an optimally distributed set of events
+    :param comm: LASIF communicator
+    :param count: number of events to choose.
+    :param events: list of event_names, from which to choose from. These
+    events must be known to LASIF
+    :return:
+    """
+    available_events = comm.events.list()
+    if len(events) < count:
+        raise LASIFError("Insufficient amount of events specified.")
+    if not type(count) == int:
+        raise ValueError("count should be an integer value.")
+    if count < 1:
+        raise ValueError("count should be at least 1.")
+    for event in events:
+        if event not in available_events:
+            raise LASIFNotFoundError(f"event : {event} not known to LASIF.")
 
     cat = obspy.Catalog()
     for event in events:
         event_file_name = \
             comm.waveforms.get_asdf_filename(event, data_type="raw")
         with pyasdf.ASDFDataSet(event_file_name, mode="r") as ds:
-            cat += ds.events
+            ev = ds.events[0]
+            # append event_name to comments, such that it can later be
+            # retrieved
+            ev.comments.append(event)
+            cat += ev
 
-    cat = cat.filter("magnitude >= %.2f" % min_magnitude,
-                     "magnitude <= %.2f" % max_magnitude)
-
-    # Filtering catalog to only contain events in the domain.
-    print("Filtering to only include events inside domain...")
     # Coordinates and the Catalog will have the same order!
-    temp_cat = Catalog()
     coordinates = []
     for event in cat:
         org = event.preferred_origin() or event.origins[0]
-        if not comm.query.point_in_domain(org.latitude, org.longitude,
-                                          org.depth):
-            continue
-        temp_cat.events.append(event)
         coordinates.append((org.latitude, org.longitude))
-    cat = temp_cat
+
     chosen_events = []
-    if len(cat) == 0:
-        print("No valid events were found. Consider your query parameters "
-              "and domain size and try again. Events might be inside"
-              " your buffer elements as well.")
-        return
-
-    print("%i valid events remain. Starting selection process..." % len(cat))
-
-    # Get the coordinates of all existing events.
     existing_coordinates = []
-    existing_origin_times = []
 
-    # Special case handling in case there are no preexisting events.
-    if not existing_coordinates:
-        idx = random.randint(0, len(cat) - 1)
-
-        chosen_events.append(cat[idx])
-        del cat.events[idx]
-        existing_coordinates.append(coordinates[idx])
-        del coordinates[idx]
-
-        _t = cat[idx].preferred_origin() or cat[idx].origins[0]
-        existing_origin_times.append(_t.time)
-
-        count -= 1
+    # randomly start with one of the specified events
+    idx = random.randint(0, len(cat) - 1)
+    chosen_events.append(cat[idx])
+    del cat.events[idx]
+    existing_coordinates.append(coordinates[idx])
+    del coordinates[idx]
+    count -= 1
 
     while count:
         if not coordinates:
@@ -288,43 +280,12 @@ def get_subset_of_events(comm, count, min_magnitude=0.0,
         del cat.events[idx]
         del coordinates[idx]
 
-        # Actual distance.
-        distance = EARTH_RADIUS * distances[idx]
-
-        if distance < threshold_distance_in_km:
-            print("\tNo events left with distance to the next closest event "
-                  "of more then %.1f km. Stopping here." %
-                  threshold_distance_in_km)
-            break
-
-        # Make sure it did not happen within one day of an existing event.
-        # This should also filter out duplicates.
-        _t = event.preferred_origin() or event.origins[0]
-        origin_time = _t.time
-
-        if min([abs(origin_time - _i) for _i in existing_origin_times]) < \
-                86400:
-            print("\tSelected event temporally to close to existing event. "
-                  "Will not be chosen. Skipping to next event.")
-            continue
-
-        print("\tSelected event with the next closest event being %.1f km "
-              "away." % distance)
-
         chosen_events.append(event)
         existing_coordinates.append(coods)
         count -= 1
 
-    print("Selected %i events." % len(chosen_events))
-    outfile = os.path.join(
-        comm.project.get_output_folder(
-            type="event_subset", tag="event", timestamp=True),
-        f"events_subset.txt", )
-    events_string = ""
-    for event in chosen_events:
-        events_string += get_event_filename(event, "GCMT")[:-3] + "\n"
-
-    if events_string:
-        with open(outfile, "w") as fh:
-            fh.write(events_string)
-        print(f"Saved a list of events at {outfile}")
+    list_of_chosen_events = []
+    for ev in chosen_events:
+        list_of_chosen_events.append(ev.comments.pop())
+    print(list_of_chosen_events)
+    return list_of_chosen_events

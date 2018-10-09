@@ -11,15 +11,17 @@ command line interface.
     (http://www.gnu.org/copyleft/gpl.html)
 
 """
-import lasif
 import os
 from lasif import LASIFError
+from lasif.components.communicator import Communicator
 from lasif.components.project import Project
 from lasif import LASIFNotFoundError
 import pathlib
 import colorama
 from mpi4py import MPI
 import toml
+
+from lasif.tools.query_gcmt_catalog import get_subset_of_events
 
 
 class LASIFCommandLineException(Exception):
@@ -234,7 +236,11 @@ def submit_job(lasif_root, iteration, ranks, wall_time, simulation_type, site,
     """
     import salvus_flow.api
 
-    comm = find_project_comm(lasif_root)
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+
     if simulation_type not in ["forward", "step_length", "adjoint"]:
         raise LASIFError("Simulation type needs to be forward, step_length"
                          " or adjoint")
@@ -275,7 +281,10 @@ def retrieve_output(lasif_root, iteration, simulation_type, site, events=[]):
     import salvus_flow.api
     import shutil
 
-    comm = find_project_comm(lasif_root)
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
 
     if len(events) == 0:
         events = comm.events.list(iteration=iteration)
@@ -987,6 +996,22 @@ def plot_windows(lasif_root, event_name, window_set, distance_bins=500):
                                      ax=None,
                                      distance_bins=500,
                                      show=True)
+
+
+def get_subset(lasif_root, events, count):
+    """
+    This function gets an optimally distributed set of events
+    :param comm: LASIF communicator
+    :param count: number of events to choose.
+    :param events: list of event_names, from which to choose from. These
+    events must be known to LASIF
+    :return:
+    """
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+    get_subset_of_events(comm, count, events)
 
 
 def validate_data(lasif_root, data_station_file_availability=False,

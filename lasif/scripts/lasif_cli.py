@@ -44,6 +44,7 @@ import os
 import lasif
 from lasif import api
 from lasif.api import LASIFCommandLineException
+from lasif.tools.query_gcmt_catalog import get_subset_of_events
 
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
@@ -723,6 +724,7 @@ def lasif_plot_window_statistics(parser, args):
                                save=args.save,
                                events=args.events if args.events else [],
                                iteration=args.iteration)
+
 
 @command_group("Plotting")
 def lasif_plot_windows(parser, args):
