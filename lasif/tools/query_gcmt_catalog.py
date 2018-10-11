@@ -217,16 +217,23 @@ def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
     shutil.rmtree(folder)
 
 
-def get_subset_of_events(comm, count, events):
+def get_subset_of_events(comm, count, events, existing_events=None):
     """
-    This function gets an optimally distributed set of events
+    This function gets an optimally distributed set of events,
+    NO QA.
     :param comm: LASIF communicator
     :param count: number of events to choose.
     :param events: list of event_names, from which to choose from. These
     events must be known to LASIF
-    :return:
+    :param existing_events: list of events, that have been chosen already
+    and should thus be excluded from the selected options, but are also
+    taken into account when ensuring a good spatial distribution. The
+    function assumes that there are no common occurences between
+    events and existing events
+    :return: a list of chosen events.
     """
     available_events = comm.events.list()
+
     if len(events) < count:
         raise LASIFError("Insufficient amount of events specified.")
     if not type(count) == int:
@@ -236,6 +243,9 @@ def get_subset_of_events(comm, count, events):
     for event in events:
         if event not in available_events:
             raise LASIFNotFoundError(f"event : {event} not known to LASIF.")
+
+    if existing_events is None:
+        existing_events = []
 
     cat = obspy.Catalog()
     for event in events:
@@ -256,14 +266,18 @@ def get_subset_of_events(comm, count, events):
 
     chosen_events = []
     existing_coordinates = []
+    for event in existing_events:
+        ev = comm.events.get(event)
+        existing_coordinates.append((ev["latitude"], ev["longitude"]))
 
     # randomly start with one of the specified events
-    idx = random.randint(0, len(cat) - 1)
-    chosen_events.append(cat[idx])
-    del cat.events[idx]
-    existing_coordinates.append(coordinates[idx])
-    del coordinates[idx]
-    count -= 1
+    if not existing_coordinates:
+        idx = random.randint(0, len(cat) - 1)
+        chosen_events.append(cat[idx])
+        del cat.events[idx]
+        existing_coordinates.append(coordinates[idx])
+        del coordinates[idx]
+        count -= 1
 
     while count:
         if not coordinates:
@@ -287,5 +301,7 @@ def get_subset_of_events(comm, count, events):
     list_of_chosen_events = []
     for ev in chosen_events:
         list_of_chosen_events.append(ev.comments.pop())
-    print(list_of_chosen_events)
+    if len(list_of_chosen_events) < count:
+        raise ValueError("Could not select a sufficient amount of events")
+
     return list_of_chosen_events

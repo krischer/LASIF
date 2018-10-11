@@ -21,7 +21,7 @@ import colorama
 from mpi4py import MPI
 import toml
 
-from lasif.tools.query_gcmt_catalog import get_subset_of_events
+
 
 
 class LASIFCommandLineException(Exception):
@@ -998,7 +998,7 @@ def plot_windows(lasif_root, event_name, window_set, distance_bins=500):
                                      show=True)
 
 
-def get_subset(lasif_root, events, count):
+def get_subset(lasif_root, events, count, existing_events=None):
     """
     This function gets an optimally distributed set of events
     :param comm: LASIF communicator
@@ -1007,11 +1007,12 @@ def get_subset(lasif_root, events, count):
     events must be known to LASIF
     :return:
     """
+    from lasif.tools.query_gcmt_catalog import get_subset_of_events
     if isinstance(lasif_root, Communicator):
         comm = lasif_root
     else:
         comm = find_project_comm(lasif_root)
-    get_subset_of_events(comm, count, events)
+    get_subset_of_events(comm, count, events, existing_events)
 
 
 def validate_data(lasif_root, data_station_file_availability=False,
