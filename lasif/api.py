@@ -1012,7 +1012,7 @@ def get_subset(lasif_root, events, count, existing_events=None):
         comm = lasif_root
     else:
         comm = find_project_comm(lasif_root)
-    get_subset_of_events(comm, count, events, existing_events)
+    return get_subset_of_events(comm, count, events, existing_events)
 
 
 def validate_data(lasif_root, data_station_file_availability=False,
