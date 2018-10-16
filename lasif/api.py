@@ -1076,6 +1076,14 @@ def clean_up(lasif_root, clean_up_file):
     comm.validator.clean_up_project(clean_up_file)
 
 
+def update_catalog():
+    """
+    Update GCMT catalog
+    """
+    from lasif.tools.query_gcmt_catalog import update_GCMT_catalog
+    update_GCMT_catalog()
+
+
 def tutorial():
     """
     Open the lasif tutorial in a web-browser.

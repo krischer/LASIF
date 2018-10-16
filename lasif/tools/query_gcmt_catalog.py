@@ -15,6 +15,7 @@ from obspy.core.event import Catalog
 import os
 import random
 import pyasdf
+import datetime
 import shutil
 from scipy.spatial import cKDTree
 
@@ -102,6 +103,49 @@ def _read_GCMT_catalog(min_year=None, max_year=None):
             cat += obspy.read_events(filename, format="ndk")
 
     return cat
+
+
+def update_GCMT_catalog():
+    """
+    Helper function updating the GCMT data shipped with LASIF.
+    """
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
+        inspect.getfile(inspect.currentframe())))), "data", "GCMT_Catalog")
+
+    start_year = 2005
+    end_year = datetime.datetime.now().year
+    years = np.arange(start_year,
+                      end_year + 1)  # begin and end year, does not include end
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep",
+              "oct", "nov", "dec"]
+
+    web_address = "https://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_MONTHLY"
+    os.chdir(data_dir)
+    for year in years:
+        year_str = str(year)
+        os.chdir(data_dir)
+        web_address_year = web_address + f"/{year_str}/"
+
+        if not os.path.exists(year_str):
+            # check if january exists
+            january = web_address_year + "jan" + year_str[-2:] + ".ndk"
+            if os.system(f"wget -q --spider {january}") == 0:
+                os.makedirs(year_str)
+            else:
+                print(f"Could not find anything yet for year: {year_str}")
+                # nothing from this year, skip it
+                continue
+
+        os.chdir(year_str)
+        for month in months:
+            month_name = month + year_str[-2:] + ".ndk"
+            filename = web_address_year + month_name
+            if not os.path.exists(month_name + ".tar.bz2") and os.system(
+                    f"wget -q --spider {filename}") == 0:
+                if os.system(f"wget -q {filename}") == 0 and os.system(
+                        f"tar -cjf {month_name}.tar.bz2 {month_name}") == 0:
+                    os.remove(month_name)
+                    print(f"Successfully retrieved: {month_name}")
 
 
 def add_new_events(comm, count, min_magnitude, max_magnitude, min_year=None,
