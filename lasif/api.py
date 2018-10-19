@@ -41,7 +41,7 @@ def find_project_comm(folder):
             return Project(folder).get_communicator()
         folder = folder.parent
     msg = "Not inside a LASIF project."
-    raise LASIFCommandLineException(msg)
+    # raise LASIFCommandLineException(msg)
 
 
 def plot_domain(lasif_root, save):
@@ -51,11 +51,7 @@ def plot_domain(lasif_root, save):
     :param save: save file
     """
     import matplotlib.pyplot as plt
-
     comm = find_project_comm(lasif_root)
-
-    if save:
-        plt.switch_backend('agg')
 
     comm.visualizations.plot_domain()
 
@@ -996,6 +992,39 @@ def plot_windows(lasif_root, event_name, window_set, distance_bins=500):
                                      ax=None,
                                      distance_bins=500,
                                      show=True)
+
+
+def write_stations_to_file(lasif_root):
+    """
+    This function writes a csv file with station name and lat,lon locations
+    :param lasif_root: path to lasif root directory or communicator
+    """
+    import pandas as pd
+    if isinstance(lasif_root, Communicator):
+        comm = lasif_root
+    else:
+        comm = find_project_comm(lasif_root)
+
+    events = comm.events.list()
+
+    station_list = {"station": [], "latitude": [], "longitude": []}
+
+    for event in events:
+        try:
+            data = comm.query.get_all_stations_for_event(event, list_only=False)
+        except LASIFNotFoundError:
+            continue
+        for key in data:
+            if key not in station_list["station"]:
+                station_list["station"].append(key)
+                station_list["latitude"].append(data[key]['latitude'])
+                station_list["longitude"].append(data[key]['latitude'])
+
+    stations = pd.DataFrame(data=station_list)
+    output_path = os.path.join(comm.project.paths["output"], "station_list.csv")
+    stations.to_csv(path_or_buf=output_path, index=False)
+    print(f"Wrote a list of stations to file: {output_path}")
+
 
 
 def get_subset(lasif_root, events, count, existing_events=None):
