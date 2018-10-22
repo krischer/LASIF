@@ -381,10 +381,10 @@ def lasif_submit_job(parser, args):
 
     args = parser.parse_args(args)
 
-    api.submit_jobs(lasif_root=".", iteration=args.iteration_name,
-                    ranks=args.ranks, wall_time=args.wall_time_in_seconds,
-                    simulation_type=args.simulation_type,
-                    site=args.site, events=args.event if args.event else [])
+    api.submit_job(lasif_root=".", iteration=args.iteration_name,
+                   ranks=args.ranks, wall_time=args.wall_time_in_seconds,
+                   simulation_type=args.simulation_type,
+                   site=args.site, events=args.event if args.event else [])
 
 
 @command_group("Iteration Management")
