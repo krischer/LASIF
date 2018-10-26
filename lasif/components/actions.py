@@ -264,6 +264,12 @@ class ActionsComponent(Component):
                 iteration=iteration)
 
             adjoint_sources = {}
+            ad_src_type = self.comm.project.config["misfit_type"]
+            if ad_src_type == "weighted_waveform_misfit":
+                env_scaling = True
+                ad_src_type = "waveform_misfit"
+            else:
+                env_scaling = False
 
             for component in ["E", "N", "Z"]:
                 try:
@@ -289,10 +295,8 @@ class ActionsComponent(Component):
                     continue
                 if data_tr.id not in all_windows[station]:
                     continue
-
                 # Collect all.
                 windows = all_windows[station][data_tr.id]
-                ad_src_type = self.comm.project.config["misfit_type"]
                 try:
                     # for window in windows:
                     asrc = salvus_misfit.calculate_adjoint_source(
@@ -303,7 +307,7 @@ class ActionsComponent(Component):
                         adj_src_type=ad_src_type,
                         window_set=window_set_name,
                         taper_ratio=0.15, taper_type='cosine',
-                        plot=plot)
+                        plot=plot, envelope_scaling=env_scaling)
                 except:
                     # Either pass or fail for the whole component.
                     continue

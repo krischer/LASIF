@@ -41,7 +41,7 @@ def find_project_comm(folder):
             return Project(folder).get_communicator()
         folder = folder.parent
     msg = "Not inside a LASIF project."
-    # raise LASIFCommandLineException(msg)
+    raise LASIFCommandLineException(msg)
 
 
 def plot_domain(lasif_root, save):
