@@ -583,7 +583,7 @@ class ActionsComponent(Component):
                                    station))
 
     def generate_input_files(self, iteration_name, event_name,
-                             simulation_type="forward", previous_iteration=""):
+                             simulation_type="forward", previous_iteration=None):
         """
         Generate the input files for one event.
 
@@ -633,7 +633,7 @@ class ActionsComponent(Component):
             with open(os.path.join(output_dir, "run_salvus.sh"), "w") as fh:
                 fh.write(cmd_string)
             return
-        else:
+        elif previous_iteration and not os.path.exists(prev_it_dir):
             print(f"Could not find previous iteration directory for event: "
                   f"{event_name}, generating input files")
 
