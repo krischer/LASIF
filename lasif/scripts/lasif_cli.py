@@ -457,14 +457,13 @@ def lasif_generate_input_files(parser, args):
                              "the mesh file.")
 
     args = parser.parse_args(args)
-
     api.generate_input_files(lasif_root=".", iteration=args.iteration_name,
                              simulation_type=args.simulation_type,
                              events=args.events if args.events else [],
                              weight_set=args.weight_set_name if
                              args.weight_set_name else None,
                              prev_iter=args.prev_iter if args.prev_iter else
-                             [])
+                             None)
 
 
 @command_group("Project Management")
