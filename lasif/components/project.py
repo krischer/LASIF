@@ -163,7 +163,8 @@ class Project(Component):
                              f"Please modify your config file.")
         if misfit not in ("tf_phase_misfit",
                           "waveform_misfit", "cc_traveltime_misfit",
-                          "cc_traveltime_misfit_Korta2018"):
+                          "cc_traveltime_misfit_Korta2018",
+                          "weighted_waveform_misfit"):
             raise LASIFError(f"\n\nMisfit type {misfit} is not supported "
                              f"by LASIF. \n"
                              f"Currently the only supported misfit type"
