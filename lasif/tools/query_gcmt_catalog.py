@@ -290,6 +290,11 @@ def get_subset_of_events(comm, count, events, existing_events=None):
 
     if existing_events is None:
         existing_events = []
+    else:
+        for event in events:
+            if event in existing_events:
+                raise LASIFError(f"event: {event} was existing already,"
+                                 f"but still supplied to choose from.")
 
     cat = obspy.Catalog()
     for event in events:
