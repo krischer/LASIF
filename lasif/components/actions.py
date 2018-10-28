@@ -828,6 +828,11 @@ class ActionsComponent(Component):
         input_files_dir = self.comm.project.paths['salvus_input']
         receiver_dir = os.path.join(input_files_dir, long_iter_name,
                                     event_name, "forward")
+        with open(os.path.join(receiver_dir, "run_salvus.sh"), "r") as fh:
+            cmd_string = fh.read()
+        l = cmd_string.split(" ")
+        receivers_file = l[l.index("--receiver-toml") + 1]
+        
         output_dir = os.path.join(input_files_dir, long_iter_name,
                                   event_name, "adjoint")
 
@@ -836,7 +841,7 @@ class ActionsComponent(Component):
         os.mkdir(output_dir)
 
         receivers = toml.load(
-            os.path.join(receiver_dir, "receivers.toml"))["receiver"]
+            os.path.join(receivers_file))["receiver"]
 
         adjoint_source_file_name = os.path.join(
             output_dir, "adjoint_source.h5")
