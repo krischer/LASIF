@@ -777,7 +777,7 @@ def write_misfit(lasif_root, iteration, weight_set=None, window_set=None):
             comm.adj_sources.get_misfit_for_event(event,
                                                   iteration,
                                                   weight_set)
-        iteration_dict["event_misfits"][event] = event_misfit
+        iteration_dict["event_misfits"][event] = float(event_misfit)
         total_misfit += event_misfit
 
     iteration_dict["total_misfit"] = total_misfit
