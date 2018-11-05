@@ -12,14 +12,16 @@ Test suite for the domain definitions in LASIF.
 from __future__ import absolute_import
 # from unittest import mock
 
-from lasif.scripts import lasif_cli
-from lasif.tests.testing_helpers import reset_matplotlib
 import inspect
-import pathlib
-
 import os
-import pytest
+import pathlib
 import shutil
+
+from lasif.domain import ExodusDomain
+from lasif.scripts import lasif_cli
+from lasif.tests.testing_helpers import reset_matplotlib, images_are_identical
+
+import pytest
 
 from lasif.components.project import Project
 # Get a list of all available commands.
@@ -163,6 +165,14 @@ def test_point_in_global_domain():
         for lon in longitudes:
             for depth in depths:
                 assert global_domain.point_in_domain(lon, lat, depth * 1000.0)
+
+
+def test_exodus_mesh_plotting(tmpdir):
+    exodus_file = (pathlib.Path(__file__).parent / "data" /
+                   "very_simple_1000s_single_layer_mesh.e")
+    d = ExodusDomain(exodus_file, num_buffer_elems=0)
+    d.plot(show_mesh=True)
+    images_are_identical("example_mesh_plot", tmpdir)
 
 
 # def test_global_domain_point_in_domain():

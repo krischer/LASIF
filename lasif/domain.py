@@ -12,6 +12,8 @@ Matplotlib is imported lazily to avoid heavy startup costs.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
+import pathlib
+import typing
 import warnings
 
 import numpy as np
@@ -23,8 +25,10 @@ from lasif.rotations import lat_lon_radius_to_xyz, xyz_to_lat_lon_radius
 
 
 class ExodusDomain:
-    def __init__(self, exodus_file, num_buffer_elems):
-        self.exodus_file = exodus_file
+    def __init__(self,
+                 exodus_file: typing.Union[str, pathlib.Path],
+                 num_buffer_elems: int):
+        self.exodus_file = str(exodus_file)
         self.num_buffer_elems = num_buffer_elems
         self.r_earth = 6371000
         self.e = None
@@ -352,7 +356,7 @@ class ExodusDomain:
                         m.ax.add_patch(p)
 
         _plot_features(m, stepsize=stepsize)
-        ax.legend(framealpha=0.5)
+        ax.legend(framealpha=0.5, loc="lower right")
         return m
 
     def get_sorted_edge_coords(self):
