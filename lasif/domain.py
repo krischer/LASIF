@@ -314,7 +314,8 @@ class ExodusDomain:
 
                 # Plot the hull simplices
                 for simplex in hull.simplices:
-                    m.plot(points[simplex, 0], points[simplex, 1], color="0.5")
+                    m.plot(points[simplex, 0], points[simplex, 1], color="0.5",
+                           zorder=6)
 
         except LASIFError:
             # Back up plot if the other one fails, which happens for
