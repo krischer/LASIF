@@ -12,16 +12,16 @@ command line interface.
 
 """
 import os
-from lasif import LASIFError
-from lasif.components.communicator import Communicator
-from lasif.components.project import Project
-from lasif import LASIFNotFoundError
 import pathlib
+
 import colorama
 from mpi4py import MPI
 import toml
 
-
+from lasif import LASIFError
+from lasif.components.communicator import Communicator
+from lasif.components.project import Project
+from lasif import LASIFNotFoundError
 
 
 class LASIFCommandLineException(Exception):
@@ -44,16 +44,17 @@ def find_project_comm(folder):
     raise LASIFCommandLineException(msg)
 
 
-def plot_domain(lasif_root, save):
+def plot_domain(lasif_root, save, show_mesh=False):
     """
     Plot the studied domain specified in config file
     :param lasif_root: path to lasif root directory.
     :param save: save file
+    :param show_mesh: Plot the mesh for exodus domains/meshes.
     """
     import matplotlib.pyplot as plt
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_domain()
+    comm.visualizations.plot_domain(show_mesh=show_mesh)
 
     if save:
         outfile = os.path.join(comm.project.get_output_folder(
@@ -64,7 +65,7 @@ def plot_domain(lasif_root, save):
         plt.show()
 
 
-def plot_event(lasif_root, event_name, weight_set_name, save):
+def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False):
     """
     Plot a single event including stations on a map. Events can be
     color coded based on their weight
@@ -72,6 +73,7 @@ def plot_event(lasif_root, event_name, weight_set_name, save):
     :param event_name: name of event to plot
     :param weight_set_name: name of station weight set
     :param save: if figure should be saved
+    :param show_mesh: Plot the mesh for exodus domains/meshes.
     """
     import matplotlib.pyplot as plt
 
@@ -80,7 +82,8 @@ def plot_event(lasif_root, event_name, weight_set_name, save):
     if save:
         plt.switch_backend('agg')
 
-    comm.visualizations.plot_event(event_name, weight_set_name)
+    comm.visualizations.plot_event(event_name, weight_set_name,
+                                   show_mesh=show_mesh)
 
     if save:
         outfile = os.path.join(
@@ -93,19 +96,21 @@ def plot_event(lasif_root, event_name, weight_set_name, save):
         plt.show()
 
 
-def plot_events(lasif_root, type, iteration, save):
+def plot_events(lasif_root, type, iteration, save, show_mesh=False):
     """
     Plot a all events on the domain
     :param lasif_root: path to lasif root directory
     :param type: type of plot
     :param iteration: plot all events of an iteration
     :param save: if figure should be saved
+    :param show_mesh: Plot the mesh for exodus domains/meshes.
     """
     import matplotlib.pyplot as plt
 
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_events(type, iteration=iteration)
+    comm.visualizations.plot_events(type, iteration=iteration,
+                                    show_mesh=show_mesh)
 
     if save:
         if iteration:
@@ -451,7 +456,7 @@ def init_project(project_path):
         raise LASIFError(msg)
     try:
         os.makedirs(project_path)
-    except:
+    except Exception:
         msg = f"Failed creating directory {project_path}. Permissions?"
         raise LASIFError(msg)
 
@@ -875,8 +880,8 @@ def compare_misfits(lasif_root, from_it, to_it, events=[], weight_set=None,
                   f"\t iteration {from_it} has misfit: "
                   f"{from_it_misfit_event} \n"
                   f"\t iteration {to_it} has misfit: {to_it_misfit_event}.")
-            rel_change = (to_it_misfit_event - from_it_misfit_event) \
-                         / from_it_misfit_event * 100.0
+            rel_change = ((to_it_misfit_event - from_it_misfit_event) /
+                          from_it_misfit_event * 100.0)
             print(f"Relative change: {rel_change:.2f}%")
 
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
@@ -1011,7 +1016,8 @@ def write_stations_to_file(lasif_root):
 
     for event in events:
         try:
-            data = comm.query.get_all_stations_for_event(event, list_only=False)
+            data = comm.query.get_all_stations_for_event(event,
+                                                         list_only=False)
         except LASIFNotFoundError:
             continue
         for key in data:
@@ -1021,10 +1027,10 @@ def write_stations_to_file(lasif_root):
                 station_list["longitude"].append(data[key]['latitude'])
 
     stations = pd.DataFrame(data=station_list)
-    output_path = os.path.join(comm.project.paths["output"], "station_list.csv")
+    output_path = os.path.join(
+        comm.project.paths["output"], "station_list.csv")
     stations.to_csv(path_or_buf=output_path, index=False)
     print(f"Wrote a list of stations to file: {output_path}")
-
 
 
 def get_subset(lasif_root, events, count, existing_events=None):
