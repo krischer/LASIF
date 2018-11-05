@@ -12,16 +12,16 @@ command line interface.
 
 """
 import os
-from lasif import LASIFError
-from lasif.components.communicator import Communicator
-from lasif.components.project import Project
-from lasif import LASIFNotFoundError
 import pathlib
+
 import colorama
 from mpi4py import MPI
 import toml
 
-
+from lasif import LASIFError
+from lasif.components.communicator import Communicator
+from lasif.components.project import Project
+from lasif import LASIFNotFoundError
 
 
 class LASIFCommandLineException(Exception):
@@ -453,7 +453,7 @@ def init_project(project_path):
         raise LASIFError(msg)
     try:
         os.makedirs(project_path)
-    except:
+    except Exception:
         msg = f"Failed creating directory {project_path}. Permissions?"
         raise LASIFError(msg)
 
@@ -877,8 +877,8 @@ def compare_misfits(lasif_root, from_it, to_it, events=[], weight_set=None,
                   f"\t iteration {from_it} has misfit: "
                   f"{from_it_misfit_event} \n"
                   f"\t iteration {to_it} has misfit: {to_it_misfit_event}.")
-            rel_change = (to_it_misfit_event - from_it_misfit_event) \
-                         / from_it_misfit_event * 100.0
+            rel_change = ((to_it_misfit_event - from_it_misfit_event) /
+                          from_it_misfit_event * 100.0)
             print(f"Relative change: {rel_change:.2f}%")
 
     print(f"Total misfit for iteration {from_it}: {from_it_misfit}")
@@ -1013,7 +1013,8 @@ def write_stations_to_file(lasif_root):
 
     for event in events:
         try:
-            data = comm.query.get_all_stations_for_event(event, list_only=False)
+            data = comm.query.get_all_stations_for_event(event,
+                                                         list_only=False)
         except LASIFNotFoundError:
             continue
         for key in data:
@@ -1023,10 +1024,10 @@ def write_stations_to_file(lasif_root):
                 station_list["longitude"].append(data[key]['latitude'])
 
     stations = pd.DataFrame(data=station_list)
-    output_path = os.path.join(comm.project.paths["output"], "station_list.csv")
+    output_path = os.path.join(
+        comm.project.paths["output"], "station_list.csv")
     stations.to_csv(path_or_buf=output_path, index=False)
     print(f"Wrote a list of stations to file: {output_path}")
-
 
 
 def get_subset(lasif_root, events, count, existing_events=None):
