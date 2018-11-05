@@ -44,7 +44,7 @@ def find_project_comm(folder):
     raise LASIFCommandLineException(msg)
 
 
-def plot_domain(lasif_root, save):
+def plot_domain(lasif_root, save, show_mesh=False):
     """
     Plot the studied domain specified in config file
     :param lasif_root: path to lasif root directory.
@@ -53,7 +53,7 @@ def plot_domain(lasif_root, save):
     import matplotlib.pyplot as plt
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_domain()
+    comm.visualizations.plot_domain(show_mesh=show_mesh)
 
     if save:
         outfile = os.path.join(comm.project.get_output_folder(
@@ -64,7 +64,7 @@ def plot_domain(lasif_root, save):
         plt.show()
 
 
-def plot_event(lasif_root, event_name, weight_set_name, save):
+def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False):
     """
     Plot a single event including stations on a map. Events can be
     color coded based on their weight
@@ -80,7 +80,8 @@ def plot_event(lasif_root, event_name, weight_set_name, save):
     if save:
         plt.switch_backend('agg')
 
-    comm.visualizations.plot_event(event_name, weight_set_name)
+    comm.visualizations.plot_event(event_name, weight_set_name,
+                                   show_mesh=show_mesh)
 
     if save:
         outfile = os.path.join(
@@ -93,7 +94,7 @@ def plot_event(lasif_root, event_name, weight_set_name, save):
         plt.show()
 
 
-def plot_events(lasif_root, type, iteration, save):
+def plot_events(lasif_root, type, iteration, save, show_mesh=False):
     """
     Plot a all events on the domain
     :param lasif_root: path to lasif root directory
@@ -105,7 +106,8 @@ def plot_events(lasif_root, type, iteration, save):
 
     comm = find_project_comm(lasif_root)
 
-    comm.visualizations.plot_events(type, iteration=iteration)
+    comm.visualizations.plot_events(type, iteration=iteration,
+                                    show_mesh=show_mesh)
 
     if save:
         if iteration:

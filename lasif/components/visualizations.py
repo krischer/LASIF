@@ -6,8 +6,9 @@ import itertools
 import math
 import numpy as np
 import os
+import warnings
 
-from lasif import LASIFError, LASIFNotFoundError
+from lasif import LASIFError, LASIFNotFoundError, LASIFWarning
 
 from .component import Component
 
@@ -21,7 +22,7 @@ class VisualizationsComponent(Component):
     :param component_name: The name of this component for the communicator.
     """
 
-    def plot_events(self, plot_type="map", iteration=None):
+    def plot_events(self, plot_type="map", iteration=None, show_mesh=False):
         """
         Plots the domain and beachballs for all events on the map.
 
@@ -42,7 +43,7 @@ class VisualizationsComponent(Component):
             events = self.comm.events.get_all_events().values()
 
         if plot_type == "map":
-            m = self.comm.project.domain.plot()
+            m = self.plot_domain(show_mesh=show_mesh)
             visualization.plot_events(events, map_object=m)
         elif plot_type == "depth":
             visualization.plot_event_histogram(events, "depth")
@@ -52,7 +53,7 @@ class VisualizationsComponent(Component):
             msg = "Unknown plot_type"
             raise LASIFError(msg)
 
-    def plot_event(self, event_name, weight_set=None):
+    def plot_event(self, event_name, weight_set=None, show_mesh=False):
         """
         Plots information about one event on the map.
         """
@@ -66,7 +67,7 @@ class VisualizationsComponent(Component):
                 raise ValueError(msg)
             weight_set = self.comm.weights.get(weight_set)
 
-        map_object = self.comm.project.domain.plot()
+        map_object = self.plot_domain(show_mesh=show_mesh)
 
         from lasif import visualization
 
@@ -88,11 +89,19 @@ class VisualizationsComponent(Component):
         # Plot the beachball for one event.
         visualization.plot_events(events=[event_info], map_object=map_object)
 
-    def plot_domain(self):
+    def plot_domain(self, show_mesh=False):
         """
         Plots the simulation domain and the actual physical domain.
         """
-        self.comm.project.domain.plot()
+        if show_mesh:
+            from ..domain import ExodusDomain  # NOQA
+            if not isinstance(self.comm.project.domain, ExodusDomain):
+                msg = "show_mesh only works for exodus domains/models."
+                warnings.warn(msg, LASIFWarning)
+                show_mesh = False
+            return self.comm.project.domain.plot(show_mesh=show_mesh)
+        else:
+            return self.comm.project.domain.plot()
 
     def plot_raydensity(self, save_plot=True, plot_stations=False):
         """
@@ -103,7 +112,7 @@ class VisualizationsComponent(Component):
 
         plt.figure(figsize=(20, 21))
 
-        map_object = self.comm.project.domain.plot()
+        map_object = self.plot_domain()
 
         event_stations = []
         for event_name, event_info in \
