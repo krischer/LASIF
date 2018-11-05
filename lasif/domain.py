@@ -223,6 +223,7 @@ class ExodusDomain:
         :param ax: matplotlib axes
         :param plot_inner_boundary: plot the convex hull of the mesh
         surface nodes that lie inside the domain.
+        :param show_mesh: Plot the mesh.
         :return: The created GeoAxes instance.
         """
         if not self.is_read:

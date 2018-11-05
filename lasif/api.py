@@ -49,6 +49,7 @@ def plot_domain(lasif_root, save, show_mesh=False):
     Plot the studied domain specified in config file
     :param lasif_root: path to lasif root directory.
     :param save: save file
+    :param show_mesh: Plot the mesh for exodus domains/meshes.
     """
     import matplotlib.pyplot as plt
     comm = find_project_comm(lasif_root)
@@ -72,6 +73,7 @@ def plot_event(lasif_root, event_name, weight_set_name, save, show_mesh=False):
     :param event_name: name of event to plot
     :param weight_set_name: name of station weight set
     :param save: if figure should be saved
+    :param show_mesh: Plot the mesh for exodus domains/meshes.
     """
     import matplotlib.pyplot as plt
 
@@ -101,6 +103,7 @@ def plot_events(lasif_root, type, iteration, save, show_mesh=False):
     :param type: type of plot
     :param iteration: plot all events of an iteration
     :param save: if figure should be saved
+    :param show_mesh: Plot the mesh for exodus domains/meshes.
     """
     import matplotlib.pyplot as plt
 

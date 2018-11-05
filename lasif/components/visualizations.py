@@ -30,6 +30,7 @@ class VisualizationsComponent(Component):
             * ``map`` (default) - a map view of the events
             * ``depth`` - a depth distribution histogram
             * ``time`` - a time distribution histogram
+        :param show_mesh: Plot the mesh for exodus domains/meshes on map plots.
         """
         from lasif import visualization
 
@@ -56,6 +57,8 @@ class VisualizationsComponent(Component):
     def plot_event(self, event_name, weight_set=None, show_mesh=False):
         """
         Plots information about one event on the map.
+
+        :param show_mesh: Plot the mesh for exodus domains/meshes.
         """
         if not self.comm.events.has_event(event_name):
             msg = "Event '%s' not found in project." % event_name
@@ -92,6 +95,8 @@ class VisualizationsComponent(Component):
     def plot_domain(self, show_mesh=False):
         """
         Plots the simulation domain and the actual physical domain.
+
+        :param show_mesh: Plot the mesh for exodus domains/meshes.
         """
         if show_mesh:
             from ..domain import ExodusDomain  # NOQA
