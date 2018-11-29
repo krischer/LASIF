@@ -11,8 +11,12 @@ command line interface.
     (http://www.gnu.org/copyleft/gpl.html)
 
 """
+import functools
+import json
 import os
 import pathlib
+import shutil
+import typing
 
 import colorama
 from mpi4py import MPI
@@ -28,6 +32,7 @@ class LASIFCommandLineException(Exception):
     pass
 
 
+@functools.lru_cache()
 def find_project_comm(folder):
     """
     Will search upwards from the given folder until a folder containing a
@@ -467,12 +472,12 @@ def calculate_adjoint_sources(lasif_root, iteration, window_set,
                               events=[]):
     """
     Calculate adjoint sources for a given iteration
+
     :param lasif_root: path to lasif root directory
     :param iteration: name of iteration
     :param window_set: name of window set
     :param events: events [optional]
     """
-
     comm = find_project_comm(lasif_root)
 
     # some basic checks
@@ -1126,3 +1131,132 @@ def tutorial():
 
     import webbrowser
     webbrowser.open("http://dirkphilip.github.io/LASIF_2.0/")
+
+
+def get_sources_and_receivers(
+        project_root: pathlib.Path,
+        iteration_name: str):
+    """
+    Generates sources and receivers for a given iteration.
+
+    Useful for integration into SalvusFlow.
+
+    :param project_root: Root folder of the LASIF project.
+    :param iteration_name: Name of the iteration.
+    """
+    comm = find_project_comm(folder=project_root)
+    events = comm.events.list(iteration=iteration_name)
+
+    simulations = {}
+
+    for event in events:
+        src, rec = comm.actions.get_sources_and_receivers_for_event(
+            event_name=event)
+
+        # Hard coded for now.
+        src["physics"]["wave-equation"]["point-source"][0][
+            "center_frequency"] = 1.0 / 400.0
+
+        simulations[event] = {
+            "source": [src["physics"]["wave-equation"]["point-source"][0]],
+            "receiver": rec["output"]["point-data"]["receiver"]
+        }
+
+    return simulations
+
+
+def compute_misfits_and_adjoint_sources(project_root: pathlib.Path,
+                                        window_set_name: str,
+                                        simulations: typing.Dict) \
+        -> typing.Tuple[float, typing.Dict]:
+    """
+    Compute misfits and adjoint sources.
+
+    Useful for integration with SalvusFlow.
+
+    This callback function will be called to compute the final misfit and
+    adjoint sources.
+
+    :param simulations: Input dictionary containing the synthetics for each
+        simulation, as well as the paths of the output adjoint source HDF5 and
+        TOML files.
+
+    The input dictionary will be of the form
+    {
+        "simulation_a": {
+            "receiver-file": "/path/to/synthetics.h5",
+            "adjoint-source-hdf5-filename": "/path/to/adjoint.h5",
+            "adjoint-source-hdf5-toml": "/path/to/adjoint_toml.h5",
+        }, ...
+    }
+
+    Return a tuple with the total misfit as a float as well as the misfit for
+    each simulation, e.g.
+
+    return 1E-3, {"simulation_a": 1.6E-4, ...}
+    """
+    comm = find_project_comm(project_root)
+
+    # Create a new iteration - the LASIF iterations might not correspond to the
+    # flow iterations for now which is actually a bit ugly but what are you
+    # gonna do...
+    # Also only increment the iteration if the current iteration already has
+    # synthetics.
+    iteration_name = max([int(i) for i in comm.iterations.list()])
+    if comm.iterations.iteration_has_synthetics(iteration_name):
+        iteration_name += 1
+
+    if not comm.iterations.has_iteration(iteration_name):
+        set_up_iteration(project_root, iteration_name)
+
+    # A few steps here bros. First we have to copy all the synthetics to LASIF
+    # so it knows whats up.
+    path = comm.iterations.get_folders_for_iteration(iteration_name)[
+        "synthetics_earthquakes"]
+    for event_name, info in simulations.items():
+        event_path = path / event_name
+        os.makedirs(path / event_name, exist_ok=True)
+        # Just a symlink - should be okay for now.
+        (event_path / "receivers.h5").symlink_to(info["receiver-file"])
+
+    return None
+
+
+def generate_salvus_flow_callbacks(project_root: pathlib.Path,
+                                   cache_directory: pathlib.Path,
+                                   initial_iteration_name: str,
+                                   window_set_name: str):
+    """
+    Generate the callback functions for SalvusFlow.
+
+    :param project_root: Root folder of the LASIF project.
+    :param cache_directory: Sources and receivers will be stored there to not
+        have to be regenerated each iteration. This might have to be
+        rethought at one point.
+    :param iteration_name: Name of the base LASIF iteration.
+    :param window_set_name: Name of the window set to use. If no windows
+        exist yet, they will be selected.
+        """
+    os.makedirs(cache_directory, exist_ok=True)
+    cache_file = cache_directory / "cache.json"
+
+    def get_sources_and_receivers_callback() -> typing.Dict:
+        if cache_file.exists():
+            with open(cache_file, "r") as fh:
+                return json.load(fh)
+        src_rec = get_sources_and_receivers(
+            project_root=project_root,
+            iteration_name=initial_iteration_name)
+        with open(cache_file, "w") as fh:
+            json.dump(src_rec, fh)
+        return src_rec
+
+    def get_misfits_and_adjoint_sources_callback(simulations: typing.Dict) \
+            -> typing.Tuple[float, typing.Dict]:
+        return compute_misfits_and_adjoint_sources(
+            project_root=project_root,
+            window_set_name=window_set_name,
+            simulations=simulations)
+
+    return get_sources_and_receivers_callback, \
+        get_misfits_and_adjoint_sources_callback

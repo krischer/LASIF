@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import numpy as np
 import os
+import typing
 
 from lasif import LASIFError, LASIFNotFoundError
 
@@ -832,7 +833,7 @@ class ActionsComponent(Component):
             cmd_string = fh.read()
         l = cmd_string.split(" ")
         receivers_file = l[l.index("--receiver-toml") + 1]
-        
+
         output_dir = os.path.join(input_files_dir, long_iter_name,
                                   event_name, "adjoint")
 
@@ -1045,3 +1046,35 @@ class ActionsComponent(Component):
     #     region_of_interest[indices] = 0
     #     e.put_element_variable_values(1, "ROI", 1, region_of_interest)
     #     e.close()
+
+    def get_sources_and_receivers_for_event(self, event_name: str):
+        """
+        Get a dictionary with all sources and receivers.
+
+        :param iteration_name: The name of the iteration.
+        """
+        # In-method imports for to improve start-up speed.
+        import pyasdf  # NOQA
+        from salvus_mesh.unstructured_mesh import UnstructuredMesh
+        import salvus_seismo.api  # NOQA
+
+        asdf_filename = self.comm.waveforms.get_asdf_filename(
+            event_name=event_name, data_type="raw")
+
+        with pyasdf.ASDFDataSet(asdf_filename) as ds:
+            event = ds.events[0]
+
+            # Build inventory of all stations present in ASDF file
+            stations = ds.waveforms.list()
+            inv = ds.waveforms[stations[0]].StationXML
+            for station in stations[1:]:
+                inv += ds.waveforms[station].StationXML
+
+        sources = [salvus_seismo.Source.parse(event)]
+        receivers = salvus_seismo.Receiver.parse(inv)
+
+        # Place sources and receivers exactly relative to the surface.
+        return salvus_seismo.api.generate_sources_and_receivers(
+            mesh=UnstructuredMesh.from_exodus(
+                self.comm.project.config["mesh_file"]),
+            sources=sources, receivers=receivers)

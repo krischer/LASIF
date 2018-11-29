@@ -88,6 +88,8 @@ def plot_raydensity(map_object, station_events, domain):
     pbar = progressbar.ProgressBar(widgets=widgets,
                                    maxval=circle_count).start()
 
+    # XXX: There is an issue with the greatcirlce binner and domains across the
+    # date line.
     def great_circle_binning(sta_evs, bin_data_buffer, bin_data_shape,
                              lock, counter):
         new_bins = GreatCircleBinner(
@@ -161,7 +163,10 @@ def plot_raydensity(map_object, station_events, domain):
         data = np.log10(np.clip(data, a_min=0.5, a_max=data.max()))
         data[data >= 0.0] += 0.1
         data[data < 0.0] = 0.0
-        max_val = scoreatpercentile(data.ravel(), 99)
+        max_val = scoreatpercentile(data.ravel() > 0.0, 99)
+        # Might fail in the case of very few data.
+        if max_val == 0.0:
+            max_val = data.max()
     else:
         max_val = data.max()
 

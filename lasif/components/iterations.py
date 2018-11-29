@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import functools
 import glob
 import os
+import typing
 
 from .component import Component
 import shutil
@@ -21,7 +23,43 @@ class IterationsComponent(Component):
         super(IterationsComponent, self).__init__(communicator,
                                                   component_name)
 
-    def get_long_iteration_name(self, iteration_name):
+    @functools.lru_cache()
+    def get_folders_for_iteration(self, iteration_name: str):
+        """
+        Get the folders for a certain iteration.
+        """
+        long_name = self.get_long_iteration_name(iteration_name)
+
+        iteration_paths = {}
+
+        # Most are just subfolders of other groups - maybe this could actually
+        # be restructured so the iteration name is the root - might be
+        # interesting.
+        paths = ["salvus_input", "adjoint_sources", "models", "iterations",
+                 "gradients"]
+        for p in paths:
+            iteration_paths[p] = self.comm.project.paths[p] / long_name
+
+        # Synthetics are a bit different.
+        s_path = self.comm.project.paths["synthetics"]
+        iteration_paths["synthetics_earthquakes"] = \
+            s_path / "EARTHQUAKES" / long_name
+        iteration_paths["synthetics_information"] = \
+            s_path / "INFORMATION" / long_name
+
+        return iteration_paths
+
+    def iteration_has_synthetics(self, iteration_name: str) -> bool:
+        """
+        Returns true if at least one synthetics earthquake file exists for
+        the iteration.
+        """
+        return bool(list(
+            self.get_folders_for_iteration(iteration_name=iteration_name)[
+                "synthetics_earthquakes"].glob("**/receivers.h5")))
+
+    def get_long_iteration_name(
+            self, iteration_name: typing.Union[int, str]) -> str:
         """
         Returns the long form of an iteration from its short or long name.
 
@@ -29,6 +67,7 @@ class IterationsComponent(Component):
         >>> comm.iterations.get_long_iteration_name("1")
         'ITERATION_1'
         """
+        iteration_name = str(iteration_name)
         if iteration_name[:10] == "ITERATION_":
             iteration_name = iteration_name[10:]
         return "ITERATION_%s" % iteration_name
@@ -44,9 +83,9 @@ class IterationsComponent(Component):
         settings = self.comm.project.solver_settings
         project_info = self.comm.project.config
         data_proc = self.comm.project.processing_params
-        info_path = os.path.join(self.comm.project.paths["synthetics"],
-                                 "INFORMATION",
-                                 self.get_long_iteration_name(iteration_name))
+
+        info_path = self.get_folders_for_iteration(iteration_name)[
+            "synthetics_information"]
 
         toml_string = f"# Information to store how things were in " \
                       f"this iteration.\n \n" \
@@ -78,10 +117,11 @@ class IterationsComponent(Component):
             toml_string += f"    misfit_type = " \
                            f"\"{project_info['misfit_type']}\"\n"
 
-        info_file = os.path.join(info_path, f"{simulation_type}.toml")
+        info_file = info_path / f"{simulation_type}.toml"
 
         with open(info_file, "w") as fh:
             fh.write(toml_string)
+
         print(f"Information about input files stored in {info_file}")
 
     def setup_directories_for_iteration(self, iteration_name,
@@ -91,18 +131,18 @@ class IterationsComponent(Component):
         :param iteration_name: The iteration for which to create the folders.
         :param remove_dirs: Boolean if set to True the iteration is removed
         """
-        long_iter_name = self.get_long_iteration_name(iteration_name)
-        self._create_synthetics_folder_for_iteration(long_iter_name,
-                                                     remove_dirs)
-        self._create_input_files_folder_for_iteration(long_iter_name,
-                                                      remove_dirs)
+        self._create_synthetics_folder_for_iteration(
+            iteration_name, remove_dirs)
+        self._create_input_files_folder_for_iteration(
+            iteration_name, remove_dirs)
         self._create_adjoint_sources_and_windows_folder_for_iteration(
-            long_iter_name, remove_dirs)
-        self._create_model_folder_for_iteration(long_iter_name, remove_dirs)
-        self._create_iteration_folder_for_iteration(long_iter_name,
-                                                    remove_dirs)
-        self._create_gradients_folder_for_iteration(long_iter_name,
-                                                    remove_dirs)
+            iteration_name, remove_dirs)
+        self._create_model_folder_for_iteration(
+            iteration_name, remove_dirs)
+        self._create_iteration_folder_for_iteration(
+            iteration_name, remove_dirs)
+        self._create_gradients_folder_for_iteration(
+            iteration_name, remove_dirs)
 
     def setup_iteration_toml(self, iteration_name):
         """
@@ -112,17 +152,15 @@ class IterationsComponent(Component):
         :param iteration_name: The iteration for which to create the folders.
         :param remove_dirs: Boolean if set to True the iteration is removed
         """
+        path = self.get_folders_for_iteration(iteration_name)["iterations"]
+        sim_folder = self.get_folders_for_iteration(iteration_name)[
+            "synthetics_information"]
 
-        long_iter_name = self.get_long_iteration_name(iteration_name)
-
-        path = self.comm.project.paths["iterations"]
-        syn_folder = self.comm.project.paths["synthetics"]
-        sim_folder = os.path.join(syn_folder, "INFORMATION", long_iter_name)
-        file = os.path.join(path, long_iter_name, "central_info.toml")
-        event_file = os.path.join(path, long_iter_name, "events_used.toml")
-        forward_file = os.path.join(sim_folder, "forward.toml")
-        adjoint_file = os.path.join(sim_folder, "adjoint.toml")
-        step_file = os.path.join(sim_folder, "step_length.toml")
+        file = path / "central_info.toml"
+        event_file = path / "events_used.toml"
+        forward_file = sim_folder / "forward.toml"
+        adjoint_file = sim_folder / "adjoint.toml"
+        step_file = sim_folder / "step_length.toml"
 
         toml_string = f"# This toml file includes information relative to " \
                       f"this iteration: {iteration_name}. \n" \
@@ -146,6 +184,7 @@ class IterationsComponent(Component):
 
         with open(file, "w") as fh:
             fh.write(toml_string)
+
         print(f"Information about iteration stored in {file}")
 
     def setup_events_toml(self, iteration_name, events):
@@ -154,10 +193,8 @@ class IterationsComponent(Component):
         to use less events for this specific iteration. Lasif should be smart
         enough to know which events were used in which iteration.
         """
-        long_iter_name = self.get_long_iteration_name(iteration_name)
-        path = self.comm.project.paths["iterations"]
-
-        event_file = os.path.join(path, long_iter_name, "events_used.toml")
+        event_file = self.get_folders_for_iteration(iteration_name)[
+            "iterations"] / "events_used.toml"
 
         toml_string = "# Here we store information regarding which events " \
                       "are " \
@@ -179,31 +216,29 @@ class IterationsComponent(Component):
         with open(event_file, "w") as fh:
             fh.write(toml_string)
 
-    def _create_iteration_folder_for_iteration(self, long_iteration_name,
+    def _create_iteration_folder_for_iteration(self, iteration_name,
                                                remove_dirs=False):
         """
         Create folder for this iteration in the iteration information directory
         """
+        folder = self.get_folders_for_iteration(iteration_name)["iterations"]
 
-        path = self.comm.project.paths["iterations"]
-
-        folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
         if remove_dirs:
             shutil.rmtree(folder)
 
-    def _create_synthetics_folder_for_iteration(self, long_iteration_name,
+    def _create_synthetics_folder_for_iteration(self, iteration_name,
                                                 remove_dirs=False):
         """
         Create the synthetics folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
         """
+        folder_eq = self.get_folders_for_iteration(iteration_name)[
+            "synthetics_earthquakes"]
+        folder_info = self.get_folders_for_iteration(iteration_name)[
+            "synthetics_information"]
 
-        path = self.comm.project.paths["synthetics"]
-
-        folder_eq = os.path.join(path, "EARTHQUAKES", long_iteration_name)
-        folder_info = os.path.join(path, "INFORMATION", long_iteration_name)
         if not os.path.exists(folder_eq):
             os.makedirs(folder_eq)
         if not os.path.exists(folder_info):
@@ -212,57 +247,54 @@ class IterationsComponent(Component):
             shutil.rmtree(folder_eq)
             shutil.rmtree(folder_info)
 
-    def _create_input_files_folder_for_iteration(self, long_iteration_name,
+    def _create_input_files_folder_for_iteration(self, iteration_name,
                                                  remove_dirs=False):
         """
         Create the synthetics folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
         """
-        path = self.comm.project.paths["salvus_input"]
-
-        folder = os.path.join(path, long_iteration_name)
+        folder = self.get_folders_for_iteration(iteration_name)[
+            "salvus_input"]
         if not os.path.exists(folder):
             os.makedirs(folder)
         if remove_dirs:
             shutil.rmtree(folder)
 
     def _create_adjoint_sources_and_windows_folder_for_iteration(
-            self, long_iteration_name, remove_dirs=False):
+            self, iteration_name, remove_dirs=False):
         """
         Create the adjoint_sources_and_windows folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
         """
-        path = self.comm.project.paths["adjoint_sources"]
+        folder = self.get_folders_for_iteration(iteration_name)[
+            "adjoint_sources"]
 
-        folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
         if remove_dirs:
             shutil.rmtree(folder)
 
     def _create_model_folder_for_iteration(
-            self, long_iteration_name, remove_dirs=False):
+            self, iteration_name, remove_dirs=False):
         """
         Create the model folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
         """
-        path = self.comm.project.paths["models"]
+        folder = self.get_folders_for_iteration(iteration_name)["models"]
 
-        folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
         if remove_dirs:
             shutil.rmtree(folder)
 
     def _create_gradients_folder_for_iteration(
-            self, long_iteration_name, remove_dirs=False):
+            self, iteration_name, remove_dirs=False):
         """
         Create the kernel folder if it does not yet exist.
         :param iteration_name: The iteration for which to create the folders.
         """
-        path = self.comm.project.paths["gradients"]
+        folder = self.get_folders_for_iteration(iteration_name)["gradients"]
 
-        folder = os.path.join(path, long_iteration_name)
         if not os.path.exists(folder):
             os.makedirs(folder)
         if remove_dirs:
@@ -282,6 +314,7 @@ class IterationsComponent(Component):
         """
         Checks for existance of an iteration
         """
+        iteration_name = str(iteration_name)
         if iteration_name[:10] == "ITERATION_":
             iteration_name = iteration_name[10:]
         if iteration_name in self.list():

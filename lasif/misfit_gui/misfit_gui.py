@@ -458,6 +458,7 @@ class Window(QtGui.QMainWindow):
                 if windows:
                     plot_widget.windows = windows
                     for win in windows:
+                        print(win[0], win[1])
                         WindowLinearRegionItem(self.current_window_manager,
                                                channel_name,
                                                self.current_iteration,
