@@ -75,6 +75,14 @@ class WindowGroupManager(object):
         conn.commit()
         conn.close()
 
+    @property
+    def window_count(self):
+        """
+        Returns the total amount of windows for this window set.
+        """
+        with self.sqlite_cursor() as c:
+            return c.execute("SELECT COUNT(*) FROM windows").fetchone()[0]
+
     def drop_all_tables(self):
         """Drop all tables from the DB"""
         with self.sqlite_cursor() as c:
