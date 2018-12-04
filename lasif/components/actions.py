@@ -1075,6 +1075,10 @@ class ActionsComponent(Component):
         asdf_filename = self.comm.waveforms.get_asdf_filename(
             event_name=event_name, data_type="raw")
 
+        print("================")
+        print(asdf_filename)
+        print("================")
+
         with pyasdf.ASDFDataSet(asdf_filename) as ds:
             event = ds.events[0]
 
