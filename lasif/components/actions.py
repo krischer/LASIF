@@ -1080,7 +1080,10 @@ class ActionsComponent(Component):
 
             # Build inventory of all stations present in ASDF file
             stations = ds.waveforms.list()
-            inv = ds.waveforms[stations[0]].StationXML
+            try:
+                inv = ds.waveforms[stations[0]].StationXML
+            except:
+                continue
             for station in stations[1:]:
                 inv += ds.waveforms[station].StationXML
 
