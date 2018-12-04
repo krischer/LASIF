@@ -326,11 +326,11 @@ class Window(QtGui.QMainWindow):
                            if tr.stats.channel[-1].upper() == component]
                 if data_tr:
                     tr = data_tr[0]
-                    highpass_period = \
-                        self.comm.project.processing_params["highpass_period"]
-                    max_sampling_rate = 10.0 * (1.0 / highpass_period)
-                    if tr.stats.sampling_rate > max_sampling_rate:
-                        tr.interpolate(max_sampling_rate)
+                    # highpass_period = \
+                    #     self.comm.project.processing_params["highpass_period"]
+                    # max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                    # if tr.stats.sampling_rate > max_sampling_rate:
+                    #     tr.interpolate(max_sampling_rate)
                     plot_widget.data_id = tr.id
                     times = tr.times()
                     plot_widget.plot(times, tr.data, pen=pg.mkPen("k",
@@ -394,13 +394,13 @@ class Window(QtGui.QMainWindow):
                        if tr.stats.channel[-1].upper() == component]
             if data_tr:
                 tr = data_tr[0]
-                highpass_period = \
-                    self.comm.project.processing_params["highpass_period"]
-                max_sampling_rate = 10.0 * (1.0 / highpass_period)
-                if tr.stats.sampling_rate > max_sampling_rate:
-                    tr.interpolate(max_sampling_rate)
-                if tr.stats.sampling_rate > max_sampling_rate:
-                    tr.resample(max_sampling_rate)
+                # highpass_period = \
+                #     self.comm.project.processing_params["highpass_period"]
+                # max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                # if tr.stats.sampling_rate > max_sampling_rate:
+                #     tr.interpolate(max_sampling_rate)
+                # if tr.stats.sampling_rate > max_sampling_rate:
+                #     tr.resample(max_sampling_rate)
                 plot_widget.data_id = tr.id
                 times = tr.times()
                 plot_widget.plot(times, tr.data, pen=pg.mkPen("k", width=2))
@@ -410,11 +410,11 @@ class Window(QtGui.QMainWindow):
                         if _i.stats.channel[-1].upper() == component]
             if synth_tr:
                 tr = synth_tr[0]
-                highpass_period = \
-                    self.comm.project.processing_params["highpass_period"]
-                max_sampling_rate = 10.0 * (1.0 / highpass_period)
-                if tr.stats.sampling_rate > max_sampling_rate:
-                    tr.interpolate(max_sampling_rate)
+                # highpass_period = \
+                #     self.comm.project.processing_params["highpass_period"]
+                # max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                # if tr.stats.sampling_rate > max_sampling_rate:
+                #     tr.interpolate(max_sampling_rate)
                 times = tr.times()
                 plot_widget.plot(times, tr.data, pen=pg.mkPen("r", width=2), )
 
@@ -425,11 +425,11 @@ class Window(QtGui.QMainWindow):
 
                 if compare_synth_tr:
                     tr = compare_synth_tr[0]
-                    highpass_period = \
-                        self.comm.project.processing_params["highpass_period"]
-                    max_sampling_rate = 10.0 * (1.0 / highpass_period)
-                    if tr.stats.sampling_rate > max_sampling_rate:
-                        tr.interpolate(max_sampling_rate)
+                    # highpass_period = \
+                    #     self.comm.project.processing_params["highpass_period"]
+                    # max_sampling_rate = 10.0 * (1.0 / highpass_period)
+                    # if tr.stats.sampling_rate > max_sampling_rate:
+                    #     tr.interpolate(max_sampling_rate)
                     times = tr.times()
                     plot_widget.plot(
                         times, tr.data,

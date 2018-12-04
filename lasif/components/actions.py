@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import numpy as np
 import os
+import pathlib
 import typing
 
 from lasif import LASIFError, LASIFNotFoundError
@@ -336,6 +337,7 @@ class ActionsComponent(Component):
         # ranks.
         results = process_two_files_without_parallel_output(ds, ds_synth,
                                                             process)
+
         # Write files on all ranks.
         filename = self.comm.adj_sources.get_filename(
             event=event["event_name"], iteration=iteration)
@@ -747,11 +749,28 @@ class ActionsComponent(Component):
 
     def write_custom_stf(self, output_dir):
         import toml
-        import h5py
 
         source_toml = os.path.join(output_dir, "source.toml")
         with open(source_toml, "r") as fh:
             source_dict = toml.load(fh)['source'][0]
+
+        heaviside_file_name = os.path.join(output_dir, "Heaviside.h5")
+
+        new_source_dict = self._write_custom_stf(
+            source_dict=source_dict, output_filename=heaviside_file_name)
+
+        # Overwrite the source.toml file.
+        with open(source_toml, "w") as fh:
+            toml.dump(new_source_dict, fh)
+
+    def _write_custom_stf(self, source_dict: typing.Dict,
+                          output_filename: pathlib.Path) -> typing.Dict:
+        """
+        Writes a custom STF HDF5 file to the output_filename.
+
+        Returns information that could be written to a new source TOML file.
+        """
+        import h5py
 
         location = source_dict['location']
         moment_tensor = source_dict['scale']
@@ -778,27 +797,17 @@ class ActionsComponent(Component):
         for i, moment in enumerate(moment_tensor):
             stf_mat[:, i] = stf * moment
 
-        heaviside_file_name = os.path.join(output_dir, "Heaviside.h5")
-        f = h5py.File(heaviside_file_name, 'w')
+        with h5py.File(output_filename, 'w') as f:
+            source = f.create_dataset("source", data=stf_mat)
+            source.attrs["dt"] = delta
+            source.attrs["location"] = location
+            source.attrs["spatial-type"] = np.string_("moment_tensor")
+            # Start time in nanoseconds
+            source.attrs["starttime"] = -delta * 1.0e9
 
-        source = f.create_dataset("source", data=stf_mat)
-        source.attrs["dt"] = delta
-        source.attrs["location"] = location
-        source.attrs["spatial-type"] = np.string_("moment_tensor")
-        # Start time in nanoseconds
-        source.attrs["starttime"] = -delta * 1.0e9
-
-        f.close()
-
-        # remove source toml and write new one
-        os.remove(source_toml)
-        source_str = f"source_input_file = \"{heaviside_file_name}\"\n\n" \
-                     f"[[source]]\n" \
-                     f"name = \"source\"\n" \
-                     f"dataset_name = \"/source\""
-
-        with open(source_toml, "w") as fh:
-            fh.write(source_str)
+        return {"source_input_file": str(output_filename), "source": [
+            {"name": "source", "dataset_name": "/source"}
+        ]}
 
     def finalize_adjoint_sources(self, iteration_name, event_name,
                                  weight_set_name=None):
@@ -909,6 +918,10 @@ class ActionsComponent(Component):
         with open(toml_file_name, "w") as fh:
             fh.write(toml_string)
 
+
+        ########################################
+        # Input file writing things below.
+        ########################################
         if self.comm.project.config["mesh_file"] == "multiple":
             mesh_file = os.path.join(self.comm.project.paths["models"],
                                      "EVENT_SPECIFIC", event_name, "mesh.e")
@@ -1047,7 +1060,8 @@ class ActionsComponent(Component):
     #     e.put_element_variable_values(1, "ROI", 1, region_of_interest)
     #     e.close()
 
-    def get_sources_and_receivers_for_event(self, event_name: str):
+    def get_sources_and_receivers_for_event(self, event_name: str,
+                                            stf_filename: pathlib.Path):
         """
         Get a dictionary with all sources and receivers.
 
@@ -1074,7 +1088,19 @@ class ActionsComponent(Component):
         receivers = salvus_seismo.Receiver.parse(inv)
 
         # Place sources and receivers exactly relative to the surface.
-        return salvus_seismo.api.generate_sources_and_receivers(
+        src, rec = salvus_seismo.api.generate_sources_and_receivers(
             mesh=UnstructuredMesh.from_exodus(
                 self.comm.project.config["mesh_file"]),
-            sources=sources, receivers=receivers)
+            sources=sources, receivers=receivers,
+            # XXX: Set to False once moving to HDF5 models.
+            is_exodus_mesh=True
+            )
+
+        # XXX: SINGLE SOURCE!!!
+        s = self._write_custom_stf(
+            source_dict=src["physics"]["wave-equation"]["point-source"][0],
+            output_filename=stf_filename)
+
+        src["physics"]["wave-equation"]["point-source"] = s
+
+        return src, rec

@@ -20,6 +20,7 @@ import typing
 
 import colorama
 from mpi4py import MPI
+import numpy as np
 import toml
 
 from lasif import LASIFError
@@ -1135,7 +1136,8 @@ def tutorial():
 
 def get_sources_and_receivers(
         project_root: pathlib.Path,
-        iteration_name: str):
+        iteration_name: str,
+        cache_dir: pathlib.Path):
     """
     Generates sources and receivers for a given iteration.
 
@@ -1151,22 +1153,101 @@ def get_sources_and_receivers(
 
     for event in events:
         src, rec = comm.actions.get_sources_and_receivers_for_event(
-            event_name=event)
-
-        # Hard coded for now.
-        src["physics"]["wave-equation"]["point-source"][0][
-            "center_frequency"] = 1.0 / 400.0
+            event_name=event,
+            stf_filename=cache_dir / f"STF_{event}.h5")
 
         simulations[event] = {
-            "source": [src["physics"]["wave-equation"]["point-source"][0]],
-            "receiver": rec["output"]["point-data"]["receiver"]
+            # XXX: Must be changed once new sources are in v1 or we move to v2.
+            "source": src["physics"]["wave-equation"]["point-source"],
+            "receiver": rec["output"]["point-data"]["receiver"],
+            "reference-time": str(comm.events.get(event)["origin_time"])
         }
 
     return simulations
 
 
+def _write_adjoint_source_and_toml_for_event(
+        comm, iteration_name: str, event_name: str,
+        output_adjoint_source_hdf5_filename: pathlib.Path,
+        output_adjoint_source_toml_filename: pathlib.Path,
+        receiver_info: typing.List,
+        dt: float,
+        starttime_in_nanoseconds: float):
+    """
+    XXX: This is a bit ugly here and to some extent a copy of
+    actions.finalize_adjoint_sources.
+
+    This should be consolidated and cleaned up greatly to be honest.
+    """
+    import pyasdf
+
+    # Reform the receiver info into a dictionary.
+    receiver_info = {f"{r['network-code']}_{r['station-code']}": r
+                     for r in receiver_info}
+
+    in_f = \
+        str(comm.adj_sources.get_filename(event_name, iteration_name))
+    assert os.path.exists(in_f)
+    out_f = output_adjoint_source_hdf5_filename
+
+    sources = []
+
+    with pyasdf.ASDFDataSet(in_f, mode="r") as ds_in, \
+            pyasdf.ASDFDataSet(str(out_f)) as ds_out:
+        for adj_src_in in ds_in.auxiliary_data.AdjointSources:
+            station_name = adj_src_in.auxiliary_data_type.split("/")[1]
+
+            rec = receiver_info[station_name]
+
+            # Ghetto style assembly of the zne array.
+            channels = adj_src_in.list()
+            e_comp = np.zeros_like(adj_src_in[channels[0]].data.value)
+            n_comp = np.zeros_like(adj_src_in[channels[0]].data.value)
+            z_comp = np.zeros_like(adj_src_in[channels[0]].data.value)
+
+            for channel in channels:
+                # check channel and set component
+                if channel[-1] == "E":
+                    e_comp = adj_src_in[channel].data.value
+                elif channel[-1] == "N":
+                    n_comp = adj_src_in[channel].data.value
+                elif channel[-1] == "Z":
+                    z_comp = adj_src_in[channel].data.value
+                zne = np.array((z_comp, n_comp, e_comp))
+
+            # Rotate the adjoint source to cartesian.
+            transform_mat = np.array(rec["transform-matrix"])
+            adj_src = (transform_mat.T @ zne).T
+
+            # The adjoint source is currently in the spherical ZNE system - we
+            # need to rotate it into the Cartesian system salvus expects.
+            ds_out.add_auxiliary_data(
+                data=adj_src,
+                data_type="AdjointSources",
+                path=station_name,
+                parameters={
+                    "dt": dt,
+                    # Nanoseconds!
+                    "starttime": starttime_in_nanoseconds,
+                    "location": np.array(rec["location"]),
+                    "spatial-type": np.string_("vector")})
+
+            ds_name = f"/AuxiliaryData/AdjointSources/{station_name}"
+            sources.append({
+                "name": station_name,
+                "dataset_name": ds_name})
+
+    # Finally write the TOML.
+    with open(output_adjoint_source_toml_filename, "wt") as fh:
+        toml.dump({
+            "source_input_file":
+                str(output_adjoint_source_hdf5_filename.absolute()),
+            "source": sources}, fh)
+
+
 def compute_misfits_and_adjoint_sources(project_root: pathlib.Path,
                                         window_set_name: str,
+                                        receiver_cache_file: pathlib.Path,
                                         simulations: typing.Dict) \
         -> typing.Tuple[float, typing.Dict]:
     """
@@ -1195,6 +1276,8 @@ def compute_misfits_and_adjoint_sources(project_root: pathlib.Path,
 
     return 1E-3, {"simulation_a": 1.6E-4, ...}
     """
+    import pyasdf  # NOQA
+
     comm = find_project_comm(project_root)
 
     # Create a new iteration - the LASIF iterations might not correspond to the
@@ -1206,7 +1289,11 @@ def compute_misfits_and_adjoint_sources(project_root: pathlib.Path,
     if comm.iterations.iteration_has_synthetics(iteration_name):
         iteration_name += 1
 
+    # Integers are not yet accepted everywhere.
+    iteration_name = str(iteration_name)
+
     if not comm.iterations.has_iteration(iteration_name):
+        print("SETTING UP ITERATION")
         set_up_iteration(project_root, iteration_name)
 
     # A few steps here bros. First we have to copy all the synthetics to LASIF
@@ -1218,6 +1305,56 @@ def compute_misfits_and_adjoint_sources(project_root: pathlib.Path,
         os.makedirs(path / event_name, exist_ok=True)
         # Just a symlink - should be okay for now.
         (event_path / "receivers.h5").symlink_to(info["receiver-file"])
+
+    # Check if there are windows - if not, create them!
+    if not comm.windows.get(window_set_name).window_count:
+        print("SELECTING WINDOWS")
+        select_windows(project_root, iteration=iteration_name,
+                       window_set=window_set_name)
+
+    # Next step is to create the adjoint sources.
+    calculate_adjoint_sources(lasif_root=project_root,
+                              iteration=iteration_name,
+                              window_set=window_set_name)
+
+    # Write the misfits.
+    write_misfit(lasif_root=project_root, iteration=iteration_name,
+                 weight_set=None, window_set=window_set_name)
+
+    # Get them in ghetto style.
+    long_iter_name = comm.iterations.get_long_iteration_name(iteration_name)
+    path = comm.project.paths["iterations"]
+    with open(path / long_iter_name / "misfits.toml") as fh:
+        misfits = toml.load(fh)
+
+    # Open the receiver cache file which is needed to get information about
+    # the transformation matrices and location.
+    with open(receiver_cache_file, "r") as fh:
+        receivers = json.load(fh)
+
+    # Also a bit ghetto here - we need to now the starttime of the simulations
+    # and the time-step...we just read the first forward receiver and get if
+    # from there. We must find a cleaner way for this.
+    first_event = list(simulations.keys())[0]
+    with pyasdf.ASDFDataSet(simulations[first_event]["receiver-file"],
+                            mode="r") as ds:
+        tr = ds.waveforms[ds.waveforms.list()[0]].displacement[0]
+        dt = tr.stats.delta
+        # XXX: MUST NOT BE HARDCODED IN THE FUTURE!!!!
+        starttime_in_nanoseconds = -200000000.0
+
+    # Finally write the adjoint sources to their designated location.
+    for ev, value in simulations.items():
+        _write_adjoint_source_and_toml_for_event(
+            comm=comm, iteration_name=iteration_name, event_name=event_name,
+            output_adjoint_source_hdf5_filename=value[
+                "adjoint-source-hdf5-filename"],
+            output_adjoint_source_toml_filename=value[
+                "adjoint-source-toml-filename"],
+            receiver_info=receivers[ev]["receiver"],
+            dt=dt, starttime_in_nanoseconds=starttime_in_nanoseconds)
+
+    return misfits["total_misfit"], misfits["event_misfits"]
 
     return None
 
@@ -1246,7 +1383,8 @@ def generate_salvus_flow_callbacks(project_root: pathlib.Path,
                 return json.load(fh)
         src_rec = get_sources_and_receivers(
             project_root=project_root,
-            iteration_name=initial_iteration_name)
+            iteration_name=initial_iteration_name,
+            cache_dir=cache_directory)
         with open(cache_file, "w") as fh:
             json.dump(src_rec, fh)
         return src_rec
@@ -1256,6 +1394,7 @@ def generate_salvus_flow_callbacks(project_root: pathlib.Path,
         return compute_misfits_and_adjoint_sources(
             project_root=project_root,
             window_set_name=window_set_name,
+            receiver_cache_file=cache_file,
             simulations=simulations)
 
     return get_sources_and_receivers_callback, \
