@@ -1197,6 +1197,8 @@ def _write_adjoint_source_and_toml_for_event(
         for adj_src_in in ds_in.auxiliary_data.AdjointSources:
             station_name = adj_src_in.auxiliary_data_type.split("/")[1]
 
+            if station_name not in receiver_info:
+                continue
             rec = receiver_info[station_name]
 
             # Ghetto style assembly of the zne array.
