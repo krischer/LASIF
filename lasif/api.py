@@ -519,10 +519,15 @@ def calculate_adjoint_sources(lasif_root, iteration, window_set,
         # Get adjoint sources_filename
         filename = comm.adj_sources.get_filename(event=event,
                                                  iteration=iteration)
+        # Skip if, if it already exists!
+        if os.path.exists(filename):
+            print(f"Adjoint source for {event} already exists. Will not be "
+                  "recomputed.")
+            continue
         # remove adjoint sources if they already exist
-        if MPI.COMM_WORLD.rank == 0:
-            if os.path.exists(filename):
-                os.remove(filename)
+        # if MPI.COMM_WORLD.rank == 0:
+        #     if os.path.exists(filename):
+        #         os.remove(filename)
 
         MPI.COMM_WORLD.barrier()
         comm.actions.calculate_adjoint_sources(event, iteration,
