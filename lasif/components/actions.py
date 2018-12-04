@@ -1080,12 +1080,21 @@ class ActionsComponent(Component):
 
             # Build inventory of all stations present in ASDF file
             stations = ds.waveforms.list()
-            try:
-                inv = ds.waveforms[stations[0]].StationXML
-            except:
-                continue
-            for station in stations[1:]:
-                inv += ds.waveforms[station].StationXML
+
+            # Find the first one with a stationxml and use it as a template.
+            while stations:
+                station = stations.pop()
+                try:
+                    inv = ds.waveforms[station].StationXML
+                except Exception:
+                    continue
+                break
+
+            for station in stations:
+                try:
+                    inv += ds.waveforms[station].StationXML
+                except Exception:
+                    continue
 
         sources = [salvus_seismo.Source.parse(event)]
         receivers = salvus_seismo.Receiver.parse(inv)
